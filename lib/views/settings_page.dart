@@ -25,7 +25,7 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const ListTile(
                     title: Text("版本"),
-                    subtitle: SelectableText("v0.1"),
+                    subtitle: SelectableText("v1.0"),
                   ),
                   ListTile(
                     title: const Text("项目地址"),
