@@ -1,16 +1,20 @@
 # pica_comic
 
-A new Flutter project.
+一个Picacg的第三方App, 基于Flutter, 仅用于学习交流
 
-## Getting Started
+请尽量使用官方App
 
-This project is a starting point for a Flutter application.
+目前是一个半成品, 但主要功能已经实现
 
-A few resources to get you started if this is your first Flutter project:
+## 屏幕截图
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![screenshot](screenshots/photo_2023-02-06_14-41-42.jpg)
+![screenshot](screenshots/photo_2023-02-06_14-41-47.jpg)
+![screenshot](screenshots/photo_2023-02-06_14-41-50.jpg)
+![screenshot](screenshots/photo_2023-02-06_14-41-53.jpg)
+![screenshot](screenshots/photo_2023-02-06_14-41-56.jpg)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 尚未实现的功能
+
+- 下载
+- 评论
