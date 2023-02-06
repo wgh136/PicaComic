@@ -42,7 +42,7 @@ class ComicPage extends StatelessWidget{
                   margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                   elevation: 0,
                   color: Theme.of(context).colorScheme.surfaceVariant,
-                  child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: Text(s),),
+                  child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: SelectableText(s),),
                 ));
               }
               var eps = network.getEps(comic.id).then((e){
@@ -151,7 +151,7 @@ class ComicPage extends StatelessWidget{
                           comicPageLogic.update();
                         },
                       ),),
-                      SizedBox.fromSize(size: const Size(20,1),),
+                      SizedBox.fromSize(size: const Size(10,1),),
                       Expanded(child: ActionChip(
                         label: const Text("收藏"),
                         avatar: Icon((comicPageLogic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
@@ -161,7 +161,7 @@ class ComicPage extends StatelessWidget{
                           comicPageLogic.update();
                         },
                       ),),
-                      SizedBox.fromSize(size: const Size(20,1),),
+                      SizedBox.fromSize(size: const Size(10,1),),
                       Expanded(child: ActionChip(
                         label: Text(comicPageLogic.comicItem!.comments.toString()),
                         avatar: const Icon(Icons.comment),

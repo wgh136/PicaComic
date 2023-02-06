@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../network/methods.dart';
 import 'base.dart';
 import 'main_page.dart';
 
@@ -13,6 +14,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   var nameController = TextEditingController();
   var passwordController = TextEditingController();
+  var isLogging = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,13 +49,19 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox.fromSize(size: const Size(5,20),),
               ElevatedButton(
                 onPressed: (){
+                  if(isLogging){
+                    return;
+                  }else{
+                    isLogging = true;
+                  }
+                  network = Network();
                   var fur = network.login(nameController.text, passwordController.text);
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("登录中"),
                   ));
                   fur.then((b){
-                    if(b){
+                    if(b==1){
                       appdata.token = network.token;
                       var i = network.getProfile();
                       i.then((t){
@@ -61,7 +69,9 @@ class _LoginPageState extends State<LoginPage> {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                             content: Text("登录失败"),
-                          ));}
+                          ));
+                          isLogging = false;
+                        }
                         else{
                           appdata.user = t;
                           appdata.writeData();
@@ -70,11 +80,18 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       });
                     }
-                    else{
+                    else if(b == 0){
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("登录失败"),
+                        content: Text("网络错误"),
                       ));
+                      isLogging = false;
+                    }else{
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("账号或密码错误"),
+                      ));
+                      isLogging = false;
                     }
                   });
                 },

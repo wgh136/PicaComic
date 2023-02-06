@@ -69,6 +69,13 @@ class Network{
         return null;
       }
     }
+    on DioError catch(e){
+      if(e.message == "Http status error [400]"){
+        return {"message":"failure"};
+      }else {
+        return null;
+      }
+    }
     catch(e){
       if (kDebugMode) {
         print(e);
@@ -77,7 +84,7 @@ class Network{
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<int> login(String email, String password) async {
     //登录
     var res = await post('$apiUrl/auth/sign-in',{
       "email":email,
@@ -90,12 +97,12 @@ class Network{
         if(kDebugMode){
           print("Logging successfully");
         }
-        return true;
+        return 1;
       }else{
-        return false;
+        return -1;
       }
     }else{
-      return false;
+      return 0;
     }
   }
 

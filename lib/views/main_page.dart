@@ -30,7 +30,7 @@ class _MainPageState extends State<MainPage> {
     const Destination(
         '排行榜', Icon(Icons.leaderboard), Icon(Icons.leaderboard)),
     const Destination(
-        '关于', Icon(Icons.info), Icon(Icons.info)),
+        '设置', Icon(Icons.settings), Icon(Icons.settings)),
   ];
 
   int i = 0;
@@ -86,7 +86,7 @@ class _MainPageState extends State<MainPage> {
         },
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.fromLTRB(28, 64, 16, 10),
+            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
             child: Text(
               'Pica Comic',
               style: Theme.of(context).textTheme.titleSmall,

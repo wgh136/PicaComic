@@ -16,7 +16,7 @@ class ComicTile extends StatelessWidget {
     return InkWell(
       onTap: (){
         appdata.history.add(comic);
-        if(appdata.history.length>50){
+        if(appdata.history.length>100){
           appdata.history.removeAt(0);
         }
         appdata.writeData();

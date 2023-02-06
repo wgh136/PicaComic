@@ -16,11 +16,13 @@ class Appdata{
   late String token;
   late Profile user;
   late List<ComicItemBrief> history;
+  late String appChannel;
   Appdata(){
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "");
     user = temp;
     history = [];
+    appChannel = "3";
   }
   Future<void> writeData() async{
     var s = await SharedPreferences.getInstance();
@@ -37,6 +39,7 @@ class Appdata{
       var data = [history[i].title,history[i].id,history[i].author,history[i].path,history[i].likes.toString()];
       await s.setStringList("historyData$i", data);
     }
+    await s.setString("appChannel",appChannel);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -54,6 +57,7 @@ class Appdata{
         var c = ComicItemBrief(data![0], data[2], int.parse(data[4]), data[3], data[1]);
         history.add(c);
       }
+      appChannel = s.getString("appChannel")!;
       return token==""?false:true;
       return true;
     }
