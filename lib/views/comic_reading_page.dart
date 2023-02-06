@@ -65,6 +65,9 @@ class ComicReadingPage extends StatelessWidget {
                 child: PhotoViewGallery.builder(
                   itemCount: comicReadingPageLogic.urls.length,
                   builder: (BuildContext context, int index){
+                    if(index!=comicReadingPageLogic.urls.length-1) {
+                      precacheImage(NetworkImage(comicReadingPageLogic.urls[index+1]), context);
+                    }
                     return PhotoViewGalleryPageOptions(
                       minScale: PhotoViewComputedScale.contained,
                       imageProvider: NetworkImage(comicReadingPageLogic.urls[index]),
