@@ -123,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("查看最新版本"),
-                      subtitle: const SelectableText("当前: v1.1.1"),
+                      subtitle: const SelectableText("当前: v1.1.2"),
                       onTap: (){
                         launchUrlString("https://github.com/wgh136/PicaComic/releases",mode: LaunchMode.externalApplication);
                       },
