@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
-import 'package:pica_comic/views/search_page.dart';
 import 'comic_page.dart';
 
 class ComicTile extends StatelessWidget {
@@ -147,6 +146,7 @@ class CategoryTile extends StatelessWidget {
 void showMessage(context, String message){
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    duration: const Duration(seconds: 1),
     content: Text(message),
   ));
 }

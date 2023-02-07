@@ -21,6 +21,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  bool pageChangeValue = appdata.settings[0]=="1";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text("设置分流"),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: (){
-                      final radioLogic = Get.put(RadioLogic());
+                      Get.put(RadioLogic());
                       showDialog(context: context, builder: (BuildContext context) => Dialog(
                         child: GetBuilder<RadioLogic>(builder: (radioLogic){
                           return Column(
@@ -84,6 +85,21 @@ class _SettingsPageState extends State<SettingsPage> {
                       ));
                     },
                   ),
+                  ListTile(
+                    leading: const Icon(Icons.switch_left),
+                    title: const Text("点击屏幕左右翻页"),
+                    trailing: Switch(
+                      value: pageChangeValue,
+                      onChanged: (b){
+                        b?appdata.settings[0] = "1":appdata.settings[0]="0";
+                        setState(() {
+                          pageChangeValue = b;
+                        });
+                        appdata.writeData();
+                      },
+                    ),
+                    onTap: (){},
+                  ),
                 ],
               ),
             ),
@@ -107,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("查看最新版本"),
-                      subtitle: const SelectableText("当前: v1.1"),
+                      subtitle: const SelectableText("当前: v1.1.1"),
                       onTap: (){
                         launchUrlString("https://github.com/wgh136/PicaComic/releases",mode: LaunchMode.externalApplication);
                       },

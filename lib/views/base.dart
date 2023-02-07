@@ -1,7 +1,3 @@
-import 'dart:collection';
-import 'dart:ffi';
-
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/models.dart';
@@ -17,12 +13,16 @@ class Appdata{
   late Profile user;
   late List<ComicItemBrief> history;
   late String appChannel;
+  List<String> settings = [
+    "1",
+  ];
   Appdata(){
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "");
     user = temp;
     history = [];
     appChannel = "3";
+
   }
   Future<void> writeData() async{
     var s = await SharedPreferences.getInstance();
@@ -40,6 +40,7 @@ class Appdata{
       await s.setStringList("historyData$i", data);
     }
     await s.setString("appChannel",appChannel);
+    await s.setStringList("settings", settings);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -52,6 +53,9 @@ class Appdata{
       user.avatarUrl = s.getString("userAvatar")!;
       user.id = s.getString("userId")!;
       user.exp = s.getInt("userExp")!;
+      if(s.getStringList("settings")!=null) {
+        settings = s.getStringList("settings")!;
+      }
       for(int i=0;i<s.getInt("historyLength")!;i++){
         var data = s.getStringList("historyData$i");
         var c = ComicItemBrief(data![0], data[2], int.parse(data[4]), data[3], data[1]);
@@ -59,7 +63,6 @@ class Appdata{
       }
       appChannel = s.getString("appChannel")!;
       return token==""?false:true;
-      return true;
     }
     catch(e){
       return false;
