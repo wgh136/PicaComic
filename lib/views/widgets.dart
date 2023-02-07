@@ -91,9 +91,8 @@ class ComicDescription extends StatelessWidget {
               children: <Widget>[
                 Text(
                   '$likesCount likes',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.0,
-                    color: Colors.black54,
                   ),
                 ),
               ],

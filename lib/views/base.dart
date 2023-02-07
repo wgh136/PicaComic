@@ -24,6 +24,15 @@ class Appdata{
     appChannel = "3";
 
   }
+
+  void clear(){
+    token = "";
+    var temp = Profile("", "", "", 0, 0, "", "");
+    user = temp;
+    history = [];
+    writeData();
+  }
+
   Future<void> writeData() async{
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);

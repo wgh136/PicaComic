@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/login_page.dart';
+import 'package:pica_comic/views/test_network_page.dart';
 import 'network/methods.dart';
-import 'views/main_page.dart';
 
 bool isLogged = false;
 
@@ -14,16 +14,8 @@ void main() {
     isLogged = b;
     if(b){
       network = Network(appdata.token);
-      network.getProfile().then((p){
-        if(p!=null) {
-          appdata.user = p;
-          appdata.writeData();
-        }
-        runApp(const MyApp());
-      });
-    }else{
-      runApp(const MyApp());
     }
+    runApp(const MyApp());
   });
 }
 
@@ -33,18 +25,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return GetMaterialApp(
-        title: 'Flutter Demo',
+        title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: lightColorScheme,
+          colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.cyanAccent),
           useMaterial3: true,
         ),
         darkTheme: ThemeData(
-          colorScheme: darkColorScheme,
+          colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.black,brightness: Brightness.dark),
           useMaterial3: true,
         ),
-        themeMode: ThemeMode.light,
-        home: isLogged?const MainPage():const LoginPage(),
+        home: isLogged?const TestNetworkPage():const LoginPage(),
       );
     });
   }

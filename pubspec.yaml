@@ -75,6 +75,7 @@ flutter:
   # https://flutter.dev/assets-and-images/#resolution-aware
   assets:
     - images/black.png
+    - images/app_icon.png
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 

@@ -45,7 +45,7 @@ class ComicPage extends StatelessWidget{
                   child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: SelectableText(s),),
                 ));
               }
-              var eps = network.getEps(comic.id).then((e){
+              network.getEps(comic.id).then((e){
                 for(int i = 1;i < e.length;i++){
                   comicPageLogic.epsStr.add(e[i]);
                   comicPageLogic.eps.add(ListTile(
@@ -139,7 +139,7 @@ class ComicPage extends StatelessWidget{
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(50, 10, 50, 10),
+                  padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
                   child: Row(
                     children: [
                       Expanded(child: ActionChip(
