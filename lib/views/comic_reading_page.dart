@@ -40,18 +40,20 @@ class ComicReadingPage extends StatelessWidget {
           comicReadingPageLogic.index = 1;
           comicReadingPageLogic.controller = PageController(initialPage: 1);
           comicReadingPageLogic.tools = false;
-          for(int i = 1;i < eps.length;i++){
-            comicReadingPageLogic.epsWidgets.add(ListTile(
-              title: Text(eps[i]),
-              onTap: (){
-                if(i != comicReadingPageLogic.order) {
-                  comicReadingPageLogic.order = i;
-                  comicReadingPageLogic.urls = [];
-                  comicReadingPageLogic.change();
-                }
-                Navigator.pop(context);
-              },
-            ));
+          if(comicReadingPageLogic.epsWidgets.length==1) {
+            for (int i = 1; i < eps.length; i++) {
+              comicReadingPageLogic.epsWidgets.add(ListTile(
+                title: Text(eps[i]),
+                onTap: () {
+                  if (i != comicReadingPageLogic.order) {
+                    comicReadingPageLogic.order = i;
+                    comicReadingPageLogic.urls = [];
+                    comicReadingPageLogic.change();
+                  }
+                  Navigator.pop(context);
+                },
+              ));
+            }
           }
           network.getComicContent(comicId, comicReadingPageLogic.order).then((l){
             comicReadingPageLogic.urls = l;
