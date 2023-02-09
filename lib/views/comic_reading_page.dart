@@ -27,7 +27,7 @@ class ComicReadingPageLogic extends GetxController{
 
 class ComicReadingPage extends StatelessWidget {
   final String comicId;
-  final List<String> eps;
+  final List<String> eps; //注意: eps的第一个是标题, 不是章节
   ComicReadingPage(this.comicId,order,this.eps,{Key? key}) : super(key: key){
     Get.put(ComicReadingPageLogic(order));
   }
@@ -84,9 +84,9 @@ class ComicReadingPage extends StatelessWidget {
                       initialScale: PhotoViewComputedScale.contained,
                       heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
                       onTapUp: (context,detail,value){
-                        if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length){
+                        if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75){
                           comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
-                        }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25&&comicReadingPageLogic.index!=1){
+                        }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25){
                           comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
                         }else{
                           comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
@@ -128,7 +128,7 @@ class ComicReadingPage extends StatelessWidget {
                         showMessage(context, "已经是第一章了");
                       }
                     }else if(i==comicReadingPageLogic.urls.length+1){
-                      if(comicReadingPageLogic.order!=eps.length){
+                      if(comicReadingPageLogic.order!=eps.length-1){
                         comicReadingPageLogic.order += 1;
                         comicReadingPageLogic.urls.clear();
                         comicReadingPageLogic.isLoading = true;
