@@ -61,7 +61,7 @@ class MePage extends StatelessWidget {
                 leading: const Icon(Icons.favorite),
                 title: const Text("收藏夹"),
                 onTap: (){
-                  Get.to(FavoritesPage());
+                  Get.to(()=>FavoritesPage());
                 },
               ),
               ListTile(
@@ -75,10 +75,21 @@ class MePage extends StatelessWidget {
                 leading: const Icon(Icons.logout),
                 title: const Text("退出登录"),
                 onTap: (){
-                  appdata.token = "";
-                  appdata.history.clear();
-                  appdata.writeData();
-                  Get.offAll(const LoginPage());
+                  showDialog(context: context, builder: (context){
+                    return AlertDialog(
+                      content: const Text("要退出登录吗"),
+                      actionsAlignment: MainAxisAlignment.end,
+                      actions: [
+                        TextButton(onPressed: (){Get.back();}, child: const Text("取消",textAlign: TextAlign.end,)),
+                        TextButton(onPressed: (){
+                          appdata.token = "";
+                          appdata.history.clear();
+                          appdata.writeData();
+                          Get.offAll(const LoginPage());
+                        }, child: const Text("确定",textAlign: TextAlign.end))
+                      ],
+                    );
+                  });
                 },
               ),
             ]

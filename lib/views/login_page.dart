@@ -58,6 +58,8 @@ class _LoginPageState extends State<LoginPage> {
                   var fur = network.login(nameController.text, passwordController.text);
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    width: 400,
                     content: Text("登录中"),
                   ));
                   fur.then((b){
@@ -68,6 +70,8 @@ class _LoginPageState extends State<LoginPage> {
                         if(t == null){
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            behavior: SnackBarBehavior.floating,
+                            width: 400,
                             content: Text("登录失败"),
                           ));
                           isLogging = false;
@@ -83,12 +87,16 @@ class _LoginPageState extends State<LoginPage> {
                     else if(b == 0){
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        width: 400,
                         content: Text("网络错误"),
                       ));
                       isLogging = false;
                     }else{
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        width: 400,
                         content: Text("账号或密码错误"),
                       ));
                       isLogging = false;

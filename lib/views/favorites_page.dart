@@ -47,15 +47,6 @@ class FavoritesPage extends StatelessWidget {
                 SliverAppBar.large(
                   centerTitle: true,
                   title: const Text("收藏夹"),
-                  actions: [
-                    Tooltip(
-                      message: "搜索",
-                      child: IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: (){},
-                      ),
-                    ),
-                  ],
                 ),
                 SliverGrid(
                   delegate: SliverChildBuilderDelegate(

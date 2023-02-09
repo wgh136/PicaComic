@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import '../network/methods.dart';
 import 'base.dart';
 
 class TestNetworkPage extends StatefulWidget {
@@ -45,12 +44,12 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
             ),
           if(!isLoading)
             Positioned(
-              top: MediaQuery.of(context).size.height/2-60,
+              top: MediaQuery.of(context).size.height/2-120,
               left: 0,
               right: 0,
               child: const Align(
                 alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size: 50,),
+                child: Icon(Icons.error_outline,size:80,),
               ),
             ),
           if(isLoading)
@@ -67,7 +66,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
             Positioned(
               left: 0,
               right: 0,
-              top: MediaQuery.of(context).size.height/2+10,
+              top: MediaQuery.of(context).size.height/2-30,
               child: const Align(
                 alignment: Alignment.topCenter,
                 child: Text("网络错误"),
@@ -77,7 +76,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
 
           if(!isLoading)
             Positioned(
-              top: MediaQuery.of(context).size.height/2+60,
+              top: MediaQuery.of(context).size.height/2+10,
               left: 0,
               right: 0,
               child: Align(
@@ -89,7 +88,6 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                     children: [
                       FilledButton.tonal(
                         onPressed: (){
-                          network = Network(appdata.token);
                           setState(() {
                             isLoading = true;
                           });
@@ -104,13 +102,23 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                             }
                           });
                         },
-                        child: const Text("  重试  "),
+                        child: const Text("   重试   "),
                       ),
                       const Spacer(),
                       FilledButton.tonal(
                         onPressed: (){
-                          appdata.clear();
-                          Get.offAll(const LoginPage());
+                          showDialog(context: context, builder: (context){
+                            return AlertDialog(
+                              content: const Text("这将删除当前登录信息是否继续?"),
+                              actions: [
+                                TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                                TextButton(onPressed: (){
+                                  appdata.clear();
+                                  Get.offAll(const LoginPage());
+                                }, child: const Text("确认"))
+                              ],
+                            );
+                          });
                         },
                         child: const Text("重新登录"),
                       )
@@ -123,7 +131,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
             Positioned(
               left: MediaQuery.of(context).size.width/2-150,
               right: MediaQuery.of(context).size.width/2-150,
-              top: MediaQuery.of(context).size.height/2+130,
+              top: MediaQuery.of(context).size.height/2+110,
               child: SizedBox(
                 width: 300,
                 child: Card(

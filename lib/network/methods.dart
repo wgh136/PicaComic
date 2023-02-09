@@ -12,17 +12,17 @@ class Network{
   InitData? initData;
   String token;
   Network([this.token=""]);
-  final dio = Dio()
-    ..interceptors.add(LogInterceptor())
-    ..httpClientAdapter = Http2Adapter(
+
+  Future<Map<String, dynamic>?> get(String url) async{
+    var dio = Dio()
+      ..interceptors.add(LogInterceptor())
+      ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
           idleTimeout: 10000,
           // Ignore bad certificate
           onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
         ),)
-  ;
-
-  Future<Map<String, dynamic>?> get(String url) async{
+    ;
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -48,6 +48,15 @@ class Network{
   }
 
   Future<Map<String, dynamic>?> post(String url,Map<String,String> data) async{
+    var dio = Dio()
+      ..interceptors.add(LogInterceptor())
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: 10000,
+          // Ignore bad certificate
+          onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
+        ),)
+    ;
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -93,7 +102,6 @@ class Network{
     if(res!=null){
       if(res["message"]=="success"){
         token = res["data"]["token"];
-        dio.options.headers["authorization"] = token;
         if(kDebugMode){
           print("Logging successfully");
         }
