@@ -35,7 +35,7 @@ class FavoritesPage extends StatelessWidget {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        }else{
+        }else if(favoritesPageLogic.favorites.loaded!=0){
           return RefreshIndicator(
             onRefresh: () async{
               favoritesPageLogic.favorites = Favorites([], 1, 0);
@@ -65,6 +65,44 @@ class FavoritesPage extends StatelessWidget {
                 ),
               ],
             ),
+          );
+        }else{
+          return Stack(
+            children: [
+              Positioned(
+                top: MediaQuery.of(context).size.height/2-80,
+                left: 0,
+                right: 0,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: Icon(Icons.error_outline,size:60,),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                top: MediaQuery.of(context).size.height/2-10,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: Text("网络错误"),
+                ),
+              ),
+              Positioned(
+                top: MediaQuery.of(context).size.height/2+20,
+                left: MediaQuery.of(context).size.width/2-50,
+                child: SizedBox(
+                  width: 100,
+                  height: 40,
+                  child: FilledButton(
+                    onPressed: (){
+                      favoritesPageLogic.favorites = Favorites([], 1, 0);
+                      favoritesPageLogic.change();
+                    },
+                    child: const Text("重试"),
+                  ),
+                ),
+              ),
+            ],
           );
         }
       }),

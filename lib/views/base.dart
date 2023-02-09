@@ -4,10 +4,6 @@ import '../network/models.dart';
 
 var network = Network();
 
-var comics = <ComicItemBrief>[];
-
-
-
 class Appdata{
   late String token;
   late Profile user;

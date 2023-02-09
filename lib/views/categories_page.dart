@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
@@ -32,13 +31,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
           if(c!=null){
             categoriesPageLogic.categories = c;
             c.removeRange(0, 11);
-            categoriesPageLogic.change();
           }
+          categoriesPageLogic.change();
         });
         return const Center(
           child: CircularProgressIndicator(),
         );
-      }else{
+      }else if(categoriesPageLogic.categories.isNotEmpty){
         return CustomScrollView(
           slivers: [
             SliverAppBar.large(
@@ -68,6 +67,43 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   childAspectRatio: 5,
                 ),
             )
+          ],
+        );
+      }else{
+        return Stack(
+          children: [
+            Positioned(
+              top: MediaQuery.of(context).size.height/2-80,
+              left: 0,
+              right: 0,
+              child: const Align(
+                alignment: Alignment.topCenter,
+                child: Icon(Icons.error_outline,size:60,),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: MediaQuery.of(context).size.height/2-10,
+              child: const Align(
+                alignment: Alignment.topCenter,
+                child: Text("网络错误"),
+              ),
+            ),
+            Positioned(
+              top: MediaQuery.of(context).size.height/2+20,
+              left: MediaQuery.of(context).size.width/2-50,
+              child: SizedBox(
+                width: 100,
+                height: 40,
+                child: FilledButton(
+                  onPressed: (){
+                    categoriesPageLogic.change();
+                  },
+                  child: const Text("重试"),
+                ),
+              ),
+            ),
           ],
         );
       }

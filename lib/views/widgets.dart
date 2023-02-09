@@ -14,6 +14,7 @@ class ComicTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
+        appdata.history.remove(comic);
         appdata.history.add(comic);
         if(appdata.history.length>100){
           appdata.history.removeAt(0);
@@ -91,7 +92,7 @@ class ComicDescription extends StatelessWidget {
               children: <Widget>[
                 Text(
                   '$likesCount likes',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12.0,
                   ),
                 ),
@@ -145,7 +146,7 @@ class CategoryTile extends StatelessWidget {
 void showMessage(context, String message){
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    width: 400,
+    width: 350,
     duration: const Duration(seconds: 1),
     content: Text(message),
     behavior: SnackBarBehavior.floating,

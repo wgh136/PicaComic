@@ -4,8 +4,11 @@ import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/widgets.dart';
 
+import '../network/models.dart';
+
 class HomePageLogic extends GetxController{
   bool isLoading = true;
+  var comics = <ComicItemBrief>[];
   void change(){
     isLoading = !isLoading;
     update();
@@ -22,14 +25,14 @@ class HomePage extends StatelessWidget {
       if(homePageLogic.isLoading){
         network.getRandomComics().then((c) {
           for(var i in c){
-            comics.add(i);
+            homePageLogic.comics.add(i);
           }
           homePageLogic.change();
         });
         return const Center(
           child: CircularProgressIndicator(),
         );
-      }else{
+      }else if(homePageLogic.comics.isNotEmpty){
         return Material(
           child: RefreshIndicator(
               child: CustomScrollView(
@@ -51,17 +54,17 @@ class HomePage extends StatelessWidget {
                   ),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
-                        childCount: comics.length,
+                        childCount: homePageLogic.comics.length,
                             (context, i){
-                          if(i == comics.length-1){
+                          if(i == homePageLogic.comics.length-1){
                             network.getRandomComics().then((c){
                               for(var i in c){
-                                comics.add(i);
+                                homePageLogic.comics.add(i);
                               }
                               homePageLogic.update();
                             });
                           }
-                          return ComicTile(comics[i]);
+                          return ComicTile(homePageLogic.comics[i]);
                         }
                     ),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -74,10 +77,47 @@ class HomePage extends StatelessWidget {
               onRefresh: () async {
                 var c = await network.getRandomComics();
                 var t = await network.getRandomComics();
-                comics = c+t;
+                homePageLogic.comics = c+t;
                 homePageLogic.update();
               }
           ),
+        );
+      }else{
+        return Stack(
+          children: [
+            Positioned(
+              top: MediaQuery.of(context).size.height/2-80,
+              left: 0,
+              right: 0,
+              child: const Align(
+                alignment: Alignment.topCenter,
+                child: Icon(Icons.error_outline,size:60,),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: MediaQuery.of(context).size.height/2-10,
+              child: const Align(
+                alignment: Alignment.topCenter,
+                child: Text("网络错误"),
+              ),
+            ),
+            Positioned(
+              top: MediaQuery.of(context).size.height/2+20,
+              left: MediaQuery.of(context).size.width/2-50,
+              child: SizedBox(
+                width: 100,
+                height: 40,
+                child: FilledButton(
+                  onPressed: (){
+                    homePageLogic.change();
+                  },
+                  child: const Text("重试"),
+                ),
+              ),
+              ),
+          ],
         );
       }
     });
