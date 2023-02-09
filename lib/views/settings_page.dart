@@ -111,6 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.manage_search_outlined),
+                    trailing: const Icon(Icons.arrow_right),
                     title: const Text("设置搜索及分类排序模式"),
                     onTap: (){
                       showDialog(context: context, builder: (context){
@@ -187,19 +188,19 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: const Text("PicaComic"),
                       subtitle: const SelectableText("本软件仅用于学习交流"),
                       onTap: (){
-                        showMessage(context, "Pica Comic!!!");
+                        showMessage(context, "禁止涩涩");
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("查看最新版本"),
-                      subtitle: const Text("当前: v1.1.3"),
+                      subtitle: const Text("当前: v1.1.4"),
                       onTap: (){
                         launchUrlString("https://github.com/wgh136/PicaComic/releases",mode: LaunchMode.externalApplication);
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.arrow_outward),
+                      leading: const Icon(Icons.code),
                       title: const Text("项目地址"),
                       subtitle: const Text("https://github.com/wgh136/PicaComic"),
                       onTap: (){
