@@ -55,9 +55,9 @@ class ComicPage extends StatelessWidget{
                     },
                   ));
                 }
-                comicPageLogic.change();
               });
             }
+            comicPageLogic.change();
           });
           return const Center(
             child: CircularProgressIndicator(),
