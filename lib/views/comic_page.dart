@@ -55,14 +55,14 @@ class ComicPage extends StatelessWidget{
                     },
                   ));
                 }
-                comicPageLogic.change();
               });
             }
+            comicPageLogic.change();
           });
           return const Center(
             child: CircularProgressIndicator(),
           );
-        }else{
+        }else if(comicPageLogic.comicItem!=null){
           return CustomScrollView(
             slivers: [
               SliverAppBar.large(
@@ -188,6 +188,43 @@ class ComicPage extends StatelessWidget{
                     child: Column(
                       children: comicPageLogic.eps,
                     ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }else{
+          return Stack(
+            children: [
+              Positioned(
+                top: MediaQuery.of(context).size.height/2-80,
+                left: 0,
+                right: 0,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: Icon(Icons.error_outline,size:60,),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                top: MediaQuery.of(context).size.height/2-10,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: Text("网络错误"),
+                ),
+              ),
+              Positioned(
+                top: MediaQuery.of(context).size.height/2+20,
+                left: MediaQuery.of(context).size.width/2-50,
+                child: SizedBox(
+                  width: 100,
+                  height: 40,
+                  child: FilledButton(
+                    onPressed: (){
+                      comicPageLogic.change();
+                    },
+                    child: const Text("重试"),
                   ),
                 ),
               ),

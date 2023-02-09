@@ -60,7 +60,7 @@ class ComicReadingPage extends StatelessWidget {
           return const DecoratedBox(decoration: BoxDecoration(color: Colors.black),child: Center(
             child: CircularProgressIndicator(),
           ),);
-        }else{
+        }else if(comicReadingPageLogic.urls.isNotEmpty){
           return Stack(
             children: [
               Positioned(
@@ -197,6 +197,47 @@ class ComicReadingPage extends StatelessWidget {
                   )
               )
             ],
+          );
+        }else{
+          return DecoratedBox(
+            decoration: const BoxDecoration(color: Colors.black),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: MediaQuery.of(context).size.height/2-80,
+                  left: 0,
+                  right: 0,
+                  child: const Align(
+                    alignment: Alignment.topCenter,
+                    child: Icon(Icons.error_outline,size:60,color: Colors.white60,),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: MediaQuery.of(context).size.height/2-10,
+                  child: const Align(
+                    alignment: Alignment.topCenter,
+                    child: Text("网络错误",style: TextStyle(color: Colors.white60),),
+                  ),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).size.height/2+20,
+                  left: MediaQuery.of(context).size.width/2-50,
+                  child: SizedBox(
+                    width: 100,
+                    height: 40,
+                    child: FilledButton(
+                      onPressed: (){
+                        comicReadingPageLogic.epsWidgets.clear();
+                        comicReadingPageLogic.change();
+                      },
+                      child: const Text("重试"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         }
       }),

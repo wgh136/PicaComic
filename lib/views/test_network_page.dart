@@ -44,12 +44,12 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
             ),
           if(!isLoading)
             Positioned(
-              top: MediaQuery.of(context).size.height/2-120,
+              top: MediaQuery.of(context).size.height/2-100,
               left: 0,
               right: 0,
               child: const Align(
                 alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size:80,),
+                child: Icon(Icons.error_outline,size:60,),
               ),
             ),
           if(isLoading)
@@ -120,7 +120,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                             );
                           });
                         },
-                        child: const Text("重新登录"),
+                        child: const Text("退出登录"),
                       )
                     ],
                   ),

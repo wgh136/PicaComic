@@ -335,7 +335,7 @@ class Network{
   }
 
   Future<void> loadMoreFavorites(Favorites f) async{
-    if(f.loaded!=f.pages){
+    if(f.loaded<f.pages){
       var res = await get("$apiUrl/users/favourite?s=dd&page=${f.loaded+1}");
       if(res != null) {
         f.loaded++;
