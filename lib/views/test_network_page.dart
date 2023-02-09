@@ -21,7 +21,9 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
       network.getProfile().then((p){
       if(p!=null){
         appdata.user = p;
-        Get.offAll(()=>const MainPage());
+        precacheImage(NetworkImage(appdata.user.avatarUrl), context).then((r){
+          Get.offAll(()=>const MainPage());
+        });
       }else {
         setState(() {
         isLoading = false;
@@ -94,7 +96,9 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                           network.getProfile().then((p){
                             if(p!=null){
                               appdata.user = p;
-                              Get.offAll(()=>const MainPage());
+                              precacheImage(NetworkImage(appdata.user.avatarUrl), context).then((r){
+                                Get.offAll(()=>const MainPage());
+                              });
                             }else {
                               setState(() {
                                 isLoading = false;

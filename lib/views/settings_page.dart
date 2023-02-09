@@ -14,6 +14,15 @@ class RadioLogic extends GetxController{
   }
 }
 
+class ModeRadioLogic2 extends GetxController{
+  int value = appdata.getSearchMod();
+  void change(int i){
+    value = i;
+    appdata.saveSearchMode(i);
+    update();
+  }
+}
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
@@ -73,7 +82,6 @@ class _SettingsPageState extends State<SettingsPage> {
                               ListTile(
                                 trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
                                   radioLogic.change(i!);
-                                  appdata.appChannel = (i+1).toString();
                                 },),
                                 title: const Text("分流3"),
                                 onTap: (){
@@ -88,7 +96,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.switch_left),
-                    title: const Text("点击屏幕左右翻页"),
+                    title: const Text("点击屏幕左右区域翻页"),
                     trailing: Switch(
                       value: pageChangeValue,
                       onChanged: (b){
@@ -100,6 +108,64 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     onTap: (){},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.manage_search_outlined),
+                    title: const Text("设置搜索及分类排序模式"),
+                    onTap: (){
+                      showDialog(context: context, builder: (context){
+                        Get.put(ModeRadioLogic2());
+                        return Dialog(
+                          child: GetBuilder<ModeRadioLogic2>(builder: (radioLogic){
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const ListTile(title: Text("选择搜索及分类排序模式"),),
+                                ListTile(
+                                  trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+
+                                  },),
+                                  title: const Text("新书在前"),
+                                  onTap: (){
+                                    radioLogic.change(0);
+                                  },
+                                ),
+                                ListTile(
+                                  trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+                                  },),
+                                  title: const Text("旧书在前"),
+                                  onTap: (){
+                                    radioLogic.change(1);
+                                  },
+                                ),
+                                ListTile(
+                                  trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+                                    appdata.appChannel = (i+1).toString();
+                                  },),
+                                  title: const Text("最多喜欢"),
+                                  onTap: (){
+                                    radioLogic.change(2);
+                                  },
+                                ),
+                                ListTile(
+                                  trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+                                    appdata.appChannel = (i+1).toString();
+                                  },),
+                                  title: const Text("最多指名"),
+                                  onTap: (){
+                                    radioLogic.change(3);
+                                  },
+                                ),
+                              ],
+                            );
+                          },),
+                        );
+                      });
+                    },
                   ),
                 ],
               ),

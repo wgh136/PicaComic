@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets.dart';
-
 import 'base.dart';
 
 class CategoryComicPageLogic extends GetxController{
@@ -10,6 +9,15 @@ class CategoryComicPageLogic extends GetxController{
   bool isLoading = true;
   void change(){
     isLoading = !isLoading;
+    update();
+  }
+}
+
+class ModeRadioLogic1 extends GetxController{
+  int value = appdata.getSearchMod();
+  void change(int i){
+    value = i;
+    appdata.saveSearchMode(i);
     update();
   }
 }
@@ -38,6 +46,68 @@ class CategoryComicPage extends StatelessWidget {
                 SliverAppBar.large(
                   centerTitle: true,
                   title: Text(keyWord),
+                  actions: [
+                    Tooltip(
+                      message: "选择搜索及分类排序模式",
+                      child: IconButton(
+                        icon: const Icon(Icons.manage_search_rounded),
+                        onPressed: (){
+                          showDialog(context: context, builder: (context){
+                            Get.put(ModeRadioLogic1());
+                            return Dialog(
+                              child: GetBuilder<ModeRadioLogic1>(builder: (radioLogic){
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const ListTile(title: Text("选择搜索及分类排序模式"),),
+                                    ListTile(
+                                      trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
+                                        radioLogic.change(i!);
+
+                                      },),
+                                      title: const Text("新书在前"),
+                                      onTap: (){
+                                        radioLogic.change(0);
+                                      },
+                                    ),
+                                    ListTile(
+                                      trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
+                                        radioLogic.change(i!);
+                                      },),
+                                      title: const Text("旧书在前"),
+                                      onTap: (){
+                                        radioLogic.change(1);
+                                      },
+                                    ),
+                                    ListTile(
+                                      trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
+                                        radioLogic.change(i!);
+                                        appdata.appChannel = (i+1).toString();
+                                      },),
+                                      title: const Text("最多喜欢"),
+                                      onTap: (){
+                                        radioLogic.change(2);
+                                      },
+                                    ),
+                                    ListTile(
+                                      trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
+                                        radioLogic.change(i!);
+                                        appdata.appChannel = (i+1).toString();
+                                      },),
+                                      title: const Text("最多指名"),
+                                      onTap: (){
+                                        radioLogic.change(3);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },),
+                            );
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 SliverGrid(
                   delegate: SliverChildBuilderDelegate(

@@ -15,6 +15,15 @@ class SearchPageLogic extends GetxController{
   }
 }
 
+class ModeRadioLogic extends GetxController{
+  int value = appdata.getSearchMod();
+  void change(int i){
+    value = i;
+    appdata.saveSearchMode(i);
+    update();
+  }
+}
+
 class SearchPage extends StatelessWidget {
   final SearchPageLogic searchPageLogic = Get.put(SearchPageLogic());
 
@@ -33,10 +42,10 @@ class SearchPage extends StatelessWidget {
                 delegate: _SliverAppBarDelegate(
                   minHeight: 60,
                   maxHeight: 0,
-                  child: FloatingSearchBar(supportingText: '搜索',trailingIcon: const Icon(Icons.search_rounded),f:(s){
+                  child: FloatingSearchBar(supportingText: '搜索',trailingIcon: const Icon(Icons.arrow_drop_down_outlined),f:(s){
                     if(s=="") return;
                     searchPageLogic.change();
-                    network.searchNew(s, "dd").then((t){
+                    network.searchNew(s, appdata.settings[1]).then((t){
                       searchPageLogic.searchResult = t;
                       searchPageLogic.change();
                     });
@@ -156,7 +165,67 @@ class FloatingSearchBar extends StatelessWidget {
                   ),
                 ),
               ),
-              if (trailingIcon != null) trailingIcon!,
+              if (trailingIcon != null)
+                Tooltip(
+                  message: "选择模式",
+                  child: IconButton(
+                    icon: trailingIcon!,
+                    onPressed: (){
+                      showDialog(context: context, builder: (context){
+                        Get.put(ModeRadioLogic());
+                        return Dialog(
+                          child: GetBuilder<ModeRadioLogic>(builder: (radioLogic){
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const ListTile(title: Text("选择搜索及分类排序模式"),),
+                                ListTile(
+                                  trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+
+                                  },),
+                                  title: const Text("新书在前"),
+                                  onTap: (){
+                                    radioLogic.change(0);
+                                  },
+                                ),
+                                ListTile(
+                                  trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+                                  },),
+                                  title: const Text("旧书在前"),
+                                  onTap: (){
+                                    radioLogic.change(1);
+                                  },
+                                ),
+                                ListTile(
+                                  trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+                                    appdata.appChannel = (i+1).toString();
+                                  },),
+                                  title: const Text("最多喜欢"),
+                                  onTap: (){
+                                    radioLogic.change(2);
+                                  },
+                                ),
+                                ListTile(
+                                  trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
+                                    radioLogic.change(i!);
+                                    appdata.appChannel = (i+1).toString();
+                                  },),
+                                  title: const Text("最多指名"),
+                                  onTap: (){
+                                    radioLogic.change(3);
+                                  },
+                                ),
+                              ],
+                            );
+                          },),
+                        );
+                      });
+                    },
+                  ),
+                ),
             ]),
           ),
         ),

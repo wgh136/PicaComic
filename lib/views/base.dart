@@ -11,6 +11,7 @@ class Appdata{
   late String appChannel;
   List<String> settings = [
     "1",
+    "dd"
   ];
   Appdata(){
     token = "";
@@ -19,6 +20,18 @@ class Appdata{
     history = [];
     appChannel = "3";
 
+  }
+
+  int getSearchMod(){
+    var modes = ["dd","da","ld","vd"];
+    return modes.indexOf(settings[1]);
+  }
+
+  void saveSearchMode(int mode) async{
+    var modes = ["dd","da","ld","vd"];
+    settings[1] = modes[mode];
+    var s = await SharedPreferences.getInstance();
+    await s.setStringList("settings", settings);
   }
 
   void clear(){
@@ -59,7 +72,10 @@ class Appdata{
       user.id = s.getString("userId")!;
       user.exp = s.getInt("userExp")!;
       if(s.getStringList("settings")!=null) {
-        settings = s.getStringList("settings")!;
+        var st = s.getStringList("settings")!;
+        for(int i=0;i<st.length;i++){
+          settings[i] = st[i];
+        }
       }
       for(int i=0;i<s.getInt("historyLength")!;i++){
         var data = s.getStringList("historyData$i");
