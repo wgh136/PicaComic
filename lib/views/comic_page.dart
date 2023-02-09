@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/views/category_comic_page.dart';
 import 'package:pica_comic/views/comic_reading_page.dart';
 import 'package:pica_comic/views/commends_page.dart';
 import 'package:pica_comic/views/widgets.dart';
@@ -12,6 +13,7 @@ class ComicPageLogic extends GetxController{
   bool isLoading = true;
   ComicItem? comicItem;
   var tags = <Widget>[];
+  var categories = <Widget>[];
   var eps = <Widget>[
     const ListTile(
       leading: Icon(Icons.library_books),
@@ -38,11 +40,25 @@ class ComicPage extends StatelessWidget{
             if(c!=null){
               comicPageLogic.comicItem = c;
               for(String s in c.tags){
-                comicPageLogic.tags.add(Card(
-                  margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                  elevation: 0,
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: SelectableText(s),),
+                comicPageLogic.tags.add(GestureDetector(
+                  onTap: (){Get.to(()=>CategoryComicPage(s));},
+                  child: Card(
+                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: Text(s),),
+                  ),
+                ));
+              }
+              for(String s in c.categories){
+                comicPageLogic.categories.add(GestureDetector(
+                  onTap: (){Get.to(()=>CategoryComicPage(s));},
+                  child: Card(
+                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: Text(s),),
+                  ),
                 ));
               }
               network.getEps(comic.id).then((e){
@@ -171,6 +187,26 @@ class ComicPage extends StatelessWidget{
                       ),),
                     ],
                   ),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 30,
+                  child: Text("    分类"),
+                ),
+              ),
+              SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                    child: Wrap(
+                      children: comicPageLogic.categories,
+                    ),
+                  )
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 30,
+                  child: Text("    标签"),
                 ),
               ),
               SliverToBoxAdapter(
