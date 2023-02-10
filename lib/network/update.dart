@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 
 Future<bool?> checkUpdate() async{
   try {
-    var version = "1.1.3";
+    var version = "1.1.5";
     var dio = Dio();
     var res = await dio.get("https://api.kokoiro.xyz/version");
     var s = res.data;

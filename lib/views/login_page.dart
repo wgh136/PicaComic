@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/register.dart';
 import '../network/methods.dart';
 import 'base.dart';
 import 'main_page.dart';
@@ -20,6 +21,15 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('登录'),
+        actions: [
+          Tooltip(
+            message: "转到注册",
+            child: TextButton(
+              child: const Text("转到注册"),
+              onPressed: (){Get.off(()=>RegisterPage());},
+            ),
+          )
+        ],
       ),
       body: Center(
         child: SizedBox(
@@ -29,11 +39,11 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             children: <Widget>[
               TextField(
-                autofocus: true,
+                autofocus: false,
                 controller: nameController,
                 decoration: const InputDecoration(
-                    labelText: "用户名",
-                    hintText: "用户名或邮箱",
+                    labelText: "账号",
+                    hintText: "账号",
                     prefixIcon: Icon(Icons.person)
                 ),
               ),
