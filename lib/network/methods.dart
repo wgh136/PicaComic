@@ -308,19 +308,31 @@ class Network{
         c.pages = res["data"]["comments"]["pages"];
         for(int i=0;i<res["data"]["comments"]["docs"].length;i++){
           String url = "";
-          if(res["data"]["comments"]["docs"][i]["_user"]["avatar"] != null){
-            url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]["fileServer"]+"/static/"+res["data"]["comments"]["docs"][i]["_user"]["avatar"]["path"];
-          }else{
-            //没有头像时, 将其替换为person图标
+          try {
+            url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]["fileServer"] + "/static/" +
+                res["data"]["comments"]["docs"][i]["_user"]["avatar"]["path"];
+          }
+          catch(e){
             url = defaultAvatarUrl;
           }
-          var t = Commend(
+          var t = Commend("","","",1,"");
+          if(res["data"]["comments"]["docs"][i]["_user"] != null) {
+            t = Commend(
               res["data"]["comments"]["docs"][i]["_user"]["name"],
               url,
               res["data"]["comments"]["docs"][i]["_user"]["_id"],
               res["data"]["comments"]["docs"][i]["_user"]["level"],
               res["data"]["comments"]["docs"][i]["content"]
-          );
+            );
+          }else{
+            t = Commend(
+                "未知",
+                url,
+                "",
+                1,
+                res["data"]["comments"]["docs"][i]["content"]
+            );
+          }
           c.commends.add(t);
         }
         c.loaded++;
