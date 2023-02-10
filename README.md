@@ -23,18 +23,5 @@
 - 发布评论
 
 ## 屏幕截图
-阅读
-![screenshot](screenshots/1.png)
-漫画详情
-![screenshot](screenshots/2.png)
-搜索
-![screenshot](screenshots/3.png)
-历史记录
-![screenshot](screenshots/4.png)
-排行榜
-![screenshot](screenshots/5.png)
-分类
-![screenshot](screenshots/6.png)
-探索
-![screenshot](screenshots/7.png)
+<img src="screenshots/1.png" style="width: 400px"><img src="screenshots/2.png" style="width: 400px"><img src="screenshots/3.png" style="width: 400px"><img src="screenshots/4.png" style="width: 400px"><img src="screenshots/5.png" style="width: 400px"><img src="screenshots/6.png" style="width: 400px"><img src="screenshots/7.png" style="width: 400px">
 
