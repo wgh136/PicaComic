@@ -195,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("检查更新"),
-                      subtitle: const Text("当前: v1.1.4"),
+                      subtitle: const Text("当前: v1.1.5"),
                       onTap: (){
                         showMessage(context, "正在检查更新");
                         checkUpdate().then((b){

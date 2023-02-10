@@ -429,4 +429,17 @@ class Network{
     }
     return comics;
   }
+
+  Future<String> register(String ans1,String ans2, String ans3,String birthday, String account, String gender, String name, String password, String que1, String que2, String que3) async{
+    //gender:m,f,bot
+    var res = await post("$apiUrl/auth/register",{"answer1":ans1,"answer2":ans2,"answer3":ans3,"birthday":birthday,"email":account,"gender":gender,"name":name,"password":password,"question1":que1,"question2":que2,"question3":que3});
+    if(res == null){
+      return "网络错误";
+    }
+    else if(res["message"]=="failure"){
+      return "注册失败, 用户名或账号可能已存在";
+    }else{
+      return "注册成功";
+    }
+  }
 }
