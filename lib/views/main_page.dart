@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/categories_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import '../network/update.dart';
 import 'home_page.dart';
 import 'me_page.dart';
 
@@ -23,6 +26,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  var updateFlag = true;
 
   List<Destination> destinations = <Destination>[
     const Destination(
@@ -48,6 +52,31 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    if(appdata.settings[2]=="1"&&updateFlag) {
+      checkUpdate().then((b){
+      if(b!=null){
+        if(b){
+          showDialog(context: context, builder: (context){
+            return AlertDialog(
+              content: const Text("有可用更新, 是否下载?"),
+              actions: [
+                TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
+                TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                TextButton(
+                    onPressed: (){
+                      getDownloadUrl().then((s){
+                        launchUrlString(s,mode: LaunchMode.externalApplication);
+                      });
+                    },
+                    child: const Text("下载"))
+              ],
+            );
+          });
+        }
+      }
+    });
+    }
+    updateFlag = false;
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {

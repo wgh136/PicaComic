@@ -10,8 +10,9 @@ class Appdata{
   late List<ComicItemBrief> history;
   late String appChannel;
   List<String> settings = [
-    "1",
-    "dd"
+    "1", //点击屏幕左右区域翻页
+    "dd", //排序方式
+    "1", //启动时检查更新
   ];
   Appdata(){
     token = "";

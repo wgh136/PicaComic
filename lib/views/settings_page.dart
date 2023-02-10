@@ -33,6 +33,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool pageChangeValue = appdata.settings[0]=="1";
+  bool checkUpdateValue = appdata.settings[2]=="1";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,7 +196,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("检查更新"),
-                      subtitle: const Text("当前: v1.1.5"),
+                      subtitle: const Text("当前: v1.1.6"),
                       onTap: (){
                         showMessage(context, "正在检查更新");
                         checkUpdate().then((b){
@@ -222,6 +223,21 @@ class _SettingsPageState extends State<SettingsPage> {
                           }
                         });
                       },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.security_update),
+                      title: const Text("启动时检查更新"),
+                      trailing: Switch(
+                        value: checkUpdateValue,
+                        onChanged: (b){
+                          b?appdata.settings[2] = "1":appdata.settings[2]="0";
+                          setState(() {
+                            checkUpdateValue = b;
+                          });
+                          appdata.writeData();
+                        },
+                      ),
+                      onTap: (){},
                     ),
                     ListTile(
                       leading: const Icon(Icons.code),
