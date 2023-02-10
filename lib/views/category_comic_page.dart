@@ -32,7 +32,7 @@ class CategoryComicPage extends StatelessWidget {
     return Scaffold(
       body: GetBuilder<CategoryComicPageLogic>(builder: (categoryComicPageLogic){
         if(categoryComicPageLogic.isLoading){
-          network.searchNew(keyWord, "dd").then((s){
+          network.searchNew(keyWord, appdata.settings[1]).then((s){
             categoryComicPageLogic.search = s;
             categoryComicPageLogic.change();
           });
@@ -63,40 +63,61 @@ class CategoryComicPage extends StatelessWidget {
                                     ListTile(
                                       trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                                         radioLogic.change(i!);
-
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },),
                                       title: const Text("新书在前"),
                                       onTap: (){
                                         radioLogic.change(0);
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },
                                     ),
                                     ListTile(
                                       trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
                                         radioLogic.change(i!);
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },),
                                       title: const Text("旧书在前"),
                                       onTap: (){
                                         radioLogic.change(1);
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },
                                     ),
                                     ListTile(
                                       trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
                                         radioLogic.change(i!);
-                                        appdata.appChannel = (i+1).toString();
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },),
                                       title: const Text("最多喜欢"),
                                       onTap: (){
                                         radioLogic.change(2);
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },
                                     ),
                                     ListTile(
                                       trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
                                         radioLogic.change(i!);
-                                        appdata.appChannel = (i+1).toString();
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },),
                                       title: const Text("最多指名"),
                                       onTap: (){
                                         radioLogic.change(3);
+                                        categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
+                                        categoryComicPageLogic.change();
+                                        Get.back();
                                       },
                                     ),
                                   ],
