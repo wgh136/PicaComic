@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -193,10 +194,33 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.update),
-                      title: const Text("查看最新版本"),
+                      title: const Text("检查更新"),
                       subtitle: const Text("当前: v1.1.4"),
                       onTap: (){
-                        launchUrlString("https://github.com/wgh136/PicaComic/releases",mode: LaunchMode.externalApplication);
+                        showMessage(context, "正在检查更新");
+                        checkUpdate().then((b){
+                          if(b==null){
+                            showMessage(context, "网络错误");
+                          } else if(b){
+                            showDialog(context: context, builder: (context){
+                              return AlertDialog(
+                                content: const Text("有可用更新, 是否下载?"),
+                                actions: [
+                                  TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                                  TextButton(
+                                      onPressed: (){
+                                        getDownloadUrl().then((s){
+                                          launchUrlString(s,mode: LaunchMode.externalApplication);
+                                        });
+                                      },
+                                      child: const Text("下载"))
+                                ],
+                              );
+                            });
+                          }else{
+                            showMessage(context, "已是最新版本");
+                          }
+                        });
                       },
                     ),
                     ListTile(

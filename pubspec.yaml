@@ -45,6 +45,8 @@ dependencies:
   uuid: ^3.0.7
   photo_view: ^0.14.0
   url_launcher: ^6.1.8
+  path_provider: ^2.0.12
+  device_info :
 
 dev_dependencies:
   flutter_test:
