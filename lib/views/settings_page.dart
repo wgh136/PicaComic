@@ -34,6 +34,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool pageChangeValue = appdata.settings[0]=="1";
   bool checkUpdateValue = appdata.settings[2]=="1";
+  bool useMyServer = appdata.settings[3]=="1";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +107,23 @@ class _SettingsPageState extends State<SettingsPage> {
                         setState(() {
                           pageChangeValue = b;
                         });
+                        appdata.writeData();
+                      },
+                    ),
+                    onTap: (){},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.change_circle),
+                    title: const Text("使用转发服务器"),
+                    subtitle: const Text("自己有魔法会减慢速度"),
+                    trailing: Switch(
+                      value: useMyServer,
+                      onChanged: (b){
+                        b?appdata.settings[3] = "1":appdata.settings[3]="0";
+                        setState(() {
+                          useMyServer = b;
+                        });
+                        network.updateApi();
                         appdata.writeData();
                       },
                     ),
@@ -197,7 +215,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("检查更新"),
-                      subtitle: const Text("当前: v1.1.7"),
+                      subtitle: const Text("当前: v1.1.8"),
                       onTap: (){
                         showMessage(context, "正在检查更新");
                         checkUpdate().then((b){

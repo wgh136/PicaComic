@@ -4,7 +4,7 @@ import 'dart:io';
 
 Future<bool?> checkUpdate() async{
   try {
-    var version = "1.1.7";
+    var version = "1.1.8";
     var dio = Dio();
     var res = await dio.get("https://api.kokoiro.xyz/version");
     var s = res.data;

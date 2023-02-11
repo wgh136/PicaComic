@@ -29,7 +29,7 @@ class ComicTile extends StatelessWidget {
             Expanded(
               flex: 0,
               child: CachedNetworkImage(
-                imageUrl: comic.path,
+                imageUrl: appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comic.path}":comic.path,
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 width: 100,
             ),),
@@ -123,7 +123,7 @@ class CategoryTile extends StatelessWidget {
               Expanded(
                 flex: 0,
                 child: CachedNetworkImage(
-                  imageUrl: categoryItem.path,
+                  imageUrl: appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${categoryItem.path}":categoryItem.path,
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   //height: 80,
                   width: 100,

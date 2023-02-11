@@ -69,6 +69,16 @@ class FavoritesPage extends StatelessWidget {
         }else{
           return Stack(
             children: [
+              Positioned(top: 0,
+                left: 0,child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),child: Tooltip(
+                  message: "返回",
+                  child: IconButton(
+                    iconSize: 25,
+                    icon: const Icon(Icons.arrow_back_outlined),
+                    onPressed: (){Get.back();},
+                  ),
+                ),),
+              ),
               Positioned(
                 top: MediaQuery.of(context).size.height/2-80,
                 left: 0,

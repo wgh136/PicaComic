@@ -5,17 +5,27 @@ import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'network/methods.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:http/http.dart';
 
 bool isLogged = false;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  appdata.readData().then((b){
+  appdata.readData().then((b) async {
     isLogged = b;
     if(b){
       network = Network(appdata.token);
     }
-    runApp(const MyApp());
+    await SentryFlutter.init(
+          (options) {
+        options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
+        // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+        // We recommend adjusting this value in production.
+        options.tracesSampleRate = 1.0;
+      },
+      appRunner: () => runApp(MyApp()),
+    );
   });
 }
 

@@ -16,17 +16,6 @@ class MePage extends StatelessWidget {
         SliverAppBar.large(
           centerTitle: true,
           title: const Text(""),
-          actions: [
-            Tooltip(
-              message: "搜索",
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: (){
-                  Get.to(()=>SearchPage());
-                },
-              ),
-            ),
-          ],
         ),
         SliverToBoxAdapter(
             child: SizedBox.fromSize(
@@ -39,7 +28,7 @@ class MePage extends StatelessWidget {
                         child: SizedBox.fromSize(
                           size: const Size(100,100),
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(appdata.user.avatarUrl),
+                            backgroundImage: NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${appdata.user.avatarUrl}":appdata.user.avatarUrl),
                           ),
                         ),
                       ),

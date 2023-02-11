@@ -16,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   var nameController = TextEditingController();
   var passwordController = TextEditingController();
   var isLogging = false;
+  bool useMyServer = appdata.settings[3]=="1";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Center(
         child: SizedBox(
-          width: 350,
+          width: 400,
           height: 400,
           //decoration: BoxDecoration(border: Border.all(width: 10, color: Colors.lightBlueAccent)),
           child: Column(
@@ -114,7 +115,24 @@ class _LoginPageState extends State<LoginPage> {
                   });
                 },
                 child: const Text('登录'),
-              )
+              ),
+              ListTile(
+                leading: const Icon(Icons.change_circle),
+                title: const Text("使用转发服务器"),
+                subtitle: const Text("自己有魔法会减慢速度"),
+                trailing: Switch(
+                  value: useMyServer,
+                  onChanged: (b){
+                    b?appdata.settings[3] = "1":appdata.settings[3]="0";
+                    setState(() {
+                      useMyServer = b;
+                    });
+                    network.updateApi();
+                    appdata.writeData();
+                  },
+                ),
+                onTap: (){},
+              ),
             ],
           ),
         ),

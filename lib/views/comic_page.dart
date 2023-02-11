@@ -12,6 +12,7 @@ import 'base.dart';
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
   ComicItem? comicItem;
+  bool underReview = false;
   var tags = <Widget>[];
   var categories = <Widget>[];
   var eps = <Widget>[
@@ -36,45 +37,65 @@ class ComicPage extends StatelessWidget{
     return Scaffold(
       body: GetBuilder<ComicPageLogic>(builder: (comicPageLogic){
         if(comicPageLogic.isLoading){
-          network.getComicInfo(comic.id).then((c){
-            if(c!=null){
-              comicPageLogic.comicItem = c;
-              for(String s in c.tags){
-                comicPageLogic.tags.add(GestureDetector(
-                  onTap: (){Get.to(()=>CategoryComicPage(s));},
-                  child: Card(
-                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: Text(s),),
-                  ),
-                ));
+            network.getComicInfo(comic.id).then((c) {
+              if(network.status){
+                comicPageLogic.underReview = true;
+                comicPageLogic.change();
+                return;
               }
-              for(String s in c.categories){
-                comicPageLogic.categories.add(GestureDetector(
-                  onTap: (){Get.to(()=>CategoryComicPage(s));},
-                  child: Card(
-                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    child: Padding(padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),child: Text(s),),
-                  ),
-                ));
-              }
-              network.getEps(comic.id).then((e){
-                for(int i = 1;i < e.length;i++){
-                  comicPageLogic.epsStr.add(e[i]);
-                  comicPageLogic.eps.add(ListTile(
-                    title: Text(e[i]),
-                    onTap: (){
-                      Get.to(()=>ComicReadingPage(comic.id, i, comicPageLogic.epsStr,comic.title));
+              if (c != null) {
+                comicPageLogic.comicItem = c;
+                for (String s in c.tags) {
+                  comicPageLogic.tags.add(GestureDetector(
+                    onTap: () {
+                      Get.to(() => CategoryComicPage(s));
                     },
+                    child: Card(
+                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                      elevation: 0,
+                      color: Theme
+                          .of(context)
+                          .colorScheme
+                          .surfaceVariant,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
+                    ),
                   ));
                 }
+                for (String s in c.categories) {
+                  comicPageLogic.categories.add(GestureDetector(
+                    onTap: () {
+                      Get.to(() => CategoryComicPage(s));
+                    },
+                    child: Card(
+                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                      elevation: 0,
+                      color: Theme
+                          .of(context)
+                          .colorScheme
+                          .surfaceVariant,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
+                    ),
+                  ));
+                }
+                network.getEps(comic.id).then((e) {
+                  for (int i = 1; i < e.length; i++) {
+                    comicPageLogic.epsStr.add(e[i]);
+                    comicPageLogic.eps.add(ListTile(
+                      title: Text(e[i]),
+                      onTap: () {
+                        Get.to(() =>
+                            ComicReadingPage(comic.id, i, comicPageLogic.epsStr, comic.title));
+                      },
+                    ));
+                  }
+                  comicPageLogic.change();
+                });
+              } else {
                 comicPageLogic.change();
-              });
-            }
-          });
+              }
+            });
           return const Center(
             child: CircularProgressIndicator(),
           );
@@ -126,7 +147,7 @@ class ComicPage extends StatelessWidget{
               if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                 child: CachedNetworkImage(
-                  imageUrl: comic.path,
+                  imageUrl: appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comic.path}":comic.path,
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   height: 300,
                 ),
@@ -339,6 +360,16 @@ class ComicPage extends StatelessWidget{
         }else{
           return Stack(
             children: [
+              Positioned(top: 0,
+                left: 0,child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),child: Tooltip(
+                message: "返回",
+                child: IconButton(
+                  iconSize: 25,
+                  icon: const Icon(Icons.arrow_back_outlined),
+                  onPressed: (){Get.back();},
+                ),
+              ),),
+              ),
               Positioned(
                 top: MediaQuery.of(context).size.height/2-80,
                 left: 0,
@@ -352,9 +383,9 @@ class ComicPage extends StatelessWidget{
                 left: 0,
                 right: 0,
                 top: MediaQuery.of(context).size.height/2-10,
-                child: const Align(
+                child: Align(
                   alignment: Alignment.topCenter,
-                  child: Text("网络错误"),
+                  child: Text(comicPageLogic.underReview?"漫画审核中":"网络错误"),
                 ),
               ),
               Positioned(
@@ -365,6 +396,7 @@ class ComicPage extends StatelessWidget{
                   height: 40,
                   child: FilledButton(
                     onPressed: (){
+                      comicPageLogic.underReview = false;
                       comicPageLogic.change();
                     },
                     child: const Text("重试"),

@@ -1,28 +1,31 @@
 import 'package:dio/dio.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
+import '../views/base.dart';
 import 'models.dart';
 
 const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";
 
 class Network{
-  final String apiUrl = "https://picaapi.picacomic.com";
+  String apiUrl = appdata.settings[3]=="1"?
+    "https://api.kokoiro.xyz/picaapi"
+      :"https://picaapi.picacomic.com";
   InitData? initData;
   String token;
   Network([this.token=""]);
+  bool status = false;
+
+  void updateApi(){
+    apiUrl = appdata.settings[3]=="1"?
+    "https://api.kokoiro.xyz/picaapi"
+        :"https://picaapi.picacomic.com";
+  }
 
   Future<Map<String, dynamic>?> get(String url) async{
-    var dio = Dio()
-      ..interceptors.add(LogInterceptor())
-      ..httpClientAdapter = Http2Adapter(
-        ConnectionManager(
-          idleTimeout: 10000,
-          // Ignore bad certificate
-          onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
-        ),)
-    ;
+    status = false;
+    var dio = Dio();
+    //  ..interceptors.add(LogInterceptor());
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -42,21 +45,18 @@ class Network{
         return null;
       }
     }
-    catch(e){
+    on DioError catch(e){
+      if(e.message == "Http status error [400]"){
+        status = true;
+        return null;
+      }
       return null;
     }
   }
 
   Future<Map<String, dynamic>?> post(String url,Map<String,String> data) async{
     var dio = Dio()
-      ..interceptors.add(LogInterceptor())
-      ..httpClientAdapter = Http2Adapter(
-        ConnectionManager(
-          idleTimeout: 10000,
-          // Ignore bad certificate
-          onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
-        ),)
-    ;
+      ..interceptors.add(LogInterceptor());
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -82,6 +82,9 @@ class Network{
       if(e.message == "Http status error [400]"){
         return {"message":"failure"};
       }else {
+        if (kDebugMode) {
+          print(e);
+        }
         return null;
       }
     }
@@ -186,7 +189,7 @@ class Network{
         s.pages = res["data"]["comics"]["pages"];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
           var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"],
-              res["data"]["comics"]["docs"][i]["author"],
+              res["data"]["comics"]["docs"][i]["author"]??"未知",
               res["data"]["comics"]["docs"][i]["likesCount"],
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
@@ -228,7 +231,7 @@ class Network{
           res["data"]["comic"]["_creator"]["exp"],
           res["data"]["comic"]["_creator"]["level"],
           res["data"]["comic"]["_creator"]["name"],
-          res["data"]["comic"]["_creator"]["title"]
+          res["data"]["comic"]["_creator"]["title"]??"未知"
       );
       var categories = <String>[];
       for(int i=0;i<res["data"]["comic"]["categories"].length;i++){

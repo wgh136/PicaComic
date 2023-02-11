@@ -80,12 +80,12 @@ class ComicReadingPage extends StatelessWidget {
                     pageController: comicReadingPageLogic.controller,
                     builder: (BuildContext context, int index){
                       if(index<comicReadingPageLogic.urls.length) {
-                        precacheImage(NetworkImage(comicReadingPageLogic.urls[index]), context);
+                        precacheImage(NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comicReadingPageLogic.urls[index]}":comicReadingPageLogic.urls[index]), context);
                       }
                       if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
                         return PhotoViewGalleryPageOptions(
                             minScale: PhotoViewComputedScale.contained*0.9,
-                            imageProvider: NetworkImage(comicReadingPageLogic.urls[index-1]),
+                            imageProvider: NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comicReadingPageLogic.urls[index-1]}":comicReadingPageLogic.urls[index-1]),
                             initialScale: PhotoViewComputedScale.contained,
                             heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
                             onTapUp: (context,detail,value){
@@ -240,6 +240,16 @@ class ComicReadingPage extends StatelessWidget {
               decoration: const BoxDecoration(color: Colors.black),
               child: Stack(
                 children: [
+                  Positioned(top: 0,
+                    left: 0,child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),child: Tooltip(
+                      message: "返回",
+                      child: IconButton(
+                        iconSize: 25,
+                        icon: const Icon(Icons.arrow_back_outlined),
+                        onPressed: (){Get.back();},
+                      ),
+                    ),),
+                  ),
                   Positioned(
                     top: MediaQuery.of(context).size.height/2-80,
                     left: 0,

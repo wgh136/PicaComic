@@ -28,7 +28,8 @@ BaseOptions getHeaders(String method,String token,String url){
   var time = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
   if(token == ""){
     return BaseOptions(
-       connectTimeout: 5000,
+       connectTimeout: 12000,
+        receiveDataWhenStatusError: true,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "accept": "application/vnd.picacomic.com.v1+json",
@@ -43,13 +44,15 @@ BaseOptions getHeaders(String method,String token,String url){
           "app-build-version":"45",
           "Content-Type":"application/json; charset=UTF-8",
           "user-agent":"okhttp/3.8.1",
-          "version": "v1.4.1"
+          "version": "v1.4.1",
+          "Access-Control-Allow-Origin": "*"
         }
     );
   }
   if(method == 'post'){
     return BaseOptions(
-        connectTimeout: 5000,
+        receiveDataWhenStatusError: true,
+        connectTimeout: 12000,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
@@ -70,7 +73,8 @@ BaseOptions getHeaders(String method,String token,String url){
     );
   }else{
     return BaseOptions(
-        connectTimeout: 5000,
+        receiveDataWhenStatusError: true,
+        connectTimeout: 12000,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,

@@ -14,6 +14,7 @@ class TestNetworkPage extends StatefulWidget {
 class _TestNetworkPageState extends State<TestNetworkPage> {
   bool isLoading = true;
   bool flag = true;
+  bool useMyServer = appdata.settings[3]=="1";
   @override
   Widget build(BuildContext context) {
     if(flag) {
@@ -21,7 +22,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
       network.getProfile().then((p){
       if(p!=null){
         appdata.user = p;
-        precacheImage(NetworkImage(appdata.user.avatarUrl), context).then((r){
+        precacheImage(NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${appdata.user.avatarUrl}":appdata.user.avatarUrl), context).then((r){
           Get.offAll(()=>const MainPage());
         });
       }else {
@@ -157,6 +158,31 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 ),
               ),
             ),
+          if(!isLoading)
+            Positioned(
+              bottom: 20,
+              left: MediaQuery.of(context).size.width/2-200,
+              child: SizedBox(
+                width: 400,
+                child: ListTile(
+                  leading: const Icon(Icons.change_circle),
+                  title: const Text("使用转发服务器"),
+                  subtitle: const Text("自己有魔法会减慢速度"),
+                  trailing: Switch(
+                    value: useMyServer,
+                    onChanged: (b){
+                      b?appdata.settings[3] = "1":appdata.settings[3]="0";
+                      setState(() {
+                        useMyServer = b;
+                      });
+                      network.updateApi();
+                      appdata.writeData();
+                    },
+                  ),
+                  onTap: (){},
+                ),
+              ),
+            )
         ],
       )
     );
