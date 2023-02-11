@@ -15,7 +15,7 @@ class MePage extends StatelessWidget {
       slivers: [
         SliverAppBar.large(
           centerTitle: true,
-          title: const Text("我"),
+          title: const Text(""),
           actions: [
             Tooltip(
               message: "搜索",
@@ -54,47 +54,54 @@ class MePage extends StatelessWidget {
               ),
             )
         ),
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              ListTile(
-                leading: const Icon(Icons.favorite),
-                title: const Text("收藏夹"),
-                onTap: (){
-                  Get.to(()=>FavoritesPage());
-                },
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width/2-250>0?MediaQuery.of(context).size.width/2-250:0, 0, MediaQuery.of(context).size.width/2-250>0?MediaQuery.of(context).size.width/2-250:0, 0),
+            child: Card(
+              elevation: 0,
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.favorite),
+                    title: const Text("收藏夹",),
+                    onTap: (){
+                      Get.to(()=>FavoritesPage());
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.download),
+                    title: const Text("已下载"),
+                    onTap: (){
+                      showMessage(context, "下载功能还没做");
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: const Text("退出登录"),
+                    onTap: (){
+                      showDialog(context: context, builder: (context){
+                        return AlertDialog(
+                          content: const Text("要退出登录吗"),
+                          actionsAlignment: MainAxisAlignment.end,
+                          actions: [
+                            TextButton(onPressed: (){Get.back();}, child: const Text("取消",textAlign: TextAlign.end,)),
+                            TextButton(onPressed: (){
+                              appdata.token = "";
+                              appdata.history.clear();
+                              appdata.writeData();
+                              Get.offAll(const LoginPage());
+                            }, child: const Text("确定",textAlign: TextAlign.end))
+                          ],
+                        );
+                      });
+                    },
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.download),
-                title: const Text("已下载"),
-                onTap: (){
-                  showMessage(context, "下载功能还没做");
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text("退出登录"),
-                onTap: (){
-                  showDialog(context: context, builder: (context){
-                    return AlertDialog(
-                      content: const Text("要退出登录吗"),
-                      actionsAlignment: MainAxisAlignment.end,
-                      actions: [
-                        TextButton(onPressed: (){Get.back();}, child: const Text("取消",textAlign: TextAlign.end,)),
-                        TextButton(onPressed: (){
-                          appdata.token = "";
-                          appdata.history.clear();
-                          appdata.writeData();
-                          Get.offAll(const LoginPage());
-                        }, child: const Text("确定",textAlign: TextAlign.end))
-                      ],
-                    );
-                  });
-                },
-              ),
-            ]
+            ),
           ),
-        )
+        ),
       ],
     ));
   }

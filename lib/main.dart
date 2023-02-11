@@ -30,10 +30,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.cyanAccent),
           useMaterial3: true,
+          fontFamily: 'NotoSansSc'
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.black,brightness: Brightness.dark),
           useMaterial3: true,
+          fontFamily: GetPlatform.isWindows?'NotoSansSc':null //使用自定义字体解决windows端中文显示糟糕的问题
         ),
         home: isLogged?const TestNetworkPage():const LoginPage(),
       );

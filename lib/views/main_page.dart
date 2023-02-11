@@ -4,6 +4,7 @@ import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/categories_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
+import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../network/update.dart';
@@ -56,21 +57,26 @@ class _MainPageState extends State<MainPage> {
       checkUpdate().then((b){
       if(b!=null){
         if(b){
-          showDialog(context: context, builder: (context){
-            return AlertDialog(
-              content: const Text("有可用更新, 是否下载?"),
-              actions: [
-                TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
-                TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
-                TextButton(
-                    onPressed: (){
-                      getDownloadUrl().then((s){
-                        launchUrlString(s,mode: LaunchMode.externalApplication);
-                      });
-                    },
-                    child: const Text("下载"))
-              ],
-            );
+          getUpdatesInfo().then((s){
+            if(s!=null){
+              showDialog(context: context, builder: (context){
+                return AlertDialog(
+                  title: const Text("有可用更新"),
+                  content: Text(s),
+                  actions: [
+                    TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
+                    TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                    TextButton(
+                        onPressed: (){
+                          getDownloadUrl().then((s){
+                            launchUrlString(s,mode: LaunchMode.externalApplication);
+                          });
+                        },
+                        child: const Text("下载"))
+                  ],
+                );
+              });
+            }
           });
         }
       }
@@ -78,7 +84,7 @@ class _MainPageState extends State<MainPage> {
     }
     updateFlag = false;
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: MediaQuery.of(context).size.width>changePoint?null:NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             i = index;
@@ -100,8 +106,75 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: pages[i],
-      drawer: NavigationDrawer(
+      body: Row(
+        children: [
+          if(MediaQuery.of(context).size.width>changePoint)
+          NavigationRail(
+            leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
+            selectedIndex: i,
+            trailing: Expanded(child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(child: IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: (){Get.to(()=>SearchPage());},
+                  ),),
+                  Flexible(child: IconButton(
+                    icon: const Icon(Icons.leaderboard),
+                    onPressed: (){Get.to(()=>const LeaderBoardPage());},
+                  ),),
+                  Flexible(child: IconButton(
+                    icon: const Icon(Icons.history),
+                    onPressed: (){Get.to(()=>const HistoryPage());},
+                  ),),
+                  Flexible(child: IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: (){Get.to(()=>const SettingsPage());},
+                  ),),
+                ],
+              ),
+            ),),
+            groupAlignment: -1,
+            onDestinationSelected: (int index) {
+              setState(() {
+                i = index;
+              });
+            },
+            labelType: NavigationRailLabelType.all,
+            destinations: const <NavigationRailDestination>[
+              NavigationRailDestination(
+                icon: Icon(Icons.person_outlined),
+                selectedIcon: Icon(Icons.person),
+                label: Text('我'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.explore_outlined),
+                selectedIcon: Icon(Icons.explore),
+                label: Text('探索'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.account_tree_outlined),
+                selectedIcon: Icon(Icons.account_tree),
+                label: Text('分类'),
+              ),
+            ],
+          ),
+          if(MediaQuery.of(context).size.width>changePoint)
+          const VerticalDivider(),
+          Expanded(
+            child: ClipRect(
+              child: Navigator(
+                onGenerateRoute: (settings) => MaterialPageRoute(
+                  builder: (context) => pages[i],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      drawer: MediaQuery.of(context).size.width>changePoint?null:NavigationDrawer(
         selectedIndex: null,
         onDestinationSelected: (t){
           Navigator.pop(context);

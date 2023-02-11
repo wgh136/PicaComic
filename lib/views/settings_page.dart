@@ -193,30 +193,39 @@ class _SettingsPageState extends State<SettingsPage> {
                         showMessage(context, "禁止涩涩");
                       },
                     ),
+                    if(!GetPlatform.isWeb)
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("检查更新"),
-                      subtitle: const Text("当前: v1.1.6"),
+                      subtitle: const Text("当前: v1.1.7"),
                       onTap: (){
                         showMessage(context, "正在检查更新");
                         checkUpdate().then((b){
                           if(b==null){
                             showMessage(context, "网络错误");
                           } else if(b){
-                            showDialog(context: context, builder: (context){
-                              return AlertDialog(
-                                content: const Text("有可用更新, 是否下载?"),
-                                actions: [
-                                  TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
-                                  TextButton(
-                                      onPressed: (){
-                                        getDownloadUrl().then((s){
-                                          launchUrlString(s,mode: LaunchMode.externalApplication);
-                                        });
-                                      },
-                                      child: const Text("下载"))
-                                ],
-                              );
+                            getUpdatesInfo().then((s){
+                              if(s!=null){
+                                showDialog(context: context, builder: (context){
+                                  return AlertDialog(
+                                    title: const Text("有可用更新"),
+                                    content: Text(s),
+                                    actions: [
+                                      TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
+                                      TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                                      TextButton(
+                                          onPressed: (){
+                                            getDownloadUrl().then((s){
+                                              launchUrlString(s,mode: LaunchMode.externalApplication);
+                                            });
+                                          },
+                                          child: const Text("下载"))
+                                    ],
+                                  );
+                                });
+                              }else{
+                                showMessage(context, "网络错误");
+                              }
                             });
                           }else{
                             showMessage(context, "已是最新版本");

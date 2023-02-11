@@ -78,7 +78,7 @@ class SearchPage extends StatelessWidget {
                       ),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 600,
-                        childAspectRatio: 5,
+                        childAspectRatio: 4,
                       ),
                     );
                   }else{

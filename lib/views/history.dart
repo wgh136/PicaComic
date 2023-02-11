@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets.dart';
 import 'base.dart';
-import 'package:pica_comic/network/models.dart';
 
 
 class HistoryPage extends StatefulWidget {
@@ -45,7 +43,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 600,
-                childAspectRatio: 5,
+                childAspectRatio: 4,
               ),
             ),
           ],

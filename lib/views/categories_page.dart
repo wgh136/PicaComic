@@ -40,6 +40,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       }else if(categoriesPageLogic.categories.isNotEmpty){
         return CustomScrollView(
           slivers: [
+            if(MediaQuery.of(context).size.width<changePoint)
             SliverAppBar.large(
               centerTitle: true,
               title: const Text("分类"),
@@ -55,6 +56,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ),
               ],
             ),
+            if(MediaQuery.of(context).size.width>changePoint)
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 180,
+                  child: const Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(padding: EdgeInsets.fromLTRB(15, 0, 0, 30),child: Text("分类",style: TextStyle(fontSize: 28),),),
+                  ),
+                ),
+              ),
             SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                     childCount: categoriesPageLogic.categories.length,
@@ -64,7 +76,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 600,
-                  childAspectRatio: 5,
+                  childAspectRatio: 4,
                 ),
             )
           ],

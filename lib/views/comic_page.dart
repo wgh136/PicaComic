@@ -67,7 +67,7 @@ class ComicPage extends StatelessWidget{
                   comicPageLogic.eps.add(ListTile(
                     title: Text(e[i]),
                     onTap: (){
-                      Get.to(()=>ComicReadingPage(comic.id, i, comicPageLogic.epsStr));
+                      Get.to(()=>ComicReadingPage(comic.id, i, comicPageLogic.epsStr,comic.title));
                     },
                   ));
                 }
@@ -123,6 +123,7 @@ class ComicPage extends StatelessWidget{
                     ),)
                 ],
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                 child: CachedNetworkImage(
                   imageUrl: comic.path,
@@ -130,6 +131,7 @@ class ComicPage extends StatelessWidget{
                   height: 300,
                 ),
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -145,7 +147,7 @@ class ComicPage extends StatelessWidget{
                       SizedBox.fromSize(size: const Size(10,1),),
                       Expanded(child: FilledButton(
                         onPressed: (){
-                          Get.to(()=>ComicReadingPage(comic.id, 1, comicPageLogic.epsStr));
+                          Get.to(()=>ComicReadingPage(comic.id, 1, comicPageLogic.epsStr,comic.title));
                         },
                         child: const Text("阅读"),
                       ),),
@@ -153,6 +155,7 @@ class ComicPage extends StatelessWidget{
                   ),
                 ),
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
@@ -189,12 +192,14 @@ class ComicPage extends StatelessWidget{
                   ),
                 ),
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               const SliverToBoxAdapter(
                 child: SizedBox(
                   height: 30,
                   child: Text("    分类"),
                 ),
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
@@ -203,12 +208,14 @@ class ComicPage extends StatelessWidget{
                     ),
                   )
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               const SliverToBoxAdapter(
                 child: SizedBox(
                   height: 30,
                   child: Text("    标签"),
                 ),
               ),
+              if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
@@ -217,9 +224,109 @@ class ComicPage extends StatelessWidget{
                   ),
                 )
               ),
+              //以下为大屏设备的显示
+              if(MediaQuery.of(context).size.width>=changePoint)
+                SliverToBoxAdapter(child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: comic.path,
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        height: 400,
+                        width: MediaQuery.of(context).size.width/2,
+                      ),
+
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width/2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 30,
+                              child: Text("      分类"),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
+                              child: Wrap(
+                                children: comicPageLogic.categories,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 30,
+                              child: Text("      标签"),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
+                              child: Wrap(
+                                children: comicPageLogic.tags,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                              child: Row(
+                                children: [
+                                  Expanded(child: ActionChip(
+                                    label: Text(comicPageLogic.comicItem!.likes.toString()),
+                                    avatar: Icon((comicPageLogic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
+                                    onPressed: (){
+                                      network.likeOrUnlikeComic(comic.id);
+                                      comicPageLogic.comicItem!.isLiked = !comicPageLogic.comicItem!.isLiked;
+                                      comicPageLogic.update();
+                                    },
+                                  ),),
+                                  SizedBox.fromSize(size: const Size(10,1),),
+                                  Expanded(child: ActionChip(
+                                    label: const Text("收藏"),
+                                    avatar: Icon((comicPageLogic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
+                                    onPressed: (){
+                                      network.favouriteOrUnfavoriteComic(comic.id);
+                                      comicPageLogic.comicItem!.isFavourite = !comicPageLogic.comicItem!.isFavourite;
+                                      comicPageLogic.update();
+                                    },
+                                  ),),
+                                  SizedBox.fromSize(size: const Size(10,1),),
+                                  Expanded(child: ActionChip(
+                                    label: Text(comicPageLogic.comicItem!.comments.toString()),
+                                    avatar: const Icon(Icons.comment),
+                                    onPressed: (){
+                                      Get.to(()=>CommendsPage(comic.id));
+                                    },
+                                  ),),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                              child: Row(
+                                children: [
+                                  Expanded(child: FilledButton(
+                                    onPressed: (){
+                                      //Todo: 下载功能
+                                      showMessage(context, "下载功能还没做");
+                                    },
+                                    child: const Text("下载"),
+                                  ),),
+                                  SizedBox.fromSize(size: const Size(10,1),),
+                                  Expanded(child: FilledButton(
+                                    onPressed: (){
+                                      Get.to(()=>ComicReadingPage(comic.id, 1, comicPageLogic.epsStr,comic.title));
+                                    },
+                                    child: const Text("阅读"),
+                                  ),),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),),
+              //章节显示
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   child: Card(
                     child: Column(
                       children: comicPageLogic.eps,

@@ -37,7 +37,9 @@ class HomePage extends StatelessWidget {
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
+                  if(MediaQuery.of(context).size.width<changePoint)
                   SliverAppBar.large(
+
                     centerTitle: true,
                     title: const Text("探索"),
                     actions: [
@@ -52,6 +54,17 @@ class HomePage extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if(MediaQuery.of(context).size.width>changePoint)
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 180,
+                        child: const Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(padding: EdgeInsets.fromLTRB(15, 0, 0, 30),child: Text("探索",style: TextStyle(fontSize: 28),),),
+                        ),
+                      ),
+                    ),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: homePageLogic.comics.length,
@@ -69,7 +82,7 @@ class HomePage extends StatelessWidget {
                     ),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 600,
-                      childAspectRatio: 5,
+                      childAspectRatio: 3.5,
                     ),
                   ),
                 ],

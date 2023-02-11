@@ -31,7 +31,7 @@ class ComicTile extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: comic.path,
                 errorWidget: (context, url, error) => const Icon(Icons.error),
-                width: 80,
+                width: 100,
             ),),
             SizedBox.fromSize(size: const Size(5,5),),
             Expanded(
@@ -125,8 +125,8 @@ class CategoryTile extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: categoryItem.path,
                   errorWidget: (context, url, error) => const Icon(Icons.error),
-                  height: 80,
-                  width: 80,
+                  //height: 80,
+                  width: 100,
                 ),),
               SizedBox.fromSize(size: const Size(20,5),),
               Expanded(
