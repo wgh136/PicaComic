@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
 import 'package:pica_comic/views/comic_reading_page.dart';
@@ -147,7 +148,7 @@ class ComicPage extends StatelessWidget{
               if(MediaQuery.of(context).size.width<changePoint)
               SliverToBoxAdapter(
                 child: CachedNetworkImage(
-                  imageUrl: appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comic.path}":comic.path,
+                  imageUrl: getImageUrl(comic.path),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   height: 300,
                 ),
@@ -252,7 +253,7 @@ class ComicPage extends StatelessWidget{
                   child: Row(
                     children: [
                       CachedNetworkImage(
-                        imageUrl: comic.path,
+                        imageUrl: getImageUrl(comic.path),
                         errorWidget: (context, url, error) => const Icon(Icons.error),
                         height: 400,
                         width: MediaQuery.of(context).size.width/2,
