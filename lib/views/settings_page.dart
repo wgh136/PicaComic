@@ -57,9 +57,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text("设置分流"),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: (){
-                      Get.put(RadioLogic());
                       showDialog(context: context, builder: (BuildContext context) => Dialog(
-                        child: GetBuilder<RadioLogic>(builder: (radioLogic){
+                        child: GetBuilder<RadioLogic>(
+                          init: RadioLogic(),
+                          builder: (radioLogic){
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -112,6 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     onTap: (){},
                   ),
+                  if(!GetPlatform.isWeb)
                   ListTile(
                     leading: const Icon(Icons.change_circle),
                     title: const Text("使用转发服务器"),
@@ -135,9 +137,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text("设置搜索及分类排序模式"),
                     onTap: (){
                       showDialog(context: context, builder: (context){
-                        Get.put(ModeRadioLogic2());
                         return Dialog(
-                          child: GetBuilder<ModeRadioLogic2>(builder: (radioLogic){
+                          child: GetBuilder<ModeRadioLogic2>(
+                            init: ModeRadioLogic2(),
+                            builder: (radioLogic){
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -215,7 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.update),
                       title: const Text("检查更新"),
-                      subtitle: const Text("当前: v1.1.8"),
+                      subtitle: const Text("当前: $appVersion"),
                       onTap: (){
                         showMessage(context, "正在检查更新");
                         checkUpdate().then((b){
@@ -251,6 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         });
                       },
                     ),
+                    if(!GetPlatform.isWeb)
                     ListTile(
                       leading: const Icon(Icons.security_update),
                       title: const Text("启动时检查更新"),

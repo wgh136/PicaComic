@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
@@ -29,7 +30,7 @@ class ComicTile extends StatelessWidget {
             Expanded(
               flex: 0,
               child: CachedNetworkImage(
-                imageUrl: appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comic.path}":comic.path,
+                imageUrl: getImageUrl(comic.path),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 width: 100,
             ),),
@@ -123,7 +124,7 @@ class CategoryTile extends StatelessWidget {
               Expanded(
                 flex: 0,
                 child: CachedNetworkImage(
-                  imageUrl: appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${categoryItem.path}":categoryItem.path,
+                  imageUrl: getImageUrl(categoryItem.path),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   //height: 80,
                   width: 100,

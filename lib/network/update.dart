@@ -1,10 +1,11 @@
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
+import 'package:pica_comic/views/base.dart';
 
 Future<bool?> checkUpdate() async{
   try {
-    var version = "1.1.8";
+    var version = appVersion;
     var dio = Dio();
     var res = await dio.get("https://api.kokoiro.xyz/version");
     var s = res.data;

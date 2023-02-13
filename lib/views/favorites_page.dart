@@ -23,13 +23,13 @@ class FavoritesPageLogic extends GetxController{
 
 
 class FavoritesPage extends StatelessWidget {
-  final favoritesPageLogic = Get.put(FavoritesPageLogic());
-
-  FavoritesPage({super.key});
+  const FavoritesPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GetBuilder<FavoritesPageLogic>(builder: (favoritesPageLogic){
+      body: GetBuilder<FavoritesPageLogic>(
+        init: FavoritesPageLogic(),
+          builder: (favoritesPageLogic){
         if(favoritesPageLogic.isLoading) {
           favoritesPageLogic.get().then((t){favoritesPageLogic.change();});
           return const Center(

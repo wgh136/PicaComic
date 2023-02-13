@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/widgets.dart';
@@ -16,6 +17,18 @@ class MePage extends StatelessWidget {
         SliverAppBar.large(
           centerTitle: true,
           title: const Text(""),
+          actions: [
+            if(MediaQuery.of(context).size.width<changePoint)
+            Tooltip(
+              message: "搜索",
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: (){
+                  Get.to(()=>SearchPage());
+                },
+              ),
+            ),
+          ],
         ),
         SliverToBoxAdapter(
             child: SizedBox.fromSize(
@@ -28,7 +41,7 @@ class MePage extends StatelessWidget {
                         child: SizedBox.fromSize(
                           size: const Size(100,100),
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${appdata.user.avatarUrl}":appdata.user.avatarUrl),
+                            backgroundImage: NetworkImage(getImageUrl(appdata.user.avatarUrl)),
                           ),
                         ),
                       ),
@@ -55,7 +68,7 @@ class MePage extends StatelessWidget {
                     leading: const Icon(Icons.favorite),
                     title: const Text("收藏夹",),
                     onTap: (){
-                      Get.to(()=>FavoritesPage());
+                      Get.to(()=>const FavoritesPage());
                     },
                   ),
                   ListTile(

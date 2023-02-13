@@ -24,13 +24,14 @@ class ModeRadioLogic1 extends GetxController{
 
 class CategoryComicPage extends StatelessWidget {
   final String keyWord;
-  final categoryComicPageLogic = Get.put(CategoryComicPageLogic());
-  CategoryComicPage(this.keyWord,{Key? key}) : super(key: key);
+  const CategoryComicPage(this.keyWord,{Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GetBuilder<CategoryComicPageLogic>(builder: (categoryComicPageLogic){
+      body: GetBuilder<CategoryComicPageLogic>(
+        init: CategoryComicPageLogic(),
+        builder: (categoryComicPageLogic){
         if(categoryComicPageLogic.isLoading){
           network.searchNew(keyWord, appdata.settings[1]).then((s){
             categoryComicPageLogic.search = s;

@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
             message: "转到注册",
             child: TextButton(
               child: const Text("转到注册"),
-              onPressed: (){Get.off(()=>RegisterPage());},
+              onPressed: (){Get.off(()=>const RegisterPage());},
             ),
           )
         ],
@@ -116,6 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: const Text('登录'),
               ),
+              if(!GetPlatform.isWeb)
               ListTile(
                 leading: const Icon(Icons.change_circle),
                 title: const Text("使用转发服务器"),

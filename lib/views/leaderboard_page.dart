@@ -29,7 +29,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
             tabs: tabs,
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
             children: [
               LeaderBoardH24(),
               LeaderBoardD7(),
@@ -52,12 +52,13 @@ class LeaderBoardH24Logic extends GetxController{
 
 class LeaderBoardH24 extends StatelessWidget {
   final String time = "H24";
-  final leaderBoardLogic = Get.put(LeaderBoardH24Logic());
-  LeaderBoardH24({Key? key}) : super(key: key);
+  const LeaderBoardH24({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<LeaderBoardH24Logic>(builder: (leaderBoardLogic){
+    return GetBuilder<LeaderBoardH24Logic>(
+      init: LeaderBoardH24Logic(),
+        builder: (leaderBoardLogic){
       if(leaderBoardLogic.isLoading){
         network.getLeaderboard(time).then((c){
           leaderBoardLogic.comics = c;
@@ -136,12 +137,13 @@ class LeaderBoardD7Logic extends GetxController{
 
 class LeaderBoardD7 extends StatelessWidget {
   final String time = "D7";
-  final leaderBoardLogic = Get.put(LeaderBoardD7Logic());
-  LeaderBoardD7({Key? key}) : super(key: key);
+  const LeaderBoardD7({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<LeaderBoardD7Logic>(builder: (leaderBoardLogic){
+    return GetBuilder<LeaderBoardD7Logic>(
+      init: LeaderBoardD7Logic(),
+        builder: (leaderBoardLogic){
       if(leaderBoardLogic.isLoading){
         network.getLeaderboard(time).then((c){
           leaderBoardLogic.comics = c;
@@ -220,12 +222,13 @@ class LeaderBoardD30Logic extends GetxController{
 
 class LeaderBoardD30 extends StatelessWidget {
   final String time = "D30";
-  final leaderBoardLogic = Get.put(LeaderBoardD30Logic());
-  LeaderBoardD30({Key? key}) : super(key: key);
+  const LeaderBoardD30({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<LeaderBoardD30Logic>(builder: (leaderBoardLogic){
+    return GetBuilder<LeaderBoardD30Logic>(
+      init: LeaderBoardD30Logic(),
+        builder: (leaderBoardLogic){
       if(leaderBoardLogic.isLoading){
         network.getLeaderboard(time).then((c){
           leaderBoardLogic.comics = c;

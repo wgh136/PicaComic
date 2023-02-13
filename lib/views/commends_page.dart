@@ -14,14 +14,15 @@ class CommendsPageLogic extends GetxController{
 }
 
 class CommendsPage extends StatelessWidget {
-  final commendsPageLogic = Get.put(CommendsPageLogic());
   final String id;
-  CommendsPage(this.id,{Key? key}) : super(key: key);
+  const CommendsPage(this.id,{Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GetBuilder<CommendsPageLogic>(builder: (commendsPageLogic){
+      body: GetBuilder<CommendsPageLogic>(
+        init: CommendsPageLogic(),
+        builder: (commendsPageLogic){
         if(commendsPageLogic.isLoading){
           network.getCommends(id).then((c){
             commendsPageLogic.commends = c;

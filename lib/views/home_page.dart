@@ -16,12 +16,13 @@ class HomePageLogic extends GetxController{
 }
 
 class HomePage extends StatelessWidget {
-  HomePage({Key? key}) : super(key: key);
-  final homePageLogic = Get.put(HomePageLogic());
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HomePageLogic>(builder: (homePageLogic){
+    return GetBuilder<HomePageLogic>(
+      init: HomePageLogic(),
+        builder: (homePageLogic){
       if(homePageLogic.isLoading){
         network.getRandomComics().then((c) {
           for(var i in c){

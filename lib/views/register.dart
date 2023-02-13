@@ -23,16 +23,16 @@ class RegisterPageLogic extends GetxController{
 }
 
 class RegisterPage extends StatelessWidget {
-  RegisterPage({Key? key}) : super(key: key){
-    Get.put(RegisterPageLogic());
-  }
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RegisterPageLogic>(builder: (logic){
+    return GetBuilder<RegisterPageLogic>(
+      init: RegisterPageLogic(),
+        builder: (logic){
       return Scaffold(
         appBar: AppBar(
-          title: Text("注册"),
+          title: const Text("注册"),
           actions: [
             Tooltip(
               message: "转到登录",
@@ -47,7 +47,7 @@ class RegisterPage extends StatelessWidget {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
                 child: SizedBox(
                   width: 300,
                   child: Column(

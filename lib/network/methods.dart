@@ -458,3 +458,7 @@ class Network{
     }
   }
 }
+
+String getImageUrl(String url){
+  return appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/$url":url;
+}

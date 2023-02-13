@@ -22,10 +22,11 @@ class CategoriesPageLogic extends GetxController{
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  final categoriesPageLogic = Get.put(CategoriesPageLogic());
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CategoriesPageLogic>(builder: (categoriesPageLogic){
+    return GetBuilder<CategoriesPageLogic>(
+      init: CategoriesPageLogic(),
+        builder: (categoriesPageLogic){
       if(categoriesPageLogic.isLoading){
         network.getCategories().then((c){
           if(c!=null){

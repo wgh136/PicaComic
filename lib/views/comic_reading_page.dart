@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/widgets.dart';
 
@@ -36,7 +37,8 @@ class ComicReadingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return
-      GetBuilder<ComicReadingPageLogic>(builder: (comicReadingPageLogic){
+      GetBuilder<ComicReadingPageLogic>(
+          builder: (comicReadingPageLogic){
         if(comicReadingPageLogic.isLoading){
           comicReadingPageLogic.index = 1;
           comicReadingPageLogic.controller = PageController(initialPage: 1);
@@ -77,15 +79,14 @@ class ComicReadingPage extends StatelessWidget {
                   right: 0,
                   child: PhotoViewGallery.builder(
                     itemCount: comicReadingPageLogic.urls.length+2,
-                    pageController: comicReadingPageLogic.controller,
                     builder: (BuildContext context, int index){
                       if(index<comicReadingPageLogic.urls.length) {
-                        precacheImage(NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comicReadingPageLogic.urls[index]}":comicReadingPageLogic.urls[index]), context);
+                        precacheImage(NetworkImage(getImageUrl(comicReadingPageLogic.urls[index])), context);
                       }
                       if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
                         return PhotoViewGalleryPageOptions(
                             minScale: PhotoViewComputedScale.contained*0.9,
-                            imageProvider: NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${comicReadingPageLogic.urls[index-1]}":comicReadingPageLogic.urls[index-1]),
+                            imageProvider: NetworkImage(getImageUrl(comicReadingPageLogic.urls[index-1])),
                             initialScale: PhotoViewComputedScale.contained,
                             heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
                             onTapUp: (context,detail,value){
@@ -105,6 +106,7 @@ class ComicReadingPage extends StatelessWidget {
                         );
                       }
                     },
+                    pageController: comicReadingPageLogic.controller,
                     loadingBuilder: (context, event) => DecoratedBox(
                       decoration: const BoxDecoration(color: Colors.black),
                       child: Center(

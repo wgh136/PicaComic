@@ -158,7 +158,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 ),
               ),
             ),
-          if(!isLoading)
+          if(!isLoading&&!GetPlatform.isWeb)
             Positioned(
               bottom: 20,
               left: MediaQuery.of(context).size.width/2-200,
