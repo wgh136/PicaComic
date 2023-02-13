@@ -55,7 +55,7 @@ class Network{
     }
   }
 
-  Future<Map<String, dynamic>?> post(String url,Map<String,String> data) async{
+  Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
@@ -129,7 +129,7 @@ class Network{
       }else{
         url = res["avatar"]["fileServer"] + "/static/" + res["avatar"]["path"];
       }
-      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"], res["title"]);
+      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"], res["title"], res["isPunched"]);
       return p;
     }else{
       return null;
@@ -232,7 +232,8 @@ class Network{
           res["data"]["comic"]["_creator"]["exp"],
           res["data"]["comic"]["_creator"]["level"],
           res["data"]["comic"]["_creator"]["name"],
-          res["data"]["comic"]["_creator"]["title"]??"未知"
+          res["data"]["comic"]["_creator"]["title"]??"未知",
+        null
       );
       var categories = <String>[];
       for(int i=0;i<res["data"]["comic"]["categories"].length;i++){
@@ -456,6 +457,32 @@ class Network{
       return "注册失败, 用户名或账号可能已存在";
     }else{
       return "注册成功";
+    }
+  }
+
+  Future<bool> punchIn()async {
+    //打卡
+    var res = await post("$apiUrl/users/punch-in",null);
+    if(res != null){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  Future<bool> uploadAvatar(String imageData) async{
+    //上传头像
+    //中转服务器的接口还没做
+    //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
+    var url = "$apiUrl/users/avatar";
+    var dio = Dio();
+    dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
+    try {
+      var res = await dio.put(url, data: {"avatar": imageData});
+      return res.statusCode==200;
+    }
+    catch(e){
+      return false;
     }
   }
 }

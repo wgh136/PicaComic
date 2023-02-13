@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 class Profile {
   String id;
@@ -8,7 +7,8 @@ class Profile {
   int level;
   int exp;
   String avatarUrl;
-  Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title);
+  bool? isPunched;
+  Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title, this.isPunched);
 }
 
 class KeyWords {
@@ -114,4 +114,12 @@ class SearchResult{
   int loaded;
   List<ComicItemBrief> comics;
   SearchResult(this.keyWord,this.sort,this.comics,this.pages,this.loaded);
+}
+
+class DownloadInfo{
+  String id;
+  int ep;
+  int total;
+  int downloaded = 0;
+  DownloadInfo(this.id,this.ep,this.total);
 }

@@ -20,7 +20,7 @@ class Appdata{
   ];
   Appdata(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "");
+    var temp = Profile("", "", "", 0, 0, "", "",null);
     user = temp;
     history = [];
     appChannel = "3";
@@ -41,7 +41,7 @@ class Appdata{
 
   void clear(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "");
+    var temp = Profile("", "", "", 0, 0, "", "",null);
     user = temp;
     history = [];
     writeData();

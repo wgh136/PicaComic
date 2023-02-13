@@ -85,3 +85,11 @@ vd: 最多绅士指名
 H24 过去24小时,
 D7 过去7天,
 D30 过去30天
+
+`Future<bool> punchIn()async`
+
+&ensp;&ensp;打卡
+
+`Future<bool> uploadAvatar(String imageData) async`
+
+&ensp;&ensp;上传头像, 数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
