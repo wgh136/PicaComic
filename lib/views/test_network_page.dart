@@ -22,9 +22,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
       network.getProfile().then((p){
       if(p!=null){
         appdata.user = p;
-        precacheImage(NetworkImage(appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/${appdata.user.avatarUrl}":appdata.user.avatarUrl), context).then((r){
-          Get.offAll(()=>const MainPage());
-        });
+        Get.offAll(()=>const MainPage());
       }else {
         setState(() {
         isLoading = false;
@@ -97,9 +95,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                           network.getProfile().then((p){
                             if(p!=null){
                               appdata.user = p;
-                              precacheImage(NetworkImage(appdata.user.avatarUrl), context).then((r){
-                                Get.offAll(()=>const MainPage());
-                              });
+                              Get.offAll(()=>const MainPage());
                             }else {
                               setState(() {
                                 isLoading = false;
