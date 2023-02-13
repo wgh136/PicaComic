@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
 import '../views/base.dart';
@@ -8,7 +9,7 @@ import 'models.dart';
 const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";
 
 class Network{
-  String apiUrl = appdata.settings[3]=="1"?
+  String apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
     "https://api.kokoiro.xyz/picaapi"
       :"https://picaapi.picacomic.com";
   InitData? initData;
@@ -17,7 +18,7 @@ class Network{
   bool status = false;
 
   void updateApi(){
-    apiUrl = appdata.settings[3]=="1"?
+    apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
     "https://api.kokoiro.xyz/picaapi"
         :"https://picaapi.picacomic.com";
   }
@@ -460,5 +461,5 @@ class Network{
 }
 
 String getImageUrl(String url){
-  return appdata.settings[3]=="1"?"https://api.kokoiro.xyz/storage/$url":url;
+  return appdata.settings[3]=="1"||GetPlatform.isWeb?"https://api.kokoiro.xyz/storage/$url":url;
 }
