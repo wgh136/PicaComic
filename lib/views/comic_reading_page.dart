@@ -232,7 +232,40 @@ class ComicReadingPage extends StatelessWidget {
                               ,)
                           ],
                         ),
-                      ))
+                      )),
+                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
+                Positioned(
+                  left: 20,
+                  top: MediaQuery.of(context).size.height/2-25,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_circle_left),
+                    onPressed: (){
+                      comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
+                    },
+                    iconSize: 50,
+                  ),
+                ),
+                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
+                Positioned(
+                  right: 20,
+                  top: MediaQuery.of(context).size.height/2-25,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_circle_right),
+                    onPressed: (){
+                      comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
+                    },
+                    iconSize: 50,
+                  ),
+                ),
+                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
+                Positioned(
+                  left: 5,
+                    top: 5,
+                    child: IconButton(
+                      iconSize: 30,
+                      icon: const Icon(Icons.close),
+                      onPressed: (){Get.back();},
+                    ),)
               ],
             )),
           );
