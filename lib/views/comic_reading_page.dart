@@ -257,7 +257,7 @@ class ComicReadingPage extends StatelessWidget {
                     iconSize: 50,
                   ),
                 ),
-                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
+                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&!comicReadingPageLogic.tools)
                 Positioned(
                   left: 5,
                     top: 5,
