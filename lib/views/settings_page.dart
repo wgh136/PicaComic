@@ -138,6 +138,28 @@ void findUpdate(BuildContext context){
   });
 }
 
+void giveComments(BuildContext context){
+  showDialog(context: context, builder: (context){
+    return SimpleDialog(
+      children: [
+        const ListTile(
+          title: Text("提出建议"),
+        ),
+        ListTile(
+          leading: const Image(image: AssetImage("images/github.png"),width: 25,),
+          title: const Text("在Github上提出Issue"),
+          onTap: (){launchUrlString("https://github.com/wgh136/PicaComic/issues",mode: LaunchMode.externalApplication);},
+        ),
+        ListTile(
+          leading: const Icon(Icons.mail),
+          title: const Text("发送邮件"),
+          onTap: (){launchUrlString("mailto:wgh1624044369@gmail.com",mode: LaunchMode.externalApplication);},
+        ),
+      ],
+    );
+  });
+}
+
 class RadioLogic extends GetxController{
   int value = int.parse(appdata.appChannel)-1;
   void change(int i){
@@ -323,6 +345,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: (){
                         launchUrlString("https://github.com/wgh136/PicaComic",mode: LaunchMode.externalApplication);
                       },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.chat),
+                      title: const Text("提出建议"),
+                      onTap: (){giveComments(context);},
                     ),
                   ],
                 ),
