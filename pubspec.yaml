@@ -33,8 +33,7 @@ dependencies:
 
 
   # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  dio: ^4.0.6
+  dio: ^4.0.4
   get: ^4.6.5
   shared_preferences: ^2.0.16
   dynamic_color: ^1.5.4
@@ -79,6 +78,8 @@ flutter:
   assets:
     - images/black.png
     - images/app_icon.png
+    - images/avatar.png
+    - images/avatar_small.png
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
