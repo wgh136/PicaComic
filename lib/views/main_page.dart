@@ -57,6 +57,12 @@ class _MainPageState extends State<MainPage> {
       network.punchIn();
     }
 
+    network.getKeyWords().then((s){
+      if(s!=null){
+        hotSearch = s.keyWords;
+      }
+    });
+
     if(appdata.settings[2]=="1"&&updateFlag) {
       checkUpdate().then((b){
       if(b!=null){

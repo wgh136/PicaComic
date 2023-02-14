@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets.dart';
@@ -7,11 +8,20 @@ import 'base.dart';
 
 class SearchPageLogic extends GetxController{
   var searchResult = SearchResult("", "", [], 1, 0);
+  var controller = TextEditingController();
   bool isLoading = false;
 
   void change(){
     isLoading = !isLoading;
     update();
+  }
+
+  void _refresh(){
+    change();
+    network.searchNew(searchResult.keyWord, appdata.settings[1]).then((t){
+      searchResult = t;
+      change();
+    });
   }
 }
 
@@ -49,7 +59,7 @@ class SearchPage extends StatelessWidget {
                       searchPageLogic.searchResult = t;
                       searchPageLogic.change();
                     });
-                  },),
+                  },searchPageLogic: searchPageLogic,controller: searchPageLogic.controller,),
                 ),
               ),
               const SliverPadding(padding: EdgeInsets.only(top: 5)),
@@ -63,7 +73,7 @@ class SearchPage extends StatelessWidget {
                       ),),
                   );
                 }else{
-                  if(searchPageLogic.searchResult.comics.isNotEmpty||searchPageLogic.searchResult.keyWord==""){
+                  if(searchPageLogic.searchResult.comics.isNotEmpty){
                     return SliverGrid(
                       delegate: SliverChildBuilderDelegate(
                           childCount: searchPageLogic.searchResult.comics.length,
@@ -81,11 +91,47 @@ class SearchPage extends StatelessWidget {
                         childAspectRatio: 4,
                       ),
                     );
-                  }else{
+                  }else if(searchPageLogic.searchResult.keyWord!=""){
                     return const SliverToBoxAdapter(
                       child: ListTile(
                         leading: Icon(Icons.error_outline),
                         title: Text("没有任何结果"),
+                      ),
+                    );
+                  }else{
+                    return SliverToBoxAdapter(
+                      child: SizedBox(
+                        width: Get.size.width,
+                        height: 200,
+                        child: Column(
+                          children: [
+                            Wrap(
+                              children: [
+                                for(var s in hotSearch)
+                                  GestureDetector(
+                                    onTap: (){
+                                      searchPageLogic.controller.text = s;
+                                      searchPageLogic.change();
+                                      network.searchNew(s, appdata.settings[1]).then((t){
+                                        searchPageLogic.searchResult = t;
+                                        searchPageLogic.change();
+                                      });
+                                    },
+                                    child: Card(
+                                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                      elevation: 0,
+                                      color: Theme
+                                          .of(context)
+                                          .colorScheme
+                                          .surfaceVariant,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
+                                    ),
+                                  ),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -105,6 +151,8 @@ class FloatingSearchBar extends StatelessWidget {
     this.trailingIcon,
     required this.supportingText,
     required this.f,
+    required this.searchPageLogic,
+    required this.controller
   }) : super(key: key);
 
   final double height;
@@ -114,6 +162,8 @@ class FloatingSearchBar extends StatelessWidget {
   final Widget? trailingIcon;
   final void Function(String) f;
   final String supportingText;
+  final SearchPageLogic searchPageLogic;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +201,7 @@ class FloatingSearchBar extends StatelessWidget {
                     cursorColor: colorScheme.primary,
                     style: textTheme.bodyLarge,
                     textAlignVertical: TextAlignVertical.center,
+                    controller: controller,
                     decoration: InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,
@@ -182,40 +233,53 @@ class FloatingSearchBar extends StatelessWidget {
                                 ListTile(
                                   trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                                     radioLogic.change(i!);
-
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },),
                                   title: const Text("新书在前"),
                                   onTap: (){
                                     radioLogic.change(0);
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },
                                 ),
                                 ListTile(
                                   trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
                                     radioLogic.change(i!);
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },),
                                   title: const Text("旧书在前"),
                                   onTap: (){
                                     radioLogic.change(1);
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },
                                 ),
                                 ListTile(
                                   trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
                                     radioLogic.change(i!);
-                                    appdata.appChannel = (i+1).toString();
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },),
                                   title: const Text("最多喜欢"),
                                   onTap: (){
                                     radioLogic.change(2);
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },
                                 ),
                                 ListTile(
                                   trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
                                     radioLogic.change(i!);
-                                    appdata.appChannel = (i+1).toString();
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },),
                                   title: const Text("最多指名"),
                                   onTap: (){
                                     radioLogic.change(3);
+                                    searchPageLogic._refresh();
+                                    Get.back();
                                   },
                                 ),
                               ],
