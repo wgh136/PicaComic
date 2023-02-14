@@ -53,6 +53,10 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    if(appdata.user.isPunched==false){
+      network.punchIn();
+    }
+
     if(appdata.settings[2]=="1"&&updateFlag) {
       checkUpdate().then((b){
       if(b!=null){
