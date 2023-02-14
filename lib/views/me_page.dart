@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
-import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/search_page.dart';
+import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets.dart';
 import 'base.dart';
 import 'favorites_page.dart';
@@ -92,7 +92,7 @@ class MePage extends StatelessWidget {
                               appdata.token = "";
                               appdata.history.clear();
                               appdata.writeData();
-                              Get.offAll(const LoginPage());
+                              Get.offAll(const WelcomePage());
                             }, child: const Text("确定",textAlign: TextAlign.end))
                           ],
                         );

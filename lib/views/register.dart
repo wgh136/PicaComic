@@ -224,6 +224,7 @@ class RegisterPage extends StatelessWidget {
                 ),
               )
             ),
+            const SliverPadding(padding: EdgeInsets.only(top: 300)),
           ],
         ),
       );

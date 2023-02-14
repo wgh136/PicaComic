@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/welcome_page.dart';
 import 'base.dart';
 
 class TestNetworkPage extends StatefulWidget {
@@ -115,7 +115,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                                 TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
                                 TextButton(onPressed: (){
                                   appdata.clear();
-                                  Get.offAll(const LoginPage());
+                                  Get.offAll(const WelcomePage());
                                 }, child: const Text("确认"))
                               ],
                             );
@@ -147,7 +147,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                             const Text("注意",style: TextStyle(fontWeight: FontWeight.w600),)
                           ],
                         ),
-                        const Text("此情况可能是登录失效导致, 暂时不知道登录失效会返回什么, 如果网络没有问题请点击重新登录")
+                        const Text("此情况可能是登录失效导致, 暂时不知道登录失效会返回什么, 如果网络没有问题请重新登录")
                       ],
                     ),
                   ),
