@@ -47,7 +47,7 @@ class RegisterPage extends StatelessWidget {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
+                padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width/2-250>0?MediaQuery.of(context).size.width/2-250:0, 0, MediaQuery.of(context).size.width/2-250>0?MediaQuery.of(context).size.width/2-250:0, 0),
                 child: SizedBox(
                   width: 300,
                   child: Column(
