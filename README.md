@@ -8,6 +8,8 @@
 
 Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 
+Web端有点问题, 考完试修
+
 请尽量使用官方App
 
 ## 已实现的功能
