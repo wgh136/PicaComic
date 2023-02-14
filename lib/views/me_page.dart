@@ -40,9 +40,9 @@ class MePage extends StatelessWidget {
                       Center(
                         child: SizedBox.fromSize(
                           size: const Size(100,100),
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage(getImageUrl(appdata.user.avatarUrl)),
-                          ),
+                          child: (appdata.user.avatarUrl==defaultAvatarUrl)?const CircleAvatar(
+                            backgroundImage: AssetImage("images/avatar.png")
+                          ):CircleAvatar(backgroundImage: NetworkImage(getImageUrl(appdata.user.avatarUrl)),)
                         ),
                       ),
                       Center(

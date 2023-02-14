@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/base.dart';
 import 'package:pica_comic/views/widgets.dart';
 import '../network/models.dart';
@@ -56,13 +57,15 @@ class CommendsPage extends StatelessWidget {
                       network.loadMoreCommends(commendsPageLogic.commends).then((t){commendsPageLogic.update();});
                     }
                     return ListTile(
-                      leading: CircleAvatar(backgroundImage: NetworkImage(commendsPageLogic.commends.commends[index].avatarUrl),),
+                      leading: commendsPageLogic.commends.commends[index].avatarUrl==defaultAvatarUrl?
+                                const CircleAvatar(backgroundImage: AssetImage("images/avatar_small.png"),):
+                                CircleAvatar(backgroundImage: NetworkImage(commendsPageLogic.commends.commends[index].avatarUrl),),
                       title: Text(commendsPageLogic.commends.commends[index].name),
                       subtitle: SelectableText(commendsPageLogic.commends.commends[index].text),
                     );
+
                   }
-              )),
-            ],
+          ))],
           );
         }
       },),
