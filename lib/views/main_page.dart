@@ -56,12 +56,13 @@ class _MainPageState extends State<MainPage> {
     if(appdata.user.isPunched==false){
       network.punchIn();
     }
-
-    network.getKeyWords().then((s){
+    if(hotSearch.isEmpty) {
+      network.getKeyWords().then((s){
       if(s!=null){
         hotSearch = s.keyWords;
       }
     });
+    }
 
     if(appdata.settings[2]=="1"&&updateFlag) {
       checkUpdate().then((b){
