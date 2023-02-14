@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/update.dart';
-import 'package:pica_comic/views/base.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

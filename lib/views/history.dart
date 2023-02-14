@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets.dart';
-import 'base.dart';
+import '../base.dart';
 
 
 class HistoryPage extends StatefulWidget {

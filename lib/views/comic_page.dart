@@ -8,7 +8,7 @@ import 'package:pica_comic/views/comic_reading_page.dart';
 import 'package:pica_comic/views/commends_page.dart';
 import 'package:pica_comic/views/widgets.dart';
 
-import 'base.dart';
+import '../base.dart';
 
 class ComicPageLogic extends GetxController{
   bool isLoading = true;

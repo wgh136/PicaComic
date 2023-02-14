@@ -1,6 +1,6 @@
 import 'package:pica_comic/network/methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../network/models.dart';
+import 'network/models.dart';
 
 var network = Network();
 

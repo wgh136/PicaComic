@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/network/methods.dart';
-import 'package:pica_comic/views/base.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets.dart';
 
 class ComicReadingPageLogic extends GetxController{

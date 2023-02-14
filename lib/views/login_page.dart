@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/register.dart';
 import '../network/methods.dart';
-import 'base.dart';
+import '../base.dart';
 import 'main_page.dart';
 
 class LoginPage extends StatefulWidget {

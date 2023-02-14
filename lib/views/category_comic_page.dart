@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets.dart';
-import 'base.dart';
+import '../base.dart';
 
 class CategoryComicPageLogic extends GetxController{
   var search = SearchResult("", "", [], 1, 0);

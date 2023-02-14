@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
-import '../views/base.dart';
+import '../base.dart';
 import 'models.dart';
 
 const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";

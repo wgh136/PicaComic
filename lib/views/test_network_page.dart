@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
-import 'base.dart';
+import '../base.dart';
 
 class TestNetworkPage extends StatefulWidget {
   const TestNetworkPage({Key? key}) : super(key: key);

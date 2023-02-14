@@ -1,7 +1,7 @@
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
-import 'package:pica_comic/views/base.dart';
+import 'package:pica_comic/base.dart';
 
 Future<bool?> checkUpdate() async{
   try {

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:crypto/crypto.dart';
-import 'package:pica_comic/views/base.dart';
+import 'package:pica_comic/base.dart';
 import 'dart:convert';
 
 import 'package:uuid/uuid.dart';

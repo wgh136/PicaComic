@@ -4,7 +4,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets.dart';
-import 'base.dart';
+import '../base.dart';
 import 'favorites_page.dart';
 
 class MePage extends StatelessWidget {
@@ -64,6 +64,13 @@ class MePage extends StatelessWidget {
               color: Theme.of(context).colorScheme.surfaceVariant,
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.notes),
+                    title: const Text("个人信息"),
+                    onTap: (){
+                      //Todo: 个人信息页面
+                    },
+                  ),
                   ListTile(
                     leading: const Icon(Icons.favorite),
                     title: const Text("收藏夹",),
