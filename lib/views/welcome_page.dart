@@ -21,17 +21,21 @@ class WelcomePage extends StatelessWidget {
                 height: 100,
                 child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),
               ),
-              const Padding(padding: EdgeInsets.only(top: 20),child: Text("Pica Comic"),),
+              const Padding(padding: EdgeInsets.only(top: 20),child: Text("Pica Comic",style: TextStyle(fontSize: 20),),),
               SizedBox(
-                width: 180,
+                width: 200,
                 height: 80,
                 child: Row(
                   children: [
-                    FilledButton(onPressed: (){Get.to(()=>const LoginPage());}, child: const Text("登录")),
+                    SizedBox(
+                      width: 90,
+                      child: FilledButton(onPressed: (){Get.to(()=>const LoginPage());}, child: const Text("登录")),
+                    ),
                     const Spacer(),
-                    const Text("或者"),
-                    const Spacer(),
-                    FilledButton(onPressed: (){Get.to(()=>const RegisterPage());}, child: const Text("注册")),
+                    SizedBox(
+                      width: 90,
+                      child: FilledButton(onPressed: (){Get.to(()=>const RegisterPage());}, child: const Text("注册")),
+                    ),
                   ],
                 ),
               ),

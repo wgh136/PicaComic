@@ -58,82 +58,86 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
               ),
               SizedBox.fromSize(size: const Size(5,20),),
-              ElevatedButton(
-                onPressed: (){
-                  if(isLogging){
-                    return;
-                  }else{
-                    isLogging = true;
-                  }
-                  network = Network();
-                  var fur = network.login(nameController.text, passwordController.text);
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    behavior: SnackBarBehavior.floating,
-                    width: 400,
-                    content: Text("登录中"),
-                  ));
-                  fur.then((b){
-                    if(b==1){
-                      appdata.token = network.token;
-                      var i = network.getProfile();
-                      i.then((t){
-                        if(t == null){
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            behavior: SnackBarBehavior.floating,
-                            width: 400,
-                            content: Text("登录失败"),
-                          ));
-                          isLogging = false;
-                        }
-                        else{
-                          appdata.user = t;
-                          appdata.writeData();
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          Get.off(const MainPage());
-                        }
-                      });
-                    }
-                    else if(b == 0){
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        width: 400,
-                        content: Text("网络错误"),
-                      ));
-                      isLogging = false;
-                    }else{
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        width: 400,
-                        content: Text("账号或密码错误"),
-                      ));
-                      isLogging = false;
-                    }
-                  });
-                },
-                child: const Text('登录'),
-              ),
               if(!GetPlatform.isWeb)
-              ListTile(
-                leading: const Icon(Icons.change_circle),
-                title: const Text("使用转发服务器"),
-                subtitle: const Text("自己有魔法会减慢速度"),
-                trailing: Switch(
-                  value: useMyServer,
-                  onChanged: (b){
-                    b?appdata.settings[3] = "1":appdata.settings[3]="0";
-                    setState(() {
-                      useMyServer = b;
-                    });
-                    network.updateApi();
-                    appdata.writeData();
-                  },
+                ListTile(
+                  leading: const Icon(Icons.change_circle),
+                  title: const Text("使用转发服务器"),
+                  subtitle: const Text("自己有魔法会减慢速度"),
+                  trailing: Switch(
+                    value: useMyServer,
+                    onChanged: (b){
+                      b?appdata.settings[3] = "1":appdata.settings[3]="0";
+                      setState(() {
+                        useMyServer = b;
+                      });
+                      network.updateApi();
+                      appdata.writeData();
+                    },
+                  ),
+                  onTap: (){},
                 ),
-                onTap: (){},
-              ),
+              SizedBox.fromSize(size: const Size(5,20),),
+              SizedBox(
+                width: 90,
+                child:               ElevatedButton(
+                  onPressed: (){
+                    if(isLogging){
+                      return;
+                    }else{
+                      isLogging = true;
+                    }
+                    network = Network();
+                    var fur = network.login(nameController.text, passwordController.text);
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      behavior: SnackBarBehavior.floating,
+                      width: 400,
+                      content: Text("登录中"),
+                    ));
+                    fur.then((b){
+                      if(b==1){
+                        appdata.token = network.token;
+                        var i = network.getProfile();
+                        i.then((t){
+                          if(t == null){
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              width: 400,
+                              content: Text("登录失败"),
+                            ));
+                            isLogging = false;
+                          }
+                          else{
+                            appdata.user = t;
+                            appdata.writeData();
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            Get.off(const MainPage());
+                          }
+                        });
+                      }
+                      else if(b == 0){
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          width: 400,
+                          content: Text("网络错误"),
+                        ));
+                        isLogging = false;
+                      }else{
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          width: 400,
+                          content: Text("账号或密码错误"),
+                        ));
+                        isLogging = false;
+                      }
+                    });
+                  },
+                  child: const Text('登录'),
+                ),
+              )
             ],
           ),
         ),
