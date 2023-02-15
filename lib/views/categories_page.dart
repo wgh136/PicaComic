@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/search_page.dart';
-import 'package:pica_comic/views/widgets.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({Key? key}) : super(key: key);

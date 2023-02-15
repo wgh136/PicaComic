@@ -1,14 +1,10 @@
 # Pica Comic
 
-**由于要应对考试, 暂停更新, 除非有恶性bug**
-
 基于flutter构建的跨平台Picacg App
 
 目前已有Android, Windows版本, Web版本, 其它平台也会进行开发
 
 Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
-
-Web端有点问题, 考完试修
 
 请尽量使用官方App
 

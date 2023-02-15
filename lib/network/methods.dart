@@ -15,7 +15,7 @@ class Network{
   InitData? initData;
   String token;
   Network([this.token=""]);
-  bool status = false;
+  bool status = false; //用于判断请求出错是的情况, true意味着请求响应成功, 但提供的信息不正确
 
   void updateApi(){
     apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
@@ -25,8 +25,8 @@ class Network{
 
   Future<Map<String, dynamic>?> get(String url) async{
     status = false;
-    var dio = Dio();
-    //  ..interceptors.add(LogInterceptor());
+    var dio = Dio()
+      ..interceptors.add(LogInterceptor());
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -56,6 +56,7 @@ class Network{
   }
 
   Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
+    status = false;
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
@@ -81,7 +82,8 @@ class Network{
     }
     on DioError catch(e){
       if(e.message == "Http status error [400]"){
-        return {"message":"failure"};
+        status = true;
+        return null;
       }else {
         if (kDebugMode) {
           print(e);
@@ -111,9 +113,11 @@ class Network{
         }
         return 1;
       }else{
-        return -1;
+        return 0;
       }
-    }else{
+    }else if(status){
+      return -1;
+    } else{
       return 0;
     }
   }
@@ -129,7 +133,7 @@ class Network{
       }else{
         url = res["avatar"]["fileServer"] + "/static/" + res["avatar"]["path"];
       }
-      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"], res["title"], res["isPunched"]);
+      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"], res["title"], res["isPunched"] ,res["slogan"]);
       return p;
     }else{
       return null;
@@ -233,7 +237,7 @@ class Network{
           res["data"]["comic"]["_creator"]["level"],
           res["data"]["comic"]["_creator"]["name"],
           res["data"]["comic"]["_creator"]["title"]??"未知",
-        null
+        null,null
       );
       var categories = <String>[];
       for(int i=0;i<res["data"]["comic"]["categories"].length;i++){
@@ -306,7 +310,7 @@ class Network{
     return imageUrls;
   }
 
-  Future<void> loadMoreCommends(Commends c) async{
+  Future<void> loadMoreCommends(Comments c) async{
     if(c.loaded != c.pages){
       var res = await get("$apiUrl/comics/${c.id}/comments?page=${c.loaded+1}");
       if(res!=null){
@@ -320,33 +324,41 @@ class Network{
           catch(e){
             url = defaultAvatarUrl;
           }
-          var t = Commend("","","",1,"");
+          var t = Comment("","","",1,"",0,"",false,0);
           if(res["data"]["comments"]["docs"][i]["_user"] != null) {
-            t = Commend(
+            t = Comment(
               res["data"]["comments"]["docs"][i]["_user"]["name"],
               url,
               res["data"]["comments"]["docs"][i]["_user"]["_id"],
               res["data"]["comments"]["docs"][i]["_user"]["level"],
-              res["data"]["comments"]["docs"][i]["content"]
+              res["data"]["comments"]["docs"][i]["content"],
+              res["data"]["comments"]["docs"][i]["commentsCount"],
+              res["data"]["comments"]["docs"][i]["_id"],
+              res["data"]["comments"]["docs"][i]["isLiked"],
+              res["data"]["comments"]["docs"][i]["likesCount"],
             );
           }else{
-            t = Commend(
+            t = Comment(
                 "未知",
                 url,
                 "",
                 1,
-                res["data"]["comments"]["docs"][i]["content"]
+                res["data"]["comments"]["docs"][i]["content"],
+                res["data"]["comments"]["docs"][i]["commentsCount"],
+                res["data"]["comments"]["docs"][i]["_id"],
+                res["data"]["comments"]["docs"][i]["isLiked"],
+                res["data"]["comments"]["docs"][i]["likesCount"],
             );
           }
-          c.commends.add(t);
+          c.comments.add(t);
         }
         c.loaded++;
       }
     }
   }
 
-  Future<Commends> getCommends(String id) async{
-    var t = Commends([], id, 1, 0);
+  Future<Comments> getCommends(String id) async{
+    var t = Comments([], id, 1, 0);
     await loadMoreCommends(t);
     return t;
   }
@@ -472,11 +484,10 @@ class Network{
 
   Future<bool> uploadAvatar(String imageData) async{
     //上传头像
-    //中转服务器的接口还没做
     //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
     var url = "$apiUrl/users/avatar";
     var dio = Dio();
-    dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
+    dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"avatar": imageData});
       return res.statusCode==200;
@@ -484,6 +495,89 @@ class Network{
     catch(e){
       return false;
     }
+  }
+
+  Future<bool> changeSlogan(String slogan) async{
+    var url = "$apiUrl/users/profile";
+    var dio = Dio()
+      ..interceptors.add(LogInterceptor());
+    dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
+    try {
+      var res = await dio.put(url, data: {"slogan": slogan});
+      if(res.statusCode == 200){
+        return true;
+      }else{
+        return false;
+      }
+    }
+    catch(e){
+      return false;
+    }
+  }
+
+  Future<void> getMoreReply(Reply reply) async{
+    if(reply.loaded==reply.total) return;
+    var res = await get("$apiUrl/comments/${reply.id}/childrens?page=${reply.loaded+1}"); //哔咔的英语水平有点烂
+    if(res!=null){
+      reply.total = res["data"]["comments"]["pages"];
+      for(int i=0;i<res["data"]["comments"]["docs"].length;i++){
+        String url = "";
+        try {
+          url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]["fileServer"] + "/static/" +
+              res["data"]["comments"]["docs"][i]["_user"]["avatar"]["path"];
+        }
+        catch(e){
+          url = defaultAvatarUrl;
+        }
+        var t = Comment("","","",1,"",0,"",false,0);
+        if(res["data"]["comments"]["docs"][i]["_user"] != null) {
+          t = Comment(
+              res["data"]["comments"]["docs"][i]["_user"]["name"],
+              url,
+              res["data"]["comments"]["docs"][i]["_user"]["_id"],
+              res["data"]["comments"]["docs"][i]["_user"]["level"],
+              res["data"]["comments"]["docs"][i]["content"],
+              0,"",
+              res["data"]["comments"]["docs"][i]["isLiked"],
+              res["data"]["comments"]["docs"][i]["likesCount"],
+          );
+        }else{
+          t = Comment(
+              "未知",
+              url,
+              "",
+              1,
+              res["data"]["comments"]["docs"][i]["content"],
+              0,"",
+              res["data"]["comments"]["docs"][i]["isLiked"],
+              res["data"]["comments"]["docs"][i]["likesCount"],
+          );
+        }
+        reply.comments.add(t);
+      }
+      reply.loaded++;
+    }
+  }
+
+  Future<Reply> getReply(String id) async{
+    var reply = Reply(id, 0, 1, []);
+    await getMoreReply(reply);
+    return reply;
+  }
+
+  Future<bool> likeOrUnlikeComment(String id) async{
+    var res = await post("$apiUrl/comments/$id/like",{});
+    return res!=null;
+  }
+
+  Future<bool> comment(String id, String text,bool isReply) async{
+    Map<String, dynamic>? res;
+    if(!isReply) {
+      res = await post("$apiUrl/comics/$id/comments",{"content":text});
+    }else{
+      res = await post("$apiUrl/comments/$id",{"content":text});
+    }
+    return res!=null;
   }
 }
 

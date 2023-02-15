@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/widgets.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 
 class RegisterPageLogic extends GetxController{
   var isRegistering = false;
@@ -150,6 +150,7 @@ class RegisterPage extends StatelessWidget {
                           }
                         },
                       ),
+                      if(!logic.isRegistering)
                       SizedBox(
                         width: 300,
                         height: 50,
@@ -158,7 +159,6 @@ class RegisterPage extends StatelessWidget {
                           child: ElevatedButton(
                             child: const Text("注册"),
                             onPressed: (){
-                              if(logic.isRegistering) return;
                               if(logic.password.text!=logic.password2.text){
                                 showMessage(context, "两次输入的密码不一致");
                               }else if(logic.password.text.length<8){
@@ -178,6 +178,7 @@ class RegisterPage extends StatelessWidget {
                                 showMessage(context, "未成年人禁止涩涩!");
                               } else {
                                 logic.isRegistering = true;
+                                logic.update();
                                 network.register(
                                   logic.ans1.text,
                                   logic.ans2.text,
@@ -191,6 +192,7 @@ class RegisterPage extends StatelessWidget {
                                   logic.problem3.text
                               ).then((s){
                                 logic.isRegistering = false;
+                                logic.update();
                                 if(s == "注册成功"){
                                   network.login(logic.account.text, logic.password.text).then((i){
                                     if(i == 1){
@@ -218,7 +220,9 @@ class RegisterPage extends StatelessWidget {
                               },
                           ),
                         ),
-                      )
+                      ),
+                      if(logic.isRegistering)
+                        const CircularProgressIndicator()
                     ],
                   ),
                 ),

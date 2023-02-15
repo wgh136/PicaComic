@@ -66,12 +66,13 @@ BaseOptions getHeaders(String method,String token,String url){
           "image-quality":"original",
           "app-platform":"android",
           "app-build-version":"45",
-          "Content-Type":"application/json; charset=UTF-8",
+          "content-Type":"application/json; charset=UTF-8",
+          "accept-encoding": "gzip",
           "user-agent":"okhttp/3.8.1",
           "version": "v1.4.1"
         }
     );
-  }else{
+  }else if(method == "get"){
     return BaseOptions(
         receiveDataWhenStatusError: true,
         connectTimeout: 12000,
@@ -88,6 +89,29 @@ BaseOptions getHeaders(String method,String token,String url){
           "image-quality":"original",
           "app-platform":"android",
           "app-build-version":"45",
+          "accept-encoding": "gzip",
+          "user-agent":"okhttp/3.8.1",
+          "version": "v1.4.1"
+        }
+    );
+  }else{
+    return BaseOptions(
+        receiveDataWhenStatusError: true,
+        connectTimeout: 15000,
+        headers: {
+          "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
+          "authorization": token,
+          "accept": "application/vnd.picacomic.com.v1+json",
+          "app-channel": appdata.appChannel,
+          "time": time,
+          "nonce": nonce,
+          "signature": createSignature(url, nonce, time, "PUT"),
+          "app-version":"2.2.1.3.3.4",
+          "app-uuid":"defaultUuid",
+          "image-quality":"original",
+          "app-platform":"android",
+          "app-build-version":"45",
+          "Content-Type":"application/json; charset=UTF-8",
           "user-agent":"okhttp/3.8.1",
           "version": "v1.4.1"
         }

@@ -5,7 +5,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
-import 'comic_page.dart';
+import '../comic_page.dart';
 
 class ComicTile extends StatelessWidget {
   final ComicItemBrief comic;
@@ -15,7 +15,17 @@ class ComicTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
-        appdata.history.remove(comic);
+        while(true) {
+          bool flag = true;
+          for (var c in appdata.history) {
+            if (c.id == comic.id) {
+              appdata.history.remove(c);
+              flag = false;
+              break;
+            }
+          }
+          if(flag) break;
+        }
         appdata.history.add(comic);
         if(appdata.history.length>100){
           appdata.history.removeAt(0);

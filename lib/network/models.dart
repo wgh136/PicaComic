@@ -8,7 +8,8 @@ class Profile {
   int exp;
   String avatarUrl;
   bool? isPunched;
-  Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title, this.isPunched);
+  String? slogan;
+  Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title, this.isPunched, this.slogan);
 }
 
 class KeyWords {
@@ -80,23 +81,27 @@ class ComicItem {
   }
 }
 
-class Commend {
+class Comment {
   String name;
   String avatarUrl;
-  String id;
+  String userId;
   int level;
   String text;
+  int reply;
+  String id;
+  bool isLiked;
+  int likes;
 
-  Commend(this.name, this.avatarUrl, this.id, this.level, this.text);
+  Comment(this.name, this.avatarUrl, this.userId, this.level, this.text, this.reply, this.id,this.isLiked,this.likes);
 }
 
-class Commends {
-  List<Commend> commends;
+class Comments {
+  List<Comment> comments;
   String id;
   int pages;
   int loaded;
 
-  Commends(this.commends, this.id, this.pages, this.loaded);
+  Comments(this.comments, this.id, this.pages, this.loaded);
 }
 
 class Favorites {
@@ -114,6 +119,14 @@ class SearchResult{
   int loaded;
   List<ComicItemBrief> comics;
   SearchResult(this.keyWord,this.sort,this.comics,this.pages,this.loaded);
+}
+
+class Reply{
+  String id;
+  int loaded;
+  int total;
+  List<Comment> comments;
+  Reply(this.id,this.loaded,this.total,this.comments);
 }
 
 class DownloadInfo{
