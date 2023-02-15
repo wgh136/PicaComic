@@ -5,6 +5,7 @@
 目前已有Android, Windows版本, Web版本, 其它平台也会进行开发
 
 Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
+Web端加载较慢, 第一次加载可能超时, 通常刷新一次就进去了, 暂时没有时间解决这个问题
 
 请尽量使用官方App
 
