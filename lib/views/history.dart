@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/widgets.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 
 

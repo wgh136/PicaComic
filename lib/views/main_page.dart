@@ -46,7 +46,7 @@ class _MainPageState extends State<MainPage> {
   ];
 
   var pages = [
-    const MePage(),
+    MePage(),
     const HomePage(),
     const CategoriesPage(),
   ];

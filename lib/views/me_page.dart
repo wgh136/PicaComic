@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/views/profile_page.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
-import 'package:pica_comic/views/widgets.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 import 'favorites_page.dart';
 
+class InfoController extends GetxController{}
+
 class MePage extends StatelessWidget {
-  const MePage({super.key});
+  MePage({super.key});
+  final infoController = Get.put(InfoController());
 
   @override
   Widget build(BuildContext context) {
@@ -33,27 +37,31 @@ class MePage extends StatelessWidget {
         SliverToBoxAdapter(
             child: SizedBox.fromSize(
               size: Size(MediaQuery.of(context).size.width,160),
-              child: Card(
-                elevation: 0,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: SizedBox.fromSize(
-                          size: const Size(100,100),
-                          child: (appdata.user.avatarUrl==defaultAvatarUrl)?const CircleAvatar(
-                            backgroundImage: AssetImage("images/avatar.png")
-                          ):CircleAvatar(backgroundImage: NetworkImage(getImageUrl(appdata.user.avatarUrl)),)
-                        ),
-                      ),
-                      Center(
-                        child: Text(appdata.user.name,style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 20)),
-                      ),
-                      Center(
-                        child: Text("Lv${appdata.user.level} ${appdata.user.title}",style: const TextStyle(fontWeight: FontWeight.w300,fontSize: 15)),
-                      ),
-                    ],
-                  )
-              ),
+              child: GetBuilder<InfoController>(
+                builder: (logic){
+                  return Card(
+                      elevation: 0,
+                      child: Column(
+                        children: [
+                          Center(
+                            child: SizedBox.fromSize(
+                                size: const Size(100,100),
+                                child: (appdata.user.avatarUrl==defaultAvatarUrl)?const CircleAvatar(
+                                    backgroundImage: AssetImage("images/avatar.png")
+                                ):CircleAvatar(backgroundImage: NetworkImage(getImageUrl(appdata.user.avatarUrl)),)
+                            ),
+                          ),
+                          Center(
+                            child: Text(appdata.user.name,style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 20)),
+                          ),
+                          Center(
+                            child: Text("Lv${appdata.user.level} ${appdata.user.title}",style: const TextStyle(fontWeight: FontWeight.w300,fontSize: 15)),
+                          ),
+                        ],
+                      )
+                  );
+                },
+              )
             )
         ),
         SliverToBoxAdapter(
@@ -68,8 +76,8 @@ class MePage extends StatelessWidget {
                     leading: const Icon(Icons.notes),
                     title: const Text("个人信息"),
                     onTap: (){
-                      //Todo: 个人信息页面
-                    },
+                      Get.to(()=>ProfilePage(infoController));
+                      },
                   ),
                   ListTile(
                     leading: const Icon(Icons.favorite),

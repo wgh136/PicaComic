@@ -5,8 +5,8 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
 import 'package:pica_comic/views/comic_reading_page.dart';
-import 'package:pica_comic/views/commends_page.dart';
-import 'package:pica_comic/views/widgets.dart';
+import 'package:pica_comic/views/comments_page.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 
 import '../base.dart';
 
@@ -116,28 +116,49 @@ class ComicPage extends StatelessWidget{
                           builder: (BuildContext context) => Dialog(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  ListTile(
-                                    title: const Text("标题"),
-                                    subtitle: SelectableText(comic.title),
-                                  ),
-                                  ListTile(
-                                    title: const Text("作者"),
-                                    subtitle: SelectableText(comic.author),
-                                  ),
-                                  ListTile(
-                                    title: const Text("上传者"),
-                                    subtitle: SelectableText(comicPageLogic.comicItem!.creator.name),
-                                  ),
-                                  ListTile(
-                                    title: const Text("汉化组"),
-                                    subtitle: SelectableText(comicPageLogic.comicItem!.chineseTeam),
-                                  ),
-                                ],
-                              ),
+                              child: SelectionArea(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    ListTile(
+                                      title: const Text("标题"),
+                                      subtitle: Text(comic.title),
+                                    ),
+                                    ListTile(
+                                      title: const Text("作者"),
+                                      subtitle: Text(comic.author),
+                                    ),
+                                    ListTile(
+                                      title: const Text("上传者"),
+                                      subtitle: Text(comicPageLogic.comicItem!.creator.name),
+                                    ),
+                                    ListTile(
+                                      title: const Text("汉化组"),
+                                      subtitle: Text(comicPageLogic.comicItem!.chineseTeam),
+                                    ),
+                                    ListTile(
+                                      title: const Text("分类"),
+                                      subtitle: Text(comicPageLogic.comicItem!.categories.toString().substring(1,comicPageLogic.comicItem!.categories.toString().length-1)),
+                                    ),
+                                    ListTile(
+                                      title: const Text("Tags"),
+                                      subtitle: Text(comicPageLogic.comicItem!.tags.toString().substring(1,comicPageLogic.comicItem!.tags.toString().length-1)),
+                                    ),
+                                    SizedBox(
+                                      height: 50,
+                                      child: Row(
+                                        children: const[
+                                          Padding(padding: EdgeInsets.only(left: 18)),
+                                          Icon(Icons.info),
+                                          Padding(padding: EdgeInsets.only(left: 5)),
+                                          Text("此界面文字可复制")
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
                             ),
                           ),
                         );
@@ -207,7 +228,7 @@ class ComicPage extends StatelessWidget{
                         label: Text(comicPageLogic.comicItem!.comments.toString()),
                         avatar: const Icon(Icons.comment),
                         onPressed: (){
-                          Get.to(()=>CommendsPage(comic.id));
+                          Get.to(()=>CommentsPage(comic.id));
                         },
                       ),),
                     ],
@@ -312,7 +333,7 @@ class ComicPage extends StatelessWidget{
                                     label: Text(comicPageLogic.comicItem!.comments.toString()),
                                     avatar: const Icon(Icons.comment),
                                     onPressed: (){
-                                      Get.to(()=>CommendsPage(comic.id));
+                                      Get.to(()=>CommentsPage(comic.id));
                                     },
                                   ),),
                                 ],

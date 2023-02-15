@@ -5,7 +5,7 @@ import 'network/models.dart';
 var network = Network();
 
 const changePoint = 600; //定义宽屏设备的临界值
-const appVersion = "1.1.8";
+const appVersion = "1.2.0";
 
 var hotSearch = <String>[];
 
@@ -23,7 +23,7 @@ class Appdata{
   ];
   Appdata(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "",null);
+    var temp = Profile("", "", "", 0, 0, "", "",null,null);
     user = temp;
     history = [];
     appChannel = "3";
@@ -44,7 +44,7 @@ class Appdata{
 
   void clear(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "",null);
+    var temp = Profile("", "", "", 0, 0, "", "",null,null);
     user = temp;
     history = [];
     writeData();

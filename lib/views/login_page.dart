@@ -77,15 +77,14 @@ class _LoginPageState extends State<LoginPage> {
                   onTap: (){},
                 ),
               SizedBox.fromSize(size: const Size(5,20),),
+              if(!isLogging)
               SizedBox(
                 width: 90,
-                child:               ElevatedButton(
+                child: ElevatedButton(
                   onPressed: (){
-                    if(isLogging){
-                      return;
-                    }else{
+                    setState(() {
                       isLogging = true;
-                    }
+                    });
                     network = Network();
                     var fur = network.login(nameController.text, passwordController.text);
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -106,7 +105,9 @@ class _LoginPageState extends State<LoginPage> {
                               width: 400,
                               content: Text("登录失败"),
                             ));
-                            isLogging = false;
+                            setState(() {
+                              isLogging = false;
+                            });
                           }
                           else{
                             appdata.user = t;
@@ -123,7 +124,9 @@ class _LoginPageState extends State<LoginPage> {
                           width: 400,
                           content: Text("网络错误"),
                         ));
-                        isLogging = false;
+                        setState(() {
+                          isLogging = false;
+                        });
                       }else{
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -131,13 +134,17 @@ class _LoginPageState extends State<LoginPage> {
                           width: 400,
                           content: Text("账号或密码错误"),
                         ));
-                        isLogging = false;
+                        setState(() {
+                          isLogging = false;
+                        });
                       }
                     });
                   },
                   child: const Text('登录'),
                 ),
-              )
+              ),
+              if(isLogging)
+                const CircularProgressIndicator()
             ],
           ),
         ),

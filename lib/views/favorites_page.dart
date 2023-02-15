@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/widgets.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 
 class FavoritesPageLogic extends GetxController{
   var favorites = Favorites([], 1, 0);
