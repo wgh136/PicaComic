@@ -19,6 +19,8 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 历史记录(本地)
 - 分类
 - 探索(随机本子)
+- 签到
+- 个人信息, 修改头像, 修改简介
 
 
 ## 尚未实现但在计划中的功能
