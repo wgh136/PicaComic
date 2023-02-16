@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
 import '../comment_reply_page.dart';
 
 class CommentTile extends StatefulWidget {
-  const CommentTile({Key? key,required this.comment,required this.isReply}) : super(key: key);
+  const CommentTile({Key? key,required this.comment,required this.isReply,this.isToReply}) : super(key: key);
   final Comment comment;
   final bool isReply;
+  final bool? isToReply;
 
   @override
-  State<CommentTile> createState() => _CommentTileState(comment: comment, isReply: isReply);
+  State<CommentTile> createState() => _CommentTileState(comment: comment, isReply: isReply, isToReply: isToReply);
 }
 
 class _CommentTileState extends State<CommentTile> {
-  _CommentTileState({required this.comment,required this.isReply});
+  _CommentTileState({required this.comment,required this.isReply,this.isToReply});
   final bool isReply;
   final Comment comment;
+  final bool? isToReply;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +31,15 @@ class _CommentTileState extends State<CommentTile> {
           children: [
             Expanded(
               flex: 0,
-              child: Center(child: comment.avatarUrl=="https://cdn-icons-png.flaticon.com/512/1946/1946429.png"?
-              const CircleAvatar(backgroundImage: AssetImage("images/avatar_small.png"),):
-              CircleAvatar(backgroundImage: NetworkImage(comment.avatarUrl),),),
+              child: Center(child: Avatar(
+                size: 60,
+                avatarUrl: comment.avatarUrl,
+                frame: comment.frame,
+                couldBeShown: true,
+                name: comment.name,
+                slogan: comment.slogan,
+                level: comment.level,
+              )),
             ),
             SizedBox.fromSize(size: const Size(10,5),),
             Expanded(
@@ -58,6 +67,7 @@ class _CommentTileState extends State<CommentTile> {
                 ),
               ),
             ),
+            if(isToReply!=true)
             SizedBox(
               width: 80,
               child: Column(
@@ -109,22 +119,24 @@ class GiveCommentController extends GetxController{
   var controller = TextEditingController();
 }
 
-Future<bool> giveComment(BuildContext context, String id, bool isReply) async{
+Future<bool> giveComment(BuildContext context, String id, bool isReply, {String type = "comics"}) async{
   bool res = false;
   await showDialog(context: context, builder: (context){
     return GetBuilder<GiveCommentController>(
       init: GiveCommentController(),
         builder: (logic){
       return SimpleDialog(
+        title: const Text("发表评论"),
         children: [
           SizedBox(
-            width: 300,
+            width: Get.size.width*0.75,
             child: Column(
               children: [
-                Padding(padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),child: TextField(
+                Padding(padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),child: TextField(
                   controller: logic.controller,
                   keyboardType: TextInputType.text,
                 ),),
+                const SizedBox(height: 30,),
                 if(!logic.isUploading)
                   FilledButton(onPressed: (){
                     if(logic.controller.text.length<=1){
@@ -134,7 +146,7 @@ Future<bool> giveComment(BuildContext context, String id, bool isReply) async{
                     }
                     logic.isUploading = true;
                     logic.update();
-                    network.comment(id, logic.controller.text, isReply).then((b){
+                    network.comment(id, logic.controller.text, isReply, type: type).then((b){
                       logic.isUploading = false;
                       if(b){
                         showMessage(context, "成功发表评论");

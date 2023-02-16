@@ -6,12 +6,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/me_page.dart';
+import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../network/methods.dart';
 
 class SloganLogic extends GetxController{
   bool isUploading = false;
   bool status = false;
+  bool status2 = false;
   var controller = TextEditingController();
 }
 
@@ -42,14 +44,12 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20,),
             SizedBox(
               width: Get.size.width,
-              height: 100,
+              height: 150,
               child: Center(
                 child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: (appdata.user.avatarUrl==defaultAvatarUrl)?const CircleAvatar(
-                        backgroundImage: AssetImage("images/avatar.png")
-                    ):CircleAvatar(backgroundImage: NetworkImage(getImageUrl(appdata.user.avatarUrl)),)
+                    width: 150,
+                    height: 150,
+                    child: Avatar(size: 150,avatarUrl: appdata.user.avatarUrl==defaultAvatarUrl?null:appdata.user.avatarUrl,frame: appdata.user.frameUrl,)
                 ),
               ),
             ),
@@ -57,7 +57,7 @@ class ProfilePage extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width/2-200>0?MediaQuery.of(context).size.width/2-200:0, 20, MediaQuery.of(context).size.width/2-200>0?MediaQuery.of(context).size.width/2-200:0, 0),
               child: Card(
                 elevation: 0,
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.secondaryContainer,
                 child: Column(
                   children: [
                     ListTile(
@@ -69,6 +69,7 @@ class ProfilePage extends StatelessWidget {
                               init: ChangeAvatarLogic(),
                               builder: (logic){
                                 return SimpleDialog(
+                                  title: const Text("更换头像"),
                                   children: [
                                     SizedBox(
                                       width: 300,
@@ -106,7 +107,7 @@ class ProfilePage extends StatelessWidget {
                                               }
                                             },
                                           ),
-                                          const SizedBox(height: 10,),
+                                          const SizedBox(height: 20,),
                                           if(!logic.isUploading)
                                           FilledButton(onPressed: () async {
                                             if(logic.url==""){
@@ -189,18 +190,26 @@ class ProfilePage extends StatelessWidget {
                             init: SloganLogic(),
                             builder: (logic){
                               return SimpleDialog(
+                                title: const Text("更改自我介绍"),
                                 children: [
                                   SizedBox(
-                                    width: 300,
+                                    width: Get.size.width*0.75,
                                     child: Column(
                                       children: [
                                         Padding(padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),child:                                   TextField(
                                           controller: logic.controller,
                                           keyboardType: TextInputType.text,
                                         ),),
+                                        const SizedBox(height: 40,),
                                         if(!logic.isUploading)
                                           FilledButton(onPressed: (){
+                                            if(logic.controller.text == ""){
+                                              logic.status2 = true;
+                                              logic.update();
+                                              return;
+                                            }
                                             logic.isUploading = true;
+                                            logic.status2 = false;
                                             logic.update();
                                             network.changeSlogan(logic.controller.text).then((t){
                                               if(t){
@@ -219,13 +228,25 @@ class ProfilePage extends StatelessWidget {
                                           const CircularProgressIndicator(),
                                         if(!logic.isUploading&&logic.status)
                                           SizedBox(
-                                              width: 80,
+                                              width: 100,
                                               height: 50,
                                               child: Row(
                                                 children: const [
                                                   Icon(Icons.error),
                                                   Spacer(),
                                                   Text("网络错误")
+                                                ],
+                                              )
+                                          ),
+                                        if(!logic.isUploading&&logic.status2)
+                                          SizedBox(
+                                              width: 100,
+                                              height: 50,
+                                              child: Row(
+                                                children: const [
+                                                  Icon(Icons.error),
+                                                  Spacer(),
+                                                  Text("不能为空")
                                                 ],
                                               )
                                           ),

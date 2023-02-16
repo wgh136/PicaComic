@@ -5,7 +5,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'network/methods.dart';
-//import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 bool isLogged = false;
 
@@ -16,7 +16,6 @@ void main() {
     if(b){
       network = Network(appdata.token);
     }
-    /*
     await SentryFlutter.init(
           (options) {
         options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
@@ -26,8 +25,6 @@ void main() {
       },
       appRunner: () => runApp(const MyApp()),
     );
-     */
-    runApp(const MyApp());
   });
 
 }
@@ -43,7 +40,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.cyanAccent),
           useMaterial3: true,
-          fontFamily: 'NotoSansSc'
+          //fontFamily: 'NotoSansSc'
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.black,brightness: Brightness.dark),

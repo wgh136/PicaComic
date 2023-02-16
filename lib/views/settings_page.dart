@@ -5,6 +5,8 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import 'me_page.dart';
+
 void setSearchMode(BuildContext context){
   showDialog(context: context, builder: (context){
     return Dialog(
@@ -141,10 +143,8 @@ void findUpdate(BuildContext context){
 void giveComments(BuildContext context){
   showDialog(context: context, builder: (context){
     return SimpleDialog(
+      title: const Text("提出建议"),
       children: [
-        const ListTile(
-          title: Text("提出建议"),
-        ),
         ListTile(
           leading: const Image(image: AssetImage("images/github.png"),width: 25,),
           title: const Text("在Github上提出Issue"),
@@ -187,10 +187,14 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+
+
   bool pageChangeValue = appdata.settings[0]=="1";
   bool checkUpdateValue = appdata.settings[2]=="1";
   bool useMyServer = appdata.settings[3]=="1";
   bool showThreeButton = appdata.settings[4]=="1";
+  bool showFrame = appdata.settings[5]=="1";
+  bool punchIn = appdata.settings[6]=="1";
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +247,38 @@ class _SettingsPageState extends State<SettingsPage> {
                     onTap: (){
                       setSearchMode(context);
                     },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.circle_outlined),
+                    title: const Text("显示头像框"),
+                    trailing: Switch(
+                      value: showFrame,
+                      onChanged: (b){
+                        b?appdata.settings[5] = "1":appdata.settings[5]="0";
+                        setState(() {
+                          showFrame = b;
+                        });
+                        var t = Get.find<InfoController>();
+                        t.update();
+                        appdata.writeData();
+                      },
+                    ),
+                    onTap: (){},
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.today),
+                    title: const Text("启动时打卡"),
+                    onTap: (){},
+                    trailing: Switch(
+                      value: punchIn,
+                      onChanged: (b){
+                        b?appdata.settings[6] = "1":appdata.settings[6]="0";
+                        setState(() {
+                          punchIn = b;
+                        });
+                        appdata.writeData();
+                      },
+                    ),
                   ),
                 ],
               ),

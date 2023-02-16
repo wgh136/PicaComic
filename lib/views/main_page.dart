@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/categories_page.dart';
+import 'package:pica_comic/views/games_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../network/update.dart';
 import 'home_page.dart';
@@ -43,18 +45,26 @@ class _MainPageState extends State<MainPage> {
     "我",
     "探索",
     "分类",
+    "游戏"
   ];
 
   var pages = [
     MePage(),
     const HomePage(),
     const CategoriesPage(),
+    const GamesPage()
   ];
 
   @override
   Widget build(BuildContext context) {
-    if(appdata.user.isPunched==false){
-      network.punchIn();
+    if(appdata.user.isPunched==false&&appdata.settings[6]=="1"){
+      network.punchIn().then((b){
+        if(b){
+          appdata.user.isPunched = true;
+          showMessage(context, "打卡成功");
+          appdata.user.exp+=10;
+        }
+      });
     }
     if(hotSearch.isEmpty) {
       network.getKeyWords().then((s){
@@ -77,6 +87,7 @@ class _MainPageState extends State<MainPage> {
                   actions: [
                     TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
                     TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                    if(!GetPlatform.isWeb)
                     TextButton(
                         onPressed: (){
                           getDownloadUrl().then((s){
@@ -95,7 +106,7 @@ class _MainPageState extends State<MainPage> {
     }
     updateFlag = false;
     return Scaffold(
-      bottomNavigationBar: MediaQuery.of(context).size.width>changePoint?null:NavigationBar(
+      bottomNavigationBar: Get.size.shortestSide>changePoint?null:NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             i = index;
@@ -115,11 +126,15 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.account_tree),
             label: '分类',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.games),
+            label: '游戏',
+          ),
         ],
       ),
       body: Row(
         children: [
-          if(MediaQuery.of(context).size.width>changePoint)
+          if(Get.size.shortestSide>changePoint)
           NavigationRail(
             leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
             selectedIndex: i,
@@ -170,9 +185,14 @@ class _MainPageState extends State<MainPage> {
                 selectedIcon: Icon(Icons.account_tree),
                 label: Text('分类'),
               ),
+              NavigationRailDestination(
+                icon: Icon(Icons.games_outlined),
+                selectedIcon: Icon(Icons.games),
+                label: Text('游戏'),
+              ),
             ],
           ),
-          if(MediaQuery.of(context).size.width>changePoint)
+          if(Get.size.shortestSide>changePoint)
           const VerticalDivider(),
           Expanded(
             child: ClipRect(
@@ -185,7 +205,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      drawer: MediaQuery.of(context).size.width>changePoint?null:NavigationDrawer(
+      drawer: Get.size.shortestSide>changePoint?null:NavigationDrawer(
         selectedIndex: null,
         onDestinationSelected: (t){
           Navigator.pop(context);

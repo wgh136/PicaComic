@@ -1,4 +1,3 @@
-
 class Profile {
   String id;
   String title;
@@ -7,9 +6,10 @@ class Profile {
   int level;
   int exp;
   String avatarUrl;
+  String? frameUrl;
   bool? isPunched;
   String? slogan;
-  Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title, this.isPunched, this.slogan);
+  Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title, this.isPunched, this.slogan, this.frameUrl);
 }
 
 class KeyWords {
@@ -60,6 +60,7 @@ class ComicItem {
   bool isLiked;
   bool isFavourite;
   int epsCount;
+  String time;
   ComicItem(
       this.creator,
       this.title,
@@ -74,7 +75,8 @@ class ComicItem {
       this.isFavourite,
       this.isLiked,
       this.epsCount,
-      this.id
+      this.id,
+      this.time
       );
   ComicItemBrief toBrief(){
     return ComicItemBrief(title, author, likes, thumbUrl, id);
@@ -91,8 +93,10 @@ class Comment {
   String id;
   bool isLiked;
   int likes;
+  String? frame;
+  String? slogan;
 
-  Comment(this.name, this.avatarUrl, this.userId, this.level, this.text, this.reply, this.id,this.isLiked,this.likes);
+  Comment(this.name, this.avatarUrl, this.userId, this.level, this.text, this.reply, this.id,this.isLiked,this.likes,this.frame,this.slogan);
 }
 
 class Comments {
@@ -127,6 +131,36 @@ class Reply{
   int total;
   List<Comment> comments;
   Reply(this.id,this.loaded,this.total,this.comments);
+}
+
+class GameItemBrief{
+  String id;
+  String iconUrl;
+  String name;
+  String publisher;
+  bool adult;
+  GameItemBrief(this.id,this.name,this.adult,this.iconUrl,this.publisher);
+}
+
+class Games{
+  List<GameItemBrief> games;
+  int total;
+  int loaded;
+  Games(this.games,this.loaded,this.total);
+}
+
+class GameInfo{
+  String id;
+  String name;
+  String description;
+  String icon;
+  String publisher;
+  List<String> screenshots;
+  String link;
+  bool isLiked;
+  int likes;
+  int comments;
+  GameInfo(this.id,this.name,this.description,this.icon,this.publisher,this.screenshots,this.link,this.isLiked,this.likes,this.comments);
 }
 
 class DownloadInfo{

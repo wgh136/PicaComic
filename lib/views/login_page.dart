@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                             appdata.user = t;
                             appdata.writeData();
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            Get.off(const MainPage());
+                            Get.offAll(const MainPage());
                           }
                         });
                       }

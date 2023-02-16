@@ -5,7 +5,7 @@ import 'network/models.dart';
 var network = Network();
 
 const changePoint = 600; //定义宽屏设备的临界值
-const appVersion = "1.2.0";
+const appVersion = "1.2.1";
 
 var hotSearch = <String>[];
 
@@ -20,10 +20,12 @@ class Appdata{
     "1", //启动时检查更新
     "0", //使用转发服务器
     "1", //宽屏时显示前进后退关闭按钮
+    "1", //是否显示头像框
+    "1", //启动时签到
   ];
   Appdata(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "",null,null);
+    var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
     user = temp;
     history = [];
     appChannel = "3";
@@ -44,7 +46,7 @@ class Appdata{
 
   void clear(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "",null,null);
+    var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
     user = temp;
     history = [];
     writeData();

@@ -56,7 +56,7 @@ class ReplyPage extends StatelessWidget {
                   ],
                 ),
                 SliverToBoxAdapter(
-                    child: CommentTile(comment: replyTo, isReply: true,),
+                    child: CommentTile(comment: replyTo, isReply: true, isToReply: true,),
                 ),
                 const SliverPadding(padding: EdgeInsets.all(10)),
                 const SliverToBoxAdapter(child: Divider(),),

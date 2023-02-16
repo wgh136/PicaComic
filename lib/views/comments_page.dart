@@ -15,7 +15,8 @@ class CommentsPageLogic extends GetxController{
 
 class CommentsPage extends StatelessWidget {
   final String id;
-  const CommentsPage(this.id,{Key? key}) : super(key: key);
+  final String type;
+  const CommentsPage(this.id,{Key? key, this.type="comics"}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class CommentsPage extends StatelessWidget {
         init: CommentsPageLogic(),
         builder: (commentsPageLogic){
         if(commentsPageLogic.isLoading){
-          network.getCommends(id).then((c){
+          network.getCommends(id,type: type).then((c){
             commentsPageLogic.comments = c;
             commentsPageLogic.change();
           });
@@ -43,7 +44,7 @@ class CommentsPage extends StatelessWidget {
                     child: IconButton(
                       icon: const Icon(Icons.message_sharp),
                       onPressed: (){
-                        giveComment(context, id, false).then((b){
+                        giveComment(context, id, false,type: type).then((b){
                           if(b){
                             commentsPageLogic.comments = Comments([],"",0,0);
                             commentsPageLogic.change();
@@ -58,7 +59,7 @@ class CommentsPage extends StatelessWidget {
                 childCount: commentsPageLogic.comments.comments.length,
                   (context,index){
                     if(index==commentsPageLogic.comments.comments.length-1&&commentsPageLogic.comments.pages!=commentsPageLogic.comments.loaded){
-                      network.loadMoreCommends(commentsPageLogic.comments).then((t){commentsPageLogic.update();});
+                      network.loadMoreCommends(commentsPageLogic.comments, type: type).then((t){commentsPageLogic.update();});
                     }
                     return CommentTile(comment: commentsPageLogic.comments.comments[index],isReply: false,);
 

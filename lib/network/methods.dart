@@ -133,7 +133,7 @@ class Network{
       }else{
         url = res["avatar"]["fileServer"] + "/static/" + res["avatar"]["path"];
       }
-      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"], res["title"], res["isPunched"] ,res["slogan"]);
+      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"], res["title"], res["isPunched"] ,res["slogan"], res["character"]);
       return p;
     }else{
       return null;
@@ -237,7 +237,9 @@ class Network{
           res["data"]["comic"]["_creator"]["level"],
           res["data"]["comic"]["_creator"]["name"],
           res["data"]["comic"]["_creator"]["title"]??"未知",
-        null,null
+          null,
+          res["data"]["comic"]["_creator"]["slogan"]??"无",
+          null
       );
       var categories = <String>[];
       for(int i=0;i<res["data"]["comic"]["categories"].length;i++){
@@ -261,7 +263,8 @@ class Network{
           res["data"]["comic"]["isFavourite"]??false,
           res["data"]["comic"]["isLiked"]??false,
           res["data"]["comic"]["epsCount"]??0,
-        id
+          id,
+          res["data"]["comic"]["updated_at"]
       );
       return ci;
     }else{
@@ -310,9 +313,9 @@ class Network{
     return imageUrls;
   }
 
-  Future<void> loadMoreCommends(Comments c) async{
+  Future<void> loadMoreCommends(Comments c, {String type="comics"}) async{
     if(c.loaded != c.pages){
-      var res = await get("$apiUrl/comics/${c.id}/comments?page=${c.loaded+1}");
+      var res = await get("$apiUrl/$type/${c.id}/comments?page=${c.loaded+1}");
       if(res!=null){
         c.pages = res["data"]["comments"]["pages"];
         for(int i=0;i<res["data"]["comments"]["docs"].length;i++){
@@ -324,7 +327,7 @@ class Network{
           catch(e){
             url = defaultAvatarUrl;
           }
-          var t = Comment("","","",1,"",0,"",false,0);
+          var t = Comment("","","",1,"",0,"",false,0,null,null);
           if(res["data"]["comments"]["docs"][i]["_user"] != null) {
             t = Comment(
               res["data"]["comments"]["docs"][i]["_user"]["name"],
@@ -336,6 +339,8 @@ class Network{
               res["data"]["comments"]["docs"][i]["_id"],
               res["data"]["comments"]["docs"][i]["isLiked"],
               res["data"]["comments"]["docs"][i]["likesCount"],
+              res["data"]["comments"]["docs"][i]["_user"]["character"],
+              res["data"]["comments"]["docs"][i]["_user"]["slogan"],
             );
           }else{
             t = Comment(
@@ -348,6 +353,8 @@ class Network{
                 res["data"]["comments"]["docs"][i]["_id"],
                 res["data"]["comments"]["docs"][i]["isLiked"],
                 res["data"]["comments"]["docs"][i]["likesCount"],
+              null,
+              null
             );
           }
           c.comments.add(t);
@@ -357,9 +364,9 @@ class Network{
     }
   }
 
-  Future<Comments> getCommends(String id) async{
+  Future<Comments> getCommends(String id, {String type="comics"}) async{
     var t = Comments([], id, 1, 0);
-    await loadMoreCommends(t);
+    await loadMoreCommends(t,type: type);
     return t;
   }
 
@@ -529,7 +536,7 @@ class Network{
         catch(e){
           url = defaultAvatarUrl;
         }
-        var t = Comment("","","",1,"",0,"",false,0);
+        var t = Comment("","","",1,"",0,"",false,0,null,null);
         if(res["data"]["comments"]["docs"][i]["_user"] != null) {
           t = Comment(
               res["data"]["comments"]["docs"][i]["_user"]["name"],
@@ -540,6 +547,8 @@ class Network{
               0,"",
               res["data"]["comments"]["docs"][i]["isLiked"],
               res["data"]["comments"]["docs"][i]["likesCount"],
+              res["data"]["comments"]["docs"][i]["_user"]["character"],
+              res["data"]["comments"]["docs"][i]["_user"]["slogan"],
           );
         }else{
           t = Comment(
@@ -551,6 +560,7 @@ class Network{
               0,"",
               res["data"]["comments"]["docs"][i]["isLiked"],
               res["data"]["comments"]["docs"][i]["likesCount"],
+            null,null
           );
         }
         reply.comments.add(t);
@@ -570,13 +580,137 @@ class Network{
     return res!=null;
   }
 
-  Future<bool> comment(String id, String text,bool isReply) async{
+  Future<bool> comment(String id, String text,bool isReply,{String type="comics"}) async{
     Map<String, dynamic>? res;
     if(!isReply) {
-      res = await post("$apiUrl/comics/$id/comments",{"content":text});
+      res = await post("$apiUrl/$type/$id/comments",{"content":text});
     }else{
       res = await post("$apiUrl/comments/$id",{"content":text});
     }
+    return res!=null;
+  }
+
+  Future<List<ComicItemBrief>> getRecommendation(String id) async{
+    var comics = <ComicItemBrief>[];
+    var res = await get("$apiUrl/comics/$id/recommendation");
+    if (res != null) {
+      for (int i = 0; i < res["data"]["comics"].length; i++) {
+        try {
+          var si = ComicItemBrief(
+              res["data"]["comics"][i]["title"],
+              res["data"]["comics"][i]["author"],
+              res["data"]["comics"][i]["likesCount"],
+              res["data"]["comics"][i]["thumb"]["fileServer"] + "/static/" +
+                  res["data"]["comics"][i]["thumb"]["path"],
+              res["data"]["comics"][i]["_id"]
+          );
+          comics.add(si);
+        }
+        catch (e) {//出现错误跳过}
+        }
+      }
+    }
+    return comics;
+  }
+
+  Future<List<List<ComicItemBrief>>?> getCollection() async{
+    var comics = <List<ComicItemBrief>>[[],[]];
+    var res = await get("$apiUrl/collections");
+    if(res != null){
+      for(int i=0;i<res["data"]["collections"][0]["comics"].length;i++){
+        try {
+          var si = ComicItemBrief(
+              res["data"]["collections"][0]["comics"][i]["title"],
+              res["data"]["collections"][0]["comics"][i]["author"],
+              res["data"]["collections"][0]["comics"][i]["totalLikes"],
+              res["data"]["collections"][0]["comics"][i]["thumb"]["fileServer"] + "/static/" +
+                  res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
+              res["data"]["collections"][0]["comics"][i]["_id"]
+          );
+          comics[0].add(si);
+        }
+        catch (e) {//出现错误跳过}
+        }
+      }
+      for(int i=0;i<res["data"]["collections"][1]["comics"].length;i++){
+        try {
+          var si = ComicItemBrief(
+              res["data"]["collections"][1]["comics"][i]["title"],
+              res["data"]["collections"][1]["comics"][i]["author"],
+              res["data"]["collections"][1]["comics"][i]["totalLikes"],
+              res["data"]["collections"][1]["comics"][i]["thumb"]["fileServer"] + "/static/" +
+                  res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
+              res["data"]["collections"][1]["comics"][i]["_id"]
+          );
+          comics[1].add(si);
+        }
+        catch (e) {//出现错误跳过}
+        }
+      }
+    }else{
+      return null;
+    }
+    return comics;
+  }
+
+  Future<bool> getMoreGames(Games games) async{
+    if(games.total==games.loaded) return false;
+    var res = await get("$apiUrl/games?page=${games.loaded+1}");
+    if(res!=null){
+      games.loaded++;
+      games.total = res["data"]["games"]["pages"];
+      for(int i=0;i<res["data"]["games"]["docs"].length;i++){
+        var game = GameItemBrief(
+          res["data"]["games"]["docs"][i]["_id"],
+          res["data"]["games"]["docs"][i]["title"],
+          res["data"]["games"]["docs"][i]["adult"],
+          res["data"]["games"]["docs"][i]["icon"]["fileServer"]+"/static/"+res["data"]["games"]["docs"][i]["icon"]["path"],
+          res["data"]["games"]["docs"][i]["publisher"]
+        );
+        games.games.add(game);
+      }
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  Future<Games?> getGames() async{
+    var games = Games([],0,1);
+    var b = await getMoreGames(games);
+    if(b){
+      return games;
+    }else{
+      return null;
+    }
+  }
+
+  Future<GameInfo?> getGameInfo(String id) async{
+    var res = await get("$apiUrl/games/$id");
+    if(res != null){
+      var gameInfo = GameInfo(
+        id,
+        res["data"]["game"]["title"],
+        res["data"]["game"]["description"],
+        res["data"]["game"]["icon"]["fileServer"]+"/static/"+res["data"]["game"]["icon"]["path"],
+        res["data"]["game"]["publisher"],
+        [],
+        res["data"]["game"]["androidLinks"][0],
+        res["data"]["game"]["isLiked"],
+        res["data"]["game"]["likesCount"],
+        res["data"]["game"]["commentsCount"]
+      );
+      for(int i=0;i<res["data"]["game"]["screenshots"].length;i++){
+        gameInfo.screenshots.add(res["data"]["game"]["screenshots"][i]["fileServer"]+"/static/"+res["data"]["game"]["screenshots"][i]["path"]);
+      }
+      return gameInfo;
+    }else{
+      return null;
+    }
+  }
+
+  Future<bool> likeGame(String id) async{
+    var res = await post("$apiUrl/games/$id/like",{});
     return res!=null;
   }
 }

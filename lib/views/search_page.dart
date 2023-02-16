@@ -196,7 +196,6 @@ class FloatingSearchBar extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: TextField(
-                    autofocus: true,
                     cursorColor: colorScheme.primary,
                     style: textTheme.bodyLarge,
                     textAlignVertical: TextAlignVertical.center,

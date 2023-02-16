@@ -98,18 +98,21 @@ class FavoritesPage extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: MediaQuery.of(context).size.height/2+20,
-                left: MediaQuery.of(context).size.width/2-50,
-                child: SizedBox(
-                  width: 100,
-                  height: 40,
-                  child: FilledButton(
-                    onPressed: (){
-                      favoritesPageLogic.favorites = Favorites([], 1, 0);
-                      favoritesPageLogic.change();
-                    },
-                    child: const Text("重试"),
-                  ),
+                left: 0,
+                right: 0,
+                top: MediaQuery.of(context).size.height/2+30,
+                child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: 100,
+                      height: 40,
+                      child: FilledButton(
+                        onPressed: (){
+                          favoritesPageLogic.change();
+                        },
+                        child: const Text("重试"),
+                      ),
+                    )
                 ),
               ),
             ],
