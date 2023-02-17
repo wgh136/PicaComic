@@ -4,11 +4,13 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/comments_page.dart';
+import 'package:pica_comic/views/show_image_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class GamePageLogic extends GetxController{
   bool isLoading = true;
   var gameInfo = GameInfo("", "", "", "", "", [], "", false,0,0);
+  var controller = ScrollController();
   void change(){
     isLoading = !isLoading;
     update();
@@ -55,19 +57,30 @@ class GamePage extends StatelessWidget {
             );
           }else if(logic.gameInfo.name!=""){
             return Scaffold(
+              appBar: AppBar(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
               body: CustomScrollView(
                 slivers: [
-                  SliverAppBar.large(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
+                  //SliverAppBar.large(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
                   if(MediaQuery.of(context).size.shortestSide<changePoint)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           //crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CachedNetworkImage(imageUrl: logic.gameInfo.icon,),
+                            GestureDetector(
+                              child: CachedNetworkImage(
+                                imageUrl: logic.gameInfo.icon,
+                                fit: BoxFit.contain,
+                                width: MediaQuery.of(context).size.width-10,
+                                height: 300,
+                              ),
+                              onTap: (){
+                                Get.to(()=>ShowImagePage(logic.gameInfo.icon));
+                              },
+                            ),
                             const SizedBox(height: 10,),
                             SizedBox(
                               height: 60,
@@ -124,30 +137,30 @@ class GamePage extends StatelessWidget {
                         child: Row(
                           children: [
                             Expanded(
-                              flex: 1,
-                                child: CachedNetworkImage(imageUrl: logic.gameInfo.icon,),
+                              //flex: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: CachedNetworkImage(
+                                    imageUrl: logic.gameInfo.icon,
+                                    fit: BoxFit.contain,
+                                    width: MediaQuery.of(context).size.width/2-40,
+                                    height: 390,
+                                  ),
+                                ),
                             ),
                             Expanded(
                               flex: 1,
                               child: Column(
                                 children: [
+                                  Text(logic.gameInfo.name,style: const TextStyle(fontSize: 25),),
+                                  Text(logic.gameInfo.publisher,style: const TextStyle(fontSize: 16,color: Colors.blue),),
                                   SizedBox(
                                     height: 80,
                                     child: Row(
                                       children: [
-                                        //const Expanded(flex: 1,child: Spacer()),
+                                        const Spacer(),
                                         Expanded(
                                           flex: 4,
-                                          child: ActionChip(
-                                            avatar: const Icon(Icons.apartment_outlined),
-                                            label: Text(logic.gameInfo.publisher),
-                                            onPressed: (){
-                                              gameDownload(context, logic.gameInfo.link);
-                                            },
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
                                           child: ActionChip(
                                             avatar: logic.gameInfo.isLiked?const Icon(Icons.favorite):const Icon(Icons.favorite_border),
                                             label: Text(logic.gameInfo.likes.toString()),
@@ -159,7 +172,7 @@ class GamePage extends StatelessWidget {
                                           ),
                                         ),
                                         Expanded(
-                                          flex: 3,
+                                          flex: 4,
                                           child: ActionChip(
                                             avatar: const Icon(Icons.comment_outlined),
                                             label: Text(logic.gameInfo.comments.toString()),
@@ -168,7 +181,7 @@ class GamePage extends StatelessWidget {
                                             },
                                           ),
                                         ),
-
+                                        const Spacer(),
                                       ],
                                     ),
                                   ),
@@ -215,16 +228,57 @@ class GamePage extends StatelessWidget {
                     const Text("屏幕截图",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
                   ],)),),
                   const SliverPadding(padding: EdgeInsets.all(5)),
-                  for(var s in logic.gameInfo.screenshots)
-                    SliverToBoxAdapter(child: CachedNetworkImage(
-                      imageUrl: s,
-                      placeholder: (context, url) => SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: 50,
-                        child: const Center(child: CircularProgressIndicator(),),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 500,
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            child: ListView(
+                              controller: logic.controller,
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                for(var s in logic.gameInfo.screenshots)
+                                  GestureDetector(
+                                    child: Card(
+                                      child: CachedNetworkImage(
+                                        imageUrl: s,
+                                        fit: BoxFit.fitHeight,
+                                      ),
+                                    ),
+                                    onTap: (){
+                                      Get.to(()=>ShowImagePage(s));
+                                    },
+                                  )
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            top: 235,
+                            left: 10,
+                            child: IconButton(
+                              iconSize: 30,
+                              icon: const Icon(Icons.chevron_left),
+                              onPressed: (){
+                                logic.controller.jumpTo(logic.controller.offset-200);
+                              },
+                            ),
+                          ),
+                          Positioned(
+                            top: 235,
+                            right: 10,
+                            child: IconButton(
+                              iconSize: 30,
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed: (){
+                                logic.controller.jumpTo(logic.controller.offset+200);
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                    ),)
+                    ),
+                  ),
                 ],
               ),
             );

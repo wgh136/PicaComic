@@ -6,6 +6,7 @@ import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
 import 'package:pica_comic/views/comic_reading_page.dart';
 import 'package:pica_comic/views/comments_page.dart';
+import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
@@ -190,11 +191,14 @@ class ComicPage extends StatelessWidget{
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: getImageUrl(comic.path),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
-                          height: 450,
-                          width: MediaQuery.of(context).size.width,
+                        GestureDetector(
+                          child: CachedNetworkImage(
+                            imageUrl: getImageUrl(comic.path),
+                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            height: 450,
+                            width: MediaQuery.of(context).size.width,
+                          ),
+                          onTap: (){Get.to(()=>ShowImagePage(comic.path));},
                         ),
                         const SizedBox(height: 20,),
                         if(comicPageLogic.comicItem!.author!="")
@@ -572,6 +576,20 @@ class ComicPage extends StatelessWidget{
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 250,
                   childAspectRatio: 4,
+                ),
+              ),
+              const SliverPadding(padding: EdgeInsets.all(5)),
+              const SliverToBoxAdapter(child: Divider(),),
+              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: const [
+                SizedBox(width: 20,),
+                Icon(Icons.recommend),
+                SizedBox(width: 20,),
+                Text("简介",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+              ],)),),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                  child: Text(comicPageLogic.comicItem!.description),
                 ),
               ),
               const SliverPadding(padding: EdgeInsets.all(5)),

@@ -6,7 +6,7 @@ import 'package:pica_comic/network/headers.dart';
 import '../base.dart';
 import 'models.dart';
 
-const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";
+const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";//历史遗留, 不改了
 
 class Network{
   String apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
@@ -712,6 +712,29 @@ class Network{
   Future<bool> likeGame(String id) async{
     var res = await post("$apiUrl/games/$id/like",{});
     return res!=null;
+  }
+
+  Future<bool> changePassword(String oldPassword, String newPassword) async{
+    status = false;
+    var url = "$apiUrl/users/password";
+    var dio = Dio();
+    dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
+    try {
+      var res = await dio.put(
+          url, data: {"new_password": newPassword, "old_password": oldPassword});
+      return res.statusCode == 200;
+    }
+    on DioError catch(e){
+      if(e.message == "Http status error [400]"){
+        status = true;
+        return false;
+      }else{
+        return false;
+      }
+    }
+    catch(e){
+      return false;
+    }
   }
 }
 

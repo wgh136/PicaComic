@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,6 +38,10 @@ class MyApp extends StatelessWidget {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return GetMaterialApp(
         title: 'Pica Comic',
+        scrollBehavior: const MaterialScrollBehavior().copyWith(
+            scrollbars: true,
+            dragDevices: _kTouchLikeDeviceTypes
+        ),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.cyanAccent),
@@ -52,3 +58,11 @@ class MyApp extends StatelessWidget {
     });
   }
 }
+
+const Set<PointerDeviceKind> _kTouchLikeDeviceTypes = <PointerDeviceKind>{
+  PointerDeviceKind.touch,
+  PointerDeviceKind.mouse,
+  PointerDeviceKind.stylus,
+  PointerDeviceKind.invertedStylus,
+  PointerDeviceKind.unknown
+};

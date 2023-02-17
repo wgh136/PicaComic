@@ -24,8 +24,10 @@ class GameTile extends StatelessWidget {
                 flex: 3,
                 child: CachedNetworkImage(
                   imageUrl: getImageUrl(game.iconUrl),
+                  fit: BoxFit.cover,
                   errorWidget: (context, url, error) => const Icon(Icons.error),
-                  //height: 120,
+                  width: double.infinity,
+                  height: 100,
                 ),),
               SizedBox.fromSize(size: const Size(20,5),),
               Expanded(
