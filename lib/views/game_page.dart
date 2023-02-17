@@ -58,7 +58,7 @@ class GamePage extends StatelessWidget {
               body: CustomScrollView(
                 slivers: [
                   SliverAppBar.large(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
-                  if(Get.size.shortestSide<changePoint)
+                  if(MediaQuery.of(context).size.shortestSide<changePoint)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
@@ -117,7 +117,7 @@ class GamePage extends StatelessWidget {
                       )
                     ),
                   ),
-                  if(Get.size.shortestSide>=changePoint)
+                  if(MediaQuery.of(context).size.shortestSide>=changePoint)
                     SliverToBoxAdapter(
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,

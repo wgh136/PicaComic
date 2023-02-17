@@ -106,7 +106,7 @@ class _MainPageState extends State<MainPage> {
     }
     updateFlag = false;
     return Scaffold(
-      bottomNavigationBar: Get.size.shortestSide>changePoint?null:NavigationBar(
+      bottomNavigationBar: MediaQuery.of(context).size.shortestSide>changePoint?null:NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             i = index;
@@ -134,7 +134,7 @@ class _MainPageState extends State<MainPage> {
       ),
       body: Row(
         children: [
-          if(Get.size.shortestSide>changePoint)
+          if(MediaQuery.of(context).size.shortestSide>changePoint)
           NavigationRail(
             leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
             selectedIndex: i,
@@ -192,7 +192,7 @@ class _MainPageState extends State<MainPage> {
               ),
             ],
           ),
-          if(Get.size.shortestSide>changePoint)
+          if(MediaQuery.of(context).size.shortestSide>changePoint)
           const VerticalDivider(),
           Expanded(
             child: ClipRect(
@@ -205,7 +205,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      drawer: Get.size.shortestSide>changePoint?null:NavigationDrawer(
+      drawer: MediaQuery.of(context).size.shortestSide>changePoint?null:NavigationDrawer(
         selectedIndex: null,
         onDestinationSelected: (t){
           Navigator.pop(context);

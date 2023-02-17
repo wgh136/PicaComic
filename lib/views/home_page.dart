@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
-                  if(Get.size.shortestSide<=changePoint)
+                  if(MediaQuery.of(context).size.shortestSide<=changePoint)
                   SliverAppBar.large(
 
                     centerTitle: true,
@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if(Get.size.shortestSide>changePoint)
+                  if(MediaQuery.of(context).size.shortestSide>changePoint)
                     SliverToBoxAdapter(
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,

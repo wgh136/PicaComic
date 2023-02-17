@@ -36,12 +36,12 @@ class GamesPage extends StatelessWidget {
             return Material(
               child: CustomScrollView(
                 slivers: [
-                  if(Get.size.shortestSide<=changePoint)
+                  if(MediaQuery.of(context).size.shortestSide<=changePoint)
                     SliverAppBar.large(
                       centerTitle: true,
                       title: const Text("游戏"),
                     ),
-                  if(Get.size.shortestSide>changePoint)
+                  if(MediaQuery.of(context).size.shortestSide>changePoint)
                     SliverToBoxAdapter(
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,

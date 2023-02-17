@@ -19,12 +19,11 @@ class MePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(child: CustomScrollView(
       slivers: [
-        if(Get.size.shortestSide<changePoint)
+        if(MediaQuery.of(context).size.shortestSide<changePoint)
         SliverAppBar(
           centerTitle: true,
           title: const Text(""),
           actions: [
-            if(MediaQuery.of(context).size.width<changePoint)
             Tooltip(
               message: "搜索",
               child: IconButton(
@@ -36,8 +35,8 @@ class MePage extends StatelessWidget {
             ),
           ],
         ),
-        if(Get.size.height/2-300>0)
-        SliverPadding(padding: EdgeInsets.only(top: Get.size.height/2-300)),
+        if(MediaQuery.of(context).size.height/2-300>0&&MediaQuery.of(context).size.shortestSide>changePoint)
+        SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height/2-300)),
         SliverToBoxAdapter(
           child: SizedBox(
             width: 400,

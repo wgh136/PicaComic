@@ -344,7 +344,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.info_outline),
                       title: const Text("PicaComic"),
-                      subtitle: const SelectableText("本软件仅用于学习交流"),
+                      subtitle: const Text("本软件仅用于学习交流"),
                       onTap: (){
                         showMessage(context, "禁止涩涩");
                       },

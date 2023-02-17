@@ -100,7 +100,7 @@ class SearchPage extends StatelessWidget {
                   }else{
                     return SliverToBoxAdapter(
                       child: SizedBox(
-                        width: Get.size.width,
+                        width: MediaQuery.of(context).size.width,
                         height: 200,
                         child: Column(
                           children: [

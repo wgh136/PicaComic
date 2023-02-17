@@ -42,7 +42,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       }else if(categoriesPageLogic.categories.isNotEmpty){
         return CustomScrollView(
           slivers: [
-            if(Get.size.shortestSide<=changePoint)
+            if(MediaQuery.of(context).size.shortestSide<=changePoint)
             SliverAppBar.large(
               centerTitle: true,
               title: const Text("分类"),
@@ -58,7 +58,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ),
               ],
             ),
-            if(Get.size.shortestSide>changePoint)
+            if(MediaQuery.of(context).size.shortestSide>changePoint)
               SliverToBoxAdapter(
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,

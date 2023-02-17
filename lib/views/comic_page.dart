@@ -38,6 +38,7 @@ class ComicPage extends StatelessWidget{
   Widget build(BuildContext context) {
     return Scaffold(
       body: GetBuilder<ComicPageLogic>(
+        tag: comic.id,
         init: ComicPageLogic(),
           builder: (comicPageLogic){
         if(comicPageLogic.isLoading){
@@ -182,7 +183,7 @@ class ComicPage extends StatelessWidget{
                     ),)
                 ],
               ),
-              if(Get.size.shortestSide<changePoint)
+              if(MediaQuery.of(context).size.shortestSide<changePoint)
                 SliverToBoxAdapter(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width/2,
@@ -359,7 +360,7 @@ class ComicPage extends StatelessWidget{
                   ),
                 ),
               //以下为大屏设备的显示
-              if(Get.size.shortestSide>=changePoint)
+              if(MediaQuery.of(context).size.shortestSide>=changePoint)
                 SliverToBoxAdapter(child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Row(

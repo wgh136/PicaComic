@@ -18,7 +18,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="An unofficial picacg app.">
+  <meta name="description" content="A new Flutter project.">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -32,7 +32,6 @@
   <title>pica_comic</title>
   <link rel="manifest" href="manifest.json">
 
-
   <script>
     // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
@@ -41,6 +40,39 @@
   <script src="flutter.js" defer></script>
 </head>
 <body>
+<div id="loading">
+  <style>
+    #loading {
+      width: 50px;
+      height: 80px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 9999;
+      background-color: white;
+    }
+    #loading img {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      top: -40px;
+    }
+    #loading p{
+      top: 10px;
+      position: absolute;
+    }
+  </style>
+  <img src="loading.gif">
+  <p>加载中</p>
+</div>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('flutter-first-frame', function () {
+      document.getElementById("loading")?.remove();
+      navigator.serviceWorker.register('flutter_service_worker.js');
+    });
+  }
+</script>
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
@@ -49,7 +81,10 @@
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
+          let config = {
+            canvasKitBaseUrl: "https://cdn.jsdelivr.net/npm/canvaskit-wasm@0.37.1/bin/"
+          }
+          engineInitializer.initializeEngine(config).then(function(appRunner) {
             appRunner.runApp();
           });
         }

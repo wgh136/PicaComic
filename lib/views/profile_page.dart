@@ -43,7 +43,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             const SizedBox(height: 20,),
             SizedBox(
-              width: Get.size.width,
+              width: MediaQuery.of(context).size.width,
               height: 150,
               child: Center(
                 child: SizedBox(
@@ -193,7 +193,7 @@ class ProfilePage extends StatelessWidget {
                                 title: const Text("更改自我介绍"),
                                 children: [
                                   SizedBox(
-                                    width: Get.size.width*0.75,
+                                    width: MediaQuery.of(context).size.width*0.75,
                                     child: Column(
                                       children: [
                                         Padding(padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),child:                                   TextField(
