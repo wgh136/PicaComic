@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                     content: Text("登录中"),
                   ));
                   fur.then((b){
-                    if(b==1){
+                    if(b){
                       appdata.token = network.token;
                       var i = network.getProfile();
                       i.then((t){
@@ -95,12 +95,12 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       });
                     }
-                    else if(b == 0){
+                    else if(network.status){
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         behavior: SnackBarBehavior.floating,
                         width: 400,
-                        content: Text("网络错误"),
+                        content: network.message=="invalid email or password"?const Text("账号或密码错误"):Text(network.message),
                       ));
                       setState(() {
                         isLogging = false;
@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                       content: Text("登录中"),
                     ));
                     fur.then((b){
-                      if(b==1){
+                      if(b){
                         appdata.token = network.token;
                         var i = network.getProfile();
                         i.then((t){
@@ -179,12 +179,12 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         });
                       }
-                      else if(b == 0){
+                      else if(network.status){
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           behavior: SnackBarBehavior.floating,
                           width: 400,
-                          content: Text("网络错误"),
+                          content: network.message=="invalid email or password"?const Text("账号或密码错误"):Text(network.message),
                         ));
                         setState(() {
                           isLogging = false;

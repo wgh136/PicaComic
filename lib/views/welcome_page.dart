@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/register.dart';
 

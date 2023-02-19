@@ -2,25 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/theme_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
 import 'me_page.dart';
 
 void setSearchMode(BuildContext context){
   showDialog(context: context, builder: (context){
-    return Dialog(
-      child: GetBuilder<ModeRadioLogic2>(
+    return SimpleDialog(
+      title: const Text("选择漫画排序模式"),
+      children: [GetBuilder<ModeRadioLogic2>(
         init: ModeRadioLogic2(),
         builder: (radioLogic){
           return Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              const ListTile(title: Text("选择搜索及分类排序模式"),),
+              const SizedBox(width: 400,),
               ListTile(
                 trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                   radioLogic.change(i!);
-
                 },),
                 title: const Text("新书在前"),
                 onTap: (){
@@ -58,20 +57,21 @@ void setSearchMode(BuildContext context){
               ),
             ],
           );
-        },),
+        },),]
     );
   });
 }
 
 void setShut(BuildContext context){
-  showDialog(context: context, builder: (BuildContext context) => Dialog(
-    child: GetBuilder<RadioLogic>(
+  showDialog(context: context, builder: (BuildContext context) => SimpleDialog(
+    title: const Text("选择分流"),
+    children: [GetBuilder<RadioLogic>(
       init: RadioLogic(),
       builder: (radioLogic){
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const ListTile(title: Text("选择分流"),),
+            const SizedBox(width: 400,),
             ListTile(
               trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                 radioLogic.change(i!);
@@ -101,7 +101,7 @@ void setShut(BuildContext context){
             ),
           ],
         );
-      },),
+      },),]
   ));
 }
 
@@ -214,9 +214,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: Text("浏览"),
                   ),
                   ListTile(
-                    leading: const Icon(Icons.hub_outlined),
+                    leading:Icon(Icons.hub_outlined,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("设置分流"),
-                    trailing: const Icon(Icons.arrow_right),
+                    trailing: const Icon(Icons.arrow_right,),
                     onTap: (){
                       setShut(context);
                     },
@@ -224,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                   if(!GetPlatform.isWeb)
                   ListTile(
-                    leading: const Icon(Icons.change_circle),
+                    leading: Icon(Icons.change_circle,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("使用转发服务器"),
                     subtitle: const Text("自己有魔法会减慢速度"),
                     trailing: Switch(
@@ -241,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onTap: (){},
                   ),
                   ListTile(
-                    leading: const Icon(Icons.manage_search_outlined),
+                    leading: Icon(Icons.manage_search_outlined,color: Theme.of(context).colorScheme.secondary),
                     trailing: const Icon(Icons.arrow_right),
                     title: const Text("设置搜索及分类排序模式"),
                     onTap: (){
@@ -249,7 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.circle_outlined),
+                    leading: Icon(Icons.circle_outlined,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("显示头像框"),
                     trailing: Switch(
                       value: showFrame,
@@ -266,7 +266,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onTap: (){},
                   ),
                   ListTile(
-                    leading: const Icon(Icons.today),
+                    leading: Icon(Icons.today,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("启动时打卡"),
                     onTap: (){},
                     trailing: Switch(
@@ -279,6 +279,14 @@ class _SettingsPageState extends State<SettingsPage> {
                         appdata.writeData();
                       },
                     ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.color_lens,color: Theme.of(context).colorScheme.secondary),
+                    title: const Text("设置主题"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: (){
+                      Get.to(()=>const ThemePage());
+                    },
                   ),
                 ],
               ),
@@ -296,7 +304,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: Text("阅读"),
                   ),
                   ListTile(
-                    leading: const Icon(Icons.switch_left),
+                    leading: Icon(Icons.switch_left,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("点击屏幕左右区域翻页"),
                     trailing: Switch(
                       value: pageChangeValue,
@@ -311,7 +319,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onTap: (){},
                   ),
                   ListTile(
-                    leading: const Icon(Icons.control_camera),
+                    leading: Icon(Icons.control_camera,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("宽屏时显示前进后退关闭按钮"),
                     subtitle: const Text("优化鼠标阅读体验"),
                     onTap: (){},
@@ -342,7 +350,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: Text("关于"),
                     ),
                     ListTile(
-                      leading: const Icon(Icons.info_outline),
+                      leading: Icon(Icons.info_outline,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("PicaComic"),
                       subtitle: const Text("本软件仅用于学习交流"),
                       onTap: (){
@@ -351,7 +359,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     if(!GetPlatform.isWeb)
                     ListTile(
-                      leading: const Icon(Icons.update),
+                      leading: Icon(Icons.update,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("检查更新"),
                       subtitle: const Text("当前: $appVersion"),
                       onTap: (){
@@ -360,7 +368,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     if(!GetPlatform.isWeb)
                     ListTile(
-                      leading: const Icon(Icons.security_update),
+                      leading: Icon(Icons.security_update,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("启动时检查更新"),
                       trailing: Switch(
                         value: checkUpdateValue,
@@ -375,7 +383,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: (){},
                     ),
                     ListTile(
-                      leading: const Icon(Icons.code),
+                      leading: Icon(Icons.code,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("项目地址"),
                       subtitle: const Text("https://github.com/wgh136/PicaComic"),
                       onTap: (){
@@ -383,7 +391,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.chat),
+                      leading: Icon(Icons.chat,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("提出建议"),
                       onTap: (){giveComments(context);},
                     ),

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
@@ -72,7 +73,7 @@ class GamePage extends StatelessWidget {
                           children: [
                             GestureDetector(
                               child: CachedNetworkImage(
-                                imageUrl: logic.gameInfo.icon,
+                                imageUrl: getImageUrl(logic.gameInfo.icon),
                                 fit: BoxFit.contain,
                                 width: MediaQuery.of(context).size.width-10,
                                 height: 300,
@@ -141,7 +142,7 @@ class GamePage extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.all(5),
                                   child: CachedNetworkImage(
-                                    imageUrl: logic.gameInfo.icon,
+                                    imageUrl: getImageUrl(logic.gameInfo.icon),
                                     fit: BoxFit.contain,
                                     width: MediaQuery.of(context).size.width/2-40,
                                     height: 390,
@@ -230,7 +231,7 @@ class GamePage extends StatelessWidget {
                   const SliverPadding(padding: EdgeInsets.all(5)),
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 500,
+                      height: 300,
                       child: Stack(
                         children: [
                           Positioned(
@@ -242,7 +243,7 @@ class GamePage extends StatelessWidget {
                                   GestureDetector(
                                     child: Card(
                                       child: CachedNetworkImage(
-                                        imageUrl: s,
+                                        imageUrl: getImageUrl(s),
                                         fit: BoxFit.fitHeight,
                                       ),
                                     ),

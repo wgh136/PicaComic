@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:flutter/services.dart';
 
 class ShowImagePage extends StatelessWidget {
   const ShowImagePage(this.url,{Key? key}) : super(key: key);
@@ -9,6 +10,7 @@ class ShowImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     return Scaffold(
       body: Stack(
         children: [

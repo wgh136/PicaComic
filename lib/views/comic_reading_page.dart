@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
 class ComicReadingPageLogic extends GetxController{
@@ -273,53 +274,10 @@ class ComicReadingPage extends StatelessWidget {
           return Scaffold(
             body: DecoratedBox(
               decoration: const BoxDecoration(color: Colors.black),
-              child: Stack(
-                children: [
-                  Positioned(top: 0,
-                    left: 0,child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),child: Tooltip(
-                      message: "返回",
-                      child: IconButton(
-                        iconSize: 25,
-                        icon: const Icon(Icons.arrow_back_outlined),
-                        onPressed: (){Get.back();},
-                      ),
-                    ),),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height/2-80,
-                    left: 0,
-                    right: 0,
-                    child: const Align(
-                      alignment: Alignment.topCenter,
-                      child: Icon(Icons.error_outline,size:60,color: Colors.white60,),
-                    ),
-                  ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: MediaQuery.of(context).size.height/2-10,
-                    child: const Align(
-                      alignment: Alignment.topCenter,
-                      child: Text("网络错误",style: TextStyle(color: Colors.white60),),
-                    ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height/2+20,
-                    left: MediaQuery.of(context).size.width/2-50,
-                    child: SizedBox(
-                      width: 100,
-                      height: 40,
-                      child: FilledButton(
-                        onPressed: (){
-                          comicReadingPageLogic.epsWidgets.clear();
-                          comicReadingPageLogic.change();
-                        },
-                        child: const Text("重试"),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: showNetworkError(context, () {
+                comicReadingPageLogic.epsWidgets.clear();
+                comicReadingPageLogic.change();
+              })
             ),
           );
         }

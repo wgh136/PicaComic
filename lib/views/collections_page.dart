@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
 class CollectionPageLogic extends GetxController{
@@ -125,47 +126,10 @@ class CollectionsPage extends StatelessWidget {
               ],
             );
           }else{
-            return Stack(
-              children: [
-                Positioned(
-                  top: MediaQuery.of(context).size.height/2-160,
-                  left: 0,
-                  right: 0,
-                  child: const Align(
-                    alignment: Alignment.topCenter,
-                    child: Icon(Icons.error_outline,size:60,),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: MediaQuery.of(context).size.height/2-80,
-                  child: const Align(
-                    alignment: Alignment.topCenter,
-                    child: Text("网络错误"),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: MediaQuery.of(context).size.height/2-40,
-                  child: Align(
-                      alignment: Alignment.topCenter,
-                      child: SizedBox(
-                        width: 100,
-                        height: 40,
-                        child: FilledButton(
-                          onPressed: (){
-                            logic.status = true;
-                            logic.change();
-                          },
-                          child: const Text("重试"),
-                        ),
-                      )
-                  ),
-                ),
-              ],
-            );
+            return showNetworkError(context, () {
+              logic.status = true;
+              logic.change();
+            });
           }
         },
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../network/models.dart';
 
 class ReplyPageLogic extends GetxController{
@@ -32,7 +33,9 @@ class ReplyPage extends StatelessWidget {
             return const Center(
               child: CircularProgressIndicator(),
             );
-          }else{
+          }else if(commentsPageLogic.comments.loaded==0){
+            return showNetworkError(context, () {commentsPageLogic.change();});
+          } else{
             return CustomScrollView(
               slivers: [
                 SliverAppBar(

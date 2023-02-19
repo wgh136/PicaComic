@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
 
@@ -85,46 +86,9 @@ class LeaderBoardH24 extends StatelessWidget {
           ],
         );
       }else{
-        return Stack(
-          children: [
-            Positioned(
-              top: MediaQuery.of(context).size.height/2-80,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size:60,),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2-10,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Text("网络错误"),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2+30,
-              child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    width: 100,
-                    height: 40,
-                    child: FilledButton(
-                      onPressed: (){
-                        leaderBoardLogic.change();
-                      },
-                      child: const Text("重试"),
-                    ),
-                  )
-              ),
-            ),
-          ],
-        );
+        return showNetworkError(context, () {
+          leaderBoardLogic.change();
+        });
       }
     });
   }
@@ -174,42 +138,9 @@ class LeaderBoardD7 extends StatelessWidget {
           ],
         );
       }else{
-        return Stack(
-          children: [
-            Positioned(
-              top: MediaQuery.of(context).size.height/2-80,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size:60,),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2-10,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Text("网络错误"),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).size.height/2+20,
-              left: MediaQuery.of(context).size.width/2-50,
-              child: SizedBox(
-                width: 100,
-                height: 40,
-                child: FilledButton(
-                  onPressed: (){
-                    leaderBoardLogic.change();
-                  },
-                  child: const Text("重试"),
-                ),
-              ),
-            ),
-          ],
-        );
+        return showNetworkError(context, () {
+          leaderBoardLogic.change();
+        });
       }
     });
   }
@@ -259,42 +190,9 @@ class LeaderBoardD30 extends StatelessWidget {
           ],
         );
       }else{
-        return Stack(
-          children: [
-            Positioned(
-              top: MediaQuery.of(context).size.height/2-80,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size:60,),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2-10,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Text("网络错误"),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).size.height/2+20,
-              left: MediaQuery.of(context).size.width/2-50,
-              child: SizedBox(
-                width: 100,
-                height: 40,
-                child: FilledButton(
-                  onPressed: (){
-                    leaderBoardLogic.change();
-                  },
-                  child: const Text("重试"),
-                ),
-              ),
-            ),
-          ],
-        );
+        return showNetworkError(context, () {
+          leaderBoardLogic.change();
+        });
       }
     });
   }

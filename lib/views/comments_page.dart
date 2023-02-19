@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../network/models.dart';
 
 class CommentsPageLogic extends GetxController{
@@ -32,6 +33,8 @@ class CommentsPage extends StatelessWidget {
           return const Center(
             child: CircularProgressIndicator(),
           );
+        }else if(commentsPageLogic.comments.loaded==0){
+          return showNetworkError(context, () {commentsPageLogic.change();});
         }else{
           return CustomScrollView(
             slivers: [

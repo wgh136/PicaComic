@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
 import '../base.dart';
@@ -16,6 +17,7 @@ class Network{
   String token;
   Network([this.token=""]);
   bool status = false; //用于判断请求出错是的情况, true意味着请求响应成功, 但提供的信息不正确
+  String message = ""; //提供错误信息
 
   void updateApi(){
     apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
@@ -27,13 +29,17 @@ class Network{
     status = false;
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
+    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
+
     //从url获取json
     if (kDebugMode) {
       print('Try to get response from $url');
     }
     try{
-      var res = await dio.get(url);
+      var res = await dio.get(url,options: Options(validateStatus: (i){return i==200||i==400;}));
       if(res.statusCode == 200){
         if (kDebugMode) {
           print('Get response successfully');
@@ -41,16 +47,17 @@ class Network{
         }
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         return jsonResponse;
+      }else if(res.statusCode == 400){
+        status = true;
+        var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+        message = jsonResponse["message"];
+        return null;
       }
       else{
         return null;
       }
     }
-    on DioError catch(e){
-      if(e.message == "Http status error [400]"){
-        status = true;
-        return null;
-      }
+    catch(e){
       return null;
     }
   }
@@ -59,13 +66,16 @@ class Network{
     status = false;
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
+    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
       print('Try to get response from $url');
     }
     try{
-      var res = await dio.post(url,data:data);
+      var res = await dio.post(url,data:data,options: Options(validateStatus: (i){return i==200||i==400;}));
       if (kDebugMode) {
         print(res);
       }
@@ -75,19 +85,13 @@ class Network{
         }
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         return jsonResponse;
+      }else if(res.statusCode == 400){
+        status = true;
+        var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+        message = jsonResponse["message"];
+        return null;
       }
       else{
-        return null;
-      }
-    }
-    on DioError catch(e){
-      if(e.message == "Http status error [400]"){
-        status = true;
-        return null;
-      }else {
-        if (kDebugMode) {
-          print(e);
-        }
         return null;
       }
     }
@@ -99,7 +103,7 @@ class Network{
     }
   }
 
-  Future<int> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     //登录
     var res = await post('$apiUrl/auth/sign-in',{
       "email":email,
@@ -111,14 +115,14 @@ class Network{
         if(kDebugMode){
           print("Logging successfully");
         }
-        return 1;
+        return true;
       }else{
-        return 0;
+        return false;
       }
     }else if(status){
-      return -1;
+      return false;
     } else{
-      return 0;
+      return false;
     }
   }
 
@@ -494,6 +498,9 @@ class Network{
     //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
     var url = "$apiUrl/users/avatar";
     var dio = Dio();
+    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"avatar": imageData});
@@ -508,6 +515,9 @@ class Network{
     var url = "$apiUrl/users/profile";
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
+    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"slogan": slogan});
@@ -718,6 +728,9 @@ class Network{
     status = false;
     var url = "$apiUrl/users/password";
     var dio = Dio();
+    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(

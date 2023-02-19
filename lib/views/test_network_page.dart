@@ -68,9 +68,9 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
               left: 0,
               right: 0,
               top: MediaQuery.of(context).size.height/2-30,
-              child: const Align(
+              child: Align(
                 alignment: Alignment.topCenter,
-                child: Text("网络错误"),
+                child: network.status?Text(network.message):const Text("网络错误"),
               ),
             ),
 

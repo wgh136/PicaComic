@@ -4,6 +4,7 @@ import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/collections_page.dart';
 import 'package:pica_comic/views/search_page.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -113,46 +114,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ],
         );
       }else{
-        return Stack(
-          children: [
-            Positioned(
-              top: MediaQuery.of(context).size.height/2-80,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size:60,),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2-10,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Text("网络错误"),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2+30,
-              child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    width: 100,
-                    height: 40,
-                    child: FilledButton(
-                      onPressed: (){
-                        categoriesPageLogic.change();
-                      },
-                      child: const Text("重试"),
-                    ),
-                  )
-              ),
-            ),
-          ],
-        );
+        return showNetworkError(context, () {categoriesPageLogic.change();});
       }
     });
   }

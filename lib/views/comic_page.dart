@@ -8,6 +8,7 @@ import 'package:pica_comic/views/comic_reading_page.dart';
 import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
+import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
 import '../base.dart';
@@ -74,7 +75,7 @@ class ComicPage extends StatelessWidget{
                       Get.to(() => CategoryComicPage(s));
                     },
                     child: Card(
-                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                      margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
                       elevation: 0,
                       color: Theme
                           .of(context)
@@ -195,7 +196,7 @@ class ComicPage extends StatelessWidget{
                           child: CachedNetworkImage(
                             imageUrl: getImageUrl(comic.path),
                             errorWidget: (context, url, error) => const Icon(Icons.error),
-                            height: 450,
+                            height: 350,
                             width: MediaQuery.of(context).size.width,
                           ),
                           onTap: (){Get.to(()=>ShowImagePage(comic.path));},
@@ -203,7 +204,7 @@ class ComicPage extends StatelessWidget{
                         const SizedBox(height: 20,),
                         if(comicPageLogic.comicItem!.author!="")
                         const SizedBox(
-                          height: 30,
+                          height: 20,
                           child: Text("      作者"),
                         ),
                         if(comicPageLogic.comicItem!.author!="")
@@ -213,7 +214,10 @@ class ComicPage extends StatelessWidget{
                               child: Card(
                                 elevation: 0,
                                 color: Theme.of(context).colorScheme.primaryContainer,
-                                child: Text(comicPageLogic.comicItem!.author),
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                  child: Text(comicPageLogic.comicItem!.author),
+                                ),
                               ),
                               onTap: (){
                                 if(comicPageLogic.comicItem!.author!=""){
@@ -224,7 +228,7 @@ class ComicPage extends StatelessWidget{
                         ),
                         if(comicPageLogic.comicItem!.chineseTeam!="")
                         const SizedBox(
-                          height: 30,
+                          height: 20,
                           child: Text("      汉化组"),
                         ),
                         if(comicPageLogic.comicItem!.chineseTeam!="")
@@ -234,7 +238,10 @@ class ComicPage extends StatelessWidget{
                               child: Card(
                                 elevation: 0,
                                 color: Theme.of(context).colorScheme.primaryContainer,
-                                child: Text(comicPageLogic.comicItem!.chineseTeam),
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                  child: Text(comicPageLogic.comicItem!.chineseTeam),
+                                ),
                               ),
                               onTap: (){
                                 if(comicPageLogic.comicItem!.chineseTeam!=""){
@@ -244,7 +251,7 @@ class ComicPage extends StatelessWidget{
                             )
                         ),
                         const SizedBox(
-                          height: 30,
+                          height: 20,
                           child: Text("      分类"),
                         ),
                         Padding(
@@ -254,7 +261,7 @@ class ComicPage extends StatelessWidget{
                           ),
                         ),
                         const SizedBox(
-                          height: 30,
+                          height: 20,
                           child: Text("      标签"),
                         ),
                         Padding(
@@ -617,56 +624,9 @@ class ComicPage extends StatelessWidget{
             ],
           );
         }else{
-          return Stack(
-            children: [
-              Positioned(top: 0,
-                left: 0,child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),child: Tooltip(
-                message: "返回",
-                child: IconButton(
-                  iconSize: 25,
-                  icon: const Icon(Icons.arrow_back_outlined),
-                  onPressed: (){Get.back();},
-                ),
-              ),),
-              ),
-              Positioned(
-                top: MediaQuery.of(context).size.height/2-80,
-                left: 0,
-                right: 0,
-                child: const Align(
-                  alignment: Alignment.topCenter,
-                  child: Icon(Icons.error_outline,size:60,),
-                ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                top: MediaQuery.of(context).size.height/2-10,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(comicPageLogic.underReview?"漫画审核中":"网络错误"),
-                ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                top: MediaQuery.of(context).size.height/2+30,
-                child: Align(
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      width: 100,
-                      height: 40,
-                      child: FilledButton(
-                        onPressed: (){
-                          comicPageLogic.change();
-                        },
-                        child: const Text("重试"),
-                      ),
-                    )
-                ),
-              ),
-            ],
-          );
+          return showNetworkError(context, () {
+            comicPageLogic.change();
+          });
         }
       }),
     );
