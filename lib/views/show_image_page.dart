@@ -2,37 +2,78 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/views/widgets/save_image.dart';
 
-class ShowImagePage extends StatelessWidget {
+
+class ShowImagePage extends StatefulWidget {
   const ShowImagePage(this.url,{Key? key}) : super(key: key);
   final String url;
 
+  @override
+  State<ShowImagePage> createState() => _ShowImagePageState(url);
+}
+
+class _ShowImagePageState extends State<ShowImagePage> {
+  final String url;
+  _ShowImagePageState(this.url);
+
+  @override
+  initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    super.initState();
+  }
+
+  @override
+  dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(child: PhotoView(
-            imageProvider: NetworkImage(url),
-            loadingBuilder: (context,event){
-              return Container(
-                decoration: const BoxDecoration(color: Colors.black),
-                child: const Center(child: CircularProgressIndicator(),),
-              );
-            },
-          )),
-          Positioned(
-            left: 10,
-            top: 10,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_outlined,size: 30,),
-              onPressed: (){Get.back();},
-            ),
-          )
-        ],
-      )
+        body: Container(
+          decoration: const BoxDecoration(
+            color: Colors.black,
+          ),
+          child: Stack(
+            children: [
+              Positioned(child: PhotoView(
+                minScale: PhotoViewComputedScale.contained*0.9,
+                imageProvider: NetworkImage(getImageUrl(url)),
+                loadingBuilder: (context,event){
+                  return Container(
+                    decoration: const BoxDecoration(color: Colors.black),
+                    child: const Center(child: CircularProgressIndicator(),),
+                  );
+                },
+              )),
+              if(!GetPlatform.isAndroid)
+                Positioned(
+                  left: 10,
+                  top: 10,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_outlined,size: 30,),
+                    onPressed: (){Get.back();},
+                  ),
+                ),
+              Positioned(
+                right: 20,
+                bottom: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.download),
+                  onPressed: () async{
+                    saveImage(url, context);
+                  },
+                ),
+              )
+            ],
+          ),
+        ),
     );
   }
 }
+
+
+

@@ -38,7 +38,6 @@ void setSearchMode(BuildContext context){
               ListTile(
                 trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
                   radioLogic.change(i!);
-                  appdata.appChannel = (i+1).toString();
                 },),
                 title: const Text("最多喜欢"),
                 onTap: (){
@@ -48,7 +47,6 @@ void setSearchMode(BuildContext context){
               ListTile(
                 trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
                   radioLogic.change(i!);
-                  appdata.appChannel = (i+1).toString();
                 },),
                 title: const Text("最多指名"),
                 onTap: (){
@@ -226,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: Icon(Icons.change_circle,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("使用转发服务器"),
-                    subtitle: const Text("自己有魔法会减慢速度"),
+                    subtitle: const Text("同时使用网络代理工具会减慢速度"),
                     trailing: Switch(
                       value: useMyServer,
                       onChanged: (b){
@@ -279,14 +277,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         appdata.writeData();
                       },
                     ),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.color_lens,color: Theme.of(context).colorScheme.secondary),
-                    title: const Text("设置主题"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: (){
-                      Get.to(()=>const ThemePage());
-                    },
                   ),
                 ],
               ),

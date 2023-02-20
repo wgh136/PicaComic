@@ -128,32 +128,6 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 )
               ),
             ),
-          if(!isLoading)
-            Positioned(
-              left: MediaQuery.of(context).size.width/2-150,
-              right: MediaQuery.of(context).size.width/2-150,
-              top: MediaQuery.of(context).size.height/2+110,
-              child: SizedBox(
-                width: 300,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox.fromSize(size: const Size(5, 1),),
-                            const Text("注意",style: TextStyle(fontWeight: FontWeight.w600),)
-                          ],
-                        ),
-                        const Text("此情况可能是登录失效导致, 暂时不知道登录失效会返回什么, 如果网络没有问题请重新登录")
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
           if(!isLoading&&!GetPlatform.isWeb)
             Positioned(
               bottom: 20,
@@ -163,7 +137,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 child: ListTile(
                   leading: const Icon(Icons.change_circle),
                   title: const Text("使用转发服务器"),
-                  subtitle: const Text("自己有魔法会减慢速度"),
+                  subtitle: const Text("同时使用网络代理工具会减慢速度"),
                   trailing: Switch(
                     value: useMyServer,
                     onChanged: (b){

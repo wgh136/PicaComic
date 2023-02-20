@@ -1,7 +1,7 @@
 import 'dart:ui';
-
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/test_network_page.dart';
@@ -13,6 +13,7 @@ bool isLogged = false;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   appdata.readData().then((b) async {
     isLogged = b;
     if(b){
@@ -44,14 +45,14 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.cyanAccent),
+          colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
           useMaterial3: true,
-          fontFamily: '微软雅黑'
+          fontFamily: 'font'
         ),
         darkTheme: ThemeData(
-          colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.black,brightness: Brightness.dark),
+          colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-          fontFamily: '微软雅黑' //使用自定义字体解决windows端中文显示糟糕的问题
+          fontFamily: 'font' //使用自定义字体解决windows端中文显示糟糕的问题
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

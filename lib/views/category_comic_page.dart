@@ -55,12 +55,13 @@ class CategoryComicPage extends StatelessWidget {
                         onPressed: (){
                           showDialog(context: context, builder: (context){
                             Get.put(ModeRadioLogic1());
-                            return Dialog(
-                              child: GetBuilder<ModeRadioLogic1>(builder: (radioLogic){
+                            return SimpleDialog(
+                              title: const Text("选择漫画排序模式"),
+                              children: [GetBuilder<ModeRadioLogic1>(builder: (radioLogic){
                                 return Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const ListTile(title: Text("选择搜索及分类排序模式"),),
+                                    const SizedBox(width: 400,),
                                     ListTile(
                                       trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                                         radioLogic.change(i!);
@@ -123,7 +124,7 @@ class CategoryComicPage extends StatelessWidget {
                                     ),
                                   ],
                                 );
-                              },),
+                              },),]
                             );
                           });
                         },

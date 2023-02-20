@@ -84,10 +84,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                               child: Row(
                                 children: [
                                   const Expanded(
-                                    flex: 0,
+                                    flex: 1,
                                     child: Image(
                                       image: AssetImage("images/collections.png"),
-                                      width: 100,
+                                      fit: BoxFit.fitWidth,
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
                                   const Expanded(

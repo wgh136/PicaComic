@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -6,6 +7,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/save_image.dart';
 
 class ComicReadingPageLogic extends GetxController{
   var controller = PageController(initialPage: 1);
@@ -27,18 +29,41 @@ class ComicReadingPageLogic extends GetxController{
   }
 }
 
-class ComicReadingPage extends StatelessWidget {
+class ComicReadingPage extends StatefulWidget{
+  final String comicId;
+  final int order;
+  final List<String> eps;
+  final String title;
+  const ComicReadingPage(this.comicId,this.order,this.eps,this.title,{Key? key}) : super(key: key);
+  @override
+  State<StatefulWidget> createState() => _ComicReadingPageState(comicId, order, eps, title);
+
+
+}
+
+class _ComicReadingPageState extends State<ComicReadingPage> {
   final String comicId;
   final List<String> eps; //注意: eps的第一个是标题, 不是章节
   final String title;
-  ComicReadingPage(this.comicId,order,this.eps,this.title,{Key? key}) : super(key: key){
+  _ComicReadingPageState(this.comicId,order,this.eps,this.title){
     Get.put(ComicReadingPageLogic(order));
   }
 
   @override
+  initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    super.initState();
+  }
+
+  @override
+  dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return
-      GetBuilder<ComicReadingPageLogic>(
+    return GetBuilder<ComicReadingPageLogic>(
           builder: (comicReadingPageLogic){
         if(comicReadingPageLogic.isLoading){
           comicReadingPageLogic.index = 1;
@@ -64,14 +89,16 @@ class ComicReadingPage extends StatelessWidget {
             comicReadingPageLogic.change();
           });
           return const Scaffold(
+            resizeToAvoidBottomInset: false,
             body: DecoratedBox(decoration: BoxDecoration(color: Colors.black),child: Center(
               child: CircularProgressIndicator(),
             ),),
           );
         }else if(comicReadingPageLogic.urls.isNotEmpty){
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             backgroundColor: comicReadingPageLogic.tools?Theme.of(context).cardColor:Colors.black,
-            body: SafeArea(child: Stack(
+            body: Stack(
               children: [
                 Positioned(
                   top: 0,
@@ -98,6 +125,11 @@ class ComicReadingPage extends StatelessWidget {
                               }else{
                                 comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
                                 comicReadingPageLogic.update();
+                                if(comicReadingPageLogic.tools){
+                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                                }else{
+                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+                                }
                               }
                             }
                         );
@@ -208,32 +240,52 @@ class ComicReadingPage extends StatelessWidget {
                   ),
                 if(comicReadingPageLogic.tools)
                   Positioned(
+                      bottom: 0,
+                      right: 75,
+                      child: Tooltip(
+                        message: "保存图片",
+                        child: IconButton(
+                          icon: const Icon(Icons.download),
+                          onPressed: () async{
+                            saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index], context);
+                        },
+                        ),
+                      )
+                  ),
+                if(comicReadingPageLogic.tools)
+                  Positioned(
                       top: 0,
                       child: Container(
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           //borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10),bottomLeft: Radius.circular(10))
                         ),
-                        width: MediaQuery.of(context).size.width,
-                        height: 60,
-                        child: Row(
-                          children: [
-                            Padding(padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),child: Tooltip(
-                              message: "返回",
-                              child: IconButton(
-                                iconSize: 25,
-                                icon: const Icon(Icons.arrow_back_outlined),
-                                onPressed: (){Get.back();},
-                              ),
-                            ),),
-                            Container(
-                              width: MediaQuery.of(context).size.width-75,
-                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
-                              child: Text(title,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20),)
-                              ,)
-                          ],
+                        width: MediaQuery.of(context).size.width+MediaQuery.of(context).padding.top,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                          child: Row(
+                            children: [
+                              Padding(padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),child: Tooltip(
+                                message: "返回",
+                                child: IconButton(
+                                  iconSize: 25,
+                                  icon: const Icon(Icons.arrow_back_outlined),
+                                  onPressed: (){Get.back();},
+                                ),
+                              ),),
+                              Container(
+                                width: MediaQuery.of(context).size.width-75,
+                                height: 50,
+                                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Text(title,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20),),
+                                )
+                                ,)
+                            ],
+                          ),
                         ),
-                      )),
+                      ),),
                 if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
                 Positioned(
                   left: 20,
@@ -268,7 +320,7 @@ class ComicReadingPage extends StatelessWidget {
                       onPressed: (){Get.back();},
                     ),)
               ],
-            )),
+            ),
           );
         }else{
           return Scaffold(

@@ -44,7 +44,7 @@
   <style>
     #loading {
       width: 50px;
-      height: 80px;
+      height: 50px;
       position: fixed;
       top: 50%;
       left: 50%;
@@ -54,16 +54,9 @@
     #loading img {
       width: 50px;
       height: 50px;
-      position: absolute;
-      top: -40px;
-    }
-    #loading p{
-      top: 10px;
-      position: absolute;
     }
   </style>
   <img src="loading.gif">
-  <p>加载中</p>
 </div>
 <script>
   if ('serviceWorker' in navigator) {
@@ -82,7 +75,7 @@
         },
         onEntrypointLoaded: function(engineInitializer) {
           let config = {
-            canvasKitBaseUrl: "https://cdn.jsdelivr.net/npm/canvaskit-wasm@0.37.1/bin/"
+            canvasKitBaseUrl: "https://api.kokoiro.xyz/canvasKit/"
           }
           engineInitializer.initializeEngine(config).then(function(appRunner) {
             appRunner.runApp();

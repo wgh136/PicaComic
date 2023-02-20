@@ -205,7 +205,7 @@ class GamePage extends StatelessWidget {
                   const SliverToBoxAdapter(child: Divider(),),
                   SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
                     const SizedBox(width: 20,),
-                    Icon(Icons.book,color: Theme.of(context).colorScheme.onPrimaryContainer,),
+                    Icon(Icons.book, color: Theme.of(context).colorScheme.secondary),
                     const SizedBox(width: 20,),
                     const Text("简介",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
                   ],)),),
@@ -224,7 +224,7 @@ class GamePage extends StatelessWidget {
                   const SliverToBoxAdapter(child: Divider(),),
                   SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
                     const SizedBox(width: 20,),
-                    Icon(Icons.camera,color: Theme.of(context).colorScheme.onPrimaryContainer,),
+                    Icon(Icons.camera, color: Theme.of(context).colorScheme.secondary),
                     const SizedBox(width: 20,),
                     const Text("屏幕截图",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
                   ],)),),
@@ -255,8 +255,8 @@ class GamePage extends StatelessWidget {
                             ),
                           ),
                           Positioned(
-                            top: 235,
-                            left: 10,
+                            top: 135,
+                            left: 5,
                             child: IconButton(
                               iconSize: 30,
                               icon: const Icon(Icons.chevron_left),
@@ -266,8 +266,8 @@ class GamePage extends StatelessWidget {
                             ),
                           ),
                           Positioned(
-                            top: 235,
-                            right: 10,
+                            top: 135,
+                            right: 5,
                             child: IconButton(
                               iconSize: 30,
                               icon: const Icon(Icons.chevron_right),

@@ -112,8 +112,8 @@ class ProfilePage extends StatelessWidget {
                                                   logic.update();
                                                 }
                                               }else{
-                                                final ImagePicker _picker = ImagePicker();
-                                                final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+                                                final ImagePicker picker = ImagePicker();
+                                                final XFile? file = await picker.pickImage(source: ImageSource.gallery);
                                                 if (file != null) {
                                                   logic.url = file.path;
                                                   logic.update();

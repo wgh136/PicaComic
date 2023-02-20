@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
 import '../base.dart';
@@ -29,9 +28,6 @@ class Network{
     status = false;
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
-    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
 
     //从url获取json
@@ -66,9 +62,6 @@ class Network{
     status = false;
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
-    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -498,9 +491,6 @@ class Network{
     //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
     var url = "$apiUrl/users/avatar";
     var dio = Dio();
-    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"avatar": imageData});
@@ -515,9 +505,6 @@ class Network{
     var url = "$apiUrl/users/profile";
     var dio = Dio()
       ..interceptors.add(LogInterceptor());
-    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"slogan": slogan});
@@ -728,9 +715,6 @@ class Network{
     status = false;
     var url = "$apiUrl/users/password";
     var dio = Dio();
-    if (GetPlatform.isIOS || GetPlatform.isMacOS || GetPlatform.isAndroid ||GetPlatform.isWindows) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(

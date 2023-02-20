@@ -38,15 +38,17 @@ class ComicTile extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              flex: 0,
+              flex: 1,
               child: CachedNetworkImage(
                 imageUrl: getImageUrl(comic.path),
+                fit: BoxFit.cover,
                 errorWidget: (context, url, error) => const Icon(Icons.error),
-                width: 100,
+                width: 150,
+                height: double.infinity,
             ),),
             SizedBox.fromSize(size: const Size(5,5),),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: ComicDescription(
                 title: comic.title,
                 user: comic.author,
@@ -132,12 +134,11 @@ class CategoryTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                flex: 0,
+                flex: 1,
                 child: CachedNetworkImage(
                   imageUrl: getImageUrl(categoryItem.path),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
-                  //height: 80,
-                  width: 100,
+                  fit: BoxFit.fitWidth,
                 ),),
               SizedBox.fromSize(size: const Size(20,5),),
               Expanded(
@@ -154,12 +155,16 @@ class CategoryTile extends StatelessWidget {
   }
 }
 
-void showMessage(context, String message){
+void showMessage(context, String message, {int time=1}){
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     width: 350,
-    duration: const Duration(seconds: 1),
+    duration: Duration(seconds: time),
     content: Text(message),
     behavior: SnackBarBehavior.floating,
   ));
+}
+
+void hideMessage(context){
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
 }

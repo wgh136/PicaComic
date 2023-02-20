@@ -66,7 +66,7 @@ class SearchPage extends StatelessWidget {
                 if(searchPageLogic.isLoading){
                   return SliverToBoxAdapter(
                     child: SizedBox.fromSize(
-                      size: Size(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height),
+                      size: Size(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height-60),
                       child: const Center(
                         child: CircularProgressIndicator(),
                       ),),
@@ -222,12 +222,13 @@ class FloatingSearchBar extends StatelessWidget {
                     onPressed: (){
                       showDialog(context: context, builder: (context){
                         Get.put(ModeRadioLogic());
-                        return Dialog(
-                          child: GetBuilder<ModeRadioLogic>(builder: (radioLogic){
+                        return SimpleDialog(
+                          title: const Text("选择漫画排序模式"),
+                          children: [GetBuilder<ModeRadioLogic>(builder: (radioLogic){
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const ListTile(title: Text("选择搜索及分类排序模式"),),
+                                const SizedBox(width: 400,),
                                 ListTile(
                                   trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                                     radioLogic.change(i!);
@@ -282,7 +283,7 @@ class FloatingSearchBar extends StatelessWidget {
                                 ),
                               ],
                             );
-                          },),
+                          },),]
                         );
                       });
                     },

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
@@ -127,56 +128,73 @@ class ComicPage extends StatelessWidget{
                   Tooltip(
                     message: "更多",
                     child: IconButton(
-                      icon: const Icon(Icons.info_outline),
+                      icon: Icon(Icons.info_outline,color: Theme.of(context).colorScheme.primary,),
                       onPressed: () {
                         showDialog<String>(
                           context: context,
                           builder: (BuildContext context) => SimpleDialog(
                             children: [Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SelectionArea(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    ListTile(
-                                      title: const Text("标题"),
-                                      subtitle: Text(comic.title),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  ListTile(
+                                    title: const Text("标题"),
+                                    subtitle: Text(comic.title),
+                                    onLongPress: (){
+                                      Clipboard.setData(ClipboardData(text: comic.title));
+                                      showMessage(context, "已复制");
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text("作者"),
+                                    subtitle: Text(comic.author),
+                                    onLongPress: (){
+                                      Clipboard.setData(ClipboardData(text: comic.author));
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text("上传者"),
+                                    subtitle: Text(comicPageLogic.comicItem!.creator.name),
+                                    onLongPress: (){
+                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.creator.name));
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text("汉化组"),
+                                    subtitle: Text(comicPageLogic.comicItem!.chineseTeam),
+                                    onLongPress: (){
+                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.chineseTeam));
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text("分类"),
+                                    subtitle: Text(comicPageLogic.comicItem!.categories.toString().substring(1,comicPageLogic.comicItem!.categories.toString().length-1)),
+                                    onLongPress: (){
+                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.categories.toString().substring(1,comicPageLogic.comicItem!.categories.toString().length-1)));
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: const Text("Tags"),
+                                    subtitle: Text(comicPageLogic.comicItem!.tags.toString().substring(1,comicPageLogic.comicItem!.tags.toString().length-1)),
+                                    onLongPress: (){
+                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.tags.toString().substring(1,comicPageLogic.comicItem!.tags.toString().length-1)));
+                                    },
+                                  ),
+                                  SizedBox(
+                                    height: 50,
+                                    child: Row(
+                                      children: const[
+                                        Padding(padding: EdgeInsets.only(left: 18)),
+                                        Icon(Icons.info),
+                                        Padding(padding: EdgeInsets.only(left: 5)),
+                                        Text("长按以复制")
+                                      ],
                                     ),
-                                    ListTile(
-                                      title: const Text("作者"),
-                                      subtitle: Text(comic.author),
-                                    ),
-                                    ListTile(
-                                      title: const Text("上传者"),
-                                      subtitle: Text(comicPageLogic.comicItem!.creator.name),
-                                    ),
-                                    ListTile(
-                                      title: const Text("汉化组"),
-                                      subtitle: Text(comicPageLogic.comicItem!.chineseTeam),
-                                    ),
-                                    ListTile(
-                                      title: const Text("分类"),
-                                      subtitle: Text(comicPageLogic.comicItem!.categories.toString().substring(1,comicPageLogic.comicItem!.categories.toString().length-1)),
-                                    ),
-                                    ListTile(
-                                      title: const Text("Tags"),
-                                      subtitle: Text(comicPageLogic.comicItem!.tags.toString().substring(1,comicPageLogic.comicItem!.tags.toString().length-1)),
-                                    ),
-                                    SizedBox(
-                                      height: 50,
-                                      child: Row(
-                                        children: const[
-                                          Padding(padding: EdgeInsets.only(left: 18)),
-                                          Icon(Icons.info),
-                                          Padding(padding: EdgeInsets.only(left: 5)),
-                                          Text("此界面文字可复制")
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                                  ),
+                                ],
+                              ),
                             ),
                         ]
                           ),
@@ -376,13 +394,17 @@ class ComicPage extends StatelessWidget{
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                     children: [
-                      CachedNetworkImage(
-                        imageUrl: getImageUrl(comic.path),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        height: 550,
-                        width: MediaQuery.of(context).size.width/2,
+                      GestureDetector(
+                        child: CachedNetworkImage(
+                          imageUrl: getImageUrl(comic.path),
+                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          height: 550,
+                          width: MediaQuery.of(context).size.width/2,
+                        ),
+                        onTap: (){
+                          Get.to(ShowImagePage(comic.path));
+                        },
                       ),
-
                       SizedBox(
                         width: MediaQuery.of(context).size.width/2,
                         child: Column(
@@ -400,7 +422,10 @@ class ComicPage extends StatelessWidget{
                                   child: Card(
                                     elevation: 0,
                                     color: Theme.of(context).colorScheme.primaryContainer,
-                                    child: Text(comicPageLogic.comicItem!.author),
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                      child: Text(comicPageLogic.comicItem!.author),
+                                    ),
                                   ),
                                   onTap: (){
                                     if(comicPageLogic.comicItem!.author!=""){
@@ -421,7 +446,10 @@ class ComicPage extends StatelessWidget{
                                 child: Card(
                                   elevation: 0,
                                   color: Theme.of(context).colorScheme.primaryContainer,
-                                  child: Text(comicPageLogic.comicItem!.chineseTeam),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                    child: Text(comicPageLogic.comicItem!.chineseTeam),
+                                  ),
                                 ),
                                 onTap: (){
                                   if(comicPageLogic.comicItem!.chineseTeam!=""){
@@ -556,11 +584,11 @@ class ComicPage extends StatelessWidget{
 
               //章节显示
               const SliverToBoxAdapter(child: Divider(),),
-              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: const [
-                SizedBox(width: 20,),
-                Icon(Icons.library_books),
-                SizedBox(width: 20,),
-                Text("章节",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
+                const SizedBox(width: 20,),
+                Icon(Icons.library_books, color: Theme.of(context).colorScheme.secondary),
+                const SizedBox(width: 20,),
+                const Text("章节",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
               ],)),),
               const SliverPadding(padding: EdgeInsets.all(5)),
               SliverGrid(
@@ -587,11 +615,11 @@ class ComicPage extends StatelessWidget{
               ),
               const SliverPadding(padding: EdgeInsets.all(5)),
               const SliverToBoxAdapter(child: Divider(),),
-              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: const [
-                SizedBox(width: 20,),
-                Icon(Icons.recommend),
-                SizedBox(width: 20,),
-                Text("简介",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
+                const SizedBox(width: 20,),
+                Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.secondary),
+                const SizedBox(width: 20,),
+                const Text("简介",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
               ],)),),
               SliverToBoxAdapter(
                 child: Padding(
@@ -601,11 +629,11 @@ class ComicPage extends StatelessWidget{
               ),
               const SliverPadding(padding: EdgeInsets.all(5)),
               const SliverToBoxAdapter(child: Divider(),),
-              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: const [
-                SizedBox(width: 20,),
-                Icon(Icons.recommend),
-                SizedBox(width: 20,),
-                Text("相关推荐",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
+                const SizedBox(width: 20,),
+                Icon(Icons.recommend, color: Theme.of(context).colorScheme.secondary),
+                const SizedBox(width: 20,),
+                const Text("相关推荐",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
               ],)),),
               const SliverPadding(padding: EdgeInsets.all(5)),
               SliverGrid(

@@ -45,7 +45,7 @@ class ReplyPage extends StatelessWidget {
                     Tooltip(
                       message: "发言",
                       child: IconButton(
-                        icon: const Icon(Icons.message_sharp),
+                        icon: Icon(Icons.message,color: Theme.of(context).colorScheme.primary,),
                         onPressed: (){
                           giveComment(context, id,true).then((b){
                             if(b){
