@@ -13,7 +13,6 @@ bool isLogged = false;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   appdata.readData().then((b) async {
     isLogged = b;
     if(b){

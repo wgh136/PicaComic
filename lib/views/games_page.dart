@@ -70,6 +70,7 @@ class GamesPage extends StatelessWidget {
                       childAspectRatio: 1.7,
                     ),
                   ),
+                  SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
                 ],
               ),
             );

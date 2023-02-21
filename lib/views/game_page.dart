@@ -280,6 +280,7 @@ class GamePage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
                 ],
               ),
             );

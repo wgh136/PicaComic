@@ -136,6 +136,26 @@ class SearchPage extends StatelessWidget {
                   }
                 }
               }),
+              GetBuilder<SearchPageLogic>(builder: (searchPageLogic){
+                if(searchPageLogic.searchResult.pages!=searchPageLogic.searchResult.loaded&&searchPageLogic.searchResult.pages!=1) {
+                  return SliverToBoxAdapter(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 80,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,height: 20,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  );
+                }else{
+                  return const SliverToBoxAdapter(child: SizedBox(height: 1,),);
+                }
+              }),
+
+              SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
             ],
           ),
         )

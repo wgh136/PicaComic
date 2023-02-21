@@ -72,7 +72,22 @@ class ReplyPage extends StatelessWidget {
                       return CommentTile(comment: commentsPageLogic.comments.comments[index], isReply: true);
 
                     }
-                ))],
+                )),
+                if(commentsPageLogic.comments.loaded!=commentsPageLogic.comments.total&&commentsPageLogic.comments.total!=1)
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 80,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,height: 20,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  ),
+                SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+              ],
             );
           }
         },),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
@@ -41,7 +42,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
             children: [
               Positioned(child: PhotoView(
                 minScale: PhotoViewComputedScale.contained*0.9,
-                imageProvider: NetworkImage(getImageUrl(url)),
+                imageProvider: CachedNetworkImageProvider(getImageUrl(url)),
                 loadingBuilder: (context,event){
                   return Container(
                     decoration: const BoxDecoration(color: Colors.black),

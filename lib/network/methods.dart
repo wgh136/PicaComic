@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
+import 'package:pica_comic/views/login_page.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 import 'models.dart';
 
@@ -35,7 +37,7 @@ class Network{
       print('Try to get response from $url');
     }
     try{
-      var res = await dio.get(url,options: Options(validateStatus: (i){return i==200||i==400;}));
+      var res = await dio.get(url,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
       if(res.statusCode == 200){
         if (kDebugMode) {
           print('Get response successfully');
@@ -48,8 +50,11 @@ class Network{
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         message = jsonResponse["message"];
         return null;
-      }
-      else{
+      }else if(res.statusCode == 401){
+        Get.offAll(const LoginPage());
+        showMessage(Get.context, "登录失效");
+        return null;
+      } else{
         return null;
       }
     }
@@ -68,7 +73,7 @@ class Network{
       print('Try to get response from $url');
     }
     try{
-      var res = await dio.post(url,data:data,options: Options(validateStatus: (i){return i==200||i==400;}));
+      var res = await dio.post(url,data:data,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
       if (kDebugMode) {
         print(res);
       }
@@ -83,8 +88,11 @@ class Network{
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         message = jsonResponse["message"];
         return null;
-      }
-      else{
+      }else if(res.statusCode == 401){
+        Get.offAll(const LoginPage());
+        showMessage(Get.context, "登录失效");
+        return null;
+      } else{
         return null;
       }
     }
@@ -650,11 +658,10 @@ class Network{
     return comics;
   }
 
-  Future<bool> getMoreGames(Games games) async{
-    if(games.total==games.loaded) return false;
+  Future<void> getMoreGames(Games games) async{
+    if(games.total==games.loaded) return;
     var res = await get("$apiUrl/games?page=${games.loaded+1}");
     if(res!=null){
-      games.loaded++;
       games.total = res["data"]["games"]["pages"];
       for(int i=0;i<res["data"]["games"]["docs"].length;i++){
         var game = GameItemBrief(
@@ -666,20 +673,14 @@ class Network{
         );
         games.games.add(game);
       }
-      return true;
-    }else{
-      return false;
     }
+    games.loaded++;
   }
 
-  Future<Games?> getGames() async{
+  Future<Games> getGames() async{
     var games = Games([],0,1);
     var b = await getMoreGames(games);
-    if(b){
-      return games;
-    }else{
-      return null;
-    }
+    return games;
   }
 
   Future<GameInfo?> getGameInfo(String id) async{

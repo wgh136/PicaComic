@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 
@@ -46,6 +47,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 childAspectRatio: 4,
               ),
             ),
+            SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
           ],
         )
     );

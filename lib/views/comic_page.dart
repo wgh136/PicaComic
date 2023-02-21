@@ -649,6 +649,7 @@ class ComicPage extends StatelessWidget{
                 ),
               ),
               const SliverPadding(padding: EdgeInsets.all(10)),
+              SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
             ],
           );
         }else{

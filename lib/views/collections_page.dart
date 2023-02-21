@@ -123,6 +123,7 @@ class CollectionsPage extends StatelessWidget {
                     childAspectRatio: 3.5,
                   ),
                 ),
+                SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
               ],
             );
           }else{

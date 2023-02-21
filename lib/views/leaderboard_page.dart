@@ -186,7 +186,8 @@ class LeaderBoardD30 extends StatelessWidget {
                 maxCrossAxisExtent: 600,
                 childAspectRatio: 4,
               ),
-            )
+            ),
+            SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
           ],
         );
       }else{

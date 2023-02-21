@@ -9,6 +9,7 @@ import '../network/models.dart';
 
 class HomePageLogic extends GetxController{
   bool isLoading = true;
+  bool isLoadingMore = false;
   var comics = <ComicItemBrief>[];
   void change(){
     isLoading = !isLoading;
@@ -25,11 +26,20 @@ class HomePage extends StatelessWidget {
       init: HomePageLogic(),
         builder: (homePageLogic){
       if(homePageLogic.isLoading){
-        network.getRandomComics().then((c) {
+        bool flag1 = false,flag2 = false;
+        network.getRandomComics().then((c){
           for(var i in c){
             homePageLogic.comics.add(i);
           }
-          homePageLogic.change();
+          flag1 = true;
+          if(flag1&&flag2)  homePageLogic.change();
+        });
+        network.getRandomComics().then((c){
+          for(var i in c){
+            homePageLogic.comics.add(i);
+          }
+          flag2 = true;
+          if(flag1&&flag2)  homePageLogic.change();
         });
         return const Center(
           child: CircularProgressIndicator(),
@@ -72,11 +82,25 @@ class HomePage extends StatelessWidget {
                         childCount: homePageLogic.comics.length,
                             (context, i){
                           if(i == homePageLogic.comics.length-1){
+                            bool flag1 = false,flag2 = false;
                             network.getRandomComics().then((c){
                               for(var i in c){
                                 homePageLogic.comics.add(i);
                               }
-                              homePageLogic.update();
+                              flag1 = true;
+                              if(flag1&&flag2) {
+                                homePageLogic.isLoadingMore = false;
+                                homePageLogic.update();
+                              }
+                            });
+                            network.getRandomComics().then((c){
+                              for(var i in c){
+                                homePageLogic.comics.add(i);
+                              }
+                              flag2 = true;
+                              if(flag1&&flag2) {
+                                homePageLogic.update();
+                              }
                             });
                           }
                           return ComicTile(homePageLogic.comics[i]);
@@ -87,6 +111,19 @@ class HomePage extends StatelessWidget {
                       childAspectRatio: 3.5,
                     ),
                   ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 80,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,height: 20,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
                 ],
               ),
               onRefresh: () async {

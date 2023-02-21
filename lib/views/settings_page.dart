@@ -388,7 +388,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               )
-          )
+          ),
+          SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
         ],
       ),
     );

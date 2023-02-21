@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -109,12 +110,12 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     itemCount: comicReadingPageLogic.urls.length+2,
                     builder: (BuildContext context, int index){
                       if(index<comicReadingPageLogic.urls.length) {
-                        precacheImage(NetworkImage(getImageUrl(comicReadingPageLogic.urls[index])), context);
+                        precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])), context);
                       }
                       if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
                         return PhotoViewGalleryPageOptions(
                             minScale: PhotoViewComputedScale.contained*0.9,
-                            imageProvider: NetworkImage(getImageUrl(comicReadingPageLogic.urls[index-1])),
+                            imageProvider: CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index-1])),
                             initialScale: PhotoViewComputedScale.contained,
                             heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
                             onTapUp: (context,detail,value){
@@ -192,7 +193,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                       left: 0,
                       right: 0,
                       child: Container(
-                        height: 100,
+                        height: 100+Get.bottomBarHeight,
                         decoration: BoxDecoration(
                             borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
                             color: Theme.of(context).cardColor
@@ -200,7 +201,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                       )),
                 if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
                   Positioned(
-                    bottom: 40,
+                    bottom: 40+Get.bottomBarHeight,
                     left: 0,
                     right: 0,
                     child: Slider(
@@ -212,14 +213,21 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                         comicReadingPageLogic.controller.jumpToPage(i.toInt());
                       },
                     ),),
+                if(!comicReadingPageLogic.tools)
                 Positioned(
                   bottom: 13,
                   left: 25,
                   child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
-                ),
+                )
+                else
+                  Positioned(
+                    bottom: 13+Get.bottomBarHeight,
+                    left: 25,
+                    child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
+                  ),
                 if(comicReadingPageLogic.tools)
                   Positioned(
-                      bottom: 0,
+                      bottom: Get.bottomBarHeight,
                       right: 25,
                       child: Tooltip(
                         message: "章节",
@@ -240,7 +248,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                   ),
                 if(comicReadingPageLogic.tools)
                   Positioned(
-                      bottom: 0,
+                      bottom: Get.bottomBarHeight,
                       right: 75,
                       child: Tooltip(
                         message: "保存图片",
