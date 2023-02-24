@@ -37,18 +37,17 @@ class ComicReadingPage extends StatefulWidget{
   final String title;
   const ComicReadingPage(this.comicId,this.order,this.eps,this.title,{Key? key}) : super(key: key);
   @override
-  State<StatefulWidget> createState() => _ComicReadingPageState(comicId, order, eps, title);
+  State<StatefulWidget> createState() => _ComicReadingPageState();
 
 
 }
 
 class _ComicReadingPageState extends State<ComicReadingPage> {
-  final String comicId;
-  final List<String> eps; //注意: eps的第一个是标题, 不是章节
-  final String title;
-  _ComicReadingPageState(this.comicId,order,this.eps,this.title){
-    Get.put(ComicReadingPageLogic(order));
-  }
+  late final String comicId = widget.comicId;
+  late final List<String> eps = widget.eps; //注意: eps的第一个是标题, 不是章节
+  late final String title = widget.title;
+  late final int order = widget.order;
+  bool downloaded = false;
 
   @override
   initState() {
@@ -64,204 +63,234 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ComicReadingPageLogic>(
+    return Scaffold(
+      body: GetBuilder<ComicReadingPageLogic>(
+          init: ComicReadingPageLogic(order),
           builder: (comicReadingPageLogic){
-        if(comicReadingPageLogic.isLoading){
-          comicReadingPageLogic.index = 1;
-          comicReadingPageLogic.controller = PageController(initialPage: 1);
-          comicReadingPageLogic.tools = false;
-          if(comicReadingPageLogic.epsWidgets.length==1) {
-            for (int i = 1; i < eps.length; i++) {
-              comicReadingPageLogic.epsWidgets.add(ListTile(
-                title: Text(eps[i]),
-                onTap: () {
-                  if (i != comicReadingPageLogic.order) {
-                    comicReadingPageLogic.order = i;
-                    comicReadingPageLogic.urls = [];
-                    comicReadingPageLogic.change();
-                  }
-                  Navigator.pop(context);
-                },
-              ));
-            }
-          }
-          network.getComicContent(comicId, comicReadingPageLogic.order).then((l){
-            comicReadingPageLogic.urls = l;
-            comicReadingPageLogic.change();
-          });
-          return const Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: DecoratedBox(decoration: BoxDecoration(color: Colors.black),child: Center(
-              child: CircularProgressIndicator(),
-            ),),
-          );
-        }else if(comicReadingPageLogic.urls.isNotEmpty){
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            backgroundColor: comicReadingPageLogic.tools?Theme.of(context).cardColor:Colors.black,
-            body: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  right: 0,
-                  child: PhotoViewGallery.builder(
-                    itemCount: comicReadingPageLogic.urls.length+2,
-                    builder: (BuildContext context, int index){
-                      if(index<comicReadingPageLogic.urls.length) {
-                        precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])), context);
+            if(comicReadingPageLogic.isLoading){
+              downloaded = downloadManager.downloaded.contains(comicId);
+              comicReadingPageLogic.index = 1;
+              comicReadingPageLogic.controller = PageController(initialPage: 1);
+              comicReadingPageLogic.tools = false;
+              if(comicReadingPageLogic.epsWidgets.length==1) {
+                for (int i = 1; i < eps.length; i++) {
+                  comicReadingPageLogic.epsWidgets.add(ListTile(
+                    title: Text(eps[i]),
+                    onTap: () {
+                      if (i != comicReadingPageLogic.order) {
+                        comicReadingPageLogic.order = i;
+                        comicReadingPageLogic.urls = [];
+                        comicReadingPageLogic.change();
                       }
-                      if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
-                        return PhotoViewGalleryPageOptions(
-                            minScale: PhotoViewComputedScale.contained*0.9,
-                            imageProvider: CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index-1])),
-                            initialScale: PhotoViewComputedScale.contained,
-                            heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
-                            onTapUp: (context,detail,value){
-                              if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75){
-                                comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
-                              }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25){
-                                comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
-                              }else{
-                                comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
-                                comicReadingPageLogic.update();
-                                if(comicReadingPageLogic.tools){
-                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                      Navigator.pop(context);
+                    },
+                  ));
+                }
+              }
+              if(downloaded){
+                downloadManager.getEpLength(comicId, order).then((i){
+                  for(int p=0;p<i;p++){
+                    comicReadingPageLogic.urls.add("");
+                  }
+                  comicReadingPageLogic.change();
+                });
+              } else {
+                network.getComicContent(comicId, comicReadingPageLogic.order).then((l){
+                comicReadingPageLogic.urls = l;
+                comicReadingPageLogic.change();
+              });
+              }
+              return const DecoratedBox(decoration: BoxDecoration(color: Colors.black),child: Center(
+                child: CircularProgressIndicator(),
+              ),);
+            }else if(comicReadingPageLogic.urls.isNotEmpty){
+              return Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    child: PhotoViewGallery.builder(
+                      itemCount: comicReadingPageLogic.urls.length+2,
+                      builder: (BuildContext context, int index){
+                        if(index<comicReadingPageLogic.urls.length&&!downloaded) {
+                          precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])), context);
+                        }
+                        if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
+                          if(downloaded){
+                            return PhotoViewGalleryPageOptions(
+                                minScale: PhotoViewComputedScale.contained*0.9,
+                                imageProvider: FileImage(downloadManager.getImage(comicId, order, index-1)),
+                                initialScale: PhotoViewComputedScale.contained,
+                                heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
+                                onTapUp: (context,detail,value){
+                                  if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75){
+                                    comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
+                                  }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25){
+                                    comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
+                                  }else{
+                                    comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
+                                    comicReadingPageLogic.update();
+                                    if(comicReadingPageLogic.tools){
+                                      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                                    }else{
+                                      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+                                    }
+                                  }
+                                }
+                            );
+                          } else {
+                            return PhotoViewGalleryPageOptions(
+                              minScale: PhotoViewComputedScale.contained*0.9,
+                              imageProvider: CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index-1])),
+                              initialScale: PhotoViewComputedScale.contained,
+                              heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
+                              onTapUp: (context,detail,value){
+                                if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75){
+                                  comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
+                                }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25){
+                                  comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
                                 }else{
-                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+                                  comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
+                                  comicReadingPageLogic.update();
+                                  if(comicReadingPageLogic.tools){
+                                    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                                  }else{
+                                    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+                                  }
                                 }
                               }
-                            }
-                        );
-                      }else{
-                        return PhotoViewGalleryPageOptions(
-                          imageProvider: const AssetImage("images/black.png"),
-                        );
-                      }
-                    },
-                    pageController: comicReadingPageLogic.controller,
-                    loadingBuilder: (context, event) => DecoratedBox(
-                      decoration: const BoxDecoration(color: Colors.black),
-                      child: Center(
-                        child: SizedBox(
-                          width: 20.0,
-                          height: 20.0,
-                          child: CircularProgressIndicator(
-                            value: event == null
-                                ? 0
-                                : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                          );
+                          }
+                        }else{
+                          return PhotoViewGalleryPageOptions(
+                            imageProvider: const AssetImage("images/black.png"),
+                          );
+                        }
+                      },
+                      pageController: comicReadingPageLogic.controller,
+                      loadingBuilder: (context, event) => DecoratedBox(
+                        decoration: const BoxDecoration(color: Colors.black),
+                        child: Center(
+                          child: SizedBox(
+                            width: 20.0,
+                            height: 20.0,
+                            child: CircularProgressIndicator(
+                              value: event == null
+                                  ? 0
+                                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                            ),
                           ),
                         ),
                       ),
+                      backgroundDecoration: const BoxDecoration(color: Colors.black),
+                      onPageChanged: (i){
+                        if(i==0){
+                          if(comicReadingPageLogic.order!=1) {
+                            comicReadingPageLogic.order -= 1;
+                            comicReadingPageLogic.urls.clear();
+                            comicReadingPageLogic.isLoading = true;
+                            comicReadingPageLogic.tools = false;
+                            comicReadingPageLogic.update();
+                          }else{
+                            comicReadingPageLogic.controller.jumpToPage(1);
+                            showMessage(context, "已经是第一章了");
+                          }
+                        }else if(i==comicReadingPageLogic.urls.length+1){
+                          if(comicReadingPageLogic.order!=eps.length-1){
+                            comicReadingPageLogic.order += 1;
+                            comicReadingPageLogic.urls.clear();
+                            comicReadingPageLogic.isLoading = true;
+                            comicReadingPageLogic.tools = false;
+                            comicReadingPageLogic.update();
+                          }else{
+                            comicReadingPageLogic.controller.jumpToPage(i-1);
+                            showMessage(context, "已经是最后一章了");
+                          }
+                        }
+                        else{
+                          comicReadingPageLogic.index = i;
+                          comicReadingPageLogic.update();
+                        }
+                      },
                     ),
-                    backgroundDecoration: const BoxDecoration(color: Colors.black),
-                    onPageChanged: (i){
-                      if(i==0){
-                        if(comicReadingPageLogic.order!=1) {
-                          comicReadingPageLogic.order -= 1;
-                          comicReadingPageLogic.urls.clear();
-                          comicReadingPageLogic.isLoading = true;
-                          comicReadingPageLogic.tools = false;
-                          comicReadingPageLogic.update();
-                        }else{
-                          comicReadingPageLogic.controller.jumpToPage(1);
-                          showMessage(context, "已经是第一章了");
-                        }
-                      }else if(i==comicReadingPageLogic.urls.length+1){
-                        if(comicReadingPageLogic.order!=eps.length-1){
-                          comicReadingPageLogic.order += 1;
-                          comicReadingPageLogic.urls.clear();
-                          comicReadingPageLogic.isLoading = true;
-                          comicReadingPageLogic.tools = false;
-                          comicReadingPageLogic.update();
-                        }else{
-                          comicReadingPageLogic.controller.jumpToPage(i-1);
-                          showMessage(context, "已经是最后一章了");
-                        }
-                      }
-                      else{
-                        comicReadingPageLogic.index = i;
-                        comicReadingPageLogic.update();
-                      }
-                    },
                   ),
-                ),
-                if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
-                  Positioned(
-                      bottom: 0,
+                  if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
+                    Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 100+Get.bottomBarHeight,
+                          decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                              color: Theme.of(context).cardColor
+                          ),
+                        )),
+                  if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
+                    Positioned(
+                      bottom: 40+Get.bottomBarHeight,
                       left: 0,
                       right: 0,
-                      child: Container(
-                        height: 100+Get.bottomBarHeight,
-                        decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                            color: Theme.of(context).cardColor
-                        ),
-                      )),
-                if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
-                  Positioned(
-                    bottom: 40+Get.bottomBarHeight,
-                    left: 0,
-                    right: 0,
-                    child: Slider(
-                      value: comicReadingPageLogic.index.toDouble(),
-                      min: 1,
-                      max: comicReadingPageLogic.urls.length.toDouble(),
-                      divisions: comicReadingPageLogic.urls.length,
-                      onChanged: (i){
-                        comicReadingPageLogic.controller.jumpToPage(i.toInt());
-                      },
-                    ),),
-                if(!comicReadingPageLogic.tools)
-                Positioned(
-                  bottom: 13,
-                  left: 25,
-                  child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
-                )
-                else
-                  Positioned(
-                    bottom: 13+Get.bottomBarHeight,
-                    left: 25,
-                    child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
-                  ),
-                if(comicReadingPageLogic.tools)
-                  Positioned(
-                      bottom: Get.bottomBarHeight,
-                      right: 25,
-                      child: Tooltip(
-                        message: "章节",
-                        child: IconButton(
-                          icon: const Icon(Icons.library_books),
-                          onPressed: (){
-                            showModalBottomSheet(
-                                context: context,
-                                builder: (context){
-                                  return ListView(
-                                    children: comicReadingPageLogic.epsWidgets,
-                                  );
-                                }
-                            );
-                          },
-                        ),
-                      )
-                  ),
-                if(comicReadingPageLogic.tools)
-                  Positioned(
-                      bottom: Get.bottomBarHeight,
-                      right: 75,
-                      child: Tooltip(
-                        message: "保存图片",
-                        child: IconButton(
-                          icon: const Icon(Icons.download),
-                          onPressed: () async{
-                            saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index], context);
+                      child: Slider(
+                        value: comicReadingPageLogic.index.toDouble(),
+                        min: 1,
+                        max: comicReadingPageLogic.urls.length.toDouble(),
+                        divisions: comicReadingPageLogic.urls.length,
+                        onChanged: (i){
+                          comicReadingPageLogic.controller.jumpToPage(i.toInt());
                         },
-                        ),
-                      )
-                  ),
-                if(comicReadingPageLogic.tools)
-                  Positioned(
+                      ),),
+                  if(!comicReadingPageLogic.tools)
+                    Positioned(
+                      bottom: 13,
+                      left: 25,
+                      child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
+                    )
+                  else
+                    Positioned(
+                      bottom: 13+Get.bottomBarHeight,
+                      left: 25,
+                      child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
+                    ),
+                  if(comicReadingPageLogic.tools)
+                    Positioned(
+                        bottom: Get.bottomBarHeight,
+                        right: 25,
+                        child: Tooltip(
+                          message: "章节",
+                          child: IconButton(
+                            icon: const Icon(Icons.library_books),
+                            onPressed: (){
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (context){
+                                    return ListView(
+                                      children: comicReadingPageLogic.epsWidgets,
+                                    );
+                                  }
+                              );
+                            },
+                          ),
+                        )
+                    ),
+                  if(comicReadingPageLogic.tools&&!downloaded)
+                    Positioned(
+                        bottom: Get.bottomBarHeight,
+                        right: 75,
+                        child: Tooltip(
+                          message: "保存图片",
+                          child: IconButton(
+                            icon: const Icon(Icons.download),
+                            onPressed: () async{
+                              saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index], context);
+                            },
+                          ),
+                        )
+                    ),
+                  if(comicReadingPageLogic.tools)
+                    Positioned(
                       top: 0,
                       child: Container(
                         decoration: BoxDecoration(
@@ -294,54 +323,52 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                           ),
                         ),
                       ),),
-                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
-                Positioned(
-                  left: 20,
-                  top: MediaQuery.of(context).size.height/2-25,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_circle_left),
-                    onPressed: (){
-                      comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
-                    },
-                    iconSize: 50,
-                  ),
-                ),
-                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
-                Positioned(
-                  right: 20,
-                  top: MediaQuery.of(context).size.height/2-25,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_circle_right),
-                    onPressed: (){
-                      comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
-                    },
-                    iconSize: 50,
-                  ),
-                ),
-                if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&!comicReadingPageLogic.tools)
-                Positioned(
-                  left: 5,
-                    top: 5,
-                    child: IconButton(
-                      iconSize: 30,
-                      icon: const Icon(Icons.close),
-                      onPressed: (){Get.back();},
-                    ),)
-              ],
-            ),
-          );
-        }else{
-          return Scaffold(
-            body: DecoratedBox(
-              decoration: const BoxDecoration(color: Colors.black),
-              child: showNetworkError(context, () {
-                comicReadingPageLogic.epsWidgets.clear();
-                comicReadingPageLogic.change();
-              })
-            ),
-          );
-        }
-      }
+                  if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
+                    Positioned(
+                      left: 20,
+                      top: MediaQuery.of(context).size.height/2-25,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_circle_left),
+                        onPressed: (){
+                          comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
+                        },
+                        iconSize: 50,
+                      ),
+                    ),
+                  if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height)
+                    Positioned(
+                      right: 20,
+                      top: MediaQuery.of(context).size.height/2-25,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_circle_right),
+                        onPressed: (){
+                          comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
+                        },
+                        iconSize: 50,
+                      ),
+                    ),
+                  if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&!comicReadingPageLogic.tools)
+                    Positioned(
+                      left: 5,
+                      top: 5,
+                      child: IconButton(
+                        iconSize: 30,
+                        icon: const Icon(Icons.close),
+                        onPressed: (){Get.back();},
+                      ),)
+                ],
+              );
+            }else{
+              return DecoratedBox(
+                  decoration: const BoxDecoration(color: Colors.black),
+                  child: showNetworkError(context, () {
+                    comicReadingPageLogic.epsWidgets.clear();
+                    comicReadingPageLogic.change();
+                  })
+              );
+            }
+          }
+      ),
     );
   }
 }

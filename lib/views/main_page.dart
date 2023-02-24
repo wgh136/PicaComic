@@ -30,6 +30,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   var updateFlag = true;
+  var downloadFlag = true;
 
   List<Destination> destinations = <Destination>[
     const Destination(

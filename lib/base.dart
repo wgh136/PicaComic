@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/models.dart';
@@ -5,9 +7,11 @@ import 'network/models.dart';
 var network = Network();
 
 const changePoint = 600; //定义宽屏设备的临界值
-const appVersion = "1.2.4";
+const appVersion = "1.3.0";
+var pathSep = Platform.pathSeparator;
 
 var hotSearch = <String>[];
+var downloadManager = DownloadManage();
 
 class Appdata{
   late String token;

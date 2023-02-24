@@ -9,7 +9,33 @@ class Profile {
   String? frameUrl;
   bool? isPunched;
   String? slogan;
+
   Profile(this.id, this.avatarUrl, this.email, this.exp, this.level, this.name, this.title, this.isPunched, this.slogan, this.frameUrl);
+
+  Map<String,dynamic> toJson()=>{
+    "id": id,
+    "title": title,
+    "email": email,
+    "name": name,
+    "level": level,
+    "exp": exp,
+    "avatarUrl": avatarUrl,
+    "frameUrl": frameUrl,
+    "isPunched": isPunched,
+    "slogan": slogan
+  };
+
+  Profile.fromJson(Map<String,dynamic> json):
+    id = json["id"],
+    title = json["title"],
+    email = json["email"],
+    name = json["name"],
+    level = json["level"],
+    exp = json["exp"],
+    avatarUrl = json["avatarUrl"],
+    frameUrl = json["frameUrl"],
+    isPunched = json["isPunched"],
+    slogan = json["slogan"];
 }
 
 class KeyWords {
@@ -60,6 +86,7 @@ class ComicItem {
   bool isLiked;
   bool isFavourite;
   int epsCount;
+  int pagesCount;
   String time;
   ComicItem(
       this.creator,
@@ -76,11 +103,49 @@ class ComicItem {
       this.isLiked,
       this.epsCount,
       this.id,
+      this.pagesCount,
       this.time
       );
   ComicItemBrief toBrief(){
     return ComicItemBrief(title, author, likes, thumbUrl, id);
   }
+
+  Map<String,dynamic> toJson()=>{
+    "creator": creator.toJson(),
+    "id": id,
+    "title": title,
+    "description": description,
+    "thumbUrl": thumbUrl,
+    "author": author,
+    "chineseTeam": chineseTeam,
+    "categories": categories,
+    "tags": tags,
+    "likes": likes,
+    "comments": comments,
+    "isLiked": isLiked,
+    "isFavourite": isFavourite,
+    "epsCount": epsCount,
+    "time": time,
+    "pagesCount": pagesCount
+  };
+
+  ComicItem.fromJson(Map<String,dynamic> json):
+    creator = Profile.fromJson(json["creator"]),
+    id = json["id"],
+    title = json["title"],
+    description = json["description"],
+    thumbUrl = json["thumbUrl"],
+    author = json["author"],
+    chineseTeam = json["chineseTeam"],
+    categories = json["categories"].cast<String>(),
+    tags = json["tags"].cast<String>(),
+    likes = json["likes"],
+    comments = json["comments"],
+    isLiked = json["isLiked"],
+    isFavourite = json["isFavourite"],
+    epsCount = json["epsCount"],
+    time = json["time"],
+    pagesCount = json["pagesCount"];
 }
 
 class Comment {
@@ -161,12 +226,4 @@ class GameInfo{
   int likes;
   int comments;
   GameInfo(this.id,this.name,this.description,this.icon,this.publisher,this.screenshots,this.link,this.isLiked,this.likes,this.comments);
-}
-
-class DownloadInfo{
-  String id;
-  int ep;
-  int total;
-  int downloaded = 0;
-  DownloadInfo(this.id,this.ep,this.total);
 }

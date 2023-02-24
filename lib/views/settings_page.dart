@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/theme_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'me_page.dart';

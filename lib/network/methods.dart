@@ -269,6 +269,7 @@ class Network{
           res["data"]["comic"]["isLiked"]??false,
           res["data"]["comic"]["epsCount"]??0,
           id,
+          res["data"]["comic"]["pagesCount"],
           res["data"]["comic"]["updated_at"]
       );
       return ci;
@@ -669,7 +670,7 @@ class Network{
           res["data"]["games"]["docs"][i]["title"],
           res["data"]["games"]["docs"][i]["adult"],
           res["data"]["games"]["docs"][i]["icon"]["fileServer"]+"/static/"+res["data"]["games"]["docs"][i]["icon"]["path"],
-          res["data"]["games"]["docs"][i]["publisher"]
+          res["data"]["games"]["docs"][i]["publisher"]??"未知"
         );
         games.games.add(game);
       }
@@ -679,7 +680,7 @@ class Network{
 
   Future<Games> getGames() async{
     var games = Games([],0,1);
-    var b = await getMoreGames(games);
+    await getMoreGames(games);
     return games;
   }
 
@@ -733,6 +734,11 @@ class Network{
     catch(e){
       return false;
     }
+  }
+
+  Future<void> downloadImage(String url, String path) async{
+    var dio = Dio();
+    dio.download(url, path);
   }
 }
 

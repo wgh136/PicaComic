@@ -70,6 +70,19 @@ class GamesPage extends StatelessWidget {
                       childAspectRatio: 1.7,
                     ),
                   ),
+                  if(logic.games.total!=logic.games.loaded&&logic.games.total!=1)
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 80,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,height: 20,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  ),
                   SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
                 ],
               ),

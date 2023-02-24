@@ -11,13 +11,13 @@ import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-
-import '../base.dart';
+import 'package:pica_comic/base.dart';
 
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
   ComicItem? comicItem;
   bool underReview = false;
+  bool noNetwork = false;
   var tags = <Widget>[];
   var categories = <Widget>[];
   var recommendation = <ComicItemBrief>[];
@@ -36,25 +36,29 @@ class ComicPageLogic extends GetxController{
 
 class ComicPage extends StatelessWidget{
   final ComicItemBrief comic;
-  const ComicPage(this.comic, {super.key});
+  final bool downloaded;
+  const ComicPage(this.comic,{super.key, this.downloaded=false});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GetBuilder<ComicPageLogic>(
         tag: comic.id,
         init: ComicPageLogic(),
-          builder: (comicPageLogic){
-        if(comicPageLogic.isLoading){
+          builder: (logic){
+          if(downloaded){
+            logic.isLoading = false;
+          }
+          if(logic.isLoading){
             network.getComicInfo(comic.id).then((c) {
               if(network.status){
-                comicPageLogic.underReview = true;
-                comicPageLogic.change();
+                logic.underReview = true;
+                logic.change();
                 return;
               }
               if (c != null) {
-                comicPageLogic.comicItem = c;
+                logic.comicItem = c;
                 for (String s in c.tags) {
-                  comicPageLogic.tags.add(GestureDetector(
+                  logic.tags.add(GestureDetector(
                     onTap: () {
                       Get.to(() => CategoryComicPage(s));
                     },
@@ -71,7 +75,7 @@ class ComicPage extends StatelessWidget{
                   ));
                 }
                 for (String s in c.categories) {
-                  comicPageLogic.categories.add(GestureDetector(
+                  logic.categories.add(GestureDetector(
                     onTap: () {
                       Get.to(() => CategoryComicPage(s));
                     },
@@ -90,36 +94,36 @@ class ComicPage extends StatelessWidget{
                 bool flag1 = false;
                 bool flag2 = false;
                 network.getRecommendation(comic.id).then((r){
-                  comicPageLogic.recommendation = r;
+                  logic.recommendation = r;
                   flag1 = true;
                   if(flag1&&flag2){
-                    comicPageLogic.change();
+                    logic.change();
                   }
                 });
                 network.getEps(comic.id).then((e) {
                   for (int i = 1; i < e.length; i++) {
-                    comicPageLogic.epsStr.add(e[i]);
-                    comicPageLogic.eps.add(ListTile(
+                    logic.epsStr.add(e[i]);
+                    logic.eps.add(ListTile(
                       title: Text(e[i]),
                       onTap: () {
                         Get.to(() =>
-                            ComicReadingPage(comic.id, i, comicPageLogic.epsStr, comic.title));
+                            ComicReadingPage(comic.id, i, logic.epsStr, comic.title));
                       },
                     ));
                   }
                   flag2 = true;
                   if(flag1&&flag2){
-                    comicPageLogic.change();
+                    logic.change();
                   }
                 });
               } else {
-                comicPageLogic.change();
+                logic.change();
               }
             });
           return const Center(
             child: CircularProgressIndicator(),
           );
-        }else if(comicPageLogic.comicItem!=null){
+        }else if(logic.comicItem!=null){
           return CustomScrollView(
             slivers: [
               SliverAppBar.large(
@@ -156,30 +160,30 @@ class ComicPage extends StatelessWidget{
                                   ),
                                   ListTile(
                                     title: const Text("上传者"),
-                                    subtitle: Text(comicPageLogic.comicItem!.creator.name),
+                                    subtitle: Text(logic.comicItem!.creator.name),
                                     onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.creator.name));
+                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.creator.name));
                                     },
                                   ),
                                   ListTile(
                                     title: const Text("汉化组"),
-                                    subtitle: Text(comicPageLogic.comicItem!.chineseTeam),
+                                    subtitle: Text(logic.comicItem!.chineseTeam),
                                     onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.chineseTeam));
+                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.chineseTeam));
                                     },
                                   ),
                                   ListTile(
                                     title: const Text("分类"),
-                                    subtitle: Text(comicPageLogic.comicItem!.categories.toString().substring(1,comicPageLogic.comicItem!.categories.toString().length-1)),
+                                    subtitle: Text(logic.comicItem!.categories.toString().substring(1,logic.comicItem!.categories.toString().length-1)),
                                     onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.categories.toString().substring(1,comicPageLogic.comicItem!.categories.toString().length-1)));
+                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.categories.toString().substring(1,logic.comicItem!.categories.toString().length-1)));
                                     },
                                   ),
                                   ListTile(
                                     title: const Text("Tags"),
-                                    subtitle: Text(comicPageLogic.comicItem!.tags.toString().substring(1,comicPageLogic.comicItem!.tags.toString().length-1)),
+                                    subtitle: Text(logic.comicItem!.tags.toString().substring(1,logic.comicItem!.tags.toString().length-1)),
                                     onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: comicPageLogic.comicItem!.tags.toString().substring(1,comicPageLogic.comicItem!.tags.toString().length-1)));
+                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.tags.toString().substring(1,logic.comicItem!.tags.toString().length-1)));
                                     },
                                   ),
                                   SizedBox(
@@ -210,6 +214,13 @@ class ComicPage extends StatelessWidget{
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if(downloaded)
+                        Image.file(
+                          downloadManager.getCover(comic.id),
+                          height: 350,
+                          width: MediaQuery.of(context).size.width,
+                        )
+                        else
                         GestureDetector(
                           child: CachedNetworkImage(
                             imageUrl: getImageUrl(comic.path),
@@ -220,12 +231,12 @@ class ComicPage extends StatelessWidget{
                           onTap: (){Get.to(()=>ShowImagePage(comic.path));},
                         ),
                         const SizedBox(height: 20,),
-                        if(comicPageLogic.comicItem!.author!="")
+                        if(logic.comicItem!.author!="")
                         const SizedBox(
                           height: 20,
                           child: Text("      作者"),
                         ),
-                        if(comicPageLogic.comicItem!.author!="")
+                        if(logic.comicItem!.author!="")
                         Padding(
                             padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                             child: GestureDetector(
@@ -234,22 +245,22 @@ class ComicPage extends StatelessWidget{
                                 color: Theme.of(context).colorScheme.primaryContainer,
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                  child: Text(comicPageLogic.comicItem!.author),
+                                  child: Text(logic.comicItem!.author),
                                 ),
                               ),
                               onTap: (){
-                                if(comicPageLogic.comicItem!.author!=""){
-                                  Get.to(()=>CategoryComicPage(comicPageLogic.comicItem!.author));
+                                if(logic.comicItem!.author!=""){
+                                  Get.to(()=>CategoryComicPage(logic.comicItem!.author));
                                 }
                               },
                             )
                         ),
-                        if(comicPageLogic.comicItem!.chineseTeam!="")
+                        if(logic.comicItem!.chineseTeam!="")
                         const SizedBox(
                           height: 20,
                           child: Text("      汉化组"),
                         ),
-                        if(comicPageLogic.comicItem!.chineseTeam!="")
+                        if(logic.comicItem!.chineseTeam!="")
                         Padding(
                             padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                             child: GestureDetector(
@@ -258,12 +269,12 @@ class ComicPage extends StatelessWidget{
                                 color: Theme.of(context).colorScheme.primaryContainer,
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                  child: Text(comicPageLogic.comicItem!.chineseTeam),
+                                  child: Text(logic.comicItem!.chineseTeam),
                                 ),
                               ),
                               onTap: (){
-                                if(comicPageLogic.comicItem!.chineseTeam!=""){
-                                  Get.to(()=>CategoryComicPage(comicPageLogic.comicItem!.chineseTeam));
+                                if(logic.comicItem!.chineseTeam!=""){
+                                  Get.to(()=>CategoryComicPage(logic.comicItem!.chineseTeam));
                                 }
                               },
                             )
@@ -275,7 +286,7 @@ class ComicPage extends StatelessWidget{
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                           child: Wrap(
-                            children: comicPageLogic.categories,
+                            children: logic.categories,
                           ),
                         ),
                         const SizedBox(
@@ -285,9 +296,10 @@ class ComicPage extends StatelessWidget{
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                           child: Wrap(
-                            children: comicPageLogic.tags,
+                            children: logic.tags,
                           ),
                         ),
+                        if(!downloaded)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
                           child: Card(
@@ -301,12 +313,12 @@ class ComicPage extends StatelessWidget{
                                     flex: 0,
                                     child: Avatar(
                                     size: 50,
-                                    avatarUrl: comicPageLogic.comicItem!.creator.avatarUrl,
-                                    frame: comicPageLogic.comicItem!.creator.frameUrl,
+                                    avatarUrl: logic.comicItem!.creator.avatarUrl,
+                                    frame: logic.comicItem!.creator.frameUrl,
                                       couldBeShown: true,
-                                      name: comicPageLogic.comicItem!.creator.name,
-                                      slogan: comicPageLogic.comicItem!.creator.slogan,
-                                      level: comicPageLogic.comicItem!.creator.level,
+                                      name: logic.comicItem!.creator.name,
+                                      slogan: logic.comicItem!.creator.slogan,
+                                      level: logic.comicItem!.creator.level,
                                   ),),
                                   Expanded(
                                     flex: 3,
@@ -316,10 +328,10 @@ class ComicPage extends StatelessWidget{
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                              comicPageLogic.comicItem!.creator.name,
+                                              logic.comicItem!.creator.name,
                                             style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),
                                           ),
-                                          Text("${comicPageLogic.comicItem!.time.substring(0,10)} ${comicPageLogic.comicItem!.time.substring(11,19)}更新")
+                                          Text("${logic.comicItem!.time.substring(0,10)} ${logic.comicItem!.time.substring(11,19)}更新")
                                         ],
                                       ),
                                     ),
@@ -329,34 +341,47 @@ class ComicPage extends StatelessWidget{
                             ),
                           ),
                         ),
+                        if(!downloaded)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
                           child: Row(
                             children: [
                               Expanded(child: ActionChip(
-                                label: Text(comicPageLogic.comicItem!.likes.toString()),
-                                avatar: Icon((comicPageLogic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
+                                label: Text(logic.comicItem!.likes.toString()),
+                                avatar: Icon((logic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
                                 onPressed: (){
+                                  if(logic.noNetwork){
+                                    showMessage(context, "无网络");
+                                    return;
+                                  }
                                   network.likeOrUnlikeComic(comic.id);
-                                  comicPageLogic.comicItem!.isLiked = !comicPageLogic.comicItem!.isLiked;
-                                  comicPageLogic.update();
+                                  logic.comicItem!.isLiked = !logic.comicItem!.isLiked;
+                                  logic.update();
                                 },
                               ),),
                               SizedBox.fromSize(size: const Size(10,1),),
                               Expanded(child: ActionChip(
                                 label: const Text("收藏"),
-                                avatar: Icon((comicPageLogic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
+                                avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
                                 onPressed: (){
+                                  if(logic.noNetwork){
+                                    showMessage(context, "无网络");
+                                    return;
+                                  }
                                   network.favouriteOrUnfavoriteComic(comic.id);
-                                  comicPageLogic.comicItem!.isFavourite = !comicPageLogic.comicItem!.isFavourite;
-                                  comicPageLogic.update();
+                                  logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
+                                  logic.update();
                                 },
                               ),),
                               SizedBox.fromSize(size: const Size(10,1),),
                               Expanded(child: ActionChip(
-                                label: Text(comicPageLogic.comicItem!.comments.toString()),
+                                label: Text(logic.comicItem!.comments.toString()),
                                 avatar: const Icon(Icons.comment_outlined),
                                 onPressed: (){
+                                  if(logic.noNetwork){
+                                    showMessage(context, "无网络");
+                                    return;
+                                  }
                                   Get.to(()=>CommentsPage(comic.id));
                                 },
                               ),),
@@ -369,15 +394,14 @@ class ComicPage extends StatelessWidget{
                             children: [
                               Expanded(child: FilledButton(
                                 onPressed: (){
-                                  //Todo: 下载功能
-                                  showMessage(context, "下载功能还没做");
+                                  downloadComic(logic.comicItem!, context);
                                 },
-                                child: const Text("下载"),
+                                child: (downloadManager.downloaded.contains(comic.id))?const Text("已下载"):const Text("下载"),
                               ),),
                               SizedBox.fromSize(size: const Size(10,1),),
                               Expanded(child: FilledButton(
                                 onPressed: (){
-                                  Get.to(()=>ComicReadingPage(comic.id, 1, comicPageLogic.epsStr,comic.title));
+                                  Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
                                 },
                                 child: const Text("阅读"),
                               ),),
@@ -394,6 +418,13 @@ class ComicPage extends StatelessWidget{
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                     children: [
+                      if(downloaded)
+                        Image.file(
+                          downloadManager.getCover(comic.id),
+                          height: 550,
+                          width: MediaQuery.of(context).size.width/2,
+                        )
+                      else
                       GestureDetector(
                         child: CachedNetworkImage(
                           imageUrl: getImageUrl(comic.path),
@@ -410,12 +441,12 @@ class ComicPage extends StatelessWidget{
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if(comicPageLogic.comicItem!.author!="")
+                            if(logic.comicItem!.author!="")
                             const SizedBox(
                               height: 30,
                               child: Text("      作者"),
                             ),
-                            if(comicPageLogic.comicItem!.author!="")
+                            if(logic.comicItem!.author!="")
                             Padding(
                                 padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                                 child: GestureDetector(
@@ -424,22 +455,22 @@ class ComicPage extends StatelessWidget{
                                     color: Theme.of(context).colorScheme.primaryContainer,
                                     child: Padding(
                                       padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                      child: Text(comicPageLogic.comicItem!.author),
+                                      child: Text(logic.comicItem!.author),
                                     ),
                                   ),
                                   onTap: (){
-                                    if(comicPageLogic.comicItem!.author!=""){
-                                      Get.to(()=>CategoryComicPage(comicPageLogic.comicItem!.author));
+                                    if(logic.comicItem!.author!=""){
+                                      Get.to(()=>CategoryComicPage(logic.comicItem!.author));
                                     }
                                   },
                                 )
                             ),
-                            if(comicPageLogic.comicItem!.chineseTeam!="")
+                            if(logic.comicItem!.chineseTeam!="")
                             const SizedBox(
                               height: 30,
                               child: Text("      汉化组"),
                             ),
-                            if(comicPageLogic.comicItem!.chineseTeam!="")
+                            if(logic.comicItem!.chineseTeam!="")
                             Padding(
                               padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                               child: GestureDetector(
@@ -448,12 +479,12 @@ class ComicPage extends StatelessWidget{
                                   color: Theme.of(context).colorScheme.primaryContainer,
                                   child: Padding(
                                     padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                                    child: Text(comicPageLogic.comicItem!.chineseTeam),
+                                    child: Text(logic.comicItem!.chineseTeam),
                                   ),
                                 ),
                                 onTap: (){
-                                  if(comicPageLogic.comicItem!.chineseTeam!=""){
-                                    Get.to(()=>CategoryComicPage(comicPageLogic.comicItem!.chineseTeam));
+                                  if(logic.comicItem!.chineseTeam!=""){
+                                    Get.to(()=>CategoryComicPage(logic.comicItem!.chineseTeam));
                                   }
                                 },
                               )
@@ -465,7 +496,7 @@ class ComicPage extends StatelessWidget{
                             Padding(
                               padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                               child: Wrap(
-                                children: comicPageLogic.categories,
+                                children: logic.categories,
                               ),
                             ),
                             const SizedBox(
@@ -475,9 +506,10 @@ class ComicPage extends StatelessWidget{
                             Padding(
                               padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
                               child: Wrap(
-                                children: comicPageLogic.tags,
+                                children: logic.tags,
                               ),
                             ),
+                            if(!downloaded)
                             Padding(
                               padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
                               child: Card(
@@ -491,12 +523,12 @@ class ComicPage extends StatelessWidget{
                                         flex: 0,
                                         child: Avatar(
                                           size: 50,
-                                          avatarUrl: comicPageLogic.comicItem!.creator.avatarUrl,
-                                          frame: comicPageLogic.comicItem!.creator.frameUrl,
+                                          avatarUrl: logic.comicItem!.creator.avatarUrl,
+                                          frame: logic.comicItem!.creator.frameUrl,
                                           couldBeShown: true,
-                                          name: comicPageLogic.comicItem!.creator.name,
-                                          slogan: comicPageLogic.comicItem!.creator.slogan,
-                                          level: comicPageLogic.comicItem!.creator.level,
+                                          name: logic.comicItem!.creator.name,
+                                          slogan: logic.comicItem!.creator.slogan,
+                                          level: logic.comicItem!.creator.level,
                                         ),),
                                       Expanded(
                                         flex: 3,
@@ -506,10 +538,10 @@ class ComicPage extends StatelessWidget{
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                comicPageLogic.comicItem!.creator.name,
+                                                logic.comicItem!.creator.name,
                                                 style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),
                                               ),
-                                              Text("${comicPageLogic.comicItem!.time.substring(0,10)} ${comicPageLogic.comicItem!.time.substring(11,19)}更新")
+                                              Text("${logic.comicItem!.time.substring(0,10)} ${logic.comicItem!.time.substring(11,19)}更新")
                                             ],
                                           ),
                                         ),
@@ -519,34 +551,47 @@ class ComicPage extends StatelessWidget{
                                 ),
                               ),
                             ),
+                            if(!downloaded)
                             Padding(
                               padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
                               child: Row(
                                 children: [
                                   Expanded(child: ActionChip(
-                                    label: Text(comicPageLogic.comicItem!.likes.toString()),
-                                    avatar: Icon((comicPageLogic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
+                                    label: Text(logic.comicItem!.likes.toString()),
+                                    avatar: Icon((logic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
                                     onPressed: (){
+                                      if(logic.noNetwork){
+                                        showMessage(context, "无网络");
+                                        return;
+                                      }
                                       network.likeOrUnlikeComic(comic.id);
-                                      comicPageLogic.comicItem!.isLiked = !comicPageLogic.comicItem!.isLiked;
-                                      comicPageLogic.update();
+                                      logic.comicItem!.isLiked = !logic.comicItem!.isLiked;
+                                      logic.update();
                                     },
                                   ),),
                                   SizedBox.fromSize(size: const Size(10,1),),
                                   Expanded(child: ActionChip(
                                     label: const Text("收藏"),
-                                    avatar: Icon((comicPageLogic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
+                                    avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
                                     onPressed: (){
+                                      if(logic.noNetwork){
+                                        showMessage(context, "无网络");
+                                        return;
+                                      }
                                       network.favouriteOrUnfavoriteComic(comic.id);
-                                      comicPageLogic.comicItem!.isFavourite = !comicPageLogic.comicItem!.isFavourite;
-                                      comicPageLogic.update();
+                                      logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
+                                      logic.update();
                                     },
                                   ),),
                                   SizedBox.fromSize(size: const Size(10,1),),
                                   Expanded(child: ActionChip(
-                                    label: Text(comicPageLogic.comicItem!.comments.toString()),
+                                    label: Text(logic.comicItem!.comments.toString()),
                                     avatar: const Icon(Icons.comment_outlined),
                                     onPressed: (){
+                                      if(logic.noNetwork){
+                                        showMessage(context, "无网络");
+                                        return;
+                                      }
                                       Get.to(()=>CommentsPage(comic.id));
                                     },
                                   ),),
@@ -559,15 +604,14 @@ class ComicPage extends StatelessWidget{
                                 children: [
                                   Expanded(child: FilledButton(
                                     onPressed: (){
-                                      //Todo: 下载功能
-                                      showMessage(context, "下载功能还没做");
+                                      downloadComic(logic.comicItem!, context);
                                     },
-                                    child: const Text("下载"),
+                                    child: (downloadManager.downloaded.contains(comic.id))?const Text("已下载"):const Text("下载"),
                                   ),),
                                   SizedBox.fromSize(size: const Size(10,1),),
                                   Expanded(child: FilledButton(
                                     onPressed: (){
-                                      Get.to(()=>ComicReadingPage(comic.id, 1, comicPageLogic.epsStr,comic.title));
+                                      Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
                                     },
                                     child: const Text("阅读"),
                                   ),),
@@ -593,17 +637,17 @@ class ComicPage extends StatelessWidget{
               const SliverPadding(padding: EdgeInsets.all(5)),
               SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                    childCount: comicPageLogic.epsStr.length-1,
+                    childCount: logic.epsStr.length-1,
                         (context, i){
                       return Padding(padding: const EdgeInsets.all(1),child: GestureDetector(
                         child: Card(
                           elevation: 1,
                           color: Theme.of(context).colorScheme.secondaryContainer,
-                          child: Center(child: Text(comicPageLogic.epsStr[i+1]),),
+                          child: Center(child: Text(logic.epsStr[i+1]),),
                         ),
                         onTap: () {
                           Get.to(() =>
-                              ComicReadingPage(comic.id, i+1, comicPageLogic.epsStr, comic.title));
+                              ComicReadingPage(comic.id, i+1, logic.epsStr, comic.title));
                         },
                       ),);
                     }
@@ -624,23 +668,27 @@ class ComicPage extends StatelessWidget{
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                  child: Text(comicPageLogic.comicItem!.description),
+                  child: Text(logic.comicItem!.description),
                 ),
               ),
               const SliverPadding(padding: EdgeInsets.all(5)),
+              if(!downloaded)
               const SliverToBoxAdapter(child: Divider(),),
+              if(!downloaded)
               SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
                 const SizedBox(width: 20,),
                 Icon(Icons.recommend, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 20,),
                 const Text("相关推荐",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
               ],)),),
+              if(!downloaded)
               const SliverPadding(padding: EdgeInsets.all(5)),
+              if(!downloaded)
               SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                    childCount: comicPageLogic.recommendation.length,
+                    childCount: logic.recommendation.length,
                         (context, i){
-                      return ComicTile(comicPageLogic.recommendation[i]);
+                      return ComicTile(logic.recommendation[i]);
                     }
                 ),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -648,13 +696,74 @@ class ComicPage extends StatelessWidget{
                   childAspectRatio: 3.5,
                 ),
               ),
+              if(!downloaded)
               const SliverPadding(padding: EdgeInsets.all(10)),
               SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
             ],
           );
         }else{
+          if(downloadManager.downloaded.contains(comic.id)){
+            //无网络时查询是否已经下载
+            downloadManager.getComicFromId(comic.id).then((downloadComic){
+              logic.isLoading = false;
+              logic.comicItem = downloadComic.comicItem;
+              for (String s in logic.comicItem!.tags) {
+                logic.tags.add(GestureDetector(
+                  onTap: () {
+                    Get.to(() => CategoryComicPage(s));
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    elevation: 0,
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .primaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
+                  ),
+                ));
+              }
+              for (String s in logic.comicItem!.categories) {
+                logic.categories.add(GestureDetector(
+                  onTap: () {
+                    Get.to(() => CategoryComicPage(s));
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
+                    elevation: 0,
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .primaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
+                  ),
+                ));
+              }
+
+              for (int i = 1; i < downloadComic.chapters.length; i++) {
+                logic.epsStr.add(downloadComic.chapters[i]);
+                logic.eps.add(ListTile(
+                  title: Text(downloadComic.chapters[i]),
+                  onTap: () {
+                    Get.to(() =>
+                        ComicReadingPage(comic.id, i, logic.epsStr, comic.title));
+                  },
+                ));
+              }
+
+              logic.comicItem!.likes = 0;
+              logic.comicItem!.comments = 0;
+              logic.noNetwork = true;
+              logic.update();
+            });
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
           return showNetworkError(context, () {
-            comicPageLogic.change();
+            logic.change();
           });
         }
       }),
@@ -682,3 +791,21 @@ class ComicInfoTile extends StatelessWidget {
   }
 }
 
+void downloadComic(ComicItem comic, BuildContext context){
+  if(GetPlatform.isWeb){
+    showMessage(context, "Web端不支持下载");
+    return;
+  }
+  if(downloadManager.downloaded.contains(comic.id)){
+    showMessage(context, "已下载");
+    return;
+  }
+  for(var i in downloadManager.downloading){
+    if(i.id == comic.id){
+      showMessage(context, "下载中");
+      return;
+    }
+  }
+  downloadManager.addDownload(comic);
+  showMessage(context, "已加入下载队列");
+}

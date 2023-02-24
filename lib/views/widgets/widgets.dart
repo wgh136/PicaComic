@@ -9,12 +9,14 @@ import '../comic_page.dart';
 
 class ComicTile extends StatelessWidget {
   final ComicItemBrief comic;
-  const ComicTile(this.comic,{Key? key}) : super(key: key);
+  final void Function()? onTap;
+  final String? size;
+  const ComicTile(this.comic,{Key? key,this.onTap,this.size}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){
+      onTap: onTap??(){
         while(true) {
           bool flag = true;
           for (var c in appdata.history) {
@@ -39,20 +41,25 @@ class ComicTile extends StatelessWidget {
           children: [
             Expanded(
               flex: 1,
-              child: CachedNetworkImage(
+              child: onTap==null?CachedNetworkImage(
                 imageUrl: getImageUrl(comic.path),
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 width: 150,
                 height: double.infinity,
-            ),),
+            ):Image.file(
+                downloadManager.getCover(comic.id),
+                fit: BoxFit.cover,
+                width: 150,
+                height: double.infinity,
+              ),),
             SizedBox.fromSize(size: const Size(5,5),),
             Expanded(
               flex: 4,
               child: ComicDescription(
                 title: comic.title,
                 user: comic.author,
-                likesCount: comic.likes,
+                subDescription: onTap==null?'${comic.likes} likes':"${size??"未知"} MB",
               ),
             ),
             const Center(
@@ -69,12 +76,12 @@ class ComicDescription extends StatelessWidget {
   const ComicDescription({super.key,
     required this.title,
     required this.user,
-    required this.likesCount,
+    required this.subDescription,
   });
 
   final String title;
   final String user;
-  final int likesCount;
+  final String subDescription;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +111,7 @@ class ComicDescription extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  '$likesCount likes',
+                  subDescription,
                   style: const TextStyle(
                     fontSize: 12.0,
                   ),

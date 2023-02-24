@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/profile_page.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
@@ -95,7 +96,11 @@ class MePage extends StatelessWidget {
                         leading: const Icon(Icons.download),
                         title: const Text("已下载"),
                         onTap: (){
-                          showMessage(context, "下载功能还没做");
+                          if(GetPlatform.isWeb){
+                            showMessage(context, "Web端不支持下载");
+                            return;
+                          }
+                          Get.to(()=>DownloadPage());
                         },
                       ),
                       ListTile(

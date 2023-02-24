@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/welcome_page.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 
 class TestNetworkPage extends StatefulWidget {
@@ -108,20 +109,13 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                       const Spacer(),
                       FilledButton.tonal(
                         onPressed: (){
-                          showDialog(context: context, builder: (context){
-                            return AlertDialog(
-                              content: const Text("这将删除当前登录信息是否继续?"),
-                              actions: [
-                                TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
-                                TextButton(onPressed: (){
-                                  appdata.clear();
-                                  Get.offAll(const WelcomePage());
-                                }, child: const Text("确认"))
-                              ],
-                            );
-                          });
+                          if(GetPlatform.isWeb){
+                            showMessage(context, "Web端不支持下载");
+                            return;
+                          }
+                          Get.to(()=>DownloadPage());
                         },
-                        child: const Text("退出登录"),
+                        child: const Text("已下载"),
                       )
                     ],
                   ),
