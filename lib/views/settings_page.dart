@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'me_page.dart';
@@ -148,7 +149,7 @@ void giveComments(BuildContext context){
           onTap: (){launchUrlString("https://github.com/wgh136/PicaComic/issues",mode: LaunchMode.externalApplication);},
         ),
         ListTile(
-          leading: const Icon(Icons.mail),
+          leading: Icon(Icons.mail,color: Theme.of(context).colorScheme.secondary),
           title: const Text("发送邮件"),
           onTap: (){launchUrlString("mailto:wgh1624044369@gmail.com",mode: LaunchMode.externalApplication);},
         ),
@@ -173,6 +174,19 @@ class ModeRadioLogic2 extends GetxController{
     value = i;
     appdata.saveSearchMode(i);
     update();
+  }
+}
+
+class CalculateCacheLogic extends GetxController{
+  bool calculating = true;
+  double size = 0;
+  void change(){
+    calculating = !calculating;
+    update();
+  }
+  void get()async{
+    size = await calculateCacheSize();
+    change();
   }
 }
 
@@ -336,15 +350,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   children: [
                     const ListTile(
-                      title: Text("关于"),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.info_outline,color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("PicaComic"),
-                      subtitle: const Text("本软件仅用于学习交流"),
-                      onTap: (){
-                        showMessage(context, "禁止涩涩");
-                      },
+                      title: Text("App"),
                     ),
                     if(!GetPlatform.isWeb)
                     ListTile(
@@ -370,6 +376,56 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                       ),
                       onTap: (){},
+                    ),
+                    GetBuilder<CalculateCacheLogic>(
+                      init: CalculateCacheLogic(),
+                        builder: (logic){
+                          if(logic.calculating){
+                            logic.get();
+                            return ListTile(
+                              leading: Icon(Icons.storage,color: Theme.of(context).colorScheme.secondary),
+                              title: const Text("缓存大小"),
+                              subtitle: const Text("计算中"),
+                              onTap: (){},
+                            );
+                          }else{
+                            return ListTile(
+                              leading: Icon(Icons.storage,color: Theme.of(context).colorScheme.secondary),
+                              title: const Text("清除缓存"),
+                              subtitle: Text("${logic.size==double.infinity?"未知":logic.size.toStringAsFixed(2)} MB"),
+                              onTap: (){
+                                if(GetPlatform.isAndroid){
+                                  eraseCache();
+                                  logic.size = 0;
+                                  logic.update();
+                                }
+                              },
+                            );
+                          }
+                        }
+                    )
+                  ],
+                ),
+              )
+          ),
+          const SliverToBoxAdapter(
+            child: Divider(),
+          ),
+          SliverToBoxAdapter(
+              child: Card(
+                elevation: 0,
+                child: Column(
+                  children: [
+                    const ListTile(
+                      title: Text("关于"),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.info_outline,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("PicaComic"),
+                      subtitle: const Text("本软件仅用于学习交流"),
+                      onTap: (){
+                        showMessage(context, "禁止涩涩");
+                      },
                     ),
                     ListTile(
                       leading: Icon(Icons.code,color: Theme.of(context).colorScheme.secondary),

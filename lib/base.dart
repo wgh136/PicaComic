@@ -7,7 +7,7 @@ import 'network/models.dart';
 var network = Network();
 
 const changePoint = 600; //定义宽屏设备的临界值
-const appVersion = "1.3.0";
+const appVersion = "1.3.1";
 var pathSep = Platform.pathSeparator;
 
 var hotSearch = <String>[];

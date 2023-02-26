@@ -10,8 +10,10 @@ import '../comic_page.dart';
 class ComicTile extends StatelessWidget {
   final ComicItemBrief comic;
   final void Function()? onTap;
+  final void Function()? onLongTap;
+  final bool cached;
   final String? size;
-  const ComicTile(this.comic,{Key? key,this.onTap,this.size}) : super(key: key);
+  const ComicTile(this.comic,{Key? key,this.onTap,this.size,this.onLongTap,this.cached=true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,21 +35,28 @@ class ComicTile extends StatelessWidget {
           appdata.history.removeAt(0);
         }
         appdata.writeData();
-        Get.to(() => ComicPage(comic));
+        Get.to(() => ComicPage(comic),preventDuplicates: false);
       },
+        onLongPress: onLongTap,
         child: Padding(
         padding: const EdgeInsets.all(2),
         child: Row(
           children: [
             Expanded(
               flex: 1,
-              child: onTap==null?CachedNetworkImage(
+              child: onTap==null?(cached?CachedNetworkImage(
                 imageUrl: getImageUrl(comic.path),
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 width: 150,
                 height: double.infinity,
-            ):Image.file(
+              ):Image.network(
+                getImageUrl(comic.path),
+                fit: BoxFit.cover,
+                errorBuilder: (context, url, error) => const Icon(Icons.error),
+                width: 150,
+                height: double.infinity,
+              )):Image.file(
                 downloadManager.getCover(comic.id),
                 fit: BoxFit.cover,
                 width: 150,

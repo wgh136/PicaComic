@@ -198,9 +198,9 @@ class Network{
         s.loaded++;
         s.pages = res["data"]["comics"]["pages"];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"],
+          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
               res["data"]["comics"]["docs"][i]["author"]??"未知",
-              res["data"]["comics"]["docs"][i]["likesCount"],
+              res["data"]["comics"]["docs"][i]["likesCount"]??0,
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"]
@@ -383,9 +383,9 @@ class Network{
         f.loaded++;
         f.pages = res["data"]["comics"]["pages"];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"],
-              res["data"]["comics"]["docs"][i]["author"],
-              res["data"]["comics"]["docs"][i]["likesCount"],
+          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
+              res["data"]["comics"]["docs"][i]["author"]??"未知",
+              res["data"]["comics"]["docs"][i]["likesCount"]??0,
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"]
@@ -409,9 +409,9 @@ class Network{
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["comics"][i]["title"],
-              res["data"]["comics"][i]["author"],
-              res["data"]["comics"][i]["totalLikes"],
+              res["data"]["comics"][i]["title"]??"未知",
+              res["data"]["comics"][i]["author"]??"未知",
+              res["data"]["comics"][i]["totalLikes"]??0,
               res["data"]["comics"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"][i]["thumb"]["path"],
               res["data"]["comics"][i]["_id"]
@@ -456,9 +456,9 @@ class Network{
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["comics"][i]["title"],
-              res["data"]["comics"][i]["author"],
-              res["data"]["comics"][i]["totalLikes"],
+              res["data"]["comics"][i]["title"]??"未知",
+              res["data"]["comics"][i]["author"]??"未知",
+              res["data"]["comics"][i]["totalLikes"]??0,
               res["data"]["comics"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"][i]["thumb"]["path"],
               res["data"]["comics"][i]["_id"]
@@ -545,16 +545,16 @@ class Network{
         var t = Comment("","","",1,"",0,"",false,0,null,null);
         if(res["data"]["comments"]["docs"][i]["_user"] != null) {
           t = Comment(
-              res["data"]["comments"]["docs"][i]["_user"]["name"],
+              res["data"]["comments"]["docs"][i]["_user"]["name"]??"未知",
               url,
-              res["data"]["comments"]["docs"][i]["_user"]["_id"],
-              res["data"]["comments"]["docs"][i]["_user"]["level"],
-              res["data"]["comments"]["docs"][i]["content"],
+              res["data"]["comments"]["docs"][i]["_user"]["_id"]??"",
+              res["data"]["comments"]["docs"][i]["_user"]["level"]??0,
+              res["data"]["comments"]["docs"][i]["content"]??"",
               0,"",
               res["data"]["comments"]["docs"][i]["isLiked"],
-              res["data"]["comments"]["docs"][i]["likesCount"],
+              res["data"]["comments"]["docs"][i]["likesCount"]??0,
               res["data"]["comments"]["docs"][i]["_user"]["character"],
-              res["data"]["comments"]["docs"][i]["_user"]["slogan"],
+              res["data"]["comments"]["docs"][i]["_user"]["slogan"]??"",
           );
         }else{
           t = Comment(
@@ -603,9 +603,9 @@ class Network{
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["comics"][i]["title"],
-              res["data"]["comics"][i]["author"],
-              res["data"]["comics"][i]["likesCount"],
+              res["data"]["comics"][i]["title"]??"未知",
+              res["data"]["comics"][i]["author"]??"未知",
+              res["data"]["comics"][i]["likesCount"]??0,
               res["data"]["comics"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"][i]["thumb"]["path"],
               res["data"]["comics"][i]["_id"]
@@ -626,9 +626,9 @@ class Network{
       for(int i=0;i<res["data"]["collections"][0]["comics"].length;i++){
         try {
           var si = ComicItemBrief(
-              res["data"]["collections"][0]["comics"][i]["title"],
-              res["data"]["collections"][0]["comics"][i]["author"],
-              res["data"]["collections"][0]["comics"][i]["totalLikes"],
+              res["data"]["collections"][0]["comics"][i]["title"]??"未知",
+              res["data"]["collections"][0]["comics"][i]["author"]??"未知",
+              res["data"]["collections"][0]["comics"][i]["totalLikes"]??0,
               res["data"]["collections"][0]["comics"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
               res["data"]["collections"][0]["comics"][i]["_id"]
@@ -641,9 +641,9 @@ class Network{
       for(int i=0;i<res["data"]["collections"][1]["comics"].length;i++){
         try {
           var si = ComicItemBrief(
-              res["data"]["collections"][1]["comics"][i]["title"],
-              res["data"]["collections"][1]["comics"][i]["author"],
-              res["data"]["collections"][1]["comics"][i]["totalLikes"],
+              res["data"]["collections"][1]["comics"][i]["title"]??"未知",
+              res["data"]["collections"][1]["comics"][i]["author"]??"未知",
+              res["data"]["collections"][1]["comics"][i]["totalLikes"]??0,
               res["data"]["collections"][1]["comics"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
               res["data"]["collections"][1]["comics"][i]["_id"]
@@ -666,8 +666,8 @@ class Network{
       games.total = res["data"]["games"]["pages"];
       for(int i=0;i<res["data"]["games"]["docs"].length;i++){
         var game = GameItemBrief(
-          res["data"]["games"]["docs"][i]["_id"],
-          res["data"]["games"]["docs"][i]["title"],
+          res["data"]["games"]["docs"][i]["_id"]??"",
+          res["data"]["games"]["docs"][i]["title"]??"未知",
           res["data"]["games"]["docs"][i]["adult"],
           res["data"]["games"]["docs"][i]["icon"]["fileServer"]+"/static/"+res["data"]["games"]["docs"][i]["icon"]["path"],
           res["data"]["games"]["docs"][i]["publisher"]??"未知"

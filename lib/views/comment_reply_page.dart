@@ -47,9 +47,8 @@ class ReplyPage extends StatelessWidget {
                       child: IconButton(
                         icon: Icon(Icons.message,color: Theme.of(context).colorScheme.primary,),
                         onPressed: (){
-                          giveComment(context, id,true).then((b){
+                          giveComment(context, id, true).then((b){
                             if(b){
-                              commentsPageLogic.comments = Reply("",0,1,[]);
                               commentsPageLogic.change();
                             }
                           });

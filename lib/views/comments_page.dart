@@ -49,7 +49,6 @@ class CommentsPage extends StatelessWidget {
                       onPressed: (){
                         giveComment(context, id, false,type: type).then((b){
                           if(b){
-                            commentsPageLogic.comments = Comments([],"",0,0);
                             commentsPageLogic.change();
                           }
                         });

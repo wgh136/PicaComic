@@ -116,6 +116,8 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                       builder: (BuildContext context, int index){
                         if(index<comicReadingPageLogic.urls.length&&!downloaded) {
                           precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])), context);
+                        }else if(index<comicReadingPageLogic.urls.length&&downloaded){
+                          precacheImage(FileImage(downloadManager.getImage(comicId, order, index)),context);
                         }
                         if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
                           if(downloaded){
@@ -222,7 +224,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                         left: 0,
                         right: 0,
                         child: Container(
-                          height: 100+Get.bottomBarHeight,
+                          height: 100+Get.bottomBarHeight/2,
                           decoration: BoxDecoration(
                               borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
                               color: Theme.of(context).cardColor
@@ -230,7 +232,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                         )),
                   if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
                     Positioned(
-                      bottom: 40+Get.bottomBarHeight,
+                      bottom: 40+Get.bottomBarHeight/2,
                       left: 0,
                       right: 0,
                       child: Slider(
@@ -250,13 +252,13 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     )
                   else
                     Positioned(
-                      bottom: 13+Get.bottomBarHeight,
+                      bottom: 13+Get.bottomBarHeight/2,
                       left: 25,
                       child: Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).iconTheme.color:Colors.white),),
                     ),
                   if(comicReadingPageLogic.tools)
                     Positioned(
-                        bottom: Get.bottomBarHeight,
+                        bottom: Get.bottomBarHeight/2,
                         right: 25,
                         child: Tooltip(
                           message: "章节",
@@ -277,7 +279,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     ),
                   if(comicReadingPageLogic.tools&&!downloaded)
                     Positioned(
-                        bottom: Get.bottomBarHeight,
+                        bottom: Get.bottomBarHeight/2,
                         right: 75,
                         child: Tooltip(
                           message: "保存图片",

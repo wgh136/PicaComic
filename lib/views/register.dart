@@ -200,6 +200,7 @@ class RegisterPage extends StatelessWidget {
                                       network.getProfile().then((t){
                                         if(t == null){
                                           showMessage(context, "注册成功,但再登录时发生网络错误");
+                                          Get.off(()=>const LoginPage());
                                         }
                                         else{
                                           appdata.user = t;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/comic_page.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -71,6 +72,63 @@ class DownloadPage extends StatelessWidget {
                       },
                     ),
                   )
+                  else
+                  Tooltip(
+                    message: "更多",
+                    child: IconButton(
+                      icon: const Icon(Icons.more_horiz),
+                      onPressed: (){
+                        showMenu(context: context,
+                            position: RelativeRect.fromLTRB(MediaQuery.of(context).size.width-60, 50, MediaQuery.of(context).size.width-60, 50),
+                            items: [
+                              PopupMenuItem(
+                                child: const Text("全选"),
+                                onTap: (){
+                                    for(int i=0;i<logic.selected.length;i++){
+                                      logic.selected[i] = true;
+                                      logic.selectedNum = logic.selected.length;
+                                    }
+                                    logic.update();
+                                },
+                              ),
+                              PopupMenuItem(
+                                child: const Text("导出"),
+                                onTap: (){
+                                  if(logic.selectedNum == 0){
+                                    showMessage(context, "请选择漫画");
+                                  }else if(logic.selectedNum>1){
+                                    showMessage(context, "一次只能导出一部漫画");
+                                  }else{
+                                    Future<void>.delayed(
+                                      const Duration(milliseconds: 200),
+                                          () => showDialog(
+                                        context: context,
+                                        barrierColor: Colors.black26,
+                                        builder: (context) => const SimpleDialog(
+                                          children: [
+                                            SizedBox(
+                                              width: 200,
+                                              height: 200,
+                                              child: Center(
+                                                child: Text("打包中...", style: TextStyle(fontSize: 16),),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                    Future<void>.delayed(
+                                      const Duration(milliseconds: 500),
+                                        ()=>export(logic)
+                                    );
+                                  }
+                                },
+                              )
+                            ]
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
               floatingActionButton: FloatingActionButton(
@@ -134,16 +192,39 @@ class DownloadPage extends StatelessWidget {
                                         logic.selected.removeAt(index);
                                         logic.update();
                                       },
-                                    )
+                                    ),
+                                    PopupMenuItem(
+                                      child: const Text("导出"),
+                                      onTap: (){
+                                        Future<void>.delayed(
+                                          const Duration(milliseconds: 200),
+                                              () => showDialog(
+                                            context: context,
+                                            barrierColor: Colors.black26,
+                                            builder: (context) => const SimpleDialog(
+                                              children: [
+                                                SizedBox(
+                                                  width: 200,
+                                                  height: 200,
+                                                  child: Center(
+                                                    child: Text("打包中...", style: TextStyle(fontSize: 16),),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                        Future<void>.delayed(
+                                            const Duration(milliseconds: 500),
+                                                (){
+                                              exportComic(logic.comics[index].comicItem.id);
+                                              Get.back();
+                                            }
+                                        );
+                                      },
+                                    ),
                                   ]
                               );
-                            },
-                            onLongPressUp: (){
-                              if(logic.selecting) return;
-                              logic.selected[index] = true;
-                              logic.selectedNum++;
-                              logic.selecting = true;
-                              logic.update();
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -160,7 +241,16 @@ class DownloadPage extends StatelessWidget {
                                 }else{
                                   Get.to(()=>ComicPage(logic.comics[index].comicItem.toBrief(),downloaded: true,));
                                 }
-                              },size: s,),
+                              },
+                                size: s,
+                                onLongTap: (){
+                                  if(logic.selecting) return;
+                                  logic.selected[index] = true;
+                                  logic.selectedNum++;
+                                  logic.selecting = true;
+                                  logic.update();
+                                },
+                              ),
                             )
                         );
                       },
@@ -185,4 +275,14 @@ Future<void> getComics(List<DownloadItem> comics) async{
   for(var index=0;index<downloadManager.downloaded.length;index++){
     comics.add(await downloadManager.getComic(index));
   }
+}
+
+Future<void> export(DownloadPageLogic logic) async{
+  for(int i=0;i<logic.selected.length;i++){
+    if(logic.selected[i]){
+      await exportComic(logic.comics[i].comicItem.id);
+      break;
+    }
+  }
+  Get.back();
 }
