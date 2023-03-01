@@ -6,6 +6,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class GamePageLogic extends GetxController{
@@ -52,9 +53,7 @@ class GamePage extends StatelessWidget {
             });
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              body: showLoading(context),
             );
           }else if(logic.gameInfo.name!=""){
             return Scaffold(

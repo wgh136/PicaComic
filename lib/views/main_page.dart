@@ -5,7 +5,7 @@ import 'package:pica_comic/views/categories_page.dart';
 import 'package:pica_comic/views/games_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
-import 'package:pica_comic/views/search_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -146,19 +146,19 @@ class _MainPageState extends State<MainPage> {
                 children: [
                   Flexible(child: IconButton(
                     icon: const Icon(Icons.search),
-                    onPressed: (){Get.to(()=>SearchPage());},
+                    onPressed: ()=>Get.to(()=>PreSearchPage()),
                   ),),
                   Flexible(child: IconButton(
                     icon: const Icon(Icons.leaderboard),
-                    onPressed: (){Get.to(()=>const LeaderBoardPage());},
+                    onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
                   ),),
                   Flexible(child: IconButton(
                     icon: const Icon(Icons.history),
-                    onPressed: (){Get.to(()=>const HistoryPage());},
+                    onPressed: ()=>Get.to(()=>const HistoryPage()),
                   ),),
                   Flexible(child: IconButton(
                     icon: const Icon(Icons.settings),
-                    onPressed: (){Get.to(()=>const SettingsPage());},
+                    onPressed: ()=>Get.to(()=>const SettingsPage()),
                   ),),
                 ],
               ),

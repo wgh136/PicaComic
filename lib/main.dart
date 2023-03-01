@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-            fontFamily: 'font'
+          fontFamily: 'font'
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

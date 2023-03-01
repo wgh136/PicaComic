@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
@@ -33,9 +34,7 @@ class FavoritesPage extends StatelessWidget {
           builder: (favoritesPageLogic){
         if(favoritesPageLogic.isLoading) {
           favoritesPageLogic.get().then((t){favoritesPageLogic.change();});
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return showLoading(context);
         }else if(favoritesPageLogic.favorites.loaded!=0){
           return RefreshIndicator(
             onRefresh: () async{

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../network/models.dart';
 
@@ -30,9 +31,7 @@ class ReplyPage extends StatelessWidget {
               commentsPageLogic.comments = c;
               commentsPageLogic.change();
             });
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return showLoading(context);
           }else if(commentsPageLogic.comments.loaded==0){
             return showNetworkError(context, () {commentsPageLogic.change();});
           } else{

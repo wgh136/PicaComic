@@ -32,122 +32,125 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     });
     }
     return Scaffold(
-      body: Stack(
-        children: [
-          if(isLoading)
-            Positioned(
-              top: MediaQuery.of(context).size.height/2-50,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          if(!isLoading)
-            Positioned(
-              top: MediaQuery.of(context).size.height/2-100,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Icon(Icons.error_outline,size:60,),
-              ),
-            ),
-          if(isLoading)
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2+10,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Text("正在获取用户信息"),
-              ),
-            ),
-          if(!isLoading)
-            Positioned(
-              left: 0,
-              right: 0,
-              top: MediaQuery.of(context).size.height/2-30,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: network.status?Text(network.message):const Text("网络错误"),
-              ),
-            ),
-
-
-          if(!isLoading)
-            Positioned(
-              top: MediaQuery.of(context).size.height/2+10,
-              left: 0,
-              right: 0,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  width: 200,
-                  height: 50,
-                  child: Row(
-                    children: [
-                      FilledButton.tonal(
-                        onPressed: (){
-                          setState(() {
-                            isLoading = true;
-                          });
-                          network.getProfile().then((p){
-                            if(p!=null){
-                              appdata.user = p;
-                              Get.offAll(()=>const MainPage());
-                            }else {
-                              setState(() {
-                                isLoading = false;
-                              });
-                            }
-                          });
-                        },
-                        child: const Text("   重试   "),
-                      ),
-                      const Spacer(),
-                      FilledButton.tonal(
-                        onPressed: (){
-                          if(GetPlatform.isWeb){
-                            showMessage(context, "Web端不支持下载");
-                            return;
-                          }
-                          Get.to(()=>DownloadPage());
-                        },
-                        child: const Text("已下载"),
-                      )
-                    ],
-                  ),
-                )
-              ),
-            ),
-          if(!isLoading&&!GetPlatform.isWeb)
-            Positioned(
-              bottom: 20,
-              left: MediaQuery.of(context).size.width/2-200,
-              child: SizedBox(
-                width: 400,
-                child: ListTile(
-                  leading: const Icon(Icons.change_circle),
-                  title: const Text("使用转发服务器"),
-                  subtitle: const Text("同时使用网络代理工具会减慢速度"),
-                  trailing: Switch(
-                    value: useMyServer,
-                    onChanged: (b){
-                      b?appdata.settings[3] = "1":appdata.settings[3]="0";
-                      setState(() {
-                        useMyServer = b;
-                      });
-                      network.updateApi();
-                      appdata.writeData();
-                    },
-                  ),
-                  onTap: (){},
+      appBar: AppBar(),
+      body: Material(
+        child: Stack(
+          children: [
+            if(isLoading)
+              Positioned(
+                top: MediaQuery.of(context).size.height/2-100,
+                left: 0,
+                right: 0,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: CircularProgressIndicator(),
                 ),
               ),
-            )
-        ],
+            if(!isLoading)
+              Positioned(
+                top: MediaQuery.of(context).size.height/2-150,
+                left: 0,
+                right: 0,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: Icon(Icons.error_outline,size:60,),
+                ),
+              ),
+            if(isLoading)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: MediaQuery.of(context).size.height/2-40,
+                child: const Align(
+                  alignment: Alignment.topCenter,
+                  child: Text("正在获取用户信息"),
+                ),
+              ),
+            if(!isLoading)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: MediaQuery.of(context).size.height/2-80,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: network.status?Text(network.message):const Text("网络错误"),
+                ),
+              ),
+
+
+            if(!isLoading)
+              Positioned(
+                top: MediaQuery.of(context).size.height/2-40,
+                left: 0,
+                right: 0,
+                child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: 200,
+                      height: 50,
+                      child: Row(
+                        children: [
+                          FilledButton.tonal(
+                            onPressed: (){
+                              setState(() {
+                                isLoading = true;
+                              });
+                              network.getProfile().then((p){
+                                if(p!=null){
+                                  appdata.user = p;
+                                  Get.offAll(()=>const MainPage());
+                                }else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
+                              });
+                            },
+                            child: const Text("   重试   "),
+                          ),
+                          const Spacer(),
+                          FilledButton.tonal(
+                            onPressed: (){
+                              if(GetPlatform.isWeb){
+                                showMessage(context, "Web端不支持下载");
+                                return;
+                              }
+                              Get.to(()=>DownloadPage());
+                            },
+                            child: const Text("已下载"),
+                          )
+                        ],
+                      ),
+                    )
+                ),
+              ),
+            if(!isLoading&&!GetPlatform.isWeb)
+              Positioned(
+                bottom: 20,
+                left: MediaQuery.of(context).size.width/2-200,
+                child: SizedBox(
+                  width: 400,
+                  child: ListTile(
+                    leading: const Icon(Icons.change_circle),
+                    title: const Text("使用转发服务器"),
+                    subtitle: const Text("同时使用网络代理工具会减慢速度"),
+                    trailing: Switch(
+                      value: useMyServer,
+                      onChanged: (b){
+                        b?appdata.settings[3] = "1":appdata.settings[3]="0";
+                        setState(() {
+                          useMyServer = b;
+                        });
+                        network.updateApi();
+                        appdata.writeData();
+                      },
+                    ),
+                    onTap: (){},
+                  ),
+                ),
+              )
+          ],
+        ),
       )
     );
   }

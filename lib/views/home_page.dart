@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/search_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
@@ -60,7 +60,7 @@ class HomePage extends StatelessWidget {
                         child: IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: (){
-                            Get.to(()=>SearchPage());
+                            Get.to(()=>PreSearchPage());
                           },
                         ),
                       ),

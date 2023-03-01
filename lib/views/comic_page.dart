@@ -9,6 +9,7 @@ import 'package:pica_comic/views/comic_reading_page.dart';
 import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/base.dart';
@@ -62,6 +63,25 @@ class ComicPage extends StatelessWidget{
                     onTap: () {
                       Get.to(() => CategoryComicPage(s));
                     },
+                    onLongPress: (){
+                      Clipboard.setData(ClipboardData(text: (s)));
+                      showMessage(context, "已复制");
+                    },
+                    onSecondaryTapUp: (details){
+                      showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                          items: [
+                            PopupMenuItem(
+                              child: const Text("复制"),
+                              onTap: (){
+                                Clipboard.setData(ClipboardData(text: (s)));
+                                showMessage(context, "已复制");
+                              },
+                            )
+                          ]
+                      );
+                    },
                     child: Card(
                       margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                       elevation: 0,
@@ -78,6 +98,25 @@ class ComicPage extends StatelessWidget{
                   logic.categories.add(GestureDetector(
                     onTap: () {
                       Get.to(() => CategoryComicPage(s));
+                    },
+                    onLongPress: (){
+                      Clipboard.setData(ClipboardData(text: (s)));
+                      showMessage(context, "已复制");
+                    },
+                    onSecondaryTapUp: (details){
+                      showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                          items: [
+                            PopupMenuItem(
+                              child: const Text("复制"),
+                              onTap: (){
+                                Clipboard.setData(ClipboardData(text: (s)));
+                                showMessage(context, "已复制");
+                              },
+                            )
+                          ]
+                      );
                     },
                     child: Card(
                       margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -120,9 +159,7 @@ class ComicPage extends StatelessWidget{
                 logic.change();
               }
             });
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return showLoading(context);
         }else if(logic.comicItem!=null){
           return CustomScrollView(
             slivers: [
@@ -130,79 +167,12 @@ class ComicPage extends StatelessWidget{
                 title: Text(comic.title,maxLines: 1,overflow: TextOverflow.ellipsis,),
                 actions: [
                   Tooltip(
-                    message: "更多",
+                    message: "复制标题",
                     child: IconButton(
-                      icon: Icon(Icons.info_outline,color: Theme.of(context).colorScheme.primary,),
+                      icon: const Icon(Icons.copy,),
                       onPressed: () {
-                        showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => SimpleDialog(
-                            children: [Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  ListTile(
-                                    title: const Text("标题"),
-                                    subtitle: Text(comic.title),
-                                    onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: comic.title));
-                                      showMessage(context, "已复制");
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: const Text("作者"),
-                                    subtitle: Text(comic.author),
-                                    onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: comic.author));
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: const Text("上传者"),
-                                    subtitle: Text(logic.comicItem!.creator.name),
-                                    onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.creator.name));
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: const Text("汉化组"),
-                                    subtitle: Text(logic.comicItem!.chineseTeam),
-                                    onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.chineseTeam));
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: const Text("分类"),
-                                    subtitle: Text(logic.comicItem!.categories.toString().substring(1,logic.comicItem!.categories.toString().length-1)),
-                                    onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.categories.toString().substring(1,logic.comicItem!.categories.toString().length-1)));
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: const Text("Tags"),
-                                    subtitle: Text(logic.comicItem!.tags.toString().substring(1,logic.comicItem!.tags.toString().length-1)),
-                                    onLongPress: (){
-                                      Clipboard.setData(ClipboardData(text: logic.comicItem!.tags.toString().substring(1,logic.comicItem!.tags.toString().length-1)));
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: 50,
-                                    child: Row(
-                                      children: const[
-                                        Padding(padding: EdgeInsets.only(left: 18)),
-                                        Icon(Icons.info),
-                                        Padding(padding: EdgeInsets.only(left: 5)),
-                                        Text("长按以复制")
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                        ]
-                          ),
-                        );
+                        Clipboard.setData(ClipboardData(text: comic.title));
+                        showMessage(context, "已复制标题");
                       },
                     ),)
                 ],
@@ -253,6 +223,25 @@ class ComicPage extends StatelessWidget{
                                   Get.to(()=>CategoryComicPage(logic.comicItem!.author));
                                 }
                               },
+                              onLongPress: (){
+                                Clipboard.setData(ClipboardData(text: (logic.comicItem!.author)));
+                                showMessage(context, "已复制");
+                              },
+                              onSecondaryTapUp: (details){
+                                showMenu(
+                                    context: context,
+                                    position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                                    items: [
+                                      PopupMenuItem(
+                                        child: const Text("复制"),
+                                        onTap: (){
+                                          Clipboard.setData(ClipboardData(text: (logic.comicItem!.author)));
+                                          showMessage(context, "已复制");
+                                        },
+                                      )
+                                    ]
+                                );
+                              },
                             )
                         ),
                         if(logic.comicItem!.chineseTeam!="")
@@ -276,6 +265,25 @@ class ComicPage extends StatelessWidget{
                                 if(logic.comicItem!.chineseTeam!=""){
                                   Get.to(()=>CategoryComicPage(logic.comicItem!.chineseTeam));
                                 }
+                              },
+                              onLongPress: (){
+                                Clipboard.setData(ClipboardData(text: (logic.comicItem!.chineseTeam)));
+                                showMessage(context, "已复制");
+                              },
+                              onSecondaryTapUp: (details){
+                                showMenu(
+                                    context: context,
+                                    position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                                    items: [
+                                      PopupMenuItem(
+                                          child: const Text("复制"),
+                                          onTap: (){
+                                            Clipboard.setData(ClipboardData(text: (logic.comicItem!.chineseTeam)));
+                                            showMessage(context, "已复制");
+                                          },
+                                      )
+                                    ]
+                                );
                               },
                             )
                         ),
@@ -463,6 +471,25 @@ class ComicPage extends StatelessWidget{
                                       Get.to(()=>CategoryComicPage(logic.comicItem!.author));
                                     }
                                   },
+                                  onLongPress: (){
+                                    Clipboard.setData(ClipboardData(text: (logic.comicItem!.author)));
+                                    showMessage(context, "已复制");
+                                  },
+                                  onSecondaryTapUp: (details){
+                                    showMenu(
+                                        context: context,
+                                        position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                                        items: [
+                                          PopupMenuItem(
+                                            child: const Text("复制"),
+                                            onTap: (){
+                                              Clipboard.setData(ClipboardData(text: (logic.comicItem!.author)));
+                                              showMessage(context, "已复制");
+                                            },
+                                          )
+                                        ]
+                                    );
+                                  },
                                 )
                             ),
                             if(logic.comicItem!.chineseTeam!="")
@@ -486,6 +513,25 @@ class ComicPage extends StatelessWidget{
                                   if(logic.comicItem!.chineseTeam!=""){
                                     Get.to(()=>CategoryComicPage(logic.comicItem!.chineseTeam));
                                   }
+                                },
+                                onLongPress: (){
+                                  Clipboard.setData(ClipboardData(text: (logic.comicItem!.chineseTeam)));
+                                  showMessage(context, "已复制");
+                                },
+                                onSecondaryTapUp: (details){
+                                  showMenu(
+                                      context: context,
+                                      position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                                      items: [
+                                        PopupMenuItem(
+                                          child: const Text("复制"),
+                                          onTap: (){
+                                            Clipboard.setData(ClipboardData(text: (logic.comicItem!.chineseTeam)));
+                                            showMessage(context, "已复制");
+                                          },
+                                        )
+                                      ]
+                                  );
                                 },
                               )
                             ),
@@ -712,6 +758,25 @@ class ComicPage extends StatelessWidget{
                   onTap: () {
                     Get.to(() => CategoryComicPage(s));
                   },
+                  onLongPress: (){
+                    Clipboard.setData(ClipboardData(text: (s)));
+                    showMessage(context, "已复制");
+                  },
+                  onSecondaryTapUp: (details){
+                    showMenu(
+                        context: context,
+                        position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                        items: [
+                          PopupMenuItem(
+                            child: const Text("复制"),
+                            onTap: (){
+                              Clipboard.setData(ClipboardData(text: (s)));
+                              showMessage(context, "已复制");
+                            },
+                          )
+                        ]
+                    );
+                  },
                   child: Card(
                     margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                     elevation: 0,
@@ -728,6 +793,25 @@ class ComicPage extends StatelessWidget{
                 logic.categories.add(GestureDetector(
                   onTap: () {
                     Get.to(() => CategoryComicPage(s));
+                  },
+                  onLongPress: (){
+                    Clipboard.setData(ClipboardData(text: (s)));
+                    showMessage(context, "已复制");
+                  },
+                  onSecondaryTapUp: (details){
+                    showMenu(
+                        context: context,
+                        position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+                        items: [
+                          PopupMenuItem(
+                            child: const Text("复制"),
+                            onTap: (){
+                              Clipboard.setData(ClipboardData(text: (s)));
+                              showMessage(context, "已复制");
+                            },
+                          )
+                        ]
+                    );
                   },
                   child: Card(
                     margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
