@@ -4,6 +4,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/comic_page.dart';
 import 'package:pica_comic/views/downloading_page.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
 import '../network/download_models.dart';
@@ -42,11 +43,7 @@ class DownloadPage extends StatelessWidget {
               }
               logic.change();
             });
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+            return showLoading(context,withScaffold: true);
           }else{
             return Scaffold(
               appBar: AppBar(

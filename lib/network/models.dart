@@ -160,8 +160,22 @@ class Comment {
   int likes;
   String? frame;
   String? slogan;
+  String time;
 
-  Comment(this.name, this.avatarUrl, this.userId, this.level, this.text, this.reply, this.id,this.isLiked,this.likes,this.frame,this.slogan);
+  Comment(
+      this.name,
+      this.avatarUrl,
+      this.userId,
+      this.level,
+      this.text,
+      this.reply,
+      this.id,
+      this.isLiked,
+      this.likes,
+      this.frame,
+      this.slogan,
+      this.time
+      );
 }
 
 class Comments {

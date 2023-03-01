@@ -7,7 +7,7 @@ import 'network/models.dart';
 var network = Network();
 
 const changePoint = 600; //定义宽屏设备的临界值
-const appVersion = "1.3.1";
+const appVersion = "1.3.2";
 var pathSep = Platform.pathSeparator;
 
 var hotSearch = <String>[];
@@ -18,6 +18,7 @@ class Appdata{
   late Profile user;
   late List<ComicItemBrief> history;
   late String appChannel;
+  late List<String> searchHistory;
   List<String> settings = [
     "1", //点击屏幕左右区域翻页
     "dd", //排序方式
@@ -33,7 +34,7 @@ class Appdata{
     user = temp;
     history = [];
     appChannel = "3";
-
+    searchHistory = [];
   }
 
   int getSearchMod(){
@@ -73,6 +74,7 @@ class Appdata{
     }
     await s.setString("appChannel",appChannel);
     await s.setStringList("settings", settings);
+    await s.setStringList("search", searchHistory);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -97,6 +99,7 @@ class Appdata{
         history.add(c);
       }
       appChannel = s.getString("appChannel")!;
+      searchHistory = s.getStringList("search")??[];
       return token==""?false:true;
     }
     catch(e){

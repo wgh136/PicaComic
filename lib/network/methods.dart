@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
 import 'package:pica_comic/views/login_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 import 'models.dart';
@@ -211,7 +212,7 @@ class Network{
     }
   }
 
-  Future<SearchResult> searchNew(String keyWord,String sort) async{
+  Future<SearchResult> searchNew(String keyWord,String sort,{bool addToHistory=false}) async{
     /*
     sort:
         dd: 新到书
@@ -219,8 +220,15 @@ class Network{
         ld: 最多喜欢
         vd: 最多绅士指名
      */
+    if(addToHistory){
+      appdata.searchHistory.add(keyWord);
+      appdata.writeData();
+    }
     var s = SearchResult(keyWord, sort, [], 1, 0);
     await loadMoreSearch(s);
+    if(addToHistory) {
+      Future.delayed(const Duration(microseconds: 500),()=>Get.find<HistorySearchController>().update());
+    }
     return s;
   }
 
@@ -333,7 +341,7 @@ class Network{
           catch(e){
             url = defaultAvatarUrl;
           }
-          var t = Comment("","","",1,"",0,"",false,0,null,null);
+          var t = Comment("","","",1,"",0,"",false,0,null,null,"");
           if(res["data"]["comments"]["docs"][i]["_user"] != null) {
             t = Comment(
               res["data"]["comments"]["docs"][i]["_user"]["name"],
@@ -347,6 +355,7 @@ class Network{
               res["data"]["comments"]["docs"][i]["likesCount"],
               res["data"]["comments"]["docs"][i]["_user"]["character"],
               res["data"]["comments"]["docs"][i]["_user"]["slogan"],
+              res["data"]["comments"]["docs"][i]["created_at"]
             );
           }else{
             t = Comment(
@@ -360,7 +369,8 @@ class Network{
                 res["data"]["comments"]["docs"][i]["isLiked"],
                 res["data"]["comments"]["docs"][i]["likesCount"],
               null,
-              null
+              null,
+                res["data"]["comments"]["docs"][i]["created_at"]
             );
           }
           c.comments.add(t);
@@ -542,7 +552,7 @@ class Network{
         catch(e){
           url = defaultAvatarUrl;
         }
-        var t = Comment("","","",1,"",0,"",false,0,null,null);
+        var t = Comment("","","",1,"",0,"",false,0,null,null,"");
         if(res["data"]["comments"]["docs"][i]["_user"] != null) {
           t = Comment(
               res["data"]["comments"]["docs"][i]["_user"]["name"]??"未知",
@@ -555,6 +565,7 @@ class Network{
               res["data"]["comments"]["docs"][i]["likesCount"]??0,
               res["data"]["comments"]["docs"][i]["_user"]["character"],
               res["data"]["comments"]["docs"][i]["_user"]["slogan"]??"",
+              res["data"]["comments"]["docs"][i]["created_at"]
           );
         }else{
           t = Comment(
@@ -566,7 +577,8 @@ class Network{
               0,"",
               res["data"]["comments"]["docs"][i]["isLiked"],
               res["data"]["comments"]["docs"][i]["likesCount"],
-            null,null
+            null,null,
+              res["data"]["comments"]["docs"][i]["created_at"]
           );
         }
         reply.comments.add(t);

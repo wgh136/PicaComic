@@ -24,7 +24,7 @@ class DownloadManage{
     path = "${appPath.path}${pathSep}download";
     var file = Directory(path!);
     if(! await file.exists()){
-      file.create();
+      file.create(recursive: true);
     }
   }
 

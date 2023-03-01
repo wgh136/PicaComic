@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/collections_page.dart';
-import 'package:pica_comic/views/search_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
@@ -53,7 +53,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   child: IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: (){
-                      Get.to(()=>SearchPage());
+                      Get.to(()=>PreSearchPage());
                     },
                   ),
                 ),

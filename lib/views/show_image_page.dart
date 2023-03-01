@@ -6,18 +6,20 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/widgets/save_image.dart';
 
+import '../base.dart';
+
 
 class ShowImagePage extends StatefulWidget {
   const ShowImagePage(this.url,{Key? key}) : super(key: key);
   final String url;
 
   @override
-  State<ShowImagePage> createState() => _ShowImagePageState(url);
+  State<ShowImagePage> createState() => _ShowImagePageState();
 }
 
 class _ShowImagePageState extends State<ShowImagePage> {
-  final String url;
-  _ShowImagePageState(this.url);
+  late final String url = widget.url;
+  _ShowImagePageState();
 
   @override
   initState() {
@@ -50,7 +52,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                   );
                 },
               )),
-              if(!GetPlatform.isAndroid)
+              if(MediaQuery.of(context).size.shortestSide>changePoint||!GetPlatform.isAndroid)
                 Positioned(
                   left: 10,
                   top: 10,

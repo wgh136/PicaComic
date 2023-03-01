@@ -63,6 +63,11 @@ class _CommentTileState extends State<CommentTile> {
                       comment.text,
                       style: const TextStyle(fontSize: 14.0),
                     ),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
+                    Text(
+                      "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}",
+                      style: const TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100),
+                    ),
                   ],
                 ),
               ),
