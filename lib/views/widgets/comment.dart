@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
@@ -13,105 +14,176 @@ class CommentTile extends StatefulWidget {
   final bool? isToReply;
 
   @override
-  State<CommentTile> createState() => _CommentTileState(comment: comment, isReply: isReply, isToReply: isToReply);
+  State<CommentTile> createState() => _CommentTileState();
 }
 
 class _CommentTileState extends State<CommentTile> {
-  _CommentTileState({required this.comment,required this.isReply,this.isToReply});
-  final bool isReply;
-  final Comment comment;
-  final bool? isToReply;
+  late final bool isReply = widget.isReply;
+  late final Comment comment = widget.comment;
+  late final bool? isToReply = widget.isToReply;
 
   @override
   Widget build(BuildContext context) {
-    return SelectionArea(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 0,
-              child: Center(child: Avatar(
-                size: 60,
-                avatarUrl: comment.avatarUrl,
-                frame: comment.frame,
-                couldBeShown: true,
-                name: comment.name,
-                slogan: comment.slogan,
-                level: comment.level,
-              )),
-            ),
-            SizedBox.fromSize(size: const Size(10,5),),
-            Expanded(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 0.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  //mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      comment.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18.0,
-                      ),
-                      maxLines: 1,
-                    ),
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
-                    Text(
-                      comment.text,
-                      style: const TextStyle(fontSize: 14.0),
-                    ),
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
-                    Text(
-                      "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}",
-                      style: const TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100),
-                    ),
-                  ],
+    return GestureDetector(
+      onSecondaryTapUp: (details){
+        showMenu(
+            context: context,
+            position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+            items: [
+              PopupMenuItem(
+                child: const Text("复制"),
+                onTap: (){
+                  Clipboard.setData(ClipboardData(text: comment.text));
+                  showMessage(context, "评论内容已复制");
+                },
+              )
+            ]
+        );
+      },
+      child: InkWell(
+        onTap: ()=>Get.to(()=>ReplyPage(comment.id,comment)),
+        onLongPress: (){
+          Clipboard.setData(ClipboardData(text: comment.text));
+          showMessage(context, "评论内容已复制");
+        },
+        child: Padding(
+            padding: MediaQuery.of(context).size.width<600?const EdgeInsets.fromLTRB(5, 0, 10, 5):const EdgeInsets.all(10),
+            child: MediaQuery.of(context).size.width>=changePoint?Row(
+              children: [
+                Expanded(
+                  flex: 0,
+                  child: Center(child: Avatar(
+                    size: 60,
+                    avatarUrl: comment.avatarUrl,
+                    frame: comment.frame,
+                    couldBeShown: true,
+                    name: comment.name,
+                    slogan: comment.slogan,
+                    level: comment.level,
+                  )),
                 ),
-              ),
-            ),
-            if(isToReply!=true)
-            SizedBox(
-              width: 80,
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: 80,
-                    height: 40,
-                    child: ActionChip(
-                      side: BorderSide.none,
-                      label: Text(comment.likes.toString()),
-                      avatar: Icon((comment.isLiked)?Icons.favorite:Icons.favorite_border),
-                      onPressed: (){
-                        network.likeOrUnlikeComment(comment.id);
-                        setState(() {
-                          comment.isLiked = !comment.isLiked;
-                          if(comment.isLiked) {
-                            comment.likes++;
-                          }else{
-                            comment.likes--;
-                          }
-                        });
-                      },
+                SizedBox.fromSize(size: const Size(10,5),),
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 0.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      //mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          comment.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18.0,
+                          ),
+                          maxLines: 1,
+                        ),
+                        const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
+                        Text(
+                          comment.text,
+                          style: const TextStyle(fontSize: 14.0),
+                        ),
+                        const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
+                        Text(
+                          "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}",
+                          style: const TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100),
+                        ),
+                      ],
                     ),
                   ),
-                  if(!isReply)
+                ),
+                if(isToReply!=true)
                   SizedBox(
                     width: 80,
-                    height: 40,
-                    child: ActionChip(
-                      side: BorderSide.none,
-                      label: Text(comment.reply.toString()),
-                      avatar: const Icon(Icons.comment_outlined),
-                      onPressed: (){Get.to(()=>ReplyPage(comment.id,comment));},
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 40,
+                          child: ActionChip(
+                            side: BorderSide.none,
+                            label: Text(comment.likes.toString()),
+                            avatar: Icon((comment.isLiked)?Icons.favorite:Icons.favorite_border),
+                            onPressed: (){
+                              network.likeOrUnlikeComment(comment.id);
+                              setState(() {
+                                comment.isLiked = !comment.isLiked;
+                                if(comment.isLiked) {
+                                  comment.likes++;
+                                }else{
+                                  comment.likes--;
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                        if(!isReply)
+                          SizedBox(
+                            width: 80,
+                            height: 40,
+                            child: ActionChip(
+                              side: BorderSide.none,
+                              label: Text(comment.reply.toString()),
+                              avatar: const Icon(Icons.comment_outlined),
+                              onPressed: ()=>Get.to(()=>ReplyPage(comment.id,comment)),
+                            ),
+                          )
+                      ],
                     ),
                   )
-                ],
-              ),
+              ],
+            ):Row(
+              children: [
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 60,
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          Center(child: Avatar(
+                            size: 50,
+                            avatarUrl: comment.avatarUrl,
+                            frame: comment.frame,
+                            couldBeShown: true,
+                            name: comment.name,
+                            slogan: comment.slogan,
+                            level: comment.level,
+                          )),
+                          Expanded(child: Text(comment.name)),
+                        ],
+                      ),
+                    ),
+                    Padding(padding: const EdgeInsets.only(left: 6),child: Text(comment.text, style: const TextStyle(fontSize: 14.0),),),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
+                    Padding(padding: const EdgeInsets.only(left: 6),child: Text(
+                      "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}  ${comment.reply}回复  ${comment.likes}喜欢",
+                      style: const TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100),
+                    ),)
+                  ],
+                ),
+                ),
+                Tooltip(
+                  message: "喜欢",
+                  child: IconButton(
+                    icon: Icon((comment.isLiked)?Icons.favorite:Icons.favorite_border,size: 20,),
+                    onPressed: (){
+                      network.likeOrUnlikeComment(comment.id);
+                      setState(() {
+                        comment.isLiked = !comment.isLiked;
+                        if(comment.isLiked) {
+                          comment.likes++;
+                        }else{
+                          comment.likes--;
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ],
             )
-          ],
         ),
       ),
     );
