@@ -163,8 +163,9 @@ class ComicPage extends StatelessWidget{
         }else if(logic.comicItem!=null){
           return CustomScrollView(
             slivers: [
-              SliverAppBar.large(
-                title: Text(comic.title,maxLines: 1,overflow: TextOverflow.ellipsis,),
+              SliverAppBar(
+                title: const Text("漫画详情"),
+                pinned: true,
                 actions: [
                   Tooltip(
                     message: "复制标题",
@@ -176,6 +177,15 @@ class ComicPage extends StatelessWidget{
                       },
                     ),)
                 ],
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Text(comic.title, style: const TextStyle(fontSize: 22),),
+                  ),
+                ),
               ),
               if(MediaQuery.of(context).size.shortestSide<changePoint)
                 SliverToBoxAdapter(
