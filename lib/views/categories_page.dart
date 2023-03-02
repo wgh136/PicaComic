@@ -27,7 +27,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CategoriesPageLogic>(
-      init: CategoriesPageLogic(),
         builder: (categoriesPageLogic){
       if(categoriesPageLogic.isLoading){
         network.getCategories().then((c){

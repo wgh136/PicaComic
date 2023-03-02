@@ -16,17 +16,17 @@ void main() {
     if(b){
       network = Network(appdata.token);
     }
-    downloadManager.init().then((b) async{
-      await SentryFlutter.init(
-            (options) {
-          options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
-          // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-          // We recommend adjusting this value in production.
-          options.tracesSampleRate = 1.0;
-        },
-        appRunner: () => runApp(const MyApp()),
-      );
-    });
+    await SentryFlutter.init(
+          (options) {
+        options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
+        // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+        // We recommend adjusting this value in production.
+        options.tracesSampleRate = 1.0;
+      },
+      appRunner: () async{
+        runApp(const MyApp());
+      },
+    );
   });
 
 }
@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    downloadManager.init();
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return GetMaterialApp(
         title: 'Pica Comic',
@@ -46,12 +47,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
           useMaterial3: true,
-          fontFamily: 'font'
+          //fontFamily: 'font'
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-          fontFamily: 'font'
+          //fontFamily: 'font'
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

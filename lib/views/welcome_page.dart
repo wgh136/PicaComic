@@ -9,6 +9,10 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size(double.infinity,0),
+        child: AppBar(),
+      ),
       body: Center(
         child: SizedBox(
           width: 200,

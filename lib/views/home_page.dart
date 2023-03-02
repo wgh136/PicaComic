@@ -15,6 +15,11 @@ class HomePageLogic extends GetxController{
     isLoading = !isLoading;
     update();
   }
+  void refresh_() async{
+    isLoading = true;
+    comics.clear();
+    update();
+  }
 }
 
 class HomePage extends StatelessWidget {
@@ -23,7 +28,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomePageLogic>(
-      init: HomePageLogic(),
         builder: (homePageLogic){
       if(homePageLogic.isLoading){
         bool flag1 = false,flag2 = false;
@@ -127,10 +131,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               onRefresh: () async {
-                var c = await network.getRandomComics();
-                var t = await network.getRandomComics();
-                homePageLogic.comics = c+t;
-                homePageLogic.update();
+                homePageLogic.refresh_();
               }
           ),
         );

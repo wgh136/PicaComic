@@ -21,7 +21,6 @@ class GamesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<GamesPageLogic>(
-        init: GamesPageLogic(),
         builder: (logic){
           if(logic.isLoading){
             network.getGames().then((c) {

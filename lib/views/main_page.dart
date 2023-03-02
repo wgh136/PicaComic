@@ -57,6 +57,14 @@ class _MainPageState extends State<MainPage> {
   ];
 
   @override
+  void initState() {
+    Get.put(HomePageLogic());
+    Get.put(CategoriesPageLogic());
+    Get.put(GamesPageLogic());
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if(appdata.user.isPunched==false&&appdata.settings[6]=="1"){
       network.punchIn().then((b){
@@ -107,6 +115,13 @@ class _MainPageState extends State<MainPage> {
     }
     updateFlag = false;
     return Scaffold(
+      floatingActionButton: i==1?FloatingActionButton(
+        onPressed: () {
+          var logic = Get.find<HomePageLogic>();
+          logic.refresh_();
+        },
+        child: const Icon(Icons.refresh),
+      ):null,
       bottomNavigationBar: MediaQuery.of(context).size.shortestSide>changePoint?null:NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {

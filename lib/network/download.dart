@@ -18,13 +18,14 @@ class DownloadManage{
   void Function() whenChange = (){}; //用于监听下载队列的变化, 下载页面需要为此函数赋值, 从而实现监听
   void Function() handleError = (){};  //出现错误时调用, 下载页面应当修改此函数, 实现出现错误刷新页面
   bool error = false;
+  bool runInit = false;
 
   Future<void> getPath() async{
     final appPath = await getApplicationSupportDirectory();
     path = "${appPath.path}${pathSep}download";
     var file = Directory(path!);
     if(! await file.exists()){
-      file.create(recursive: true);
+      await file.create(recursive: true);
     }
   }
 
@@ -54,6 +55,8 @@ class DownloadManage{
 
   Future<void> init() async{
     //初始化下载管理器
+    if(runInit) return;
+    runInit = true;
     if(GetPlatform.isWeb){
       return;
     }
@@ -82,7 +85,7 @@ class DownloadManage{
     }
     var file = File("$path${pathSep}download.json");
     if(! await file.exists()){
-      file.create();
+      await file.create();
     }
     file.writeAsString(json);
   }
