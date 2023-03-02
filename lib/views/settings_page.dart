@@ -206,6 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool showThreeButton = appdata.settings[4]=="1";
   bool showFrame = appdata.settings[5]=="1";
   bool punchIn = appdata.settings[6]=="1";
+  bool useVolumeKeyChangePage = appdata.settings[7]=="1";
 
   @override
   Widget build(BuildContext context) {
@@ -315,6 +316,21 @@ class _SettingsPageState extends State<SettingsPage> {
                         b?appdata.settings[0] = "1":appdata.settings[0]="0";
                         setState(() {
                           pageChangeValue = b;
+                        });
+                        appdata.writeData();
+                      },
+                    ),
+                    onTap: (){},
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.volume_mute,color: Theme.of(context).colorScheme.secondary),
+                    title: const Text("使用音量键翻页"),
+                    trailing: Switch(
+                      value: useVolumeKeyChangePage,
+                      onChanged: (b){
+                        b?appdata.settings[7] = "1":appdata.settings[7]="0";
+                        setState(() {
+                          useVolumeKeyChangePage = b;
                         });
                         appdata.writeData();
                       },
