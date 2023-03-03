@@ -309,7 +309,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                               child: IconButton(
                                 icon: const Icon(Icons.download),
                                 onPressed: () async{
-                                  saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index], context);
+                                  saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index-1], context);
                                 },
                               ),
                             )
