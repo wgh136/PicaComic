@@ -126,6 +126,7 @@ class DownloadManage{
     }else{
       //标记状态为未在下载
       isDownloading = false;
+      notifications.endProgress() ;
     }
     whenChange();
   }
@@ -160,6 +161,7 @@ class DownloadManage{
 
     if(downloading.isEmpty){
       isDownloading = false;
+      notifications.endProgress();
     }else{
       downloading.first.start();
     }
@@ -240,6 +242,7 @@ class DownloadComic{
   }
 
   Future<void> start() async{
+    notifications.sendProgressNotification(downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
     pauseFlag = false;
     if(eps.isEmpty){
       await getEps();
@@ -292,6 +295,9 @@ class DownloadComic{
           downloadPages++;
           updateUi();
           updateInfo();
+          if(!pauseFlag) {
+            notifications.sendProgressNotification(downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
+          }
         }
         catch(e){
           if (kDebugMode) {
@@ -308,6 +314,7 @@ class DownloadComic{
   }
 
   void pause(){
+    notifications.endProgress();
     pauseFlag = true;
   }
 

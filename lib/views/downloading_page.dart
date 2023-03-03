@@ -45,7 +45,12 @@ class _DownloadingPageState extends State<DownloadingPage> {
               }));
             }
             logic.update();
-            Get.find<DownloadPageLogic>().fresh();
+            try {
+              Get.find<DownloadPageLogic>().fresh();
+            }
+            catch(e){
+              //如果用户从通知中进入此页面, 可能在路由中不存在DownloadPage, 直接忽略
+            }
           };
           downloadManager.handleError = (){
             logic.update();

@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    downloadManager.init();
+    downloadManager.init(); //初始化下载管理器
+    notifications.init(); //初始化通知管理器
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return GetMaterialApp(
         title: 'Pica Comic',
