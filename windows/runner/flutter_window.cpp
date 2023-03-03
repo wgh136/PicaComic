@@ -1,8 +1,39 @@
+#pragma comment(lib, "winhttp.lib")
 #include "flutter_window.h"
-
+#include <flutter/method_channel.h>
 #include <optional>
-
 #include "flutter/generated_plugin_registrant.h"
+#include <flutter/standard_method_codec.h>
+#include <winhttp.h>
+#include <Windows.h>
+#include <winbase.h>
+#define _CRT_SECURE_NO_WARNINGS
+#include <String>
+
+char* wideCharToMultiByte(wchar_t* pWCStrKey)
+{
+    size_t pSize = WideCharToMultiByte(CP_OEMCP, 0, pWCStrKey, wcslen(pWCStrKey), NULL, 0, NULL, NULL);
+    char* pCStrKey = new char[pSize + 1];
+    WideCharToMultiByte(CP_OEMCP, 0, pWCStrKey, wcslen(pWCStrKey), pCStrKey, pSize, NULL, NULL);
+    pCStrKey[pSize] = '\0';
+    GlobalFree(pWCStrKey);
+    return pCStrKey;
+}
+
+char* getProxy() {
+    _WINHTTP_CURRENT_USER_IE_PROXY_CONFIG net;
+    WinHttpGetIEProxyConfigForCurrentUser(&net);
+    if (net.lpszProxy == nullptr) {
+        GlobalFree(net.lpszAutoConfigUrl);
+        GlobalFree(net.lpszProxyBypass);
+        return nullptr;
+    }
+    else {
+        GlobalFree(net.lpszAutoConfigUrl);
+        GlobalFree(net.lpszProxyBypass);
+        return wideCharToMultiByte(net.lpszProxy);
+    }
+}
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
@@ -25,6 +56,24 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
+  flutter::MethodChannel<> channel(
+      flutter_controller_->engine()->messenger(), "kokoiro.xyz.pica_comic/proxy", 
+      &flutter::StandardMethodCodec::GetInstance()
+  );
+  channel.SetMethodCallHandler(
+      [](const flutter::MethodCall<>& call,
+          std::unique_ptr<flutter::MethodResult<>> result) {
+                auto res = getProxy();
+                  if (res != nullptr){
+                      std::string s = res;
+                      result->Success(s);
+                  }
+                  else
+                      result->Success(flutter::EncodableValue("No Proxy"));
+                if(res!=nullptr)
+                    delete(res);
+  });
+
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
