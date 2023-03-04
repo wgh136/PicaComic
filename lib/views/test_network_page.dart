@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/settings_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 
@@ -15,7 +16,6 @@ class TestNetworkPage extends StatefulWidget {
 class _TestNetworkPageState extends State<TestNetworkPage> {
   bool isLoading = true;
   bool flag = true;
-  bool useMyServer = appdata.settings[3]=="1";
   @override
   Widget build(BuildContext context) {
     if(flag) {
@@ -131,21 +131,10 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 child: SizedBox(
                   width: 400,
                   child: ListTile(
-                    leading: const Icon(Icons.change_circle),
-                    title: const Text("使用转发服务器"),
-                    subtitle: const Text("同时使用网络代理工具会减慢速度"),
-                    trailing: Switch(
-                      value: useMyServer,
-                      onChanged: (b){
-                        b?appdata.settings[3] = "1":appdata.settings[3]="0";
-                        setState(() {
-                          useMyServer = b;
-                        });
-                        network.updateApi();
-                        appdata.writeData();
-                      },
-                    ),
-                    onTap: (){},
+                    leading: const Icon(Icons.settings),
+                    title: const Text("转到设置"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: ()=>Get.to(()=>const SettingsPage()),
                   ),
                 ),
               )

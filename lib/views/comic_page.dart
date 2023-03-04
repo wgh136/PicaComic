@@ -13,6 +13,7 @@ import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/base.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
@@ -168,22 +169,21 @@ class ComicPage extends StatelessWidget{
                 pinned: true,
                 actions: [
                   Tooltip(
-                    message: "复制标题",
+                    message: "分享",
                     child: IconButton(
-                      icon: const Icon(Icons.copy,),
+                      icon: const Icon(Icons.share,),
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: comic.title));
-                        showMessage(context, "已复制标题");
+                        Share.share(comic.title);
                       },
                     ),)
                 ],
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
                   child: SizedBox(
                     width: double.infinity,
-                    child: Text(comic.title, style: const TextStyle(fontSize: 22),),
+                    child: SelectableText(comic.title, style: const TextStyle(fontSize: 22),),
                   ),
                 ),
               ),

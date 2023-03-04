@@ -114,7 +114,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ],
         );
       }else{
-        return showNetworkError(context, () {categoriesPageLogic.change();});
+        return showNetworkError(context, ()=>categoriesPageLogic.change(),showBack: false);
       }
     });
   }

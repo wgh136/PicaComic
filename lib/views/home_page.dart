@@ -136,7 +136,7 @@ class HomePage extends StatelessWidget {
           ),
         );
       }else{
-        return showNetworkError(context, () {homePageLogic.change();});
+        return showNetworkError(context, ()=>homePageLogic.change(),showBack: false);
       }
     });
   }

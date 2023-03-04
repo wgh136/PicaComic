@@ -87,9 +87,7 @@ class GamesPage extends StatelessWidget {
               ),
             );
           }else{
-            return showNetworkError(context, () {
-              logic.change();
-            });
+            return showNetworkError(context, ()=> logic.change(),showBack: false);
           }
         });
   }

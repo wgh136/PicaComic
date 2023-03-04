@@ -372,6 +372,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             setShut(context);
                           },
                         ),
+                        if(!GetPlatform.isWeb)
                         ListTile(
                           leading:Icon(Icons.network_ping,color: Theme.of(context).colorScheme.secondary),
                           title: const Text("设置代理"),

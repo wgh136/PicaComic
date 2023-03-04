@@ -31,6 +31,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   var updateFlag = true;
   var downloadFlag = true;
+  var downloadManagerFlag = true;
 
   List<Destination> destinations = <Destination>[
     const Destination(
@@ -128,7 +129,8 @@ class _MainPageState extends State<MainPage> {
     updateFlag = false;
 
     //检查是否有未完成的下载
-    if(downloadManager.downloading.isNotEmpty){
+    if(downloadManager.downloading.isNotEmpty&&downloadManagerFlag){
+      downloadManagerFlag = false;
       Future.delayed(const Duration(microseconds: 500),(){
         showDialog(context: context, builder: (dialogContext){
           return AlertDialog(
@@ -180,78 +182,102 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: Row(
-        children: [
-          if(MediaQuery.of(context).size.shortestSide>changePoint)
-          NavigationRail(
-            leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
-            selectedIndex: i,
-            trailing: Expanded(child: Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Flexible(child: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: ()=>Get.to(()=>PreSearchPage()),
-                  ),),
-                  Flexible(child: IconButton(
-                    icon: const Icon(Icons.leaderboard),
-                    onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
-                  ),),
-                  Flexible(child: IconButton(
-                    icon: const Icon(Icons.history),
-                    onPressed: ()=>Get.to(()=>const HistoryPage()),
-                  ),),
-                  Flexible(child: IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: ()=>Get.to(()=>const SettingsPage()),
-                  ),),
+      body: WillPopScope(
+        onWillPop: ()async{
+          bool exit = false;
+          if(downloadManager.downloading.isNotEmpty){
+            await showDialog(context: context, builder: (dialogContext){
+              return AlertDialog(
+                title: const Text("下载未完成"),
+                content: const Text("有未完成的下载, 确定退出?"),
+                actions: [
+                  TextButton(onPressed: ()=>Get.back(), child: const Text("否")),
+                  TextButton(onPressed: (){
+                    exit = true;
+                    downloadManager.pause();
+                    Get.back();
+                  }, child: const Text("是")),
+                ],
+              );
+            });
+          }else{
+            exit = true;
+          }
+          return exit;
+        },
+        child: Row(
+          children: [
+            if(MediaQuery.of(context).size.shortestSide>changePoint)
+              NavigationRail(
+                leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
+                selectedIndex: i,
+                trailing: Expanded(child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Flexible(child: IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: ()=>Get.to(()=>PreSearchPage()),
+                      ),),
+                      Flexible(child: IconButton(
+                        icon: const Icon(Icons.leaderboard),
+                        onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
+                      ),),
+                      Flexible(child: IconButton(
+                        icon: const Icon(Icons.history),
+                        onPressed: ()=>Get.to(()=>const HistoryPage()),
+                      ),),
+                      Flexible(child: IconButton(
+                        icon: const Icon(Icons.settings),
+                        onPressed: ()=>Get.to(()=>const SettingsPage()),
+                      ),),
+                    ],
+                  ),
+                ),),
+                groupAlignment: -1,
+                onDestinationSelected: (int index) {
+                  setState(() {
+                    i = index;
+                  });
+                },
+                labelType: NavigationRailLabelType.all,
+                destinations: const <NavigationRailDestination>[
+                  NavigationRailDestination(
+                    icon: Icon(Icons.person_outlined),
+                    selectedIcon: Icon(Icons.person),
+                    label: Text('我'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.explore_outlined),
+                    selectedIcon: Icon(Icons.explore),
+                    label: Text('探索'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.account_tree_outlined),
+                    selectedIcon: Icon(Icons.account_tree),
+                    label: Text('分类'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.games_outlined),
+                    selectedIcon: Icon(Icons.games),
+                    label: Text('游戏'),
+                  ),
                 ],
               ),
-            ),),
-            groupAlignment: -1,
-            onDestinationSelected: (int index) {
-              setState(() {
-                i = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            destinations: const <NavigationRailDestination>[
-              NavigationRailDestination(
-                icon: Icon(Icons.person_outlined),
-                selectedIcon: Icon(Icons.person),
-                label: Text('我'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.explore_outlined),
-                selectedIcon: Icon(Icons.explore),
-                label: Text('探索'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.account_tree_outlined),
-                selectedIcon: Icon(Icons.account_tree),
-                label: Text('分类'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.games_outlined),
-                selectedIcon: Icon(Icons.games),
-                label: Text('游戏'),
-              ),
-            ],
-          ),
-          if(MediaQuery.of(context).size.shortestSide>changePoint)
-          const VerticalDivider(),
-          Expanded(
-            child: ClipRect(
-              child: Navigator(
-                onGenerateRoute: (settings) => MaterialPageRoute(
-                  builder: (context) => pages[i],
+            if(MediaQuery.of(context).size.shortestSide>changePoint)
+              const VerticalDivider(),
+            Expanded(
+              child: ClipRect(
+                child: Navigator(
+                  onGenerateRoute: (settings) => MaterialPageRoute(
+                    builder: (context) => pages[i],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       drawer: MediaQuery.of(context).size.shortestSide>changePoint?null:NavigationDrawer(
         selectedIndex: null,

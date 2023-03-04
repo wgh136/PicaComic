@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 
-Widget showNetworkError(BuildContext context, void Function() retry){
+Widget showNetworkError(BuildContext context, void Function() retry, {showBack = true}){
   return SafeArea(child: Stack(
     children: [
+      if(showBack)
       Positioned(
         left: 8,
         top: 12,

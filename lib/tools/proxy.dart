@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../base.dart';
@@ -10,6 +9,7 @@ Future<String?> getWindowsProxy() async{
   //只做了Windows端的自动检测
   //对于安卓, 大多数使用VPN进行代理, 无需设置代理地址
   //Web端流量走系统代理且无法进行设置
+  if(GetPlatform.isWeb) return null;
   if(!GetPlatform.isWindows)  return null;
 
   const channel = MethodChannel("kokoiro.xyz.pica_comic/proxy");
@@ -21,18 +21,17 @@ Future<String?> getWindowsProxy() async{
 void setImageProxy() async{
   //Image加载使用的是Image.network()和CachedNetworkImage(), 均使用flutter内置http进行网络请求
   var proxy = await getWindowsProxy();
-  if(proxy!=null) {
-    HttpOverrides.global = WindowsProxyHttpOverrides(proxy);
-  }
+  HttpOverrides.global = WindowsProxyHttpOverrides(proxy);
+
 }
 
 class WindowsProxyHttpOverrides extends HttpOverrides {
-  String proxy;
+  String? proxy;
   WindowsProxyHttpOverrides(this.proxy);
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);
-    client.findProxy = (uri) => 'PROXY $proxy;';
+    client.findProxy = proxy==null?null:(uri) => 'PROXY $proxy;';
     return client;
   }
 }

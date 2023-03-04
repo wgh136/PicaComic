@@ -85,7 +85,7 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,(){
-                      getWindowsProxy().then((s)=>print(s));
+                      print(appdata.settings[8]);
                     },"Debug"),
                   ],
                 )

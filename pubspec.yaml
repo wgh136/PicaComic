@@ -53,6 +53,7 @@ dependencies:
   flutter_file_dialog: any
   archive: any
   flutter_local_notifications: ^13.0.0
+  share_plus: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -111,7 +112,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-  #fonts:
-  #  - family: font
-  #    fonts:
-  #      - asset: fonts/NotoSansSC-Regular.otf
+  fonts:
+    - family: font
+      fonts:
+        - asset: fonts/NotoSansSC-Regular.otf
