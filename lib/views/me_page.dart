@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/profile_page.dart';
@@ -81,6 +83,10 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.favorite,()=>Get.to(()=>const FavoritesPage()),"收藏夹"),
                     mePageItem(context, Icons.download,()=>Get.to(()=>DownloadPage()),"已下载"),
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录"),
+                    if(kDebugMode)
+                    mePageItem(context, Icons.bug_report,(){
+                      getWindowsProxy().then((s)=>print(s));
+                    },"Debug"),
                   ],
                 )
               ],

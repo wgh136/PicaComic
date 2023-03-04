@@ -48,7 +48,8 @@ class Notifications{
       showProgress: true,
       maxProgress: total,
       progress: progress,
-      ongoing: true
+      ongoing: true,
+      onlyAlertOnce: true
     );
     NotificationDetails notificationDetails =
     NotificationDetails(android: androidNotificationDetails);

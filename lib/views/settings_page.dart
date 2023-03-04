@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'me_page.dart';
@@ -190,6 +191,69 @@ class CalculateCacheLogic extends GetxController{
   }
 }
 
+class ProxyController extends GetxController{
+  bool value = appdata.settings[8] == "0";
+  late var controller = TextEditingController(
+    text: value?"":appdata.settings[8]
+  );
+}
+
+void setProxy(BuildContext context){
+  showDialog(context: context, builder: (dialogContext){
+    return GetBuilder(
+      init: ProxyController(),
+      builder: (controller){
+        return SimpleDialog(
+          title: const Text("设置代理"),
+          children: [
+            const SizedBox(width: 400,),
+            ListTile(
+              title: const Text("使用系统代理"),
+              subtitle: const Text("仅Windows端有效"),
+              trailing: Switch(
+                value: controller.value,
+                onChanged: (value){
+                  if(value == true){
+                    controller.controller.text = "";
+                  }
+                  controller.value = !controller.value;
+                  controller.update();
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+              child: TextField(
+                readOnly: controller.value,
+                controller: controller.controller,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: controller.value?"使用系统代理时无法手动设置":"设置代理, 例如127.0.0.1:8080"
+                ),
+              ),
+            ),
+            Center(
+              child: FilledButton(onPressed: (){
+                if(controller.value){
+                  appdata.settings[8] = "0";
+                  appdata.writeData();
+                  setImageProxy();
+                  Get.back();
+                }else{
+                  appdata.settings[8] = controller.controller.text;
+                  appdata.writeData();
+                  setImageProxy();
+                  Get.back();
+                }
+              }, child: const Text("确认")),
+            )
+          ],
+        );
+      }
+    );
+  });
+}
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
@@ -224,33 +288,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   const ListTile(
                     title: Text("浏览"),
-                  ),
-                  ListTile(
-                    leading:Icon(Icons.hub_outlined,color: Theme.of(context).colorScheme.secondary),
-                    title: const Text("设置分流"),
-                    trailing: const Icon(Icons.arrow_right,),
-                    onTap: (){
-                      setShut(context);
-                    },
-                  ),
-
-                  if(!GetPlatform.isWeb)
-                  ListTile(
-                    leading: Icon(Icons.change_circle,color: Theme.of(context).colorScheme.secondary),
-                    title: const Text("使用转发服务器"),
-                    subtitle: const Text("同时使用网络代理工具会减慢速度"),
-                    trailing: Switch(
-                      value: useMyServer,
-                      onChanged: (b){
-                        b?appdata.settings[3] = "1":appdata.settings[3]="0";
-                        setState(() {
-                          useMyServer = b;
-                        });
-                        network.updateApi();
-                        appdata.writeData();
-                      },
-                    ),
-                    onTap: (){},
                   ),
                   ListTile(
                     leading: Icon(Icons.manage_search_outlined,color: Theme.of(context).colorScheme.secondary),
@@ -305,6 +342,55 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: [
                   const ListTile(
+                    title: Text("网络"),
+                  ),
+                  if(!GetPlatform.isWeb)
+                    ListTile(
+                      leading: Icon(Icons.change_circle,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("使用转发服务器"),
+                      subtitle: const Text("同时使用网络代理工具会减慢速度"),
+                      trailing: Switch(
+                        value: useMyServer,
+                        onChanged: (b){
+                          b?appdata.settings[3] = "1":appdata.settings[3]="0";
+                          setState(() {
+                            useMyServer = b;
+                          });
+                          network.updateApi();
+                          appdata.writeData();
+                        },
+                      ),
+                      onTap: (){},
+                    ),
+                    ListTile(
+                      leading:Icon(Icons.hub_outlined,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("设置分流"),
+                      trailing: const Icon(Icons.arrow_right,),
+                      onTap: (){
+                        setShut(context);
+                      },
+                    ),
+                    ListTile(
+                      leading:Icon(Icons.network_ping,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("设置代理"),
+                      trailing: const Icon(Icons.arrow_right,),
+                      onTap: (){
+                        setProxy(context);
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: Divider(),
+          ),
+          SliverToBoxAdapter(
+            child: Card(
+              elevation: 0,
+              child: Column(
+                children: [
+                  const ListTile(
                     title: Text("阅读"),
                   ),
                   ListTile(
@@ -325,6 +411,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: Icon(Icons.volume_mute,color: Theme.of(context).colorScheme.secondary),
                     title: const Text("使用音量键翻页"),
+                    subtitle: const Text("仅安卓端有效"),
                     trailing: Switch(
                       value: useVolumeKeyChangePage,
                       onChanged: (b){

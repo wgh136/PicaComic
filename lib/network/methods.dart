@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
+import 'package:pica_comic/network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -29,8 +30,7 @@ class Network{
 
   Future<Map<String, dynamic>?> get(String url) async{
     status = false;
-    var dio = Dio()
-      ..interceptors.add(LogInterceptor());
+    var dio = await request();
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
 
     //从url获取json
@@ -66,8 +66,7 @@ class Network{
 
   Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
     status = false;
-    var dio = Dio()
-      ..interceptors.add(LogInterceptor());
+    var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     //从url获取json
     if (kDebugMode) {
@@ -509,7 +508,7 @@ class Network{
     //上传头像
     //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
     var url = "$apiUrl/users/avatar";
-    var dio = Dio();
+    var dio = await request();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"avatar": imageData});
@@ -522,8 +521,7 @@ class Network{
 
   Future<bool> changeSlogan(String slogan) async{
     var url = "$apiUrl/users/profile";
-    var dio = Dio()
-      ..interceptors.add(LogInterceptor());
+    var dio = await request();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"slogan": slogan});
@@ -728,7 +726,7 @@ class Network{
   Future<bool> changePassword(String oldPassword, String newPassword) async{
     status = false;
     var url = "$apiUrl/users/password";
-    var dio = Dio();
+    var dio = await request();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(
@@ -749,7 +747,7 @@ class Network{
   }
 
   Future<void> downloadImage(String url, String path) async{
-    var dio = Dio();
+    var dio = await request();
     dio.download(url, path);
   }
 }
