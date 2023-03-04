@@ -172,6 +172,7 @@ class DownloadManage{
   void whenError(){
     pause();
     error = true;
+    notifications.sendNotification("下载出错", "点击查看详情");
     handleError();
   }
 
@@ -228,6 +229,7 @@ class DownloadComic{
   bool pauseFlag = false;
   var eps = <String>[];
   int downloadPages = 0;
+  int retryTimes = 0;
   void Function() whenFinish;
   void Function() updateUi = (){}; //创建downloadingTile时修改这个值
   void Function() whenError;
@@ -242,7 +244,18 @@ class DownloadComic{
     urls = await network.getComicContent(id, downloadingEps);
   }
 
+  void retry(){
+    //允许重试两次
+    if(retryTimes>2){
+      whenError();
+    }else{
+      retryTimes++;
+      start();
+    }
+  }
+
   Future<void> start() async{
+    retryTimes = 0;
     notifications.sendProgressNotification(downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
     pauseFlag = false;
     if(eps.isEmpty){
@@ -266,8 +279,8 @@ class DownloadComic{
           print(e);
         }
         if(pauseFlag) return;
-        //下载出错停止
-        whenError();
+        //下载出错重试
+        retry();
         return;
       }
       downloadingEps++;
@@ -305,8 +318,8 @@ class DownloadComic{
             print(e);
           }
           if(pauseFlag) return;
-          //下载出错停止
-          whenError();
+          //下载出错重试
+          retry();
         }
       }
       downloadingEps++;
