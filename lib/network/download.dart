@@ -141,6 +141,7 @@ class DownloadManage{
     error = false;
     if(isDownloading) return;
     var comic = downloading.first;
+    comic.retryTimes = 0;
     comic.start();
     isDownloading = true;
   }
@@ -255,7 +256,6 @@ class DownloadComic{
   }
 
   Future<void> start() async{
-    retryTimes = 0;
     notifications.sendProgressNotification(downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
     pauseFlag = false;
     if(eps.isEmpty){
@@ -320,6 +320,7 @@ class DownloadComic{
           if(pauseFlag) return;
           //下载出错重试
           retry();
+          return;
         }
       }
       downloadingEps++;

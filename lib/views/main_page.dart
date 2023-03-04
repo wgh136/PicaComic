@@ -66,6 +66,15 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    //清除未正常退出时的下载通知
+    try {
+      notifications.endProgress();
+    }
+    catch(e){
+      //不清楚清除一个不存在的通知会不会引发错误
+    }
+
+    //检查是否打卡
     if(appdata.user.isPunched==false&&appdata.settings[6]=="1"){
       network.punchIn().then((b){
         if(b){
@@ -75,6 +84,8 @@ class _MainPageState extends State<MainPage> {
         }
       });
     }
+
+    //获取热搜
     if(hotSearch.isEmpty) {
       network.getKeyWords().then((s){
       if(s!=null){
@@ -83,6 +94,7 @@ class _MainPageState extends State<MainPage> {
     });
     }
 
+    //检查更新
     if(appdata.settings[2]=="1"&&updateFlag) {
       checkUpdate().then((b){
       if(b!=null){
@@ -114,6 +126,26 @@ class _MainPageState extends State<MainPage> {
     });
     }
     updateFlag = false;
+
+    //检查是否有未完成的下载
+    if(downloadManager.downloading.isNotEmpty){
+      Future.delayed(const Duration(microseconds: 500),(){
+        showDialog(context: context, builder: (dialogContext){
+          return AlertDialog(
+            title: const Text("下载管理器"),
+            content: const Text("有未完成的下载, 是否继续?"),
+            actions: [
+              TextButton(onPressed: ()=>Get.back(), child: const Text("否")),
+              TextButton(onPressed: (){
+                downloadManager.start();
+                Get.back();
+              }, child: const Text("是"))
+            ],
+          );
+        });
+      });
+    }
+
     return Scaffold(
       floatingActionButton: i==1?FloatingActionButton(
         onPressed: () {
