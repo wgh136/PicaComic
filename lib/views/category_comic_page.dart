@@ -146,7 +146,7 @@ class CategoryComicPage extends StatelessWidget {
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 600,
-                    childAspectRatio: 4,
+                    childAspectRatio: 3.5,
                   ),
                 ),
                 if(categoryComicPageLogic.search.loaded!=categoryComicPageLogic.search.pages&&categoryComicPageLogic.search.pages!=1)

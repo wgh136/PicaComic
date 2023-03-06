@@ -13,7 +13,7 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
     return SafeArea(child: Stack(
       children: [
         Positioned(
-          left: 4,
+          left: 8,
           top: 8,
           child: IconButton(
             iconSize: 24,

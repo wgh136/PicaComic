@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/network/methods.dart';
-import 'package:pica_comic/views/widgets/save_image.dart';
+import 'package:pica_comic/tools/save_image.dart';
 
 import '../base.dart';
 
@@ -67,7 +67,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                 child: IconButton(
                   icon: const Icon(Icons.download),
                   onPressed: () async{
-                    saveImage(url, context);
+                    saveImage(url);
                   },
                 ),
               )

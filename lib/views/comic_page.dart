@@ -10,6 +10,7 @@ import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/base.dart';
@@ -400,7 +401,7 @@ class ComicPage extends StatelessWidget{
                                     showMessage(context, "无网络");
                                     return;
                                   }
-                                  Get.to(()=>CommentsPage(comic.id));
+                                  showAdaptiveWidget(context, CommentsPage(comic.id));
                                 },
                               ),),
                             ],
@@ -648,7 +649,7 @@ class ComicPage extends StatelessWidget{
                                         showMessage(context, "无网络");
                                         return;
                                       }
-                                      Get.to(()=>CommentsPage(comic.id));
+                                      showAdaptiveWidget(context, CommentsPage(comic.id));
                                     },
                                   ),),
                                 ],

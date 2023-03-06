@@ -588,18 +588,18 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "81c1f32496ff04476d6ddfe5894215b1034d185301d2e3dffd272853392c5ea7"
+      sha256: "1128b2b3801b6176d2e0f27800658c43788ddba2799704c9743a083b2c81a8fc"
       url: "https://pub.dev"
     source: hosted
-    version: "6.20.1"
+    version: "6.21.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "5ca2c8d86c220f7ad3109bedceb2c51b0e90bac5218e732be98ea2cba8006461"
+      sha256: "56d12444ce0ee6d903ca5434da1b89c711af144a846aa5c7e8f32002d86127db"
       url: "https://pub.dev"
     source: hosted
-    version: "6.20.1"
+    version: "6.21.0"
   share_plus:
     dependency: "direct main"
     description:

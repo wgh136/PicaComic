@@ -68,7 +68,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width/2-200>0?MediaQuery.of(context).size.width/2-200:0, 20, MediaQuery.of(context).size.width/2-200>0?MediaQuery.of(context).size.width/2-200:0, 0),
+              padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width>600?80:0, 20, MediaQuery.of(context).size.width>600?80:0, 0),
               child: Card(
                 elevation: 0,
                 color: Theme.of(context).colorScheme.secondaryContainer,

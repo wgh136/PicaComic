@@ -27,6 +27,7 @@ class _CommentTileState extends State<CommentTile> {
     return GestureDetector(
       onSecondaryTapUp: (details){
         showMenu(
+          useRootNavigator: true,
             context: context,
             position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
             items: [
@@ -41,7 +42,7 @@ class _CommentTileState extends State<CommentTile> {
         );
       },
       child: InkWell(
-        onTap: ()=>Get.to(()=>ReplyPage(comment.id,comment)),
+        onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment))),
         onLongPress: (){
           Clipboard.setData(ClipboardData(text: comment.text));
           showMessage(context, "评论内容已复制");
@@ -103,6 +104,7 @@ class _CommentTileState extends State<CommentTile> {
                           height: 40,
                           child: ActionChip(
                             side: BorderSide.none,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                             label: Text(comment.likes.toString()),
                             avatar: Icon((comment.isLiked)?Icons.favorite:Icons.favorite_border),
                             onPressed: (){
@@ -123,10 +125,11 @@ class _CommentTileState extends State<CommentTile> {
                             width: 80,
                             height: 40,
                             child: ActionChip(
+                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                               side: BorderSide.none,
                               label: Text(comment.reply.toString()),
                               avatar: const Icon(Icons.comment_outlined),
-                              onPressed: ()=>Get.to(()=>ReplyPage(comment.id,comment)),
+                              onPressed: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment))),
                             ),
                           )
                       ],
@@ -168,6 +171,7 @@ class _CommentTileState extends State<CommentTile> {
                 Tooltip(
                   message: "喜欢",
                   child: IconButton(
+                    hoverColor: Colors.transparent,
                     icon: Icon((comment.isLiked)?Icons.favorite:Icons.favorite_border,size: 20,),
                     onPressed: (){
                       network.likeOrUnlikeComment(comment.id);

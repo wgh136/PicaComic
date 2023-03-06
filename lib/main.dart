@@ -23,7 +23,7 @@ void main() {
         options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
         // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
         // We recommend adjusting this value in production.
-        options.tracesSampleRate = 0;
+        options.tracesSampleRate = 1.0;
       },
       appRunner: () async{
         runApp(const MyApp());

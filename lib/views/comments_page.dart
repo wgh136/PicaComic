@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../network/models.dart';
 
@@ -23,6 +22,24 @@ class CommentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("评论"),
+        actions: [
+          Tooltip(
+            message: "发言",
+            child: IconButton(
+              icon: Icon(Icons.message,color: Theme.of(context).colorScheme.primary,),
+              onPressed: (){
+                giveComment(context, id, false,type: type).then((b){
+                  if(b){
+                    Get.find<CommentsPageLogic>().change();
+                  }
+                });
+              },
+            ),
+          ),
+        ],
+      ),
       body: GetBuilder<CommentsPageLogic>(
         init: CommentsPageLogic(),
         builder: (commentsPageLogic){
@@ -31,31 +48,14 @@ class CommentsPage extends StatelessWidget {
             commentsPageLogic.comments = c;
             commentsPageLogic.change();
           });
-          return showLoading(context);
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }else if(commentsPageLogic.comments.loaded==0){
           return showNetworkError(context, () {commentsPageLogic.change();});
         }else{
           return CustomScrollView(
             slivers: [
-              SliverAppBar.large(
-                centerTitle: true,
-                title: const Text("评论"),
-                actions: [
-                  Tooltip(
-                    message: "发言",
-                    child: IconButton(
-                      icon: Icon(Icons.message,color: Theme.of(context).colorScheme.primary,),
-                      onPressed: (){
-                        giveComment(context, id, false,type: type).then((b){
-                          if(b){
-                            commentsPageLogic.change();
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
               SliverList(delegate: SliverChildBuilderDelegate(
                 childCount: commentsPageLogic.comments.comments.length,
                   (context,index){

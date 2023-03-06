@@ -173,12 +173,14 @@ class CategoryTile extends StatelessWidget {
 }
 
 void showMessage(context, String message, {int time=1}){
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    width: 350,
+  Get.showSnackbar(GetSnackBar(
+    message: message,
+    maxWidth: 350,
+    snackStyle: SnackStyle.FLOATING,
+    margin: const EdgeInsets.all(5),
+    animationDuration: const Duration(microseconds: 400),
+    borderRadius: 10,
     duration: Duration(seconds: time),
-    content: Text(message),
-    behavior: SnackBarBehavior.floating,
   ));
 }
 

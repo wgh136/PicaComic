@@ -80,7 +80,7 @@ class LeaderBoardH24 extends StatelessWidget {
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 600,
-                childAspectRatio: 4,
+                childAspectRatio: 3.5,
               ),
             )
           ],
@@ -132,7 +132,7 @@ class LeaderBoardD7 extends StatelessWidget {
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 600,
-                childAspectRatio: 4,
+                childAspectRatio: 3.5,
               ),
             )
           ],
@@ -184,7 +184,7 @@ class LeaderBoardD30 extends StatelessWidget {
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 600,
-                childAspectRatio: 4,
+                childAspectRatio: 3.5,
               ),
             ),
             SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))

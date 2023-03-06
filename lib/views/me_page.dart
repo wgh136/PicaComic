@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
-import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/profile_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
 import 'favorites_page.dart';
 
@@ -79,13 +79,13 @@ class MePage extends StatelessWidget {
                 ),
                 Wrap(
                   children: [
-                    mePageItem(context, Icons.person,()=>Get.to(()=>ProfilePage(infoController)),"个人信息"),
+                    mePageItem(context, Icons.person,()=>showAdaptiveWidget(context, ProfilePage(infoController)),"个人信息"),
                     mePageItem(context, Icons.favorite,()=>Get.to(()=>const FavoritesPage()),"收藏夹"),
                     mePageItem(context, Icons.download,()=>Get.to(()=>DownloadPage()),"已下载"),
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,(){
-                      print(appdata.settings[8]);
+
                     },"Debug"),
                   ],
                 )
@@ -142,7 +142,7 @@ void logout(BuildContext context){
       content: const Text("要退出登录吗"),
       actionsAlignment: MainAxisAlignment.end,
       actions: [
-        TextButton(onPressed: (){Get.back();}, child: const Text("取消",textAlign: TextAlign.end,)),
+        TextButton(onPressed: ()=>Get.back(), child: const Text("取消",textAlign: TextAlign.end,)),
         TextButton(onPressed: (){
           appdata.token = "";
           appdata.history.clear();

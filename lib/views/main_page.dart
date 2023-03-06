@@ -7,6 +7,7 @@ import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../network/update.dart';
@@ -207,7 +208,29 @@ class _MainPageState extends State<MainPage> {
         },
         child: Row(
           children: [
-            if(MediaQuery.of(context).size.shortestSide>changePoint)
+            if(MediaQuery.of(context).size.width>changePoint2)
+              Container(
+                width: 340,
+                height: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.fromLTRB(28, 20, 28, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("      Pica Comic"),
+                    const SizedBox(height: 10,),
+                    NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
+                    NavigatorItem(Icons.explore_outlined,Icons.explore, "探索",i==1,()=>setState(()=>i=1)),
+                    NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类",i==2,()=>setState(()=>i=2)),
+                    NavigatorItem(Icons.games_outlined,Icons.games, "游戏",i==3,()=>setState(()=>i=3)),
+                    const Divider(),
+                    NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
+                    NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
+                    NavigatorItem(Icons.leaderboard,Icons.games, "排行榜",false,()=>Get.to(()=>const LeaderBoardPage())),
+                    NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, const SettingsPage()),),
+                  ],
+                ),
+              )
+            else if(MediaQuery.of(context).size.width>changePoint)
               NavigationRail(
                 leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
                 selectedIndex: i,
@@ -230,7 +253,7 @@ class _MainPageState extends State<MainPage> {
                       ),),
                       Flexible(child: IconButton(
                         icon: const Icon(Icons.settings),
-                        onPressed: ()=>Get.to(()=>const SettingsPage()),
+                        onPressed: ()=>showAdaptiveWidget(context, const SettingsPage()),
                       ),),
                     ],
                   ),
@@ -269,11 +292,7 @@ class _MainPageState extends State<MainPage> {
               const VerticalDivider(),
             Expanded(
               child: ClipRect(
-                child: Navigator(
-                  onGenerateRoute: (settings) => MaterialPageRoute(
-                    builder: (context) => pages[i],
-                  ),
-                ),
+                child: pages[i],
               ),
             ),
           ],
@@ -288,7 +307,7 @@ class _MainPageState extends State<MainPage> {
           }else if(t == 1){
             Get.to(()=>const LeaderBoardPage());
           }else{
-            Get.to(()=>const SettingsPage());
+            showAdaptiveWidget(context, const SettingsPage());
           }
         },
         children: <Widget>[
@@ -312,6 +331,42 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class NavigatorItem extends StatelessWidget {
+  const NavigatorItem(this.icon,this.selectedIcon,this.title,this.selected,this.onTap,{Key? key}) : super(key: key);
+  final IconData icon;
+  final IconData selectedIcon;
+  final String title;
+  final void Function() onTap;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+              color: selected?theme.secondaryContainer:null
+          ),
+          height: 56,
+          child: Row(
+            children: [
+              const SizedBox(width: 16,),
+              Icon(selected?selectedIcon:icon,color: theme.onSurfaceVariant,),
+              const SizedBox(width: 12,),
+              Text(title)
+            ],
+          ),
+        ),
+      )
     );
   }
 }

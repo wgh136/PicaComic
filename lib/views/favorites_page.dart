@@ -60,7 +60,7 @@ class FavoritesPage extends StatelessWidget {
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 600,
-                    childAspectRatio: 4,
+                    childAspectRatio: 3.5,
                   ),
                 ),
                 if(favoritesPageLogic.favorites.pages!=favoritesPageLogic.favorites.loaded&&favoritesPageLogic.favorites.pages!=1)
