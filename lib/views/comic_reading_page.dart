@@ -373,6 +373,24 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                         ),
                       if(comicReadingPageLogic.tools)
                         Positioned(
+                            bottom: Get.bottomBarHeight/2,
+                            right: 125,
+                            child: Tooltip(
+                              message: "分享",
+                              child: IconButton(
+                                icon: const Icon(Icons.share),
+                                onPressed: () async{
+                                  if(downloaded){
+                                    shareImageFromDisk(downloadManager.getImage(comicId, order, comicReadingPageLogic.index-1).path);
+                                  }else {
+                                    shareImageFromCache(comicReadingPageLogic.urls[comicReadingPageLogic.index-1]);
+                                  }
+                                },
+                              ),
+                            )
+                        ),
+                      if(comicReadingPageLogic.tools)
+                        Positioned(
                           top: 0,
                           child: Container(
                             decoration: BoxDecoration(
