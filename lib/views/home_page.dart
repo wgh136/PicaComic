@@ -111,8 +111,8 @@ class HomePage extends StatelessWidget {
                         }
                     ),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 600,
-                      childAspectRatio: 3.5,
+                      maxCrossAxisExtent: comicTileMaxWidth,
+                      childAspectRatio: comicTileAspectRatio,
                     ),
                   ),
                   SliverToBoxAdapter(

@@ -131,7 +131,6 @@ class _MainPageState extends State<MainPage> {
 
     //检查是否有未完成的下载
     if(downloadManager.downloading.isNotEmpty&&downloadManagerFlag){
-      downloadManagerFlag = false;
       Future.delayed(const Duration(microseconds: 500),(){
         showDialog(context: context, builder: (dialogContext){
           return AlertDialog(
@@ -148,6 +147,7 @@ class _MainPageState extends State<MainPage> {
         });
       });
     }
+    downloadManagerFlag = false;
 
     return Scaffold(
       floatingActionButton: i==1?FloatingActionButton(
@@ -209,7 +209,7 @@ class _MainPageState extends State<MainPage> {
         child: Row(
           children: [
             if(MediaQuery.of(context).size.width>changePoint2)
-              Container(
+              SafeArea(child: Container(
                 width: 340,
                 height: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.fromLTRB(28, 20, 28, 20),
@@ -229,7 +229,7 @@ class _MainPageState extends State<MainPage> {
                     NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, const SettingsPage()),),
                   ],
                 ),
-              )
+              ))
             else if(MediaQuery.of(context).size.width>changePoint)
               NavigationRail(
                 leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
@@ -288,8 +288,8 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ],
               ),
-            if(MediaQuery.of(context).size.shortestSide>changePoint)
-              const VerticalDivider(),
+            //if(MediaQuery.of(context).size.width>changePoint)
+            //  const VerticalDivider(),
             Expanded(
               child: ClipRect(
                 child: pages[i],
@@ -298,7 +298,7 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      drawer: MediaQuery.of(context).size.shortestSide>changePoint?null:NavigationDrawer(
+      drawer: MediaQuery.of(context).size.width>changePoint?null:NavigationDrawer(
         selectedIndex: null,
         onDestinationSelected: (t){
           Navigator.pop(context);

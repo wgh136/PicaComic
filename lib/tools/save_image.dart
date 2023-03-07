@@ -6,6 +6,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 void saveImage(String url) async{
@@ -80,5 +81,25 @@ void saveImageFromDisk(String image) async{
           await f.readAsBytes(), mimeType: mimeType, name: name);
       await file.saveTo(path);
     }
+  }
+}
+
+void shareImageFromCache(String url) async{
+  try{
+    var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+    Share.shareXFiles([XFile(file!.file.path)]);
+  }
+  catch(e){
+    print(e);
+    showMessage(Get.context, "分享失败");
+  }
+}
+
+void shareImageFromDisk(String path) async{
+  try{
+    Share.shareXFiles([XFile(path)]);
+  }
+  catch(e){
+    showMessage(Get.context, "分享失败");
   }
 }

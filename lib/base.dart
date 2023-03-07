@@ -7,10 +7,20 @@ import 'network/models.dart';
 
 var network = Network();
 
-const changePoint = 600; //定义宽屏设备的临界值
-const changePoint2 = 1200;
+//定义宽屏设备的临界值
+const changePoint = 600;
+const changePoint2 = 1300;
+
+//App版本
 const appVersion = "1.3.4";
+
+//路径分隔符
 var pathSep = Platform.pathSeparator;
+
+//ComicTile的最大宽度
+const double comicTileMaxWidth = 600.0;
+//ComicTile的宽高比
+const double comicTileAspectRatio = 3.0;
 
 var hotSearch = <String>[];
 var downloadManager = DownloadManage();

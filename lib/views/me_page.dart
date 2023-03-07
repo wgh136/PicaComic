@@ -41,8 +41,8 @@ class MePage extends StatelessWidget {
           const SliverAppBar(
             title: Text(""),
           ),
-        if(MediaQuery.of(context).size.height/2-285-64>0&&MediaQuery.of(context).size.shortestSide>changePoint)
-          SliverPadding(padding: EdgeInsets.only(top: (MediaQuery.of(context).size.height)/2-285-64)),
+        if(MediaQuery.of(context).size.shortestSide>changePoint)
+          const SliverPadding(padding: EdgeInsets.only(top: 20),),
         SliverToBoxAdapter(
           child: SizedBox(
             width: 400,
@@ -79,14 +79,14 @@ class MePage extends StatelessWidget {
                 ),
                 Wrap(
                   children: [
-                    mePageItem(context, Icons.person,()=>showAdaptiveWidget(context, ProfilePage(infoController)),"个人信息"),
-                    mePageItem(context, Icons.favorite,()=>Get.to(()=>const FavoritesPage()),"收藏夹"),
-                    mePageItem(context, Icons.download,()=>Get.to(()=>DownloadPage()),"已下载"),
-                    mePageItem(context, Icons.logout,()=>logout(context),"退出登录"),
+                    mePageItem(context, Icons.person,()=>showAdaptiveWidget(context, ProfilePage(infoController)),"个人信息","查看或修改账号信息"),
+                    mePageItem(context, Icons.favorite,()=>Get.to(()=>const FavoritesPage()),"收藏夹","查看已收藏的漫画"),
+                    mePageItem(context, Icons.download,()=>Get.to(()=>DownloadPage()),"已下载","管理已下载的漫画"),
+                    mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,(){
-
-                    },"Debug"),
+                      network.get("https://api.kokoiro.xyz/test");
+                    },"Debug",""),
                   ],
                 )
               ],
@@ -99,33 +99,59 @@ class MePage extends StatelessWidget {
 }
 
 
-Widget mePageItem(BuildContext context, IconData icon, void Function() page, String title){
+Widget mePageItem(BuildContext context, IconData icon, void Function() page, String title, String subTitle){
+  double width;
+  double screenWidth = MediaQuery.of(context).size.width;
+  double padding = 10.0;
+  if(screenWidth>changePoint2){
+    screenWidth -= 450;
+    width = screenWidth/2 - padding*2;
+  }else if(screenWidth>changePoint){
+    screenWidth -= 100;
+    width = screenWidth/2 - padding*2;
+  }else{
+    width = screenWidth - padding*4;
+  }
+
+
+  if(width>400){
+    width = 400;
+  }
+
   return Padding(
-    padding: const EdgeInsets.all(20),
+    padding: EdgeInsets.fromLTRB(padding, 5, padding, 5),
     child: InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(12)),
       onTap: page,
       child: Container(
-        width: MediaQuery.of(context).size.width/2-50>200?200:MediaQuery.of(context).size.width/2-50,
-        height: 135,
+        width: width,
+        height: 140,
         decoration: BoxDecoration(
           border: Border.all(color: Theme.of(context).colorScheme.outline),
           borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
-        child: Column(
+        child: Row(
           children: [
-            SizedBox(
-              height: 90,
-              width: double.infinity,
+            Expanded(
+              flex: 1,
               child: Center(
-                  child: Icon(icon,size: 50,color: Theme.of(context).colorScheme.primary,)
-              ),
-            ),
-            SizedBox(
-              height: 40,
-              width: double.infinity,
-              child: Center(
-                child: Text(title,style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
+                child: Icon(icon,size: 50,color: Theme.of(context).colorScheme.primary,)
+            )),
+            const SizedBox(width: 5,),
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
+                    child: Text(title,style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w600),),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+                    child: Text(subTitle),
+                  )
+                ],
               ),
             )
           ],

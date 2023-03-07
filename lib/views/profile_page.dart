@@ -68,10 +68,10 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width>600?80:0, 20, MediaQuery.of(context).size.width>600?80:0, 0),
+              padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
               child: Card(
                 elevation: 0,
-                color: Theme.of(context).colorScheme.secondaryContainer,
+                //color: Theme.of(context).colorScheme.secondaryContainer,
                 child: Column(
                   children: [
                     ListTile(
@@ -311,14 +311,18 @@ class ProfilePage extends StatelessWidget {
                                 title: const Text("更改自我介绍"),
                                 children: [
                                   SizedBox(
-                                    width: MediaQuery.of(context).size.width*0.75,
+                                    width: 400,
                                     child: Column(
                                       children: [
-                                        Padding(padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),child:                                   TextField(
+                                        Padding(padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),child: TextField(
+                                          maxLines: 5,
                                           controller: logic.controller,
                                           keyboardType: TextInputType.text,
+                                          decoration: const InputDecoration(
+                                            border: OutlineInputBorder()
+                                          ),
                                         ),),
-                                        const SizedBox(height: 40,),
+                                        const SizedBox(height: 20,),
                                         if(!logic.isUploading)
                                           FilledButton(onPressed: (){
                                             if(logic.controller.text == ""){
@@ -347,24 +351,24 @@ class ProfilePage extends StatelessWidget {
                                         if(!logic.isUploading&&logic.status)
                                           SizedBox(
                                               width: 100,
-                                              height: 50,
+                                              height: 30,
                                               child: Row(
-                                                children: const [
-                                                  Icon(Icons.error),
-                                                  Spacer(),
-                                                  Text("网络错误")
+                                                children: [
+                                                  Icon(Icons.error,color: Theme.of(context).colorScheme.error,),
+                                                  const Spacer(),
+                                                  Text("网络错误",style: TextStyle(color: Theme.of(context).colorScheme.error,),)
                                                 ],
                                               )
                                           ),
                                         if(!logic.isUploading&&logic.status2)
                                           SizedBox(
                                               width: 100,
-                                              height: 50,
+                                              height: 30,
                                               child: Row(
-                                                children: const [
-                                                  Icon(Icons.error),
-                                                  Spacer(),
-                                                  Text("不能为空")
+                                                children: [
+                                                  Icon(Icons.error,color: Theme.of(context).colorScheme.error,),
+                                                  const Spacer(),
+                                                  Text("不能为空",style: TextStyle(color: Theme.of(context).colorScheme.error,),)
                                                 ],
                                               )
                                           ),

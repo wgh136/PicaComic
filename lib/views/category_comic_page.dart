@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 
@@ -33,13 +34,11 @@ class CategoryComicPage extends StatelessWidget {
         init: CategoryComicPageLogic(),
         builder: (categoryComicPageLogic){
         if(categoryComicPageLogic.isLoading){
-          network.searchNew(keyWord, appdata.settings[1]).then((s){
+          network.getCategoryComics(keyWord, appdata.settings[1]).then((s){
             categoryComicPageLogic.search = s;
             categoryComicPageLogic.change();
           });
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return showLoading(context);
         }else{
           if(categoryComicPageLogic.search.comics.isNotEmpty){
             return CustomScrollView(
@@ -49,7 +48,7 @@ class CategoryComicPage extends StatelessWidget {
                   title: Text(keyWord),
                   actions: [
                     Tooltip(
-                      message: "选择搜索及分类排序模式",
+                      message: "选择漫画排序模式",
                       child: IconButton(
                         icon: const Icon(Icons.manage_search_rounded),
                         onPressed: (){
@@ -137,7 +136,7 @@ class CategoryComicPage extends StatelessWidget {
                       childCount: categoryComicPageLogic.search.comics.length,
                           (context, i){
                         if(i == categoryComicPageLogic.search.comics.length-1&&categoryComicPageLogic.search.loaded!=categoryComicPageLogic.search.pages){
-                          network.loadMoreSearch(categoryComicPageLogic.search).then((c){
+                          network.getMoreCategoryComics(categoryComicPageLogic.search).then((c){
                             categoryComicPageLogic.update();
                           });
                         }
@@ -145,8 +144,8 @@ class CategoryComicPage extends StatelessWidget {
                       }
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 600,
-                    childAspectRatio: 3.5,
+                    maxCrossAxisExtent: comicTileMaxWidth,
+                    childAspectRatio: comicTileAspectRatio,
                   ),
                 ),
                 if(categoryComicPageLogic.search.loaded!=categoryComicPageLogic.search.pages&&categoryComicPageLogic.search.pages!=1)

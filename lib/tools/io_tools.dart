@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
@@ -53,6 +54,7 @@ Future<double> calculateCacheSize() async{
 
 Future<void> eraseCache() async{
   if(GetPlatform.isAndroid) {
+    await DefaultCacheManager().emptyCache();
     var path = await getTemporaryDirectory();
     for(var i in path.listSync()){
       await i.delete(recursive: true);

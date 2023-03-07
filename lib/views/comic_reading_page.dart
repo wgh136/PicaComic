@@ -46,12 +46,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
   late final int order = widget.order;
   bool downloaded = false;
   ListenVolumeController? listenVolume;
-  var epsWidgets = <Widget>[
-    const ListTile(
-      leading: Icon(Icons.library_books),
-      title: Text("章节"),
-    ),
-  ];
+  var epsWidgets = <Widget>[];
 
   @override
   initState() {
@@ -71,6 +66,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawerEnableOpenDragGesture: false,
       key: _scaffoldKey,
       endDrawer: Drawer(
         child: ListView(
@@ -85,6 +81,17 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
               comicReadingPageLogic.index = 1;
               comicReadingPageLogic.controller = PageController(initialPage: 1);
               comicReadingPageLogic.tools = false;
+              if(epsWidgets.isEmpty){
+                epsWidgets.add(
+                  ListTile(
+                    leading: Icon(
+                      Icons.library_books,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                    title: const Text("章节"),
+                  ),
+                );
+              }
               if(epsWidgets.length==1) {
                 for (int i = 1; i < eps.length; i++) {
                   epsWidgets.add(ListTile(
@@ -185,21 +192,6 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                       imageProvider: CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index-1])),
                                       initialScale: PhotoViewComputedScale.contained,
                                       heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
-                                      onTapUp: (context,detail,value){
-                                        if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75){
-                                          comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
-                                        }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25){
-                                          comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
-                                        }else{
-                                          comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
-                                          comicReadingPageLogic.update();
-                                          if(comicReadingPageLogic.tools){
-                                            SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-                                          }else{
-                                            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-                                          }
-                                        }
-                                      }
                                   );
                                 }
                               }else{
@@ -255,6 +247,29 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                             },
                           ),
                         )
+                      ),
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTapUp: (detail){
+                            if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx>MediaQuery.of(context).size.width*0.75){
+                              comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);
+                            }else if(appdata.settings[0]=="1"&&!comicReadingPageLogic.tools&&detail.globalPosition.dx<MediaQuery.of(context).size.width*0.25){
+                              comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);
+                            }else{
+                              comicReadingPageLogic.tools = !comicReadingPageLogic.tools;
+                              comicReadingPageLogic.update();
+                              if(comicReadingPageLogic.tools){
+                                SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+                              }else{
+                                SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+                              }
+                            }
+                          },
+                        ),
                       ),
                       if(comicReadingPageLogic.tools&&comicReadingPageLogic.index!=0&&comicReadingPageLogic.index!=comicReadingPageLogic.urls.length+1)
                         Positioned(
@@ -333,6 +348,24 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                     saveImageFromDisk(downloadManager.getImage(comicId, order, comicReadingPageLogic.index-1).path);
                                   }else {
                                     saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index-1]);
+                                  }
+                                },
+                              ),
+                            )
+                        ),
+                      if(comicReadingPageLogic.tools&&!GetPlatform.isWeb)
+                        Positioned(
+                            bottom: Get.bottomBarHeight/2,
+                            right: 125,
+                            child: Tooltip(
+                              message: "分享",
+                              child: IconButton(
+                                icon: const Icon(Icons.share),
+                                onPressed: () async{
+                                  if(downloaded){
+                                    shareImageFromDisk(downloadManager.getImage(comicId, order, comicReadingPageLogic.index-1).path);
+                                  }else {
+                                    shareImageFromCache(comicReadingPageLogic.urls[comicReadingPageLogic.index-1]);
                                   }
                                 },
                               ),

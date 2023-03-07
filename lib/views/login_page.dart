@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                               behavior: SnackBarBehavior.floating,
                               width: 400,
-                              content: Text("账号或密码错误"),
+                              content: Text("网络错误"),
                             ));
                             setState(() {
                               isLogging = false;
@@ -201,7 +201,7 @@ class _LoginPageState extends State<LoginPage> {
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                               behavior: SnackBarBehavior.floating,
                               width: 400,
-                              content: Text("账号或密码错误"),
+                              content: Text("网络错误"),
                             ));
                             setState(() {
                               isLogging = false;

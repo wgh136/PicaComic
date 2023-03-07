@@ -254,8 +254,8 @@ class DownloadPage extends StatelessWidget {
                       childCount: logic.comics.length,
                     ),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 600,
-                      childAspectRatio: 3.5,
+                      maxCrossAxisExtent: comicTileMaxWidth,
+                      childAspectRatio: comicTileAspectRatio,
                     ),
                   ),
                   SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))

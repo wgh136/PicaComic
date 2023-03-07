@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'models.dart';
@@ -269,7 +270,7 @@ class DownloadComic{
     if(downloadingEps==0){
       try {
         var dio = await request();
-        var res = await dio.get(comic.thumbUrl, options: Options(responseType: ResponseType.bytes));
+        var res = await dio.get(getImageUrl(comic.thumbUrl), options: Options(responseType: ResponseType.bytes));
         var file = File("$path$pathSep$id${pathSep}cover.jpg");
         if(! await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(res.data));
@@ -301,7 +302,7 @@ class DownloadComic{
         if(pauseFlag) return;
         try {
           var dio = await request();
-          var res = await dio.get(urls[index], options: Options(responseType: ResponseType.bytes));
+          var res = await dio.get(getImageUrl(urls[index]), options: Options(responseType: ResponseType.bytes));
           var file = File("$path$pathSep$id$pathSep$downloadingEps$pathSep$index.jpg");
           if(! await file.exists()) await file.create();
           await file.writeAsBytes(Uint8List.fromList(res.data));
