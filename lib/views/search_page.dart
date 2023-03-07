@@ -43,6 +43,19 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.search),
+          onPressed: (){
+            var s = Get.find<SearchPageLogic>().controller.text;
+            if(s=="") return;
+            searchPageLogic.change();
+            //controller.jumpTo(0);
+            network.searchNew(s, appdata.settings[1],addToHistory: true).then((t){
+              searchPageLogic.searchResult = t;
+              searchPageLogic.change();
+            });
+          },
+        ),
         body: SafeArea(
           child: CustomScrollView(
             slivers: [
@@ -172,8 +185,8 @@ class SearchPage extends StatelessWidget {
                           }
                       ),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 600,
-                        childAspectRatio: 4,
+                        maxCrossAxisExtent: comicTileMaxWidth,
+                        childAspectRatio: comicTileAspectRatio,
                       ),
                     );
                   }else{

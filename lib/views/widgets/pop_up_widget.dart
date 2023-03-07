@@ -19,11 +19,11 @@ class PopUpWidget<T> extends PopupRoute<T>{
     return Center(
       child: Container(
         decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         clipBehavior: Clip.antiAlias,
-        width: 600,
-        height: MediaQuery.of(context).size.height*0.8,
+        width: 500,
+        height: MediaQuery.of(context).size.height*0.9,
         child: ClipRect(
           child: Navigator(
             onGenerateRoute: (settings) => MaterialPageRoute(

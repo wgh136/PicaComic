@@ -155,7 +155,11 @@ class _CommentTileState extends State<CommentTile> {
                             slogan: comment.slogan,
                             level: comment.level,
                           )),
-                          Expanded(child: Text(comment.name)),
+                          Expanded(child: Text(
+                            comment.name,
+                            style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                          )),
                         ],
                       ),
                     ),
@@ -164,7 +168,8 @@ class _CommentTileState extends State<CommentTile> {
                     Padding(padding: const EdgeInsets.only(left: 6),child: Text(
                       "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}  ${comment.reply}回复  ${comment.likes}喜欢",
                       style: const TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100),
-                    ),)
+                    ),),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
                   ],
                 ),
                 ),
@@ -210,12 +215,16 @@ Future<bool> giveComment(BuildContext context, String id, bool isReply, {String 
         title: const Text("发表评论"),
         children: [
           SizedBox(
-            width: Get.size.width*0.75,
+            width: 400,
             child: Column(
               children: [
                 Padding(padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),child: TextField(
+                  maxLines: 5,
                   controller: logic.controller,
                   keyboardType: TextInputType.text,
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder()
+                  ),
                 ),),
                 const SizedBox(height: 30,),
                 if(!logic.isUploading)

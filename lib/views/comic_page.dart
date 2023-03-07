@@ -11,6 +11,7 @@ import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/base.dart';
@@ -184,7 +185,10 @@ class ComicPage extends StatelessWidget{
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
                   child: SizedBox(
                     width: double.infinity,
-                    child: SelectableText(comic.title, style: const TextStyle(fontSize: 22),),
+                    child: SelectableTextCN(
+                      text: comic.title,
+                      style: const TextStyle(fontSize: 22),
+                    ),
                   ),
                 ),
               ),
@@ -725,7 +729,7 @@ class ComicPage extends StatelessWidget{
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                  child: Text(logic.comicItem!.description),
+                  child: SelectableTextCN(text:logic.comicItem!.description),
                 ),
               ),
               const SliverPadding(padding: EdgeInsets.all(5)),
@@ -749,8 +753,8 @@ class ComicPage extends StatelessWidget{
                     }
                 ),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 600,
-                  childAspectRatio: 3.5,
+                  maxCrossAxisExtent: comicTileMaxWidth,
+                  childAspectRatio: comicTileAspectRatio,
                 ),
               ),
               if(!downloaded)

@@ -59,7 +59,12 @@ class Network{
         return null;
       }
     }
-    catch(e){
+    on DioError catch(e){
+      sendNetworkLog(url, e.message.toString());
+      if(e.type == DioErrorType.badResponse){
+        status = true;
+        message = e.message.toString();
+      }
       return null;
     }
   }
@@ -96,9 +101,11 @@ class Network{
         return null;
       }
     }
-    catch(e){
-      if (kDebugMode) {
-        print(e);
+    on DioError catch(e){
+      sendNetworkLog(url, e.message.toString());
+      if(e.type == DioErrorType.badResponse){
+        status = true;
+        message = e.message.toString();
       }
       return null;
     }
@@ -750,8 +757,44 @@ class Network{
     var dio = await request();
     dio.download(url, path);
   }
+
+  Future<void> getMoreCategoryComics(SearchResult s) async{
+    if(s.loaded!=s.pages){
+      var res  = await get('$apiUrl/comics?page=${s.loaded+1}&c=${Uri.encodeComponent(s.keyWord)}&s=${s.sort}');
+      if(res!=null) {
+        s.loaded++;
+        s.pages = res["data"]["comics"]["pages"];
+        for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
+              res["data"]["comics"]["docs"][i]["author"]??"未知",
+              res["data"]["comics"]["docs"][i]["likesCount"]??0,
+              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
+                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
+              res["data"]["comics"]["docs"][i]["_id"]
+          );
+          s.comics.add(si);
+        }
+      }
+    }
+  }
+
+  Future<SearchResult> getCategoryComics(String keyword, String sort) async{
+    var s = SearchResult(keyword, sort, [], 1, 0);
+    await getMoreCategoryComics(s);
+    return s;
+  }
 }
 
 String getImageUrl(String url){
   return appdata.settings[3]=="1"||GetPlatform.isWeb?"https://api.kokoiro.xyz/storage/$url":url;
+}
+
+void sendNetworkLog(String url, String error) async{
+  try {
+    var dio = Dio();
+    dio.post("https://api.kokoiro.xyz/log", data: {"data": "$url $error\n"});
+  }
+  catch(e){
+    //服务器不可用时忽视
+  }
 }

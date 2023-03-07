@@ -43,8 +43,8 @@ class _HistoryPageState extends State<HistoryPage> {
                   }
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 600,
-                childAspectRatio: 3.5,
+                maxCrossAxisExtent: comicTileMaxWidth,
+                childAspectRatio: comicTileAspectRatio,
               ),
             ),
             SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))

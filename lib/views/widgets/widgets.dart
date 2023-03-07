@@ -43,28 +43,25 @@ class ComicTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: onTap==null?(cached?CachedNetworkImage(
                   imageUrl: getImageUrl(comic.path),
                   fit: BoxFit.cover,
                   errorWidget: (context, url, error) => const Icon(Icons.error),
-                  width: 150,
                   height: double.infinity,
                 ):Image.network(
                   getImageUrl(comic.path),
                   fit: BoxFit.cover,
                   errorBuilder: (context, url, error) => const Icon(Icons.error),
-                  width: 150,
                   height: double.infinity,
                 )):Image.file(
                   downloadManager.getCover(comic.id),
                   fit: BoxFit.cover,
-                  width: 150,
                   height: double.infinity,
                 ),),
               SizedBox.fromSize(size: const Size(16,5),),
               Expanded(
-                flex: 4,
+                flex: 7,
                 child: ComicDescription(
                   title: comic.title,
                   user: comic.author,

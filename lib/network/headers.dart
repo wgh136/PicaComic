@@ -28,7 +28,7 @@ BaseOptions getHeaders(String method,String token,String url){
   var time = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
   if(token == ""){
     return BaseOptions(
-       connectTimeout: const Duration(milliseconds: 10000),
+       connectTimeout: const Duration(milliseconds: 8000),
         receiveDataWhenStatusError: true,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
@@ -52,7 +52,7 @@ BaseOptions getHeaders(String method,String token,String url){
   if(method == 'post'){
     return BaseOptions(
         receiveDataWhenStatusError: true,
-        connectTimeout: const Duration(milliseconds: 10000),
+        connectTimeout: const Duration(milliseconds: 8000),
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
@@ -75,7 +75,7 @@ BaseOptions getHeaders(String method,String token,String url){
   }else if(method == "get"){
     return BaseOptions(
         receiveDataWhenStatusError: true,
-        connectTimeout: const Duration(milliseconds: 10000),
+        connectTimeout: const Duration(milliseconds: 8000),
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
@@ -97,7 +97,7 @@ BaseOptions getHeaders(String method,String token,String url){
   }else{
     return BaseOptions(
         receiveDataWhenStatusError: true,
-        connectTimeout: const Duration(milliseconds: 15000),
+        connectTimeout: const Duration(milliseconds: 8000),
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
