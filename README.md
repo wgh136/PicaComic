@@ -37,7 +37,7 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 ## 屏幕截图
 
 ### 大屏设备
-<img src="screenshots/9.png" style="width: 400px">
+<img src="screenshots/9.png" style="width: 400px"><img src="screenshots/10.png" style="width: 400px">
 
 ### 手机
 <img src="screenshots/1.png" style="width: 400px"><img src="screenshots/2.png" style="width: 400px"><img src="screenshots/3.png" style="width: 400px"><img src="screenshots/4.png" style="width: 400px"><img src="screenshots/5.png" style="width: 400px"><img src="screenshots/6.png" style="width: 400px"><img src="screenshots/7.png" style="width: 400px">
