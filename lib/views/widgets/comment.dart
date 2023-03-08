@@ -42,7 +42,7 @@ class _CommentTileState extends State<CommentTile> {
         );
       },
       child: InkWell(
-        onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment))),
+        onTap: isToReply==true||isReply?(){}:()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment))),
         onLongPress: (){
           Clipboard.setData(ClipboardData(text: comment.text));
           showMessage(context, "评论内容已复制");

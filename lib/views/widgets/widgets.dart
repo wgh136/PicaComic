@@ -141,7 +141,7 @@ class CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         onTap: (){
-          Get.to(()=>CategoryComicPage(categoryItem.title));
+          Get.to(()=>CategoryComicPage(categoryItem.title,type: 1,));
         },
         child: Padding(
           padding: const EdgeInsets.all(2),

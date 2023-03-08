@@ -12,7 +12,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.3.4";
+const appVersion = "1.3.5";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -41,6 +41,7 @@ class Appdata{
     "1", //启动时签到
     "1", //使用音量键翻页
     "0", //代理设置, 0代表使用系统代理
+    "1", //翻页方式: 1从左向右,2从右向左,3从上至下,4从上至下(连续)
   ];
   Appdata(){
     token = "";

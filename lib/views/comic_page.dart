@@ -100,7 +100,7 @@ class ComicPage extends StatelessWidget{
                 for (String s in c.categories) {
                   logic.categories.add(GestureDetector(
                     onTap: () {
-                      Get.to(() => CategoryComicPage(s));
+                      Get.to(() => CategoryComicPage(s,type: 1,));
                     },
                     onLongPress: (){
                       Clipboard.setData(ClipboardData(text: (s)));
@@ -807,7 +807,7 @@ class ComicPage extends StatelessWidget{
               for (String s in logic.comicItem!.categories) {
                 logic.categories.add(GestureDetector(
                   onTap: () {
-                    Get.to(() => CategoryComicPage(s));
+                    Get.to(() => CategoryComicPage(s,type: 1,));
                   },
                   onLongPress: (){
                     Clipboard.setData(ClipboardData(text: (s)));

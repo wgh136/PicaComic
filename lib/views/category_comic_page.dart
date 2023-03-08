@@ -25,7 +25,8 @@ class ModeRadioLogic1 extends GetxController{
 
 class CategoryComicPage extends StatelessWidget {
   final String keyWord;
-  const CategoryComicPage(this.keyWord,{Key? key}) : super(key: key);
+  final int type;
+  const CategoryComicPage(this.keyWord,{this.type=2,Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +35,18 @@ class CategoryComicPage extends StatelessWidget {
         init: CategoryComicPageLogic(),
         builder: (categoryComicPageLogic){
         if(categoryComicPageLogic.isLoading){
-          network.getCategoryComics(keyWord, appdata.settings[1]).then((s){
-            categoryComicPageLogic.search = s;
-            categoryComicPageLogic.change();
-          });
-          return showLoading(context);
+          if(type == 1){
+              network.getCategoryComics(keyWord, appdata.settings[1]).then((s) {
+                categoryComicPageLogic.search = s;
+                categoryComicPageLogic.change();
+              });
+          }else{
+            network.searchNew(keyWord, appdata.settings[1]).then((s) {
+              categoryComicPageLogic.search = s;
+              categoryComicPageLogic.change();
+            });
+          }
+            return showLoading(context);
         }else{
           if(categoryComicPageLogic.search.comics.isNotEmpty){
             return CustomScrollView(
@@ -136,10 +144,16 @@ class CategoryComicPage extends StatelessWidget {
                       childCount: categoryComicPageLogic.search.comics.length,
                           (context, i){
                         if(i == categoryComicPageLogic.search.comics.length-1&&categoryComicPageLogic.search.loaded!=categoryComicPageLogic.search.pages){
-                          network.getMoreCategoryComics(categoryComicPageLogic.search).then((c){
+                          if(type==1){
+                          network.getMoreCategoryComics(categoryComicPageLogic.search).then((c) {
                             categoryComicPageLogic.update();
                           });
-                        }
+                        }else{
+                            network.loadMoreSearch(categoryComicPageLogic.search).then((c) {
+                              categoryComicPageLogic.update();
+                            });
+                          }
+                      }
                         return ComicTile(categoryComicPageLogic.search.comics[i]);
                       }
                   ),

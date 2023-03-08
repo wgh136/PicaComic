@@ -50,12 +50,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
           useMaterial3: true,
-          fontFamily: '微软雅黑'
+          //fontFamily: 'font'
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-          fontFamily: '微软雅黑'
+          //fontFamily: 'font'
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

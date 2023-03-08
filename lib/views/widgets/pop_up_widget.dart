@@ -22,7 +22,7 @@ class PopUpWidget<T> extends PopupRoute<T>{
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         clipBehavior: Clip.antiAlias,
-        width: 500,
+        width: 550,
         height: MediaQuery.of(context).size.height*0.9,
         child: ClipRect(
           child: Navigator(

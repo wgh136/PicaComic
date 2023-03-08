@@ -85,7 +85,7 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,(){
-                      network.get("https://api.kokoiro.xyz/test");
+
                     },"Debug",""),
                   ],
                 )
