@@ -24,7 +24,7 @@ void saveImage(String url) async{
   else if(GetPlatform.isAndroid) {
       var b = await saveImageFormCache(getImageUrl(url));
       if(b) {
-        showMessage(Get.context, "保存成功");
+        showMessage(Get.context, "成功保存于Picture中");
       } else {
         showMessage(Get.context, "保存失败");
       }
@@ -64,6 +64,7 @@ Future<bool> saveImageFormCache(String url) async{
 void saveImageFromDisk(String image) async{
   if(GetPlatform.isAndroid) {
     await ImageGallerySaver.saveFile(image);
+    showMessage(Get.context, "成功保存到Picture中");
   }else if(GetPlatform.isWindows){
     var f = File(image);
     String name;

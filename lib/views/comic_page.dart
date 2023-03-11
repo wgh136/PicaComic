@@ -405,7 +405,7 @@ class ComicPage extends StatelessWidget{
                                     showMessage(context, "无网络");
                                     return;
                                   }
-                                  showAdaptiveWidget(context, CommentsPage(comic.id));
+                                  showAdaptiveWidget(context, CommentsPage(comic.id,popUp: MediaQuery.of(context).size.width>600,));
                                 },
                               ),),
                             ],
@@ -653,7 +653,7 @@ class ComicPage extends StatelessWidget{
                                         showMessage(context, "无网络");
                                         return;
                                       }
-                                      showAdaptiveWidget(context, CommentsPage(comic.id));
+                                      showAdaptiveWidget(context, CommentsPage(comic.id,popUp: MediaQuery.of(context).size.width>600,));
                                     },
                                   ),),
                                 ],

@@ -16,7 +16,7 @@ However, it didn't work, when I try to use ScrollablePositionedList in Interacti
 
 ## what changes I make
 
-Firstly, I use ScrollablePositionedList in [ZoomWidget](https://pub.flutter-io.cn/packages/zoom_widget). As expected,
+Firstly, I use ScrollablePositionedList in InteractiveViewer. As expected,
 the zoom_widget can not receive gesture signals.
 
 Then I remove some code for detecting gestures. It works, but not good.
@@ -39,7 +39,7 @@ Then, I use Listener to listen to gesture signals and use ScrollController to co
 - 但是，当我尝试在 InteractiveView 中使用 ScrollablePositionedList 时,它不起作用. 所以我尝试修改它.
 
 ## 我做了什么改变
-首先,我在 [ZoomWidget](https://pub.flutter-io.cn/packages/zoom_widget) 内使用 ScrollablePositionedList. 
+首先,我在 InteractiveViewer 内使用 ScrollablePositionedList. 
 正如预期的那样, ZoomWidget 无法接收手势信号.
 
 然后我删除了一些用于检测手势的代码. 这样做确实起到了作用, 但效果不好.

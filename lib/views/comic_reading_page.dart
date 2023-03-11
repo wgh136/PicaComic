@@ -11,7 +11,6 @@ import 'package:pica_comic/views/widgets/scrollable_list/src/item_positions_list
 import 'package:pica_comic/views/widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/tools/save_image.dart';
-import 'package:zoom_widget/zoom_widget.dart' as zoom;
 import '../tools/key_down_event.dart';
 
 class ComicReadingPageLogic extends GetxController{
@@ -19,7 +18,7 @@ class ComicReadingPageLogic extends GetxController{
   var scrollController = ItemScrollController();
   var scrollListener = ItemPositionsListener.create();
   var cont = ScrollController(keepScrollOffset: false);
-  var transformationController = zoom.TransformationController();
+  var transformationController = TransformationController();
   ComicReadingPageLogic(this.order);
   bool isLoading = true;
   int index = 1;
@@ -431,6 +430,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
       itemScrollController: comicReadingPageLogic.scrollController,
       itemPositionsListener: comicReadingPageLogic.scrollListener,
       itemCount: comicReadingPageLogic.urls.length,
+      addSemanticIndexes: false,
       scrollController: comicReadingPageLogic.cont,
       itemBuilder: (context,index){
         if(index<comicReadingPageLogic.urls.length-1&&!downloaded) {
@@ -551,16 +551,24 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
           bottom: 0,
           left: 0,
           right: 0,
-          child: zoom.Zoom(
-              transformationController: comicReadingPageLogic.transformationController,
-              child: AbsorbPointer(
-                absorbing: true,//使用控制器控制滚动
-                child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: buildGallery(comicReadingPageLogic)
-                ),
-              )
+          child: Listener(
+            onPointerSignal: (pointerSignal){
+              if(pointerSignal is PointerScrollEvent){
+                comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy);
+              }
+            },
+            child: InteractiveViewer(
+                transformationController: comicReadingPageLogic.transformationController,
+                maxScale: GetPlatform.isDesktop?1.0:2.5,
+                child: AbsorbPointer(
+                  absorbing: true,//使用控制器控制滚动
+                  child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: buildGallery(comicReadingPageLogic)
+                  ),
+                )
+            ),
           )
       );
     }
@@ -729,6 +737,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 0,width: 400,),
         ListTile(
           leading: Icon(Icons.switch_left,color: Theme.of(context).colorScheme.secondary),
           title: const Text("点击屏幕左右区域翻页"),

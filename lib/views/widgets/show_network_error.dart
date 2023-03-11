@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 
-Widget showNetworkError(BuildContext context, void Function() retry, {showBack = true}){
+Widget showNetworkError(BuildContext context, void Function() retry, {bool showBack = true}){
   return SafeArea(child: Stack(
     children: [
       if(showBack)
@@ -42,9 +42,7 @@ Widget showNetworkError(BuildContext context, void Function() retry, {showBack =
               width: 100,
               height: 40,
               child: FilledButton(
-                onPressed: (){
-                  retry();
-                },
+                onPressed: ()=>retry(),
                 child: const Text("重试"),
               ),
             )

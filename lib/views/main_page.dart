@@ -226,7 +226,7 @@ class _MainPageState extends State<MainPage> {
                     NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
                     NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
                     NavigatorItem(Icons.leaderboard,Icons.games, "排行榜",false,()=>Get.to(()=>const LeaderBoardPage())),
-                    NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, const SettingsPage()),),
+                    NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
                   ],
                 ),
               ))
@@ -253,7 +253,7 @@ class _MainPageState extends State<MainPage> {
                       ),),
                       Flexible(child: IconButton(
                         icon: const Icon(Icons.settings),
-                        onPressed: ()=>showAdaptiveWidget(context, const SettingsPage()),
+                        onPressed: ()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600)),
                       ),),
                     ],
                   ),
@@ -307,7 +307,7 @@ class _MainPageState extends State<MainPage> {
           }else if(t == 1){
             Get.to(()=>const LeaderBoardPage());
           }else{
-            showAdaptiveWidget(context, const SettingsPage());
+            showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600));
           }
         },
         children: <Widget>[

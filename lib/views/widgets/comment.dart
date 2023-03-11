@@ -8,10 +8,11 @@ import '../../network/models.dart';
 import '../comment_reply_page.dart';
 
 class CommentTile extends StatefulWidget {
-  const CommentTile({Key? key,required this.comment,required this.isReply,this.isToReply}) : super(key: key);
+  const CommentTile({Key? key,required this.comment,required this.isReply,this.isToReply,this.popUp=false}) : super(key: key);
   final Comment comment;
   final bool isReply;
   final bool? isToReply;
+  final bool popUp;
 
   @override
   State<CommentTile> createState() => _CommentTileState();
@@ -42,7 +43,7 @@ class _CommentTileState extends State<CommentTile> {
         );
       },
       child: InkWell(
-        onTap: isToReply==true||isReply?(){}:()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment))),
+        onTap: isToReply==true||isReply?(){}:()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment,popUp: widget.popUp,))),
         onLongPress: (){
           Clipboard.setData(ClipboardData(text: comment.text));
           showMessage(context, "评论内容已复制");
@@ -104,7 +105,6 @@ class _CommentTileState extends State<CommentTile> {
                           height: 40,
                           child: ActionChip(
                             side: BorderSide.none,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                             label: Text(comment.likes.toString()),
                             avatar: Icon((comment.isLiked)?Icons.favorite:Icons.favorite_border),
                             onPressed: (){
@@ -125,11 +125,10 @@ class _CommentTileState extends State<CommentTile> {
                             width: 80,
                             height: 40,
                             child: ActionChip(
-                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                               side: BorderSide.none,
                               label: Text(comment.reply.toString()),
                               avatar: const Icon(Icons.comment_outlined),
-                              onPressed: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment))),
+                              onPressed: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReplyPage(comment.id,comment,popUp: widget.popUp))),
                             ),
                           )
                       ],
@@ -157,7 +156,7 @@ class _CommentTileState extends State<CommentTile> {
                           )),
                           Expanded(child: Text(
                             comment.name,
-                            style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold),
                             maxLines: 1,
                           )),
                         ],
