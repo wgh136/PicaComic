@@ -73,6 +73,7 @@ class Network{
     status = false;
     var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
+    print(data);
     //从url获取json
     if (kDebugMode) {
       print('Try to get response from $url');
@@ -418,6 +419,24 @@ class Network{
     return f;
   }
 
+  Future<int> getSelectedPageFavorites(int page, List<ComicItemBrief> comics) async{
+    var res = await get("$apiUrl/users/favourite?s=dd&page=$page");
+    comics.clear();
+    if(res != null) {
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
+            res["data"]["comics"]["docs"][i]["author"]??"未知",
+            res["data"]["comics"]["docs"][i]["likesCount"]??0,
+            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
+                res["data"]["comics"]["docs"][i]["thumb"]["path"],
+            res["data"]["comics"]["docs"][i]["_id"]
+        );
+        comics.add(si);
+      }
+    }
+    return res==null?0:res["data"]["comics"]["pages"];
+  }
+
   Future<List<ComicItemBrief>> getRandomComics() async {
     var comics = <ComicItemBrief>[];
     var res = await get("$apiUrl/comics/random");
@@ -490,7 +509,7 @@ class Network{
 
   Future<String> register(String ans1,String ans2, String ans3,String birthday, String account, String gender, String name, String password, String que1, String que2, String que3) async{
     //gender:m,f,bot
-    var res = await post("$apiUrl/auth/register",{"answer1":ans1,"answer2":ans2,"answer3":ans3,"birthday":birthday,"email":account,"gender":gender,"name":name,"password":password,"question1":que1,"question2":que2,"question3":que3});
+    var res = await post("https://picaapi.picacomic.com/auth/register",{"answer1":ans1,"answer2":ans2,"answer3":ans3,"birthday":birthday,"email":account,"gender":gender,"name":name,"password":password,"question1":que1,"question2":que2,"question3":que3});
     if(res == null){
       return "网络错误";
     }

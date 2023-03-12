@@ -97,7 +97,7 @@ class _MainPageState extends State<MainPage> {
     }
 
     //检查更新
-    if(appdata.settings[2]=="1"&&updateFlag) {
+    if(appdata.settings[2]=="1"&&updateFlag&&!GetPlatform.isWeb) {
       checkUpdate().then((b){
       if(b!=null){
         if(b){
@@ -148,6 +148,27 @@ class _MainPageState extends State<MainPage> {
       });
     }
     downloadManagerFlag = false;
+
+    //检查是否第一次使用
+    if(appdata.settings[10]=="0"){
+      appdata.settings[10] = "1";
+      appdata.writeData();
+      Future.delayed(const Duration(microseconds: 600),()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
+        title: const Text("欢迎"),
+        content: RichText(
+          text: TextSpan(children: [
+            TextSpan(text: "感谢使用本软件, 请注意:\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 不接受任何形式捐赠, 无任何获利\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "请尽可能使用官方App, 如您坚持使用本App, 您可以点击分类中的",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "援助哔咔",style: TextStyle(fontWeight: FontWeight.w600,color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: ", 为官方运营出力\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+          ]),
+        ),
+        actions: [
+          TextButton(onPressed: ()=>Get.back(), child: const Text("了解"))
+        ],
+      )));
+    }
 
     return Scaffold(
       floatingActionButton: i==1?FloatingActionButton(

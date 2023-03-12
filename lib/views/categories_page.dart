@@ -6,13 +6,7 @@ import 'package:pica_comic/views/collections_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-
-class CategoriesPage extends StatefulWidget {
-  const CategoriesPage({Key? key}) : super(key: key);
-
-  @override
-  State<CategoriesPage> createState() => _CategoriesPageState();
-}
+import 'package:url_launcher/url_launcher_string.dart';
 
 class CategoriesPageLogic extends GetxController{
   var categories = <CategoryItem>[];
@@ -23,7 +17,9 @@ class CategoriesPageLogic extends GetxController{
   }
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
+class CategoriesPage extends StatelessWidget {
+  const CategoriesPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CategoriesPageLogic>(
@@ -71,7 +67,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               ),
             SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                    childCount: categoriesPageLogic.categories.length,
+                    childCount: categoriesPageLogic.categories.length+2,
                         (context, i){
                       if(i==0){
                         return InkWell(
@@ -100,8 +96,44 @@ class _CategoriesPageState extends State<CategoriesPage> {
                               ),
                             )
                         );
-                      }else {
-                        return CategoryTile(categoriesPageLogic.categories[i-1], () {});
+                      } else if(i==1){
+                        return InkWell(
+                            onTap: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
+                              title: const Text("援助哔咔"),
+                              content: const Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?"),
+                              actions: [
+                                TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
+                                TextButton(onPressed: (){
+                                  launchUrlString("https://donate.bidobido.xyz",mode: LaunchMode.externalApplication);
+                                  Get.back();
+                                }, child: const Text("继续")),
+                              ],
+                            )),
+                            child: Padding(
+                              padding: const EdgeInsets.all(2),
+                              child: Row(
+                                children: [
+                                  const Expanded(
+                                    flex: 1,
+                                    child: Image(
+                                      image: AssetImage("images/help.jpg"),
+                                      fit: BoxFit.fitWidth,
+                                    ),),
+                                  SizedBox.fromSize(size: const Size(20,5),),
+                                  const Expanded(
+                                      flex: 3,
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text("援助哔咔",style: TextStyle(fontWeight: FontWeight.w600),),
+                                      )
+                                  ),
+                                ],
+                              ),
+                            )
+                        );
+                      }
+                      else {
+                        return CategoryTile(categoriesPageLogic.categories[i-2], () {});
                       }
                     }
                 ),

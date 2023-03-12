@@ -15,7 +15,7 @@ class PopUpWidgetScaffold extends StatelessWidget {
           Container(
             height: 60,
             width: double.infinity,
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceVariant),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer),
             child: Row(
               children: [
                 if(Navigator.of(context).canPop())
@@ -27,7 +27,7 @@ class PopUpWidgetScaffold extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16,),
-                Text(title,style: const TextStyle(fontSize: 24),),
+                Text(title,style: const TextStyle(fontSize: 22),),
                 const Spacer(),
                 if(tailing!=null)
                   tailing!

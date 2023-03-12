@@ -75,7 +75,7 @@
         },
         onEntrypointLoaded: function(engineInitializer) {
           let config = {
-            canvasKitBaseUrl: "https://api.kokoiro.xyz/canvasKit/"
+            canvasKitBaseUrl: "https://cdnjs.cloudflare.com/ajax/libs/canvaskit-wasm/0.37.1/"
           }
           engineInitializer.initializeEngine(config).then(function(appRunner) {
             appRunner.runApp();

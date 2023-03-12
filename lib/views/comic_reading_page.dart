@@ -439,11 +439,18 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
           precacheImage(FileImage(downloadManager.getImage(comicId, comicReadingPageLogic.order, index+1)),context);
         }
         if(downloaded){
-          return Image.file(downloadManager.getImage(comicId, comicReadingPageLogic.order, index));
+          return Image.file(
+            downloadManager.getImage(comicId, comicReadingPageLogic.order, index),
+            width: MediaQuery.of(context).size.width,
+            fit: BoxFit.fill,
+          );
         }else{
           return CachedNetworkImage(
-            imageUrl: comicReadingPageLogic.urls[index],
+            imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
+            width: MediaQuery.of(context).size.width,
+            fit: BoxFit.fill,
             placeholder: (context,str)=>const SizedBox(height: 500,child: Center(child: CircularProgressIndicator(),),),
+            errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error,color: Colors.white12,),),
           );
         }
       },

@@ -7,6 +7,7 @@ import 'package:pica_comic/base.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/me_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../network/methods.dart';
 
@@ -43,16 +44,15 @@ class PasswordLogic extends GetxController{
 }
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage(this.infoController,{Key? key}) : super(key: key);
+  const ProfilePage(this.infoController,{this.popUp=false,Key? key}) : super(key: key);
   final InfoController infoController;
+  final bool popUp;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("个人信息"),),
-      body: GetBuilder<ProfileLogic>(
-        init: ProfileLogic(),
-        builder: (profileLogic){
+    final body = GetBuilder<ProfileLogic>(
+      init: ProfileLogic(),
+      builder: (profileLogic){
         return ListView(
           children: [
             const SizedBox(height: 20,),
@@ -123,52 +123,52 @@ class ProfilePage extends StatelessWidget {
                                           ),
                                           const SizedBox(height: 20,),
                                           if(!logic.isUploading)
-                                          FilledButton(onPressed: () async {
-                                            if(logic.url==""){
-                                              showMessage(context, "请先选择图像");
-                                            }else{
-                                              logic.isUploading = true;
-                                              logic.update();
-                                              File file = File(logic.url);
-                                              var bytes = await file.readAsBytes();
-                                              String base64Image = "data:image/jpeg;base64,${base64Encode(bytes)}";
-                                              network.uploadAvatar(base64Image).then((b){
-                                                if(b){
-                                                  network.getProfile().then((t){
-                                                    if(t!=null) {
-                                                      appdata.user = t;
-                                                      profileLogic.url = appdata.user.avatarUrl;
-                                                      profileLogic.update();
-                                                      infoController.update();
-                                                      Get.back();
-                                                      showMessage(context, "上传成功");
-                                                    }else{
-                                                      logic.success = false;
-                                                      logic.isUploading = false;
-                                                      logic.update();
-                                                    }
-                                                  });
-                                                }else{
-                                                  logic.success = false;
-                                                  logic.isUploading = false;
-                                                  logic.update();
-                                                }
-                                              });
-                                            }
-                                          }, child: const Text("上传")),
+                                            FilledButton(onPressed: () async {
+                                              if(logic.url==""){
+                                                showMessage(context, "请先选择图像");
+                                              }else{
+                                                logic.isUploading = true;
+                                                logic.update();
+                                                File file = File(logic.url);
+                                                var bytes = await file.readAsBytes();
+                                                String base64Image = "data:image/jpeg;base64,${base64Encode(bytes)}";
+                                                network.uploadAvatar(base64Image).then((b){
+                                                  if(b){
+                                                    network.getProfile().then((t){
+                                                      if(t!=null) {
+                                                        appdata.user = t;
+                                                        profileLogic.url = appdata.user.avatarUrl;
+                                                        profileLogic.update();
+                                                        infoController.update();
+                                                        Get.back();
+                                                        showMessage(context, "上传成功");
+                                                      }else{
+                                                        logic.success = false;
+                                                        logic.isUploading = false;
+                                                        logic.update();
+                                                      }
+                                                    });
+                                                  }else{
+                                                    logic.success = false;
+                                                    logic.isUploading = false;
+                                                    logic.update();
+                                                  }
+                                                });
+                                              }
+                                            }, child: const Text("上传")),
                                           if(logic.isUploading)
                                             const CircularProgressIndicator(strokeWidth: 4,),
                                           if(!logic.isUploading&&!logic.success)
                                             SizedBox(
-                                              width: 60,
-                                              height: 50,
-                                              child: Row(
-                                                children: const [
-                                                  Icon(Icons.error),
-                                                  Spacer(),
-                                                  Text("失败")
-                                                ],
-                                              )
+                                                width: 60,
+                                                height: 50,
+                                                child: Row(
+                                                  children: const [
+                                                    Icon(Icons.error),
+                                                    Spacer(),
+                                                    Text("失败")
+                                                  ],
+                                                )
                                             )
                                         ],
                                       ),
@@ -209,7 +209,7 @@ class ProfilePage extends StatelessWidget {
                                           TextField(
                                             decoration: const InputDecoration(
                                                 labelText: "输入新密码",
-                                              border: OutlineInputBorder()
+                                                border: OutlineInputBorder()
                                             ),
                                             obscureText: true,
                                             controller: logic.c2,
@@ -225,38 +225,38 @@ class ProfilePage extends StatelessWidget {
                                           ),
                                           const Padding(padding: EdgeInsets.all(5),),
                                           if(!logic.isLoading)
-                                          FilledButton(
-                                            child: const Text("提交"),
-                                            onPressed: (){
-                                              if(logic.c2.text!=logic.c3.text){
-                                                logic.status = 2;
-                                                logic.update();
-                                              }else if(logic.c2.text.length<8){
-                                                logic.status = 3;
-                                                logic.update();
-                                              } else{
-                                                logic.isLoading = !logic.isLoading;
-                                                logic.update();
-                                                network.changePassword(logic.c1.text, logic.c2.text).then((b){
-                                                  if(b){
-                                                    logic.isLoading = !logic.isLoading;
-                                                    Get.back();
-                                                    showMessage(context, "密码修改成功");
-                                                  }else{
-                                                    if(network.status){
-                                                      logic.status = 1;
+                                            FilledButton(
+                                              child: const Text("提交"),
+                                              onPressed: (){
+                                                if(logic.c2.text!=logic.c3.text){
+                                                  logic.status = 2;
+                                                  logic.update();
+                                                }else if(logic.c2.text.length<8){
+                                                  logic.status = 3;
+                                                  logic.update();
+                                                } else{
+                                                  logic.isLoading = !logic.isLoading;
+                                                  logic.update();
+                                                  network.changePassword(logic.c1.text, logic.c2.text).then((b){
+                                                    if(b){
                                                       logic.isLoading = !logic.isLoading;
-                                                      logic.update();
+                                                      Get.back();
+                                                      showMessage(context, "密码修改成功");
                                                     }else{
-                                                      logic.status = 0;
-                                                      logic.isLoading = !logic.isLoading;
-                                                      logic.update();
+                                                      if(network.status){
+                                                        logic.status = 1;
+                                                        logic.isLoading = !logic.isLoading;
+                                                        logic.update();
+                                                      }else{
+                                                        logic.status = 0;
+                                                        logic.isLoading = !logic.isLoading;
+                                                        logic.update();
+                                                      }
                                                     }
-                                                  }
-                                              });
-                                              }
-                                            },
-                                          ),
+                                                  });
+                                                }
+                                              },
+                                            ),
                                           if(logic.isLoading)
                                             const CircularProgressIndicator(),
                                           if(!logic.isLoading&&logic.status!=-1)
@@ -319,7 +319,7 @@ class ProfilePage extends StatelessWidget {
                                           controller: logic.controller,
                                           keyboardType: TextInputType.text,
                                           decoration: const InputDecoration(
-                                            border: OutlineInputBorder()
+                                              border: OutlineInputBorder()
                                           ),
                                         ),),
                                         const SizedBox(height: 20,),
@@ -387,7 +387,14 @@ class ProfilePage extends StatelessWidget {
             ),
           ],
         );
-      },)
+      },);
+    if(popUp){
+      return PopUpWidgetScaffold(title: "个人信息", body: body);
+    }else {
+      return Scaffold(
+        appBar: AppBar(title: const Text("个人信息"),),
+        body: body
     );
+    }
   }
 }
