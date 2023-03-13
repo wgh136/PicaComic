@@ -79,7 +79,7 @@ class MePage extends StatelessWidget {
                 ),
                 Wrap(
                   children: [
-                    mePageItem(context, Icons.person,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: true,)),"个人信息","查看或修改账号信息"),
+                    mePageItem(context, Icons.person,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"个人信息","查看或修改账号信息"),
                     mePageItem(context, Icons.favorite,()=>Get.to(()=>const FavoritesPage()),"收藏夹","查看已收藏的漫画"),
                     mePageItem(context, Icons.download,()=>Get.to(()=>DownloadPage()),"已下载","管理已下载的漫画"),
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),

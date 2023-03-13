@@ -54,6 +54,7 @@ dependencies:
   archive: any
   flutter_local_notifications: ^13.0.0
   share_plus: ^6.3.1
+  local_auth: ^2.1.6
 
 dev_dependencies:
   flutter_test:

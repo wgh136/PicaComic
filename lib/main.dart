@@ -3,6 +3,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
@@ -39,6 +40,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     downloadManager.init(); //初始化下载管理器
     notifications.init(); //初始化通知管理器
+    if(appdata.settings[12]=="1") {
+      blockScreenshot();
+    }
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return GetMaterialApp(
         title: 'Pica Comic',

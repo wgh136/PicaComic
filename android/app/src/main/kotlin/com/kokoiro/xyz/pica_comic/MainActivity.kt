@@ -1,14 +1,17 @@
 package com.kokoiro.xyz.pica_comic
-
 import android.view.KeyEvent
-import io.flutter.embedding.android.FlutterActivity
+import android.view.WindowManager
+
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 
-class MainActivity: FlutterActivity() {
+class MainActivity: FlutterFragmentActivity() {
     var volumeListen = VolumeListen()
     var listening = false
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
 
@@ -28,6 +31,16 @@ class MainActivity: FlutterActivity() {
                     listening = false
                 }
         })
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"com.kokoiro.xyz.pica_comic/screenshot").setMethodCallHandler{
+                _, _ ->
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"com.kokoiro.xyz.pica_comic/secure").setMethodCallHandler{
+                _, result ->
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

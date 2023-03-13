@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
@@ -23,7 +24,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
       network.getProfile().then((p){
       if(p!=null){
         appdata.user = p;
-        Get.offAll(()=>const MainPage());
+        goToMainPage();
       }else {
         setState(() {
         isLoading = false;
@@ -98,7 +99,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                               network.getProfile().then((p){
                                 if(p!=null){
                                   appdata.user = p;
-                                  Get.offAll(()=>const MainPage());
+                                  goToMainPage();
                                 }else {
                                   setState(() {
                                     isLoading = false;
@@ -142,5 +143,13 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
         ),
       )
     );
+  }
+
+  void goToMainPage(){
+    if(appdata.settings[13]=="1"){
+      Get.offAll(()=>const AuthPage());
+    }else{
+      Get.offAll(()=>const MainPage());
+    }
   }
 }

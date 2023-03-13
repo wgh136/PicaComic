@@ -335,6 +335,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool showFrame = appdata.settings[5]=="1";
   bool punchIn = appdata.settings[6]=="1";
   bool useVolumeKeyChangePage = appdata.settings[7]=="1";
+  bool blockScreenshot = appdata.settings[12]=="1";
+  bool needBiometrics = appdata.settings[13]=="1";
 
   @override
   Widget build(BuildContext context) {
@@ -558,6 +560,46 @@ class _SettingsPageState extends State<SettingsPage> {
                           }
                         }
                     )
+                  ],
+                ),
+              ),
+              if(!GetPlatform.isWeb)
+              const Divider(),
+              if(!GetPlatform.isWeb)
+              Card(
+                elevation: 0,
+                child: Column(
+                  children: [
+                    const ListTile(
+                      title: Text("隐私"),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.screenshot,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("阻止屏幕截图"),
+                      subtitle: const Text("需要重启App以应用更改"),
+                      trailing: Switch(
+                        value: blockScreenshot,
+                        onChanged: (b){
+                          b?appdata.settings[12] = "1":appdata.settings[12]="0";
+                          setState(()=>blockScreenshot = b);
+                          appdata.writeData();
+                        },
+                      ),
+                      onTap: ()=>showMessage(context, "禁止涩涩"),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.security,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("启动时需要生物识别"),
+                      trailing: Switch(
+                        value: needBiometrics,
+                        onChanged: (b){
+                          b?appdata.settings[13] = "1":appdata.settings[13]="0";
+                          setState(()=>needBiometrics = b);
+                          appdata.writeData();
+                        },
+                      ),
+                      onTap: ()=>showMessage(context, "禁止涩涩"),
+                    ),
                   ],
                 ),
               ),
