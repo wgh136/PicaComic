@@ -74,18 +74,18 @@ class CategoriesPage extends StatelessWidget {
                               Get.to(()=>const CollectionsPage());
                             },
                             child: Padding(
-                              padding: const EdgeInsets.all(2),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
                                 children: [
                                   const Expanded(
-                                    flex: 1,
+                                    flex: 5,
                                     child: Image(
                                       image: AssetImage("images/collections.png"),
                                       fit: BoxFit.fitWidth,
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
                                   const Expanded(
-                                      flex: 3,
+                                      flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text("本子妹/本子母推荐",style: TextStyle(fontWeight: FontWeight.w600),),
@@ -109,18 +109,18 @@ class CategoriesPage extends StatelessWidget {
                               ],
                             )),
                             child: Padding(
-                              padding: const EdgeInsets.all(2),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
                                 children: [
                                   const Expanded(
-                                    flex: 1,
+                                    flex: 5,
                                     child: Image(
                                       image: AssetImage("images/help.jpg"),
                                       fit: BoxFit.fitWidth,
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
                                   const Expanded(
-                                      flex: 3,
+                                      flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text("援助哔咔",style: TextStyle(fontWeight: FontWeight.w600),),
@@ -138,7 +138,7 @@ class CategoriesPage extends StatelessWidget {
                 ),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 600,
-                  childAspectRatio: 4,
+                  childAspectRatio: 3,
                 ),
             ),
             SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))

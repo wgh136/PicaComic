@@ -144,11 +144,11 @@ class CategoryTile extends StatelessWidget {
           Get.to(()=>CategoryComicPage(categoryItem.title,type: 1,));
         },
         child: Padding(
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Row(
             children: [
               Expanded(
-                flex: 1,
+                flex: 5,
                 child: CachedNetworkImage(
                   imageUrl: getImageUrl(categoryItem.path),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -156,7 +156,7 @@ class CategoryTile extends StatelessWidget {
                 ),),
               SizedBox.fromSize(size: const Size(20,5),),
               Expanded(
-                flex: 3,
+                flex: 11,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(categoryItem.title,style: const TextStyle(fontWeight: FontWeight.w600),),
