@@ -33,6 +33,27 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
   - 评论
   - 喜欢
   - 转到游戏下载页面
+  
+## Thanks
+- [flutter](https://flutter.dev/)
+- [dio](https://pub.dev/packages/dio): 网络请求
+- [get](https://pub.dev/packages/get): 路由管理
+- [shared_preferences](https://pub.dev/packages/shared_preferences): 数据储存
+- [dynamic_color](https://pub.dev/packages/dynamic_color): 动态颜色
+- [cached_network_image](https://pub.dev/packages/cached_network_image)&[flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager): 图片缓存
+- [uuid](https://pub.dev/packages/uuid): 创建uuid
+- [photo_view](https://pub.dev/packages/photo_view): 图片查看
+- [url_launcher](https://pub.dev/packages/url_launcher): 打开网页
+- [device_info](https://pub.dev/packages/device_info): 读取设备信息(用于更新时检测应下载的版本)
+- [sentry](https://sentry.io): 错误捕获
+- [file_selector](https://pub.dev/packages/file_selector)&[image_picker](https://pub.dev/packages/image_picker): 选择文件
+- [image_gallery_saver](https://pub.dev/packages/image_gallery_saver): 将图片保存至相册
+- [flutter_file_dialog](https://pub.dev/packages/flutter_file_dialog): 保存文件
+- [archive](https://pub.dev/packages/archive): 压缩文件
+- [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications): 发送通知
+- [share_plus](https://pub.dev/packages/share_plus): 分享
+- [local_auth](https://pub.dev/packages/local_auth): 身份认证
+- [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list): 能够跳转到指定项目的列表(为了解决手势冲突, 我对其做出了一些修改)
 
 ## 屏幕截图
 
