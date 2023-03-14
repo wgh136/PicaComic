@@ -173,6 +173,7 @@ class Network{
     if(res!=null){
       var c = <CategoryItem>[];
       for(int i=0;i<res["data"]["categories"].length;i++){
+        if(res["data"]["categories"][i]["isWeb"]==true) continue;
         String url = res["data"]["categories"][i]["thumb"]["fileServer"];
         if(url[url.length-1]!='/'){
           url = '$url/static/';

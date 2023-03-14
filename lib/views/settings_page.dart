@@ -573,6 +573,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     const ListTile(
                       title: Text("隐私"),
                     ),
+                    if(GetPlatform.isAndroid)
                     ListTile(
                       leading: Icon(Icons.screenshot,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("阻止屏幕截图"),
@@ -590,6 +591,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: Icon(Icons.security,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("启动时需要生物识别"),
+                      subtitle: const Text("如果系统中未设置任何认证方法请勿开启"),
                       trailing: Switch(
                         value: needBiometrics,
                         onChanged: (b){

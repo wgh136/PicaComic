@@ -28,7 +28,6 @@ class CategoriesPage extends StatelessWidget {
         network.getCategories().then((c){
           if(c!=null){
             categoriesPageLogic.categories = c;
-            c.removeRange(0, 11);
           }
           categoriesPageLogic.change();
         });

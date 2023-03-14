@@ -31,6 +31,7 @@ class Appdata{
   late List<ComicItemBrief> history;
   late String appChannel;
   late List<String> searchHistory;
+  bool flag = true; //用于提供一些页面间通讯
   List<String> settings = [
     "1", //点击屏幕左右区域翻页
     "dd", //排序方式

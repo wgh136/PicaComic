@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'network/methods.dart';
@@ -27,17 +28,32 @@ void main() {
         options.tracesSampleRate = 1.0;
       },
       appRunner: () async{
-        runApp(const MyApp());
+        runApp(MyApp());
       },
     );
   });
 
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget with WidgetsBindingObserver{
+  MyApp({super.key});
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      if(appdata.settings[13]=="1"&&appdata.flag){
+        appdata.flag = false;
+        Get.to(()=>const AuthPage());
+      }
+    } else if(state == AppLifecycleState.paused){
+      appdata.flag = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addObserver(this);
     downloadManager.init(); //初始化下载管理器
     notifications.init(); //初始化通知管理器
     if(appdata.settings[12]=="1") {

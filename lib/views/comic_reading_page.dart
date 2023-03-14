@@ -175,7 +175,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                   },
                   child: Listener(
                     onPointerMove:(details){
-                      if(comicReadingPageLogic.fingers!=2) {
+                      if(comicReadingPageLogic.fingers!=2&&appdata.settings[9]=="4") {
                         comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels-details.delta.dy*1.4/comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis());
                       }
                     } ,
