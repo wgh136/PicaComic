@@ -35,7 +35,7 @@ class CommentsPage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }else if(commentsPageLogic.comments.loaded==0){
-          return showNetworkError(context, () {commentsPageLogic.change();});
+          return showNetworkError(context, ()=>commentsPageLogic.change(),showBack: false);
         }else{
           return CustomScrollView(
             slivers: [
