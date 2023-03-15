@@ -51,10 +51,7 @@ class GamePage extends StatelessWidget {
               }
               logic.change();
             });
-            return Scaffold(
-              appBar: AppBar(),
-              body: showLoading(context),
-            );
+            return showLoading(context,withScaffold: true);
           }else if(logic.gameInfo.name!=""){
             return Scaffold(
               appBar: AppBar(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),

@@ -18,6 +18,7 @@ class ComicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: onTap??(){
         while(true) {
           bool flag = true;
@@ -44,21 +45,28 @@ class ComicTile extends StatelessWidget {
             children: [
               Expanded(
                 flex: 2,
-                child: onTap==null?(cached?CachedNetworkImage(
-                  imageUrl: getImageUrl(comic.path),
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  height: double.infinity,
-                ):Image.network(
-                  getImageUrl(comic.path),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, url, error) => const Icon(Icons.error),
-                  height: double.infinity,
-                )):Image.file(
-                  downloadManager.getCover(comic.id),
-                  fit: BoxFit.cover,
-                  height: double.infinity,
-                ),),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18)
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: onTap==null?(cached?CachedNetworkImage(
+                    imageUrl: getImageUrl(comic.path),
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    height: double.infinity,
+                  ):Image.network(
+                    getImageUrl(comic.path),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, url, error) => const Icon(Icons.error),
+                    height: double.infinity,
+                  )):Image.file(
+                    downloadManager.getCover(comic.id),
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                  ),
+                )
+              ),
               SizedBox.fromSize(size: const Size(16,5),),
               Expanded(
                 flex: 7,
@@ -140,6 +148,7 @@ class CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+        borderRadius: BorderRadius.circular(18),
         onTap: (){
           Get.to(()=>CategoryComicPage(categoryItem.title,type: 1,));
         },
@@ -149,10 +158,16 @@ class CategoryTile extends StatelessWidget {
             children: [
               Expanded(
                 flex: 5,
-                child: CachedNetworkImage(
-                  imageUrl: getImageUrl(categoryItem.path),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  fit: BoxFit.fitWidth,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: CachedNetworkImage(
+                    imageUrl: getImageUrl(categoryItem.path),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    fit: BoxFit.cover,
+                  ),
                 ),),
               SizedBox.fromSize(size: const Size(20,5),),
               Expanded(

@@ -70,6 +70,7 @@ class CategoriesPage extends StatelessWidget {
                         (context, i){
                       if(i==0){
                         return InkWell(
+                            borderRadius: BorderRadius.circular(18),
                             onTap: (){
                               Get.to(()=>const CollectionsPage());
                             },
@@ -77,11 +78,17 @@ class CategoriesPage extends StatelessWidget {
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     flex: 5,
-                                    child: Image(
-                                      image: AssetImage("images/collections.png"),
-                                      fit: BoxFit.fitWidth,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(18)
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: const Image(
+                                        image: AssetImage("images/collections.png"),
+                                        fit: BoxFit.fill,
+                                      ),
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
                                   const Expanded(
@@ -97,6 +104,7 @@ class CategoriesPage extends StatelessWidget {
                         );
                       } else if(i==1){
                         return InkWell(
+                            borderRadius: BorderRadius.circular(18),
                             onTap: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
                               title: const Text("援助哔咔"),
                               content: const Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?"),
@@ -112,11 +120,17 @@ class CategoriesPage extends StatelessWidget {
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     flex: 5,
-                                    child: Image(
-                                      image: AssetImage("images/help.jpg"),
-                                      fit: BoxFit.fitWidth,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(18)
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: const Image(
+                                        image: AssetImage("images/help.jpg"),
+                                        fit: BoxFit.fill,
+                                      ),
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
                                   const Expanded(

@@ -40,7 +40,7 @@ class ReplyPage extends StatelessWidget {
               SliverToBoxAdapter(
                 child: CommentTile(comment: replyTo, isReply: true, isToReply: true,),
               ),
-              const SliverPadding(padding: EdgeInsets.all(10)),
+              const SliverPadding(padding: EdgeInsets.all(2)),
               const SliverToBoxAdapter(child: Divider(),),
               SliverList(delegate: SliverChildBuilderDelegate(
                   childCount: commentsPageLogic.comments.comments.length,

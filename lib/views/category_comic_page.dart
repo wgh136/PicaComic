@@ -33,6 +33,7 @@ class CategoryComicPage extends StatelessWidget {
     return Scaffold(
       body: GetBuilder<CategoryComicPageLogic>(
         init: CategoryComicPageLogic(),
+        tag: keyWord,
         builder: (categoryComicPageLogic){
         if(categoryComicPageLogic.isLoading){
           if(type == 1){

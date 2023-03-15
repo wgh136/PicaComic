@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
   if(withScaffold){
@@ -10,19 +9,17 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
       ),
     );
   }else{
-    return SafeArea(child: Stack(
-      children: [
-        Positioned(
-          left: 8,
-          top: 8,
-          child: IconButton(
-            iconSize: 24,
-            icon: const Icon(Icons.arrow_back,),
-            onPressed: ()=>Get.back(),
-          ),
-        ),
-        const Center(child: CircularProgressIndicator(),)
+    return Stack(
+      children: const [
+        Positioned(child: CustomScrollView(
+          slivers: [
+            SliverAppBar(pinned: true,),
+          ],
+        )),
+        Center(
+          child: CircularProgressIndicator(),
+        )
       ],
-    ));
+    );
   }
 }

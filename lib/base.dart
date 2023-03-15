@@ -12,7 +12,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.3.7";
+const appVersion = "1.3.8";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -48,6 +48,7 @@ class Appdata{
     "0", //阻止屏幕截图
     "0", //需要生物识别
   ];
+  List<String> blockingKeyword = [];
   Appdata(){
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
@@ -95,6 +96,7 @@ class Appdata{
     await s.setString("appChannel",appChannel);
     await s.setStringList("settings", settings);
     await s.setStringList("search", searchHistory);
+    await s.setStringList("blockingKeyword", blockingKeyword);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -120,6 +122,7 @@ class Appdata{
       }
       appChannel = s.getString("appChannel")!;
       searchHistory = s.getStringList("search")??[];
+      blockingKeyword = s.getStringList("blockingKeyword")??[];
       return token==""?false:true;
     }
     catch(e){
