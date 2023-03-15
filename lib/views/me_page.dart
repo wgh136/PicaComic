@@ -79,9 +79,9 @@ class MePage extends StatelessWidget {
                 ),
                 Wrap(
                   children: [
-                    mePageItem(context, Icons.person,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"个人信息","查看或修改账号信息"),
-                    mePageItem(context, Icons.favorite,()=>Get.to(()=>const FavoritesPage()),"收藏夹","查看已收藏的漫画"),
-                    mePageItem(context, Icons.download,()=>Get.to(()=>DownloadPage()),"已下载","管理已下载的漫画"),
+                    mePageItem(context, Icons.badge,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"个人信息","查看或修改账号信息"),
+                    mePageItem(context, Icons.bookmarks,()=>Get.to(()=>const FavoritesPage()),"收藏夹","查看已收藏的漫画"),
+                    mePageItem(context, Icons.download_for_offline,()=>Get.to(()=>DownloadPage()),"已下载","管理已下载的漫画"),
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,(){
@@ -132,12 +132,7 @@ Widget mePageItem(BuildContext context, IconData icon, void Function() page, Str
         ),
         child: Row(
           children: [
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Icon(icon,size: 50,color: Theme.of(context).colorScheme.primary,)
-            )),
-            const SizedBox(width: 5,),
+            const SizedBox(width: 20,),
             Expanded(
               flex: 3,
               child: Column(
@@ -153,7 +148,13 @@ Widget mePageItem(BuildContext context, IconData icon, void Function() page, Str
                   )
                 ],
               ),
-            )
+            ),
+            const SizedBox(width: 5,),
+            Expanded(
+                flex: 1,
+                child: Center(
+                    child: Icon(icon,size: 55,color: Theme.of(context).colorScheme.secondary,)
+                )),
           ],
         ),
       ),

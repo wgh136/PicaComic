@@ -118,18 +118,17 @@ class PreSearchPage extends StatelessWidget {
                     Wrap(
                       children: [
                         for(var s in hotSearch)
-                          GestureDetector(
-                            onTap: (){
-                              Get.to(()=>SearchPage(s));
-                            },
-                            child: Card(
-                              margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                              elevation: 0,
-                              color: Theme.of(context).colorScheme.surfaceVariant,
+                          Card(
+                            margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            elevation: 0,
+                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            child: InkWell(
+                              borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              onTap: ()=>Get.to(()=>SearchPage(s)),
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
                             ),
-                          ),
+                          )
                       ],
                     )
                   ],
@@ -149,14 +148,13 @@ class PreSearchPage extends StatelessWidget {
                         Wrap(
                           children: [
                             for(var s in appdata.searchHistory.reversed)
-                              GestureDetector(
-                                onTap: (){
-                                  Get.to(()=>SearchPage(s));
-                                },
-                                child: Card(
-                                  margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                  elevation: 0,
-                                  color: Theme.of(context).colorScheme.surfaceVariant,
+                              Card(
+                                margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                elevation: 0,
+                                color: Theme.of(context).colorScheme.surfaceVariant,
+                                child: InkWell(
+                                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                                  onTap: ()=>Get.to(()=>SearchPage(s)),
                                   child: Padding(
                                     padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
                                 ),

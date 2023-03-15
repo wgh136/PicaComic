@@ -49,6 +49,11 @@ class Appdata{
     "0", //需要生物识别
   ];
   List<String> blockingKeyword = [];
+  List<String> firstUse = [
+    "1",//屏蔽关键词1
+    "1",//屏蔽关键词2
+    "1",//漫画详情页
+  ];
   Appdata(){
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
@@ -97,6 +102,7 @@ class Appdata{
     await s.setStringList("settings", settings);
     await s.setStringList("search", searchHistory);
     await s.setStringList("blockingKeyword", blockingKeyword);
+    await s.setStringList("firstUse", firstUse);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -123,6 +129,12 @@ class Appdata{
       appChannel = s.getString("appChannel")!;
       searchHistory = s.getStringList("search")??[];
       blockingKeyword = s.getStringList("blockingKeyword")??[];
+      if(s.getStringList("firstUse")!=null) {
+        var st = s.getStringList("firstUse")!;
+        for(int i=0;i<st.length;i++){
+          firstUse[i] = st[i];
+        }
+      }
       return token==""?false:true;
     }
     catch(e){

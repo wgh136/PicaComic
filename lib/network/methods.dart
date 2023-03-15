@@ -207,6 +207,31 @@ class Network{
         s.loaded++;
         s.pages = res["data"]["comics"]["pages"];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+          //检查屏蔽词
+          bool flag = false;
+          if(
+            appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["author"]??"")||
+            appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["chineseTeam"]??"")
+          ){
+            continue;
+          }
+
+          for(var s in res["data"]["comics"]["docs"][i]["tags"]??[]){
+            if(appdata.blockingKeyword.contains(s)){
+              flag = true;
+              break;
+            }
+          }
+
+          for(var s in res["data"]["comics"]["docs"][i]["categories"]??[]){
+            if(appdata.blockingKeyword.contains(s)){
+              flag = true;
+              break;
+            }
+          }
+
+          if(flag)  continue;
+
           var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
               res["data"]["comics"]["docs"][i]["author"]??"未知",
               res["data"]["comics"]["docs"][i]["likesCount"]??0,
@@ -233,6 +258,10 @@ class Network{
       appdata.writeData();
     }
     var s = SearchResult(keyWord, sort, [], 1, 0);
+    if(appdata.blockingKeyword.contains(keyWord)){
+      s.loaded++;
+      return s;
+    }
     await loadMoreSearch(s);
     if(addToHistory) {
       Future.delayed(const Duration(microseconds: 500),()=>Get.find<HistorySearchController>().update());
@@ -785,6 +814,31 @@ class Network{
         s.loaded++;
         s.pages = res["data"]["comics"]["pages"];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+          //检查屏蔽词
+          bool flag = false;
+          if(
+          appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["author"]??"")||
+              appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["chineseTeam"]??"")
+          ){
+            continue;
+          }
+
+          for(var s in res["data"]["comics"]["docs"][i]["tags"]??[]){
+            if(appdata.blockingKeyword.contains(s)){
+              flag = true;
+              break;
+            }
+          }
+
+          for(var s in res["data"]["comics"]["docs"][i]["categories"]??[]){
+            if(appdata.blockingKeyword.contains(s)){
+              flag = true;
+              break;
+            }
+          }
+
+          if(flag)  continue;
+
           var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
               res["data"]["comics"]["docs"][i]["author"]??"未知",
               res["data"]["comics"]["docs"][i]["likesCount"]??0,

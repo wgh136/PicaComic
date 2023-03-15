@@ -10,13 +10,15 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
     );
   }else{
     return Stack(
-      children: const [
+      children: [
         Positioned(child: CustomScrollView(
           slivers: [
-            SliverAppBar(pinned: true,),
+            SliverAppBar.large(
+              title: const Text(""),
+            ),
           ],
         )),
-        Center(
+        const Center(
           child: CircularProgressIndicator(),
         )
       ],

@@ -4,6 +4,7 @@ import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/views/blocking_keyword_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -391,6 +392,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           appdata.writeData();
                         },
                       ),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.block,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("关键词屏蔽"),
+                      onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>BlockingKeywordPage(popUp: widget.popUp,))),
+                      trailing: const Icon(Icons.arrow_right),
                     ),
                   ],
                 ),

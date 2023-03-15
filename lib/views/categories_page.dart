@@ -70,7 +70,7 @@ class CategoriesPage extends StatelessWidget {
                         (context, i){
                       if(i==0){
                         return InkWell(
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(16),
                             onTap: (){
                               Get.to(()=>const CollectionsPage());
                             },
@@ -79,15 +79,16 @@ class CategoriesPage extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Expanded(
-                                    flex: 5,
+                                    flex: 6,
                                     child: Container(
+                                      height: double.infinity,
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(18)
+                                          borderRadius: BorderRadius.circular(16)
                                       ),
                                       clipBehavior: Clip.antiAlias,
                                       child: const Image(
                                         image: AssetImage("images/collections.png"),
-                                        fit: BoxFit.fill,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
@@ -121,15 +122,16 @@ class CategoriesPage extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Expanded(
-                                    flex: 5,
+                                    flex: 6,
                                     child: Container(
+                                      height: double.infinity,
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(18)
                                       ),
                                       clipBehavior: Clip.antiAlias,
                                       child: const Image(
                                         image: AssetImage("images/help.jpg"),
-                                        fit: BoxFit.fill,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),

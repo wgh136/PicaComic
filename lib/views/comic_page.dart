@@ -175,76 +175,10 @@ class ComicPage extends StatelessWidget{
       if (c != null) {
         logic.comicItem = c;
         for (String s in c.tags) {
-          logic.tags.add(GestureDetector(
-            onTap: () {
-              Get.to(() => CategoryComicPage(s),preventDuplicates: false);
-            },
-            onLongPress: (){
-              Clipboard.setData(ClipboardData(text: (s)));
-              showMessage(context, "已复制");
-            },
-            onSecondaryTapUp: (details){
-              showMenu(
-                  context: context,
-                  position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                  items: [
-                    PopupMenuItem(
-                      child: const Text("复制"),
-                      onTap: (){
-                        Clipboard.setData(ClipboardData(text: (s)));
-                        showMessage(context, "已复制");
-                      },
-                    )
-                  ]
-              );
-            },
-            child: Card(
-              margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-              elevation: 0,
-              color: Theme
-                  .of(context)
-                  .colorScheme
-                  .primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
-            ),
-          ));
+          logic.tags.add(buildInfoCard(s, context));
         }
         for (String s in c.categories) {
-          logic.categories.add(GestureDetector(
-            onTap: () {
-              Get.to(() => CategoryComicPage(s,type: 1,),preventDuplicates: false);
-            },
-            onLongPress: (){
-              Clipboard.setData(ClipboardData(text: (s)));
-              showMessage(context, "已复制");
-            },
-            onSecondaryTapUp: (details){
-              showMenu(
-                  context: context,
-                  position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                  items: [
-                    PopupMenuItem(
-                      child: const Text("复制"),
-                      onTap: (){
-                        Clipboard.setData(ClipboardData(text: (s)));
-                        showMessage(context, "已复制");
-                      },
-                    )
-                  ]
-              );
-            },
-            child: Card(
-              margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-              elevation: 0,
-              color: Theme
-                  .of(context)
-                  .colorScheme
-                  .primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
-            ),
-          ));
+          logic.categories.add(buildInfoCard(s, context));
         }
         bool flag1 = false;
         bool flag2 = false;
@@ -333,7 +267,22 @@ class ComicPage extends StatelessWidget{
   }
 
   List<Widget> buildInfoCards(ComicPageLogic logic, BuildContext context){
-    var res = <Widget>[];
+    var res = <Widget>[
+      if(appdata.firstUse[2]=="1")
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+        child: MaterialBanner(
+            elevation: 1,
+            content: const Text("要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键"),
+            actions: [
+              TextButton(onPressed: (){
+                appdata.firstUse[2] = "0";
+                logic.update();
+                appdata.writeData();
+              }, child: const Text("关闭"))
+            ]),
+      )
+    ];
 
     if(logic.comicItem!.author!=""){
       res.add(const SizedBox(
@@ -345,40 +294,7 @@ class ComicPage extends StatelessWidget{
     if(logic.comicItem!.author!=""){
       res.add(Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-          child: GestureDetector(
-            child: Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                child: Text(logic.comicItem!.author),
-              ),
-            ),
-            onTap: (){
-              if(logic.comicItem!.author!=""){
-                Get.to(()=>CategoryComicPage(logic.comicItem!.author),preventDuplicates: false);
-              }
-            },
-            onLongPress: (){
-              Clipboard.setData(ClipboardData(text: (logic.comicItem!.author)));
-              showMessage(context, "已复制");
-            },
-            onSecondaryTapUp: (details){
-              showMenu(
-                  context: context,
-                  position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                  items: [
-                    PopupMenuItem(
-                      child: const Text("复制"),
-                      onTap: (){
-                        Clipboard.setData(ClipboardData(text: (logic.comicItem!.author)));
-                        showMessage(context, "已复制");
-                      },
-                    )
-                  ]
-              );
-            },
-          )
+          child: buildInfoCard(logic.comicItem!.author, context)
       ));
     }
 
@@ -392,40 +308,7 @@ class ComicPage extends StatelessWidget{
     if(logic.comicItem!.chineseTeam!="") {
       res.add(Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-          child: GestureDetector(
-            child: Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                child: Text(logic.comicItem!.chineseTeam),
-              ),
-            ),
-            onTap: (){
-              if(logic.comicItem!.chineseTeam!=""){
-                Get.to(()=>CategoryComicPage(logic.comicItem!.chineseTeam),preventDuplicates: false);
-              }
-            },
-            onLongPress: (){
-              Clipboard.setData(ClipboardData(text: (logic.comicItem!.chineseTeam)));
-              showMessage(context, "已复制");
-            },
-            onSecondaryTapUp: (details){
-              showMenu(
-                  context: context,
-                  position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                  items: [
-                    PopupMenuItem(
-                      child: const Text("复制"),
-                      onTap: (){
-                        Clipboard.setData(ClipboardData(text: (logic.comicItem!.chineseTeam)));
-                        showMessage(context, "已复制");
-                      },
-                    )
-                  ]
-              );
-            },
-          )
+          child: buildInfoCard(logic.comicItem!.chineseTeam, context)
       ));
     }
 
@@ -611,76 +494,10 @@ class ComicPage extends StatelessWidget{
       logic.isLoading = false;
       logic.comicItem = downloadComic.comicItem;
       for (String s in logic.comicItem!.tags) {
-        logic.tags.add(GestureDetector(
-          onTap: () {
-            Get.to(() => CategoryComicPage(s),preventDuplicates: false);
-          },
-          onLongPress: (){
-            Clipboard.setData(ClipboardData(text: (s)));
-            showMessage(context, "已复制");
-          },
-          onSecondaryTapUp: (details){
-            showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                items: [
-                  PopupMenuItem(
-                    child: const Text("复制"),
-                    onTap: (){
-                      Clipboard.setData(ClipboardData(text: (s)));
-                      showMessage(context, "已复制");
-                    },
-                  )
-                ]
-            );
-          },
-          child: Card(
-            margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-            elevation: 0,
-            color: Theme
-                .of(context)
-                .colorScheme
-                .primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
-          ),
-        ));
+        logic.tags.add(buildInfoCard(s, context));
       }
       for (String s in logic.comicItem!.categories) {
-        logic.categories.add(GestureDetector(
-          onTap: () {
-            Get.to(() => CategoryComicPage(s,type: 1,),preventDuplicates: false);
-          },
-          onLongPress: (){
-            Clipboard.setData(ClipboardData(text: (s)));
-            showMessage(context, "已复制");
-          },
-          onSecondaryTapUp: (details){
-            showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                items: [
-                  PopupMenuItem(
-                    child: const Text("复制"),
-                    onTap: (){
-                      Clipboard.setData(ClipboardData(text: (s)));
-                      showMessage(context, "已复制");
-                    },
-                  )
-                ]
-            );
-          },
-          child: Card(
-            margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-            elevation: 0,
-            color: Theme
-                .of(context)
-                .colorScheme
-                .primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(s),),
-          ),
-        ));
+        logic.categories.add(buildInfoCard(s, context));
       }
 
       for (int i = 1; i < downloadComic.chapters.length; i++) {
@@ -699,6 +516,70 @@ class ComicPage extends StatelessWidget{
       logic.noNetwork = true;
       logic.update();
     });
+  }
+
+  Widget buildInfoCard(String title, BuildContext context){
+    return GestureDetector(
+      onLongPressStart: (details){
+        showMenu(
+            context: context,
+            position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+            items: [
+              PopupMenuItem(
+                child: const Text("复制"),
+                onTap: (){
+                  Clipboard.setData(ClipboardData(text: (title)));
+                  showMessage(context, "已复制");
+                },
+              ),
+              PopupMenuItem(
+                child: const Text("添加到屏蔽词"),
+                onTap: (){
+                  appdata.blockingKeyword.add(title);
+                  appdata.writeData();
+                },
+              ),
+            ]
+        );
+      },
+      onSecondaryTapUp: (details){
+        showMenu(
+            context: context,
+            position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
+            items: [
+              PopupMenuItem(
+                child: const Text("复制"),
+                onTap: (){
+                  Clipboard.setData(ClipboardData(text: (title)));
+                  showMessage(context, "已复制");
+                },
+              ),
+              PopupMenuItem(
+                child: const Text("添加到屏蔽词"),
+                onTap: (){
+                  appdata.blockingKeyword.add(title);
+                  appdata.writeData();
+                },
+              ),
+            ]
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        elevation: 0,
+        color: Theme
+            .of(context)
+            .colorScheme
+            .primaryContainer,
+        child: InkWell(
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          onTap: ()=>Get.to(() => CategoryComicPage(title),preventDuplicates: false),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(title),
+          ),
+        ),
+      ),
+    );
   }
 }
 

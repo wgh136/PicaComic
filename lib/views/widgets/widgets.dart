@@ -18,7 +18,7 @@ class ComicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
       onTap: onTap??(){
         while(true) {
           bool flag = true;
@@ -47,7 +47,7 @@ class ComicTile extends StatelessWidget {
                 flex: 2,
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18)
+                    borderRadius: BorderRadius.circular(16)
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: onTap==null?(cached?CachedNetworkImage(
@@ -148,7 +148,7 @@ class CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         onTap: (){
           Get.to(()=>CategoryComicPage(categoryItem.title,type: 1,));
         },
@@ -157,10 +157,11 @@ class CategoryTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                flex: 5,
+                flex: 6,
                 child: Container(
+                  height: double.infinity,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18)
+                      borderRadius: BorderRadius.circular(16)
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: CachedNetworkImage(

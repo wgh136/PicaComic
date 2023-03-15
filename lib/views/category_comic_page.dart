@@ -35,6 +35,33 @@ class CategoryComicPage extends StatelessWidget {
         init: CategoryComicPageLogic(),
         tag: keyWord,
         builder: (categoryComicPageLogic){
+        if(appdata.blockingKeyword.contains(keyWord)){
+          return Stack(
+            children: [
+              Positioned(child: CustomScrollView(
+                slivers: [
+                  SliverAppBar.large(
+                    title: const Text(""),
+                  ),
+                ],
+              )),
+              Center(
+                child: SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Column(
+                    children: [
+                      Icon(Icons.error,size: 40,color: Theme.of(context).colorScheme.error,),
+                      const SizedBox(height: 10,),
+                      Text("[$keyWord]已被屏蔽")
+                    ],
+                  ),
+                ),
+              )
+            ],
+          );
+        }
+
         if(categoryComicPageLogic.isLoading){
           if(type == 1){
               network.getCategoryComics(keyWord, appdata.settings[1]).then((s) {
