@@ -58,7 +58,8 @@ class ComicReadingPage extends StatefulWidget{
   final int order;
   final List<String> eps;
   final String title;
-  const ComicReadingPage(this.comicId,this.order,this.eps,this.title,{Key? key}) : super(key: key);
+  final int initialPage;
+  const ComicReadingPage(this.comicId,this.order,this.eps,this.title,{Key? key, this.initialPage=0}) : super(key: key);
   @override
   State<StatefulWidget> createState() => _ComicReadingPageState();
 
@@ -71,11 +72,10 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
   late final List<String> eps = widget.eps; //注意: eps的第一个是标题, 不是章节
   late final String title = widget.title;
   late final int order = widget.order;
-  var dyTemp = 114514.2;
+  late var initialPage = widget.initialPage;
   bool downloaded = false;
   ListenVolumeController? listenVolume;
   var epsWidgets = <Widget>[];
-  double currentScale = 1.0;
 
   @override
   initState() {
@@ -104,6 +104,9 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
         ),
       ),
       body: GetBuilder<ComicReadingPageLogic>(
+          dispose: (logic){
+            appdata.saveReadInfo(logic.controller!.order, logic.controller!.index);
+          },
           init: ComicReadingPageLogic(order),
           builder: (comicReadingPageLogic){
             if(comicReadingPageLogic.isLoading){
@@ -153,6 +156,12 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                 child: CircularProgressIndicator(),
               ),);
             }else if(comicReadingPageLogic.urls.isNotEmpty){
+              if(initialPage != 0){
+                //跳转页面
+                Future.delayed(const Duration(milliseconds: 300),()=>comicReadingPageLogic.jumpToPage(widget.initialPage));
+                initialPage=0;
+              }
+
               if(appdata.settings[7]=="1"){
                 listenVolume = ListenVolumeController(
                         () {comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);},

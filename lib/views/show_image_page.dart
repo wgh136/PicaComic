@@ -57,7 +57,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                   left: 10,
                   top: 10,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_outlined,size: 30,),
+                    icon: const Icon(Icons.arrow_back_outlined,size: 30,color: Colors.white70,),
                     onPressed: (){Get.back();},
                   ),
                 ),
@@ -65,7 +65,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                 right: 20,
                 bottom: 20,
                 child: IconButton(
-                  icon: const Icon(Icons.download),
+                  icon: const Icon(Icons.download,color: Colors.white70,),
                   onPressed: () async{
                     saveImage(url);
                   },

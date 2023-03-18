@@ -8,6 +8,7 @@ import 'package:pica_comic/views/profile_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/test_page.dart';
 import '../base.dart';
 import 'favorites_page.dart';
 
@@ -24,6 +25,10 @@ class MePage extends StatelessWidget {
         if(MediaQuery.of(context).size.shortestSide<changePoint)
           SliverAppBar(
             centerTitle: true,
+            pinned: true,
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
             title: const Text(""),
             actions: [
               Tooltip(
@@ -85,7 +90,7 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,(){
-
+                      Get.to(()=>TestPage());
                     },"Debug",""),
                   ],
                 )
@@ -172,7 +177,6 @@ void logout(BuildContext context){
         TextButton(onPressed: ()=>Get.back(), child: const Text("取消",textAlign: TextAlign.end,)),
         TextButton(onPressed: (){
           appdata.token = "";
-          appdata.history.clear();
           appdata.writeData();
           Get.offAll(const WelcomePage());
         }, child: const Text("确定",textAlign: TextAlign.end))

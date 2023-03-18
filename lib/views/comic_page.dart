@@ -7,6 +7,7 @@ import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
 import 'package:pica_comic/views/comic_reading_page.dart';
 import 'package:pica_comic/views/comments_page.dart';
+import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -22,9 +23,11 @@ class ComicPageLogic extends GetxController{
   ComicItem? comicItem;
   bool underReview = false;
   bool noNetwork = false;
+  bool showAppbarTitle = false;
   var tags = <Widget>[];
   var categories = <Widget>[];
   var recommendation = <ComicItemBrief>[];
+  final controller = ScrollController();
   var eps = <Widget>[
     const ListTile(
       leading: Icon(Icons.library_books),
@@ -41,7 +44,8 @@ class ComicPageLogic extends GetxController{
 class ComicPage extends StatelessWidget{
   final ComicItemBrief comic;
   final bool downloaded;
-  const ComicPage(this.comic,{super.key, this.downloaded=false});
+  final HistoryItem? history;
+  const ComicPage(this.comic,{super.key, this.downloaded=false, this.history});
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +66,31 @@ class ComicPage extends StatelessWidget{
           return showLoading(context);
         }else if(logic.comicItem!=null){
           //成功获取到了漫画信息
+          logic.controller.addListener(() {
+            //检测当前滚动位置, 决定是否显示Appbar的标题
+            bool temp = logic.showAppbarTitle;
+            logic.showAppbarTitle = logic.controller.position.pixels>
+                boundingTextSize(
+                    comic.title,
+                    const TextStyle(fontSize: 22),
+                    maxWidth: MediaQuery.of(context).size.width
+                ).height;
+            if(temp!=logic.showAppbarTitle) {
+              logic.update();
+            }
+          });
+
           return CustomScrollView(
+            controller: logic.controller,
             slivers: [
               SliverAppBar(
-                title: const Text("漫画详情"),
+                surfaceTintColor: logic.showAppbarTitle?null:Colors.transparent,
+                shadowColor: Colors.transparent,
+                title: AnimatedOpacity(
+                  opacity: logic.showAppbarTitle?1.0:0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(comic.title),
+                ),
                 pinned: true,
                 actions: [
                   Tooltip(
@@ -442,7 +467,28 @@ class ComicPage extends StatelessWidget{
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
             onPressed: (){
-              Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+              if(history!=null){
+                if(history!.ep!=0){
+                  showDialog(context: context, builder: (dialogContext)=>AlertDialog(
+                    title: const Text("继续阅读"),
+                    content: Text("上次阅读到第${history!.ep}章第${history!.page}页, 是否继续阅读?"),
+                    actions: [
+                      TextButton(onPressed: (){
+                        Get.back();
+                        Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+                        }, child: const Text("从头开始")),
+                      TextButton(onPressed: (){
+                        Get.back();
+                        Get.to(()=>ComicReadingPage(comic.id, history!.ep, logic.epsStr,comic.title,initialPage: history!.page,));
+                        }, child: const Text("继续阅读")),
+                    ],
+                  ));
+                }else{
+                  Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+                }
+              }else {
+                Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+              }
             },
             child: const Text("阅读"),
           ),),
@@ -580,6 +626,17 @@ class ComicPage extends StatelessWidget{
         ),
       ),
     );
+  }
+
+  Size boundingTextSize(String text, TextStyle style,  {int maxLines = 2^31, double maxWidth = double.infinity}) {
+    if (text.isEmpty) {
+      return Size.zero;
+    }
+    final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(text: text, style: style), maxLines: maxLines)
+      ..layout(maxWidth: maxWidth);
+    return textPainter.size;
   }
 }
 

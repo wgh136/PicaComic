@@ -253,14 +253,14 @@ class Network{
         ld: 最多喜欢
         vd: 最多绅士指名
      */
-    if(addToHistory){
+    if(addToHistory&&keyWord!=""){
+      appdata.searchHistory.remove(keyWord);
       appdata.searchHistory.add(keyWord);
       appdata.writeData();
     }
     var s = SearchResult(keyWord, sort, [], 1, 0);
     if(appdata.blockingKeyword.contains(keyWord)){
       s.loaded++;
-      return s;
     }
     await loadMoreSearch(s);
     if(addToHistory) {
@@ -473,6 +473,31 @@ class Network{
     if (res != null) {
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
+          //检查屏蔽词
+          bool flag = false;
+          if(
+          appdata.blockingKeyword.contains(res["data"]["comics"][i]["author"]??"")||
+              appdata.blockingKeyword.contains(res["data"]["comics"][i]["chineseTeam"]??"")) {
+            continue;
+          }
+
+
+          for(var s in res["data"]["comics"][i]["tags"]??[]){
+            if(appdata.blockingKeyword.contains(s)){
+              flag = true;
+              break;
+            }
+          }
+
+          for(var s in res["data"]["comics"][i]["categories"]??[]){
+            if(appdata.blockingKeyword.contains(s)){
+              flag = true;
+              break;
+            }
+          }
+
+          if(flag)  continue;
+
           var si = ComicItemBrief(
               res["data"]["comics"][i]["title"]??"未知",
               res["data"]["comics"][i]["author"]??"未知",

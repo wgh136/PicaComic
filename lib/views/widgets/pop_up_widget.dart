@@ -36,7 +36,7 @@ class PopUpWidget<T> extends PopupRoute<T>{
   }
 
   @override
-  Duration get transitionDuration => const Duration(microseconds: 400);
+  Duration get transitionDuration => const Duration(milliseconds: 200);
 }
 
 Future<T> showPopUpWidget<T>(BuildContext context, Widget widget) async{

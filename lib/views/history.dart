@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 
@@ -12,8 +13,21 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
+  bool status = true;
+
+  @override
+  void dispose() {
+    //清除数据避免历史记录过多, 减少内存占用
+    appdata.history.clear();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if(status){
+      status = false;
+      appdata.readHistory().then((v)=>setState((){}));
+    }
     return Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -28,7 +42,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     onPressed: (){
                       setState(() {
                         appdata.history.clear();
-                        appdata.writeData();
+                        appdata.saveHistory();
                       });
                     },
                   ),
@@ -38,8 +52,18 @@ class _HistoryPageState extends State<HistoryPage> {
             SliverGrid(
               delegate: SliverChildBuilderDelegate(
                   childCount: appdata.history.length,
-                      (context, i){
-                    return ComicTile(appdata.history[appdata.history.length-1-i]);
+                      (context, index){
+                    var i = appdata.history.length-index-1;
+                    return ComicTile(
+                      ComicItemBrief(
+                          appdata.history[i].title,
+                          appdata.history[i].author,
+                          0,
+                          appdata.history[i].cover,
+                          appdata.history[i].id
+                      ),
+                      time: "${appdata.history[i].time.year}-${appdata.history[i].time.month}-${appdata.history[i].time.day} ${appdata.history[i].time.hour}:${appdata.history[i].time.minute}"
+                    );
                   }
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

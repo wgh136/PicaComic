@@ -13,30 +13,16 @@ class ComicTile extends StatelessWidget {
   final void Function()? onLongTap;
   final bool cached;
   final String? size;
-  const ComicTile(this.comic,{Key? key,this.onTap,this.size,this.onLongTap,this.cached=true}) : super(key: key);
+  final String? time;
+  const ComicTile(this.comic,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: onTap??(){
-        while(true) {
-          bool flag = true;
-          for (var c in appdata.history) {
-            if (c.id == comic.id) {
-              appdata.history.remove(c);
-              flag = false;
-              break;
-            }
-          }
-          if(flag) break;
-        }
-        appdata.history.add(comic);
-        if(appdata.history.length>100){
-          appdata.history.removeAt(0);
-        }
-        appdata.writeData();
-        Get.to(() => ComicPage(comic),preventDuplicates: false);
+      onTap: onTap??() async{
+        var history = await appdata.addHistory(comic);
+        Get.to(() => ComicPage(comic,history: history,),preventDuplicates: false);
       },
         onLongPress: onLongTap,
         child: Padding(
@@ -73,7 +59,7 @@ class ComicTile extends StatelessWidget {
                 child: ComicDescription(
                   title: comic.title,
                   user: comic.author,
-                  subDescription: onTap==null?'${comic.likes} likes':"${size??"未知"} MB",
+                  subDescription: time==null?(onTap==null?'${comic.likes} likes':"${size??"未知"} MB"):time!,
                 ),
               ),
               //const Center(

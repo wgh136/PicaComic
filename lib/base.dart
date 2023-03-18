@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/notification.dart';
+import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/models.dart';
 
@@ -28,8 +30,8 @@ var downloadManager = DownloadManage();
 class Appdata{
   late String token;
   late Profile user;
-  late List<ComicItemBrief> history;
   late String appChannel;
+  late List<HistoryItem> history;
   late List<String> searchHistory;
   bool flag = true; //用于提供一些页面间通讯
   List<String> settings = [
@@ -79,7 +81,6 @@ class Appdata{
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
     user = temp;
-    history = [];
     writeData();
   }
 
@@ -93,11 +94,6 @@ class Appdata{
     await s.setInt("userLevel",user.level);
     await s.setInt("userExp",user.exp);
     await s.setString("userTitle", user.title);
-    await s.setInt("historyLength",history.length);
-    for(int i=0;i<history.length;i++){
-      var data = [history[i].title,history[i].id,history[i].author,history[i].path,history[i].likes.toString()];
-      await s.setStringList("historyData$i", data);
-    }
     await s.setString("appChannel",appChannel);
     await s.setStringList("settings", settings);
     await s.setStringList("search", searchHistory);
@@ -121,11 +117,6 @@ class Appdata{
           settings[i] = st[i];
         }
       }
-      for(int i=0;i<s.getInt("historyLength")!;i++){
-        var data = s.getStringList("historyData$i");
-        var c = ComicItemBrief(data![0], data[2], int.parse(data[4]), data[3], data[1]);
-        history.add(c);
-      }
       appChannel = s.getString("appChannel")!;
       searchHistory = s.getStringList("search")??[];
       blockingKeyword = s.getStringList("blockingKeyword")??[];
@@ -140,6 +131,49 @@ class Appdata{
     catch(e){
       return false;
     }
+  }
+
+  Future<void> saveHistory() async{
+    var data = const JsonEncoder().convert(List.generate(history.length, (index) => history[index].toMap()));
+    var s = await SharedPreferences.getInstance();
+    await s.setString("newHistory", data);
+  }
+
+  Future<void> readHistory() async{
+    var s = await SharedPreferences.getInstance();
+    var data = const JsonDecoder().convert(s.getString("newHistory")??"[]");
+    for(var c in data){
+      history.add(HistoryItem.fromMap(c));
+    }
+  }
+
+  Future<HistoryItem> addHistory(ComicItemBrief item) async{
+    await readHistory();
+    var ep = 0;
+    var page = 0;
+    var newHistory = <HistoryItem>[];
+    for(var comic in history){
+      if(comic.id==item.id){
+        ep = comic.ep;
+        page = comic.page;
+      }else{
+        newHistory.add(comic);
+      }
+    }
+    newHistory.add(HistoryItem(item.id,item.title,item.author,item.path,DateTime.now(),ep,page));
+    history = newHistory;
+    await saveHistory();
+    history.clear();
+    return HistoryItem(item.id,item.title,item.author,item.path,DateTime.now(),ep,page);
+  }
+
+  void saveReadInfo(int ep, int page) async{
+    await readHistory();
+    history.last.ep = ep;
+    history.last.page = page;
+    history.last.time = DateTime.now();
+    await saveHistory();
+    history.clear();
   }
 }
 
