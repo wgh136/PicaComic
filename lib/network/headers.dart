@@ -39,13 +39,12 @@ BaseOptions getHeaders(String method,String token,String url){
           "signature": createSignature(url, nonce, time, "POST"),
           "app-version":"2.2.1.3.3.4",
           "app-uuid":"defaultUuid",
-          "image-quality":"medium",
+          "image-quality":appdata.imageQuality,
           "app-platform":"android",
           "app-build-version":"45",
           "Content-Type":"application/json; charset=UTF-8",
           "user-agent":"okhttp/3.8.1",
           "version": "v1.4.1",
-          "Access-Control-Allow-Origin": "*"
         }
     );
   }
@@ -63,7 +62,7 @@ BaseOptions getHeaders(String method,String token,String url){
           "signature": createSignature(url, nonce, time, "POST"),
           "app-version":"2.2.1.3.3.4",
           "app-uuid":"defaultUuid",
-          "image-quality":"original",
+          "image-quality":appdata.imageQuality,
           "app-platform":"android",
           "app-build-version":"45",
           "content-Type":"application/json; charset=UTF-8",
@@ -86,7 +85,7 @@ BaseOptions getHeaders(String method,String token,String url){
           "signature": createSignature(url, nonce, time, "GET"),
           "app-version":"2.2.1.3.3.4",
           "app-uuid":"defaultUuid",
-          "image-quality":"original",
+          "image-quality":appdata.imageQuality,
           "app-platform":"android",
           "app-build-version":"45",
           "accept-encoding": "gzip",
@@ -108,7 +107,7 @@ BaseOptions getHeaders(String method,String token,String url){
           "signature": createSignature(url, nonce, time, "PUT"),
           "app-version":"2.2.1.3.3.4",
           "app-uuid":"defaultUuid",
-          "image-quality":"original",
+          "image-quality":appdata.imageQuality,
           "app-platform":"android",
           "app-build-version":"45",
           "Content-Type":"application/json; charset=UTF-8",

@@ -33,7 +33,7 @@ dependencies:
 
 
   # The following adds the Cupertino Icons font to your application.
-  dio: ^5.0.0
+  dio: ^5.0.3
   get: ^4.6.5
   shared_preferences: ^2.0.16
   dynamic_color: ^1.5.4
@@ -45,7 +45,7 @@ dependencies:
   url_launcher: ^6.1.8
   path_provider: ^2.0.12
   device_info : ^2.0.3
-  sentry_flutter: ^6.21.0
+  sentry_flutter: ^7.1.0
   file_selector: ^0.9.2
   image_picker: ^0.8.6
   flutter_cache_manager: any

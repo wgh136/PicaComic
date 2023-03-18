@@ -31,6 +31,7 @@ class Appdata{
   late String token;
   late Profile user;
   late String appChannel;
+  late String imageQuality;
   late List<HistoryItem> history;
   late List<String> searchHistory;
   bool flag = true; //用于提供一些页面间通讯
@@ -63,6 +64,27 @@ class Appdata{
     history = [];
     appChannel = "3";
     searchHistory = [];
+    imageQuality = "original";
+  }
+
+  void setQuality(int i){
+    switch(i){
+      case 1: imageQuality="low";break;
+      case 2: imageQuality="middle";break;
+      case 3: imageQuality="high";break;
+      case 4: imageQuality="original";break;
+    }
+    writeData();
+  }
+
+  int getQuality(){
+    switch(imageQuality){
+      case "low": return 1;
+      case "middle": return 2;
+      case "high": return 3;
+      case "original": return 4;
+      default: return 4;
+    }
   }
 
   int getSearchMod(){
@@ -99,6 +121,7 @@ class Appdata{
     await s.setStringList("search", searchHistory);
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
+    await s.setString("image", imageQuality);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -126,6 +149,7 @@ class Appdata{
           firstUse[i] = st[i];
         }
       }
+      imageQuality = s.getString("image")??"original";
       return token==""?false:true;
     }
     catch(e){

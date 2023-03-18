@@ -25,10 +25,6 @@ class MePage extends StatelessWidget {
         if(MediaQuery.of(context).size.shortestSide<changePoint)
           SliverAppBar(
             centerTitle: true,
-            pinned: true,
-            surfaceTintColor: Colors.transparent,
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
             title: const Text(""),
             actions: [
               Tooltip(

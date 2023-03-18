@@ -223,6 +223,68 @@ class ReadingMethodLogic extends GetxController{
   }
 }
 
+void setImageQuality(BuildContext context){
+  showDialog(context: context, builder: (BuildContext context) => SimpleDialog(
+      title: const Text("选择阅读模式"),
+      children: [GetBuilder<SetImageQualityLogic>(
+        init: SetImageQualityLogic(),
+        builder: (radioLogic){
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(width: 400,),
+              ListTile(
+                trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
+                  radioLogic.setValue(i!);
+                },),
+                title: const Text("低"),
+                onTap: (){
+                  radioLogic.setValue(1);
+                },
+              ),
+              ListTile(
+                trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
+                  radioLogic.setValue(i!);
+                },),
+                title: const Text("中"),
+                onTap: (){
+                  radioLogic.setValue(2);
+                },
+              ),
+              ListTile(
+                trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
+                  radioLogic.setValue(i!);
+                },),
+                title: const Text("高"),
+                onTap: (){
+                  radioLogic.setValue(3);
+                },
+              ),
+              ListTile(
+                trailing: Radio<int>(value: 4,groupValue: radioLogic.value,onChanged: (i){
+                  radioLogic.setValue(i!);
+                },),
+                title: const Text("原图"),
+                onTap: (){
+                  radioLogic.setValue(4);
+                },
+              ),
+            ],
+          );
+        },),]
+  ));
+}
+
+class SetImageQualityLogic extends GetxController{
+  var value = appdata.getQuality();
+
+  void setValue(int i){
+    value = i;
+    appdata.setQuality(i);
+    update();
+  }
+}
+
 class RadioLogic extends GetxController{
   int value = int.parse(appdata.appChannel)-1;
   void change(int i){
@@ -397,6 +459,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading: Icon(Icons.block,color: Theme.of(context).colorScheme.secondary),
                       title: const Text("关键词屏蔽"),
                       onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>BlockingKeywordPage(popUp: widget.popUp,))),
+                      trailing: const Icon(Icons.arrow_right),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.image,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("设置图片质量"),
+                      onTap: ()=>setImageQuality(context),
                       trailing: const Icon(Icons.arrow_right),
                     ),
                   ],
