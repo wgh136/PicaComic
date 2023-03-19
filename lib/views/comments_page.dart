@@ -130,7 +130,8 @@ class CommentsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
+              ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom,)
             ],
           );
         }

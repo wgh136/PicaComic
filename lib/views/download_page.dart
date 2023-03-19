@@ -227,7 +227,7 @@ class DownloadPage extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: logic.selected[index]?const Color.fromARGB(100, 121, 125, 127):Colors.transparent
                               ),
-                              child: ComicTile(logic.comics[index].comicItem.toBrief(),onTap: (){
+                              child: ComicTile(logic.comics[index].comicItem.toBrief(),onTap: () async{
                                 if(logic.selecting){
                                   logic.selected[index] = !logic.selected[index];
                                   logic.selected[index]?logic.selectedNum++:logic.selectedNum--;
@@ -236,7 +236,8 @@ class DownloadPage extends StatelessWidget {
                                   }
                                   logic.update();
                                 }else{
-                                  Get.to(()=>ComicPage(logic.comics[index].comicItem.toBrief(),downloaded: true,));
+                                  var history = await appdata.addHistory(logic.comics[index].comicItem.toBrief());
+                                  Get.to(() => ComicPage(logic.comics[index].comicItem.toBrief(),history: history,),preventDuplicates: false);
                                 }
                               },
                                 size: s,
