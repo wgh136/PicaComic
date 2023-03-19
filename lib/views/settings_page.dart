@@ -225,7 +225,7 @@ class ReadingMethodLogic extends GetxController{
 
 void setImageQuality(BuildContext context){
   showDialog(context: context, builder: (BuildContext context) => SimpleDialog(
-      title: const Text("选择阅读模式"),
+      title: const Text("设置图片质量"),
       children: [GetBuilder<SetImageQualityLogic>(
         init: SetImageQualityLogic(),
         builder: (radioLogic){

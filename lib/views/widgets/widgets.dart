@@ -171,7 +171,7 @@ class CategoryTile extends StatelessWidget {
   }
 }
 
-void showMessage(context, String message, {int time=1}){
+void showMessage(context, String message, {int time=2}){
   Get.showSnackbar(GetSnackBar(
     message: message,
     maxWidth: 350,

@@ -65,15 +65,18 @@ class RegisterPage extends StatelessWidget {
         body: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 40,
-                child: Row(
-                  children: const [
-                    SizedBox(width: 10,),
-                    Icon(Icons.info_outline),
-                    SizedBox(width: 5,),
-                    Text("为防止滥用, 不能使用中转服务器进行注册")
-                  ],
+              child: Center(
+                child: SizedBox(
+                  height: 40,
+                  width: 350,
+                  child: Row(
+                    children: const [
+                      SizedBox(width: 10,),
+                      Icon(Icons.info_outline),
+                      SizedBox(width: 5,),
+                      Text("为防止滥用, 不能使用中转服务器进行注册")
+                    ],
+                  ),
                 ),
               ),
             ),
