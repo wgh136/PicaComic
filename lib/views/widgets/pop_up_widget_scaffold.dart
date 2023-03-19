@@ -34,7 +34,8 @@ class PopUpWidgetScaffold extends StatelessWidget {
               ],
             ),
           ),
-          Expanded(child: body)
+          Expanded(child: body),
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom,)
         ],
       ),
     );

@@ -173,6 +173,7 @@ void logout(BuildContext context){
         TextButton(onPressed: ()=>Get.back(), child: const Text("取消",textAlign: TextAlign.end,)),
         TextButton(onPressed: (){
           appdata.token = "";
+          appdata.settings[13] = "0";
           appdata.writeData();
           Get.offAll(const WelcomePage());
         }, child: const Text("确定",textAlign: TextAlign.end))

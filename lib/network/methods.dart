@@ -52,6 +52,8 @@ class Network{
         message = jsonResponse["message"];
         return null;
       }else if(res.statusCode == 401){
+        appdata.settings[13] = "0";
+        appdata.writeData();
         Get.offAll(const LoginPage());
         showMessage(Get.context, "登录失效");
         return null;
@@ -95,6 +97,8 @@ class Network{
         message = jsonResponse["message"];
         return null;
       }else if(res.statusCode == 401){
+        appdata.settings[13] = "0";
+        appdata.writeData();
         Get.offAll(const LoginPage());
         showMessage(Get.context, "登录失效");
         return null;

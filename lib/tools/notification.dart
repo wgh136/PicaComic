@@ -8,14 +8,13 @@ class Notifications{
   final progressId = 72382;
 
   Future<void> requestPermission() async{
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
     await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
   }
 
   Future<void> init() async{
-    //此函数应当在程序启动时执行
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
     flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -29,7 +28,7 @@ class Notifications{
   }
 
   void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
     final String? payload = notificationResponse.payload;
     if (notificationResponse.payload != null) {
       debugPrint('notification payload: $payload');
@@ -38,7 +37,7 @@ class Notifications{
   }
 
   void sendProgressNotification(int progress, int total, String title, String content) async{
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
     await requestPermission();
     AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails('download', '下载漫画',
@@ -60,13 +59,13 @@ class Notifications{
   }
 
   void endProgress() async{
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
     await requestPermission();
     await flutterLocalNotificationsPlugin!.cancel(progressId);
   }
 
   void sendNotification(String title, String content) async{
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
     await requestPermission();
     AndroidNotificationDetails androidNotificationDetails =
     const AndroidNotificationDetails('PicaComic', '通知',
