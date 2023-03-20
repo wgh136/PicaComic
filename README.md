@@ -1,8 +1,8 @@
 # Pica Comic
 
-使用flutter构建的跨平台非官方Picacg App
+非官方Picacg App
 
-目前已有Android, Windows版本, Web版本, 其它平台也会进行开发
+目前支持Android, Windows, Web
 
 Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 
@@ -45,7 +45,6 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - [photo_view](https://pub.dev/packages/photo_view): 图片查看
 - [url_launcher](https://pub.dev/packages/url_launcher): 打开网页
 - [device_info](https://pub.dev/packages/device_info): 读取设备信息(用于更新时检测应下载的版本)
-- [sentry](https://sentry.io): 错误捕获
 - [file_selector](https://pub.dev/packages/file_selector)&[image_picker](https://pub.dev/packages/image_picker): 选择文件
 - [image_gallery_saver](https://pub.dev/packages/image_gallery_saver): 将图片保存至相册
 - [flutter_file_dialog](https://pub.dev/packages/flutter_file_dialog): 保存文件
