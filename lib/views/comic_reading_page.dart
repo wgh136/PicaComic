@@ -14,8 +14,8 @@ import 'package:pica_comic/tools/save_image.dart';
 import '../tools/key_down_event.dart';
 
 class ComicReadingPageLogic extends GetxController{
-  var controller = PageController(initialPage: 1);
-  var scrollController = ItemScrollController();
+  final controller = PageController(initialPage: 1);
+  final scrollController = ItemScrollController();
   var scrollListener = ItemPositionsListener.create();
   var cont = ScrollController(keepScrollOffset: false);
   var transformationController = TransformationController();
@@ -27,10 +27,12 @@ class ComicReadingPageLogic extends GetxController{
   bool showSettings = false;
   var urls = <String>[];
   int fingers = 0;
+
   void change(){
     isLoading = !isLoading;
     update();
   }
+
   void jumpToNextPage(){
     if(appdata.settings[9]!="4") {
       controller.jumpToPage(index+1);
@@ -38,6 +40,7 @@ class ComicReadingPageLogic extends GetxController{
       scrollController.jumpTo(index: index);
     }
   }
+
   void jumpToLastPage(){
     if(appdata.settings[9]!="4") {
       controller.jumpToPage(index-1);
@@ -45,6 +48,7 @@ class ComicReadingPageLogic extends GetxController{
       scrollController.jumpTo(index: index-2);
     }
   }
+
   void jumpToPage(int i){
     if(appdata.settings[9]!="4") {
       controller.jumpToPage(i);
@@ -52,6 +56,8 @@ class ComicReadingPageLogic extends GetxController{
       scrollController.jumpTo(index: i-1);
     }
   }
+
+  int get length => urls.length;
 }
 
 class ComicReadingPage extends StatefulWidget{
@@ -106,7 +112,13 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
       ),
       body: GetBuilder<ComicReadingPageLogic>(
           dispose: (logic){
-            appdata.saveReadInfo(logic.controller!.order, logic.controller!.index);
+            if(logic.controller!.order == 1&&logic.controller!.index==1){
+              //阅读位置在第一章第一页时不保存阅读位置
+            }else if(logic.controller!.order == epsWidgets.length-1&&logic.controller!.index==logic.controller!.length){
+              //阅读位置在最后一章最后一页时不保存阅读位置
+            }else {
+              appdata.saveReadInfo(logic.controller!.order, logic.controller!.index);
+            }
           },
           init: ComicReadingPageLogic(order),
           builder: (comicReadingPageLogic){
