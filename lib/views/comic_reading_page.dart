@@ -193,7 +193,10 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     onPointerDown: (details)=>comicReadingPageLogic.fingers++,
                     child: Stack(
                       children: [
-                        buildComicView(comicReadingPageLogic),
+                        AbsorbPointer(
+                          absorbing: comicReadingPageLogic.tools,
+                          child: buildComicView(comicReadingPageLogic),
+                        ),
                         Positioned(
                           top: 0,
                           bottom: 0,
@@ -758,7 +761,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.fromLTRB(20, 10, 0, 0),
           child: Text("阅读设置",style: TextStyle(fontSize: 18),),
         ),
