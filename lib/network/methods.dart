@@ -66,7 +66,13 @@ class Network{
       if(e.type == DioErrorType.badResponse){
         status = true;
         message = e.message.toString();
+      }else if(e.type == DioErrorType.connectionTimeout){
+        status = true;
+        message = "连接超时";
       }
+      return null;
+    }
+    catch(e){
       return null;
     }
   }
@@ -75,7 +81,9 @@ class Network{
     status = false;
     var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
-    print(data);
+    if (kDebugMode) {
+      print(data);
+    }
     //从url获取json
     if (kDebugMode) {
       print('Try to get response from $url');
@@ -111,7 +119,13 @@ class Network{
       if(e.type == DioErrorType.badResponse){
         status = true;
         message = e.message.toString();
+      }else if(e.type == DioErrorType.connectionTimeout){
+        status = true;
+        message = "连接超时";
       }
+      return null;
+    }
+    catch(e){
       return null;
     }
   }

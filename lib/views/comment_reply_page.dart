@@ -84,7 +84,7 @@ class ReplyPage extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surfaceVariant.withAlpha(160),
-                          borderRadius: const BorderRadius.all(Radius.circular(16))
+                          borderRadius: const BorderRadius.all(Radius.circular(30))
                       ),
                       child: Row(
                         children: [
@@ -138,33 +138,15 @@ class ReplyPage extends StatelessWidget {
         }
       },);
 
-    var tailing = Tooltip(
-      message: "发言",
-      child: IconButton(
-        icon: Icon(Icons.message,color: Theme.of(context).colorScheme.primary,),
-        onPressed: (){
-          giveComment(context, id, true).then((b){
-            if(b){
-              Get.find<ReplyPageLogic>().change();
-            }
-          });
-        },
-      ),
-    );
-
     if(popUp){
       return PopUpWidgetScaffold(
           title: "回复",
           body: body,
-          tailing: tailing,
       );
     }else{
       return Scaffold(
         appBar: AppBar(
           title: const Text("回复"),
-          actions: [
-            tailing
-          ],
         ),
         body: body,
       );

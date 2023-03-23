@@ -15,7 +15,7 @@ class PopUpWidgetScaffold extends StatelessWidget {
           Container(
             height: 60,
             width: double.infinity,
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer.withAlpha(200)),
             child: Row(
               children: [
                 if(Navigator.of(context).canPop())
@@ -27,7 +27,7 @@ class PopUpWidgetScaffold extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16,),
-                Text(title,style: const TextStyle(fontSize: 22),),
+                Text(title,style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w500),),
                 const Spacer(),
                 if(tailing!=null)
                   tailing!
@@ -35,7 +35,9 @@ class PopUpWidgetScaffold extends StatelessWidget {
             ),
           ),
           Expanded(child: body),
-          SizedBox(height: MediaQuery.of(context).viewInsets.bottom,)
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom-0.05*MediaQuery.of(context).size.height>0?
+          MediaQuery.of(context).viewInsets.bottom-0.05*MediaQuery.of(context).size.height:0
+            ,)
         ],
       ),
     );

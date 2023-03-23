@@ -74,7 +74,7 @@ class ComicPage extends StatelessWidget{
                     comic.title,
                     const TextStyle(fontSize: 22),
                     maxWidth: MediaQuery.of(context).size.width
-                ).height;
+                ).height+30;
             if(temp!=logic.showAppbarTitle) {
               logic.update();
             }
@@ -107,12 +107,12 @@ class ComicPage extends StatelessWidget{
               //标题
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
+                  padding: const EdgeInsets.fromLTRB(10, 20, 10, 15),
                   child: SizedBox(
                     width: double.infinity,
                     child: SelectableTextCN(
                       text: comic.title,
-                      style: const TextStyle(fontSize: 22),
+                      style: const TextStyle(fontSize: 28),
                     ),
                   ),
                 ),

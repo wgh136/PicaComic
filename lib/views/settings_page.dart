@@ -607,7 +607,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         onTap: (){},
                       ),
-                    if(!GetPlatform.isWeb)
+                    if(!GetPlatform.isWeb&&GetPlatform.isAndroid)
                     GetBuilder<CalculateCacheLogic>(
                         init: CalculateCacheLogic(),
                         builder: (logic){
@@ -665,7 +665,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: Icon(Icons.security,color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("启动时需要生物识别"),
+                      title: const Text("需要身份验证"),
                       subtitle: const Text("如果系统中未设置任何认证方法请勿开启"),
                       trailing: Switch(
                         value: needBiometrics,

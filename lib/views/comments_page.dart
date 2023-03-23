@@ -82,7 +82,7 @@ class CommentsPage extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surfaceVariant.withAlpha(160),
-                          borderRadius: const BorderRadius.all(Radius.circular(16))
+                          borderRadius: const BorderRadius.all(Radius.circular(30))
                       ),
                       child: Row(
                         children: [
