@@ -42,19 +42,25 @@ class _HistoryPageState extends State<HistoryPage> {
           slivers: [
             SliverAppBar.large(
               centerTitle: true,
-              title: const Text("历史记录"),
+              title: Text("历史记录(${comics.length})"),
               actions: [
                 Tooltip(
                   message: "清除",
                   child: IconButton(
                     icon: const Icon(Icons.clear_all),
-                    onPressed: (){
-                      setState(() {
-                        appdata.history.clear();
-                        comics.clear();
-                        appdata.saveHistory();
-                      });
-                    },
+                    onPressed: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
+                      title: const Text("清除记录"),
+                      content: const Text("要清除历史记录吗?"),
+                      actions: [
+                        TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
+                        TextButton(onPressed: (){
+                          appdata.history.clear();
+                          setState(()=>comics.clear());
+                          appdata.saveHistory();
+                          Get.back();
+                        }, child: const Text("清除")),
+                      ],
+                    )),
                   ),
                 ),
               ],

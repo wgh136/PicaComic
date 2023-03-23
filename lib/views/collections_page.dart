@@ -22,7 +22,9 @@ class CollectionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("推荐"),
+      ),
       body: GetBuilder<CollectionPageLogic>(
         init: CollectionPageLogic(),
         builder: (logic){
