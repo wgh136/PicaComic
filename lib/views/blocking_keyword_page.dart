@@ -57,39 +57,27 @@ class BlockingKeywordPage extends StatelessWidget {
     var widget = GetBuilder<BlockingKeywordPageLogic>(
       builder: (logic){
         return ListView.builder(
-          itemCount: logic.keywords.length+2,
+          itemCount: logic.keywords.length+1,
           itemBuilder: (context,index){
             if(index==0){
               return appdata.firstUse[0]=="1"?MaterialBanner(
                   forceActionsBelow: true,
                   padding: const EdgeInsets.all(15),
                   leading: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary,size: 30,),
-                  content: const Text("关键词屏蔽仅生效于搜索和分类, 将会在加载时排除作者/汉化组/分类/tag中含有屏蔽关键词的漫画, 分类页面无法屏蔽tag, 因为哔咔没有提供"), actions: [
+                  content: const Text("关键词屏蔽不会生效于收藏夹和历史记录, 将会在加载时排除作者/汉化组/分类/tag中含有屏蔽关键词的漫画(部分页面加载时无法获取tag, 因此无法屏蔽tag)"), actions: [
                 TextButton(onPressed: (){
                   appdata.firstUse[0] = "0";
                   appdata.writeData();
                   logic.update();
                 }, child: const Text("关闭"))
               ]):const SizedBox(height: 0,);
-            }else if(index==1){
-              return appdata.firstUse[1]=="1"?MaterialBanner(
-                forceActionsBelow: true,
-                  padding: const EdgeInsets.all(15),
-                  leading: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary,size: 30,),
-                  content: const Text("请不要添加过多的屏蔽关键词, 否则会造成短时间内产生大量网络请求"), actions: [
-                TextButton(onPressed: (){
-                  appdata.firstUse[1] = "0";
-                  appdata.writeData();
-                  logic.update();
-                }, child: const Text("关闭"))
-              ]):const SizedBox(height: 0,);
             }else{
               return ListTile(
-                title: Text(logic.keywords[index-2]),
+                title: Text(logic.keywords[index-1]),
                 trailing: IconButton(
                   icon: Icon(Icons.close,color: Theme.of(context).colorScheme.secondary,),
                   onPressed: (){
-                    logic.keywords.removeAt(index-2);
+                    logic.keywords.removeAt(index-1);
                     logic.update();
                     appdata.writeData();
                   },

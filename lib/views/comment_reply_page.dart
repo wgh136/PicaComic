@@ -53,7 +53,7 @@ class ReplyPage extends StatelessWidget {
                         if(index==commentsPageLogic.comments.comments.length-1&&commentsPageLogic.comments.total!=commentsPageLogic.comments.loaded){
                           network.getMoreReply(commentsPageLogic.comments).then((t){commentsPageLogic.update();});
                         }
-                        return CommentTile(comment: commentsPageLogic.comments.comments[index], isReply: false);
+                        return CommentTile(comment: commentsPageLogic.comments.comments[index], isReply: true);
 
                       }
                   )),
