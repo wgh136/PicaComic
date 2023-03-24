@@ -14,7 +14,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.3.10";
+const appVersion = "1.3.11";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -50,6 +50,7 @@ class Appdata{
     "0", //收藏夹浏览方式, 0为正常浏览, 1为分页浏览
     "0", //阻止屏幕截图
     "0", //需要生物识别
+    "1", //阅读器中保持屏幕常亮
   ];
   List<String> blockingKeyword = [];
   List<String> firstUse = [

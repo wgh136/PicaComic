@@ -7,6 +7,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/keep_screen_on.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/item_positions_listener.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -87,6 +88,9 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
   @override
   initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    if(appdata.settings[14]=="1"){
+      setKeepScreenOn();
+    }
     super.initState();
   }
 
@@ -95,6 +99,9 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     if(listenVolume!=null){
       listenVolume!.stop();
+    }
+    if(appdata.settings[14]=="1"){
+      cancelKeepScreenOn();
     }
     super.dispose();
   }
@@ -206,41 +213,6 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     child: Stack(
                       children: [
                         buildComicView(comicReadingPageLogic),
-                        if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&appdata.settings[9]!="4"&&appdata.settings[4]=="1")
-                          Positioned(
-                            left: 20,
-                            top: MediaQuery.of(context).size.height/2-25,
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_circle_left),
-                              onPressed: (){
-                                final value = appdata.settings[9]=="2"?comicReadingPageLogic.index+1:comicReadingPageLogic.index-1;
-                                comicReadingPageLogic.jumpToPage(value);
-                              },
-                              iconSize: 50,
-                            ),
-                          ),
-                        if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&appdata.settings[9]!="4"&&appdata.settings[4]=="1")
-                          Positioned(
-                            right: 20,
-                            top: MediaQuery.of(context).size.height/2-25,
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_circle_right),
-                              onPressed: (){
-                                final value = appdata.settings[9]!="2"?comicReadingPageLogic.index+1:comicReadingPageLogic.index-1;
-                                comicReadingPageLogic.jumpToPage(value);
-                              },
-                              iconSize: 50,
-                            ),
-                          ),
-                        if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&!comicReadingPageLogic.tools&&appdata.settings[4]=="1")
-                          Positioned(
-                            left: 5,
-                            top: 5,
-                            child: IconButton(
-                              iconSize: 30,
-                              icon: const Icon(Icons.close),
-                              onPressed: ()=>Get.back(),
-                            ),),
                         Positioned(
                           top: 0,
                           bottom: 0,
@@ -269,31 +241,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                             },
                           ),
                         ),
-                        Positioned(
-                          right: 10,
-                          top: 60+MediaQuery.of(context).viewPadding.top,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 150),
-                            reverseDuration: const Duration(milliseconds: 150),
-                            switchInCurve: Curves.fastOutSlowIn,
-                            child: comicReadingPageLogic.showSettings?Container(
-                              width: MediaQuery.of(context).size.width>620?600:MediaQuery.of(context).size.width-20,
-                              height: 300,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: const BorderRadius.all(Radius.circular(16))
-                              ),
-                              child: const ReadingSettings(),
-                            ):const SizedBox(width: 0,height: 0,),
-                            transitionBuilder: (Widget child, Animation<double> animation) {
-                              var tween = Tween<Offset>(begin: const Offset(0, -1), end: const Offset(0, 0));
-                              return SlideTransition(
-                                position: tween.animate(animation),
-                                child: child,
-                              );
-                            },
-                          ),
-                        ),
+                          //底部工具栏
                           Positioned(
                             bottom: 0,
                             left: 0,
@@ -317,6 +265,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                 ),
                                 child: Column(
                                   children: [
+                                    const SizedBox(height: 8,),
                                     buildSlider(comicReadingPageLogic),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -375,6 +324,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                               ):const SizedBox(width: 0,height: 0,),
                             ),
                           ),
+                          //顶部工具栏
                           Positioned(
                             top: 0,
                             child: AnimatedSwitcher(
@@ -468,7 +418,67 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                 },
                               ):Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),)
                           ),
-
+                        if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&appdata.settings[9]!="4"&&appdata.settings[4]=="1")
+                          Positioned(
+                            left: 20,
+                            top: MediaQuery.of(context).size.height/2-25,
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_circle_left),
+                              onPressed: (){
+                                final value = appdata.settings[9]=="2"?comicReadingPageLogic.index+1:comicReadingPageLogic.index-1;
+                                comicReadingPageLogic.jumpToPage(value);
+                              },
+                              iconSize: 50,
+                            ),
+                          ),
+                        if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&appdata.settings[9]!="4"&&appdata.settings[4]=="1")
+                          Positioned(
+                            right: 20,
+                            top: MediaQuery.of(context).size.height/2-25,
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_circle_right),
+                              onPressed: (){
+                                final value = appdata.settings[9]!="2"?comicReadingPageLogic.index+1:comicReadingPageLogic.index-1;
+                                comicReadingPageLogic.jumpToPage(value);
+                              },
+                              iconSize: 50,
+                            ),
+                          ),
+                        if(MediaQuery.of(context).size.width>MediaQuery.of(context).size.height&&!comicReadingPageLogic.tools&&appdata.settings[4]=="1")
+                          Positioned(
+                            left: 5,
+                            top: 5,
+                            child: IconButton(
+                              iconSize: 30,
+                              icon: const Icon(Icons.close),
+                              onPressed: ()=>Get.back(),
+                            ),),
+                        //设置
+                        Positioned(
+                          right: 10,
+                          top: 60+MediaQuery.of(context).viewPadding.top,
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 150),
+                            reverseDuration: const Duration(milliseconds: 150),
+                            switchInCurve: Curves.fastOutSlowIn,
+                            child: comicReadingPageLogic.showSettings?Container(
+                              width: MediaQuery.of(context).size.width>620?600:MediaQuery.of(context).size.width-20,
+                              //height: 300,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  borderRadius: const BorderRadius.all(Radius.circular(16))
+                              ),
+                              child: const ReadingSettings(),
+                            ):const SizedBox(width: 0,height: 0,),
+                            transitionBuilder: (Widget child, Animation<double> animation) {
+                              var tween = Tween<Offset>(begin: const Offset(1, 0), end: const Offset(0, 0));
+                              return SlideTransition(
+                                position: tween.animate(animation),
+                                child: child,
+                              );
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ));
@@ -771,6 +781,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   bool pageChangeValue = appdata.settings[0]=="1";
   bool showThreeButton = appdata.settings[4]=="1";
   bool useVolumeKeyChangePage = appdata.settings[7]=="1";
+  bool keepScreenOn = appdata.settings[14]=="1";
 
   @override
   Widget build(BuildContext context) {
@@ -829,6 +840,23 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             },
           ),
         ),
+        if(!GetPlatform.isWeb&&GetPlatform.isAndroid)
+          ListTile(
+            leading: Icon(Icons.screenshot_outlined,color: Theme.of(context).colorScheme.secondary),
+            title: const Text("保持屏幕常亮"),
+            onTap: (){},
+            trailing: Switch(
+              value: keepScreenOn,
+              onChanged: (b){
+                b?setKeepScreenOn():cancelKeepScreenOn();
+                b?appdata.settings[14] = "1":appdata.settings[14]="0";
+                setState(() {
+                  keepScreenOn = b;
+                });
+                appdata.writeData();
+              },
+            ),
+          ),
         ListTile(
           leading: Icon(Icons.chrome_reader_mode,color: Theme.of(context).colorScheme.secondary),
           title: const Text("选择阅读模式"),
@@ -904,7 +932,6 @@ class ReadingMethodLogic extends GetxController{
     logic.change();
     logic.urls.clear();
     logic.tools = false;
-    Get.back();
     Get.back();
   }
 }

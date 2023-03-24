@@ -400,6 +400,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool useVolumeKeyChangePage = appdata.settings[7]=="1";
   bool blockScreenshot = appdata.settings[12]=="1";
   bool needBiometrics = appdata.settings[13]=="1";
+  bool keepScreenOn = appdata.settings[14]=="1";
 
   @override
   Widget build(BuildContext context) {
@@ -562,6 +563,22 @@ class _SettingsPageState extends State<SettingsPage> {
                           b?appdata.settings[4] = "1":appdata.settings[4]="0";
                           setState(() {
                             showThreeButton = b;
+                          });
+                          appdata.writeData();
+                        },
+                      ),
+                    ),
+                    if(!GetPlatform.isWeb&&GetPlatform.isAndroid)
+                    ListTile(
+                      leading: Icon(Icons.screenshot_outlined,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("保持屏幕常亮"),
+                      onTap: (){},
+                      trailing: Switch(
+                        value: keepScreenOn,
+                        onChanged: (b){
+                          b?appdata.settings[14] = "1":appdata.settings[14]="0";
+                          setState(() {
+                            keepScreenOn = b;
                           });
                           appdata.writeData();
                         },
