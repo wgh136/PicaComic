@@ -162,6 +162,9 @@ class Comment {
   String? slogan;
   String time;
 
+  @override
+  String toString()=>"$name:$text";
+
   Comment(
       this.name,
       this.avatarUrl,

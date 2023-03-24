@@ -111,9 +111,13 @@ class CommentsPage extends StatelessWidget {
                             commentsPageLogic.update();
                             var b = await network.comment(id, commentsPageLogic.controller.text, false);
                             if(b){
-                              commentsPageLogic.sending = false;
-                              commentsPageLogic.comments = await network.getCommends(id);
                               commentsPageLogic.controller.text = "";
+                              commentsPageLogic.sending = false;
+                              var res = await network.getCommends(id);
+                              commentsPageLogic.comments = Comments([], id, 1, 1);
+                              commentsPageLogic.update();
+                              await Future.delayed(const Duration(milliseconds: 200));
+                              commentsPageLogic.comments = res;
                               commentsPageLogic.update();
                             }else{
                               if(network.status){

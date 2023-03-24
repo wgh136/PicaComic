@@ -53,7 +53,7 @@ class ReplyPage extends StatelessWidget {
                         if(index==commentsPageLogic.comments.comments.length-1&&commentsPageLogic.comments.total!=commentsPageLogic.comments.loaded){
                           network.getMoreReply(commentsPageLogic.comments).then((t){commentsPageLogic.update();});
                         }
-                        return CommentTile(comment: commentsPageLogic.comments.comments[index], isReply: true);
+                        return CommentTile(comment: commentsPageLogic.comments.comments[index], isReply: false);
 
                       }
                   )),
@@ -113,9 +113,13 @@ class ReplyPage extends StatelessWidget {
                             commentsPageLogic.update();
                             var b = await network.comment(id, commentsPageLogic.controller.text, true);
                             if(b){
-                              commentsPageLogic.sending = false;
-                              commentsPageLogic.comments = await network.getReply(id);
                               commentsPageLogic.controller.text = "";
+                              commentsPageLogic.sending = false;
+                              var res = await network.getReply(id);
+                              commentsPageLogic.comments = Reply(id,1,1,[]);
+                              commentsPageLogic.update();
+                              await Future.delayed(const Duration(milliseconds: 200));
+                              commentsPageLogic.comments = res;
                               commentsPageLogic.update();
                             }else{
                               if(network.status){
