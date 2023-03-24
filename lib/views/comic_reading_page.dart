@@ -258,7 +258,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                 );
                               },
                               child: comicReadingPageLogic.tools?Container(
-                                height: 100+Get.bottomBarHeight/2,
+                                height: 105+Get.bottomBarHeight/2,
                                 decoration: BoxDecoration(
                                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
                                     color: Theme.of(context).colorScheme.surface
@@ -316,7 +316,8 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                               }
                                             },
                                           ),
-                                        )
+                                        ),
+                                        const SizedBox(width: 5,)
                                       ],
                                     )
                                   ],
@@ -929,9 +930,10 @@ class ReadingMethodLogic extends GetxController{
     update();
     var logic = Get.find<ComicReadingPageLogic>();
     logic.index = 1;
-    logic.change();
     logic.urls.clear();
     logic.tools = false;
+    logic.showSettings = false;
+    logic.change();
     Get.back();
   }
 }
