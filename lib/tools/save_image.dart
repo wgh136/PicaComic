@@ -30,7 +30,7 @@ void saveImage(String url) async{
       }
   }else if(GetPlatform.isWindows){
     try {
-      var file = await DefaultCacheManager().getFileFromCache(url);
+      var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
       var f = file!.file;
       final String? path = await getSavePath(suggestedName: f.basename);
       if (path != null) {
@@ -41,7 +41,7 @@ void saveImage(String url) async{
       }
     }
     catch(e){
-      //忽视
+      print(e);
     }
   }
 }

@@ -313,7 +313,10 @@ class _MainPageState extends State<MainPage> {
             //  const VerticalDivider(),
             Expanded(
               child: ClipRect(
-                child: pages[i],
+                child:AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: pages[i],
+                ),
               ),
             ),
           ],

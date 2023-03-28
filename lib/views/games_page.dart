@@ -29,8 +29,26 @@ class GamesPage extends StatelessWidget {
               }
               logic.change();
             });
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Stack(
+              children: [
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                Positioned(
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverAppBar.large(
+                        centerTitle: true,
+                        title: const Text("探索"),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             );
           }else if(logic.games.games.isNotEmpty){
             return Material(
