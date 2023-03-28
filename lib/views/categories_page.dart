@@ -31,8 +31,37 @@ class CategoriesPage extends StatelessWidget {
           }
           categoriesPageLogic.change();
         });
-        return const Center(
-          child: CircularProgressIndicator(),
+        return Stack(
+          children: [
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar.large(
+                    centerTitle: true,
+                    title: const Text(""),
+                    actions: [
+                      Tooltip(
+                        message: "搜索",
+                        child: IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: (){
+                            Get.to(()=>PreSearchPage());
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
         );
       }else if(categoriesPageLogic.categories.isNotEmpty){
         return CustomScrollView(

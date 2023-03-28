@@ -14,7 +14,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.3.11";
+const appVersion = "1.3.12";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -192,11 +192,18 @@ class Appdata{
     return HistoryItem(item.id,item.title,item.author,item.path,DateTime.now(),ep,page);
   }
 
-  void saveReadInfo(int ep, int page) async{
+  void saveReadInfo(int ep, int page, String id) async{
     await readHistory();
-    history.last.ep = ep;
-    history.last.page = page;
-    history.last.time = DateTime.now();
+    for(int i=history.length-1;i>=0;i--){
+      if(history[i].id==id){
+        history[i].ep = ep;
+        history[i].page = page;
+        history[i].time = DateTime.now();
+        var comic = history[i];
+        history.add(comic);
+        history.removeAt(i);
+      }
+    }
     await saveHistory();
     history.clear();
   }

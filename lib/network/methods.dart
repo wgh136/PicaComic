@@ -19,7 +19,7 @@ class Network{
   InitData? initData;
   String token;
   Network([this.token=""]);
-  bool status = false; //用于判断请求出错是的情况, true意味着请求响应成功, 但提供的信息不正确
+  bool status = false; //用于判断请求出错时的情况, true意味着捕获了已知的错误
   String message = ""; //提供错误信息
 
   void updateApi(){

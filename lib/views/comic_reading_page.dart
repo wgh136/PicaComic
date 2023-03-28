@@ -120,11 +120,11 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
       body: GetBuilder<ComicReadingPageLogic>(
           dispose: (logic){
             if(logic.controller!.order == 1&&logic.controller!.index==1){
-              //阅读位置在第一章第一页时不保存阅读位置
+              appdata.saveReadInfo(0, 0, comicId);
             }else if(logic.controller!.order == epsWidgets.length-1&&logic.controller!.index==logic.controller!.length){
-              //阅读位置在最后一章最后一页时不保存阅读位置
+              appdata.saveReadInfo(0, 0, comicId);
             }else {
-              appdata.saveReadInfo(logic.controller!.order, logic.controller!.index);
+              appdata.saveReadInfo(logic.controller!.order, logic.controller!.index, comicId);
             }
           },
           init: ComicReadingPageLogic(order),
@@ -472,9 +472,8 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                               child: const ReadingSettings(),
                             ):const SizedBox(width: 0,height: 0,),
                             transitionBuilder: (Widget child, Animation<double> animation) {
-                              var tween = Tween<Offset>(begin: const Offset(1, 0), end: const Offset(0, 0));
-                              return SlideTransition(
-                                position: tween.animate(animation),
+                              return FadeTransition(
+                                opacity: animation,
                                 child: child,
                               );
                             },
@@ -811,7 +810,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.volume_mute,color: Theme.of(context).colorScheme.secondary),
           title: const Text("使用音量键翻页"),
-          subtitle: const Text("仅安卓端有效"),
           trailing: Switch(
             value: useVolumeKeyChangePage,
             onChanged: (b){
@@ -828,7 +826,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.control_camera,color: Theme.of(context).colorScheme.secondary),
           title: const Text("宽屏时显示前进后退关闭按钮"),
-          subtitle: const Text("优化鼠标阅读体验"),
           onTap: (){},
           trailing: Switch(
             value: showThreeButton,

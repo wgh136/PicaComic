@@ -6,9 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
 
-import '../base.dart';
-
-
 class ShowImagePage extends StatefulWidget {
   const ShowImagePage(this.url,{Key? key}) : super(key: key);
   final String url;
@@ -52,25 +49,58 @@ class _ShowImagePageState extends State<ShowImagePage> {
                   );
                 },
               )),
-              if(MediaQuery.of(context).size.shortestSide>changePoint||!GetPlatform.isAndroid)
-                Positioned(
-                  left: 10,
-                  top: 10,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_outlined,size: 30,color: Colors.white70,),
-                    onPressed: (){Get.back();},
-                  ),
-                ),
+              //顶部工具栏
               Positioned(
-                right: 20,
-                bottom: 20,
-                child: IconButton(
-                  icon: const Icon(Icons.download,color: Colors.white70,),
-                  onPressed: () async{
-                    saveImage(url);
-                  },
-                ),
-              )
+                top: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    //borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10),bottomLeft: Radius.circular(10))
+                  ),
+                  width: MediaQuery.of(context).size.width+MediaQuery.of(context).padding.top,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                    child: Row(
+                      children: [
+                        Padding(padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),child: Tooltip(
+                          message: "返回",
+                          child: IconButton(
+                            iconSize: 25,
+                            icon: const Icon(Icons.arrow_back_outlined,color: Colors.white70),
+                            onPressed: ()=>Get.back(),
+                          ),
+                        ),),
+                        Container(
+                          width: MediaQuery.of(context).size.width-150,
+                          height: 50,
+                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Text("图片",overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 20,color: Colors.white70),),
+                          )
+                          ,),
+                        Tooltip(
+                          message: "保存图片",
+                          child: IconButton(
+                            icon: const Icon(Icons.download,color: Colors.white70,),
+                            onPressed: () async{
+                              saveImage(getImageUrl(url));
+                            },
+                          ),
+                        ),
+                        Tooltip(
+                          message: "分享",
+                          child: IconButton(
+                            icon: const Icon(Icons.share,color: Colors.white70),
+                            onPressed: () async{
+                              shareImageFromCache(url);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),),
             ],
           ),
         ),
