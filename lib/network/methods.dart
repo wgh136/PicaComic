@@ -22,10 +22,17 @@ class Network{
   bool status = false; //用于判断请求出错时的情况, true意味着捕获了已知的错误
   String message = ""; //提供错误信息
 
-  void updateApi(){
-    apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
-    "https://api.kokoiro.xyz/picaapi"
-        :"https://picaapi.picacomic.com";
+  Future<void> updateApi() async{
+    if(appdata.settings[3]=="1"||GetPlatform.isWeb){
+      apiUrl = "https://api.kokoiro.xyz/picaapi";
+    }else{
+      var ip = await init();
+      if(ip!=null){
+        apiUrl = "http://$ip";
+      }else{
+        apiUrl = "https://picaapi.picacomic.com";
+      }
+    }
   }
 
   Future<Map<String, dynamic>?> get(String url) async{
@@ -206,15 +213,13 @@ class Network{
     }
   }
 
-  Future<bool> init() async {
-    //获取基本信息:imageServer,fileServer(已测试)
-    var res = await get("$apiUrl/init?platform=android");
+  Future<String?> init() async {
+    //获取分流ip
+    var res = await get("http://68.183.234.72/init");
     if(res != null){
-      var id = InitData(res["data"]["imageServer"], res["data"]["latestApplication"]["apk"]["fileServer"]);
-      initData = id;
-      return true;
+      return res["addresses"][0];
     }else{
-      return false;
+      return null;
     }
   }
 

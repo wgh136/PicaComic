@@ -45,6 +45,7 @@ BaseOptions getHeaders(String method,String token,String url){
           "Content-Type":"application/json; charset=UTF-8",
           "user-agent":"okhttp/3.8.1",
           "version": "v1.4.1",
+          "HOST": "picaapi.picacomic.com"
         }
     );
   }
@@ -68,7 +69,8 @@ BaseOptions getHeaders(String method,String token,String url){
           "content-Type":"application/json; charset=UTF-8",
           "accept-encoding": "gzip",
           "user-agent":"okhttp/3.8.1",
-          "version": "v1.4.1"
+          "version": "v1.4.1",
+          "HOST": "picaapi.picacomic.com"
         }
     );
   }else if(method == "get"){
@@ -90,7 +92,8 @@ BaseOptions getHeaders(String method,String token,String url){
           "app-build-version":"45",
           "accept-encoding": "gzip",
           "user-agent":"okhttp/3.8.1",
-          "version": "v1.4.1"
+          "version": "v1.4.1",
+          "HOST": "picaapi.picacomic.com"
         }
     );
   }else{
@@ -112,7 +115,8 @@ BaseOptions getHeaders(String method,String token,String url){
           "app-build-version":"45",
           "Content-Type":"application/json; charset=UTF-8",
           "user-agent":"okhttp/3.8.1",
-          "version": "v1.4.1"
+          "version": "v1.4.1",
+          "HOST": "picaapi.picacomic.com"
         }
     );
   }

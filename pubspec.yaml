@@ -33,7 +33,7 @@ dependencies:
 
 
   # The following adds the Cupertino Icons font to your application.
-  dio: ^5.0.3
+  dio: ^5.1.0
   get: ^4.6.5
   shared_preferences: ^2.0.16
   dynamic_color: ^1.5.4
@@ -44,7 +44,6 @@ dependencies:
   photo_view: ^0.14.0
   url_launcher: ^6.1.8
   path_provider: ^2.0.12
-  device_info : ^2.0.3
   file_selector: ^0.9.2
   image_picker: ^0.8.6
   flutter_cache_manager: any

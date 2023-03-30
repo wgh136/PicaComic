@@ -19,6 +19,7 @@ void main() {
       network = Network(appdata.token);
     }
     setImageProxy(); //设置图片加载代理
+    network.updateApi();  //更新分流ip
     runApp(MyApp());
   });
 

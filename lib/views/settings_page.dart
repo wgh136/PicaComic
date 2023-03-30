@@ -291,6 +291,8 @@ class RadioLogic extends GetxController{
     value = i;
     appdata.appChannel = (i+1).toString();
     appdata.writeData();
+    showMessage(Get.context, "正在获取分流IP",time: 8);
+    network.updateApi().then((v)=>Get.closeAllSnackbars());
     update();
   }
 }
@@ -335,7 +337,6 @@ void setProxy(BuildContext context){
             const SizedBox(width: 400,),
             ListTile(
               title: const Text("使用系统代理"),
-              subtitle: const Text("仅Windows端有效"),
               trailing: Switch(
                 value: controller.value,
                 onChanged: (value){
@@ -487,6 +488,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         trailing: Switch(
                           value: useMyServer,
                           onChanged: (b){
+                            if(!b){
+                              showMessage(Get.context, "正在获取分流IP",time: 8);
+                              network.updateApi().then((v)=>Get.closeAllSnackbars());
+                            }
                             b?appdata.settings[3] = "1":appdata.settings[3]="0";
                             setState(() {
                               useMyServer = b;

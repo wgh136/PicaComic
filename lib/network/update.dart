@@ -1,7 +1,7 @@
-import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
-import 'dart:io';
 import 'package:pica_comic/base.dart';
+
+import '../tools/device_info.dart';
 
 Future<bool?> checkUpdate() async{
   try {
@@ -25,18 +25,6 @@ Future<String?> getUpdatesInfo() async{
   }
   catch(e){
     return null;
-  }
-}
-
-Future<String> getDeviceInfo() async{
-  var deviceInfo = DeviceInfoPlugin();
-  if(Platform.isAndroid) {
-    var platform = await deviceInfo.androidInfo;
-    return platform.supportedAbis[0];
-  }else if(Platform.isWindows){
-    return "windows";
-  }else{
-    return "Linux";
   }
 }
 

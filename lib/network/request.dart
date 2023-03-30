@@ -9,7 +9,7 @@ Future<Dio> request() async{
   var dio = Dio()
     ..interceptors.add(LogInterceptor());
   if(GetPlatform.isWindows) {
-    var proxy = await getWindowsProxy();
+    var proxy = await getProxy();
     if(kDebugMode){
       print(proxy);
     }

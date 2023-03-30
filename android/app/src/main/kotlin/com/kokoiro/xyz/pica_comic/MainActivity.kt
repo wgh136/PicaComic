@@ -1,7 +1,8 @@
 package com.kokoiro.xyz.pica_comic
+
+import android.os.Build
 import android.view.KeyEvent
 import android.view.WindowManager
-
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -31,17 +32,26 @@ class MainActivity: FlutterFragmentActivity() {
                     listening = false
                 }
         })
-
+        //拦截屏幕截图
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"com.kokoiro.xyz.pica_comic/screenshot").setMethodCallHandler{
                 _, _ ->
             window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         }
-
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"com.kokoiro.xyz.pica_comic/secure").setMethodCallHandler{
                 _, _ ->
             window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         }
-
+        //获取cpu架构
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"com.kokoiro.xyz.pica_comic/device").setMethodCallHandler{
+                _, res ->
+            res.success(getDeviceInfo())
+        }
+        //获取http代理
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"kokoiro.xyz.pica_comic/proxy").setMethodCallHandler{
+                _, res ->
+            res.success(getProxy())
+        }
+        //保持屏幕常亮
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"com.kokoiro.xyz.pica_comic/keepScreenOn").setMethodCallHandler{
                 call, _ ->
             if(call.method == "set")
@@ -65,6 +75,21 @@ class MainActivity: FlutterFragmentActivity() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun getDeviceInfo(): String{
+        //获取cpu架构从而找到应当下载的app版本
+        return Build.SUPPORTED_ABIS[0]
+    }
+
+    private fun getProxy(): String{
+        val host = System.getProperty("http.proxyHost")
+        val port = System.getProperty("http.proxyPort")
+        return if(host!=null&&port!=null){
+            "$host:$port"
+        }else{
+            "No Proxy"
+        }
     }
 }
 

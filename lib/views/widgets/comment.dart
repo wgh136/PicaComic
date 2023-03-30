@@ -84,7 +84,7 @@ class _CommentTileState extends State<CommentTile> {
                       const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
                       Padding(padding: const EdgeInsets.only(left: 6),child: Text(
                         "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}  ${comment.reply}回复  ${comment.likes}喜欢",
-                        style: TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100, color: Colors.black.withAlpha(200)),
+                        style: TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100, color: Theme.of(context).colorScheme.onSurface.withAlpha(200)),
                       ),),
                       const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
                     ],
