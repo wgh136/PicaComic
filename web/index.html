@@ -46,8 +46,8 @@
       width: 50px;
       height: 50px;
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: calc(50% - 25px);
+      left: calc(50% - 25px);
       z-index: 9999;
       background-color: white;
     }
@@ -74,10 +74,7 @@
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: function(engineInitializer) {
-          let config = {
-            canvasKitBaseUrl: "https://cdn.bootcdn.net/ajax/libs/canvaskit-wasm/0.37.1/"
-          }
-          engineInitializer.initializeEngine(config).then(function(appRunner) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
             appRunner.runApp();
           });
         }
