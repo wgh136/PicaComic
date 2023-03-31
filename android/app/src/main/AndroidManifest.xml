@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kokoiro.xyz.pica_comic">
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -8,6 +9,7 @@
         android:label="Pica Comic"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        android:usesCleartextTraffic="true"
         <activity
             android:name=".MainActivity"
             android:exported="true"

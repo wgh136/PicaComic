@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     WidgetsBinding.instance.addObserver(this);
     downloadManager.init(); //初始化下载管理器
     notifications.init();   //初始化通知管理器
@@ -60,12 +62,12 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver{
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
           useMaterial3: true,
-          fontFamily: 'font'
+
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-          fontFamily: 'font'
+
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

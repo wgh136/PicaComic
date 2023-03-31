@@ -84,6 +84,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
   bool downloaded = false;
   ListenVolumeController? listenVolume;
   var epsWidgets = <Widget>[];
+  late ScrollManager scrollManager;
 
   @override
   initState() {
@@ -184,13 +185,17 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
 
               if(appdata.settings[7]=="1"){
                 listenVolume = ListenVolumeController(
-                        () {comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1);},
-                        () {comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1);}
+                        ()=>comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index-1),
+                        ()=>comicReadingPageLogic.controller.jumpToPage(comicReadingPageLogic.index+1)
                 );
                 listenVolume!.listenVolumeChange();
               }else if(listenVolume!=null){
                 listenVolume!.stop();
                 listenVolume = null;
+              }
+              if(appdata.settings[9]=="4"){
+                //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
+                scrollManager = ScrollManager(comicReadingPageLogic.cont);
               }
               return WillPopScope(
                   onWillPop: ()async{
@@ -205,7 +210,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                   child: Listener(
                     onPointerMove:(details){
                       if(comicReadingPageLogic.fingers!=2&&appdata.settings[9]=="4") {
-                        comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels-details.delta.dy*1.4/comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis());
+                        scrollManager.addOffset(details.delta.dy/comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis());
                       }
                     } ,
                     onPointerUp: (details)=>comicReadingPageLogic.fingers--,
@@ -510,12 +515,13 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
             fit: BoxFit.fill,
           );
         }else{
+          final height = Get.width*1.42;
           return CachedNetworkImage(
             imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
-            placeholder: (context,str)=>const SizedBox(height: 500,child: Center(child: CircularProgressIndicator(),),),
-            errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error,color: Colors.white12,),),
+            placeholder: (context,str)=>SizedBox(height: height,child: const Center(child: CircularProgressIndicator(),),),
+            errorWidget: (context,s,d)=>SizedBox(height: height,child: const Center(child: Icon(Icons.error,color: Colors.white12,),),),
           );
         }
       },
@@ -628,24 +634,17 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
           right: 0,
           child: AbsorbPointer(
             absorbing: comicReadingPageLogic.tools,
-            child: Listener(
-              onPointerSignal: (pointerSignal){
-                if(pointerSignal is PointerScrollEvent){
-                  comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy);
-                }
-              },
-              child: InteractiveViewer(
-                  transformationController: comicReadingPageLogic.transformationController,
-                  maxScale: GetPlatform.isDesktop?1.0:2.5,
-                  child: AbsorbPointer(
-                    absorbing: true,//使用控制器控制滚动
-                    child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: buildGallery(comicReadingPageLogic)
-                    ),
-                  )
-              ),
+            child: InteractiveViewer(
+                transformationController: comicReadingPageLogic.transformationController,
+                maxScale: GetPlatform.isDesktop?1.0:2.5,
+                child: AbsorbPointer(
+                  absorbing: true,//使用控制器控制滚动
+                  child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: buildGallery(comicReadingPageLogic)
+                  ),
+                )
             ),
           )
       );
@@ -924,6 +923,7 @@ class ReadingMethodLogic extends GetxController{
   void setValue(int i){
     value = i;
     appdata.settings[9] = value.toString();
+    appdata.writeData();
     update();
     var logic = Get.find<ComicReadingPageLogic>();
     logic.index = 1;
@@ -932,5 +932,58 @@ class ReadingMethodLogic extends GetxController{
     logic.showSettings = false;
     logic.change();
     Get.back();
+  }
+}
+
+class ScrollManager{
+  /*
+  Flutter并没有提供能够进行放缩的列表, 在InteractiveViewer放入任何可滚动的组件, InteractiveViewer的手势将会失效
+  此类用于处理滚动事件, 先禁用InteractiveViewer的子部件的手势, 使InteractiveViewer能够接收到所有手势
+  然后用Listener监听原始指针并将信号传入此类
+  此类中通过调用InteractiveViewer子组件的ScrollController来控制滚动
+   */
+  double offset = 0;//缓存滑动偏移值
+  ScrollController scrollController;
+  ScrollManager(this.scrollController);
+  final slowMove = 8.0;//小于此值的滑动判定为缓慢滑动
+  bool runningRelease = false;//是否正在进行释放缓存的偏移值
+  bool scrolling = false;
+
+  void addOffset(double value){
+    //当滑动时调用此函数进行处理
+    moveScrollView(value);
+  }
+
+  void moveScrollView(double value){
+    //移动ScrollView
+    scrollController.jumpTo(scrollController.position.pixels-value);
+    if(value>slowMove||value<0-slowMove){
+      offset += value*4;
+      if (!runningRelease) {
+        releaseOffset();
+      }
+    }else{
+      offset = 0;
+    }
+  }
+
+  void releaseOffset() async{
+    runningRelease = true;
+    while(offset!=0){
+      if(scrollController.position.pixels < 0 || scrollController.position.pixels>scrollController.position.maxScrollExtent){
+        offset = 0;
+        break;
+      }
+      if(offset < 0.5&&offset > -0.5){
+        moveScrollView(offset);
+        offset = 0;
+        break;
+      }
+      var value = offset / 20;
+      scrollController.jumpTo(scrollController.position.pixels - value);
+      offset -= value;
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
+    runningRelease = false;
   }
 }

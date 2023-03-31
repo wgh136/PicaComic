@@ -52,7 +52,7 @@ class _CommentTileState extends State<CommentTile> {
             showMessage(context, "评论内容已复制");
           },
           child: Padding(
-              padding: MediaQuery.of(context).size.width<600?const EdgeInsets.fromLTRB(10, 0, 10, 5):const EdgeInsets.all(10),
+              padding: MediaQuery.of(context).size.width<600?const EdgeInsets.fromLTRB(15, 0, 10, 5):const EdgeInsets.all(10),
               child: Row(
                 children: [
                   Expanded(child: Column(
@@ -84,7 +84,7 @@ class _CommentTileState extends State<CommentTile> {
                       const Padding(padding: EdgeInsets.symmetric(vertical: 6.0)),
                       Padding(padding: const EdgeInsets.only(left: 6),child: Text(
                         "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}  ${comment.reply}回复  ${comment.likes}喜欢",
-                        style: TextStyle(fontSize: 12.0,fontWeight: FontWeight.w100, color: Theme.of(context).colorScheme.onSurface.withAlpha(200)),
+                        style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSurface.withAlpha(220)),
                       ),),
                       const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
                     ],
