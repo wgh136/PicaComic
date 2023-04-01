@@ -364,12 +364,12 @@ void setProxy(BuildContext context){
                 if(controller.value){
                   appdata.settings[8] = "0";
                   appdata.writeData();
-                  setImageProxy();
+                  setNetworkProxy();
                   Get.back();
                 }else{
                   appdata.settings[8] = controller.controller.text;
                   appdata.writeData();
-                  setImageProxy();
+                  setNetworkProxy();
                   Get.back();
                 }
               }, child: const Text("确认")),
@@ -379,6 +379,86 @@ void setProxy(BuildContext context){
       }
     );
   });
+}
+
+void setCloudflareIp(BuildContext context){
+  showDialog(context: context, builder: (dialogContext)=>GetBuilder<SetCloudFlareIpController>(
+      init: SetCloudFlareIpController(),
+      builder: (logic)=>SimpleDialog(
+        title: const Text("Cloudflare IP"),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(6, 15, 6, 15),
+              color: Colors.yellow,
+              child: Row(
+                children: const [
+                  Icon(Icons.warning),
+                  SizedBox(width: 5,),
+                  Expanded(child: Text("使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置"),),
+                ],
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text("不使用"),
+            trailing: Radio<String>(
+              value: "0",
+              groupValue: logic.value,
+              onChanged: (value)=>logic.setValue(value!),
+            ),
+          ),
+          ListTile(
+            title: const Text("使用哔咔官方提供的IP"),
+            trailing: Radio<String>(
+              value: "1",
+              groupValue: logic.value,
+              onChanged: (value)=>logic.setValue(value!),
+            ),
+          ),
+          ListTile(
+            title: const Text("自定义"),
+            trailing: Radio<String>(
+              value: "2",
+              groupValue: (logic.value!="0"&&logic.value!="1")?"2":"-1",
+              onChanged: (value)=>logic.setValue(value!),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: TextField(
+              enabled: logic.value!="0"&&logic.value!="1",
+              controller: logic.controller,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: logic.value == "2"?"输入一个Cloudflare CDN Ip":""
+              ),
+            ),
+          ),
+          Center(
+            child: FilledButton(
+              child: const Text("确认"),
+              onPressed: ()=>logic.submit(),
+            ),
+          )
+        ],
+  )));
+}
+
+class SetCloudFlareIpController extends GetxController{
+  var value = appdata.settings[15];
+  late var controller = TextEditingController(text: (value!="0"&&value!="1")?value:"");
+  void setValue(String s){
+    value = s;
+    update();
+  }
+  void submit(){
+    appdata.settings[15] = (value!="0"&&value!="1")?controller.text:value;
+    appdata.writeData();
+    Get.back();
+    network.updateApi();
+  }
 }
 
 class SettingsPage extends StatefulWidget {
@@ -488,10 +568,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         trailing: Switch(
                           value: useMyServer,
                           onChanged: (b){
-                            if(!b){
-                              showMessage(Get.context, "正在获取分流IP",time: 8);
-                              network.updateApi().then((v)=>Get.closeAllSnackbars());
-                            }
                             b?appdata.settings[3] = "1":appdata.settings[3]="0";
                             setState(() {
                               useMyServer = b;
@@ -519,6 +595,14 @@ class _SettingsPageState extends State<SettingsPage> {
                           setProxy(context);
                         },
                       ),
+                    ListTile(
+                      leading:Icon(Icons.device_hub,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("Cloudflare IP"),
+                      trailing: const Icon(Icons.arrow_right,),
+                      onTap: (){
+                        setCloudflareIp(context);
+                      },
+                    ),
                   ],
                 ),
               ),

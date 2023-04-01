@@ -1,27 +1,17 @@
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../tools/proxy.dart';
 
 Future<Dio> request() async{
-  //返回一个设置好代理的Dio
+  /*
+  这是一个历史遗留
+  在进行实现检测并应用代理的工作时, 我并不知道HttpOverrides.global的配置会影响到dio
+   */
   var dio = Dio()
     ..interceptors.add(LogInterceptor());
-  if(GetPlatform.isWindows) {
-    var proxy = await getProxy();
-    if(kDebugMode){
-      print(proxy);
-    }
-    if(proxy!=null) {
-      dio.httpClientAdapter = IOHttpClientAdapter()
-      ..onHttpClientCreate = (client){
-        client.findProxy = (uri) {
-          return 'PROXY $proxy';
-        };
-        return client;
-      };
-    }
+  if(!GetPlatform.isWeb) {
+    //var proxy = await getProxy();
+    await setNetworkProxy();//更新代理设置
   }
   return dio;
 }

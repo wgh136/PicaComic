@@ -25,13 +25,17 @@ class Network{
   Future<void> updateApi() async{
     if(appdata.settings[3]=="1"||GetPlatform.isWeb){
       apiUrl = "https://api.kokoiro.xyz/picaapi";
-    }else{
+    }else if(appdata.settings[15]=="1"){
       var ip = await init();
       if(ip!=null){
         apiUrl = "http://$ip";
       }else{
         apiUrl = "https://picaapi.picacomic.com";
       }
+    }else if(appdata.settings[15]=="0"){
+      apiUrl = "https://picaapi.picacomic.com";
+    }else{
+      apiUrl = "http://${appdata.settings[15]}";
     }
   }
 
@@ -139,7 +143,8 @@ class Network{
 
   Future<bool> login(String email, String password) async {
     //登录
-    var res = await post('$apiUrl/auth/sign-in',{
+    var api = appdata.settings[3] == "1"?"https://api.kokoiro.xyz/picaapi":"https://picaapi.picacomic.com";
+    var res = await post('$api/auth/sign-in',{
       "email":email,
       "password":password,
     });
@@ -215,10 +220,13 @@ class Network{
 
   Future<String?> init() async {
     //获取分流ip
-    var res = await get("http://68.183.234.72/init");
-    if(res != null){
-      return res["addresses"][0];
-    }else{
+    try{
+      var dio = Dio();
+      var res = await dio.get("http://68.183.234.72/init");
+      var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+      return jsonResponse["addresses"][0];
+    }
+    catch(e){
       return null;
     }
   }

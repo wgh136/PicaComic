@@ -520,7 +520,15 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
             imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
-            placeholder: (context,str)=>SizedBox(height: height,child: const Center(child: CircularProgressIndicator(),),),
+            progressIndicatorBuilder: (context,s,progress)=>SizedBox(
+              height: height,
+              child: Center(
+                child: CircularProgressIndicator(
+                  value: progress.progress,
+                  backgroundColor: Colors.white12,
+                )
+              ),
+            ),
             errorWidget: (context,s,d)=>SizedBox(height: height,child: const Center(child: Icon(Icons.error,color: Colors.white12,),),),
           );
         }
@@ -945,9 +953,8 @@ class ScrollManager{
   double offset = 0;//缓存滑动偏移值
   ScrollController scrollController;
   ScrollManager(this.scrollController);
-  final slowMove = 8.0;//小于此值的滑动判定为缓慢滑动
+  final slowMove = 6.0;//小于此值的滑动判定为缓慢滑动
   bool runningRelease = false;//是否正在进行释放缓存的偏移值
-  bool scrolling = false;
 
   void addOffset(double value){
     //当滑动时调用此函数进行处理
@@ -958,7 +965,7 @@ class ScrollManager{
     //移动ScrollView
     scrollController.jumpTo(scrollController.position.pixels-value);
     if(value>slowMove||value<0-slowMove){
-      offset += value*4;
+      offset += value*value*value/35;//(((offset ~/200)>0?(offset ~/200):(0 - offset ~/200)) + 4);
       if (!runningRelease) {
         releaseOffset();
       }

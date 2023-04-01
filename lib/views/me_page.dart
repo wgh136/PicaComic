@@ -2,16 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
-import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/profile_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
-import '../tools/device_info.dart';
 import 'favorites_page.dart';
 
 class InfoController extends GetxController{}
@@ -24,7 +24,7 @@ class MePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        if(MediaQuery.of(context).size.shortestSide<changePoint)
+        if(UiMode.m1(context))
           SliverAppBar(
             centerTitle: true,
             title: const Text(""),
@@ -44,7 +44,7 @@ class MePage extends StatelessWidget {
           const SliverAppBar(
             title: Text(""),
           ),
-        if(MediaQuery.of(context).size.shortestSide>changePoint)
+        if(!UiMode.m1(context))
           const SliverPadding(padding: EdgeInsets.only(top: 20),),
         SliverToBoxAdapter(
           child: SizedBox(
@@ -88,7 +88,8 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,() async{
-                      print(await getDeviceInfo());
+                      var proxy = await getProxy();
+                      showMessage(Get.context, proxy??"null");
                     },"Debug",""),
                   ],
                 )

@@ -21,16 +21,18 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
   Widget build(BuildContext context) {
     if(flag) {
       flag = false;
-      network.getProfile().then((p){
-      if(p!=null){
-        appdata.user = p;
-        goToMainPage();
-      }else {
-        setState(() {
-        isLoading = false;
+      network.updateApi().then((v){
+        network.getProfile().then((p){
+          if(p!=null){
+            appdata.user = p;
+            goToMainPage();
+          }else {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        });
       });
-      }
-    });
     }
     return Scaffold(
       appBar: AppBar(),
@@ -77,7 +79,6 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                   child: network.status?Text(network.message):const Text("网络错误"),
                 ),
               ),
-
 
             if(!isLoading)
               Positioned(

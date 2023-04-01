@@ -14,7 +14,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.3.13";
+const appVersion = "1.3.14";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -39,7 +39,7 @@ class Appdata{
     "1", //点击屏幕左右区域翻页
     "dd", //排序方式
     "1", //启动时检查更新
-    "0", //使用转发服务器
+    "0", //Api请求地址, 为0时表示使用哔咔官方Api, 为1表示使用转发服务器
     "1", //宽屏时显示前进后退关闭按钮
     "1", //是否显示头像框
     "1", //启动时签到
@@ -51,6 +51,7 @@ class Appdata{
     "0", //阻止屏幕截图
     "0", //需要生物识别
     "1", //阅读器中保持屏幕常亮
+    "1", //Cloudflare IP, //为1表示使用哔咔官方提供的Ip, 为0表示禁用, 其他值表示使用自定义的Ip
   ];
   List<String> blockingKeyword = [];
   List<String> firstUse = [

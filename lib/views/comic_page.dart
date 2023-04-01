@@ -74,7 +74,7 @@ class ComicPage extends StatelessWidget{
                     comic.title,
                     const TextStyle(fontSize: 22),
                     maxWidth: MediaQuery.of(context).size.width
-                ).height+30;
+                ).height+50;
             if(temp!=logic.showAppbarTitle) {
               logic.update();
             }

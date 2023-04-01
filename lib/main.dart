@@ -19,8 +19,7 @@ void main() {
     if(b){
       network = Network(appdata.token);
     }
-    setImageProxy(); //设置图片加载代理
-    network.updateApi();  //更新分流ip
+    setNetworkProxy(); //设置代理
     runApp(MyApp());
   });
 
@@ -32,6 +31,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver{
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    setNetworkProxy();//当App从后台进入前台, 代理设置可能发生变更
     if (state == AppLifecycleState.resumed) {
       if(appdata.settings[13]=="1"&&appdata.flag){
         appdata.flag = false;
@@ -62,12 +62,12 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver{
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
           useMaterial3: true,
-
+          fontFamily: "font"
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-
+          fontFamily: "font"
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

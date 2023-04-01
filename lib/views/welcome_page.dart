@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/login_page.dart';
 import 'package:pica_comic/views/register.dart';
 
@@ -8,6 +9,7 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    network.updateApi();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size(double.infinity,0),

@@ -5,6 +5,7 @@ import 'package:pica_comic/views/widgets/game_widgets.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 
 import '../base.dart';
+import '../tools/ui_mode.dart';
 
 class GamesPageLogic extends GetxController{
   bool isLoading = true;
@@ -54,12 +55,12 @@ class GamesPage extends StatelessWidget {
             return Material(
               child: CustomScrollView(
                 slivers: [
-                  if(MediaQuery.of(context).size.shortestSide<=changePoint)
+                  if(UiMode.m1(context))
                     SliverAppBar.large(
                       centerTitle: true,
                       title: const Text("游戏"),
                     ),
-                  if(MediaQuery.of(context).size.shortestSide>changePoint)
+                  if(!UiMode.m1(context))
                     SliverToBoxAdapter(
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,

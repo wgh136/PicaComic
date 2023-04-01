@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -82,9 +83,8 @@ class HomePage extends StatelessWidget {
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
-                  if(MediaQuery.of(context).size.shortestSide<=changePoint)
+                  if(UiMode.m1(context))
                   SliverAppBar.large(
-
                     centerTitle: true,
                     title: const Text("探索"),
                     actions: [
@@ -99,7 +99,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if(MediaQuery.of(context).size.shortestSide>changePoint)
+                  if(!UiMode.m1(context))
                     SliverToBoxAdapter(
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,

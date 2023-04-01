@@ -61,14 +61,7 @@ class ComicItemBrief {
   int likes;
   String path;
   String id;
-  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id){
-    if(title.length>50) {
-      title = "${title.substring(0,48)}...";
-    }
-    if(author.length>50) {
-      author = "${author.substring(0,48)}...";
-    }
-  }
+  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id);
 }
 
 class ComicItem {

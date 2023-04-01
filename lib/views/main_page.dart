@@ -11,6 +11,7 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../network/update.dart';
+import '../tools/ui_mode.dart';
 import 'home_page.dart';
 import 'me_page.dart';
 
@@ -178,7 +179,7 @@ class _MainPageState extends State<MainPage> {
         },
         child: const Icon(Icons.refresh),
       ):null,
-      bottomNavigationBar: MediaQuery.of(context).size.shortestSide>changePoint?null:NavigationBar(
+      bottomNavigationBar: (!UiMode.m1(context))?null:NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
             i = index;
@@ -229,7 +230,7 @@ class _MainPageState extends State<MainPage> {
         },
         child: Row(
           children: [
-            if(MediaQuery.of(context).size.width>changePoint2)
+            if(UiMode.m3(context))
               SafeArea(child: Container(
                 width: 340,
                 height: MediaQuery.of(context).size.width,
@@ -251,7 +252,7 @@ class _MainPageState extends State<MainPage> {
                   ],
                 ),
               ))
-            else if(MediaQuery.of(context).size.width>changePoint)
+            else if(UiMode.m2(context))
               NavigationRail(
                 leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
                 selectedIndex: i,
@@ -322,7 +323,7 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      drawer: MediaQuery.of(context).size.width>changePoint?null:NavigationDrawer(
+      drawer: !(UiMode.m1(context))?null:NavigationDrawer(
         selectedIndex: null,
         onDestinationSelected: (t){
           Navigator.pop(context);

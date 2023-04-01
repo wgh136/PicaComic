@@ -29,6 +29,8 @@ BaseOptions getHeaders(String method,String token,String url){
   if(token == ""){
     return BaseOptions(
        connectTimeout: const Duration(milliseconds: 8000),
+        receiveTimeout: const Duration(milliseconds: 8000),
+        sendTimeout: const Duration(milliseconds: 8000),
         receiveDataWhenStatusError: true,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
@@ -53,6 +55,8 @@ BaseOptions getHeaders(String method,String token,String url){
     return BaseOptions(
         receiveDataWhenStatusError: true,
         connectTimeout: const Duration(milliseconds: 8000),
+        receiveTimeout: const Duration(milliseconds: 8000),
+        sendTimeout: const Duration(milliseconds: 8000),
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
@@ -77,6 +81,8 @@ BaseOptions getHeaders(String method,String token,String url){
     return BaseOptions(
         receiveDataWhenStatusError: true,
         connectTimeout: const Duration(milliseconds: 8000),
+        receiveTimeout: const Duration(milliseconds: 8000),
+        sendTimeout: const Duration(milliseconds: 8000),
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
