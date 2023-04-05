@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/categories_page.dart';
+import 'package:pica_comic/views/eh_views/eh_main_page.dart';
 import 'package:pica_comic/views/games_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
@@ -44,7 +45,8 @@ class _MainPageState extends State<MainPage> {
         '设置', Icon(Icons.settings), Icon(Icons.settings)),
   ];
 
-  int i = 0;
+  int i = 0;//页面
+  int m = 0;//导航栏页面
   var titles = [
     "我",
     "探索",
@@ -56,7 +58,8 @@ class _MainPageState extends State<MainPage> {
     MePage(),
     const HomePage(),
     const CategoriesPage(),
-    const GamesPage()
+    const GamesPage(),
+    const EhMainPage()
   ];
 
   @override
@@ -203,6 +206,10 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.games),
             label: '游戏',
           ),
+          NavigationDestination(
+            icon: EhIcon(),
+            label: 'Eh',
+          ),
         ],
       ),
       body: WillPopScope(
@@ -244,6 +251,7 @@ class _MainPageState extends State<MainPage> {
                     NavigatorItem(Icons.explore_outlined,Icons.explore, "探索",i==1,()=>setState(()=>i=1)),
                     NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类",i==2,()=>setState(()=>i=2)),
                     NavigatorItem(Icons.games_outlined,Icons.games, "游戏",i==3,()=>setState(()=>i=3)),
+                    EhNavigationItem(()=>setState(()=>i=4), i==4),
                     const Divider(),
                     NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
                     NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
@@ -307,6 +315,11 @@ class _MainPageState extends State<MainPage> {
                     icon: Icon(Icons.games_outlined),
                     selectedIcon: Icon(Icons.games),
                     label: Text('游戏'),
+                  ),
+                  NavigationRailDestination(
+                    icon: EhIcon(),
+                    selectedIcon: EhIcon(),
+                    label: Text('EHentai'),
                   ),
                 ],
               ),
@@ -392,6 +405,54 @@ class NavigatorItem extends StatelessWidget {
           ),
         ),
       )
+    );
+  }
+}
+
+class EhIcon extends StatelessWidget {
+  const EhIcon({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 25,
+      height: 25,
+      child: Center(
+        child: Text("EH",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),),
+      ),
+    );
+  }
+}
+
+class EhNavigationItem extends StatelessWidget {
+  const EhNavigationItem(this.onTap,this.selected,{Key? key}) : super(key: key);
+  final void Function() onTap;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(24)),
+                color: selected?theme.secondaryContainer:null
+            ),
+            height: 56,
+            child: Row(
+              children: const [
+                SizedBox(width: 16,),
+                EhIcon(),
+                SizedBox(width: 12,),
+                Text("EHentai")
+              ],
+            ),
+          ),
+        )
     );
   }
 }

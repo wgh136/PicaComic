@@ -1,16 +1,24 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import '../base.dart';
 
-class HistorySearchController extends GetxController{}
+class PreSearchController extends GetxController{
+  int target = 0;
+
+  void updateTarget(int i){
+    target = i;
+    update();
+  }
+}
 
 class PreSearchPage extends StatelessWidget {
   PreSearchPage({Key? key}) : super(key: key);
   final controller = TextEditingController();
-  final searchController = Get.put(HistorySearchController());
+  final searchController = Get.put(PreSearchController());
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,11 @@ class PreSearchPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
         onPressed: (){
-          Get.to(()=>SearchPage(controller.text));
+          if(searchController.target == 0) {
+            Get.to(()=>SearchPage(controller.text));
+          }else{
+            Get.to(()=>EhSearchPage(controller.text));
+          }
         },
       ),
       body: SafeArea(
@@ -33,7 +45,11 @@ class PreSearchPage extends StatelessWidget {
                 maxHeight: 0,
                 child: FloatingSearchBar(supportingText: '搜索',f:(s){
                   if(s=="") return;
-                  Get.to(()=>SearchPage(controller.text));
+                  if(searchController.target == 0) {
+                    Get.to(()=>SearchPage(controller.text));
+                  }else{
+                    Get.to(()=>EhSearchPage(controller.text));
+                  }
                 },
                   controller: controller,
                   trailing: Tooltip(
@@ -43,7 +59,7 @@ class PreSearchPage extends StatelessWidget {
                       onPressed: (){
                         showDialog(context: context, builder: (context){
                           return SimpleDialog(
-                              title: const Text("选择漫画排序模式"),
+                              title: const Text("选择漫画排序模式(哔咔)"),
                               children: [GetBuilder<ModeRadioLogic>(
                                 init: ModeRadioLogic(),
                                 builder: (radioLogic){
@@ -108,13 +124,57 @@ class PreSearchPage extends StatelessWidget {
             ),
             const SliverPadding(padding: EdgeInsets.only(top: 5)),
             SliverToBoxAdapter(
+              child: GetBuilder<PreSearchController>(builder: (logic){
+                return Card(
+                  elevation: 0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(13, 5, 0, 0),
+                        child: Text("目标"),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: Wrap(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: FilterChip(
+                                label: const Text("Picacg"),
+                                selected: logic.target==0,
+                                onSelected: (b){
+                                  logic.updateTarget(0);
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: FilterChip(
+                                label: const Text("E-Hentai"),
+                                selected: logic.target==1,
+                                onSelected: (b){
+                                  logic.updateTarget(1);
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              },),
+            ),
+            const SliverPadding(padding: EdgeInsets.only(top: 5)),
+            SliverToBoxAdapter(
               child: Card(
                 margin: const EdgeInsets.all(10),
                 elevation: 0,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("  热搜"),
+                    const Text("  哔咔热搜"),
                     Wrap(
                       children: [
                         for(var s in hotSearch)
@@ -135,7 +195,7 @@ class PreSearchPage extends StatelessWidget {
                 ),
               ),
             ),
-            GetBuilder<HistorySearchController>(
+            GetBuilder<PreSearchController>(
               builder: (controller){
                 return SliverToBoxAdapter(
                   child: Card(
@@ -167,7 +227,7 @@ class PreSearchPage extends StatelessWidget {
                 );
               },
             ),
-            GetBuilder<HistorySearchController>(
+            GetBuilder<PreSearchController>(
               builder: (controller){
                 if(appdata.searchHistory.isNotEmpty) {
                   return SliverToBoxAdapter(

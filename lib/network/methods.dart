@@ -295,7 +295,7 @@ class Network{
     }
     await loadMoreSearch(s);
     if(addToHistory) {
-      Future.delayed(const Duration(microseconds: 500),()=>Get.find<HistorySearchController>().update());
+      Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
     }
     return s;
   }

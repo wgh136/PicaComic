@@ -7,8 +7,9 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
 
 class ShowImagePage extends StatefulWidget {
-  const ShowImagePage(this.url,{Key? key}) : super(key: key);
+  const ShowImagePage(this.url,{this.eh=false,Key? key}) : super(key: key);
   final String url;
+  final bool eh;
 
   @override
   State<ShowImagePage> createState() => _ShowImagePageState();
@@ -41,7 +42,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
             children: [
               Positioned(child: PhotoView(
                 minScale: PhotoViewComputedScale.contained*0.9,
-                imageProvider: CachedNetworkImageProvider(getImageUrl(url)),
+                imageProvider: CachedNetworkImageProvider(widget.eh?url:getImageUrl(url)),
                 loadingBuilder: (context,event){
                   return Container(
                     decoration: const BoxDecoration(color: Colors.black),

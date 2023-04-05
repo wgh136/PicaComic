@@ -39,7 +39,7 @@ class ProxyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);
-    client.findProxy = proxy==null?null:(uri) => 'PROXY $proxy;';
+    client.findProxy = (uri) => proxy==null ? "DIRECT" : 'PROXY $proxy;';
     return client;
   }
 }

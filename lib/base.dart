@@ -5,16 +5,18 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'eh_network/eh_main_network.dart';
 import 'network/models.dart';
 
 var network = Network();
+var ehNetwork = EhNetwork();
 
 //定义宽屏设备的临界值
 const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.3.14";
+const appVersion = "1.4.0";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;

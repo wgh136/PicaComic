@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
@@ -22,23 +23,32 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   ];
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: TabBar(
-            tabs: tabs,
+    return DefaultTabController(length: 2, child: Scaffold(
+      appBar: AppBar(title: const TabBar(
+        tabs: [
+          Tab(text: "Picacg",),
+          Tab(text: "E-Hentai",)
+        ],
+      ),),
+      body: TabBarView(children: [
+        DefaultTabController(
+          length: tabs.length,
+          child: Column(
+            children: [
+              TabBar(tabs: tabs),
+              const Expanded(child: TabBarView(
+                  children: [
+                    LeaderBoardH24(),
+                    LeaderBoardD7(),
+                    LeaderBoardD30()
+                  ]
+              ))
+            ],
           ),
         ),
-        body: const TabBarView(
-            children: [
-              LeaderBoardH24(),
-              LeaderBoardD7(),
-              LeaderBoardD30()
-            ]
-        ),
-      ),
-    );
+        EhLeaderboardPage()
+      ],),
+    ));
   }
 }
 

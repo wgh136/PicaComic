@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 
-Widget showNetworkError(BuildContext context, void Function() retry, {bool showBack = true}){
+Widget showNetworkError(BuildContext context, void Function() retry, {bool showBack = true, bool eh=false}){
   final topPadding = showBack?0:80;
   return SafeArea(child: Stack(
     children: [
@@ -30,7 +30,9 @@ Widget showNetworkError(BuildContext context, void Function() retry, {bool showB
         top: MediaQuery.of(context).size.height/2-10-topPadding,
         child: Align(
           alignment: Alignment.topCenter,
-          child: network.status?Text(network.message):const Text("网络错误"),
+          child: eh?
+            (ehNetwork.status?Text(ehNetwork.message):const Text("网络错误"))
+              :(network.status?Text(network.message):const Text("网络错误")),
         ),
       ),
       Positioned(

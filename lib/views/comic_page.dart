@@ -237,7 +237,7 @@ class ComicPage extends StatelessWidget{
   }
 
   Widget buildComicInfo(ComicPageLogic logic, BuildContext context){
-    if(MediaQuery.of(context).size.shortestSide<changePoint) {
+    if(MediaQuery.of(context).size.width<changePoint) {
       return SliverToBoxAdapter(
         child: SizedBox(
           width: MediaQuery.of(context).size.width/2,
