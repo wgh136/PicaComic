@@ -279,6 +279,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                   children: [
                                     const SizedBox(height: 8,),
                                     buildSlider(comicReadingPageLogic),
+                                    if(widget.ehUrls==null)
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -639,6 +640,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     if(widget.ehUrls!=null){
                       comicReadingPageLogic.controller.jumpToPage(1);
                       showMessage(context, "已经是第一页了");
+                      return;
                     }
                     if(comicReadingPageLogic.order!=1) {
                       comicReadingPageLogic.order -= 1;
@@ -654,6 +656,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     if(widget.ehUrls!=null){
                       comicReadingPageLogic.controller.jumpToPage(i-1);
                       showMessage(context, "已经是最后一页了");
+                      return;
                     }
                     if(comicReadingPageLogic.order!=eps.length-1){
                       comicReadingPageLogic.order += 1;

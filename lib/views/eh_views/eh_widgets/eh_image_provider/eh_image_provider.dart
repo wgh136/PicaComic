@@ -13,7 +13,7 @@ import 'package:dio/dio.dart';
 class EhNetworkImage extends image_provider.ImageProvider<image_provider.NetworkImage> implements image_provider.NetworkImage {
   //从flutter源代码中复制过来, 加上了对url的预处理
   //传入的url应当是eh的图片查看网页, 此类在加载图片前会进行解析html以获取图片url
-  const EhNetworkImage(this.url, { this.scale = 1.0, this.headers })
+  EhNetworkImage(this.url, { this.scale = 1.0 })
       : assert(url != null),
         assert(scale != null);
 
@@ -24,7 +24,11 @@ class EhNetworkImage extends image_provider.ImageProvider<image_provider.Network
   final double scale;
 
   @override
-  final Map<String, String>? headers;
+  final Map<String, String>? headers = {
+    "Referer": "https://e-hentai.org/",
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+  };
 
   @override
   Future<NetworkImage> obtainKey(image_provider.ImageConfiguration configuration) {
@@ -96,6 +100,7 @@ class EhNetworkImage extends image_provider.ImageProvider<image_provider.Network
       assert(key == this);
 
       final _url = await getEhImageUrl();
+      print(_url);
 
       final Uri resolved = Uri.base.resolve(_url);
 
@@ -168,6 +173,7 @@ class EhNetworkImage extends image_provider.ImageProvider<image_provider.Network
         connectTimeout: const Duration(seconds: 8),
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
+        followRedirects: true,
         headers: {
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
         }
@@ -177,6 +183,9 @@ class EhNetworkImage extends image_provider.ImageProvider<image_provider.Network
       ..interceptors.add(LogInterceptor());
     var html = await dio.get(url);
     var document = parse(html.data);
+    var nl = document.getElementById("loadfail")!.attributes["onclick"]!;
+    html = await dio.get("$url?nl=${nl.substring(11,nl.length-2)}");
+    document = parse(html.data);
     //如果ip被ban, 解析失败也无关紧要, 此方法在try{}中调用
     return document.querySelector("img#img")!.attributes["src"]!;
   }

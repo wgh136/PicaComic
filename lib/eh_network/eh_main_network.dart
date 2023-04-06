@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import '../base.dart';
 import '../tools/proxy.dart';
@@ -12,7 +11,7 @@ class EhNetwork{
   bool status = false;  //给出当前请求的状态
   String message = "";  //输出错误信息
 
-  Future<String?> request(String url) async{
+  Future<String?> request(String url, {Map<String,String>? headers,}) async{
     status = false; //重置
     await setNetworkProxy();//更新代理
 
@@ -21,7 +20,9 @@ class EhNetwork{
       sendTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 8),
       headers: {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
+        ...?headers
       }
     );
 
@@ -29,9 +30,6 @@ class EhNetwork{
       ..interceptors.add(LogInterceptor());
     try {
       var data = (await dio.get(url)).data;
-      if(kDebugMode){
-        print(data);
-      }
 
       if((data as String).substring(0,4) == "Your"){
         status = true;
@@ -52,9 +50,26 @@ class EhNetwork{
     }
   }
 
-  Future<void> login() async{
-    //var dio = await request();
-    //TODO
+  Future<bool> getUserName() async{
+    var res = await request("https://forums.e-hentai.org/index.php?act=UserCP&CODE=00",headers: {
+      "referer": "https://forums.e-hentai.org/index.php?",
+      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-encoding": "gzip, deflate, br",
+      "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+    });
+    if(res == null){
+      return false;
+    }
+    var html = parse(res);
+    var name = html.querySelector("div#userlinks > p.home > b > a");
+    if (name != null) {
+      appdata.ehAccount = name.text;
+      appdata.writeData();
+    }else{
+      appdata.ehId = "";
+      appdata.ehPassHash = "";
+    }
+    return name != null;
   }
 
   double getStarsFromPosition(String position){
@@ -96,7 +111,13 @@ class EhNetwork{
         }
         var title = items[i].children[2+t].children[0].children[0].text;
         var link = items[i].children[2+t].children[0].attributes["href"];
-        var uploader = items[i].children[3+t].children[0].children[0].text;
+        String uploader = "";
+        try{
+          uploader = items[i].children[3 + t].children[0].children[0].text;
+        }
+        catch(e){
+          //收藏夹页没有uploader
+        }
         var tags = <String>[];
         for(var node in items[i].children[2+t].children[0].children[1].children){
           tags.add(node.attributes["title"]!);
@@ -141,9 +162,24 @@ class EhNetwork{
       tags[tr.children[0].text.substring(0,tr.children[0].text.length-1)] = list;
     }
     var urls = <String>[];
-    var links = document.querySelectorAll("div#gdt > div.gdtm > div > a");
-    for(var link in links){
-      urls.add(link.attributes["href"]!);
+    String maxPage = "1"; //缩略图列表的最大页数
+    var pages = document.querySelectorAll("div.gtb > table.ptb > tbody > tr > td");
+    maxPage = pages[pages.length-2].text;
+    for(int i=0;i<int.parse(maxPage);i++) {
+      try{
+        var temp = document;
+        if (i != 0) {
+          temp = parse(await request("${brief.link}?p=$i"));
+        }
+        var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
+        for (var link in links) {
+          urls.add(link.attributes["href"]!);
+        }
+      }
+      catch(e){
+        //获取图片链接失败
+        return null;
+      }
     }
     String? comment;
     if(document.getElementsByClassName("c4")!=[]){

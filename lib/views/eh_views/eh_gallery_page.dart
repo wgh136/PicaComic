@@ -109,18 +109,20 @@ class EhGalleryPage extends StatelessWidget {
   Widget buildGalleryInfo(BuildContext context, GalleryPageLogic logic){
     if(UiMode.m1(context)){
       return SliverToBoxAdapter(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width/2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //封面
-              buildCover(context, 350, MediaQuery.of(context).size.width, logic),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: SizedBox(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //封面
+                buildCover(context, 350, MediaQuery.of(context).size.width, logic),
 
-              const SizedBox(height: 20,),
+                const SizedBox(height: 20,),
 
-              ...buildInfoCards(logic, context),
-            ],
+                ...buildInfoCards(logic, context),
+              ],
+            ),
           ),
         ),
       );
@@ -147,9 +149,9 @@ class EhGalleryPage extends StatelessWidget {
   Widget buildCover(BuildContext context, double height, double width, GalleryPageLogic logic){
     return GestureDetector(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+        padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
         child: CachedNetworkImage(
-          width: width-30,
+          width: width-50,
           imageUrl: logic.gallery!.coverPath,
           fit: BoxFit.contain,
           errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -192,13 +194,6 @@ class EhGalleryPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
       child: Row(
         children: [
-          Expanded(child: FilledButton(
-            onPressed: (){
-              //TODO: Download
-            },
-            child: const Text("下载"),
-          ),),
-          SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
             onPressed: ()=>Get.to(()=>ComicReadingPage("",0,[],logic.gallery!.title,ehUrls: logic.gallery!.urls,)),
             child: const Text("阅读"),

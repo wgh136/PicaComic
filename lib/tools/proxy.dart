@@ -40,6 +40,7 @@ class ProxyHttpOverrides extends HttpOverrides {
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);
     client.findProxy = (uri) => proxy==null ? "DIRECT" : 'PROXY $proxy;';
+    client.badCertificateCallback = (X509Certificate cert, String host, int port)=>true;
     return client;
   }
 }

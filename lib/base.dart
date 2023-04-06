@@ -58,9 +58,12 @@ class Appdata{
   List<String> blockingKeyword = [];
   List<String> firstUse = [
     "1",//屏蔽关键词1
-    "1",//屏蔽关键词2
+    "1",//屏蔽关键词2(已废弃)
     "1",//漫画详情页
   ];
+  String ehId = "";
+  String ehPassHash = "";
+  String ehAccount = "";
   Appdata(){
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
@@ -126,6 +129,9 @@ class Appdata{
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
     await s.setString("image", imageQuality);
+    await s.setString("ehId", ehId);
+    await s.setString("ehAccount", ehAccount);
+    await s.setString("ehPassHash", ehPassHash);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -154,6 +160,9 @@ class Appdata{
         }
       }
       imageQuality = s.getString("image")??"original";
+      ehId = s.getString("ehId")??"";
+      ehAccount = s.getString("ehAccount")??"";
+      ehPassHash = s.getString("ehPassHash")??"";
       return token==""?false:true;
     }
     catch(e){

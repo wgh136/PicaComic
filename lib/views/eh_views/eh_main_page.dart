@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/ui_mode.dart';
+import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
+import 'package:pica_comic/views/eh_views/eh_login_page.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import '../../base.dart';
+import '../widgets/selectable_text.dart';
 
 class EhMainPage extends StatelessWidget {
   const EhMainPage({Key? key}) : super(key: key);
@@ -11,6 +15,7 @@ class EhMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        if(UiMode.m1(context))
         const SliverAppBar(),
         SliverToBoxAdapter(
           child: SizedBox(
@@ -27,20 +32,42 @@ class EhMainPage extends StatelessWidget {
             child: Center(
               child: Wrap(
                 children: [
-                  ehPageItem(context, Icons.badge,(){
-                    //TODO
-                  },"Eh账户","管理Eh账户"),
+                  ehPageItem(context, Icons.badge,()=>manageAccount(context),"Eh账户","管理Eh账户"),
                   ehPageItem(context, Icons.home,()=>Get.to(()=>const EhHomePage()),"Eh主页","浏览Eh漫画"),
                   ehPageItem(context, Icons.local_fire_department,()=>Get.to(()=>const EhPopularPage()),"热门","E-Hentai上的热门漫画"),
-                  ehPageItem(context, Icons.bookmarks,(){
-                    //TODO
-                  },"收藏夹","已收藏的Eh漫画"),
+                  ehPageItem(context, Icons.bookmarks,()=>Get.to(()=>const EhFavouritePage()),"收藏夹","已收藏的Eh漫画"),
                 ],
               ),
             ),
           ),
         )
     ]);
+    }
+
+    void manageAccount(BuildContext context){
+    if(appdata.ehId == ""){
+      Get.to(()=>const EhLoginPage());
+    }else {
+      showDialog(context: context, builder: (dialogContext)=>SimpleDialog(
+        contentPadding: const EdgeInsets.fromLTRB(22, 12, 15, 10),
+        title: const Text("Eh账户"),
+        children: [
+          SelectableTextCN(text: "当前账户: ${appdata.ehAccount}"),
+          const SizedBox(height: 10,),
+          const Text("cookies:"),
+          SelectableTextCN(text: "  ipb_member_id: ${appdata.ehId}"),
+          SelectableTextCN(text: "  ipb_pass_hash: ${appdata.ehPassHash}"),
+          const SizedBox(height: 12,),
+          Center(child: FilledButton(child: const Text("退出登录"),onPressed: (){
+            appdata.ehPassHash = "";
+            appdata.ehId = "";
+            appdata.ehAccount = "";
+            appdata.writeData();
+            Get.back();
+          },),)
+        ],
+      ));
+    }
     }
 }
 
