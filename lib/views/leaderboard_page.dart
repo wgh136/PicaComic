@@ -16,11 +16,26 @@ class LeaderBoardPage extends StatefulWidget {
 }
 
 class _LeaderBoardPageState extends State<LeaderBoardPage> {
+  final logic = Get.put(EhLeaderboardLogic());
+  final logic2 = Get.put(LeaderBoardD7Logic());
+  final logic3 = Get.put(LeaderBoardD30Logic());
+  final logic4 = Get.put(LeaderBoardH24Logic());
+
   final List<Tab> tabs = <Tab>[
     const Tab(text: '24小时'),
     const Tab(text: '7天'),
     const Tab(text: '30天'),
   ];
+
+  @override
+  void dispose(){
+    logic.dispose();
+    logic2.dispose();
+    logic3.dispose();
+    logic4.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(length: 2, child: Scaffold(
@@ -46,7 +61,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
             ],
           ),
         ),
-        EhLeaderboardPage()
+        const EhLeaderboardPage()
       ],),
     ));
   }
@@ -68,8 +83,7 @@ class LeaderBoardH24 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LeaderBoardH24Logic>(
-      init: LeaderBoardH24Logic(),
-        builder: (leaderBoardLogic){
+      builder: (leaderBoardLogic){
       if(leaderBoardLogic.isLoading){
         network.getLeaderboard(time).then((c){
           leaderBoardLogic.comics = c;
@@ -120,8 +134,7 @@ class LeaderBoardD7 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LeaderBoardD7Logic>(
-      init: LeaderBoardD7Logic(),
-        builder: (leaderBoardLogic){
+      builder: (leaderBoardLogic){
       if(leaderBoardLogic.isLoading){
         network.getLeaderboard(time).then((c){
           leaderBoardLogic.comics = c;
@@ -172,8 +185,7 @@ class LeaderBoardD30 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LeaderBoardD30Logic>(
-      init: LeaderBoardD30Logic(),
-        builder: (leaderBoardLogic){
+      builder: (leaderBoardLogic){
       if(leaderBoardLogic.isLoading){
         network.getLeaderboard(time).then((c){
           leaderBoardLogic.comics = c;

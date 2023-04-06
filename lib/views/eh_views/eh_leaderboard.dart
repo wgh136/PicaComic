@@ -11,67 +11,120 @@ class EhLeaderboardLogic extends GetxController{
     EhLeaderboard(EhLeaderboardType.year, [], 0),
     EhLeaderboard(EhLeaderboardType.all, [], 0),
   ];
+
+  var networkStatus = <bool>[
+    false,
+    false,
+    false,
+    false
+  ];
 }
 
 class EhLeaderboardPage extends StatelessWidget {
-  EhLeaderboardPage({Key? key}) : super(key: key);
-  final logic = Get.put(EhLeaderboardLogic());
+  const EhLeaderboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(length: 4, child: Column(
-      children: [
-        const TabBar(tabs: [
+      children: const [
+        TabBar(tabs: [
           Tab(text: "昨天"),
           Tab(text: "一个月"),
           Tab(text: "一年"),
           Tab(text: "所有时间"),
         ]),
         Expanded(child: TabBarView(
-          children: logic.leaderboards.map((e) => GetBuilder<EhLeaderboardLogic>(builder: (logic){
-            if(e.galleries.isEmpty){
-              ehNetwork.getLeaderboard(e.type).then((board){
-                if(board!=null){
-                  e = board;
-                  logic.update();
-                }
-              });
-            }
-            return CustomScrollView(
-              slivers: [
-                SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                      childCount: e.galleries.length,
-                          (context, i){
-                        if(i==e.galleries.length-1&&e.loaded!=EhLeaderboard.max){
-                          ehNetwork.getLeaderboardNextPage(e).then((v)=>logic.update());
-                        }
-                        return EhGalleryTile(e.galleries[i]);
-                      }
-                  ),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
-                  ),
-                ),
-                if(e.loaded!=EhLeaderboard.max)
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      child: const Center(
-                        child: SizedBox(
-                          width: 20,height: 20,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          })).toList(),
-        ))
+            children: [
+              OneEhLeaderboardPage(0),
+              OneEhLeaderboardPage(1),
+              OneEhLeaderboardPage(2),
+              OneEhLeaderboardPage(3),
+            ]
+        ),)
       ],
     ));
   }
+}
+
+class OneEhLeaderboardPage extends StatelessWidget{
+  const OneEhLeaderboardPage(this.index,{super.key});
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<EhLeaderboardLogic>(builder: (logic){
+      if(logic.leaderboards[index].galleries.isEmpty&&!logic.networkStatus[index]){
+        ehNetwork.getLeaderboard(logic.leaderboards[index].type).then((board){
+          if(board!=null){
+            logic.leaderboards[index] = board;
+            logic.update();
+          }else{
+            logic.networkStatus[index] = true;
+            logic.update();
+          }
+        });
+      }
+      return CustomScrollView(
+        slivers: [
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+                childCount: logic.leaderboards[index].galleries.length,
+                    (context, i){
+                  if(i==logic.leaderboards[index].galleries.length-1&&logic.leaderboards[index].loaded!=EhLeaderboard.max){
+                    ehNetwork.getLeaderboardNextPage(logic.leaderboards[index]).then((v)=>logic.update());
+                  }
+                  return EhGalleryTile(logic.leaderboards[index].galleries[i]);
+                }
+            ),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: comicTileMaxWidth,
+              childAspectRatio: comicTileAspectRatio,
+            ),
+          ),
+          if(logic.leaderboards[index].loaded!=EhLeaderboard.max&&!logic.networkStatus[index])
+            SliverToBoxAdapter(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 80,
+                child: const Center(
+                  child: SizedBox(
+                    width: 20,height: 20,
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+            ),
+          if(logic.networkStatus[index])
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 80,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,size: 25,),
+                          const SizedBox(width: 2,),
+                          Text(ehNetwork.status?ehNetwork.message:"网络错误")
+                        ],
+                      ),
+                    ),
+                    Expanded(child: Center(child: FilledButton(
+                      child: const Text("重试"),
+                      onPressed: (){
+                        logic.networkStatus[index] = false;
+                        logic.update();
+                      },
+                    ),))
+                  ],
+                ),
+              ),
+            )
+        ],
+      );
+    });
+  }
+
 }
