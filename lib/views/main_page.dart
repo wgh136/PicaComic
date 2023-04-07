@@ -253,6 +253,7 @@ class _MainPageState extends State<MainPage> {
                     NavigatorItem(Icons.games_outlined,Icons.games, "游戏",i==3,()=>setState(()=>i=3)),
                     EhNavigationItem(()=>setState(()=>i=4), i==4),
                     const Divider(),
+                    const Spacer(),
                     NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
                     NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
                     NavigatorItem(Icons.leaderboard,Icons.games, "排行榜",false,()=>Get.to(()=>const LeaderBoardPage())),

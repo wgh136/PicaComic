@@ -214,7 +214,9 @@ class PreSearchPage extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.surfaceVariant,
                                 child: InkWell(
                                   borderRadius: const BorderRadius.all(Radius.circular(16)),
-                                  onTap: ()=>Get.to(()=>SearchPage(s)),
+                                  onTap: ()=>controller.target==0?
+                                  Get.to(()=>SearchPage(s)):
+                                  Get.to(()=>EhSearchPage(s)),
                                   child: Padding(
                                     padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
                                 ),

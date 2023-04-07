@@ -236,8 +236,7 @@ class DownloadPage extends StatelessWidget {
                                   }
                                   logic.update();
                                 }else{
-                                  var history = await appdata.addHistory(logic.comics[index].comicItem.toBrief());
-                                  Get.to(() => ComicPage(logic.comics[index].comicItem.toBrief(),history: history,),preventDuplicates: false);
+                                  Get.to(() => ComicPage(logic.comics[index].comicItem.toBrief()),preventDuplicates: false);
                                 }
                               },
                                 size: s,

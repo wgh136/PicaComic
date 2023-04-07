@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/methods.dart';
@@ -34,9 +33,9 @@ class Appdata{
   late Profile user;
   late String appChannel;
   late String imageQuality;
-  late List<HistoryItem> history;
   late List<String> searchHistory;
   bool flag = true; //用于提供一些页面间通讯
+  var history = HistoryManager();
   List<String> settings = [
     "1", //点击屏幕左右区域翻页
     "dd", //排序方式
@@ -68,7 +67,6 @@ class Appdata{
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
     user = temp;
-    history = [];
     appChannel = "3";
     searchHistory = [];
     imageQuality = "original";
@@ -168,56 +166,6 @@ class Appdata{
     catch(e){
       return false;
     }
-  }
-
-  Future<void> saveHistory() async{
-    var data = const JsonEncoder().convert(List.generate(history.length, (index) => history[index].toMap()));
-    var s = await SharedPreferences.getInstance();
-    await s.setString("newHistory", data);
-  }
-
-  Future<void> readHistory() async{
-    var s = await SharedPreferences.getInstance();
-    var data = const JsonDecoder().convert(s.getString("newHistory")??"[]");
-    for(var c in data){
-      history.add(HistoryItem.fromMap(c));
-    }
-  }
-
-  Future<HistoryItem> addHistory(ComicItemBrief item) async{
-    await readHistory();
-    var ep = 0;
-    var page = 0;
-    var newHistory = <HistoryItem>[];
-    for(var comic in history){
-      if(comic.id==item.id){
-        ep = comic.ep;
-        page = comic.page;
-      }else{
-        newHistory.add(comic);
-      }
-    }
-    newHistory.add(HistoryItem(item.id,item.title,item.author,item.path,DateTime.now(),ep,page));
-    history = newHistory;
-    await saveHistory();
-    history.clear();
-    return HistoryItem(item.id,item.title,item.author,item.path,DateTime.now(),ep,page);
-  }
-
-  void saveReadInfo(int ep, int page, String id) async{
-    await readHistory();
-    for(int i=history.length-1;i>=0;i--){
-      if(history[i].id==id){
-        history[i].ep = ep;
-        history[i].page = page;
-        history[i].time = DateTime.now();
-        var comic = history[i];
-        history.add(comic);
-        history.removeAt(i);
-      }
-    }
-    await saveHistory();
-    history.clear();
   }
 }
 

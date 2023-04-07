@@ -6,6 +6,7 @@ import 'package:pica_comic/views/eh_views/eh_login_page.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import '../../base.dart';
+import '../pre_search_page.dart';
 import '../widgets/selectable_text.dart';
 
 class EhMainPage extends StatelessWidget {
@@ -16,7 +17,19 @@ class EhMainPage extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         if(UiMode.m1(context))
-        const SliverAppBar(),
+        SliverAppBar(
+          actions: [
+            Tooltip(
+              message: "搜索",
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: (){
+                  Get.to(()=>PreSearchPage());
+                },
+              ),
+            ),
+          ],
+        ),
         SliverToBoxAdapter(
           child: SizedBox(
             width: MediaQuery.of(context).size.width,

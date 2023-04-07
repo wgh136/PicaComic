@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/views/comic_page.dart';
+import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
@@ -14,26 +17,19 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  var comics = <HistoryItem>[];
+  var comics = <NewHistory>[];
   bool status = true;
-
-  @override
-  void dispose() {
-    //清除数据避免历史记录过多, 减少内存占用
-    appdata.history.clear();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     if(status){
       status = false;
-      appdata.readHistory().then((v){
+      appdata.history.readData().then((v){
         setState(() {
-          for(var c in appdata.history){
+          for(var c in appdata.history.history){
             comics.add(c);
           }
-          appdata.history.clear();
+          appdata.history.close();
         });
       });
     }
@@ -54,9 +50,8 @@ class _HistoryPageState extends State<HistoryPage> {
                       actions: [
                         TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
                         TextButton(onPressed: (){
-                          appdata.history.clear();
+                          appdata.history.clearHistory();
                           setState(()=>comics.clear());
-                          appdata.saveHistory();
                           Get.back();
                         }, child: const Text("清除")),
                       ],
@@ -68,17 +63,33 @@ class _HistoryPageState extends State<HistoryPage> {
             SliverGrid(
               delegate: SliverChildBuilderDelegate(
                   childCount: comics.length,
-                      (context, index){
-                    var i = comics.length-index-1;
+                      (context, i){
+                    final comic = ComicItemBrief(
+                        comics[i].title,
+                        comics[i].subtitle,
+                        0,
+                        comics[i].cover,
+                        comics[i].target
+                    );
                     return ComicTile(
-                      ComicItemBrief(
-                          comics[i].title,
-                          comics[i].author,
-                          0,
-                          comics[i].cover,
-                          comics[i].id
-                      ),
-                      time: "${comics[i].time.year}-${comics[i].time.month}-${comics[i].time.day} ${comics[i].time.hour}:${comics[i].time.minute}"
+                      comic,
+                      time: "${comics[i].time.year}-${comics[i].time.month}-${comics[i].time.day} ${comics[i].time.hour}:${comics[i].time.minute}",
+                      onTap: (){
+                        if(comics[i].type == HistoryType.picacg){
+                          Get.to(()=>ComicPage(comic));
+                        }else{
+                          Get.to(()=>EhGalleryPage(EhGalleryBrief(
+                            comics[i].title,
+                            "",
+                            "",
+                            comics[i].subtitle,
+                            comics[i].cover,
+                            0.0,
+                            comics[i].target,
+                            []
+                          )));
+                        }
+                      },
                     );
                   }
               ),

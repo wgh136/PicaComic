@@ -1,3 +1,12 @@
+import 'dart:collection';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/network/models.dart';
+
+/*
+为了能够存储eh历史记录, 弃用此类, 重构历史记录功能
 class HistoryItem{
   String id;
   String title;
@@ -27,5 +36,151 @@ class HistoryItem{
     "page": page
   };
 
+  @override
   String toString()=>"$id $title $author $time $ep $page";
+}
+ */
+enum HistoryType{
+  picacg(0),
+  ehentai(1);
+
+  final int value;
+  const HistoryType(this.value);
+}
+
+class NewHistory extends LinkedListEntry<NewHistory>{
+  HistoryType type;
+  DateTime time;
+  String title;
+  String subtitle;  //picacg中为作者, eh中为上传者
+  String cover;
+  int ep; //标记为0表示没有阅读位置记录
+  int page;
+  String target;  //picacg中为本子id, eh中为本子链接
+  NewHistory(this.type,this.time,this.title,this.subtitle,this.cover,this.ep,this.page,this.target);
+
+  NewHistory.fromComicItemBrief(ComicItemBrief brief, this.time, this.ep, this.page):
+    type=HistoryType.picacg,
+    title=brief.title,
+    subtitle=brief.author,
+    cover=brief.path,
+    target=brief.id;
+
+  NewHistory.fromGalleryBrief(EhGalleryBrief brief, this.time, this.ep, this.page):
+    type=HistoryType.ehentai,
+    title=brief.title,
+    subtitle=brief.uploader,
+    cover=brief.coverPath,
+    target=brief.link;
+
+  Map<String, dynamic> toMap()=>{
+    "type": type.value,
+    "time": time.millisecondsSinceEpoch,
+    "title": title,
+    "subtitle": subtitle,
+    "cover": cover,
+    "ep": ep,
+    "page": page,
+    "target": target
+  };
+
+  NewHistory.fromMap(Map<String, dynamic> map):
+    type=HistoryType.values[map["type"]],
+    time=DateTime.fromMillisecondsSinceEpoch(map["time"]),
+    title=map["title"],
+    subtitle=map["subtitle"],
+    cover=map["cover"],
+    ep=map["ep"],
+    page=map["page"],
+    target=map["target"];
+
+  @override
+  String toString() {
+    return 'NewHistory{type: $type, time: $time, title: $title, subtitle: $subtitle, cover: $cover, ep: $ep, page: $page, target: $target}';
+  }
+}
+
+class HistoryManager{
+  //粗略计算, 1000个本子的数据将占据1.38mb左右的内存空间(按照int64位,char8位计算), 显然难以接受, 应该不会有人历史记录超过10000吧?这样硬盘IO的速度可以接受
+  //也没必要整数据库, 遍历一遍用时不高(除非历史记录多得离谱)
+  //如果因为历史记录过多导致卡顿, 我的建议是注意身体, 卡顿可以帮助戒色
+  var history = LinkedList<NewHistory>();
+  bool _open = false;
+
+  void saveDataAndClose() async{
+    //储存数据并且释放内存
+    final dataPath = await getApplicationSupportDirectory();
+    var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
+    if(!(await file.exists())){
+      await file.create();
+    }
+    file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
+    _open = false;
+    history.clear();
+  }
+
+  void close() async{
+    _open = false;
+    history.clear();
+  }
+
+  Future<void> readData() async{
+    if(_open) return;
+    _open = true;
+    final dataPath = await getApplicationSupportDirectory();
+    var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
+    if(!(await file.exists())){
+      return;
+    }
+    var data = const JsonDecoder().convert(file.readAsStringSync());
+    for(var h in data){
+      history.add(NewHistory.fromMap((h as Map<String, dynamic>)));
+    }
+  }
+
+  Future<void> addHistory(NewHistory newItem) async{
+    //搜索是否存在, 存在则移至最前, 并且转移历史记录
+    //调用此方法应当是进入漫画详情页时, 此时传入的参数不应有阅读数据, 即ep为0
+    //漫画详情页在调用此函数后, 可以通过传入的NewHistory对象获取上次阅读位置
+    if(!_open) {
+      await readData();
+    }
+    try {
+      var p = history.firstWhere((element) => element.target == newItem.target);
+      newItem.page = p.page;
+      newItem.ep = p.ep;
+      history.remove(p);
+      history.addFirst(NewHistory.fromMap(newItem.toMap()));//不知道这里直接传递是复制还是引用, 总之这样写直接消灭问题
+    }
+    catch(e){
+      //没有之前的历史记录
+      history.addFirst(NewHistory.fromMap(newItem.toMap()));
+    }
+    saveDataAndClose();
+  }
+
+  Future<void> saveReadHistory(String target, int ep, int page) async{
+    //退出阅读器时调用此函数, 修改阅读位置
+    if(!_open) {
+      await readData();
+    }
+    try {
+      var p = history.firstWhere((element) => element.target == target);
+      p.ep = ep;
+      p.page = page;
+      saveDataAndClose();
+    }
+    catch(e){
+      //可能存在进入阅读器前添加历史记录失败情况, 此时忽略
+    }
+  }
+
+  void clearHistory() async{
+    //清除历史记录
+    final dataPath = await getApplicationSupportDirectory();
+    var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
+    if(file.existsSync()){
+      await file.delete();
+    }
+  }
 }

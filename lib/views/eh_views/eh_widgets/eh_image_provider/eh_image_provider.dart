@@ -100,7 +100,10 @@ class EhNetworkImage extends image_provider.ImageProvider<image_provider.Network
       assert(key == this);
 
       final _url = await getEhImageUrl();
-      print(_url);
+
+      if(kDebugMode){
+        print(_url);
+      }
 
       final Uri resolved = Uri.base.resolve(_url);
 

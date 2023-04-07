@@ -112,13 +112,13 @@ class ComicDescription extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 SizedBox(
-                  height: 30,
+                  height: 20,
                   child: Row(
                     children: [
                       for(int i=0;i<s~/2;i++)
-                        const Icon(Icons.star,size: 20,color: Color.fromARGB(255, 230, 180, 34),),
+                        Icon(Icons.star,size: 20,color: Theme.of(context).colorScheme.secondary,),
                       if(s%2==1)
-                        const Icon(Icons.star_half,size: 20,color: Color.fromARGB(255, 230, 180, 34),),
+                        Icon(Icons.star_half,size: 20,color: Theme.of(context).colorScheme.secondary,),
                       for(int i=0;i<(5 - s~/2 - s%2);i++)
                         const Icon(Icons.star_border,size: 20,)
                     ],

@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
+import 'package:pica_comic/views/eh_views/eh_search_page.dart';
+import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:share_plus/share_plus.dart';
 import '../comic_reading_page.dart';
@@ -13,11 +15,19 @@ import '../widgets/loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/widgets.dart';
 
+/*
+TODO:
+  1. 评论
+  2. 在此页面加载时获取星星, 发布者, 类型, 发布时间
+  3. 优化ui
+ */
+
 class GalleryPageLogic extends GetxController{
   bool loading = true;
   Gallery? gallery;
   var controller = ScrollController();
   bool showAppbarTitle = false;
+  NewHistory? history;
 
   void loadInfo(EhGalleryBrief brief) async{
     gallery = await ehNetwork.getGalleryInfo(brief);
@@ -39,6 +49,27 @@ class EhGalleryPage extends StatelessWidget {
     return Scaffold(
       body: GetBuilder<GalleryPageLogic>(
         init: GalleryPageLogic(),
+        initState: (logic){
+          //添加历史记录
+          Future.delayed(const Duration(milliseconds: 300),(){
+            try{
+              logic.controller!.history = NewHistory(
+                  HistoryType.ehentai,
+                  DateTime.now(),
+                  brief.title,
+                  brief.uploader,
+                  brief.coverPath,
+                  0,
+                  0,
+                  brief.link
+              );
+              appdata.history.addHistory(logic.controller!.history!);
+            }
+            catch(e){
+              //Get会在初始化logic前调用此函数, 延迟300ms可能仍然没有初始化完成
+            }
+          });
+        },
         builder: (logic){
           if(logic.loading){
             logic.loadInfo(brief);
@@ -98,6 +129,26 @@ class EhGalleryPage extends StatelessWidget {
                 ),
 
                 buildGalleryInfo(context,logic),
+
+                if(logic.gallery!.commentByUploader!=null)
+                SliverToBoxAdapter(
+                  child: Card(
+                    margin: const EdgeInsets.all(5),
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("来自上传者",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
+                          const SizedBox(height: 2,),
+                          Text(logic.gallery!.commentByUploader!)
+                        ],
+                      ),
+                    ),
+                  ),
+                )
               ],
             );
           }
@@ -107,6 +158,7 @@ class EhGalleryPage extends StatelessWidget {
   }
 
   Widget buildGalleryInfo(BuildContext context, GalleryPageLogic logic){
+    var s = logic.gallery!.stars ~/ 0.5;
     if(UiMode.m1(context)){
       return SliverToBoxAdapter(
         child: Padding(
@@ -114,11 +166,27 @@ class EhGalleryPage extends StatelessWidget {
           child: SizedBox(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 //封面
                 buildCover(context, 350, MediaQuery.of(context).size.width, logic),
 
                 const SizedBox(height: 20,),
+
+                SizedBox(
+                  height: 30,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for(int i=0;i<s~/2;i++)
+                        Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                      if(s%2==1)
+                        Icon(Icons.star_half,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                      for(int i=0;i<(5 - s~/2 - s%2);i++)
+                        const Icon(Icons.star_border,size: 30,)
+                    ],
+                  ),
+                ),
 
                 ...buildInfoCards(logic, context),
               ],
@@ -132,12 +200,39 @@ class EhGalleryPage extends StatelessWidget {
         child: Row(
           children: [
             //封面
-            buildCover(context, 550, MediaQuery.of(context).size.width/2,logic),
+            SizedBox(
+              child: Column(
+                children: [
+                  buildCover(context, 550, MediaQuery.of(context).size.width/2,logic),
+                ],
+              ),
+            ),
             SizedBox(
               width: MediaQuery.of(context).size.width/2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: buildInfoCards(logic, context),
+                children: [
+                  const Text("评分"),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: (){},
+                    child: SizedBox(
+                      height: 30,
+                      width: 150,
+                      child: Row(
+                        children: [
+                          for(int i=0;i<s~/2;i++)
+                            Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                          if(s%2==1)
+                            Icon(Icons.star_half,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                          for(int i=0;i<(5 - s~/2 - s%2);i++)
+                            const Icon(Icons.star_border,size: 30,)
+                        ],
+                      ),
+                    ),
+                  ),
+                  ...buildInfoCards(logic, context),
+                ]
               ),
             ),
           ],
@@ -152,6 +247,7 @@ class EhGalleryPage extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
         child: CachedNetworkImage(
           width: width-50,
+          height: height,
           imageUrl: logic.gallery!.coverPath,
           fit: BoxFit.contain,
           errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -165,11 +261,6 @@ class EhGalleryPage extends StatelessWidget {
     var res = <Widget>[];
     res.add(const Padding(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: Text("uploader"),
-    ));
-    res.add(buildInfoCard(logic.gallery!.uploader, context));
-    res.add(const Padding(
-      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Text("type"),
     ));
     res.add(buildInfoCard(logic.gallery!.type, context));
@@ -177,7 +268,7 @@ class EhGalleryPage extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Text("time"),
     ));
-    res.add(buildInfoCard(logic.gallery!.time, context));
+    res.add(buildInfoCard(logic.gallery!.time, context,allowSearch: false));
     for(var key in logic.gallery!.tags.keys){
       res.add(Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -191,11 +282,35 @@ class EhGalleryPage extends StatelessWidget {
       ));
     }
     res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(10, 10, 20, 0),
+      padding: const EdgeInsets.fromLTRB(10, 15, 20, 10),
       child: Row(
         children: [
           Expanded(child: FilledButton(
-            onPressed: ()=>Get.to(()=>ComicReadingPage("",0,[],logic.gallery!.title,ehUrls: logic.gallery!.urls,)),
+            onPressed: (){
+              Get.to(()=>ComicReadingPage(brief.link,1,const [],logic.gallery!.title,ehUrls: logic.gallery!.urls,));
+              if(logic.history!=null){
+                if(logic.history!.ep!=0){
+                  showDialog(context: context, builder: (dialogContext)=>AlertDialog(
+                    title: const Text("继续阅读"),
+                    content: Text("上次阅读到第${logic.history!.ep}章第${logic.history!.page}页, 是否继续阅读?"),
+                    actions: [
+                      TextButton(onPressed: (){
+                        Get.back();
+                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,ehUrls: logic.gallery!.urls));
+                      }, child: const Text("从头开始")),
+                      TextButton(onPressed: (){
+                        Get.back();
+                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,initialPage: logic.history!.page,ehUrls: logic.gallery!.urls));
+                      }, child: const Text("继续阅读")),
+                    ],
+                  ));
+                }else{
+                  Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,ehUrls: logic.gallery!.urls));
+                }
+              }else {
+                Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,ehUrls: logic.gallery!.urls));
+              }
+            },
             child: const Text("阅读"),
           ),),
         ],
@@ -204,7 +319,7 @@ class EhGalleryPage extends StatelessWidget {
     return res;
   }
 
-  Widget buildInfoCard(String title, BuildContext context){
+  Widget buildInfoCard(String title, BuildContext context, {bool allowSearch=true}){
     return GestureDetector(
       onLongPressStart: (details){
         showMenu(
@@ -245,9 +360,7 @@ class EhGalleryPage extends StatelessWidget {
             .primaryContainer,
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          onTap: (){
-            //TODO
-          },
+          onTap: allowSearch?()=>Get.to(()=>EhSearchPage(title)):(){},
           child: Padding(
             padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(title),
           ),

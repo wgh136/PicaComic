@@ -28,6 +28,7 @@ class ComicPageLogic extends GetxController{
   var categories = <Widget>[];
   var recommendation = <ComicItemBrief>[];
   final controller = ScrollController();
+  NewHistory? history;
   var eps = <Widget>[
     const ListTile(
       leading: Icon(Icons.library_books),
@@ -44,8 +45,7 @@ class ComicPageLogic extends GetxController{
 class ComicPage extends StatelessWidget{
   final ComicItemBrief comic;
   final bool downloaded;
-  final HistoryItem? history;
-  const ComicPage(this.comic,{super.key, this.downloaded=false, this.history});
+  const ComicPage(this.comic,{super.key, this.downloaded=false});
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +53,27 @@ class ComicPage extends StatelessWidget{
       body: GetBuilder<ComicPageLogic>(
         tag: comic.id,
         init: ComicPageLogic(),
+        initState: (logic){
+          //添加历史记录
+          try{
+            Future.delayed(const Duration(milliseconds: 300), (){
+              logic.controller!.history = NewHistory(
+                  HistoryType.picacg,
+                  DateTime.now(),
+                  comic.title,
+                  comic.author,
+                  comic.path,
+                  0,
+                  0,
+                  comic.id
+              );
+              appdata.history.addHistory(logic.controller!.history!);
+            });
+          }
+          catch(e){
+            //Get会在初始化logic前调用此函数, 延迟300ms可能仍然没有初始化完成
+          }
+        },
         builder: (logic){
           //检查是否下载
         if(downloaded){
@@ -467,11 +488,11 @@ class ComicPage extends StatelessWidget{
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
             onPressed: (){
-              if(history!=null){
-                if(history!.ep!=0){
+              if(logic.history!=null){
+                if(logic.history!.ep!=0){
                   showDialog(context: context, builder: (dialogContext)=>AlertDialog(
                     title: const Text("继续阅读"),
-                    content: Text("上次阅读到第${history!.ep}章第${history!.page}页, 是否继续阅读?"),
+                    content: Text("上次阅读到第${logic.history!.ep}章第${logic.history!.page}页, 是否继续阅读?"),
                     actions: [
                       TextButton(onPressed: (){
                         Get.back();
@@ -479,7 +500,7 @@ class ComicPage extends StatelessWidget{
                         }, child: const Text("从头开始")),
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(comic.id, history!.ep, logic.epsStr,comic.title,initialPage: history!.page,));
+                        Get.to(()=>ComicReadingPage(comic.id, logic.history!.ep, logic.epsStr,comic.title,initialPage: logic.history!.page,));
                         }, child: const Text("继续阅读")),
                     ],
                   ));

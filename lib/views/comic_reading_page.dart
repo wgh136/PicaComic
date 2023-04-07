@@ -63,13 +63,13 @@ class ComicReadingPageLogic extends GetxController{
 }
 
 class ComicReadingPage extends StatefulWidget{
-  final String comicId;
+  final String target;  //picacg的漫画id, 或者eh的画廊地址
   final int order;
   final List<String> eps;
   final String title;
   final int initialPage;
   final List<String>? ehUrls;
-  const ComicReadingPage(this.comicId,this.order,this.eps,this.title,{Key? key, this.initialPage=0, this.ehUrls}) : super(key: key);
+  const ComicReadingPage(this.target,this.order,this.eps,this.title,{Key? key, this.initialPage=0, this.ehUrls}) : super(key: key);
   @override
   State<StatefulWidget> createState() => _ComicReadingPageState();
 
@@ -78,7 +78,7 @@ class ComicReadingPage extends StatefulWidget{
 
 class _ComicReadingPageState extends State<ComicReadingPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late final String comicId = widget.comicId;
+  late final String comicId = widget.target;
   late final List<String> eps = widget.eps; //注意: eps的第一个是标题, 不是章节
   late final String title = widget.title;
   late final int order = widget.order;
@@ -123,17 +123,16 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
       body: GetBuilder<ComicReadingPageLogic>(
           dispose: (logic){
             if(logic.controller!.order == 1&&logic.controller!.index==1){
-              appdata.saveReadInfo(0, 0, comicId);
+              appdata.history.saveReadHistory(comicId, 0, 0);
             }else if(logic.controller!.order == epsWidgets.length-1&&logic.controller!.index==logic.controller!.length){
-              appdata.saveReadInfo(0, 0, comicId);
+              appdata.history.saveReadHistory(comicId, 0, 0);
             }else {
-              appdata.saveReadInfo(logic.controller!.order, logic.controller!.index, comicId);
+              appdata.history.saveReadHistory(comicId, logic.controller!.order, logic.controller!.index);
             }
           },
           init: ComicReadingPageLogic(order),
           builder: (comicReadingPageLogic){
             if(widget.ehUrls!=null){
-              print("ok");
               comicReadingPageLogic.urls = widget.ehUrls!;
               comicReadingPageLogic.isLoading = false;
             }

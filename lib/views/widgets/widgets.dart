@@ -14,15 +14,15 @@ class ComicTile extends StatelessWidget {
   final bool cached;
   final String? size;
   final String? time;
-  const ComicTile(this.comic,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
+  final bool downloaded;
+  const ComicTile(this.comic,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true,this.downloaded=false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: onTap??() async{
-        var history = await appdata.addHistory(comic);
-        Get.to(() => ComicPage(comic,history: history,),preventDuplicates: false);
+      onTap: onTap??(){
+        Get.to(() => ComicPage(comic),preventDuplicates: false);
       },
         onLongPress: onLongTap,
         child: Padding(
@@ -36,7 +36,7 @@ class ComicTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16)
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: onTap==null?(cached?CachedNetworkImage(
+                  child: !downloaded?(cached?CachedNetworkImage(
                     imageUrl: getImageUrl(comic.path),
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -59,7 +59,7 @@ class ComicTile extends StatelessWidget {
                 child: ComicDescription(
                   title: comic.title,
                   user: comic.author,
-                  subDescription: time==null?(onTap==null?'${comic.likes} likes':"${size??"未知"} MB"):time!,
+                  subDescription: time==null?(!downloaded?'${comic.likes} likes':"${size??"未知"} MB"):time!,
                 ),
               ),
               //const Center(
