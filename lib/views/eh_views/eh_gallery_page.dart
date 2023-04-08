@@ -152,27 +152,37 @@ class EhGalleryPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+
                 //封面
                 buildCover(context, 350, MediaQuery.of(context).size.width, logic),
 
                 const SizedBox(height: 20,),
-
                 SizedBox(
-                  height: 30,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for(int i=0;i<s~/2;i++)
-                        Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
-                      if(s%2==1)
-                        Icon(Icons.star_half,size: 30,color: Theme.of(context).colorScheme.secondary,),
-                      for(int i=0;i<(5 - s~/2 - s%2);i++)
-                        const Icon(Icons.star_border,size: 30,)
-                    ],
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("评分"),
+                        SizedBox(
+                          height: 30,
+                          child: Row(
+                            children: [
+                              for(int i=0;i<s~/2;i++)
+                                Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                              if(s%2==1)
+                                Icon(Icons.star_half,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                              for(int i=0;i<(5 - s~/2 - s%2);i++)
+                                const Icon(Icons.star_border,size: 30,),
+                              const SizedBox(width: 5,),
+                              if(logic.gallery!.rating!=null)
+                                Text(logic.gallery!.rating!)
+                            ],
+                          ),
+                        ),
+                      ]
                   ),
                 ),
-
                 ...buildInfoCards(logic, context),
+
               ],
             ),
           ),
@@ -396,39 +406,42 @@ class EhGalleryPage extends StatelessWidget {
 
   Widget buildComments(GalleryPageLogic logic, BuildContext context){
     return SliverToBoxAdapter(
-      child: SizedBox(
-        child: Column(
-          children: [
-            const SizedBox(
-              width: 800,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(10, 0, 0, 5),
-                child: Text("评论",style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-              ),
-            ),
-            for(var comment in logic.gallery!.comments)
-              SizedBox(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: SizedBox(
+          child: Column(
+            children: [
+              const SizedBox(
                 width: 800,
-                child: Card(
-                  margin: const EdgeInsets.all(5),
-                  elevation: 0,
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("${logic.gallery!.uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
-                        const SizedBox(height: 2,),
-                        Text(comment.content)
-                      ],
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(10, 0, 0, 5),
+                  child: Text("评论",style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+                ),
+              ),
+              for(var comment in logic.gallery!.comments)
+                SizedBox(
+                  width: 800,
+                  child: Card(
+                    margin: const EdgeInsets.all(5),
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("${logic.gallery!.uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
+                          const SizedBox(height: 2,),
+                          Text(comment.content)
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              )
-          ],
+                )
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 

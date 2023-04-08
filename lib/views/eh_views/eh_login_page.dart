@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -56,33 +57,32 @@ class _EhLoginPageState extends State<EhLoginPage> {
                       if(c1.text==""||c2.text==""){
                         showMessage(context, "请填写完整");
                       }else{
-                        setState(() {
-                          logging = true;
-                          appdata.ehId = c1.text;
-                          appdata.ehPassHash = c2.text;
-                          ehNetwork.getUserName().then((b){
-                            if(b){
-                              Get.back();
-                              showMessage(context, "登录成功");
-                            }else{
-                              showMessage(context, ehNetwork.status?ehNetwork.message:"登录失败");
-                              setState(() {
-                                logging = false;
-                              });
-                            }
-                          });
-                        });
+                        login(c1.text,c2.text);
                       }
                     },
                   ):const CircularProgressIndicator(),
                 ),
               ),
               const SizedBox(height: 10,),
+              if(GetPlatform.isAndroid)
               SizedBox(
                 width: 150,
-                height: 30,
+                height: 40,
                 child: TextButton(
-                  onPressed: (){},
+                  onPressed: ()async{
+                    var brower = LoginInBrowser(() async{
+                      CookieManager cookieManager = CookieManager.instance();
+                      var id = await cookieManager.getCookie(url: Uri.parse(".e-hentai.org"), name: "ipb_member_id");
+                      var hash = await cookieManager.getCookie(url: Uri.parse(".e-hentai.org"), name: "ipb_pass_hash");
+                      try {
+                        login(id!.value, hash!.value);
+                      }
+                      catch(e){
+                        showMessage(Get.context, "登录失败");
+                      }
+                    });
+                    await brower.openUrlRequest(urlRequest: URLRequest(url: Uri.parse("https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
+                  },
                   child: Row(
                     children: const [
                       Text("在Webview中登录"),
@@ -91,10 +91,11 @@ class _EhLoginPageState extends State<EhLoginPage> {
                   ),
                 ),
               ),
+              if(GetPlatform.isAndroid)
               const SizedBox(height: 5,),
               SizedBox(
                 width: 60,
-                height: 30,
+                height: 40,
                 child: TextButton(
                   onPressed: ()=>launchUrlString("https://forums.e-hentai.org/index.php?act=Reg&CODE=00",mode: LaunchMode.externalApplication),
                   child: Row(
@@ -109,9 +110,10 @@ class _EhLoginPageState extends State<EhLoginPage> {
                 width: 400,
                 height: 40,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Icon(Icons.info_outline,size: 20,),
-                    Text("由于E-Hentai登录需要captcha响应, 暂不支持使用密码登录")
+                    Text("由于需要captcha响应, 暂不支持直接密码登录",maxLines: 2,)
                   ],
                 ),
               )
@@ -120,5 +122,42 @@ class _EhLoginPageState extends State<EhLoginPage> {
         ),
       ),
     );
+  }
+
+  void login(String id, String hash){
+    setState(() {
+      logging = true;
+      appdata.ehId = id;
+      appdata.ehPassHash = hash;
+      ehNetwork.getUserName().then((b){
+        if(b){
+          Get.back();
+          showMessage(context, "登录成功");
+        }else{
+          showMessage(context, ehNetwork.status?ehNetwork.message:"登录失败");
+          setState(() {
+            logging = false;
+          });
+        }
+      });
+    });
+  }
+}
+
+class LoginInBrowser extends InAppBrowser{
+  LoginInBrowser(this.exit);
+  final void Function() exit;
+  @override
+  void onExit() {
+    exit();
+    super.onExit();
+  }
+  @override
+  void onTitleChanged(String? title) {
+    print(title);
+    if(title == "E-Hentai Forums"){
+      super.close();
+    }
+    super.onTitleChanged(title);
   }
 }

@@ -485,10 +485,26 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
           precacheImage(FileImage(downloadManager.getImage(comicId, comicReadingPageLogic.order, index+1)),context);
         }
         if(widget.gallery!=null){
+          final height = Get.width*1.42;
           return Image(
             image: EhNetworkImage(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
+            loadingBuilder: (context,widget,event){
+              if(event==null){
+                return widget;
+              }else{
+                return SizedBox(
+                  height: height,
+                  child: Center(
+                      child: event.expectedTotalBytes!=null&&event.expectedTotalBytes!=null?CircularProgressIndicator(
+                        value: event.cumulativeBytesLoaded/event.expectedTotalBytes!,
+                        backgroundColor: Colors.white12,
+                      ):const CircularProgressIndicator()
+                  ),
+                );
+              }
+            },
           );
         }
         if(downloaded){
@@ -1032,6 +1048,7 @@ class ScrollManager{
 
   void releaseOffset() async{
     runningRelease = true;
+    await Future.delayed(const Duration(milliseconds: 50));
     while(offset!=0){
       if(scrollController.position.pixels < 0 || scrollController.position.pixels>scrollController.position.maxScrollExtent){
         offset = 0;
@@ -1042,10 +1059,10 @@ class ScrollManager{
         offset = 0;
         break;
       }
-      var value = offset / 20;
+      var value = offset / 22;
       scrollController.jumpTo(scrollController.position.pixels - value);
       offset -= value;
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 8));
     }
     runningRelease = false;
   }
