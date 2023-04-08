@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
@@ -68,12 +69,10 @@ class ComicReadingPage extends StatefulWidget{
   final List<String> eps;
   final String title;
   final int initialPage;
-  final List<String>? ehUrls;
-  const ComicReadingPage(this.target,this.order,this.eps,this.title,{Key? key, this.initialPage=0, this.ehUrls}) : super(key: key);
+  final Gallery? gallery;
+  const ComicReadingPage(this.target,this.order,this.eps,this.title,{Key? key, this.initialPage=0, this.gallery}) : super(key: key);
   @override
   State<StatefulWidget> createState() => _ComicReadingPageState();
-
-
 }
 
 class _ComicReadingPageState extends State<ComicReadingPage> {
@@ -132,57 +131,16 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
           },
           init: ComicReadingPageLogic(order),
           builder: (comicReadingPageLogic){
-            if(widget.ehUrls!=null){
-              comicReadingPageLogic.urls = widget.ehUrls!;
-              comicReadingPageLogic.isLoading = false;
-            }
             if(comicReadingPageLogic.isLoading){
-              downloaded = downloadManager.downloaded.contains(comicId);
-              comicReadingPageLogic.index = 1;
-              comicReadingPageLogic.tools = false;
-              if(epsWidgets.isEmpty){
-                epsWidgets.add(
-                  ListTile(
-                    leading: Icon(
-                      Icons.library_books,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    ),
-                    title: const Text("章节"),
-                  ),
-                );
-              }
-              if(epsWidgets.length==1) {
-                for (int i = 1; i < eps.length; i++) {
-                  epsWidgets.add(ListTile(
-                    title: Text(eps[i]),
-                    onTap: () {
-                      if (i != comicReadingPageLogic.order) {
-                        comicReadingPageLogic.order = i;
-                        comicReadingPageLogic.urls = [];
-                        comicReadingPageLogic.change();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ));
-                }
-              }
-              if(downloaded){
-                downloadManager.getEpLength(comicId, comicReadingPageLogic.order).then((i){
-                  for(int p=0;p<i;p++){
-                    comicReadingPageLogic.urls.add("");
-                  }
-                  comicReadingPageLogic.change();
-                });
-              } else {
-                network.getComicContent(comicId, comicReadingPageLogic.order).then((l){
-                comicReadingPageLogic.urls = l;
-                comicReadingPageLogic.change();
-              });
+              if(widget.gallery!=null){
+                loadGalleryInfo(comicReadingPageLogic);
+              }else{
+                loadComicInfo(comicReadingPageLogic);
               }
               return const DecoratedBox(decoration: BoxDecoration(color: Colors.black),child: Center(
                 child: CircularProgressIndicator(),
               ),);
-            }else if(widget.ehUrls!=null||comicReadingPageLogic.urls.isNotEmpty){
+            }else if(widget.gallery!=null||comicReadingPageLogic.urls.isNotEmpty){
               if(initialPage != 0){
                 //跳转页面
                 Future.delayed(const Duration(milliseconds: 300),()=>comicReadingPageLogic.jumpToPage(widget.initialPage));
@@ -278,7 +236,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                   children: [
                                     const SizedBox(height: 8,),
                                     buildSlider(comicReadingPageLogic),
-                                    if(widget.ehUrls==null)
+                                    if(widget.gallery==null)
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -408,11 +366,11 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                   catch(e){
                                     comicReadingPageLogic.index = 0;
                                   }
-                                  return widget.ehUrls==null?
+                                  return widget.gallery==null?
                                     Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),):
                                     Text("${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),);
                                 },
-                              ):widget.ehUrls==null?
+                              ):widget.gallery==null?
                               Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),):
                               Text("${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),)
                           )
@@ -431,11 +389,11 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                       comicReadingPageLogic.index = 0;
                                     }
                                   }
-                                  return widget.ehUrls==null?
+                                  return widget.gallery==null?
                                   Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),):
                                   Text("${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),);
                                 },
-                              ):widget.ehUrls==null?
+                              ):widget.gallery==null?
                               Text("${eps[comicReadingPageLogic.order]}: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),):
                               Text("${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",style: TextStyle(color: comicReadingPageLogic.tools?Theme.of(context).colorScheme.onSurface:Colors.white),)
                           ),
@@ -518,14 +476,14 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
       addSemanticIndexes: false,
       scrollController: comicReadingPageLogic.cont,
       itemBuilder: (context,index){
-        if(index<comicReadingPageLogic.urls.length-1&&widget.ehUrls!=null){
+        if(index<comicReadingPageLogic.urls.length-1&&widget.gallery!=null){
           precacheImage(EhNetworkImage(comicReadingPageLogic.urls[index+1]), context);
         } else if(index<comicReadingPageLogic.urls.length-1&&!downloaded) {
           precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index+1])), context);
         }else if(index<comicReadingPageLogic.urls.length-1&&downloaded){
           precacheImage(FileImage(downloadManager.getImage(comicId, comicReadingPageLogic.order, index+1)),context);
         }
-        if(widget.ehUrls!=null){
+        if(widget.gallery!=null){
           return Image(
             image: EhNetworkImage(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
@@ -581,7 +539,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                 scrollDirection: appdata.settings[9]!="3"?Axis.horizontal:Axis.vertical,
                 itemCount: comicReadingPageLogic.urls.length+2,
                 builder: (BuildContext context, int index){
-                  if(index<comicReadingPageLogic.urls.length&&widget.ehUrls!=null){
+                  if(index<comicReadingPageLogic.urls.length&&widget.gallery!=null){
                     precacheImage(EhNetworkImage(comicReadingPageLogic.urls[index+1]), context);
                   } else if(index<comicReadingPageLogic.urls.length&&!downloaded) {
                     precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])), context);
@@ -589,7 +547,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     precacheImage(FileImage(downloadManager.getImage(comicId, comicReadingPageLogic.order, index)),context);
                   }
                   if(index!=0&&index!=comicReadingPageLogic.urls.length+1) {
-                    if(widget.ehUrls!=null){
+                    if(widget.gallery!=null){
                       return PhotoViewGalleryPageOptions(
                         minScale: PhotoViewComputedScale.contained*0.9,
                         imageProvider: EhNetworkImage(comicReadingPageLogic.urls[index-1]),
@@ -636,7 +594,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                 backgroundDecoration: const BoxDecoration(color: Colors.black),
                 onPageChanged: (i){
                   if(i==0){
-                    if(widget.ehUrls!=null){
+                    if(widget.gallery!=null){
                       comicReadingPageLogic.controller.jumpToPage(1);
                       showMessage(context, "已经是第一页了");
                       return;
@@ -652,7 +610,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                       showMessage(context, "已经是第一章了");
                     }
                   }else if(i==comicReadingPageLogic.urls.length+1){
-                    if(widget.ehUrls!=null){
+                    if(widget.gallery!=null){
                       comicReadingPageLogic.controller.jumpToPage(i-1);
                       showMessage(context, "已经是最后一页了");
                       return;
@@ -817,6 +775,61 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
         height: 0,
       );
     }
+  }
+
+  void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic){
+    downloaded = downloadManager.downloaded.contains(comicId);
+    comicReadingPageLogic.index = 1;
+    comicReadingPageLogic.tools = false;
+    if(epsWidgets.isEmpty){
+      epsWidgets.add(
+        ListTile(
+          leading: Icon(
+            Icons.library_books,
+            color: Theme.of(context).colorScheme.onSecondaryContainer,
+          ),
+          title: const Text("章节"),
+        ),
+      );
+    }
+    if(epsWidgets.length==1) {
+      for (int i = 1; i < eps.length; i++) {
+        epsWidgets.add(ListTile(
+          title: Text(eps[i]),
+          onTap: () {
+            if (i != comicReadingPageLogic.order) {
+              comicReadingPageLogic.order = i;
+              comicReadingPageLogic.urls = [];
+              comicReadingPageLogic.change();
+            }
+            Navigator.pop(context);
+          },
+        ));
+      }
+    }
+    if(downloaded){
+      downloadManager.getEpLength(comicId, comicReadingPageLogic.order).then((i){
+        for(int p=0;p<i;p++){
+          comicReadingPageLogic.urls.add("");
+        }
+        comicReadingPageLogic.change();
+      });
+    } else {
+      network.getComicContent(comicId, comicReadingPageLogic.order).then((l){
+        comicReadingPageLogic.urls = l;
+        comicReadingPageLogic.change();
+      });
+    }
+  }
+
+  void loadGalleryInfo(ComicReadingPageLogic logic){
+    ehNetwork.loadGalleryPages(widget.gallery!).then((b){
+      if(b) {
+        logic.urls = widget.gallery!.urls;
+      }
+      logic.isLoading = false;
+      logic.update();
+    });
   }
 }
 

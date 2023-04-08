@@ -197,22 +197,20 @@ class EhGalleryPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text("评分"),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: (){},
-                    child: SizedBox(
-                      height: 30,
-                      width: 150,
-                      child: Row(
-                        children: [
-                          for(int i=0;i<s~/2;i++)
-                            Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
-                          if(s%2==1)
-                            Icon(Icons.star_half,size: 30,color: Theme.of(context).colorScheme.secondary,),
-                          for(int i=0;i<(5 - s~/2 - s%2);i++)
-                            const Icon(Icons.star_border,size: 30,)
-                        ],
-                      ),
+                  SizedBox(
+                    height: 30,
+                    child: Row(
+                      children: [
+                        for(int i=0;i<s~/2;i++)
+                          Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                        if(s%2==1)
+                          Icon(Icons.star_half,size: 30,color: Theme.of(context).colorScheme.secondary,),
+                        for(int i=0;i<(5 - s~/2 - s%2);i++)
+                          const Icon(Icons.star_border,size: 30,),
+                        const SizedBox(width: 5,),
+                        if(logic.gallery!.rating!=null)
+                          Text(logic.gallery!.rating!)
+                      ],
                     ),
                   ),
                   ...buildInfoCards(logic, context),
@@ -277,9 +275,15 @@ class EhGalleryPage extends StatelessWidget {
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: ActionChip(
             label: const Text("收藏"),
-            avatar: Icon(Icons.bookmark_outline),
+            avatar: logic.gallery!.favorite?const Icon(Icons.bookmark):const Icon(Icons.bookmark_outline),
             onPressed: () {
-              //TODO
+              if(logic.gallery!.favorite){
+                ehNetwork.unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
+              }else{
+                ehNetwork.favorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
+              }
+              logic.gallery!.favorite = !logic.gallery!.favorite;
+              logic.update();
             }
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
@@ -299,7 +303,7 @@ class EhGalleryPage extends StatelessWidget {
         children: [
           Expanded(child: FilledButton(
             onPressed: (){
-              Get.to(()=>ComicReadingPage(brief.link,1,const [],logic.gallery!.title,ehUrls: logic.gallery!.urls,));
+              Get.to(()=>ComicReadingPage(brief.link,1,const [],logic.gallery!.title,gallery: logic.gallery!,));
               if(logic.history!=null){
                 if(logic.history!.ep!=0){
                   showDialog(context: context, builder: (dialogContext)=>AlertDialog(
@@ -308,19 +312,19 @@ class EhGalleryPage extends StatelessWidget {
                     actions: [
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,ehUrls: logic.gallery!.urls));
+                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,gallery: logic.gallery!));
                       }, child: const Text("从头开始")),
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,initialPage: logic.history!.page,ehUrls: logic.gallery!.urls));
+                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,initialPage: logic.history!.page,gallery: logic.gallery!));
                       }, child: const Text("继续阅读")),
                     ],
                   ));
                 }else{
-                  Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,ehUrls: logic.gallery!.urls));
+                  Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,gallery: logic.gallery!));
                 }
               }else {
-                Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,ehUrls: logic.gallery!.urls));
+                Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,gallery: logic.gallery!));
               }
             },
             child: const Text("阅读"),

@@ -32,12 +32,16 @@ class Gallery{
   late String time;
   late String uploader;
   late double stars;
+  String? rating;
   late String coverPath;
   Map<String,List<String>> tags;
   List<String> urls;  //图片链接
   List<Comment> comments = [];
   Map<String,String>? auth;//api身份验证信息
-  Gallery(EhGalleryBrief brief,this.tags,this.urls){
+  bool favorite;
+  late String link;
+  String maxPage;
+  Gallery(EhGalleryBrief brief,this.tags,this.urls,this.favorite,this.maxPage){
     title = brief.title;
     type = brief.type;
     time = brief.time;
@@ -45,6 +49,7 @@ class Gallery{
     stars = brief.stars;
     uploader = brief.uploader;
     coverPath = brief.coverPath;
+    link = brief.link;
   }
 }
 

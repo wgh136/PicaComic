@@ -59,7 +59,7 @@ class EhNetwork{
   }
 
   ///eh APi请求
-  Future<String?> apiRequest(Map<String, dynamic> data) async{
+  Future<String?> apiRequest(Map<String, dynamic> data, {Map<String,String>? headers,}) async{
     status = false; //重置
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
@@ -69,6 +69,7 @@ class EhNetwork{
         headers: {
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
           "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
+          ...?headers
         }
     );
 
@@ -77,6 +78,39 @@ class EhNetwork{
 
     try{
       var res = await dio.post(ehApiUrl, data: data);
+      return res.data;
+    }
+    on DioError catch(e){
+      if(e.type!=DioErrorType.unknown){
+        status = true;
+        message = e.message!;
+      }
+      return null;
+    }
+    catch(e){
+      return null;
+    }
+  }
+
+  Future<String?> post(String url, dynamic data, {Map<String,String>? headers,}) async{
+    status = false; //重置
+    await setNetworkProxy();//更新代理
+    var options = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
+          ...?headers
+        }
+    );
+
+    var dio =  Dio(options)
+      ..interceptors.add(LogInterceptor());
+
+    try{
+      var res = await dio.post(url, data: data);
       return res.data;
     }
     on DioError catch(e){
@@ -216,28 +250,26 @@ class EhNetwork{
         }
         tags[tr.children[0].text.substring(0, tr.children[0].text.length - 1)] = list;
       }
-      //图片链接
+      //图片链接, 仅加载第一页, 因为无需额外的网络请求, 剩下的进入阅读器加载
       var urls = <String>[];
       String maxPage = "1"; //缩略图列表的最大页数
       var pages = document.querySelectorAll("div.gtb > table.ptb > tbody > tr > td");
       maxPage = pages[pages.length - 2].text;
-      for (int i = 0; i < int.parse(maxPage); i++) {
-        try {
-          var temp = document;
-          if (i != 0) {
-            temp = parse(await request("${brief.link}?p=$i"));
-          }
-          var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
-          for (var link in links) {
-            urls.add(link.attributes["href"]!);
-          }
-          await Future.delayed(const Duration(milliseconds: 100));
-        } catch (e) {
-          //获取图片链接失败
-          return null;
+      try {
+        var temp = document;
+        var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
+        for (var link in links) {
+          urls.add(link.attributes["href"]!);
         }
+      } catch (e) {
+        //获取图片链接失败
+        return null;
       }
-      var gallery = Gallery(brief, tags, urls);
+      bool favorite = true;
+      if(document.getElementById("favoritelink")?.text == " Add to Favorites"){
+        favorite = false;
+      }
+      var gallery = Gallery(brief, tags, urls, favorite,maxPage);
       //评论
       var comments = document.getElementsByClassName("c1");
       for(var c in comments){
@@ -253,6 +285,8 @@ class EhNetwork{
       var stars =
           getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
       gallery.stars = stars;
+      //平均分数
+      gallery.rating = document.getElementById("rating_label")?.text;
       //类型
       var type = document.getElementsByClassName("cs")[0].text;
       gallery.type = type;
@@ -272,6 +306,23 @@ class EhNetwork{
       }
       return null;
     }
+  }
+
+  Future<bool> loadGalleryPages(Gallery gallery) async{
+    for (int i = 1; i < int.parse(gallery.maxPage); i++) {
+      try {
+        var temp = parse(await request("${gallery.link}?p=$i"));
+        var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
+        for (var link in links) {
+          gallery.urls.add(link.attributes["href"]!);
+        }
+        await Future.delayed(const Duration(milliseconds: 100));
+      } catch (e) {
+        //获取图片链接失败
+        return false;
+      }
+    }
+    return true;
   }
 
   ///搜索e-hentai
@@ -316,6 +367,30 @@ class EhNetwork{
       "token": auth["token"],
       "rating": rating
     });
+    return res!=null;
+  }
+
+  ///收藏
+  Future<bool> favorite(String gid, String token) async{
+    var res = await post(
+      "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
+      "favcat=0&favnote=&apply=Add+to+Favorites&update=1",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    );
+    return res!=null;
+  }
+
+  ///取消收藏
+  Future<bool> unfavorite(String gid, String token) async{
+    var res = await post(
+      "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
+      "favcat=favdel&favnote=&apply=Apply+Changes&update=1",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    );
     return res!=null;
   }
 }
