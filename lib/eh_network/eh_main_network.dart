@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/tools/js.dart';
 import '../base.dart';
 import '../tools/proxy.dart';
 import 'package:html/parser.dart';
@@ -7,10 +9,17 @@ import 'package:get/get.dart';
 import '../views/pre_search_page.dart';
 
 class EhNetwork{
+  ///e-hentai的url
   final ehBaseUrl = "https://e-hentai.org";
-  bool status = false;  //给出当前请求的状态
-  String message = "";  //输出错误信息
+  final ehApiUrl = "https://api.e-hentai.org/api.php";
 
+  ///给出当前请求的状态
+  bool status = false;
+
+  ///输出错误信息
+  String message = "";
+
+  ///从url获取数据, 在请求时设置了cookie
   Future<String?> request(String url, {Map<String,String>? headers,}) async{
     status = false; //重置
     await setNetworkProxy();//更新代理
@@ -30,7 +39,6 @@ class EhNetwork{
       ..interceptors.add(LogInterceptor());
     try {
       var data = (await dio.get(url)).data;
-
       if((data as String).substring(0,4) == "Your"){
         status = true;
         message = "Your IP address has been temporarily banned";
@@ -50,6 +58,40 @@ class EhNetwork{
     }
   }
 
+  ///eh APi请求
+  Future<String?> apiRequest(Map<String, dynamic> data) async{
+    status = false; //重置
+    await setNetworkProxy();//更新代理
+    var options = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        headers: {
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
+        }
+    );
+
+    var dio =  Dio(options)
+      ..interceptors.add(LogInterceptor());
+
+    try{
+      var res = await dio.post(ehApiUrl, data: data);
+      return res.data;
+    }
+    on DioError catch(e){
+      if(e.type!=DioErrorType.unknown){
+        status = true;
+        message = e.message!;
+      }
+      return null;
+    }
+    catch(e){
+      return null;
+    }
+  }
+
+  ///获取用户名, 同时用于检测cookie是否有效
   Future<bool> getUserName() async{
     var res = await request("https://forums.e-hentai.org/index.php?act=UserCP&CODE=00",headers: {
       "referer": "https://forums.e-hentai.org/index.php?",
@@ -72,21 +114,31 @@ class EhNetwork{
     return name != null;
   }
 
+  ///解析星星的html元素的位置属性, 返回评分
   double getStarsFromPosition(String position){
-    var p = "";
-    int l = 0;
-    for(;l<position.length;l++){
-      if(position[l]==':')  break;
-    }
-    for(int i = l;i<position.length;i++){
-      if(position[i]=='p'){
-        p = position.substring(l+1,i);
+    int i =0;
+    while(position[i]!=";"){
+      i++;
+      if(i == position.length){
         break;
       }
     }
-    return (int.parse(p)+144)/16/2;
+    switch(position.substring(0,i)){
+      case "background-position:0px -1px": return 5;
+      case "background-position:0px -21px": return 4.5;
+      case "background-position:-16px -1px": return 4;
+      case "background-position:-16px -21px": return 3.5;
+      case "background-position:-32px -1px": return 3;
+      case "background-position:-32px -21px": return 2.5;
+      case "background-position:-48px -1px": return 2;
+      case "background-position:-48px -21px": return 1.5;
+      case "background-position:-64px -1px": return 1;
+      case "background-position:-64px -21px": return 0.5;
+    }
+    return 0.5;
   }
 
+  ///从e-hentai链接中获取当前页面的所有画廊
   Future<Galleries?> getGalleries(String url,{bool leaderboard = false}) async{
     //从一个链接中获取所有画廊, 同时获得下一页的链接
     //leaderboard比正常的表格多了第一列
@@ -140,6 +192,7 @@ class EhNetwork{
     return g;
   }
 
+  ///获取画廊的下一页
   Future<void> getNextPageGalleries(Galleries galleries) async{
     if(galleries.next==null)  return;
     var next = await getGalleries(galleries.next!);
@@ -147,47 +200,81 @@ class EhNetwork{
     galleries.next = next.next;
   }
 
+  ///从漫画详情页链接中获取漫画详细信息
   Future<Gallery?> getGalleryInfo(EhGalleryBrief brief) async{
-    //从漫画详情页链接中获取漫画详细信息
-    var res = await request(brief.link);
-    if(res==null) return null;
-    var document = parse(res);
-    var tags = <String, List<String>>{};
-    var tagLists = document.querySelectorAll("div#taglist > table > tbody > tr");
-    for(var tr in tagLists){
-      var list = <String>[];
-      for(var div in tr.children[1].children){
-        list.add(div.children[0].text);
-      }
-      tags[tr.children[0].text.substring(0,tr.children[0].text.length-1)] = list;
-    }
-    var urls = <String>[];
-    String maxPage = "1"; //缩略图列表的最大页数
-    var pages = document.querySelectorAll("div.gtb > table.ptb > tbody > tr > td");
-    maxPage = pages[pages.length-2].text;
-    for(int i=0;i<int.parse(maxPage);i++) {
-      try{
-        var temp = document;
-        if (i != 0) {
-          temp = parse(await request("${brief.link}?p=$i"));
+    try{
+      var res = await request("${brief.link}?/hc=1");
+      if (res == null) return null;
+      var document = parse(res);
+      //tags
+      var tags = <String, List<String>>{};
+      var tagLists = document.querySelectorAll("div#taglist > table > tbody > tr");
+      for (var tr in tagLists) {
+        var list = <String>[];
+        for (var div in tr.children[1].children) {
+          list.add(div.children[0].text);
         }
-        var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
-        for (var link in links) {
-          urls.add(link.attributes["href"]!);
+        tags[tr.children[0].text.substring(0, tr.children[0].text.length - 1)] = list;
+      }
+      //图片链接
+      var urls = <String>[];
+      String maxPage = "1"; //缩略图列表的最大页数
+      var pages = document.querySelectorAll("div.gtb > table.ptb > tbody > tr > td");
+      maxPage = pages[pages.length - 2].text;
+      for (int i = 0; i < int.parse(maxPage); i++) {
+        try {
+          var temp = document;
+          if (i != 0) {
+            temp = parse(await request("${brief.link}?p=$i"));
+          }
+          var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
+          for (var link in links) {
+            urls.add(link.attributes["href"]!);
+          }
+          await Future.delayed(const Duration(milliseconds: 100));
+        } catch (e) {
+          //获取图片链接失败
+          return null;
         }
       }
-      catch(e){
-        //获取图片链接失败
-        return null;
+      var gallery = Gallery(brief, tags, urls);
+      //评论
+      var comments = document.getElementsByClassName("c1");
+      for(var c in comments){
+        var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a")[0].text;
+        var time = c.getElementsByClassName("c3")[0].text.substring(11,32);
+        var content = c.getElementsByClassName("c6")[0].text;
+        gallery.comments.add(Comment(name, content, time));
       }
+      //上传者
+      var uploader = document.getElementById("gdn")!.children[0].text;
+      gallery.uploader = uploader;
+      //星星
+      var stars =
+          getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
+      gallery.stars = stars;
+      //类型
+      var type = document.getElementsByClassName("cs")[0].text;
+      gallery.type = type;
+      //时间
+      var time = document.querySelector("div#gdd > table > tbody > tr > td.gdt2")!.text;
+      gallery.time = time;
+      //身份认证数据
+      var js = document.getElementsByTagName("script")[3].text;
+      gallery.auth = getVariablesFromJsCode(js);
+      return gallery;
     }
-    String? comment;
-    if(document.getElementsByClassName("c4")!=[]){
-      comment = document.querySelectorAll("div.gm > div.c1 > div.c6")[0].text;
+    catch(e){
+      status = true;
+      message = "解析HTML时出现错误";
+      if(kDebugMode){
+        print(e);
+      }
+      return null;
     }
-    return Gallery(brief, tags, urls, comment);
   }
 
+  ///搜索e-hentai
   Future<Galleries?> search(String keyword) async{
     if(keyword!=""){
       appdata.searchHistory.remove(keyword);
@@ -199,12 +286,14 @@ class EhNetwork{
     return res;
   }
 
+  ///获取排行榜
   Future<EhLeaderboard?> getLeaderboard(EhLeaderboardType type) async{
     var res = await getGalleries("$ehBaseUrl/toplist.php?tl=${type.value}",leaderboard: true);
     if(res == null) return null;
     return EhLeaderboard(type, res.galleries, 0);
   }
 
+  ///获取排行榜的下一页
   Future<void> getLeaderboardNextPage(EhLeaderboard leaderboard) async{
     if(leaderboard.loaded == EhLeaderboard.max){
       return;
@@ -215,5 +304,18 @@ class EhNetwork{
       }
       leaderboard.loaded++;
     }
+  }
+
+  ///评分
+  Future<bool> rateGallery(Map<String, String> auth, int rating) async{
+    var res = await apiRequest({
+      "method": "rategallery",
+      "apiuid": auth["apiuid"],
+      "apikey": auth["apikey"],
+      "gid": auth["gid"],
+      "token": auth["token"],
+      "rating": rating
+    });
+    return res!=null;
   }
 }

@@ -18,6 +18,14 @@ class Galleries{
   int get length => galleries.length;
 }
 
+class Comment{
+  String name;
+  String content;
+  String time;
+
+  Comment(this.name, this.content, this.time);
+}
+
 class Gallery{
   late String title;
   late String type;
@@ -27,8 +35,9 @@ class Gallery{
   late String coverPath;
   Map<String,List<String>> tags;
   List<String> urls;  //图片链接
-  String? commentByUploader;
-  Gallery(EhGalleryBrief brief,this.tags,this.urls,this.commentByUploader){
+  List<Comment> comments = [];
+  Map<String,String>? auth;//api身份验证信息
+  Gallery(EhGalleryBrief brief,this.tags,this.urls){
     title = brief.title;
     type = brief.type;
     time = brief.time;

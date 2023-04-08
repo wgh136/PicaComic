@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
-import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -10,7 +9,6 @@ import 'package:pica_comic/views/profile_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 import 'favorites_page.dart';
 
@@ -88,8 +86,7 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,() async{
-                      var proxy = await getProxy();
-                      showMessage(Get.context, proxy??"null");
+
                     },"Debug",""),
                   ],
                 )

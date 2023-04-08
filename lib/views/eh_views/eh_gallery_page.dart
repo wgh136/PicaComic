@@ -6,6 +6,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,13 +15,6 @@ import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/widgets.dart';
-
-/*
-TODO:
-  1. 评论
-  2. 在此页面加载时获取星星, 发布者, 类型, 发布时间
-  3. 优化ui
- */
 
 class GalleryPageLogic extends GetxController{
   bool loading = true;
@@ -37,6 +31,10 @@ class GalleryPageLogic extends GetxController{
   void retry(){
     loading = true;
     update();
+  }
+  void updateStars(double value){
+    gallery!.stars = value/2;
+    update;
   }
 }
 
@@ -130,25 +128,11 @@ class EhGalleryPage extends StatelessWidget {
 
                 buildGalleryInfo(context,logic),
 
-                if(logic.gallery!.commentByUploader!=null)
-                SliverToBoxAdapter(
-                  child: Card(
-                    margin: const EdgeInsets.all(5),
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("来自上传者",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
-                          const SizedBox(height: 2,),
-                          Text(logic.gallery!.commentByUploader!)
-                        ],
-                      ),
-                    ),
-                  ),
-                )
+                const SliverToBoxAdapter(
+                  child: Divider(),
+                ),
+
+                buildComments(logic, context),
               ],
             );
           }
@@ -282,6 +266,34 @@ class EhGalleryPage extends StatelessWidget {
       ));
     }
     res.add(Padding(
+      padding: const EdgeInsets.fromLTRB(10, 15, 20, 0),
+      child: Row(
+        children: [
+          Expanded(child: ActionChip(
+            label: const Text("评分"),
+            avatar: const Icon(Icons.star),
+            onPressed: ()=>starRating(context, logic.gallery!.auth!),
+          ),),
+          SizedBox.fromSize(size: const Size(10,1),),
+          Expanded(child: ActionChip(
+            label: const Text("收藏"),
+            avatar: Icon(Icons.bookmark_outline),
+            onPressed: () {
+              //TODO
+            }
+          ),),
+          SizedBox.fromSize(size: const Size(10,1),),
+          Expanded(child: ActionChip(
+            label: const Text("评论"),
+            avatar: const Icon(Icons.comment_outlined),
+            onPressed: (){
+              //TODO
+            }
+          ),),
+        ],
+      ),
+    ));
+    res.add(Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 20, 10),
       child: Row(
         children: [
@@ -379,4 +391,98 @@ class EhGalleryPage extends StatelessWidget {
       ..layout(maxWidth: maxWidth);
     return textPainter.size;
   }
+
+  Widget buildComments(GalleryPageLogic logic, BuildContext context){
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        child: Column(
+          children: [
+            const SizedBox(
+              width: 800,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(10, 0, 0, 5),
+                child: Text("评论",style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+              ),
+            ),
+            for(var comment in logic.gallery!.comments)
+              SizedBox(
+                width: 800,
+                child: Card(
+                  margin: const EdgeInsets.all(5),
+                  elevation: 0,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("${logic.gallery!.uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
+                        const SizedBox(height: 2,),
+                        Text(comment.content)
+                      ],
+                    ),
+                  ),
+                ),
+              )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void starRating(BuildContext context, Map<String, String> auth){
+    showDialog(context: context, builder: (dialogContext)=>GetBuilder<RatingLogic>(
+      init: RatingLogic(),
+      builder: (logic)=>SimpleDialog(
+        title: const Text("评分"),
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            height: 100,
+            child: Center(
+              child: SizedBox(
+                width: 210,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10,),
+                    RatingWidget(
+                      padding: 2,
+                      onRatingUpdate: (value)=>logic.rating = value,
+                      value: 0,
+                      selectAble: true,
+                      size: 40,
+                    ),
+                    const Spacer(),
+                    if(!logic.running)
+                      FilledButton(onPressed: (){
+                        logic.running = true;
+                        logic.update();
+                        ehNetwork.rateGallery(auth,logic.rating.toInt()).then((b){
+                          if(b){
+                            Get.back();
+                            showMessage(context, "评分成功");
+                            Get.find<GalleryPageLogic>().updateStars(logic.rating);
+                          }else{
+                            logic.running = false;
+                            logic.update();
+                            showMessage(dialogContext, ehNetwork.status?ehNetwork.message:"网络错误");
+                          }
+                        });
+                      }, child: const Text("提交"))
+                    else
+                      const CircularProgressIndicator()
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      )
+    ));
+  }
+}
+
+class RatingLogic extends GetxController{
+  double rating = 0;
+  bool running = false;
 }
