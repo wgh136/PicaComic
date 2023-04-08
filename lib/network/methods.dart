@@ -21,18 +21,23 @@ class Network{
   Network([this.token=""]);
   bool status = false; //用于判断请求出错时的情况, true意味着捕获了已知的错误
   String message = ""; //提供错误信息
+  bool useCf = false;
 
   Future<void> updateApi() async{
     if(appdata.settings[3]=="1"||GetPlatform.isWeb){
+      useCf = false;
       apiUrl = "https://api.kokoiro.xyz/picaapi";
     }else if(appdata.settings[15]=="1"){
       var ip = await init();
       if(ip!=null){
+        useCf = true;
         apiUrl = "http://$ip";
       }else{
+        useCf = false;
         apiUrl = "https://picaapi.picacomic.com";
       }
     }else if(appdata.settings[15]=="0"){
+      useCf = false;
       apiUrl = "https://picaapi.picacomic.com";
     }else{
       apiUrl = "http://${appdata.settings[15]}";

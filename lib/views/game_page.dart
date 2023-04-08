@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
@@ -6,6 +5,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
+import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -68,7 +68,7 @@ class GamePage extends StatelessWidget {
                           //crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             GestureDetector(
-                              child: CachedNetworkImage(
+                              child: CfCachedNetworkImage(
                                 imageUrl: getImageUrl(logic.gameInfo.icon),
                                 fit: BoxFit.contain,
                                 width: MediaQuery.of(context).size.width-10,
@@ -137,7 +137,7 @@ class GamePage extends StatelessWidget {
                               //flex: 1,
                                 child: Padding(
                                   padding: const EdgeInsets.all(5),
-                                  child: CachedNetworkImage(
+                                  child: CfCachedNetworkImage(
                                     imageUrl: getImageUrl(logic.gameInfo.icon),
                                     fit: BoxFit.contain,
                                     width: MediaQuery.of(context).size.width/2-40,
@@ -238,7 +238,7 @@ class GamePage extends StatelessWidget {
                                 for(var s in logic.gameInfo.screenshots)
                                   GestureDetector(
                                     child: Card(
-                                      child: CachedNetworkImage(
+                                      child: CfCachedNetworkImage(
                                         imageUrl: getImageUrl(s),
                                         fit: BoxFit.fitHeight,
                                       ),

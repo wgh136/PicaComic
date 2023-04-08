@@ -86,7 +86,8 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,() async{
-
+                      var uri = Uri.parse("https://www.kokoiro.xyz/ai/dw/wdd");
+                      print(uri.path);
                     },"Debug",""),
                   ],
                 )

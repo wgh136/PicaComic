@@ -1,8 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/methods.dart';
+
+import 'cf_image_widgets.dart';
 
 class DownloadingProgressController extends GetxController{
   double value = 0.0;
@@ -29,7 +30,7 @@ class DownloadingTile extends StatelessWidget {
         children: [
           Expanded(
             flex: 0,
-            child: CachedNetworkImage(
+            child: CfCachedNetworkImage(
               width: 80,
               fit: BoxFit.fitHeight,
               imageUrl: getImageUrl(comic.comic.thumbUrl),

@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/widgets/show_user_info.dart';
 
 import '../../base.dart';
+import 'cf_image_widgets.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({Key? key,
@@ -46,7 +46,7 @@ class Avatar extends StatelessWidget {
                 height: size*0.75,
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(size)),
-                child: avatarUrl==null?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CachedNetworkImage(
+                child: avatarUrl==null?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CfCachedNetworkImage(
                   imageUrl: getImageUrl(avatarUrl!),
                   fit: BoxFit.cover,
                   errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error),),
@@ -55,7 +55,7 @@ class Avatar extends StatelessWidget {
             ),
             if(frame!=null&&appdata.settings[5]=="1")
               Positioned(
-                child: CachedNetworkImage(
+                child: CfCachedNetworkImage(
                   imageUrl: getImageUrl(frame!),
                   errorWidget: (context,s,d){return const SizedBox();},
                 ),

@@ -10,6 +10,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/eh_image_provider.dart';
+import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/item_positions_listener.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -498,7 +499,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
           );
         }else{
           final height = Get.width*1.42;
-          return CachedNetworkImage(
+          return CfCachedNetworkImage(
             imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
@@ -1008,7 +1009,7 @@ class ScrollManager{
   double offset = 0;//缓存滑动偏移值
   ScrollController scrollController;
   ScrollManager(this.scrollController);
-  final slowMove = 6.0;//小于此值的滑动判定为缓慢滑动
+  final slowMove = 2.0;//小于此值的滑动判定为缓慢滑动
   bool runningRelease = false;//是否正在进行释放缓存的偏移值
 
   void addOffset(double value){
@@ -1020,7 +1021,7 @@ class ScrollManager{
     //移动ScrollView
     scrollController.jumpTo(scrollController.position.pixels-value);
     if(value>slowMove||value<0-slowMove){
-      offset += value*value*value/35;//(((offset ~/200)>0?(offset ~/200):(0 - offset ~/200)) + 4);
+      offset += value*value*value/15;//(((offset ~/200)>0?(offset ~/200):(0 - offset ~/200)) + 4);
       if (!runningRelease) {
         releaseOffset();
       }

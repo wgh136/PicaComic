@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
+import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import '../comic_page.dart';
 
 class ComicTile extends StatelessWidget {
@@ -36,12 +36,12 @@ class ComicTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16)
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: !downloaded?(cached?CachedNetworkImage(
+                  child: !downloaded?(cached?CfCachedNetworkImage(
                     imageUrl: getImageUrl(comic.path),
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                     height: double.infinity,
-                  ):Image.network(
+                  ):CfImageNetwork(
                     getImageUrl(comic.path),
                     fit: BoxFit.cover,
                     errorBuilder: (context, url, error) => const Icon(Icons.error),
@@ -150,7 +150,7 @@ class CategoryTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16)
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: CachedNetworkImage(
+                  child: CfCachedNetworkImage(
                     imageUrl: getImageUrl(categoryItem.path),
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                     fit: BoxFit.cover,
