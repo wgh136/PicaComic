@@ -99,6 +99,8 @@ class EhNetwork{
         connectTimeout: const Duration(seconds: 8),
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
+        receiveDataWhenStatusError: true,
+        validateStatus: (status)=>status==200||status==302,
         headers: {
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
           "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
@@ -111,7 +113,7 @@ class EhNetwork{
 
     try{
       var res = await dio.post(url, data: data);
-      return res.data;
+      return res.data??"";
     }
     on DioError catch(e){
       if(e.type!=DioErrorType.unknown){
@@ -392,5 +394,26 @@ class EhNetwork{
       }
     );
     return res!=null;
+  }
+
+  ///发送评论
+  Future<bool> comment(String content, String link) async{
+    var res = await post(
+      link,
+      "commenttext_new=${Uri.encodeComponent(content)}",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    );
+    if(res == null){
+      return false;
+    }
+    var document = parse(res);
+    if(document.querySelector("p.br") != null){
+      status = true;
+      message = document.querySelector("p.br")!.text;
+      return false;
+    }
+    return true;
   }
 }

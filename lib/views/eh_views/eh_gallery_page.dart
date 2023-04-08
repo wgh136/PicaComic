@@ -290,9 +290,7 @@ class EhGalleryPage extends StatelessWidget {
           Expanded(child: ActionChip(
             label: const Text("评论"),
             avatar: const Icon(Icons.comment_outlined),
-            onPressed: (){
-              //TODO
-            }
+            onPressed: ()=>comment(context, logic.gallery!.link)
           ),),
         ],
       ),
@@ -484,9 +482,61 @@ class EhGalleryPage extends StatelessWidget {
       )
     ));
   }
+
+  void comment(BuildContext context, String link){
+    showDialog(context: context, builder: (dialogContext)=>GetBuilder<CommentLogic>(
+      init: CommentLogic(),
+        builder: (logic)=>SimpleDialog(
+          title: const Text("发布评论"),
+          children: [
+            SizedBox(
+              width: 400,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 10, 5, 5),
+                    child: TextField(
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder()
+                      ),
+                      controller: logic.controller,
+                    ),
+                  ),
+                  if(!logic.sending)
+                    FilledButton(onPressed: (){
+                      logic.sending = true;
+                      logic.update();
+                      ehNetwork.comment(logic.controller.text,link).then((b){
+                        if(b){
+                          Get.back();
+                          showMessage(context, "评论成功");
+                          var pageLogic = Get.find<GalleryPageLogic>();
+                          pageLogic.gallery!.comments.add(Comment(appdata.ehAccount, logic.controller.text, "now"));
+                          pageLogic.update();
+                        }else{
+                          logic.sending = false;
+                          logic.update();
+                          showMessage(context, ehNetwork.status?ehNetwork.message:"网络错误");
+                        }
+                      });
+                    }, child: const Text("提交"))
+                  else
+                    const CircularProgressIndicator()
+                ],
+              ),
+            )
+          ],
+    )));
+  }
 }
 
 class RatingLogic extends GetxController{
   double rating = 0;
   bool running = false;
+}
+
+class CommentLogic extends GetxController{
+  final controller = TextEditingController();
+  bool sending = false;
 }
