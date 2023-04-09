@@ -1,15 +1,17 @@
 import 'dart:io';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-void saveImage(String url) async{
+void saveImage(String url, {bool eh=false}) async{
   if(GetPlatform.isWeb){
     //Web端使用下载图片的方式
     showMessage(Get.context, "下载中");
@@ -22,7 +24,7 @@ void saveImage(String url) async{
     launchUrlString("https://api.kokoiro.xyz/storage/download/$url");
   }
   else if(GetPlatform.isAndroid) {
-      var b = await saveImageFormCache(getImageUrl(url));
+      var b = await saveImageFormCache(getImageUrl(eh?(await EhImageUrlsManager().get(url)):getImageUrl(url)));
       if(b) {
         showMessage(Get.context, "成功保存于Picture中");
       } else {
@@ -30,7 +32,7 @@ void saveImage(String url) async{
       }
   }else if(GetPlatform.isWindows){
     try {
-      var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+      var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager().get(url)):getImageUrl(url));
       var f = file!.file;
       final String? path = await getSavePath(suggestedName: f.basename);
       if (path != null) {
@@ -41,7 +43,9 @@ void saveImage(String url) async{
       }
     }
     catch(e){
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 }
@@ -85,13 +89,15 @@ void saveImageFromDisk(String image) async{
   }
 }
 
-void shareImageFromCache(String url) async{
+void shareImageFromCache(String url, {bool eh=false}) async{
   try{
-    var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+    var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager().get(url)):getImageUrl(url));
     Share.shareXFiles([XFile(file!.file.path)]);
   }
   catch(e){
-    print(e);
+    if (kDebugMode) {
+      print(e);
+    }
     showMessage(Get.context, "分享失败");
   }
 }

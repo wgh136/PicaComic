@@ -154,7 +154,6 @@ class LoginInBrowser extends InAppBrowser{
   }
   @override
   void onTitleChanged(String? title) {
-    print(title);
     if(title == "E-Hentai Forums"){
       super.close();
     }

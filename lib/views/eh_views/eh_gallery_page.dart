@@ -311,7 +311,6 @@ class EhGalleryPage extends StatelessWidget {
         children: [
           Expanded(child: FilledButton(
             onPressed: (){
-              Get.to(()=>ComicReadingPage(brief.link,1,const [],logic.gallery!.title,gallery: logic.gallery!,));
               if(logic.history!=null){
                 if(logic.history!.ep!=0){
                   showDialog(context: context, builder: (dialogContext)=>AlertDialog(

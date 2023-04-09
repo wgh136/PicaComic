@@ -9,13 +9,13 @@ import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/eh_image_provider.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/item_positions_listener.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import '../tools/key_down_event.dart';
+import 'eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
 
 class ComicReadingPageLogic extends GetxController{
   final controller = PageController(initialPage: 1);
@@ -237,10 +237,10 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                   children: [
                                     const SizedBox(height: 8,),
                                     buildSlider(comicReadingPageLogic),
-                                    if(widget.gallery==null)
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
+                                        if(widget.gallery==null)
                                         Tooltip(
                                           message: "章节",
                                           child: IconButton(
@@ -270,7 +270,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                               if(downloaded){
                                                 saveImageFromDisk(downloadManager.getImage(comicId, comicReadingPageLogic.order, comicReadingPageLogic.index-1).path);
                                               }else {
-                                                saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index-1]);
+                                                saveImage(comicReadingPageLogic.urls[comicReadingPageLogic.index-1], eh: widget.gallery!=null);
                                               }
                                             },
                                           ),
@@ -283,7 +283,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                                               if(downloaded){
                                                 shareImageFromDisk(downloadManager.getImage(comicId, comicReadingPageLogic.order, comicReadingPageLogic.index-1).path);
                                               }else {
-                                                shareImageFromCache(comicReadingPageLogic.urls[comicReadingPageLogic.index-1]);
+                                                shareImageFromCache(comicReadingPageLogic.urls[comicReadingPageLogic.index-1], eh: widget.gallery!=null);
                                               }
                                             },
                                           ),
@@ -478,7 +478,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
       scrollController: comicReadingPageLogic.cont,
       itemBuilder: (context,index){
         if(index<comicReadingPageLogic.urls.length-1&&widget.gallery!=null){
-          precacheImage(EhNetworkImage(comicReadingPageLogic.urls[index+1]), context);
+          precacheImage(EhCachedImageProvider(comicReadingPageLogic.urls[index+1]), context);
         } else if(index<comicReadingPageLogic.urls.length-1&&!downloaded) {
           precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index+1])), context);
         }else if(index<comicReadingPageLogic.urls.length-1&&downloaded){
@@ -487,7 +487,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
         if(widget.gallery!=null){
           final height = Get.width*1.42;
           return Image(
-            image: EhNetworkImage(comicReadingPageLogic.urls[index]),
+            image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
             loadingBuilder: (context,widget,event){
@@ -557,7 +557,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                 itemCount: comicReadingPageLogic.urls.length+2,
                 builder: (BuildContext context, int index){
                   if(index<comicReadingPageLogic.urls.length&&widget.gallery!=null){
-                    precacheImage(EhNetworkImage(comicReadingPageLogic.urls[index+1]), context);
+                    precacheImage(EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);
                   } else if(index<comicReadingPageLogic.urls.length&&!downloaded) {
                     precacheImage(CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])), context);
                   }else if(index<comicReadingPageLogic.urls.length&&downloaded){
@@ -567,7 +567,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                     if(widget.gallery!=null){
                       return PhotoViewGalleryPageOptions(
                         minScale: PhotoViewComputedScale.contained*0.9,
-                        imageProvider: EhNetworkImage(comicReadingPageLogic.urls[index-1]),
+                        imageProvider: EhCachedImageProvider(comicReadingPageLogic.urls[index-1]),
                         initialScale: PhotoViewComputedScale.contained,
                         heroAttributes: PhotoViewHeroAttributes(tag: "$index/${comicReadingPageLogic.urls.length}"),
                       );
@@ -1015,24 +1015,30 @@ class ReadingMethodLogic extends GetxController{
   }
 }
 
+///Flutter并没有提供能够进行放缩的列表, 在InteractiveViewer放入任何可滚动的组件, InteractiveViewer的手势将会失效.
+///此类用于处理滚动事件
 class ScrollManager{
-  /*
-  Flutter并没有提供能够进行放缩的列表, 在InteractiveViewer放入任何可滚动的组件, InteractiveViewer的手势将会失效
-  此类用于处理滚动事件, 先禁用InteractiveViewer的子部件的手势, 使InteractiveViewer能够接收到所有手势
-  然后用Listener监听原始指针并将信号传入此类
-  此类中通过调用InteractiveViewer子组件的ScrollController来控制滚动
-   */
-  double offset = 0;//缓存滑动偏移值
-  ScrollController scrollController;
-  ScrollManager(this.scrollController);
-  final slowMove = 2.0;//小于此值的滑动判定为缓慢滑动
-  bool runningRelease = false;//是否正在进行释放缓存的偏移值
 
+  ///缓存滑动偏移值
+  double offset = 0;
+
+  ///滚动控制器
+  ScrollController scrollController;
+
+  ///小于此值的滑动判定为缓慢滑动
+  static const slowMove = 2.0;
+
+  ///是否正在进行释放缓存的偏移值
+  bool runningRelease = false;
+
+  ScrollManager(this.scrollController);
+
+  ///当滑动时调用此函数进行处理
   void addOffset(double value){
-    //当滑动时调用此函数进行处理
     moveScrollView(value);
   }
 
+  ///响应滑动手势
   void moveScrollView(double value){
     //移动ScrollView
     scrollController.jumpTo(scrollController.position.pixels-value);
@@ -1046,22 +1052,29 @@ class ScrollManager{
     }
   }
 
+  ///异步函数, 释放缓存的滑动偏移值
   void releaseOffset() async{
     runningRelease = true;
-    await Future.delayed(const Duration(milliseconds: 50));
+    final logic = Get.find<ComicReadingPageLogic>();
     while(offset!=0){
-      if(scrollController.position.pixels < 0 || scrollController.position.pixels>scrollController.position.maxScrollExtent){
-        offset = 0;
-        break;
+      //当手指离开时进行滚动
+      if(logic.fingers==0){
+        if(scrollController.position.pixels<scrollController.position.minScrollExtent || scrollController.position.pixels>scrollController.position.maxScrollExtent){
+          offset = 0;
+          break;
+        }
+        if(offset < 0.5&&offset > -0.5){
+          moveScrollView(offset);
+          offset = 0;
+          break;
+        }
+        var value = offset / 22;
+        if(value > 50){
+          value = 50;
+        }
+        scrollController.jumpTo(scrollController.position.pixels - value);
+        offset -= value;
       }
-      if(offset < 0.5&&offset > -0.5){
-        moveScrollView(offset);
-        offset = 0;
-        break;
-      }
-      var value = offset / 22;
-      scrollController.jumpTo(scrollController.position.pixels - value);
-      offset -= value;
       await Future.delayed(const Duration(milliseconds: 8));
     }
     runningRelease = false;
