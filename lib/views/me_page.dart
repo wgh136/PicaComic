@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
@@ -86,8 +87,11 @@ class MePage extends StatelessWidget {
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,() async{
-                      var uri = Uri.parse("https://www.kokoiro.xyz/ai/dw/wdd");
-                      print(uri.path);
+                      var g = await ehNetwork.getGalleryInfo((await ehNetwork.getLeaderboard(EhLeaderboardType.all))!.galleries[1]);
+                      ehNetwork.loadGalleryPages(g!);
+                      for(var i in g.urls){
+                        ehNetwork.request(i);
+                      }
                     },"Debug",""),
                   ],
                 )

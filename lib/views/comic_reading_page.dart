@@ -30,7 +30,6 @@ class ComicReadingPageLogic extends GetxController{
   bool tools = false;
   bool showSettings = false;
   var urls = <String>[];
-  int fingers = 0;
 
   void change(){
     isLoading = !isLoading;
@@ -106,6 +105,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
     if(appdata.settings[14]=="1"){
       cancelKeepScreenOn();
     }
+    appdata.ehUrlsManager.saveData();
     super.dispose();
   }
 
@@ -174,12 +174,12 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                   },
                   child: Listener(
                     onPointerMove:(details){
-                      if(comicReadingPageLogic.fingers!=2&&appdata.settings[9]=="4") {
+                      if(appdata.settings[9]=="4"&&scrollManager.fingers!=2) {
                         scrollManager.addOffset(details.delta.dy/comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis());
                       }
                     } ,
-                    onPointerUp: (details)=>comicReadingPageLogic.fingers--,
-                    onPointerDown: (details)=>comicReadingPageLogic.fingers++,
+                    onPointerUp: appdata.settings[9]=="4"?(details)=>scrollManager.fingers--:null,
+                    onPointerDown: appdata.settings[9]=="4"?(details)=>scrollManager.fingers++:null,
                     child: Stack(
                       children: [
                         buildComicView(comicReadingPageLogic),
@@ -490,6 +490,12 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
             image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
+            frameBuilder: (context, widget, i, b){
+              return SizedBox(
+                height: height,
+                child: widget,
+              );
+            },
             loadingBuilder: (context,widget,event){
               if(event==null){
                 return widget;
@@ -505,6 +511,7 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
                 );
               }
             },
+            errorBuilder: (context,s,d)=>SizedBox(height: height,child: const Center(child: Icon(Icons.error,color: Colors.white12,),),),
           );
         }
         if(downloaded){
@@ -839,7 +846,8 @@ class _ComicReadingPageState extends State<ComicReadingPage> {
     }
   }
 
-  void loadGalleryInfo(ComicReadingPageLogic logic){
+  void loadGalleryInfo(ComicReadingPageLogic logic) async{
+    await appdata.ehUrlsManager.readData();
     ehNetwork.loadGalleryPages(widget.gallery!).then((b){
       if(b) {
         logic.urls = widget.gallery!.urls;
@@ -1031,6 +1039,8 @@ class ScrollManager{
   ///是否正在进行释放缓存的偏移值
   bool runningRelease = false;
 
+  int fingers = 0;
+
   ScrollManager(this.scrollController);
 
   ///当滑动时调用此函数进行处理
@@ -1043,7 +1053,7 @@ class ScrollManager{
     //移动ScrollView
     scrollController.jumpTo(scrollController.position.pixels-value);
     if(value>slowMove||value<0-slowMove){
-      offset += value*value*value/15;//(((offset ~/200)>0?(offset ~/200):(0 - offset ~/200)) + 4);
+      offset += value*value*(value~/1)/10;//(((offset ~/200)>0?(offset ~/200):(0 - offset ~/200)) + 4);
       if (!runningRelease) {
         releaseOffset();
       }
@@ -1055,10 +1065,9 @@ class ScrollManager{
   ///异步函数, 释放缓存的滑动偏移值
   void releaseOffset() async{
     runningRelease = true;
-    final logic = Get.find<ComicReadingPageLogic>();
     while(offset!=0){
       //当手指离开时进行滚动
-      if(logic.fingers==0){
+      if(fingers==0){
         if(scrollController.position.pixels<scrollController.position.minScrollExtent || scrollController.position.pixels>scrollController.position.maxScrollExtent){
           offset = 0;
           break;
@@ -1068,9 +1077,11 @@ class ScrollManager{
           offset = 0;
           break;
         }
-        var value = offset / 22;
-        if(value > 50){
-          value = 50;
+        var value = offset / 20;
+        if(value > 60){
+          value = 60;
+        }else if(value < -60){
+          value = -60;
         }
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;

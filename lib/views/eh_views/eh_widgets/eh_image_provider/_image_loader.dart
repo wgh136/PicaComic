@@ -93,8 +93,7 @@ class ImageLoader implements platform.ImageLoader {
     Function() evictImage,
   ) async* {
     try {
-      var urlsManager = EhImageUrlsManager();
-      var realUrl = await urlsManager.get(url);
+      var realUrl = await EhImageUrlsManager.getUrl(url);
       assert(
           cacheManager is ImageCacheManager ||
               (maxWidth == null && maxHeight == null),
@@ -134,7 +133,7 @@ class ImageLoader implements platform.ImageLoader {
         evictImage();
       });
       //出现错误时清除记录的url
-      await EhImageUrlsManager().delete(url);
+      await EhImageUrlsManager.deleteUrl(url);
       errorListener?.call();
       rethrow;
     } finally {

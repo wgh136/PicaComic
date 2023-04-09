@@ -24,7 +24,7 @@ void saveImage(String url, {bool eh=false}) async{
     launchUrlString("https://api.kokoiro.xyz/storage/download/$url");
   }
   else if(GetPlatform.isAndroid) {
-      var b = await saveImageFormCache(getImageUrl(eh?(await EhImageUrlsManager().get(url)):getImageUrl(url)));
+      var b = await saveImageFormCache(getImageUrl(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url)));
       if(b) {
         showMessage(Get.context, "成功保存于Picture中");
       } else {
@@ -32,7 +32,7 @@ void saveImage(String url, {bool eh=false}) async{
       }
   }else if(GetPlatform.isWindows){
     try {
-      var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager().get(url)):getImageUrl(url));
+      var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url));
       var f = file!.file;
       final String? path = await getSavePath(suggestedName: f.basename);
       if (path != null) {
@@ -91,7 +91,7 @@ void saveImageFromDisk(String image) async{
 
 void shareImageFromCache(String url, {bool eh=false}) async{
   try{
-    var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager().get(url)):getImageUrl(url));
+    var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url));
     Share.shareXFiles([XFile(file!.file.path)]);
   }
   catch(e){

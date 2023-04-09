@@ -9,6 +9,7 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 请尽量使用官方App
 
 ## 已实现的功能
+### Picacg
 - 账号
   - 登录
   - 注册
@@ -33,7 +34,20 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
   - 评论
   - 喜欢
   - 转到游戏下载页面
-  
+
+### E-Hentai
+>由于IP限制, 不提供转发服务器, 因此Web端不能访问E-Hentai. 如需使用浏览器访问,
+> 请直接访问[e-hentai.org](https://www.e-hentai.org)
+> 
+**目前尚未完善, 可能存在各种各样的问题**
+- 主页
+- 热门
+- 收藏夹
+- 登录
+- 排行榜
+- 画廊详情
+- 画廊阅读
+
 ## Thanks
 - [flutter](https://flutter.dev/)
 - [dio](https://pub.dev/packages/dio): 网络请求

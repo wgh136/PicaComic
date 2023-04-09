@@ -1,8 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../base.dart';
-///自动检测Cloudflare CDN Ip 设置并应用的图片组件
-///仅用于picacg
 
 ///自动检测cf设置并应用的Image.Network
 class CfImageNetwork extends StatelessWidget {
@@ -50,6 +48,7 @@ class CfImageNetwork extends StatelessWidget {
   }
 }
 
+///自动检测cf设置并应用的CachedNetworkImage
 class CfCachedNetworkImage extends StatelessWidget {
   const CfCachedNetworkImage(
       {

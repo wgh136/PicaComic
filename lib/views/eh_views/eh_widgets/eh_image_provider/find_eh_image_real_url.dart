@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:get/get.dart';
+import '../../../../base.dart';
 
 ///通过阅读器地址获取图片地址
 Future<String> getEhImageUrl(String url) async{
@@ -31,14 +34,13 @@ Future<String> getEhImageUrl(String url) async{
 ///管理eh阅读器url与实际图片url的对应关系
 class EhImageUrlsManager{
   Map<String,dynamic> _urls = {};
+  bool loaded = false;
 
   ///储存数据
+  ///
   ///为确保在所有平台均可以运行, 使用Json储存数据
   Future<void> saveData() async{
-    //仅记录8000条数据
-    if(_urls.length>8000){
-      _urls.remove(_urls.keys.first);
-    }
+    if(!loaded) return;
     var path = await getApplicationSupportDirectory();
     var file = File("${path.path}${Platform.pathSeparator}urls.json");
     if(!file.existsSync()){
@@ -46,9 +48,13 @@ class EhImageUrlsManager{
       return;
     }
     file.writeAsStringSync(const JsonEncoder().convert(_urls));
+    _urls.clear();
+    loaded = false;
   }
 
   Future<void> readData() async{
+    if(loaded)  return;
+    loaded = true;
     var path = await getApplicationSupportDirectory();
     var file = File("${path.path}${Platform.pathSeparator}urls.json");
     if(!file.existsSync()){
@@ -58,6 +64,9 @@ class EhImageUrlsManager{
     }
   }
 
+  ///获取图片真实地址
+  ///
+  /// 如果没有记录, 则发送请求并记录
   Future<String> get(String url) async{
     await readData();
     var res =  _urls[url];
@@ -66,19 +75,37 @@ class EhImageUrlsManager{
         res = await getEhImageUrl(url);
       }
       catch(e){
-        _urls.clear();
         rethrow;
       }
+      //超出图片上限
+      if(res == "https://ehgt.org/g/509.gif"){
+        showMessage(Get.context, "超出图片上限");
+        throw ImageExceedError();
+      }
       _urls[url] = res;
-      await saveData();
+      //仅记录8000条数据
+      if(_urls.length>8000){
+        _urls.remove(_urls.keys.first);
+      }
     }
-    _urls.clear();
     return res;
   }
 
   Future<void> delete(String url) async{
     await readData();
     _urls.remove(url);
-    await saveData();
   }
+
+  static Future<String> getUrl(String url) async{
+    return await appdata.ehUrlsManager.get(url);
+  }
+
+  static Future<void> deleteUrl(String url) async{
+    await appdata.ehUrlsManager.delete(url);
+  }
+}
+
+class ImageExceedError extends Error{
+  @override
+  String toString()=>"Image limit exceeded";
 }
