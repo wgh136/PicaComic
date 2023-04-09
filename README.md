@@ -1,6 +1,11 @@
 # Pica Comic
 
-非官方Picacg App
+[![flutter](https://img.shields.io/badge/flutter-3.7.10-blue)](https://flutter.dev/) 
+[![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
+[![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
+[![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
+
+非官方Picacg App, 同时支持查看E-Hentai画廊(尚未完善)
 
 目前支持Android, Windows, Web
 
