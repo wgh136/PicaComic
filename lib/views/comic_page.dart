@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/category_comic_page.dart';
-import 'package:pica_comic/views/comic_reading_page.dart';
+import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/comments_page.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/show_image_page.dart';
@@ -242,7 +242,7 @@ class ComicPage extends StatelessWidget{
               title: Text(e[i]),
               onTap: () {
                 Get.to(() =>
-                    ComicReadingPage(comic.id, i, logic.epsStr, comic.title));
+                    ComicReadingPage.picacg(comic.id, i, logic.epsStr, comic.title));
               },
             ));
           }
@@ -496,19 +496,19 @@ class ComicPage extends StatelessWidget{
                     actions: [
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+                        Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
                         }, child: const Text("从头开始")),
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(comic.id, logic.history!.ep, logic.epsStr,comic.title,initialPage: logic.history!.page,));
+                        Get.to(()=>ComicReadingPage.picacg(comic.id, logic.history!.ep, logic.epsStr,comic.title,initialPage: logic.history!.page,));
                         }, child: const Text("继续阅读")),
                     ],
                   ));
                 }else{
-                  Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+                  Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
                 }
               }else {
-                Get.to(()=>ComicReadingPage(comic.id, 1, logic.epsStr,comic.title));
+                Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
               }
             },
             child: const Text("阅读"),
@@ -542,7 +542,7 @@ class ComicPage extends StatelessWidget{
                 ),
                 onTap: () {
                   Get.to(() =>
-                      ComicReadingPage(comic.id, i+1, logic.epsStr, comic.title));
+                      ComicReadingPage.picacg(comic.id, i+1, logic.epsStr, comic.title));
                 },
               ),);
             }
@@ -573,7 +573,7 @@ class ComicPage extends StatelessWidget{
           title: Text(downloadComic.chapters[i]),
           onTap: () {
             Get.to(() =>
-                ComicReadingPage(comic.id, i, logic.epsStr, comic.title));
+                ComicReadingPage.picacg(comic.id, i, logic.epsStr, comic.title));
           },
         ));
       }

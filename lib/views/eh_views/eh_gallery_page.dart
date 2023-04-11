@@ -10,7 +10,7 @@ import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:share_plus/share_plus.dart';
-import '../comic_reading_page.dart';
+import '../reader/comic_reading_page.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/selectable_text.dart';
@@ -319,19 +319,19 @@ class EhGalleryPage extends StatelessWidget {
                     actions: [
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,gallery: logic.gallery!));
+                        Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!));
                       }, child: const Text("从头开始")),
                       TextButton(onPressed: (){
                         Get.back();
-                        Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,initialPage: logic.history!.page,gallery: logic.gallery!));
+                        Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!,initialPage: logic.history!.page));
                       }, child: const Text("继续阅读")),
                     ],
                   ));
                 }else{
-                  Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,gallery: logic.gallery!));
+                  Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!));
                 }
               }else {
-                Get.to(()=>ComicReadingPage(brief.link, 1, const [],logic.gallery!.title,gallery: logic.gallery!));
+                Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!));
               }
             },
             child: const Text("阅读"),
