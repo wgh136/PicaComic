@@ -287,6 +287,10 @@ class EhGalleryPage extends StatelessWidget {
             label: const Text("收藏"),
             avatar: logic.gallery!.favorite?const Icon(Icons.bookmark):const Icon(Icons.bookmark_outline),
             onPressed: () {
+              if(appdata.ehId==""){
+                showMessage(context, "未登录");
+                return;
+              }
               if(logic.gallery!.favorite){
                 ehNetwork.unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
               }else{
@@ -445,6 +449,10 @@ class EhGalleryPage extends StatelessWidget {
   }
 
   void starRating(BuildContext context, Map<String, String> auth){
+    if(appdata.ehId==""){
+      showMessage(context, "未登录");
+      return;
+    }
     showDialog(context: context, builder: (dialogContext)=>GetBuilder<RatingLogic>(
       init: RatingLogic(),
       builder: (logic)=>SimpleDialog(
@@ -496,6 +504,10 @@ class EhGalleryPage extends StatelessWidget {
   }
 
   void comment(BuildContext context, String link){
+    if(appdata.ehId==""){
+      showMessage(context, "未登录");
+      return;
+    }
     showDialog(context: context, builder: (dialogContext)=>GetBuilder<CommentLogic>(
       init: CommentLogic(),
         builder: (logic)=>SimpleDialog(
