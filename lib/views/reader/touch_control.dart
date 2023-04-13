@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 
 ///Flutter并没有提供能够进行放缩的列表, 在InteractiveViewer放入任何可滚动的组件, InteractiveViewer的手势将会失效.
 ///此类用于处理滚动事件
@@ -11,7 +12,9 @@ class ScrollManager{
   ScrollController scrollController;
 
   ///小于此值的滑动判定为缓慢滑动
-  static const slowMove = 2.0;
+  static const slowMove = 1.8;
+
+  final height = Get.height;
 
   ///是否正在进行释放缓存的偏移值
   bool runningRelease = false;
@@ -29,8 +32,8 @@ class ScrollManager{
   void moveScrollView(double value){
     //移动ScrollView
     scrollController.jumpTo(scrollController.position.pixels-value);
-    if(value>slowMove||value<0-slowMove){
-      offset += value*value*(value~/1)/10;//(((offset ~/200)>0?(offset ~/200):(0 - offset ~/200)) + 4);
+    if(value*height/400>slowMove||value*height/400<0-slowMove){
+      offset += value*value*(value~/1)/5*height/600;
       if (!runningRelease) {
         releaseOffset();
       }

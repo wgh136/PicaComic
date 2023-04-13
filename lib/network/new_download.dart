@@ -66,17 +66,8 @@ class DownloadManager{
 
   ///读取数据, 获取未完成的下载和已下载的漫画ID
   Future<void> _getInfo() async{
-    //迁移旧版本的数据
-    var file = File("$path${pathSep}download.json");
-    if(file.existsSync()){
-      var json = await file.readAsString();
-      for(var i in jsonDecode(json)["downloaded"]){
-        downloaded.add(i);
-      }
-      await file.delete();
-    }
     //读取数据
-    file = File("$path${pathSep}newDownload.json");
+    var file = File("$path${pathSep}newDownload.json");
     if(! file.existsSync()){
       await _saveInfo();
     }
@@ -90,6 +81,17 @@ class DownloadManager{
     for(var item in json["downloading"]){
       downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo)!);
     }
+
+    //迁移旧版本的数据
+    file = File("$path${pathSep}download.json");
+    if(file.existsSync()){
+      var json = await file.readAsString();
+      for(var i in jsonDecode(json)["downloaded"]){
+        downloaded.add(i);
+      }
+      await file.delete();
+    }
+    await _saveInfo();
   }
 
   ///初始化下载管理器

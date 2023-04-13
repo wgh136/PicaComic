@@ -298,7 +298,7 @@ class ComicReadingPage extends StatelessWidget {
               FileImage(downloadManager.getImage(id, comicReadingPageLogic.order, index + 1)),
               context);
         }
-        if (type == ReadingType.ehentai) {
+        if (type == ReadingType.ehentai && ! comicReadingPageLogic.downloaded) {
           final height = Get.width * 1.42;
           return Image(
             image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
