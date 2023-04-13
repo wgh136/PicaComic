@@ -210,6 +210,18 @@ class EhNetwork{
         for(var node in items[i].children[2+t].children[0].children[1].children){
           tags.add(node.attributes["title"]!);
         }
+        //检查屏蔽词
+        for(var word in appdata.blockingKeyword){
+          if(title.contains(word)){
+            continue;
+          }
+          if(type == word){
+            continue;
+          }
+          if(tags.contains(word)){
+            continue;
+          }
+        }
         galleries.add(EhGalleryBrief(title, type, time, uploader, cover!, stars, link!, tags));
       }
       catch(e){
