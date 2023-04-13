@@ -226,20 +226,29 @@ class ComicReadingPage extends StatelessWidget {
                           }
                         }, () async {
                           if (logic.downloaded) {
-                            saveImageFromDisk(downloadManager
-                                .getImage(target, logic.order, logic.index - 1)
-                                .path);
-                          } else {
-                            saveImage(logic.urls[logic.index - 1], eh: type == ReadingType.ehentai);
-                          }
-                        }, () async {
-                          if (logic.downloaded) {
+                            var id = target;
+                            if(type == ReadingType.ehentai){
+                              id = getGalleryId(target);
+                            }
                             shareImageFromDisk(downloadManager
-                                .getImage(target, logic.order, logic.index - 1)
+                                .getImage(id, logic.order, logic.index - 1)
                                 .path);
                           } else {
                             shareImageFromCache(logic.urls[logic.index - 1],
                                 eh: type == ReadingType.ehentai);
+                          }
+
+                        }, () async {
+                          if (logic.downloaded) {
+                            var id = target;
+                            if(type == ReadingType.ehentai){
+                              id = getGalleryId(target);
+                            }
+                            saveImageFromDisk(downloadManager
+                                .getImage(id, logic.order, logic.index - 1)
+                                .path);
+                          } else {
+                            saveImage(logic.urls[logic.index - 1], eh: type == ReadingType.ehentai);
                           }
                         }),
 

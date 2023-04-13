@@ -260,7 +260,7 @@ class DownloadManager{
   ///获取图片, 对于eh, ep参数为0
   File getImage(String id, int ep, int index){
     if(ep == 0){
-      return File("$path$pathSep$id$pathSep$pathSep$index.jpg");
+      return File("$path$pathSep$id$pathSep$index.jpg");
     }
     return File("$path$pathSep$id$pathSep$ep$pathSep$index.jpg");
   }
