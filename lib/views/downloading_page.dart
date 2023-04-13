@@ -32,7 +32,7 @@ class _DownloadingPageState extends State<DownloadingPage> {
         builder: (logic){
           for(var i in downloadManager.downloading){
             logic.items.add(DownloadingTile(i, () {
-              downloadManager.cancel(i.comic.id);
+              downloadManager.cancel(i.id);
               logic.update();
             }));
           }
@@ -40,7 +40,7 @@ class _DownloadingPageState extends State<DownloadingPage> {
             logic.items.clear();
             for(var i in downloadManager.downloading){
               logic.items.add(DownloadingTile(i, () {
-                downloadManager.cancel(i.comic.id);
+                downloadManager.cancel(i.id);
                 logic.update();
               }));
             }

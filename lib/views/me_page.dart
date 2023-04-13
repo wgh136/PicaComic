@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -83,15 +83,11 @@ class MePage extends StatelessWidget {
                   children: [
                     mePageItem(context, Icons.badge,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"个人信息","查看或修改账号信息"),
                     mePageItem(context, Icons.bookmarks,()=>Get.to(()=>const FavoritesPage()),"收藏夹","查看已收藏的漫画"),
-                    mePageItem(context, Icons.download_for_offline,()=>Get.to(()=>DownloadPage()),"已下载","管理已下载的漫画"),
+                    mePageItem(context, Icons.download_for_offline,()=>Get.to(()=>const DownloadPage()),"已下载","管理已下载的漫画"),
                     mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,() async{
-                      var g = await ehNetwork.getGalleryInfo((await ehNetwork.getLeaderboard(EhLeaderboardType.all))!.galleries[1]);
-                      ehNetwork.loadGalleryPages(g!);
-                      for(var i in g.urls){
-                        ehNetwork.request(i);
-                      }
+                      debug();
                     },"Debug",""),
                   ],
                 )

@@ -10,6 +10,7 @@ import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../eh_network/get_gallery_id.dart';
 import '../reader/comic_reading_page.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
@@ -22,6 +23,7 @@ class GalleryPageLogic extends GetxController{
   var controller = ScrollController();
   bool showAppbarTitle = false;
   NewHistory? history;
+  bool noNetwork = false;
 
   void loadInfo(EhGalleryBrief brief) async{
     gallery = await ehNetwork.getGalleryInfo(brief);
@@ -39,8 +41,9 @@ class GalleryPageLogic extends GetxController{
 }
 
 class EhGalleryPage extends StatelessWidget {
-  const EhGalleryPage(this.brief,{Key? key}) : super(key: key);
+  const EhGalleryPage(this.brief,{this.downloaded = false,Key? key}) : super(key: key);
   final EhGalleryBrief brief;
+  final bool downloaded;
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +72,17 @@ class EhGalleryPage extends StatelessWidget {
           });
         },
         builder: (logic){
+          if(downloaded){
+            logic.loading = false;
+          }
           if(logic.loading){
             logic.loadInfo(brief);
             return showLoading(context);
           }else if(logic.gallery == null){
+            if(downloadManager.downloadedGalleries.contains(getGalleryId(brief.link))){
+              loadGalleryInfoFromFile(logic);
+              return showLoading(context);
+            }
             return showNetworkError(context, logic.retry, eh: true);
           }else{
             logic.controller.addListener(() {
@@ -128,10 +138,12 @@ class EhGalleryPage extends StatelessWidget {
 
                 buildGalleryInfo(context,logic),
 
+                if(! logic.noNetwork)
                 const SliverToBoxAdapter(
                   child: Divider(),
                 ),
 
+                if(! logic.noNetwork)
                 buildComments(logic, context),
               ],
             );
@@ -156,7 +168,9 @@ class EhGalleryPage extends StatelessWidget {
                 //封面
                 buildCover(context, 350, MediaQuery.of(context).size.width, logic),
 
+                if(! logic.noNetwork)
                 const SizedBox(height: 20,),
+                if(! logic.noNetwork)
                 SizedBox(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,7 +220,9 @@ class EhGalleryPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if(! logic.noNetwork)
                   const Text("评分"),
+                  if(! logic.noNetwork)
                   SizedBox(
                     height: 30,
                     child: Row(
@@ -235,9 +251,15 @@ class EhGalleryPage extends StatelessWidget {
 
   Widget buildCover(BuildContext context, double height, double width, GalleryPageLogic logic){
     return GestureDetector(
+      onTap: logic.noNetwork?null:()=>Get.to(()=>ShowImagePage(logic.gallery!.coverPath,eh: true,)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-        child: CachedNetworkImage(
+        child: logic.noNetwork?Image.file(
+          downloadManager.getPicCover(getGalleryId(brief.link)),
+          width: width-50,
+          height: height,
+          fit: BoxFit.contain,
+        ):CachedNetworkImage(
           width: width-50,
           height: height,
           imageUrl: logic.gallery!.coverPath,
@@ -245,7 +267,6 @@ class EhGalleryPage extends StatelessWidget {
           errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
-      onTap: ()=>Get.to(()=>ShowImagePage(logic.gallery!.coverPath,eh: true,)),
     );
   }
 
@@ -280,13 +301,23 @@ class EhGalleryPage extends StatelessWidget {
           Expanded(child: ActionChip(
             label: const Text("评分"),
             avatar: const Icon(Icons.star),
-            onPressed: ()=>starRating(context, logic.gallery!.auth!),
+            onPressed: (){
+              if(logic.noNetwork){
+                showMessage(context, "无网络");
+              }else{
+                starRating(context, logic.gallery!.auth!);
+              }
+            },
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: ActionChip(
             label: const Text("收藏"),
             avatar: logic.gallery!.favorite?const Icon(Icons.bookmark):const Icon(Icons.bookmark_outline),
             onPressed: () {
+              if(logic.noNetwork){
+                showMessage(context, "无网络");
+                return;
+              }
               if(appdata.ehId==""){
                 showMessage(context, "未登录");
                 return;
@@ -304,7 +335,13 @@ class EhGalleryPage extends StatelessWidget {
           Expanded(child: ActionChip(
             label: const Text("评论"),
             avatar: const Icon(Icons.comment_outlined),
-            onPressed: ()=>comment(context, logic.gallery!.link)
+            onPressed: (){
+              if(logic.noNetwork){
+                showMessage(context, "无网络");
+              }else{
+                comment(context, logic.gallery!.link);
+              }
+            }
           ),),
         ],
       ),
@@ -313,6 +350,25 @@ class EhGalleryPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 15, 20, 10),
       child: Row(
         children: [
+          Expanded(child: FilledButton(
+            onPressed: (){
+              final id = getGalleryId(logic.gallery!.link);
+              if(downloadManager.downloadedGalleries.contains(id)){
+                showMessage(context, "已下载");
+                return;
+              }
+              for(var i in downloadManager.downloading){
+                if(i.id == id){
+                  showMessage(context, "下载中");
+                  return;
+                }
+              }
+              downloadManager.addEhDownload(logic.gallery!);
+              showMessage(context, "已加入下载队列");
+            },
+            child: (downloadManager.downloadedGalleries.contains(getGalleryId(logic.gallery!.link)))?const Text("已下载"):const Text("下载"),
+          ),),
+          SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
             onPressed: (){
               if(logic.history!=null){
@@ -340,6 +396,7 @@ class EhGalleryPage extends StatelessWidget {
             },
             child: const Text("阅读"),
           ),),
+
         ],
       ),
     ));
@@ -552,6 +609,14 @@ class EhGalleryPage extends StatelessWidget {
             )
           ],
     )));
+  }
+
+  void loadGalleryInfoFromFile(GalleryPageLogic logic) async{
+    logic.gallery = (await downloadManager.getGalleryFormId(getGalleryId(brief.link))).gallery;
+    //避免加载完成后页面还没有渲染完成
+    await Future.delayed(const Duration(milliseconds: 100));
+    logic.noNetwork = true;
+    logic.update();
   }
 }
 

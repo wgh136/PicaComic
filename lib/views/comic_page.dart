@@ -298,7 +298,7 @@ class ComicPage extends StatelessWidget{
 
   Widget buildCover(BuildContext context, ComicPageLogic logic, double height, double width){
     return downloaded?Image.file(
-      downloadManager.getCover(comic.id),
+      downloadManager.getPicCover(comic.id),
       width: width,
       height: height,
     ):GestureDetector(
@@ -676,6 +676,6 @@ void downloadComic(ComicItem comic, BuildContext context){
       return;
     }
   }
-  downloadManager.addDownload(comic);
+  downloadManager.addPicDownload(comic);
   showMessage(context, "已加入下载队列");
 }

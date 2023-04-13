@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/models/history.dart';
@@ -27,7 +27,7 @@ const double comicTileMaxWidth = 600.0;
 const double comicTileAspectRatio = 3.0;
 
 var hotSearch = <String>[];
-var downloadManager = DownloadManage();
+var downloadManager = DownloadManager();
 
 class Appdata{
   late String token;

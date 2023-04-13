@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
@@ -65,7 +66,7 @@ class ComicReadingPage extends StatelessWidget {
   ComicReadingPage.ehentai(this.target, this.gallery, {super.key, int initialPage = 0})
       : eps = [],
         title = gallery!.title,
-        order = 1,
+        order = 0,
         type = ReadingType.ehentai {
     data.initialPage = initialPage;
   }
@@ -122,7 +123,7 @@ class ComicReadingPage extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 ),
               );
-            } else if (logic.urls.isNotEmpty) {
+            } else if (logic.urls.isNotEmpty || logic.downloaded) {
               //检查传入的初始页面值, 并进行跳转
               if (data.initialPage != 0) {
                 int i = data.initialPage;
@@ -271,7 +272,7 @@ class ComicReadingPage extends StatelessWidget {
       addSemanticIndexes: false,
       scrollController: comicReadingPageLogic.cont,
       itemBuilder: (context, index) {
-        if (index < comicReadingPageLogic.urls.length - 1 && type == ReadingType.ehentai) {
+        if (index < comicReadingPageLogic.urls.length - 1 && type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
           precacheImage(EhCachedImageProvider(comicReadingPageLogic.urls[index + 1]), context);
         } else if (index < comicReadingPageLogic.urls.length - 1 &&
             !comicReadingPageLogic.downloaded) {
@@ -280,8 +281,12 @@ class ComicReadingPage extends StatelessWidget {
               context);
         } else if (index < comicReadingPageLogic.urls.length - 1 &&
             comicReadingPageLogic.downloaded) {
+          var id = target;
+          if(type == ReadingType.ehentai){
+            id = getGalleryId(target);
+          }
           precacheImage(
-              FileImage(downloadManager.getImage(target, comicReadingPageLogic.order, index + 1)),
+              FileImage(downloadManager.getImage(id, comicReadingPageLogic.order, index + 1)),
               context);
         }
         if (type == ReadingType.ehentai) {
@@ -324,8 +329,12 @@ class ComicReadingPage extends StatelessWidget {
           );
         }
         if (comicReadingPageLogic.downloaded) {
+          var id = target;
+          if(type == ReadingType.ehentai){
+            id = getGalleryId(target);
+          }
           return Image.file(
-            downloadManager.getImage(target, comicReadingPageLogic.order, index),
+            downloadManager.getImage(id, comicReadingPageLogic.order, index),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
           );
@@ -381,7 +390,7 @@ class ComicReadingPage extends StatelessWidget {
                 scrollDirection: appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
                 itemCount: comicReadingPageLogic.urls.length + 2,
                 builder: (BuildContext context, int index) {
-                  if (index < comicReadingPageLogic.urls.length && type == ReadingType.ehentai) {
+                  if (index < comicReadingPageLogic.urls.length && type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
                     precacheImage(
                         EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);
                   } else if (index < comicReadingPageLogic.urls.length &&
@@ -391,13 +400,17 @@ class ComicReadingPage extends StatelessWidget {
                         context);
                   } else if (index < comicReadingPageLogic.urls.length &&
                       comicReadingPageLogic.downloaded) {
+                    var id = target;
+                    if(type == ReadingType.ehentai){
+                      id = getGalleryId(target);
+                    }
                     precacheImage(
                         FileImage(
-                            downloadManager.getImage(target, comicReadingPageLogic.order, index)),
+                            downloadManager.getImage(id, comicReadingPageLogic.order, index)),
                         context);
                   }
                   if (index != 0 && index != comicReadingPageLogic.urls.length + 1) {
-                    if (type == ReadingType.ehentai) {
+                    if (type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
                       return PhotoViewGalleryPageOptions(
                         minScale: PhotoViewComputedScale.contained * 0.9,
                         imageProvider: EhCachedImageProvider(comicReadingPageLogic.urls[index - 1]),
@@ -406,10 +419,14 @@ class ComicReadingPage extends StatelessWidget {
                             tag: "$index/${comicReadingPageLogic.urls.length}"),
                       );
                     } else if (comicReadingPageLogic.downloaded) {
+                      var id = target;
+                      if(type == ReadingType.ehentai){
+                        id = getGalleryId(target);
+                      }
                       return PhotoViewGalleryPageOptions(
                         minScale: PhotoViewComputedScale.contained * 0.9,
                         imageProvider: FileImage(downloadManager.getImage(
-                            target, comicReadingPageLogic.order, index - 1)),
+                            id, comicReadingPageLogic.order, index - 1)),
                         initialScale: PhotoViewComputedScale.contained,
                         heroAttributes: PhotoViewHeroAttributes(
                             tag: "$index/${comicReadingPageLogic.urls.length}"),
@@ -609,7 +626,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     }
     if (comicReadingPageLogic.downloaded) {
-      downloadManager.getEpLength(target, comicReadingPageLogic.order).then((i) {
+      downloadManager.getPicEpLength(target, comicReadingPageLogic.order).then((i) {
         for (int p = 0; p < i; p++) {
           comicReadingPageLogic.urls.add("");
         }
@@ -624,13 +641,20 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadGalleryInfo(ComicReadingPageLogic logic) async {
+    if(downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))){
+      logic.downloaded = true;
+      for(int i = 0;i<await downloadManager.getEhPages(getGalleryId(gallery!.link));i++){
+        logic.urls.add("");
+      }
+      logic.change();
+      return;
+    }
     await appdata.ehUrlsManager.readData();
     ehNetwork.loadGalleryPages(gallery!).then((b) {
       if (b) {
         logic.urls = gallery!.urls;
       }
-      logic.isLoading = false;
-      logic.update();
+      logic.change();
     });
   }
 }

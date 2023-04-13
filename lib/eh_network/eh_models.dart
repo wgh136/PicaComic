@@ -41,6 +41,7 @@ class Gallery{
   bool favorite;
   late String link;
   String maxPage;
+
   Gallery(EhGalleryBrief brief,this.tags,this.urls,this.favorite,this.maxPage){
     title = brief.title;
     type = brief.type;
@@ -51,6 +52,53 @@ class Gallery{
     coverPath = brief.coverPath;
     link = brief.link;
   }
+
+  EhGalleryBrief toBrief() => EhGalleryBrief(
+      title,
+      type,
+      time,
+      uploader,
+      coverPath,
+      stars,
+      link,
+      []
+  );
+
+  Map<String, dynamic> toJson() {
+    return {
+      "title": title,
+      "type": type,
+      "time": time,
+      "uploader": uploader,
+      "stars": stars,
+      "rating": rating,
+      "coverPath": coverPath,
+      "tags": tags,
+      "favorite": favorite,
+      "link": link,
+      "maxPage": maxPage,
+    };
+  }
+
+  Gallery.fromJson(Map<String, dynamic> json):
+    title = json["title"],
+    type = json["type"],
+    time = json["time"],
+    uploader = json["uploader"],
+    stars = json["stars"],
+    rating = json["rating"],
+    coverPath = json["coverPath"],
+    tags = {},
+    favorite = json["favorite"],
+    link = json["link"],
+    maxPage = json["maxPage"],
+    comments = [],
+    urls = []{
+    for(var key in (json["tags"] as Map<String, dynamic>).keys){
+      tags["key"] = List<String>.from(json["tags"][key]);
+    }
+  }
+
 }
 
 enum EhLeaderboardType{

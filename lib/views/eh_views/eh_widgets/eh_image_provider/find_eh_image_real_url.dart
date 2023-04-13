@@ -27,8 +27,12 @@ Future<String> getEhImageUrl(String url) async{
   var nl = document.getElementById("loadfail")!.attributes["onclick"]!;
   html = await dio.get("$url?nl=${nl.substring(11,nl.length-2)}");
   document = parse(html.data);
-  //如果ip被ban, 解析失败会出现错误
-  return document.querySelector("img#img")!.attributes["src"]!;
+  var res = document.querySelector("img#img")!.attributes["src"]!;
+  if(res == "https://ehgt.org/g/509.gif"){
+    showMessage(Get.context, "超出图片上限");
+    throw ImageExceedError();
+  }
+  return res;
 }
 
 ///管理eh阅读器url与实际图片url的对应关系
@@ -52,6 +56,11 @@ class EhImageUrlsManager{
     loaded = false;
   }
 
+  ///目前发现由于eh的图片地址存在变化, 导致CachedManager认为图片源发生变化, 并尝试重新获取从而产生错误
+  ///
+  /// 这是临时解决方案, 不持久化保存的链接
+  ///
+  /// 为了实现持久缓存, 我需要自己写一个CachedManager...总之有时间再说
   Future<void> readData() async{
     if(loaded)  return;
     loaded = true;
@@ -62,6 +71,8 @@ class EhImageUrlsManager{
     }else{
       _urls = const JsonDecoder().convert(file.readAsStringSync());
     }
+    //在实现CachedManager后清除这行代码
+    _urls.clear();
   }
 
   ///获取图片真实地址
@@ -76,11 +87,6 @@ class EhImageUrlsManager{
       }
       catch(e){
         rethrow;
-      }
-      //超出图片上限
-      if(res == "https://ehgt.org/g/509.gif"){
-        showMessage(Get.context, "超出图片上限");
-        throw ImageExceedError();
       }
       _urls[url] = res;
       //仅记录8000条数据

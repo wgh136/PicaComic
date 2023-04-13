@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/new_download_model.dart';
 
 import 'cf_image_widgets.dart';
 
@@ -17,7 +17,7 @@ class DownloadingProgressController extends GetxController{
 }
 
 class DownloadingTile extends StatelessWidget {
-  final DownloadComic comic;
+  final DownloadingItem comic;
   final void Function() cancel;
   const DownloadingTile(this.comic,this.cancel, {super.key});
 
@@ -33,7 +33,7 @@ class DownloadingTile extends StatelessWidget {
             child: CfCachedNetworkImage(
               width: 80,
               fit: BoxFit.fitHeight,
-              imageUrl: getImageUrl(comic.comic.thumbUrl),
+              imageUrl: getImageUrl(comic.cover),
               errorWidget: (context,a,b){
                 return const Center(
                   child: Icon(Icons.error),
@@ -47,18 +47,18 @@ class DownloadingTile extends StatelessWidget {
               init: DownloadingProgressController(),
               tag: comic.id,
               builder: (controller){
-                controller.downloadPages = comic.downloadPages;
-                controller.pagesCount = comic.comic.pagesCount;
+                controller.downloadPages = comic.downloadedPages;
+                controller.pagesCount = comic.totalPages;
                 controller.value = controller.downloadPages/controller.pagesCount;
                 comic.updateUi = (){
-                  controller.change(comic.downloadPages,comic.comic.pagesCount);
+                  controller.change(comic.downloadedPages,comic.totalPages);
                 };
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(comic.comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
+                    Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
                     const Spacer(),
-                    Text("已下载${controller.downloadPages}/${comic.comic.pagesCount}",style: const TextStyle(fontSize: 12),),
+                    Text("已下载${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
                     const SizedBox(height: 3,),
                     LinearProgressIndicator(
                       value: controller.value,

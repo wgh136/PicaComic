@@ -47,7 +47,7 @@ class ComicTile extends StatelessWidget {
                     errorBuilder: (context, url, error) => const Icon(Icons.error),
                     height: double.infinity,
                   )):Image.file(
-                    downloadManager.getCover(comic.id),
+                    downloadManager.getPicCover(comic.id),
                     fit: BoxFit.cover,
                     height: double.infinity,
                   ),
