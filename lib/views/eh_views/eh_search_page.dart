@@ -24,107 +24,115 @@ class EhSearchPageLogic extends GetxController{
 }
 
 class EhSearchPage extends StatelessWidget {
-  final EhSearchPageLogic logic = Get.put(EhSearchPageLogic());
   final String keyword;
-  EhSearchPage(this.keyword,{super.key});
+  const EhSearchPage(this.keyword,{super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.search),
-          onPressed: (){
-            var s = logic.controller.text;
-            if(s=="") return;
-            logic.change();
-            logic.search();
-          },
-        ),
-        body: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              const SliverPadding(padding: EdgeInsets.only(top: 10)),
-              SliverPersistentHeader(
-                floating: true,
-                delegate: _SliverAppBarDelegate(
-                  minHeight: 60,
-                  maxHeight: 0,
-                  child: FloatingSearchBar(
-                    supportingText: '搜索',
-                    f:(s){
-                      if(s=="") return;
-                      logic.change();
-                      logic.search();
-                    },
-                    controller: logic.controller,),
-                ),
-              ),
-              const SliverPadding(padding: EdgeInsets.only(top: 5)),
-              GetBuilder<EhSearchPageLogic>(builder: (searchPageLogic){
-                if(searchPageLogic.isLoading){
-                  if(searchPageLogic.firstSearch){
-                    searchPageLogic.firstSearch = false;
-                    searchPageLogic.controller.text = keyword;
-                    searchPageLogic.search();
-                  }
-                  return SliverToBoxAdapter(
-                    child: SizedBox.fromSize(
-                      size: Size(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height-60),
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),),
-                  );
-                }else{
-                  if(searchPageLogic.galleries!=null){
-                    return SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                          childCount: logic.galleries!.length,
-                              (context, i){
-                            if(i==logic.galleries!.length-1){
-                              ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
-                            }
-                            return EhGalleryTile(logic.galleries![i]);
-                          }
-                      ),
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: comicTileMaxWidth,
-                        childAspectRatio: comicTileAspectRatio,
-                      ),
-                    );
-                  }else{
-                    return const SliverToBoxAdapter(
-                      child: ListTile(
-                        leading: Icon(Icons.error_outline),
-                        title: Text("没有任何结果"),
-                      ),
-                    );
-                  }
-                }
-              }),
-              GetBuilder<EhSearchPageLogic>(builder: (searchPageLogic){
-                if(logic.galleries!=null&&logic.galleries!.next!=null) {
-                  return SliverToBoxAdapter(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      child: const Center(
-                        child: SizedBox(
-                          width: 20,height: 20,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
-                  );
-                }else{
-                  return const SliverToBoxAdapter(child: SizedBox(height: 1,),);
-                }
-              }),
-
-              SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
-            ],
+    return GetBuilder(
+      init: EhSearchPageLogic(),
+      tag: keyword,
+      builder: (logic)=>Scaffold(
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.search),
+            onPressed: (){
+              var s = logic.controller.text;
+              if(s=="") return;
+              logic.change();
+              logic.search();
+            },
           ),
-        )
+          body: SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                const SliverPadding(padding: EdgeInsets.only(top: 10)),
+                SliverPersistentHeader(
+                  floating: true,
+                  delegate: _SliverAppBarDelegate(
+                    minHeight: 60,
+                    maxHeight: 0,
+                    child: FloatingSearchBar(
+                      supportingText: '搜索',
+                      f:(s){
+                        if(s=="") return;
+                        logic.change();
+                        logic.search();
+                      },
+                      controller: logic.controller,),
+                  ),
+                ),
+                const SliverPadding(padding: EdgeInsets.only(top: 5)),
+
+                buildBody(logic, context),
+                buildLoading(logic, context),
+
+                SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+              ],
+            ),
+          )
+      ),
     );
+  }
+
+  Widget buildBody(EhSearchPageLogic logic, BuildContext context){
+    if(logic.isLoading){
+      if(logic.firstSearch){
+        logic.firstSearch = false;
+        logic.controller.text = keyword;
+        logic.search();
+      }
+      return SliverToBoxAdapter(
+        child: SizedBox.fromSize(
+          size: Size(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height-60),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),),
+      );
+    }else{
+      if(logic.galleries!=null){
+        return SliverGrid(
+          delegate: SliverChildBuilderDelegate(
+              childCount: logic.galleries!.length,
+                  (context, i){
+                if(i==logic.galleries!.length-1){
+                  ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                }
+                return EhGalleryTile(logic.galleries![i]);
+              }
+          ),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: comicTileMaxWidth,
+            childAspectRatio: comicTileAspectRatio,
+          ),
+        );
+      }else{
+        return const SliverToBoxAdapter(
+          child: ListTile(
+            leading: Icon(Icons.error_outline),
+            title: Text("没有任何结果"),
+          ),
+        );
+      }
+    }
+  }
+
+  Widget buildLoading(EhSearchPageLogic logic, BuildContext context){
+    if(logic.galleries!=null&&logic.galleries!.next!=null) {
+      return SliverToBoxAdapter(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: 80,
+          child: const Center(
+            child: SizedBox(
+              width: 20,height: 20,
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      );
+    }else{
+      return const SliverToBoxAdapter(child: SizedBox(height: 1,),);
+    }
   }
 }
 

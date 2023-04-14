@@ -444,7 +444,7 @@ class EhGalleryPage extends StatelessWidget {
             .primaryContainer,
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
-          onTap: allowSearch?()=>Get.to(()=>EhSearchPage(title)):(){},
+          onTap: allowSearch?()=>Get.to(()=>EhSearchPage(title),preventDuplicates: false):(){},
           child: Padding(
             padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(title),
           ),
