@@ -52,6 +52,7 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 排行榜
 - 画廊详情
 - 画廊阅读
+- 下载画廊
 
 ## Thanks
 - [flutter](https://flutter.dev/)
