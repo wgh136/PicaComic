@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/views/register.dart';
-import '../network/methods.dart';
-import '../base.dart';
-import 'main_page.dart';
+import 'package:pica_comic/views/pic_views/register.dart';
+import '../../network/methods.dart';
+import '../../base.dart';
+import '../main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox.fromSize(size: const Size(5,10),),
                 if(!GetPlatform.isWeb)
                   ListTile(
-                    leading: const Icon(Icons.change_circle),
+                    leading: Icon(Icons.change_circle, color: Theme.of(context).colorScheme.primary,),
                     title: const Text("使用转发服务器"),
                     subtitle: const Text("同时使用网络代理工具会减慢速度"),
                     trailing: Switch(

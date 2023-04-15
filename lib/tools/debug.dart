@@ -1,6 +1,7 @@
-import 'package:path_provider/path_provider.dart';
+import 'package:get/get.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 
 
 void debug() async{
-  print((await getApplicationSupportDirectory()).path);
+  showMessage(Get.context, "test", useGet: true);
 }

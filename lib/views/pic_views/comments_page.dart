@@ -5,7 +5,7 @@ import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../network/models.dart';
+import '../../network/models.dart';
 
 class CommentsPageLogic extends GetxController{
   bool isLoading = true;

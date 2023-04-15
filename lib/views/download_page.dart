@@ -5,7 +5,7 @@ import 'package:pica_comic/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'package:pica_comic/views/comic_page.dart';
+import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
-import 'package:pica_comic/views/search_page.dart';
+import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import '../base.dart';
 

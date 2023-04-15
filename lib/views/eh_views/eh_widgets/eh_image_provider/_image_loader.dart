@@ -5,27 +5,22 @@ import 'dart:ui';
 
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart' as platform
-    show ImageLoader;
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart'
     show ImageRenderMethodForWeb;
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
 
 import 'find_eh_image_real_url.dart';
 
 /// ImageLoader class to load images on IO platforms.
-class ImageLoader implements platform.ImageLoader {
+class ImageLoader{
   @Deprecated('use loadBufferAsync instead')
-  @override
   Stream<ui.Codec> loadAsync(
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
-    BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
@@ -38,7 +33,6 @@ class ImageLoader implements platform.ImageLoader {
       cacheKey,
       chunkEvents,
       decode,
-      cacheManager,
       maxHeight,
       maxWidth,
       headers,
@@ -48,13 +42,11 @@ class ImageLoader implements platform.ImageLoader {
     );
   }
 
-  @override
   Stream<ui.Codec> loadBufferAsync(
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
       DecoderBufferCallback decode,
-      BaseCacheManager cacheManager,
       int? maxHeight,
       int? maxWidth,
       Map<String, String>? headers,
@@ -69,7 +61,6 @@ class ImageLoader implements platform.ImageLoader {
         final buffer = await ImmutableBuffer.fromUint8List(bytes);
         return decode(buffer);
       },
-      cacheManager,
       maxHeight,
       maxWidth,
       headers,
@@ -84,7 +75,6 @@ class ImageLoader implements platform.ImageLoader {
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
     _FileDecoderCallback decode,
-    BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
@@ -94,37 +84,21 @@ class ImageLoader implements platform.ImageLoader {
   ) async* {
     try {
       var realUrl = await EhImageUrlsManager.getUrl(url);
-      assert(
-          cacheManager is ImageCacheManager ||
-              (maxWidth == null && maxHeight == null),
-          'To resize the image with a CacheManager the '
-          'CacheManager needs to be an ImageCacheManager. maxWidth and '
-          'maxHeight will be ignored when a normal CacheManager is used.');
 
-      var stream = cacheManager is ImageCacheManager
-          ? cacheManager.getImageFile(realUrl,
-              maxHeight: maxHeight,
-              maxWidth: maxWidth,
-              withProgress: true,
-              headers: headers,
-              key: cacheKey)
-          : cacheManager.getFileStream(realUrl,
-              withProgress: true, headers: headers, key: cacheKey);
-
-      await for (var result in stream) {
-        if (result is DownloadProgress) {
-          chunkEvents.add(ImageChunkEvent(
-            cumulativeBytesLoaded: result.downloaded,
-            expectedTotalBytes: result.totalSize,
-          ));
-        }
-        if (result is FileInfo) {
-          var file = result.file;
-          var bytes = await file.readAsBytes();
-          var decoded = await decode(bytes);
-          yield decoded;
-        }
+      var manager = MyCacheManager();
+      var downloadProgress = await manager.getImage(realUrl, headers);
+      while(downloadProgress.currentBytes < downloadProgress.expectedBytes){
+        chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: downloadProgress.currentBytes,
+            expectedTotalBytes: downloadProgress.expectedBytes)
+        );
+        await Future.delayed(const Duration(milliseconds: 100));
       }
+
+      var file = downloadProgress.getFile();
+      var bytes = await file.readAsBytes();
+      var decoded = await decode(bytes);
+      yield decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

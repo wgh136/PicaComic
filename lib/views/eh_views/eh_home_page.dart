@@ -25,35 +25,32 @@ class EhHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("EH主页"),),
-      body: GetBuilder<EhHomePageLogic>(
-        init: EhHomePageLogic(),
-        builder: (logic){
-          if(logic.loading){
-            logic.getGallery();
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }else if(logic.galleries!=null){
-            return CustomScrollView(
-              slivers: [
-                SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                      childCount: logic.galleries!.length,
-                          (context, i){
-                        if(i==logic.galleries!.length-1){
-                          ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
-                        }
-                        return EhGalleryTile(logic.galleries![i]);
+    return GetBuilder<EhHomePageLogic>(
+      builder: (logic){
+        if(logic.loading){
+          logic.getGallery();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }else if(logic.galleries!=null){
+          return CustomScrollView(
+            slivers: [
+              SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                    childCount: logic.galleries!.length,
+                        (context, i){
+                      if(i==logic.galleries!.length-1){
+                        ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
                       }
-                  ),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
-                  ),
+                      return EhGalleryTile(logic.galleries![i]);
+                    }
                 ),
-                if(logic.galleries!.next!=null)
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: comicTileMaxWidth,
+                  childAspectRatio: comicTileAspectRatio,
+                ),
+              ),
+              if(logic.galleries!.next!=null)
                 SliverToBoxAdapter(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
@@ -66,13 +63,12 @@ class EhHomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            );
-          }else{
-            return showNetworkError(context, logic.retry, showBack:false, eh: true);
-          }
-        },
-      ),
+            ],
+          );
+        }else{
+          return showNetworkError(context, logic.retry, showBack:false, eh: true);
+        }
+      },
     );
   }
 }

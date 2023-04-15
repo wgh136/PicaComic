@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/tools/ui_mode.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-
-import '../network/models.dart';
+import '../../network/models.dart';
 
 class HomePageLogic extends GetxController{
   bool isLoading = true;
@@ -46,70 +43,14 @@ class HomePage extends StatelessWidget {
           flag2 = true;
           if(flag1&&flag2)  homePageLogic.change();
         });
-        return Stack(
-          children: [
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: CustomScrollView(
-                slivers: [
-                  SliverAppBar.large(
-                    centerTitle: true,
-                    title: const Text(""),
-                    actions: [
-                      Tooltip(
-                        message: "搜索",
-                        child: IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: (){
-                            Get.to(()=>PreSearchPage());
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )
-          ],
+        return const Center(
+          child: CircularProgressIndicator(),
         );
       }else if(homePageLogic.comics.isNotEmpty){
         return Material(
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
-                  if(UiMode.m1(context))
-                  SliverAppBar.large(
-                    centerTitle: true,
-                    title: const Text("探索"),
-                    actions: [
-                      Tooltip(
-                        message: "搜索",
-                        child: IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: (){
-                            Get.to(()=>PreSearchPage());
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  if(!UiMode.m1(context))
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: 180,
-                        child: const Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(padding: EdgeInsets.fromLTRB(15, 0, 0, 30),child: Text("探索",style: TextStyle(fontSize: 28),),),
-                        ),
-                      ),
-                    ),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: homePageLogic.comics.length,

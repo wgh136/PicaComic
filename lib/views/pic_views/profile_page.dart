@@ -9,7 +9,8 @@ import 'package:pica_comic/views/me_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../network/methods.dart';
+import '../../network/methods.dart';
+import '../welcome_page.dart';
 
 class SloganLogic extends GetxController{
   bool isUploading = false;
@@ -381,6 +382,12 @@ class ProfilePage extends StatelessWidget {
                         });
                       },
                     ),
+                    const Divider(),
+                    ListTile(
+                      title: const Text("退出登录"),
+                      onTap: ()=>logout(context),
+                      trailing: Icon(Icons.logout),
+                    )
                   ],
                 ),
               ),
@@ -397,4 +404,23 @@ class ProfilePage extends StatelessWidget {
     );
     }
   }
+}
+
+void logout(BuildContext context){
+  showDialog(context: context, builder: (context){
+    return AlertDialog(
+      title: const Text("退出登录"),
+      content: const Text("要退出登录吗"),
+      actionsAlignment: MainAxisAlignment.end,
+      actions: [
+        TextButton(onPressed: ()=>Get.back(), child: const Text("取消",textAlign: TextAlign.end,)),
+        TextButton(onPressed: (){
+          appdata.token = "";
+          appdata.settings[13] = "0";
+          appdata.writeData();
+          Get.offAll(const WelcomePage());
+        }, child: const Text("确定",textAlign: TextAlign.end))
+      ],
+    );
+  });
 }

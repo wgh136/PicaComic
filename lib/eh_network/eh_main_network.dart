@@ -28,6 +28,7 @@ class EhNetwork{
       connectTimeout: const Duration(seconds: 8),
       sendTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 8),
+      followRedirects: true,
       headers: {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
         "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",

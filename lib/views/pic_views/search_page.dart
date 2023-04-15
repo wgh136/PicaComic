@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../base.dart';
+import '../../base.dart';
 
 class SearchPageLogic extends GetxController{
   var searchResult = SearchResult("", "", [], 1, 0);

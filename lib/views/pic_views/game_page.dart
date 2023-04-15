@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
-import 'package:pica_comic/views/comments_page.dart';
+import 'package:pica_comic/views/pic_views/comments_page.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';

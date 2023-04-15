@@ -5,7 +5,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
-import '../comment_reply_page.dart';
+import '../pic_views/comment_reply_page.dart';
 
 class CommentTile extends StatefulWidget {
   const CommentTile({Key? key,required this.comment,required this.isReply,this.isToReply,this.popUp=false}) : super(key: key);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/network/models.dart';
-import 'package:pica_comic/views/comic_page.dart';
+import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';

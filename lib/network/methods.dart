@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/headers.dart';
 import 'package:pica_comic/network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
-import 'package:pica_comic/views/login_page.dart';
+import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';

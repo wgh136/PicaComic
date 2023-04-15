@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/categories_page.dart';
-import 'package:pica_comic/views/eh_views/eh_main_page.dart';
-import 'package:pica_comic/views/games_page.dart';
+import 'package:pica_comic/views/pic_views/categories_page.dart';
+import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
+import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
+import 'package:pica_comic/views/pic_views/picacg_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings_page.dart';
+import 'package:pica_comic/views/eh_views/ehentai_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../network/update.dart';
 import '../tools/ui_mode.dart';
-import 'home_page.dart';
+import 'eh_views/eh_home_page.dart';
+import 'pic_views/home_page.dart';
 import 'me_page.dart';
 
 class Destination {
@@ -56,10 +59,8 @@ class _MainPageState extends State<MainPage> {
 
   var pages = [
     MePage(),
-    const HomePage(),
-    const CategoriesPage(),
-    const GamesPage(),
-    const EhMainPage()
+    const PicacgPage(),
+    const EhentaiPage()
   ];
 
   @override
@@ -67,6 +68,8 @@ class _MainPageState extends State<MainPage> {
     Get.put(HomePageLogic());
     Get.put(CategoriesPageLogic());
     Get.put(GamesPageLogic());
+    Get.put(EhHomePageLogic());
+    Get.put(EhPopularPageLogic());
     super.initState();
   }
 
@@ -85,7 +88,7 @@ class _MainPageState extends State<MainPage> {
       network.punchIn().then((b){
         if(b){
           appdata.user.isPunched = true;
-          showMessage(context, "打卡成功");
+          showMessage(context, "打卡成功", useGet: false);
           appdata.user.exp+=10;
         }
       });
@@ -162,10 +165,7 @@ class _MainPageState extends State<MainPage> {
         content: RichText(
           text: TextSpan(children: [
             TextSpan(text: "感谢使用本软件, 请注意:\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 不接受任何形式捐赠, 无任何获利\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "请尽可能使用官方App, 如您坚持使用本App, 您可以点击分类中的",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "援助哔咔",style: TextStyle(fontWeight: FontWeight.w600,color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: ", 为官方运营出力\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ]),
         ),
         actions: [
@@ -174,7 +174,28 @@ class _MainPageState extends State<MainPage> {
       )));
     }
 
+    var titles = [
+      "我",
+      "Picacg",
+      "EHentai"
+    ];
+
     return Scaffold(
+      appBar: UiMode.m1(context)?AppBar(
+        title: Text(titles[i]),
+        centerTitle: true,
+        actions: [
+          Tooltip(
+            message: "搜索",
+            child: IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: (){
+                Get.to(()=>PreSearchPage());
+              },
+            ),
+          ),
+        ],
+      ):null,
       floatingActionButton: i==1?FloatingActionButton(
         onPressed: () {
           var logic = Get.find<HomePageLogic>();
@@ -196,15 +217,7 @@ class _MainPageState extends State<MainPage> {
           ),
           NavigationDestination(
             icon: Icon(Icons.explore),
-            label: '探索',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_tree),
-            label: '分类',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.games),
-            label: '游戏',
+            label: 'Picacg',
           ),
           NavigationDestination(
             icon: EhIcon(),
@@ -248,10 +261,8 @@ class _MainPageState extends State<MainPage> {
                     const Text("      Pica Comic"),
                     const SizedBox(height: 10,),
                     NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
-                    NavigatorItem(Icons.explore_outlined,Icons.explore, "探索",i==1,()=>setState(()=>i=1)),
-                    NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类",i==2,()=>setState(()=>i=2)),
-                    NavigatorItem(Icons.games_outlined,Icons.games, "游戏",i==3,()=>setState(()=>i=3)),
-                    EhNavigationItem(()=>setState(()=>i=4), i==4),
+                    NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
+                    EhNavigationItem(()=>setState(()=>i=2), i==2),
                     const Divider(),
                     const Spacer(),
                     NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
@@ -305,17 +316,7 @@ class _MainPageState extends State<MainPage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.explore_outlined),
                     selectedIcon: Icon(Icons.explore),
-                    label: Text('探索'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.account_tree_outlined),
-                    selectedIcon: Icon(Icons.account_tree),
-                    label: Text('分类'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.games_outlined),
-                    selectedIcon: Icon(Icons.games),
-                    label: Text('游戏'),
+                    label: Text('Picacg'),
                   ),
                   NavigationRailDestination(
                     icon: EhIcon(),

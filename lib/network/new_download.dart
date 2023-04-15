@@ -19,7 +19,7 @@ import 'models.dart';
         - [漫画id]/
           - [章节序号]
           - info.json
-          - newDownload.json
+        - newDownload.json
 
  */
 

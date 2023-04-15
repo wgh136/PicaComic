@@ -5,8 +5,6 @@ import 'package:cached_network_image_platform_interface/cached_network_image_pla
     show ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
 import 'eh_cached_image.dart' as image_provider;
 import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 
@@ -28,13 +26,10 @@ class EhCachedImageProvider
         this.scale = 1.0,
         this.errorListener,
         this.headers,
-        this.cacheManager,
         this.cacheKey,
         this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
       });
 
-  /// CacheManager from which the image files are loaded.
-  final BaseCacheManager? cacheManager;
 
   /// Web url of the image to load
   final String url;
@@ -101,7 +96,6 @@ class EhCachedImageProvider
       cacheKey,
       chunkEvents,
       decode,
-      cacheManager ?? DefaultCacheManager(),
       maxHeight,
       maxWidth,
       headers,
@@ -140,7 +134,6 @@ class EhCachedImageProvider
       cacheKey,
       chunkEvents,
       decode,
-      cacheManager ?? DefaultCacheManager(),
       maxHeight,
       maxWidth,
       headers,

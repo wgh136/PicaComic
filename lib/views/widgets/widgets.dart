@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/category_comic_page.dart';
+import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
-import '../comic_page.dart';
+import '../pic_views/comic_page.dart';
 
 class ComicTile extends StatelessWidget {
   final ComicItemBrief comic;
@@ -171,16 +171,28 @@ class CategoryTile extends StatelessWidget {
   }
 }
 
-void showMessage(context, String message, {int time=2}){
-  Get.showSnackbar(GetSnackBar(
-    message: message,
-    maxWidth: 350,
-    snackStyle: SnackStyle.FLOATING,
-    margin: const EdgeInsets.all(5),
-    animationDuration: const Duration(microseconds: 400),
-    borderRadius: 10,
-    duration: Duration(seconds: time),
-  ));
+///显示消息
+void showMessage(context, String message, {int time=2, bool useGet=true}){
+  Get.closeAllSnackbars();
+  if(useGet) {
+    Get.showSnackbar(GetSnackBar(
+      message: message,
+      maxWidth: 350,
+      snackStyle: SnackStyle.FLOATING,
+      margin: const EdgeInsets.all(5),
+      animationDuration: const Duration(microseconds: 400),
+      borderRadius: 10,
+      duration: Duration(seconds: time),
+    ));
+  }else{
+    var padding = MediaQuery.of(context).size.width - 350;
+    padding = padding>0?padding:0;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.fromLTRB(padding/2, 0, padding/2, 0),
+    ));
+  }
 }
 
 void hideMessage(context){

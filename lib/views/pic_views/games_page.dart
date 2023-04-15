@@ -3,9 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets/game_widgets.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-
-import '../base.dart';
-import '../tools/ui_mode.dart';
+import '../../base.dart';
 
 class GamesPageLogic extends GetxController{
   bool isLoading = true;
@@ -25,52 +23,18 @@ class GamesPage extends StatelessWidget {
         builder: (logic){
           if(logic.isLoading){
             network.getGames().then((c) {
-              if(c!=null) {
+              if(c.games.isNotEmpty) {
                 logic.games = c;
               }
               logic.change();
             });
-            return Stack(
-              children: [
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                Positioned(
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverAppBar.large(
-                        centerTitle: true,
-                        title: const Text(""),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           }else if(logic.games.games.isNotEmpty){
             return Material(
               child: CustomScrollView(
                 slivers: [
-                  if(UiMode.m1(context))
-                    SliverAppBar.large(
-                      centerTitle: true,
-                      title: const Text("游戏"),
-                    ),
-                  if(!UiMode.m1(context))
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: 180,
-                        child: const Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(padding: EdgeInsets.fromLTRB(15, 0, 0, 30),child: Text("游戏",style: TextStyle(fontSize: 28),),),
-                        ),
-                      ),
-                    ),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: logic.games.games.length,

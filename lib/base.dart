@@ -22,7 +22,7 @@ const appVersion = "1.4.1";
 var pathSep = Platform.pathSeparator;
 
 //ComicTile的最大宽度
-const double comicTileMaxWidth = 600.0;
+const double comicTileMaxWidth = 665.0;
 //ComicTile的宽高比
 const double comicTileAspectRatio = 3.0;
 

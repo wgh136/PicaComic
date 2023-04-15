@@ -5,13 +5,13 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
-import 'package:pica_comic/views/profile_page.dart';
-import 'package:pica_comic/views/welcome_page.dart';
+import 'package:pica_comic/views/pic_views/profile_page.dart';
+import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/selectable_text.dart';
 import '../base.dart';
-import 'favorites_page.dart';
+import 'eh_views/eh_login_page.dart';
 
 class InfoController extends GetxController{}
 
@@ -23,28 +23,8 @@ class MePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        if(UiMode.m1(context))
-          SliverAppBar(
-            centerTitle: true,
-            title: const Text(""),
-            actions: [
-              Tooltip(
-                message: "搜索",
-                child: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: (){
-                    Get.to(()=>PreSearchPage());
-                  },
-                ),
-              ),
-            ],
-          )
-        else
-          const SliverAppBar(
-            title: Text(""),
-          ),
         if(!UiMode.m1(context))
-          const SliverPadding(padding: EdgeInsets.only(top: 20),),
+          const SliverPadding(padding: EdgeInsets.all(30)),
         SliverToBoxAdapter(
           child: SizedBox(
             width: 400,
@@ -81,10 +61,10 @@ class MePage extends StatelessWidget {
                 ),
                 Wrap(
                   children: [
-                    mePageItem(context, Icons.badge,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"个人信息","查看或修改账号信息"),
-                    mePageItem(context, Icons.bookmarks,()=>Get.to(()=>const FavoritesPage()),"收藏夹","查看已收藏的漫画"),
+                    mePageItem(context, Icons.badge,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"Picacg账号","查看或修改账号信息"),
+                    mePageItem(context, Icons.badge,()=>manageAccount(context),"Eh账号","查看或修改账号信息"),
+                    mePageItem(context, Icons.bookmarks,()=>Get.to(()=>const AllFavoritesPage()),"收藏夹","查看已收藏的漫画"),
                     mePageItem(context, Icons.download_for_offline,()=>Get.to(()=>const DownloadPage()),"已下载","管理已下载的漫画"),
-                    mePageItem(context, Icons.logout,()=>logout(context),"退出登录","转到登录页面"),
                     if(kDebugMode)
                     mePageItem(context, Icons.bug_report,() async{
                       debug();
@@ -97,6 +77,32 @@ class MePage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void manageAccount(BuildContext context){
+    if(appdata.ehId == ""){
+      Get.to(()=>const EhLoginPage());
+    }else {
+      showDialog(context: context, builder: (dialogContext)=>SimpleDialog(
+        contentPadding: const EdgeInsets.fromLTRB(22, 12, 15, 10),
+        title: const Text("Eh账户"),
+        children: [
+          SelectableTextCN(text: "当前账户: ${appdata.ehAccount}"),
+          const SizedBox(height: 10,),
+          const Text("cookies:"),
+          SelectableTextCN(text: "  ipb_member_id: ${appdata.ehId}"),
+          SelectableTextCN(text: "  ipb_pass_hash: ${appdata.ehPassHash}"),
+          const SizedBox(height: 12,),
+          Center(child: FilledButton(child: const Text("退出登录"),onPressed: (){
+            appdata.ehPassHash = "";
+            appdata.ehId = "";
+            appdata.ehAccount = "";
+            appdata.writeData();
+            Get.back();
+          },),)
+        ],
+      ));
+    }
   }
 }
 
@@ -164,21 +170,3 @@ Widget mePageItem(BuildContext context, IconData icon, void Function() page, Str
   );
 }
 
-void logout(BuildContext context){
-  showDialog(context: context, builder: (context){
-    return AlertDialog(
-      title: const Text("退出登录"),
-      content: const Text("要退出登录吗"),
-      actionsAlignment: MainAxisAlignment.end,
-      actions: [
-        TextButton(onPressed: ()=>Get.back(), child: const Text("取消",textAlign: TextAlign.end,)),
-        TextButton(onPressed: (){
-          appdata.token = "";
-          appdata.settings[13] = "0";
-          appdata.writeData();
-          Get.offAll(const WelcomePage());
-        }, child: const Text("确定",textAlign: TextAlign.end))
-      ],
-    );
-  });
-}
