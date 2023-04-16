@@ -49,6 +49,11 @@ class MyCacheManager{
   ///获取图片, 如果缓存中没有, 则尝试下载
   Stream<DownloadProgress> getImage(String url, Map<String, String>? headers) async*{
     await readData();
+    var directory = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
+    if(!directory.existsSync()){
+      directory.create();
+    }
+
     //检查缓存
     if(_paths![url] != null){
       if(File(_paths![url]!).existsSync()) {
@@ -76,6 +81,9 @@ class MyCacheManager{
           await dio.get<ResponseBody>(url, options: Options(responseType: ResponseType.stream));
       var stream = res.data!.stream;
       var file = File(savePath);
+      if(! file.existsSync()){
+        file.create();
+      }
       int? expectedBytes;
       try {
         expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);

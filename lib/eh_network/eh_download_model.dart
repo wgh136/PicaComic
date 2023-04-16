@@ -124,6 +124,8 @@ class EhDownloadingItem extends DownloadingItem{
         if (!_pauseFlag) {
           notifications.sendProgressNotification(_downloadedPages, totalPages, "下载中",
               "共${downloadManager.downloading.length}项任务");
+        }else{
+          notifications.endProgress();
         }
       }
     }
