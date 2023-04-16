@@ -10,6 +10,8 @@ import 'package:pica_comic/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/scrollable_list/src/scrollable_positioned_list.dart';
@@ -106,7 +108,8 @@ class ComicReadingPage extends StatelessWidget {
             if (appdata.settings[14] == "1") {
               cancelKeepScreenOn();
             }
-            appdata.ehUrlsManager.saveData();
+            EhImageUrlsManager().saveData();
+            MyCacheManager().saveData();
           },
           init: ComicReadingPageLogic(order),
           builder: (logic) {
@@ -658,7 +661,7 @@ class ComicReadingPage extends StatelessWidget {
       logic.change();
       return;
     }
-    await appdata.ehUrlsManager.readData();
+    await EhImageUrlsManager().readData();
     ehNetwork.loadGalleryPages(gallery!).then((b) {
       if (b) {
         logic.urls = gallery!.urls;

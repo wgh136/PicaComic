@@ -9,12 +9,20 @@ import '../../base.dart';
 class EhHomePageLogic extends GetxController{
   bool loading = true;
   Galleries? galleries;
+
   void getGallery() async{
     galleries = await ehNetwork.getGalleries(ehNetwork.ehBaseUrl);
     loading = false;
     update();
   }
+
   void retry(){
+    loading = true;
+    update();
+  }
+
+  void refresh_(){
+    galleries = null;
     loading = true;
     update();
   }

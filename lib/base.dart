@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'eh_network/eh_main_network.dart';
@@ -37,7 +36,6 @@ class Appdata{
   late List<String> searchHistory;
   bool flag = true; //用于提供一些页面间通讯
   var history = HistoryManager();
-  var ehUrlsManager = EhImageUrlsManager();
   List<String> settings = [
     "1", //点击屏幕左右区域翻页
     "dd", //排序方式

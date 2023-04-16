@@ -157,6 +157,6 @@ class RadioLogic extends GetxController{
     update();
     Get.back();
     Get.find<FavoritesPageLogic>().change();
-    Get.find<EhFavouritePageLogic>().change();
+    Get.find<EhFavouritePageLogic>().update();
   }
 }

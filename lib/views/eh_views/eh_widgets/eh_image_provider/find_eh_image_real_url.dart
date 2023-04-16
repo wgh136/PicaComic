@@ -5,7 +5,6 @@ import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:get/get.dart';
-import '../../../../base.dart';
 
 ///通过阅读器地址获取图片地址
 Future<String> getEhImageUrl(String url) async{
@@ -40,6 +39,14 @@ class EhImageUrlsManager{
   Map<String,dynamic> _urls = {};
   bool loaded = false;
 
+  static EhImageUrlsManager? cache;
+
+  factory EhImageUrlsManager(){
+    return cache??(cache = EhImageUrlsManager._create());
+  }
+
+  EhImageUrlsManager._create();
+
   ///储存数据
   ///
   ///为确保在所有平台均可以运行, 使用Json储存数据
@@ -56,11 +63,6 @@ class EhImageUrlsManager{
     loaded = false;
   }
 
-  ///目前发现由于eh的图片地址存在变化, 导致CachedManager认为图片源发生变化, 并尝试重新获取从而产生错误
-  ///
-  /// 这是临时解决方案, 不持久化保存的链接
-  ///
-  /// 为了实现持久缓存, 我需要自己写一个CachedManager...总之有时间再说
   Future<void> readData() async{
     if(loaded)  return;
     loaded = true;
@@ -71,8 +73,6 @@ class EhImageUrlsManager{
     }else{
       _urls = const JsonDecoder().convert(file.readAsStringSync());
     }
-    //在实现CachedManager后清除这行代码
-    _urls.clear();
   }
 
   ///获取图片真实地址
@@ -103,11 +103,11 @@ class EhImageUrlsManager{
   }
 
   static Future<String> getUrl(String url) async{
-    return await appdata.ehUrlsManager.get(url);
+    return EhImageUrlsManager().get(url);
   }
 
   static Future<void> deleteUrl(String url) async{
-    await appdata.ehUrlsManager.delete(url);
+    await EhImageUrlsManager().delete(url);
   }
 }
 

@@ -10,12 +10,20 @@ class EhPopularPageLogic extends GetxController{
   bool loading = true;
   Galleries? galleries;
   var network = EhNetwork();
+
   void getGallery() async{
     galleries = await network.getGalleries("${network.ehBaseUrl}/popular");
     loading = false;
     update();
   }
+
   void retry(){
+    loading = true;
+    update();
+  }
+
+  void refresh_(){
+    galleries = null;
     loading = true;
     update();
   }

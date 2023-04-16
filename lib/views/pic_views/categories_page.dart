@@ -14,6 +14,11 @@ class CategoriesPageLogic extends GetxController{
     isLoading = !isLoading;
     update();
   }
+
+  void refresh_(){
+    categories.clear();
+    change();
+  }
 }
 
 class CategoriesPage extends StatelessWidget {

@@ -86,16 +86,21 @@ class ImageLoader{
       var realUrl = await EhImageUrlsManager.getUrl(url);
 
       var manager = MyCacheManager();
-      var downloadProgress = await manager.getImage(realUrl, headers);
-      while(downloadProgress.currentBytes < downloadProgress.expectedBytes){
+      var stream = manager.getImage(realUrl, headers);
+
+      DownloadProgress? finishProgress;
+
+      await for(var progress in stream){
+        if(progress.currentBytes == progress.expectedBytes){
+          finishProgress = progress;
+        }
         chunkEvents.add(ImageChunkEvent(
-            cumulativeBytesLoaded: downloadProgress.currentBytes,
-            expectedTotalBytes: downloadProgress.expectedBytes)
+            cumulativeBytesLoaded: progress.currentBytes,
+            expectedTotalBytes: progress.expectedBytes)
         );
-        await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      var file = downloadProgress.getFile();
+      var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
       yield decoded;

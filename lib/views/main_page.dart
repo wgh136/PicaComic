@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../network/update.dart';
 import '../tools/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
+import 'models/tab_listener.dart';
 import 'pic_views/home_page.dart';
 import 'me_page.dart';
 
@@ -50,6 +51,9 @@ class _MainPageState extends State<MainPage> {
 
   int i = 0;//页面
   int m = 0;//导航栏页面
+  TabListener picListener = TabListener();
+  TabListener ehListener = TabListener();
+
   var titles = [
     "我",
     "探索",
@@ -57,10 +61,10 @@ class _MainPageState extends State<MainPage> {
     "游戏"
   ];
 
-  var pages = [
+  late var pages = [
     MePage(),
-    const PicacgPage(),
-    const EhentaiPage()
+    PicacgPage(picListener),
+    EhentaiPage(ehListener)
   ];
 
   @override
@@ -166,6 +170,7 @@ class _MainPageState extends State<MainPage> {
           text: TextSpan(children: [
             TextSpan(text: "感谢使用本软件, 请注意:\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "此项目与Picacg, e-hentai.org无任何关系\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ]),
         ),
         actions: [
@@ -196,10 +201,20 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ):null,
-      floatingActionButton: i==1?FloatingActionButton(
+      floatingActionButton: i!=0?FloatingActionButton(
         onPressed: () {
-          var logic = Get.find<HomePageLogic>();
-          logic.refresh_();
+          if(i == 1){
+            switch(picListener.getIndex()){
+              case 0: Get.find<HomePageLogic>().refresh_();break;
+              case 1: Get.find<CategoriesPageLogic>().refresh_();break;
+              case 2: Get.find<GamesPageLogic>().refresh_();break;
+            }
+          }else if(i == 2){
+            switch(ehListener.getIndex()){
+              case 0: Get.find<EhHomePageLogic>().refresh_();break;
+              case 1: Get.find<EhPopularPageLogic>().refresh_();break;
+            }
+          }
         },
         child: const Icon(Icons.refresh),
       ):null,

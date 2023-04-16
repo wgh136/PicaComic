@@ -8,9 +8,15 @@ import '../../base.dart';
 class GamesPageLogic extends GetxController{
   bool isLoading = true;
   var games = Games([], 0, 1);
+
   void change(){
     isLoading = !isLoading;
     update();
+  }
+
+  void refresh_(){
+    games = Games([], 0, 1);
+    change();
   }
 }
 

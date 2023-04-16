@@ -14,7 +14,6 @@ class EhFavouritePageLogic extends GetxController{
   var pages = <List<EhGalleryBrief>>[];
 
   Future<void> getGallery() async{
-    print(pages);
     galleries = await ehNetwork.getGalleries("${ehNetwork.ehBaseUrl}/favorites.php");
     pages.add([]);
     if(galleries != null) {
