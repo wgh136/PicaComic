@@ -110,9 +110,11 @@ class LeaderBoardH24 extends StatelessWidget {
           ],
         );
       }else{
-        return showNetworkError(context, () {
-          leaderBoardLogic.change();
-        });
+        return showNetworkError(
+          context,
+          () => leaderBoardLogic.change(),
+          showBack: false
+        );
       }
     });
   }
@@ -161,9 +163,11 @@ class LeaderBoardD7 extends StatelessWidget {
           ],
         );
       }else{
-        return showNetworkError(context, () {
-          leaderBoardLogic.change();
-        });
+        return showNetworkError(
+            context,
+            () => leaderBoardLogic.change(),
+            showBack: false
+        );
       }
     });
   }
@@ -213,9 +217,11 @@ class LeaderBoardD30 extends StatelessWidget {
           ],
         );
       }else{
-        return showNetworkError(context, () {
-          leaderBoardLogic.change();
-        });
+        return showNetworkError(
+            context,
+            () => leaderBoardLogic.change(),
+            showBack: false
+        );
       }
     });
   }

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:share_plus/share_plus.dart';
@@ -24,7 +25,7 @@ void saveImage(String url, {bool eh=false}) async{
     launchUrlString("https://api.kokoiro.xyz/storage/download/$url");
   }
   else if(GetPlatform.isAndroid) {
-      var b = await saveImageFormCache(getImageUrl(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url)));
+      var b = await saveImageFormCache(getImageUrl(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url)), eh: eh);
       if(b) {
         showMessage(Get.context, "成功保存于Picture中");
       } else {
@@ -32,13 +33,26 @@ void saveImage(String url, {bool eh=false}) async{
       }
   }else if(GetPlatform.isWindows){
     try {
-      var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url));
-      var f = file!.file;
-      final String? path = await getSavePath(suggestedName: f.basename);
+      File? file;
+      if(eh){
+        file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(url));
+      }else {
+        var f = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+        file = f!.file;
+      }
+      var f = file!;
+      var basename = file.path;
+      for(var i = basename.length-1;i>=0;i--){
+        if(basename[i] == '/'){
+          basename = basename.substring(i+1);
+          break;
+        }
+      }
+      final String? path = await getSavePath(suggestedName: basename);
       if (path != null) {
         const String mimeType = 'image/jpeg';
         final XFile file = XFile.fromData(
-            await f.readAsBytes(), mimeType: mimeType, name: f.basename);
+            await f.readAsBytes(), mimeType: mimeType, name: basename);
         await file.saveTo(path);
       }
     }
@@ -50,14 +64,27 @@ void saveImage(String url, {bool eh=false}) async{
   }
 }
 
-Future<bool> saveImageFormCache(String url) async{
+Future<bool> saveImageFormCache(String url, {bool eh = false}) async{
   try {
-    var file = await DefaultCacheManager().getFileFromCache(url);
-    var f = file!.file;
+    File? file;
+    if(eh){
+      file = await MyCacheManager().getFile(url);
+    }else {
+      var f = await DefaultCacheManager().getFileFromCache(url);
+      file = f!.file;
+    }
+    var f = file!;
+    var name = file.path;
+    for(var i = name.length-1;i>=0;i--){
+      if(name[i] == '/'){
+        name = name.substring(i+1);
+        break;
+      }
+    }
     await ImageGallerySaver.saveImage(
         await f.readAsBytes(),
         quality: 100,
-        name: f.basename);
+        name: name);
     return true;
   }
   catch(e){
@@ -91,8 +118,13 @@ void saveImageFromDisk(String image) async{
 
 void shareImageFromCache(String url, {bool eh=false}) async{
   try{
-    var file = await DefaultCacheManager().getFileFromCache(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url));
-    Share.shareXFiles([XFile(file!.file.path)]);
+    if(eh){
+      var file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(url));
+      Share.shareXFiles([XFile(file!.path)]);
+    }else {
+      var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+      Share.shareXFiles([XFile(file!.file.path)]);
+    }
   }
   catch(e){
     if (kDebugMode) {

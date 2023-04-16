@@ -39,40 +39,43 @@ class GamesPage extends StatelessWidget {
             );
           }else if(logic.games.games.isNotEmpty){
             return Material(
-              child: CustomScrollView(
-                slivers: [
-                  SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                        childCount: logic.games.games.length,
-                            (context, i){
-                          if(i == logic.games.games.length-1&&logic.games.loaded!=logic.games.total){
-                            network.getMoreGames(logic.games).then((c){
-                              logic.update();
-                            });
+              child: RefreshIndicator(
+                child: CustomScrollView(
+                  slivers: [
+                    SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                          childCount: logic.games.games.length,
+                              (context, i){
+                            if(i == logic.games.games.length-1&&logic.games.loaded!=logic.games.total){
+                              network.getMoreGames(logic.games).then((c){
+                                logic.update();
+                              });
+                            }
+                            return GameTile(logic.games.games[i]);
                           }
-                          return GameTile(logic.games.games[i]);
-                        }
-                    ),
-                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 600,
-                      childAspectRatio: 1.7,
-                    ),
-                  ),
-                  if(logic.games.total!=logic.games.loaded&&logic.games.total!=1)
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      child: const Center(
-                        child: SizedBox(
-                          width: 20,height: 20,
-                          child: CircularProgressIndicator(),
-                        ),
+                      ),
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 600,
+                        childAspectRatio: 1.7,
                       ),
                     ),
-                  ),
-                  SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
-                ],
+                    if(logic.games.total!=logic.games.loaded&&logic.games.total!=1)
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          height: 80,
+                          child: const Center(
+                            child: SizedBox(
+                              width: 20,height: 20,
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                  ],
+                ),
+                onRefresh: ()async => logic.refresh_(),
               ),
             );
           }else{

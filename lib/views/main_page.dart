@@ -235,8 +235,8 @@ class _MainPageState extends State<MainPage> {
             label: 'Picacg',
           ),
           NavigationDestination(
-            icon: EhIcon(),
-            label: 'Eh',
+            icon: Icon(Icons.book),
+            label: 'Ehentai',
           ),
         ],
       ),
@@ -263,93 +263,101 @@ class _MainPageState extends State<MainPage> {
           }
           return exit;
         },
-        child: Row(
+        child: Column(
           children: [
-            if(UiMode.m3(context))
-              SafeArea(child: Container(
-                width: 340,
-                height: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.fromLTRB(28, 20, 28, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("      Pica Comic"),
-                    const SizedBox(height: 10,),
-                    NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
-                    NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
-                    EhNavigationItem(()=>setState(()=>i=2), i==2),
-                    const Divider(),
-                    const Spacer(),
-                    NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
-                    NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
-                    NavigatorItem(Icons.leaderboard,Icons.games, "排行榜",false,()=>Get.to(()=>const LeaderBoardPage())),
-                    NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
-                  ],
-                ),
-              ))
-            else if(UiMode.m2(context))
-              NavigationRail(
-                leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
-                selectedIndex: i,
-                trailing: Expanded(child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(child: IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: ()=>Get.to(()=>PreSearchPage()),
-                      ),),
-                      Flexible(child: IconButton(
-                        icon: const Icon(Icons.leaderboard),
-                        onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
-                      ),),
-                      Flexible(child: IconButton(
-                        icon: const Icon(Icons.history),
-                        onPressed: ()=>Get.to(()=>const HistoryPage()),
-                      ),),
-                      Flexible(child: IconButton(
-                        icon: const Icon(Icons.settings),
-                        onPressed: ()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600)),
-                      ),),
+            if(!UiMode.m1(context))
+            SizedBox(
+              height: Get.statusBarHeight / context.mediaQuery.devicePixelRatio,
+            ),
+            Expanded(child: Row(
+              children: [
+                if(UiMode.m3(context))
+                  SafeArea(child: Container(
+                    width: 340,
+                    height: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.fromLTRB(28, 20, 28, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("      Pica Comic"),
+                        const SizedBox(height: 10,),
+                        NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
+                        NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
+                        NavigatorItem(Icons.book_outlined,Icons.book, "Ehentai",i==2,()=>setState(()=>i=2)),
+                        const Divider(),
+                        const Spacer(),
+                        NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
+                        NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
+                        NavigatorItem(Icons.leaderboard,Icons.games, "排行榜",false,()=>Get.to(()=>const LeaderBoardPage())),
+                        NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
+                      ],
+                    ),
+                  ))
+                else if(UiMode.m2(context))
+                  NavigationRail(
+                    leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
+                    selectedIndex: i,
+                    trailing: Expanded(child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Flexible(child: IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: ()=>Get.to(()=>PreSearchPage()),
+                          ),),
+                          Flexible(child: IconButton(
+                            icon: const Icon(Icons.leaderboard),
+                            onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
+                          ),),
+                          Flexible(child: IconButton(
+                            icon: const Icon(Icons.history),
+                            onPressed: ()=>Get.to(()=>const HistoryPage()),
+                          ),),
+                          Flexible(child: IconButton(
+                            icon: const Icon(Icons.settings),
+                            onPressed: ()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600)),
+                          ),),
+                        ],
+                      ),
+                    ),),
+                    groupAlignment: -1,
+                    onDestinationSelected: (int index) {
+                      setState(() {
+                        i = index;
+                      });
+                    },
+                    labelType: NavigationRailLabelType.all,
+                    destinations: const <NavigationRailDestination>[
+                      NavigationRailDestination(
+                        icon: Icon(Icons.person_outlined),
+                        selectedIcon: Icon(Icons.person),
+                        label: Text('我'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.explore_outlined),
+                        selectedIcon: Icon(Icons.explore),
+                        label: Text('Picacg'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.book_outlined),
+                        selectedIcon: Icon(Icons.book),
+                        label: Text('EHentai'),
+                      ),
                     ],
                   ),
-                ),),
-                groupAlignment: -1,
-                onDestinationSelected: (int index) {
-                  setState(() {
-                    i = index;
-                  });
-                },
-                labelType: NavigationRailLabelType.all,
-                destinations: const <NavigationRailDestination>[
-                  NavigationRailDestination(
-                    icon: Icon(Icons.person_outlined),
-                    selectedIcon: Icon(Icons.person),
-                    label: Text('我'),
+                //if(MediaQuery.of(context).size.width>changePoint)
+                //  const VerticalDivider(),
+                Expanded(
+                  child: ClipRect(
+                    child:AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: pages[i],
+                    ),
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.explore_outlined),
-                    selectedIcon: Icon(Icons.explore),
-                    label: Text('Picacg'),
-                  ),
-                  NavigationRailDestination(
-                    icon: EhIcon(),
-                    selectedIcon: EhIcon(),
-                    label: Text('EHentai'),
-                  ),
-                ],
-              ),
-            //if(MediaQuery.of(context).size.width>changePoint)
-            //  const VerticalDivider(),
-            Expanded(
-              child: ClipRect(
-                child:AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: pages[i],
                 ),
-              ),
-            ),
+              ],
+            ))
           ],
         ),
       ),
@@ -437,39 +445,6 @@ class EhIcon extends StatelessWidget {
       child: Center(
         child: Text("EH",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),),
       ),
-    );
-  }
-}
-
-class EhNavigationItem extends StatelessWidget {
-  const EhNavigationItem(this.onTap,this.selected,{Key? key}) : super(key: key);
-  final void Function() onTap;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context).colorScheme;
-    return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(24)),
-                color: selected?theme.secondaryContainer:null
-            ),
-            height: 56,
-            child: Row(
-              children: const [
-                SizedBox(width: 16,),
-                EhIcon(),
-                SizedBox(width: 12,),
-                Text("EHentai")
-              ],
-            ),
-          ),
-        )
     );
   }
 }

@@ -16,7 +16,7 @@ class _EhentaiPageState extends State<EhentaiPage> with SingleTickerProviderStat
 
   @override
   void initState() {
-    controller = TabController(length: 3, vsync: this);
+    controller = TabController(length: 2, vsync: this);
     widget.tabListener.controller = controller;
     super.initState();
   }

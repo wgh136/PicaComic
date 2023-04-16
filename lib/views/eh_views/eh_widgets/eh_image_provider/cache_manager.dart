@@ -107,6 +107,11 @@ class MyCacheManager{
     _paths![url] = savePath;
     //await saveData();
   }
+
+  Future<File?> getFile(String url) async{
+    await readData();
+    return _paths?[url]==null?null:File(_paths![url]!);
+  }
 }
 
 @immutable

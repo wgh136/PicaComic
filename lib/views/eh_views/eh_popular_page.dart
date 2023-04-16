@@ -42,37 +42,40 @@ class EhPopularPage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }else if(logic.galleries!=null){
-          return CustomScrollView(
-            slivers: [
-              SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                    childCount: logic.galleries!.length,
-                        (context, i){
-                      if(i==logic.galleries!.length-1){
-                        logic.network.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+          return RefreshIndicator(
+            child: CustomScrollView(
+              slivers: [
+                SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                      childCount: logic.galleries!.length,
+                          (context, i){
+                        if(i==logic.galleries!.length-1){
+                          logic.network.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                        }
+                        return EhGalleryTile(logic.galleries![i]);
                       }
-                      return EhGalleryTile(logic.galleries![i]);
-                    }
+                  ),
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: comicTileMaxWidth,
+                    childAspectRatio: comicTileAspectRatio,
+                  ),
                 ),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: comicTileMaxWidth,
-                  childAspectRatio: comicTileAspectRatio,
-                ),
-              ),
-              if(logic.galleries!.next!=null)
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 80,
-                    child: const Center(
-                      child: SizedBox(
-                        width: 20,height: 20,
-                        child: CircularProgressIndicator(),
+                if(logic.galleries!.next!=null)
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 80,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,height: 20,
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
+            onRefresh: ()async => logic.refresh_(),
           );
         }else{
           return showNetworkError(context, logic.retry, showBack:false, eh: true);

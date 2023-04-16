@@ -39,9 +39,10 @@ class CategoriesPage extends StatelessWidget {
           child: CircularProgressIndicator(),
         );
       }else if(categoriesPageLogic.categories.isNotEmpty){
-        return CustomScrollView(
-          slivers: [
-            SliverGrid(
+        return RefreshIndicator(
+          child: CustomScrollView(
+            slivers: [
+              SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                     childCount: categoriesPageLogic.categories.length+2,
                         (context, i){
@@ -133,9 +134,11 @@ class CategoriesPage extends StatelessWidget {
                   maxCrossAxisExtent: 600,
                   childAspectRatio: 3,
                 ),
-            ),
-            SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
-          ],
+              ),
+              SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+            ],
+          ),
+          onRefresh: ()async => categoriesPageLogic.refresh_(),
         );
       }else{
         return showNetworkError(context, ()=>categoriesPageLogic.change(),showBack: false);
