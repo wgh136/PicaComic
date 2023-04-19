@@ -39,7 +39,8 @@ dependencies:
   dynamic_color: ^1.5.4
   cached_network_image: ^3.2.3
   cupertino_icons: ^1.0.2
-  crypto: ^3.0.2
+  crypto: any
+  pointycastle: ^3.7.3
   uuid: ^3.0.7
   photo_view: ^0.14.0
   url_launcher: ^6.1.8

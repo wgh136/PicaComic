@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/jm_views/jm_home_page.dart';
+import 'package:pica_comic/views/jm_views/jm_main_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
@@ -53,6 +55,7 @@ class _MainPageState extends State<MainPage> {
   int m = 0;//导航栏页面
   TabListener picListener = TabListener();
   TabListener ehListener = TabListener();
+  TabListener jmListener = TabListener();
 
   var titles = [
     "我",
@@ -64,7 +67,8 @@ class _MainPageState extends State<MainPage> {
   late var pages = [
     MePage(),
     PicacgPage(picListener),
-    EhentaiPage(ehListener)
+    EhentaiPage(ehListener),
+    JmMainPage(jmListener)
   ];
 
   @override
@@ -74,6 +78,7 @@ class _MainPageState extends State<MainPage> {
     Get.put(GamesPageLogic());
     Get.put(EhHomePageLogic());
     Get.put(EhPopularPageLogic());
+    Get.put(JmHomePageLogic());
     super.initState();
   }
 
@@ -182,7 +187,8 @@ class _MainPageState extends State<MainPage> {
     var titles = [
       "我",
       "Picacg",
-      "EHentai"
+      "EHentai",
+      "JmComic"
     ];
 
     return Scaffold(
@@ -238,6 +244,10 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.book),
             label: 'Ehentai',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.block),
+            label: 'Ehentai',
+          ),
         ],
       ),
       body: WillPopScope(
@@ -284,6 +294,7 @@ class _MainPageState extends State<MainPage> {
                         NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
                         NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
                         NavigatorItem(Icons.book_outlined,Icons.book, "Ehentai",i==2,()=>setState(()=>i=2)),
+                        NavigatorItem(Icons.block_outlined,Icons.block, "JmComic",i==3,()=>setState(()=>i=3)),
                         const Divider(),
                         const Spacer(),
                         NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
@@ -343,6 +354,11 @@ class _MainPageState extends State<MainPage> {
                         icon: Icon(Icons.book_outlined),
                         selectedIcon: Icon(Icons.book),
                         label: Text('EHentai'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.block_outlined),
+                        selectedIcon: Icon(Icons.block),
+                        label: Text('JmComic'),
                       ),
                     ],
                   ),

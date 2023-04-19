@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pica_comic/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
@@ -9,6 +10,7 @@ import 'network/models.dart';
 
 var network = Network();
 var ehNetwork = EhNetwork();
+var jmNetwork = JmNetwork();
 
 //定义宽屏设备的临界值
 const changePoint = 600;
