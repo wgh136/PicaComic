@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
+import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/jm_views/jm_main_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
@@ -79,6 +80,7 @@ class _MainPageState extends State<MainPage> {
     Get.put(EhHomePageLogic());
     Get.put(EhPopularPageLogic());
     Get.put(JmHomePageLogic());
+    Get.put(JmLatestPageLogic());
     super.initState();
   }
 
@@ -125,7 +127,7 @@ class _MainPageState extends State<MainPage> {
                   content: Text(s),
                   actions: [
                     TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
-                    TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+                    TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
                     if(!GetPlatform.isWeb)
                     TextButton(
                         onPressed: (){
@@ -219,6 +221,10 @@ class _MainPageState extends State<MainPage> {
             switch(ehListener.getIndex()){
               case 0: Get.find<EhHomePageLogic>().refresh_();break;
               case 1: Get.find<EhPopularPageLogic>().refresh_();break;
+            }
+          }else if(i == 3){
+            switch(jmListener.getIndex()){
+              case 0: Get.find<JmHomePageLogic>().refresh_();break;
             }
           }
         },

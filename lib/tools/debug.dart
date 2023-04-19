@@ -4,8 +4,7 @@ import 'package:pica_comic/jm_network/jm_main_network.dart';
 ///用于测试函数
 void debug() async{
   var network = JmNetwork();
-  var list = await network.getPromoteList("26");
-  network.loadMorePromoteListComics(list.data!);
+  network.getLatest(1);
 }
 
 ///保存网络请求数据, 用于Debug

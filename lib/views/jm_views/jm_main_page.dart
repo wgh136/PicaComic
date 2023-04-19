@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
+import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import '../models/tab_listener.dart';
 
 class JmMainPage extends StatefulWidget {
@@ -15,7 +16,7 @@ class _JmMainPageState extends State<JmMainPage> with SingleTickerProviderStateM
 
   @override
   void initState() {
-    controller = TabController(length: 1, vsync: this);
+    controller = TabController(length: 2, vsync: this);
     widget.tabListener.controller = controller;
     super.initState();
   }
@@ -26,12 +27,14 @@ class _JmMainPageState extends State<JmMainPage> with SingleTickerProviderStateM
       children: [
         TabBar(tabs: const [
           Tab(text: "主页",),
+          Tab(text: "最新",),
         ], controller: controller,),
         Expanded(
           child: TabBarView(
             controller: controller,
             children: const [
-              JmHomePage()
+              JmHomePage(),
+              JmLatestPage()
             ],
           ),
         )

@@ -35,6 +35,7 @@ class JmPromoteListPageLogic extends GetxController{
 
   void loadMore() async{
     await jmNetwork.loadMorePromoteListComics(list!);
+    loading = true;
     update();
   }
 }

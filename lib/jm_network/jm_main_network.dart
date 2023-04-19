@@ -84,11 +84,11 @@ class JmNetwork{
         var comics = <JmComicBrief>[];
         for(var comic in item["content"]){
           var categories = <Category>[];
-          if(comic["category"]["id"] != null && comic["category"]["name"] != null){
-            categories.add(Category(comic["category"]["id"], comic["category"]["name"]));
+          if(comic["category"]["id"] != null && comic["category"]["title"] != null){
+            categories.add(Category(comic["category"]["id"], comic["category"]["title"]));
           }
-          if(comic["category_sub"]["id"] != null && comic["category_sub"]["name"] != null){
-            categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["name"]));
+          if(comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null){
+            categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
           comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"], categories));
         }
@@ -108,11 +108,11 @@ class JmNetwork{
       list.total = int.parse(res.data["total"]);
       for(var comic in (res.data["list"])){
         var categories = <Category>[];
-        if(comic["category"]["id"] != null && comic["category"]["name"] != null){
-          categories.add(Category(comic["category"]["id"], comic["category"]["name"]));
+        if(comic["category"]["id"] != null && comic["category"]["title"] != null){
+          categories.add(Category(comic["category"]["id"], comic["category"]["title"]));
         }
-        if(comic["category_sub"]["id"] != null && comic["category_sub"]["name"] != null){
-          categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["name"]));
+        if(comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null){
+          categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         list.comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"], categories));
         list.loaded++;
@@ -139,11 +139,11 @@ class JmNetwork{
     try{
       for(var comic in (res.data["list"])){
         var categories = <Category>[];
-        if(comic["category"]["id"] != null && comic["category"]["name"] != null){
-          categories.add(Category(comic["category"]["id"], comic["category"]["name"]));
+        if(comic["category"]["id"] != null && comic["category"]["title"] != null){
+          categories.add(Category(comic["category"]["id"], comic["category"]["title"]));
         }
-        if(comic["category_sub"]["id"] != null && comic["category_sub"]["name"] != null){
-          categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["name"]));
+        if(comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null){
+          categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         list.comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"], categories));
         list.loaded++;
@@ -156,6 +156,33 @@ class JmNetwork{
         print(e);
       }
       return;
+    }
+  }
+
+  Future<Res<List<JmComicBrief>>> getLatest(int page) async{
+    var res = await get("$baseUrl/latest?key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null&page=$page");
+    if(res.error != null){
+      return Res(null,error: res.error);
+    }
+    try{
+      var comics = <JmComicBrief>[];
+      for(var comic in (res.data)){
+        var categories = <Category>[];
+        if(comic["category"]["id"] != null && comic["category"]["title"] != null){
+          categories.add(Category(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if(comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null){
+          categories.add(Category(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"], categories));
+      }
+      return Res(comics);
+    }
+    catch(e){
+      if (kDebugMode) {
+        print(e);
+      }
+      return Res(null, error: "解析失败");
     }
   }
 }

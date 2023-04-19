@@ -29,7 +29,8 @@ class JmHomePageLogic extends GetxController{
   void refresh_(){
     data = null;
     message = null;
-    change();
+    loading = true;
+    update();
   }
 }
 
