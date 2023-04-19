@@ -1,7 +1,7 @@
 # Pica Comic
 
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![flutter](https://img.shields.io/badge/flutter-3.7.10-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.7.11-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
@@ -54,6 +54,10 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 画廊详情
 - 画廊阅读
 - 下载画廊
+
+## 计划中
+### 禁漫天堂
+计划实现禁漫天堂的主要功能
 
 ## Thanks
 - [flutter](https://flutter.dev/)
