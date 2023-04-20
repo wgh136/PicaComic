@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
+import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import '../base.dart';
@@ -26,10 +27,10 @@ class PreSearchPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
         onPressed: (){
-          if(searchController.target == 0) {
-            Get.to(()=>SearchPage(controller.text));
-          }else{
-            Get.to(()=>EhSearchPage(controller.text));
+          switch(searchController.target){
+            case 0: Get.to(()=>SearchPage(controller.text));break;
+            case 1: Get.to(()=>EhSearchPage(controller.text));break;
+            case 2: Get.to(()=>JmSearchPage(controller.text));break;
           }
         },
       ),
@@ -45,10 +46,10 @@ class PreSearchPage extends StatelessWidget {
                 maxHeight: 0,
                 child: FloatingSearchBar(supportingText: '搜索',f:(s){
                   if(s=="") return;
-                  if(searchController.target == 0) {
-                    Get.to(()=>SearchPage(controller.text));
-                  }else{
-                    Get.to(()=>EhSearchPage(controller.text));
+                  switch(searchController.target){
+                    case 0: Get.to(()=>SearchPage(controller.text));break;
+                    case 1: Get.to(()=>EhSearchPage(controller.text));break;
+                    case 2: Get.to(()=>JmSearchPage(controller.text));break;
                   }
                 },
                   controller: controller,
@@ -157,7 +158,17 @@ class PreSearchPage extends StatelessWidget {
                                   logic.updateTarget(1);
                                 },
                               ),
-                            )
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: FilterChip(
+                                label: const Text("JmComic"),
+                                selected: logic.target==2,
+                                onSelected: (b){
+                                  logic.updateTarget(2);
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       )
@@ -195,6 +206,34 @@ class PreSearchPage extends StatelessWidget {
                 ),
               ),
             ),
+            SliverToBoxAdapter(
+              child: Card(
+                margin: const EdgeInsets.all(10),
+                elevation: 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("  禁漫热搜"),
+                    Wrap(
+                      children: [
+                        for(var s in jmNetwork.hotTags)
+                          Card(
+                            margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            elevation: 0,
+                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            child: InkWell(
+                              borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              onTap: ()=>Get.to(()=>JmSearchPage(s)),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
+                            ),
+                          )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
             GetBuilder<PreSearchController>(
               builder: (controller){
                 return SliverToBoxAdapter(
@@ -214,9 +253,13 @@ class PreSearchPage extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.surfaceVariant,
                                 child: InkWell(
                                   borderRadius: const BorderRadius.all(Radius.circular(16)),
-                                  onTap: ()=>controller.target==0?
-                                  Get.to(()=>SearchPage(s)):
-                                  Get.to(()=>EhSearchPage(s)),
+                                  onTap: (){
+                                    switch(searchController.target){
+                                      case 0: Get.to(()=>SearchPage(s));break;
+                                      case 1: Get.to(()=>EhSearchPage(s));break;
+                                      case 2: Get.to(()=>JmSearchPage(s));break;
+                                    }
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
                                 ),

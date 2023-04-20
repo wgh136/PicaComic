@@ -107,9 +107,16 @@ class _MainPageState extends State<MainPage> {
 
     //获取热搜
     if(hotSearch.isEmpty) {
+      jmNetwork.getHotTags();
       network.getKeyWords().then((s){
       if(s!=null){
         hotSearch = s.keyWords;
+        try{
+          Get.find<PreSearchController>().update();
+        }
+        catch(e){
+          //处于搜索页面时更新页面, 否则忽视
+        }
       }
     });
     }
@@ -225,6 +232,7 @@ class _MainPageState extends State<MainPage> {
           }else if(i == 3){
             switch(jmListener.getIndex()){
               case 0: Get.find<JmHomePageLogic>().refresh_();break;
+              case 1: Get.find<JmLatestPageLogic>().refresh_();break;
             }
           }
         },

@@ -188,8 +188,8 @@ class Network{
     }
   }
 
+  ///获取热搜词
   Future<KeyWords?> getKeyWords() async{
-    //获取热搜词
     var res = await get("$apiUrl/keywords");
     if(res != null){
       var k = KeyWords();

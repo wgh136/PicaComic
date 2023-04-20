@@ -38,3 +38,13 @@ class PromoteList{
 
   PromoteList(this.id, this.comics);
 }
+
+class SearchRes{
+  String keyword;
+  int loaded;
+  int total;
+  int loadedPage = 1;
+  List<JmComicBrief> comics;
+
+  SearchRes(this.keyword, this.loaded, this.total, this.comics);
+}

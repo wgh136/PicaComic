@@ -4,7 +4,8 @@ import 'package:pica_comic/jm_network/jm_main_network.dart';
 ///用于测试函数
 void debug() async{
   var network = JmNetwork();
-  network.getLatest(1);
+  var res = await network.search("全彩");
+  network.loadSearchNextPage(res.data!);
 }
 
 ///保存网络请求数据, 用于Debug
