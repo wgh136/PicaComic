@@ -25,10 +25,13 @@ class _EhentaiPageState extends State<EhentaiPage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TabBar(tabs: const [
-          Tab(text: "主页",),
-          Tab(text: "热门",),
-        ], controller: controller,),
+        TabBar(
+          splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+          tabs: const [
+            Tab(text: "主页",),
+            Tab(text: "热门",),
+          ],
+          controller: controller,),
         Expanded(
           child: TabBarView(
             controller: controller,

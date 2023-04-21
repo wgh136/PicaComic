@@ -21,8 +21,9 @@ Widget showNetworkError(String message, void Function() retry, BuildContext cont
         child: Center(
           child: SizedBox(
             height: 130,
-            width: 100,
+            width: 400,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(Icons.error_outline, size: 60,),
                 const SizedBox(height: 5,),

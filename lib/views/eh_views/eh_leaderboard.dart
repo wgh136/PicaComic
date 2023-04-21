@@ -27,12 +27,14 @@ class EhLeaderboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(length: 4, child: Column(
       children: const [
-        TabBar(tabs: [
-          Tab(text: "昨天"),
-          Tab(text: "一个月"),
-          Tab(text: "一年"),
-          Tab(text: "所有时间"),
-        ]),
+        TabBar(
+          splashBorderRadius: BorderRadius.all(Radius.circular(10)),
+          tabs: [
+            Tab(text: "昨天"),
+            Tab(text: "一个月"),
+            Tab(text: "一年"),
+            Tab(text: "所有时间"),
+          ]),
         Expanded(child: TabBarView(
             children: [
               OneEhLeaderboardPage(0),

@@ -18,13 +18,13 @@ class JmLatestPageLogic extends GetxController{
 
   void get() async{
     var res = await jmNetwork.getLatest(page);
-    if(res.error == null){
-      comics.addAll(res.data!);
-      if(!loading && res.data!.isEmpty){
+    if(!res.error){
+      comics.addAll(res.data);
+      if(!loading && res.data.isEmpty){
         loadEnd = true;
       }
     }else{
-      message = res.error;
+      message = res.errorMessage;
     }
     loading = false;
     update();

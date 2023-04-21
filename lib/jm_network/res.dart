@@ -1,12 +1,18 @@
 ///网络请求的返回结果
 class Res<T>{
-  ///是否出现错误
-  String? error;
+  ///错误信息
+  String? errorMessage;
   ///数据
-  T? data;
+  final T? _data;
+  ///是否出现错误
+  bool get error => errorMessage!=null;
+  ///数据
+  ///
+  /// 当出现错误时调用此方法会产生错误
+  T get data => _data!;
 
   @override
-  String toString() => data.toString();
+  String toString() => _data.toString();
 
-  Res(this.data,{this.error});
+  Res(this._data,{this.errorMessage});
 }

@@ -68,10 +68,13 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
       ),
       body: Column(
         children: [
-          TabBar(tabs: const [
-            Tab(text: "Picacg",),
-            Tab(text: "EHentai",),
-          ],controller: controller,),
+          TabBar(
+            splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+            tabs: const [
+              Tab(text: "Picacg",),
+              Tab(text: "EHentai",),
+            ],
+            controller: controller,),
           Expanded(
             child: TabBarView(
               controller: controller,

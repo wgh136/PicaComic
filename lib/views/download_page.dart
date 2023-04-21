@@ -197,10 +197,12 @@ class DownloadPage extends StatelessWidget {
               length: 2,
               child: Column(
                 children: [
-                  const TabBar(tabs: [
-                    Tab(text: "Picacg",),
-                    Tab(text: "E-Hentai",)
-                  ]),
+                  const TabBar(
+                      splashBorderRadius: BorderRadius.all(Radius.circular(10)),
+                    tabs: [
+                      Tab(text: "Picacg",),
+                      Tab(text: "E-Hentai",)
+                    ]),
                   Expanded(
                     child: TabBarView(
                       children: [

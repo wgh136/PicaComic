@@ -18,10 +18,10 @@ class JmHomePageLogic extends GetxController{
 
   void getData() async{
     var res = await jmNetwork.getHomePage();
-    if(res.error == null){
+    if(!res.error){
       data = res.data;
     }else{
-      message = res.error;
+      message = res.errorMessage;
     }
     change();
   }

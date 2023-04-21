@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/jm_views/jm_main_page.dart';
@@ -11,7 +12,7 @@ import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pic_views/picacg_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
-import 'package:pica_comic/views/settings_page.dart';
+import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/eh_views/ehentai_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -22,6 +23,7 @@ import 'eh_views/eh_home_page.dart';
 import 'models/tab_listener.dart';
 import 'pic_views/home_page.dart';
 import 'me_page.dart';
+import 'widgets/my_icons_icons.dart';
 
 class Destination {
   const Destination(this.label, this.icon, this.selectedIcon);
@@ -81,6 +83,7 @@ class _MainPageState extends State<MainPage> {
     Get.put(EhPopularPageLogic());
     Get.put(JmHomePageLogic());
     Get.put(JmLatestPageLogic());
+    Get.put(JmCategoriesPageLogic());
     super.initState();
   }
 
@@ -233,6 +236,7 @@ class _MainPageState extends State<MainPage> {
             switch(jmListener.getIndex()){
               case 0: Get.find<JmHomePageLogic>().refresh_();break;
               case 1: Get.find<JmLatestPageLogic>().refresh_();break;
+              case 2: Get.find<JmCategoriesPageLogic>().refresh_();break;
             }
           }
         },
@@ -255,12 +259,12 @@ class _MainPageState extends State<MainPage> {
             label: 'Picacg',
           ),
           NavigationDestination(
-            icon: Icon(Icons.book),
+            icon: Icon(MyIcons.eh, size: 20,),
             label: 'Ehentai',
           ),
           NavigationDestination(
-            icon: Icon(Icons.block),
-            label: 'Ehentai',
+            icon: Icon(MyIcons.jm, size: 18,),
+            label: 'JmComic',
           ),
         ],
       ),
@@ -307,8 +311,8 @@ class _MainPageState extends State<MainPage> {
                         const SizedBox(height: 10,),
                         NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
                         NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
-                        NavigatorItem(Icons.book_outlined,Icons.book, "Ehentai",i==2,()=>setState(()=>i=2)),
-                        NavigatorItem(Icons.block_outlined,Icons.block, "JmComic",i==3,()=>setState(()=>i=3)),
+                        NavigatorItem(MyIcons.eh,MyIcons.eh, "Ehentai",i==2,()=>setState(()=>i=2)),
+                        NavigatorItem(MyIcons.jm,MyIcons.jm, "JmComic",i==3,()=>setState(()=>i=3)),
                         const Divider(),
                         const Spacer(),
                         NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
@@ -365,13 +369,13 @@ class _MainPageState extends State<MainPage> {
                         label: Text('Picacg'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.book_outlined),
-                        selectedIcon: Icon(Icons.book),
+                        icon: Icon(MyIcons.eh, size: 20,),
+                        selectedIcon: Icon(MyIcons.eh, size: 20,),
                         label: Text('EHentai'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.block_outlined),
-                        selectedIcon: Icon(Icons.block),
+                        icon: Icon(MyIcons.jm, size: 18,),
+                        selectedIcon: Icon(MyIcons.jm, size: 18,),
                         label: Text('JmComic'),
                       ),
                     ],
@@ -438,6 +442,12 @@ class NavigatorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double? size;
+    if(icon == MyIcons.eh){
+      size = 20;
+    }else if(icon == MyIcons.jm){
+      size = 18;
+    }
     final theme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
@@ -453,28 +463,13 @@ class NavigatorItem extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 16,),
-              Icon(selected?selectedIcon:icon,color: theme.onSurfaceVariant,),
+              Icon(selected?selectedIcon:icon,color: theme.onSurfaceVariant,size: size,),
               const SizedBox(width: 12,),
               Text(title)
             ],
           ),
         ),
       )
-    );
-  }
-}
-
-class EhIcon extends StatelessWidget {
-  const EhIcon({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 25,
-      height: 25,
-      child: Center(
-        child: Text("EH",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),),
-      ),
     );
   }
 }

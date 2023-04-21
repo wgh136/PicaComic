@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/settings_page.dart';
+import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 

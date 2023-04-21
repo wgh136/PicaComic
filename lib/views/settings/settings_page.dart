@@ -8,7 +8,8 @@ import 'package:pica_comic/views/blocking_keyword_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'me_page.dart';
+import '../me_page.dart';
+import 'jm_settings.dart';
 
 void setSearchMode(BuildContext context){
   showDialog(context: context, builder: (context){
@@ -605,6 +606,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
+              ),
+              const Divider(),
+              Card(
+                elevation: 0,
+                child: Column(
+                  children: [
+                    const ListTile(
+                      title: Text("禁漫天堂"),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.sort,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("设置分类漫画排序模式"),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: ()=>setJmComicsOrder(context),
+                    ),
+                  ],
+                )
               ),
               const Divider(),
               Card(

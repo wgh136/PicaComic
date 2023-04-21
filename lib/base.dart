@@ -55,6 +55,7 @@ class Appdata{
     "0", //需要生物识别
     "1", //阅读器中保持屏幕常亮
     "1", //Cloudflare IP, //为1表示使用哔咔官方提供的Ip, 为0表示禁用, 其他值表示使用自定义的Ip
+    "0", //Jm漫画排序模式, 值为 ComicsOrder 的索引
   ];
   List<String> blockingKeyword = [];
   List<String> firstUse = [

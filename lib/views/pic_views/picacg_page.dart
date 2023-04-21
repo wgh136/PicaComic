@@ -26,11 +26,14 @@ class _PicacgPageState extends State<PicacgPage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TabBar(tabs: const [
-          Tab(text: "探索",),
-          Tab(text: "分类",),
-          Tab(text: "游戏",),
-        ], controller: controller,),
+        TabBar(
+          splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+          tabs: const [
+            Tab(text: "探索",),
+            Tab(text: "分类",),
+            Tab(text: "游戏",),
+          ],
+          controller: controller,),
         Expanded(
           child: TabBarView(
             controller: controller,

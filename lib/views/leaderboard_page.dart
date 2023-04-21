@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
+import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 
@@ -21,11 +22,18 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   final logic3 = Get.put(LeaderBoardD30Logic());
   final logic4 = Get.put(LeaderBoardH24Logic());
 
+
   final List<Tab> tabs = <Tab>[
     const Tab(text: '24小时'),
     const Tab(text: '7天'),
     const Tab(text: '30天'),
   ];
+
+  @override
+  void initState() {
+    createLogic();
+    super.initState();
+  }
 
   @override
   void dispose(){
@@ -38,19 +46,22 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 2, child: Scaffold(
-      appBar: AppBar(title: const TabBar(
-        tabs: [
-          Tab(text: "Picacg",),
-          Tab(text: "E-Hentai",)
-        ],
+    return DefaultTabController(length: 3, child: Scaffold(
+      appBar: AppBar(title:
+        const TabBar(
+          splashBorderRadius: BorderRadius.all(Radius.circular(10)),
+          tabs: [
+            Tab(text: "Picacg",),
+            Tab(text: "E-Hentai",),
+            Tab(text: "JmComic",)
+          ],
       ),),
       body: TabBarView(children: [
         DefaultTabController(
           length: tabs.length,
           child: Column(
             children: [
-              TabBar(tabs: tabs),
+              TabBar(tabs: tabs, splashBorderRadius: const BorderRadius.all(Radius.circular(10)),),
               const Expanded(child: TabBarView(
                   children: [
                     LeaderBoardH24(),
@@ -61,7 +72,8 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
             ],
           ),
         ),
-        const EhLeaderboardPage()
+        const EhLeaderboardPage(),
+        const JmLeaderboardPage()
       ],),
     ));
   }
