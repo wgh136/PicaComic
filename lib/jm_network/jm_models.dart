@@ -80,3 +80,21 @@ class CategoryComicsRes{
   CategoryComicsRes(
       this.category, this.sort, this.loaded, this.total, this.loadedPage, this.comics);
 }
+
+class JmComicInfo{
+  String name;
+  String id;
+  List<String> author;
+  String description;
+  int likes;
+  int views;
+  ///章节信息, 键为章节序号, 值为漫画ID
+  Map<int, String> series;
+  List<String> tags;
+  List<JmComicBrief> relatedComics;
+  bool liked;
+  bool favorite;
+
+  JmComicInfo(this.name, this.id, this.author, this.description, this.likes, this.views,
+      this.series, this.tags, this.relatedComics, this.liked, this.favorite);
+}

@@ -280,6 +280,7 @@ class JmNetwork{
     }
   }
 
+  ///获取分类漫画
   Future<Res<CategoryComicsRes>> getCategoryComics(String category, ComicsOrder order) async{
     /*
     排序:
@@ -330,6 +331,46 @@ class JmNetwork{
     }
     catch(e){
       return;
+    }
+  }
+
+  Future<Res<JmComicInfo>> getComicInfo(String id) async{
+    var res = await get("$baseUrl/album?$baseData&id=$id");
+    if(res.error){
+      return Res(null,errorMessage: res.errorMessage);
+    }
+    try {
+      var author = <String>[];
+      for (var s in res.data["author"]) {
+        author.add(s);
+      }
+      var series = <int, String>{};
+      for (var s in res.data["series"]) {
+        series[int.parse(s["sort"])] = s["id"];
+      }
+      var tags = <String>[];
+      for (var s in res.data["tags"]) {
+        tags.add(s);
+      }
+      var related = <JmComicBrief>[];
+      for (var c in res.data["related_list"]) {
+        related.add(JmComicBrief(c["id"], c["author"], c["name"], c["description"], []));
+      }
+      return Res(JmComicInfo(
+          res.data["name"],
+          res.data["id"].toString(),
+          author,
+          res.data["description"],
+          int.parse(res.data["likes"]),
+          int.parse(res.data["total_views"]),
+          series,
+          tags,
+          related,
+          res.data["liked"],
+          res.data["is_favorite"]));
+    }
+    catch(e){
+      return Res(null,errorMessage: "解析失败: ${e.toString()}");
     }
   }
 }

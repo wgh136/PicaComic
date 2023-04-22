@@ -4,8 +4,7 @@ import 'package:pica_comic/jm_network/jm_main_network.dart';
 ///用于测试函数
 void debug() async{
   var network = JmNetwork();
-  var res = await network.getCategoryComics("0", ComicsOrder.latest);
-  assert(!res.error);
+  var res = await network.getComicInfo("434805");
 }
 
 ///保存网络请求数据, 用于Debug

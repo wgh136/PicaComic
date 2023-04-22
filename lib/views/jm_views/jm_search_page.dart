@@ -20,7 +20,7 @@ class JmSearchPageLogic extends GetxController{
 
   void search() async{
     var res = await jmNetwork.search(controller.text);
-    if(res.error){
+    if(!res.error){
       searchRes = res.data;
     }else{
       message = res.errorMessage;
