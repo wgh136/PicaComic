@@ -5,6 +5,7 @@ import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
+import 'package:pica_comic/views/jm_views/jm_login_page.dart';
 import 'package:pica_comic/views/pic_views/profile_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
@@ -61,8 +62,7 @@ class MePage extends StatelessWidget {
                 ),
                 Wrap(
                   children: [
-                    mePageItem(context, Icons.badge,()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)),"Picacg账号","查看或修改账号信息"),
-                    mePageItem(context, Icons.badge,()=>manageAccount(context),"Eh账号","查看或修改账号信息"),
+                    mePageItem(context, Icons.badge,()=>manageAccounts(context),"账号管理","查看或修改账号信息"),
                     mePageItem(context, Icons.bookmarks,()=>Get.to(()=>const AllFavoritesPage()),"收藏夹","查看已收藏的漫画"),
                     mePageItem(context, Icons.download_for_offline,()=>Get.to(()=>const DownloadPage()),"已下载","管理已下载的漫画"),
                     if(kDebugMode)
@@ -79,7 +79,7 @@ class MePage extends StatelessWidget {
     );
   }
 
-  void manageAccount(BuildContext context){
+  void manageEhAccount(BuildContext context){
     if(appdata.ehId == ""){
       Get.to(()=>const EhLoginPage());
     }else {
@@ -103,6 +103,66 @@ class MePage extends StatelessWidget {
         ],
       ));
     }
+  }
+
+  void manageJmAccount(BuildContext context){
+    if(appdata.jmName == ""){
+      Get.to(()=>const JmLoginPage());
+    }else {
+      showDialog(context: context, builder: (dialogContext)=>SimpleDialog(
+        contentPadding: const EdgeInsets.fromLTRB(22, 12, 15, 10),
+        title: const Text("禁漫账户"),
+        children: [
+          SelectableTextCN(text: "当前账户: ${appdata.jmName}"),
+          const SizedBox(height: 10,),
+          const Text("信息:"),
+          SelectableTextCN(text: "  邮箱: ${appdata.jmEmail}"),
+          const SizedBox(height: 12,),
+          Center(child: FilledButton(child: const Text("退出登录"),onPressed: (){
+            jmNetwork.logout();
+            Get.back();
+          },),)
+        ],
+      ));
+    }
+  }
+
+  void manageAccounts(BuildContext context){
+    showDialog(context: context, builder: (dialogContext){
+      return SimpleDialog(
+        title: const Text("账号管理"),
+        children: [
+          SizedBox(
+            width: 400,
+            child: Column(
+              children: [
+                ListTile(
+                  title: const Text("哔咔账号"),
+                  trailing: const Icon(Icons.arrow_right),
+                  onTap: (){
+                    Get.back();
+                    Future.delayed(const Duration(milliseconds: 200),()=>showAdaptiveWidget(context, ProfilePage(infoController,popUp: MediaQuery.of(context).size.width>600,)));
+                  },
+                ),
+                ListTile(
+                  title: const Text("E-Hentai账号"),
+                  trailing: const Icon(Icons.arrow_right),
+                  onTap: (){
+                    Get.back();
+                    Future.delayed(const Duration(milliseconds: 200),()=>manageEhAccount(context));
+                  },
+                ),
+                ListTile(
+                  title: const Text("禁漫账号"),
+                  trailing: const Icon(Icons.arrow_right),
+                  onTap: ()=>manageJmAccount(context),
+                ),
+              ],
+            ),
+          )
+        ],
+      );
+    });
   }
 }
 
@@ -169,4 +229,3 @@ Widget mePageItem(BuildContext context, IconData icon, void Function() page, Str
     ),
   );
 }
-

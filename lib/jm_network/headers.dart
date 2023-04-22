@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
 
-BaseOptions getHeader(int time){
+BaseOptions getHeader(int time, {bool post=false}){
 
   var token = md5.convert(const Utf8Encoder().convert("${time}18comicAPPContent"));
 
@@ -17,22 +17,8 @@ BaseOptions getHeader(int time){
       "tokenparam": "$time,1.4.7",
       "user-agent": "okhttp/3.12.1",
       "accept-encoding": "gzip",
+      if(post)
+        "Content-Type": "application/x-www-form-urlencoded"
     }
-  );
-}
-
-Options getHeader2(){
-  int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
-  var token = md5.convert(const Utf8Encoder().convert("${time}18comicAPPContent"));
-
-  return Options(
-      receiveDataWhenStatusError: true,
-      headers: {
-        "token": token.toString(),
-        "tokenparam": "$time,1.4.7",
-        "user-agent": "okhttp/3.12.1",
-        "accept-encoding": "gzip",
-      }
   );
 }

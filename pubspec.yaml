@@ -56,6 +56,7 @@ dependencies:
   local_auth: ^2.1.6
   html: any
   flutter_inappwebview: any
+  dio_cookie_manager: any
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart'
   show kDebugMode;
+import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/jm_network/headers.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/jm_network/res.dart';
@@ -11,12 +13,31 @@ import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pointycastle/export.dart';
 import 'package:get/get.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+
+import '../base.dart';
 
 class JmNetwork{
   final baseUrl = "https://www.jmapinode.cc";
   final baseData = "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
+  var cookieJar = CookieJar();
 
   var hotTags = <String>[];
+
+  JmNetwork(){
+    init();
+  }
+
+  ///初始化Cookie管理
+  void init() async{
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    final String appDocPath = appDocDir.path;
+    cookieJar = PersistCookieJar(
+      ignoreExpires: true,
+      storage: FileStorage("$appDocPath/.cookies/"),
+    );
+  }
 
   ///解密数据
   String _convertData(String input, int time){
@@ -52,6 +73,8 @@ class JmNetwork{
           .millisecondsSinceEpoch ~/ 1000;
       var dio = Dio(getHeader(time))
         ..interceptors.add(LogInterceptor());
+      dio.interceptors.add(CookieManager(cookieJar));
+      print(await cookieJar.loadForRequest(Uri.parse(url)));
       var res = await dio.get(url);
       var data = _convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
@@ -77,6 +100,42 @@ class JmNetwork{
     }
   }
 
+  Future<Res<dynamic>> post(String url, String data) async{
+    try {
+      int time = DateTime
+          .now()
+          .millisecondsSinceEpoch ~/ 1000;
+      var dio = Dio(getHeader(time, post: true))
+        ..interceptors.add(LogInterceptor());
+      dio.interceptors.add(CookieManager(cookieJar));
+      await cookieJar.loadForRequest(Uri.parse(url));
+      var res = await dio.post(url,options: Options(validateStatus: (i) => i==200||i==401 ),data: data);
+      if(res.statusCode == 401){
+        return Res(null, errorMessage:const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["errorMsg"].toString());
+      }
+      var resData = _convertData(
+          (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
+      if(kDebugMode) {
+        saveDebugData(resData);
+      }
+      return Res<dynamic>(const JsonDecoder().convert(resData));
+    }
+    on DioError catch(e){
+      if (kDebugMode) {
+        print(e);
+      }
+      if(e.type!=DioErrorType.unknown){
+        return Res<String>(null,errorMessage: e.message??"网络错误");
+      }
+      return Res<String>(null,errorMessage: "网络错误");
+    }
+    catch(e){
+      if (kDebugMode) {
+        print(e);
+      }
+      return Res<String>(null,errorMessage: "网络错误");
+    }
+  }
   ///获取主页
   Future<Res<HomePageData>> getHomePage() async{
     var res = await get("$baseUrl/promote?$baseData&page=0");
@@ -372,6 +431,28 @@ class JmNetwork{
     catch(e){
       return Res(null,errorMessage: "解析失败: ${e.toString()}");
     }
+  }
+
+  Future<Res<bool>> login(String account, String pwd) async{
+    var res = await post("$baseUrl/login","username=$account&password=$pwd&$baseData");
+    if(res.error){
+      return Res(null,errorMessage: res.errorMessage);
+    }
+    appdata.jmName = res.data["username"]??"";
+    appdata.jmEmail = res.data["email"]??"";
+    appdata.writeData();
+    return Res(true);
+  }
+
+  Future<void> logout() async{
+    await cookieJar.deleteAll();
+    appdata.jmEmail = "";
+    appdata.jmName = "";
+    await appdata.writeData();
+  }
+
+  Future<void> likeComic(String id) async{
+    await post("$baseUrl/like","id=$id&$baseData");
   }
 }
 

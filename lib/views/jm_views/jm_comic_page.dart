@@ -230,10 +230,16 @@ class JmComicPage extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: ActionChip(
-            label: const Text("喜欢"),
+            label: Text(logic.comic!.likes.toString()),
             avatar: logic.comic!.liked?const Icon(Icons.favorite):const Icon(Icons.favorite_outline),
             onPressed: (){
-              //TODO
+              if(logic.comic!.liked){
+                showMessage(context, "已经喜欢了");
+                return;
+              }
+              jmNetwork.likeComic(logic.comic!.id);
+              logic.comic!.liked = true;
+              logic.update();
             },
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
