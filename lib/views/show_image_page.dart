@@ -85,7 +85,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           child: IconButton(
                             icon: const Icon(Icons.download,color: Colors.white70,),
                             onPressed: () async{
-                              saveImage(getImageUrl(url));
+                              saveImage(getImageUrl(url),"");
                             },
                           ),
                         ),
@@ -94,7 +94,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           child: IconButton(
                             icon: const Icon(Icons.share,color: Colors.white70),
                             onPressed: () async{
-                              shareImageFromCache(url);
+                              shareImageFromCache(url,"");
                             },
                           ),
                         ),

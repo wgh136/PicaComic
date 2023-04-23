@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/network/models.dart';
 
 /*
@@ -42,7 +43,8 @@ class HistoryItem{
  */
 enum HistoryType{
   picacg(0),
-  ehentai(1);
+  ehentai(1),
+  jmComic(2);
 
   final int value;
   const HistoryType(this.value);
@@ -72,6 +74,13 @@ class NewHistory extends LinkedListEntry<NewHistory>{
     subtitle=brief.uploader,
     cover=brief.coverPath,
     target=brief.link;
+
+  NewHistory.fromJmComicBrief(JmComicBrief brief, this.time, this.ep, this.page):
+     type=HistoryType.jmComic,
+     title=brief.name,
+     subtitle=brief.author,
+     cover="",
+     target=brief.id;
 
   Map<String, dynamic> toMap()=>{
     "type": type.value,

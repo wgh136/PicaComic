@@ -25,7 +25,7 @@ class JmPromoteListPageLogic extends GetxController{
 
   void load(String id) async{
     var res = await jmNetwork.getPromoteList(id);
-    if(res.error){
+    if(!res.error){
       list = res.data;
     }else{
       message = res.errorMessage;

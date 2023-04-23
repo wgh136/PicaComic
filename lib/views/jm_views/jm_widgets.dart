@@ -4,6 +4,8 @@ import 'package:pica_comic/jm_network/jm_image.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/models/history.dart';
 
 class JmComicTile extends StatelessWidget {
   final JmComicBrief comic;
@@ -18,7 +20,10 @@ class JmComicTile extends StatelessWidget {
 
     return InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: ()=>Get.to(()=>JmComicPage(comic.id), preventDuplicates: false),
+        onTap: (){
+          appdata.history.addHistory(NewHistory.fromJmComicBrief(comic, DateTime.now(), 0, 0));
+          Get.to(()=>JmComicPage(comic.id), preventDuplicates: false);
+        },
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
           child: Row(

@@ -3,7 +3,7 @@ import 'dart:ui' as ui show Codec;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'eh_cached_image.dart' as image_provider;
+import 'jm_cached_image.dart' as image_provider;
 import '_image_loader.dart';
 
 /// Function which is called after loading the image failed.
@@ -11,12 +11,13 @@ typedef ErrorListener = void Function();
 
 /// IO implementation of the CachedNetworkImageProvider; the ImageProvider to
 /// load network images using a cache.
-class EhCachedImageProvider
-    extends ImageProvider<image_provider.EhCachedImageProvider> {
+class JmCachedImageProvider
+    extends ImageProvider<image_provider.JmCachedImageProvider> {
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
-  const EhCachedImageProvider(
-      this.url, {
+  const JmCachedImageProvider(
+      this.url,
+      this.epsId,{
         this.maxHeight,
         this.maxWidth,
         this.scale = 1.0,
@@ -49,14 +50,17 @@ class EhCachedImageProvider
   /// [ImageCacheManager] the image is resized on disk to fit the width.
   final int? maxWidth;
 
+  ///用于计算图片切割块数
+  final String epsId;
+
   @override
-  Future<EhCachedImageProvider> obtainKey(
+  Future<JmCachedImageProvider> obtainKey(
       ImageConfiguration configuration) {
-    return SynchronousFuture<EhCachedImageProvider>(this);
+    return SynchronousFuture<JmCachedImageProvider>(this);
   }
 
   @override
-  ImageStreamCompleter loadBuffer(image_provider.EhCachedImageProvider key,
+  ImageStreamCompleter loadBuffer(image_provider.JmCachedImageProvider key,
       DecoderBufferCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiImageStreamCompleter(
@@ -74,7 +78,7 @@ class EhCachedImageProvider
   }
 
   Stream<ui.Codec> _loadBufferAsync(
-      image_provider.EhCachedImageProvider key,
+      image_provider.JmCachedImageProvider key,
       StreamController<ImageChunkEvent> chunkEvents,
       DecoderBufferCallback decode,
       ) {
@@ -87,6 +91,7 @@ class EhCachedImageProvider
       maxHeight,
       maxWidth,
       headers,
+      epsId,
       errorListener,
           () => PaintingBinding.instance.imageCache.evict(key),
     );
@@ -94,7 +99,7 @@ class EhCachedImageProvider
 
   @override
   bool operator ==(dynamic other) {
-    if (other is EhCachedImageProvider) {
+    if (other is JmCachedImageProvider) {
       return ((cacheKey ?? url) == (other.cacheKey ?? other.url)) &&
           scale == other.scale &&
           maxHeight == other.maxHeight &&

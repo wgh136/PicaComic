@@ -12,7 +12,9 @@ import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-void saveImage(String url, {bool eh=false}) async{
+import '../views/jm_views/jm_image_provider/image_recombine.dart';
+
+void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
   if(GetPlatform.isWeb){
     //Web端使用下载图片的方式
     showMessage(Get.context, "下载中");
@@ -25,10 +27,19 @@ void saveImage(String url, {bool eh=false}) async{
     launchUrlString("https://api.kokoiro.xyz/storage/download/$url");
   }
   else if(GetPlatform.isAndroid) {
-      var b = await saveImageFormCache(getImageUrl(eh?(await EhImageUrlsManager.getUrl(url)):getImageUrl(url)), eh: eh);
+      var url_ = "";
+      if(eh){
+        url_ = await EhImageUrlsManager.getUrl(url);
+      }else if(jm){
+        url_ = url;
+      }else{
+        url_ = getImageUrl(url);
+      }
+      var b = await saveImageFormCache(url_, id, eh: eh, jm: jm);
       if(b) {
         showMessage(Get.context, "成功保存于Picture中");
-      } else {
+      }
+      else {
         showMessage(Get.context, "保存失败");
       }
   }else if(GetPlatform.isWindows){
@@ -36,14 +47,26 @@ void saveImage(String url, {bool eh=false}) async{
       File? file;
       if(eh){
         file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(url));
-      }else {
+      }else if(jm){
+        file = await MyCacheManager().getFile(url);
+      }
+      else {
         var f = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
         file = f!.file;
       }
       var f = file!;
       var basename = file.path;
+      var bytes = await f.readAsBytes();
+      var bookId = "";
+      for(int i = url.length-1;i>=0;i--){
+        if(url[i] == '/'){
+          bookId = url.substring(i+1,url.length-5);
+          break;
+        }
+      }
+      bytes = segmentationPicture(bytes, id, "220980", bookId);
       for(var i = basename.length-1;i>=0;i--){
-        if(basename[i] == '/'){
+        if(basename[i] == '/'||basename[i]=='\\'){
           basename = basename.substring(i+1);
           break;
         }
@@ -52,7 +75,7 @@ void saveImage(String url, {bool eh=false}) async{
       if (path != null) {
         const String mimeType = 'image/jpeg';
         final XFile file = XFile.fromData(
-            await f.readAsBytes(), mimeType: mimeType, name: basename);
+            bytes, mimeType: mimeType, name: basename);
         await file.saveTo(path);
       }
     }
@@ -64,10 +87,10 @@ void saveImage(String url, {bool eh=false}) async{
   }
 }
 
-Future<bool> saveImageFormCache(String url, {bool eh = false}) async{
+Future<bool> saveImageFormCache(String url, String id, {bool eh = false, bool jm = false}) async{
   try {
     File? file;
-    if(eh){
+    if(eh || jm){
       file = await MyCacheManager().getFile(url);
     }else {
       var f = await DefaultCacheManager().getFileFromCache(url);
@@ -81,8 +104,22 @@ Future<bool> saveImageFormCache(String url, {bool eh = false}) async{
         break;
       }
     }
+    Uint8List data;
+    if(jm){
+      var bytes = await f.readAsBytes();
+      var bookId = "";
+      for(int i = url.length-1;i>=0;i--){
+        if(url[i] == '/'){
+          bookId = url.substring(i+1,url.length-5);
+          break;
+        }
+      }
+      data = segmentationPicture(bytes, id, "220980", bookId);
+    }else{
+      data = await f.readAsBytes();
+    }
     await ImageGallerySaver.saveImage(
-        await f.readAsBytes(),
+        data,
         quality: 100,
         name: name);
     return true;
@@ -116,12 +153,25 @@ void saveImageFromDisk(String image) async{
   }
 }
 
-void shareImageFromCache(String url, {bool eh=false}) async{
+void shareImageFromCache(String url, String id, {bool eh=false, bool jm=false}) async{
   try{
     if(eh){
       var file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(url));
       Share.shareXFiles([XFile(file!.path)]);
-    }else {
+    }else if(jm){
+      var file = await MyCacheManager().getFile(url);
+      var bytes = await file!.readAsBytes();
+      var bookId = "";
+      for(int i = url.length-1;i>=0;i--){
+        if(url[i] == '/'){
+          bookId = url.substring(i+1,url.length-5);
+          break;
+        }
+      }
+      bytes = segmentationPicture(bytes, id, "220980", bookId);
+      Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
+    }
+    else {
       var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
       Share.shareXFiles([XFile(file!.file.path)]);
     }

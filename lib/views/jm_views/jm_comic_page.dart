@@ -7,6 +7,7 @@ import 'package:pica_comic/jm_network/jm_image.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
+import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../jm_network/jm_models.dart';
 import '../../tools/ui_mode.dart';
@@ -263,6 +264,28 @@ class JmComicPage extends StatelessWidget {
         ],
       ),
     ));
+    res.add(Padding(
+      padding: const EdgeInsets.fromLTRB(10, 15, 20, 10),
+      child: Row(
+        children: [
+          Expanded(child: FilledButton(
+            onPressed: (){
+              //TODO
+              showMessage(context, "敬请期待");
+            },
+            child: const Text("下载"),
+          ),),
+          SizedBox.fromSize(size: const Size(10,1),),
+          Expanded(child: FilledButton(
+            onPressed: (){
+              Get.to(()=>ComicReadingPage.jmComic(id, logic.comic!.name, logic.comic!.series.values.toList()));
+            },
+            child: const Text("阅读"),
+          ),),
+
+        ],
+      ),
+    ));
     return res;
   }
 
@@ -386,7 +409,7 @@ class JmComicPage extends StatelessWidget {
                   child: Center(child: Text("第${i+1}章"),),
                 ),
                 onTap: () {
-                  //TODO
+                  Get.to(()=>ComicReadingPage.jmComic(logic.comic!.series.values.toList()[i], logic.comic!.name, logic.comic!.series.values.toList()));
                 },
               ),);
             }

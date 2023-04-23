@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
-import 'find_eh_image_real_url.dart';
+import 'image_recombine.dart';
 
-/// ImageLoader class to load images on IO platforms.
+
+/// 为禁漫提供的ImageLoader class, 需要对image重组
 class ImageLoader{
 
   Stream<ui.Codec> loadBufferAsync(
@@ -17,13 +18,14 @@ class ImageLoader{
       int? maxHeight,
       int? maxWidth,
       Map<String, String>? headers,
+      String epsId,
       Function()? errorListener,
       Function() evictImage) {
     return _load(
       url,
       cacheKey,
       chunkEvents,
-      (bytes) async {
+          (bytes) async {
         final buffer = await ImmutableBuffer.fromUint8List(bytes);
         return decode(buffer);
       },
@@ -32,25 +34,26 @@ class ImageLoader{
       headers,
       errorListener,
       evictImage,
+      epsId,
     );
   }
 
   Stream<ui.Codec> _load(
-    String url,
-    String? cacheKey,
-    StreamController<ImageChunkEvent> chunkEvents,
-    _FileDecoderCallback decode,
-    int? maxHeight,
-    int? maxWidth,
-    Map<String, String>? headers,
-    Function()? errorListener,
-    Function() evictImage,
-  ) async* {
+      String url,
+      String? cacheKey,
+      StreamController<ImageChunkEvent> chunkEvents,
+      _FileDecoderCallback decode,
+      int? maxHeight,
+      int? maxWidth,
+      Map<String, String>? headers,
+      Function()? errorListener,
+      Function() evictImage,
+      String epsId
+      ) async* {
     try {
-      var realUrl = await EhImageUrlsManager.getUrl(url);
 
       var manager = MyCacheManager();
-      var stream = manager.getImage(realUrl, headers);
+      var stream = manager.getImage(url, headers);
 
       DownloadProgress? finishProgress;
 
@@ -66,6 +69,14 @@ class ImageLoader{
 
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
+      var bookId = "";
+      for(int i = url.length-1;i>=0;i--){
+        if(url[i] == '/'){
+          bookId = url.substring(i+1,url.length-5);
+          break;
+        }
+      }
+      bytes = segmentationPicture(bytes, epsId, "220980", bookId);
       var decoded = await decode(bytes);
       yield decoded;
     } catch (e) {
@@ -75,8 +86,6 @@ class ImageLoader{
       scheduleMicrotask(() {
         evictImage();
       });
-      //出现错误时清除记录的url
-      await EhImageUrlsManager.deleteUrl(url);
       errorListener?.call();
       rethrow;
     } finally {

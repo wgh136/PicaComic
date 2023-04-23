@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/jm_network/jm_image.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
@@ -68,7 +70,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         comics[i].title,
                         comics[i].subtitle,
                         0,
-                        comics[i].cover,
+                        comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
                         comics[i].target
                     );
                     return ComicTile(
@@ -77,7 +79,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       onTap: (){
                         if(comics[i].type == HistoryType.picacg){
                           Get.to(()=>ComicPage(comic));
-                        }else{
+                        }else if(comics[i].type == HistoryType.ehentai){
                           Get.to(()=>EhGalleryPage(EhGalleryBrief(
                             comics[i].title,
                             "",
@@ -88,6 +90,8 @@ class _HistoryPageState extends State<HistoryPage> {
                             comics[i].target,
                             []
                           )));
+                        }else{
+                          Get.to(()=>JmComicPage(comics[i].target));
                         }
                       },
                     );

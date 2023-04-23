@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart'
   show kDebugMode;
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/jm_network/headers.dart';
+import 'package:pica_comic/jm_network/jm_image.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/jm_network/res.dart';
 import 'package:pica_comic/tools/debug.dart';
@@ -78,7 +79,6 @@ class JmNetwork{
       var dio = Dio(getHeader(time))
         ..interceptors.add(LogInterceptor());
       dio.interceptors.add(CookieManager(cookieJar));
-      print(await cookieJar.loadForRequest(Uri.parse(url)));
       var res = await dio.get(url,options: Options(validateStatus: (i) => i==200||i==401));
       if(res.statusCode == 401){
         return Res(null, errorMessage:const JsonDecoder().convert(
@@ -117,7 +117,6 @@ class JmNetwork{
       var dio = Dio(getHeader(time, post: true))
         ..interceptors.add(LogInterceptor());
       dio.interceptors.add(CookieManager(cookieJar));
-      await cookieJar.loadForRequest(Uri.parse(url));
       var res = await dio.post(url,options: Options(validateStatus: (i) => i==200||i==401 ),data: data);
       if(res.statusCode == 401){
         return Res(null, errorMessage:const JsonDecoder().convert(
@@ -279,6 +278,9 @@ class JmNetwork{
 
   ///搜索
   Future<Res<SearchRes>> search(String keyword) async{
+    appdata.searchHistory.remove(keyword);
+    appdata.searchHistory.add(keyword);
+    appdata.writeData();
     var res = await get("$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}");
     if(res.error){
       return Res(null,errorMessage: res.errorMessage);
@@ -295,11 +297,13 @@ class JmNetwork{
         }
         comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"]??"", categories));
       }
+      Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
       return Res(
         SearchRes(keyword, comics.length, int.parse(res.data["total"]), comics),
       );
     }
     catch(e){
+      Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -575,6 +579,33 @@ class JmNetwork{
     }else{
       return Res(true);
     }
+  }
+
+  ///获取漫画图片
+  Future<Res<List<String>>> getChapter(String id) async{
+    var res = await get("$baseUrl/chapter?$baseData&id=$id");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var images = <String>[];
+      for(var s in res.data["images"]){
+        images.add(getJmImageUrl(s, id));
+      }
+      return Res(images);
+    }
+    catch(e){
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
+  }
+
+  Future<void> getScramble(String id) async{
+    var dio = Dio(getHeader(DateTime.now().millisecondsSinceEpoch ~/ 1000, byte: false))
+        ..interceptors.add(LogInterceptor());
+    dio.interceptors.add(CookieManager(cookieJar));
+    var res = await dio.get("$baseUrl/chapter_view_template?id=$id&mode=vertical&page=0&app_ima_shunt=NaN&express=off");
+    var exp = RegExp(r"(?<=var scramble_id = )\w+");
+    print(exp.firstMatch(res.data)!.group(0));
   }
 }
 
