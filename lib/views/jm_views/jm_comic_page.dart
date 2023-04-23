@@ -246,8 +246,10 @@ class JmComicPage extends StatelessWidget {
           Expanded(child: ActionChip(
               label: const Text("收藏"),
               avatar: logic.comic!.favorite?const Icon(Icons.bookmark):const Icon(Icons.bookmark_outline),
-              onPressed: () {
-                //TODO
+              onPressed: (){
+                jmNetwork.favorite(id);
+                logic.comic!.favorite = !logic.comic!.favorite;
+                logic.update();
               }
           ),),
           SizedBox.fromSize(size: const Size(10,1),),

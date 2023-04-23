@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
+import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
 import 'package:pica_comic/views/pic_views/favorites_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
@@ -17,9 +18,10 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
 
   @override
   void initState() {
-    controller = TabController(length: 2, vsync: this);
+    controller = TabController(length: 3, vsync: this);
     Get.put(FavoritesPageLogic());
     Get.put(EhFavouritePageLogic());
+    Get.put(JmFavoritePageLogic());
     super.initState();
   }
 
@@ -27,6 +29,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   void dispose() {
     Get.find<FavoritesPageLogic>().dispose();
     Get.find<EhFavouritePageLogic>().dispose();
+    Get.find<JmFavoritePageLogic>().dispose();
     super.dispose();
   }
 
@@ -55,7 +58,11 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
                           child: const Text("跳页"),
                           onTap: ()=>Future.delayed(const Duration(microseconds: 200),() async{
                             Future.delayed(const Duration(milliseconds: 200),(){
-                              controller.index==0?changePicPage(context):changeEhPage();
+                              switch(controller.index){
+                                case 0: changePicPage(context);break;
+                                case 1: changeEhPage();break;
+                                case 2: changeJmPage();break;
+                              }
                             });
                           }),
                         )
@@ -73,6 +80,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
             tabs: const [
               Tab(text: "Picacg",),
               Tab(text: "EHentai",),
+              Tab(text: "JmComic",)
             ],
             controller: controller,),
           Expanded(
@@ -80,7 +88,8 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
               controller: controller,
               children: const [
                 FavoritesPage(),
-                EhFavouritePage()
+                EhFavouritePage(),
+                JmFavoritePage()
               ],
             ),
           )
@@ -147,6 +156,10 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   }
 
   Future<void> changeEhPage() async{
+    showMessage(context, "暂不支持");
+  }
+
+  Future<void> changeJmPage() async{
     showMessage(context, "暂不支持");
   }
 }

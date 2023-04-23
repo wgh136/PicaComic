@@ -155,7 +155,10 @@ class MePage extends StatelessWidget {
                 ListTile(
                   title: const Text("禁漫账号"),
                   trailing: const Icon(Icons.arrow_right),
-                  onTap: ()=>manageJmAccount(context),
+                  onTap: (){
+                    Get.back();
+                    Future.delayed(const Duration(milliseconds: 200),()=>manageJmAccount(context));
+                  },
                 ),
               ],
             ),

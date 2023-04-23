@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'package:pica_comic/jm_network/jm_main_network.dart';
+import '../base.dart';
 
 ///用于测试函数
 void debug() async{
-  var network = JmNetwork();
-  var res = await network.login("nyne","wgh136753.");
+
 }
 
 ///保存网络请求数据, 用于Debug

@@ -68,6 +68,7 @@ class Appdata{
   String ehAccount = "";
   String jmName = "";
   String jmEmail = "";
+  String jmPwd = "";
   Appdata(){
     token = "";
     var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
@@ -137,6 +138,7 @@ class Appdata{
     await s.setString("ehPassHash", ehPassHash);
     await s.setString("jmName", jmName);
     await s.setString("jmEmail", jmEmail);
+    await s.setString("jmPwd", jmPwd);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -170,6 +172,7 @@ class Appdata{
       ehPassHash = s.getString("ehPassHash")??"";
       jmName = s.getString("jmName")??"";
       jmEmail = s.getString("jmEmail")??"";
+      jmPwd = s.getString("jmPwd")??"";
       return token==""?false:true;
     }
     catch(e){

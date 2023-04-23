@@ -16,24 +16,16 @@ class TestNetworkPage extends StatefulWidget {
 
 class _TestNetworkPageState extends State<TestNetworkPage> {
   bool isLoading = true;
-  bool flag = true;
+  String? message;
+
+  @override
+  void initState() {
+    login();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if(flag) {
-      flag = false;
-      network.updateApi().then((v){
-        network.getProfile().then((p){
-          if(p!=null){
-            appdata.user = p;
-            goToMainPage();
-          }else {
-            setState(() {
-              isLoading = false;
-            });
-          }
-        });
-      });
-    }
     return Scaffold(
       appBar: AppBar(),
       body: Material(
@@ -76,7 +68,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 top: MediaQuery.of(context).size.height/2-80,
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: network.status?Text(network.message):const Text("网络错误"),
+                  child: Text(message??"网络错误"),
                 ),
               ),
 
@@ -96,16 +88,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                             onPressed: (){
                               setState(() {
                                 isLoading = true;
-                              });
-                              network.getProfile().then((p){
-                                if(p!=null){
-                                  appdata.user = p;
-                                  goToMainPage();
-                                }else {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
+                                login();
                               });
                             },
                             child: const Text("   重试   "),
@@ -151,6 +134,40 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
       Get.offAll(()=>const AuthPage());
     }else{
       Get.offAll(()=>const MainPage());
+    }
+  }
+
+  ///获取哔咔账号信息, 登录禁漫账号
+  Future<void> login() async{
+    bool f1 = false;
+    bool f2 = false;
+    network.getProfile().then((p){
+      if(p == null){
+        if(network.status){
+          message = network.message;
+        }else{
+          message = "网络错误";
+        }
+      }else{
+        appdata.user = p;
+      }
+      f1 = true;
+    });
+    jmNetwork.loginFromAppdata().then((res){
+      if(res.error){
+        message = res.errorMessage;
+      }
+      f2 = true;
+    });
+    while(!f1&&!f2){
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    if(message == null){
+      goToMainPage();
+    }else{
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }

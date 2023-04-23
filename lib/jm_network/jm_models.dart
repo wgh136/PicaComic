@@ -98,3 +98,13 @@ class JmComicInfo{
   JmComicInfo(this.name, this.id, this.author, this.description, this.likes, this.views,
       this.series, this.tags, this.relatedComics, this.liked, this.favorite);
 }
+
+class FavoriteFolder{
+  String id;
+  List<JmComicBrief> comics;
+  int loadedPage = 1;
+  int total;
+  int loadedComics;
+
+  FavoriteFolder(this.id, this.comics, this.loadedPage, this.total, this.loadedComics);
+}

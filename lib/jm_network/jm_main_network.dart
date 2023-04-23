@@ -19,6 +19,10 @@ import 'package:cookie_jar/cookie_jar.dart';
 import '../base.dart';
 
 class JmNetwork{
+  /*
+  关于一些注意事项:
+    1. jm的漫画列表加载, 当page大于存在的数量时返回最后一页, 而不是报错
+   */
   final baseUrl = "https://www.jmapinode.cc";
   final baseData = "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
   var cookieJar = CookieJar();
@@ -75,7 +79,11 @@ class JmNetwork{
         ..interceptors.add(LogInterceptor());
       dio.interceptors.add(CookieManager(cookieJar));
       print(await cookieJar.loadForRequest(Uri.parse(url)));
-      var res = await dio.get(url);
+      var res = await dio.get(url,options: Options(validateStatus: (i) => i==200||i==401));
+      if(res.statusCode == 401){
+        return Res(null, errorMessage:const JsonDecoder().convert(
+            const Utf8Decoder().convert(res.data))["errorMsg"]??"未知错误".toString());
+      }
       var data = _convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
       if(kDebugMode) {
@@ -100,6 +108,7 @@ class JmNetwork{
     }
   }
 
+  ///post请求, 与get请求的一个显著区别是请求头中的Content-Type
   Future<Res<dynamic>> post(String url, String data) async{
     try {
       int time = DateTime
@@ -111,7 +120,8 @@ class JmNetwork{
       await cookieJar.loadForRequest(Uri.parse(url));
       var res = await dio.post(url,options: Options(validateStatus: (i) => i==200||i==401 ),data: data);
       if(res.statusCode == 401){
-        return Res(null, errorMessage:const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["errorMsg"].toString());
+        return Res(null, errorMessage:const JsonDecoder().convert(
+            const Utf8Decoder().convert(res.data))["errorMsg"]??"未知错误".toString());
       }
       var resData = _convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
@@ -136,6 +146,7 @@ class JmNetwork{
       return Res<String>(null,errorMessage: "网络错误");
     }
   }
+
   ///获取主页
   Future<Res<HomePageData>> getHomePage() async{
     var res = await get("$baseUrl/promote?$baseData&page=0");
@@ -438,9 +449,24 @@ class JmNetwork{
     if(res.error){
       return Res(null,errorMessage: res.errorMessage);
     }
-    appdata.jmName = res.data["username"]??"";
+    appdata.jmName = account;
     appdata.jmEmail = res.data["email"]??"";
+    appdata.jmPwd = pwd;
     appdata.writeData();
+    return Res(true);
+  }
+
+  ///使用储存的数据进行登录, jm必须在每次启动app时进行登录
+  Future<Res<bool>> loginFromAppdata() async{
+    var account = appdata.jmName;
+    var pwd = appdata.jmPwd;
+    if(account==""){
+      return Res(true);
+    }
+    var res = await post("$baseUrl/login","username=$account&password=$pwd&$baseData");
+    if(res.error){
+      return Res(null,errorMessage: res.errorMessage);
+    }
     return Res(true);
   }
 
@@ -448,11 +474,107 @@ class JmNetwork{
     await cookieJar.deleteAll();
     appdata.jmEmail = "";
     appdata.jmName = "";
+    appdata.jmPwd = "";
     await appdata.writeData();
   }
 
   Future<void> likeComic(String id) async{
     await post("$baseUrl/like","id=$id&$baseData");
+  }
+
+  ///创建收藏夹
+  Future<Res<bool>> createFolder(String name) async{
+    var res = await post("$baseUrl/favorite_folder", "type=add&folder_name=$name&$baseData");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }else{
+      return Res(true);
+    }
+  }
+
+  ///获取收藏夹中的漫画
+  ///
+  /// 需要提供收藏夹的ID
+  ///
+  /// 要获取全部收藏, 提供id为0
+  Future<Res<FavoriteFolder>> getFolderComics(String id) async{
+    var res = await get("$baseUrl/favorite?$baseData&page=1&folder_id=$id&o=${ComicsOrder.latest}");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var comics = <JmComicBrief>[];
+      for(var comic in (res.data["list"])){
+        var categories = <ComicCategoryInfo>[];
+        if(comic["category"]["id"] != null && comic["category"]["title"] != null){
+          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if(comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null){
+          categories.add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"]??"", categories));
+      }
+      return Res(FavoriteFolder(id,comics,1,int.parse(res.data["total"]),comics.length));
+    }
+    catch(e){
+      if(kDebugMode){
+        print(e);
+      }
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
+  }
+
+  Future<void> loadFavoriteFolderNextPage(FavoriteFolder folder) async{
+    if(folder.loadedComics >= folder.total){
+      return;
+    }
+    try{
+      var res = await get("$baseUrl/favorite?$baseData&page=${folder.loadedPage+1}&folder_id=${folder.id}&o=${ComicsOrder.latest}");
+      for(var comic in (res.data["list"])){
+        var categories = <ComicCategoryInfo>[];
+        if(comic["category"]["id"] != null && comic["category"]["title"] != null){
+          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if(comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null){
+          categories.add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        folder.comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"], comic["description"]??"", categories));
+      }
+      folder.loadedPage++;
+      folder.loadedComics = folder.comics.length;
+    }
+    catch(e){
+      //无所谓了
+    }
+  }
+
+  ///获取收藏夹
+  Future<void> getFolders() async{
+    var res = await get("$baseUrl/favorite?$baseData");
+    //TODO
+  }
+
+  ///移动漫画至指定的收藏夹
+  Future<Res<bool>> moveToFolder(String comicId, String folderId) async{
+    var res = await post("$baseUrl/favorite_folder", "type=move&folder_id=$folderId&aid=$comicId&$baseData");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }else{
+      return Res(true);
+    }
+  }
+
+  ///收藏漫画
+  ///
+  /// Jm的收藏逻辑大概为: 收藏后会加入收藏夹页的全部漫画中, 此时如果使用官方App会出现一个选择收藏夹的弹窗, 选择后将会
+  /// 再次发送一个网络请求进行移动漫画
+  Future<Res<bool>> favorite(String id) async{
+    var res = await post("$baseUrl/favorite", "aid=$id&$baseData");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }else{
+      return Res(true);
+    }
   }
 }
 
