@@ -30,7 +30,6 @@ class _JmLoginPageState extends State<JmLoginPage> {
                 TextField(
                   autofocus: false,
                   controller: nameController,
-                  autofillHints: const [AutofillHints.email],
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "账号",
@@ -41,7 +40,6 @@ class _JmLoginPageState extends State<JmLoginPage> {
                 const Padding(padding: EdgeInsets.all(5),),
                 TextField(
                   controller: passwordController,
-                  autofillHints: const [AutofillHints.password],
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "密码",

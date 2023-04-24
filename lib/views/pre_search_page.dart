@@ -5,7 +5,9 @@ import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
+import 'jm_views/jm_comic_page.dart';
 
 class PreSearchController extends GetxController{
   int target = 0;
@@ -169,9 +171,44 @@ class PreSearchPage extends StatelessWidget {
                                 },
                               ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: ActionChip(
+                                label: const Text("禁漫漫画ID"),
+                                onPressed: (){
+                                  var controller = TextEditingController();
+                                  showDialog(context: context, builder: (context){
+                                    return AlertDialog(
+                                      title: const Text("输入禁漫漫画ID"),
+                                      content: Padding(
+                                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                        child: TextField(
+                                          controller: controller,
+                                          decoration: const InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              labelText: "ID",
+                                              prefix: Text("JM")
+                                          ),
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(onPressed: (){
+                                          Get.back();
+                                          if(controller.text.isNum){
+                                            Get.to(()=>JmComicPage(controller.text));
+                                          }else{
+                                            showMessage(Get.context, "输入的ID不是数字");
+                                          }
+                                        }, child: const Text("提交"))
+                                      ],
+                                    );
+                                  });
+                                },
+                              ),
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 );

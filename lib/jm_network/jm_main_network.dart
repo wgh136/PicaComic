@@ -72,7 +72,7 @@ class JmNetwork{
 
   ///get请求, 返回Json数据中的data
   Future<Res<dynamic>> get(String url, {Map<String, String>? header}) async{
-    try {
+
       int time = DateTime
           .now()
           .millisecondsSinceEpoch ~/ 1000;
@@ -84,28 +84,18 @@ class JmNetwork{
         return Res(null, errorMessage:const JsonDecoder().convert(
             const Utf8Decoder().convert(res.data))["errorMsg"]??"未知错误".toString());
       }
-      var data = _convertData(
-          (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
+      var givenData = const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["data"];
+      if(givenData is List && givenData.isEmpty){
+        return Res(null, errorMessage: "无数据");
+      }else if(givenData is List){
+        return Res(null, errorMessage: "解析出错");
+      }
+      var data = _convertData(givenData, time);
       if(kDebugMode&&GetPlatform.isWindows) {
         saveDebugData(data);
       }
       return Res<dynamic>(const JsonDecoder().convert(data));
-    }
-    on DioError catch(e){
-      if (kDebugMode) {
-        print(e);
-      }
-      if(e.type!=DioErrorType.unknown){
-        return Res<String>(null,errorMessage: e.message??"网络错误");
-      }
-      return Res<String>(null,errorMessage: "网络错误");
-    }
-    catch(e){
-      if (kDebugMode) {
-        print(e);
-      }
-      return Res<String>(null,errorMessage: "网络错误");
-    }
+
   }
 
   ///post请求, 与get请求的一个显著区别是请求头中的Content-Type
@@ -300,6 +290,7 @@ class JmNetwork{
     if(res.error){
       return;
     }
+    hotTags.clear();//在尚未完成请求时刷新页面会导致重复调用此方法, 清除以避免出现重复热搜
     for(var s in res.data){
       hotTags.add(s);
     }
