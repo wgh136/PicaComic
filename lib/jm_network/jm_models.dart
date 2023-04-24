@@ -108,3 +108,14 @@ class FavoriteFolder{
 
   FavoriteFolder(this.id, this.comics, this.loadedPage, this.total, this.loadedComics);
 }
+
+class Comment{
+  String id;
+  String avatar;
+  String name;
+  String time;
+  String content;
+  List<Comment> reply;
+
+  Comment(this.id, this.avatar, this.name, this.time, this.content, this.reply);
+}

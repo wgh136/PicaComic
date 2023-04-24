@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
@@ -53,24 +54,27 @@ class MyCacheManager{
     if(!directory.existsSync()){
       directory.create();
     }
-
     //检查缓存
     if(_paths![url] != null){
       if(File(_paths![url]!).existsSync()) {
         yield DownloadProgress(1, 1, url, _paths![url]!);
+        return;
       }else{
         _paths!.remove(url);
       }
     }
-    //获取信息
-    var fileName = "";
+    //生成文件名
+    var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
+    if(fileName.length>10){
+      fileName = fileName.substring(0,10);
+    }
     int l;
     for(l = url.length-1;l>=0;l--){
-      if(url[l] == '/'){
+      if(url[l] == '.'){
         break;
       }
     }
-    fileName = url.substring(l+1);
+    fileName += url.substring(l);
     final savePath = "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
 
     var dio = Dio();
@@ -119,6 +123,18 @@ class MyCacheManager{
   Future<File?> getFile(String url) async{
     await readData();
     return _paths?[url]==null?null:File(_paths![url]!);
+  }
+
+  void clear() async{
+    var appDataPath = (await getApplicationSupportDirectory()).path;
+    var file = File("$appDataPath${pathSep}cache.json");
+    file.delete();
+    if(_paths != null){
+      _paths!.clear();
+    }
+    final savePath = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
+    savePath.deleteSync(recursive: true);
+
   }
 }
 

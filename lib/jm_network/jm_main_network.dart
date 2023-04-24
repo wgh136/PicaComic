@@ -554,7 +554,7 @@ class JmNetwork{
 
   ///获取收藏夹
   Future<void> getFolders() async{
-    var res = await get("$baseUrl/favorite?$baseData");
+    await get("$baseUrl/favorite?$baseData");
     //TODO
   }
 
@@ -599,13 +599,37 @@ class JmNetwork{
     }
   }
 
-  Future<void> getScramble(String id) async{
+  ///获取scramble
+  ///
+  /// 此函数未使用, 因为似乎所有漫画的scramble都一样
+  Future<String?> getScramble(String id) async{
     var dio = Dio(getHeader(DateTime.now().millisecondsSinceEpoch ~/ 1000, byte: false))
         ..interceptors.add(LogInterceptor());
     dio.interceptors.add(CookieManager(cookieJar));
     var res = await dio.get("$baseUrl/chapter_view_template?id=$id&mode=vertical&page=0&app_ima_shunt=NaN&express=off");
     var exp = RegExp(r"(?<=var scramble_id = )\w+");
-    print(exp.firstMatch(res.data)!.group(0));
+    return exp.firstMatch(res.data)!.group(0);
+  }
+
+  Future<Res<List<Comment>>> getComment(String id, int page) async{
+    var res = await get("$baseUrl/forum?$baseData&aid=$id&page=$page");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var comments = <Comment>[];
+      for(var c in res.data["list"]){
+        var reply = <Comment>[];
+        for(var r in c["replys"]??[]){
+          reply.add(Comment(r["CID"],getJmAvaterUrl(r["photo"]),r["username"],r["addtime"],r["content"],[]));
+        }
+        comments.add(Comment(c["CID"],getJmAvaterUrl(c["photo"]),c["username"],c["addtime"],c["content"],reply));
+      }
+      return Res(comments, subData: int.parse(res.data["total"]));
+    }
+    catch(e){
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
   }
 }
 

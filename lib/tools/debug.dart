@@ -3,7 +3,7 @@ import '../base.dart';
 
 ///用于测试函数
 void debug() async{
-  await jmNetwork.getScramble("444046");
+  jmNetwork.getComment("410272",1);
 }
 
 ///保存网络请求数据, 用于Debug

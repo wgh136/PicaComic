@@ -4,10 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/jm_network/jm_image.dart';
+import 'package:pica_comic/views/jm_views/jm_comments_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../jm_network/jm_models.dart';
 import '../../tools/ui_mode.dart';
@@ -257,9 +259,7 @@ class JmComicPage extends StatelessWidget {
           Expanded(child: ActionChip(
               label: const Text("评论"),
               avatar: const Icon(Icons.comment_outlined),
-              onPressed: (){
-                //TODO
-              }
+              onPressed: ()=>showAdaptiveWidget(context, JmCommentsPage(id))
           ),),
         ],
       ),

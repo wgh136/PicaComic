@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:image/image.dart' as image;
 import 'package:crypto/crypto.dart';
@@ -53,8 +52,8 @@ Uint8List segmentationPicture(Uint8List imgData, String epsId, String scrambleId
   List<Map<String, int>> blocks = [];
 
   for (int i = 0; i < num; i++) {
-    int start = i * blockSize + min(i, remainder);
-    int end = start + blockSize + ((i + 1 > remainder) ? 0 : 1);
+    int start = i * blockSize;
+    int end = start + blockSize + ((i != num-1) ? 0 : remainder);
     blocks.add({'start': start, 'end': end});
   }
 
