@@ -8,7 +8,6 @@ import 'package:pica_comic/views/jm_views/jm_main_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
-import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pic_views/picacg_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -109,7 +108,7 @@ class _MainPageState extends State<MainPage> {
     }
 
     //获取热搜
-    if(hotSearch.isEmpty) {
+    if(hotSearch.isEmpty || jmNetwork.hotTags.isEmpty) {
       jmNetwork.getHotTags();
       network.getKeyWords().then((s){
       if(s!=null){
@@ -187,7 +186,7 @@ class _MainPageState extends State<MainPage> {
           text: TextSpan(children: [
             TextSpan(text: "感谢使用本软件, 请注意:\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "此项目与Picacg, e-hentai.org无任何关系\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "此项目与Picacg, e-hentai.org, JmComic无任何关系",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ]),
         ),
         actions: [
@@ -206,7 +205,6 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: UiMode.m1(context)?AppBar(
         title: Text(titles[i]),
-        centerTitle: true,
         actions: [
           Tooltip(
             message: "搜索",
@@ -214,6 +212,24 @@ class _MainPageState extends State<MainPage> {
               icon: const Icon(Icons.search),
               onPressed: (){
                 Get.to(()=>PreSearchPage());
+              },
+            ),
+          ),
+          Tooltip(
+            message: "排行榜",
+            child: IconButton(
+              icon: const Icon(Icons.leaderboard),
+              onPressed: (){
+                Get.to(()=>const LeaderBoardPage());
+              },
+            ),
+          ),
+          Tooltip(
+            message: "设置",
+            child: IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: (){
+                Get.to(()=>const SettingsPage());
               },
             ),
           ),
@@ -316,7 +332,6 @@ class _MainPageState extends State<MainPage> {
                         const Divider(),
                         const Spacer(),
                         NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
-                        NavigatorItem(Icons.history,Icons.games, "历史记录",false,()=>Get.to(()=>const HistoryPage())),
                         NavigatorItem(Icons.leaderboard,Icons.games, "排行榜",false,()=>Get.to(()=>const LeaderBoardPage())),
                         NavigatorItem(Icons.settings,Icons.games, "设置",false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
                       ],
@@ -338,10 +353,6 @@ class _MainPageState extends State<MainPage> {
                           Flexible(child: IconButton(
                             icon: const Icon(Icons.leaderboard),
                             onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
-                          ),),
-                          Flexible(child: IconButton(
-                            icon: const Icon(Icons.history),
-                            onPressed: ()=>Get.to(()=>const HistoryPage()),
                           ),),
                           Flexible(child: IconButton(
                             icon: const Icon(Icons.settings),
@@ -394,39 +405,6 @@ class _MainPageState extends State<MainPage> {
             ))
           ],
         ),
-      ),
-      drawer: !(UiMode.m1(context))?null:NavigationDrawer(
-        selectedIndex: null,
-        onDestinationSelected: (t){
-          Navigator.pop(context);
-          if(t == 0){
-            Get.to(()=>const HistoryPage());
-          }else if(t == 1){
-            Get.to(()=>const LeaderBoardPage());
-          }else{
-            showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600));
-          }
-        },
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-            child: Text(
-              'Pica Comic',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-          ...destinations.map((Destination destination) {
-            return NavigationDrawerDestination(
-              label: Text(destination.label),
-              icon: destination.icon,
-              selectedIcon: destination.selectedIcon,
-            );
-          }),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-            child: Divider(),
-          ),
-        ],
       ),
     );
   }

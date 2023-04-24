@@ -33,7 +33,7 @@ class RegisterPage extends StatelessWidget {
         if(GetPlatform.isWeb){
           return Scaffold(
             appBar: AppBar(
-              title: const Text("注册"),
+              title: const Text("注册哔咔账号"),
               actions: [
                 Tooltip(
                   message: "转到登录",
@@ -51,7 +51,7 @@ class RegisterPage extends StatelessWidget {
         }
       return Scaffold(
         appBar: AppBar(
-          title: const Text("注册"),
+          title: const Text("注册哔咔账号"),
           actions: [
             Tooltip(
               message: "转到登录",

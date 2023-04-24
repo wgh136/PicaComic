@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -34,6 +36,7 @@ Future<bool> exportComic(String id) async{
         await file.copy("$directoryPath$pathSep$id.zip");
       }
     }
+    Get.back();
     var file = File('${downloadManager.path!}$pathSep$id.zip');
     file.delete();
     return true;
@@ -46,7 +49,7 @@ Future<bool> exportComic(String id) async{
 Future<double> calculateCacheSize() async{
   if(GetPlatform.isAndroid) {
     var path = await getTemporaryDirectory();
-    return await getFolderSize(path);
+    return compute(getFolderSize, path);
   }else{
     return double.infinity;
   }
@@ -55,6 +58,7 @@ Future<double> calculateCacheSize() async{
 Future<void> eraseCache() async{
   if(GetPlatform.isAndroid) {
     await DefaultCacheManager().emptyCache();
+    await MyCacheManager().clear();
     var path = await getTemporaryDirectory();
     for(var i in path.listSync()){
       await i.delete(recursive: true);

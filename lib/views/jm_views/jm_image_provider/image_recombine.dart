@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as image;
 import 'package:crypto/crypto.dart';
 
@@ -37,14 +38,14 @@ int getSegmentationNum(String epsId, String scrambleID, String pictureName) {
 /// chatgpt转换后产生了一个错误, 导致我检查了很久
 ///
 /// 不建议使用gpt完成这种需要注意细节的东西, 它总能给你一些惊喜
-Uint8List segmentationPicture(Uint8List imgData, String epsId, String scrambleId, String bookId) {
-  int num = getSegmentationNum(epsId, scrambleId, bookId);
+Future<Uint8List> segmentationPicture(_Data data) async{
+  int num = getSegmentationNum(data.epsId, data.scrambleId, data.bookId);
 
   if (num <= 1) {
-    return imgData;
+    return data.imgData;
   }
 
-  image.Image srcImg = image.decodeImage(imgData)!;
+  image.Image srcImg = image.decodeImage(data.imgData)!;
 
   int blockSize = (srcImg.height / num).floor();
   int remainder = srcImg.height % num;
@@ -69,4 +70,21 @@ Uint8List segmentationPicture(Uint8List imgData, String epsId, String scrambleId
   }
 
   return Uint8List.fromList(image.encodeJpg(desImg));
+}
+
+class _Data{
+  Uint8List imgData;
+  String epsId;
+  String scrambleId;
+  String bookId;
+
+  _Data(this.imgData, this.epsId, this.scrambleId, this.bookId);
+}
+
+///启动一个新的线程转换图片
+///
+/// 直接使用异步会导致卡顿
+Future<Uint8List> startRecombineImage(Uint8List imgData, String epsId, String scrambleId, String bookId) async{
+  print("start");
+  return compute(segmentationPicture,_Data(imgData,epsId,scrambleId,bookId));
 }

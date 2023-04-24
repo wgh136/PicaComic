@@ -58,10 +58,10 @@ class ScrollManager{
           break;
         }
         var value = offset / 20;
-        if(value > 60){
-          value = 60;
-        }else if(value < -60){
-          value = -60;
+        if(value > 40){
+          value = 40;
+        }else if(value < -40){
+          value = -40;
         }
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;

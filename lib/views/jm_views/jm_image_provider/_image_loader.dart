@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
 import 'image_recombine.dart';
 
+var _loadingItem = 0;
+
 
 /// 为禁漫提供的ImageLoader class, 需要对image重组
 class ImageLoader{
@@ -51,6 +53,14 @@ class ImageLoader{
       String epsId
       ) async* {
     try {
+      if(_loadingItem >= 3){
+        throw StateError("同时加载的图片过多");
+      }
+      _loadingItem++;
+      chunkEvents.add(const ImageChunkEvent(
+          cumulativeBytesLoaded: 0,
+          expectedTotalBytes: 1)
+      );
 
       var manager = MyCacheManager();
       var stream = manager.getImage(url, headers);
@@ -63,7 +73,7 @@ class ImageLoader{
         }
         chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: progress.currentBytes,
-            expectedTotalBytes: progress.expectedBytes)
+            expectedTotalBytes: progress.expectedBytes*2)
         );
       }
 
@@ -76,9 +86,14 @@ class ImageLoader{
           break;
         }
       }
-      bytes = segmentationPicture(bytes, epsId, "220980", bookId);
+      bytes = await startRecombineImage(bytes, epsId, "220980", bookId);
+      chunkEvents.add(const ImageChunkEvent(
+          cumulativeBytesLoaded: 10000,
+          expectedTotalBytes: 10000)
+      );
       var decoded = await decode(bytes);
       yield decoded;
+      _loadingItem--;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

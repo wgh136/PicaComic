@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 Widget showNetworkError(String message, void Function() retry, BuildContext context, {bool showBack=true}){
-  return Stack(
+  return SafeArea(child: Stack(
     children: [
       if(showBack)
         Positioned(
@@ -20,7 +20,7 @@ Widget showNetworkError(String message, void Function() retry, BuildContext cont
         bottom: 0,
         child: Center(
           child: SizedBox(
-            height: 130,
+            height: 150,
             width: 400,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -36,5 +36,5 @@ Widget showNetworkError(String message, void Function() retry, BuildContext cont
         ),
       )
     ],
-  );
+  ));
 }

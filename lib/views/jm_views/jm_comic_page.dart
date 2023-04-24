@@ -303,6 +303,13 @@ class JmComicPage extends StatelessWidget {
                   showMessage(context, "已复制");
                 },
               ),
+              PopupMenuItem(
+                child: const Text("添加到屏蔽词"),
+                onTap: (){
+                  appdata.blockingKeyword.add(title);
+                  appdata.writeData();
+                },
+              ),
             ]
         );
       },
@@ -316,6 +323,13 @@ class JmComicPage extends StatelessWidget {
                 onTap: (){
                   Clipboard.setData(ClipboardData(text: (title)));
                   showMessage(context, "已复制");
+                },
+              ),
+              PopupMenuItem(
+                child: const Text("添加到屏蔽词"),
+                onTap: (){
+                  appdata.blockingKeyword.add(title);
+                  appdata.writeData();
                 },
               ),
             ]
@@ -343,7 +357,7 @@ class JmComicPage extends StatelessWidget {
     if(UiMode.m1(context)){
       return SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: SizedBox(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,6 +433,8 @@ class JmComicPage extends StatelessWidget {
           childAspectRatio: 4,
         ),
       ),
+      if(logic.comic!.series.isEmpty)
+      const SliverPadding(padding: EdgeInsets.all(20))
     ];
   }
 }

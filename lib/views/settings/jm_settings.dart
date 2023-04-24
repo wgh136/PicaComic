@@ -100,3 +100,72 @@ class SetJmComicsOrderController extends GetxController{
     Get.back();
   }
 }
+
+void setJmImageShut(BuildContext context) async{
+  showDialog(context: context, builder: (context){
+    return SimpleDialog(
+      title: const Text("设置图片分流"),
+      children: [
+        GetBuilder(
+          init: SetJmImageShutController(),
+          builder: (logic){
+            return SizedBox(
+              width: 400,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: const Text("分流1"),
+                    trailing: Radio<String>(
+                      groupValue: logic.value,
+                      value: "0",
+                      onChanged: (v)=>logic.set(v!),
+                    ),
+                    onTap: ()=>logic.set("0"),
+                  ),
+                  ListTile(
+                    title: const Text("分流2"),
+                    trailing: Radio<String>(
+                      groupValue: logic.value,
+                      value: "1",
+                      onChanged: (v)=>logic.set(v!),
+                    ),
+                    onTap: ()=>logic.set("1"),
+                  ),
+                  ListTile(
+                    title: const Text("分流3"),
+                    trailing: Radio<String>(
+                      groupValue: logic.value,
+                      value: "2",
+                      onChanged: (v)=>logic.set(v!),
+                    ),
+                    onTap: ()=>logic.set("2"),
+                  ),
+                  ListTile(
+                    title: const Text("分流4"),
+                    trailing: Radio<String>(
+                      groupValue: logic.value,
+                      value: "3",
+                      onChanged: (v)=>logic.set(v!),
+                    ),
+                    onTap: ()=>logic.set("3"),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  });
+}
+
+class SetJmImageShutController extends GetxController{
+  var value = appdata.settings[17];
+
+  void set(String s){
+    value = s;
+    appdata.settings[17] = s;
+    appdata.writeData();
+    update();
+  }
+}

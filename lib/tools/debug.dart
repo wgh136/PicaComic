@@ -3,7 +3,7 @@ import '../base.dart';
 
 ///用于测试函数
 void debug() async{
-  jmNetwork.getComment("410272",1);
+  print(jmNetwork.hotTags);
 }
 
 ///保存网络请求数据, 用于Debug

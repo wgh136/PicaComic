@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
-import '../base.dart';
+import '../../base.dart';
 
 class BlockingKeywordPageLogic extends GetxController{
   var keywords = appdata.blockingKeyword;
@@ -64,7 +64,7 @@ class BlockingKeywordPage extends StatelessWidget {
                   forceActionsBelow: true,
                   padding: const EdgeInsets.all(15),
                   leading: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary,size: 30,),
-                  content: const Text("关键词屏蔽不会生效于收藏夹和历史记录, 将会在加载时排除作者/汉化组/分类/tag中含有屏蔽关键词的漫画(部分页面加载时无法获取tag, 因此无法屏蔽tag)"), actions: [
+                  content: const Text("关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息"), actions: [
                 TextButton(onPressed: (){
                   appdata.firstUse[0] = "0";
                   appdata.writeData();

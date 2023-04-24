@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('登录'),
+        title: const Text('登录哔咔账号'),
         actions: [
           Tooltip(
             message: "转到注册",

@@ -23,6 +23,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
     itemCount: comicReadingPageLogic.urls.length,
     addSemanticIndexes: false,
     scrollController: comicReadingPageLogic.cont,
+    minCacheExtent: 20,
     itemBuilder: (context, index) {
 
       precacheComicImage(comicReadingPageLogic, type, context, index+1, target);
@@ -35,10 +36,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
           frameBuilder: (context, widget, i, b) {
-            return SizedBox(
-              height: height,
-              child: widget,
-            );
+            return widget;
           },
           loadingBuilder: (context, widget, event) {
             if (event == null) {
@@ -111,26 +109,14 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           return Image(
             image: JmCachedImageProvider(comicReadingPageLogic.urls[index], target),
             width: MediaQuery.of(context).size.width,
-            fit: BoxFit.fill,
-            frameBuilder: (context, widget, i, b) {
-              return SizedBox(
-                height: height,
-                child: widget,
-              );
-            },
+            fit: BoxFit.fitWidth,
             loadingBuilder: (context, widget, event) {
               if (event == null) {
                 return widget;
               } else {
                 return SizedBox(
                   height: height,
-                  child: Center(
-                      child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
-                          ? CircularProgressIndicator(
-                        value: event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-                        backgroundColor: Colors.white12,
-                      )
-                          : const CircularProgressIndicator()),
+                  child: const Center(child: CircularProgressIndicator()),
                 );
               }
             },
@@ -288,8 +274,15 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
   }
 }
 
+var _loadingImages = 0;
+
 ///预加载图片
 void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType type,BuildContext context, int index, String target){
+  if(_loadingImages <= 1) {
+    _loadingImages++;
+  }else{
+    return;
+  }
   if (index < comicReadingPageLogic.urls.length && type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
     precacheImage(
         EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);

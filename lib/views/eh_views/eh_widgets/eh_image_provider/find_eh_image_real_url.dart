@@ -28,7 +28,7 @@ Future<String> getEhImageUrl(String url) async{
   document = parse(html.data);
   var res = document.querySelector("img#img")!.attributes["src"]!;
   if(res == "https://ehgt.org/g/509.gif"){
-    showMessage(Get.context, "超出图片上限");
+    showMessage(Get.context, "当前IP已超出E-Hentai的图片上限");
     throw ImageExceedError();
   }
   return res;

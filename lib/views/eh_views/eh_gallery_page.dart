@@ -145,6 +145,8 @@ class EhGalleryPage extends StatelessWidget {
 
                 if(! logic.noNetwork)
                 buildComments(logic, context),
+
+                const SliverPadding(padding: EdgeInsets.all(10))
               ],
             );
           }
@@ -158,7 +160,7 @@ class EhGalleryPage extends StatelessWidget {
     if(UiMode.m1(context)){
       return SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: SizedBox(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,7 +494,7 @@ class EhGalleryPage extends StatelessWidget {
                         children: [
                           Text("${logic.gallery!.uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
                           const SizedBox(height: 2,),
-                          Text(comment.content)
+                          SelectableTextCN(text: comment.content)
                         ],
                       ),
                     ),

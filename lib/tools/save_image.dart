@@ -64,7 +64,7 @@ void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
           break;
         }
       }
-      bytes = segmentationPicture(bytes, id, "220980", bookId);
+      bytes = await startRecombineImage(bytes, id, "220980", bookId);
       for(var i = basename.length-1;i>=0;i--){
         if(basename[i] == '/'||basename[i]=='\\'){
           basename = basename.substring(i+1);
@@ -114,7 +114,7 @@ Future<bool> saveImageFormCache(String url, String id, {bool eh = false, bool jm
           break;
         }
       }
-      data = segmentationPicture(bytes, id, "220980", bookId);
+      data = await startRecombineImage(bytes, id, "220980", bookId);
     }else{
       data = await f.readAsBytes();
     }
@@ -168,7 +168,7 @@ void shareImageFromCache(String url, String id, {bool eh=false, bool jm=false}) 
           break;
         }
       }
-      bytes = segmentationPicture(bytes, id, "220980", bookId);
+      bytes = await startRecombineImage(bytes, id, "220980", bookId);
       Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
     }
     else {

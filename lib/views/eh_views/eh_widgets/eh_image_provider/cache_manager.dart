@@ -125,7 +125,7 @@ class MyCacheManager{
     return _paths?[url]==null?null:File(_paths![url]!);
   }
 
-  void clear() async{
+  Future<void> clear() async{
     var appDataPath = (await getApplicationSupportDirectory()).path;
     var file = File("$appDataPath${pathSep}cache.json");
     file.delete();

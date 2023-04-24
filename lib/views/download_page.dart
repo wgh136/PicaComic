@@ -360,7 +360,6 @@ class DownloadPage extends StatelessWidget {
                         const Duration(milliseconds: 500),
                             (){
                           exportComic(id);
-                          Get.back();
                         }
                     );
                   },
