@@ -6,9 +6,11 @@
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
 
-非官方Picacg App, 同时支持查看E-Hentai画廊(尚未完善)
+非官方Picacg App, 同时支持查看E-Hentai, 禁漫天堂
 
 目前支持Android, Windows, Web
+
+Web端仅支持picacg
 
 Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 
@@ -42,9 +44,6 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
   - 转到游戏下载页面
 
 ### E-Hentai
->由于IP限制, 不提供转发服务器, 因此Web端不能访问E-Hentai. 如需使用浏览器访问,
-> 请直接访问[e-hentai.org](https://www.e-hentai.org)
-> 
 **目前尚未完善, 可能存在各种各样的问题**
 - 主页
 - 热门
@@ -55,11 +54,20 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 画廊阅读
 - 下载画廊
 
-## 计划中
 ### 禁漫天堂
-计划实现禁漫天堂的主要功能
+**目前尚未完善, 可能存在各种各样的问题**
+- 主页
+- 最新
+- 分类
+- 搜索
+- 漫画详情
+- 漫画阅读
+- 登录
+- 收藏夹(分类收藏未完成)
 
 ## Thanks
+
+### dependencies
 - [flutter](https://flutter.dev/)
 - [dio](https://pub.dev/packages/dio): 网络请求
 - [get](https://pub.dev/packages/get): 路由管理
@@ -77,6 +85,12 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - [share_plus](https://pub.dev/packages/share_plus): 分享
 - [local_auth](https://pub.dev/packages/local_auth): 身份认证
 - [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list): 能够跳转到指定项目的列表(为了解决手势冲突, 我对其做出了一些修改)
+- [flutter_inappwebview](https://pub.flutter-io.cn/packages/flutter_inappwebview): 用于e-hentai在webview中登录
+- [dio_cookie_manager](https://pub.flutter-io.cn/packages/dio_cookie_manager): cookie管理
+- [image](https://pub.flutter-io.cn/packages/image): 对禁漫图片进行切割并重新组合
+
+### 感谢以下项目
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=tonquer&repo=JMComic-qt)](https://github.com/anuraghazra/github-readme-stats)
 
 ## 屏幕截图
 

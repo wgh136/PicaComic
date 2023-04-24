@@ -62,12 +62,10 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver{
         theme: ThemeData(
           colorScheme: lightColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
           useMaterial3: true,
-          fontFamily: "font"
         ),
         darkTheme: ThemeData(
           colorScheme: darkColorScheme??ColorScheme.fromSeed(seedColor: Colors.pinkAccent,brightness: Brightness.dark),
           useMaterial3: true,
-          fontFamily: "font"
         ),
         home: isLogged?const TestNetworkPage():const WelcomePage(),
       );

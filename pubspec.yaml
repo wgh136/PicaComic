@@ -131,10 +131,6 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-    - family: font
-      fonts:
-        - asset: fonts/NotoSansSC-Regular.otf
-          style: normal
     - family:  MyIcons
       fonts:
        - asset: fonts/MyIcons.ttf
