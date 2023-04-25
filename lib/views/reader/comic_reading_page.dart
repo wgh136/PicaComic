@@ -269,7 +269,7 @@ class ComicReadingPage extends StatelessWidget {
                         //顶部工具栏
                         buildTopToolBar(logic, context, title),
 
-                        buildPageInfoText(logic, type == ReadingType.picacg, eps, context),
+                        buildPageInfoText(logic, type != ReadingType.ehentai, eps, context, jm: type == ReadingType.jm),
 
 
 
@@ -440,7 +440,7 @@ class ComicReadingPage extends StatelessWidget {
     if (data.epsWidgets.length == 1) {
       for (int i = 0; i < eps.length; i++) {
         data.epsWidgets.add(ListTile(
-          title: Text("第${i+1}章"),
+          title: Text("第${i+1}章${(eps[i] == data.target)?"(当前)":""}"),
           onTap: () {
             if (eps[i] != data.target) {
               comicReadingPageLogic.order = i;

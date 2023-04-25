@@ -107,7 +107,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         }else{
           //加载禁漫图片
           return Container(
-            constraints: BoxConstraints(
+            constraints: const BoxConstraints(
               minHeight: 200
             ),
             child: Image(
