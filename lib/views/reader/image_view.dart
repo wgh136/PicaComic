@@ -106,26 +106,31 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           );
         }else{
           //加载禁漫图片
-          return Image(
-            image: JmCachedImageProvider(comicReadingPageLogic.urls[index], target),
-            width: MediaQuery.of(context).size.width,
-            fit: BoxFit.fitWidth,
-            loadingBuilder: (context, widget, event) {
-              if (event == null) {
-                return widget;
-              } else {
-                return SizedBox(
-                  height: height,
-                  child: const Center(child: CircularProgressIndicator()),
-                );
-              }
-            },
-            errorBuilder: (context, s, d) => SizedBox(
-              height: height,
-              child: const Center(
-                child: Icon(
-                  Icons.error,
-                  color: Colors.white12,
+          return Container(
+            constraints: BoxConstraints(
+              minHeight: 200
+            ),
+            child: Image(
+              image: JmCachedImageProvider(comicReadingPageLogic.urls[index], target),
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.fitWidth,
+              loadingBuilder: (context, widget, event) {
+                if (event == null) {
+                  return widget;
+                } else {
+                  return SizedBox(
+                    height: height,
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                }
+              },
+              errorBuilder: (context, s, d) => SizedBox(
+                height: height,
+                child: const Center(
+                  child: Icon(
+                    Icons.error,
+                    color: Colors.white12,
+                  ),
                 ),
               ),
             ),
@@ -138,151 +143,124 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
 
 ///构建漫画图片
 Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType type, String target, List<String> eps) {
+  Widget body;
+
   if (appdata.settings[9] != "4") {
-    return Positioned(
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        child: AbsorbPointer(
-          absorbing: comicReadingPageLogic.tools,
-          child: Listener(
-            //监听鼠标滚轮
-            onPointerSignal: (pointerSignal) {
-              if (pointerSignal is PointerScrollEvent) {
-                comicReadingPageLogic.controller.jumpToPage(pointerSignal.scrollDelta.dy > 0
-                    ? comicReadingPageLogic.index + 1
-                    : comicReadingPageLogic.index - 1);
-              }
-            },
-            child: PhotoViewGallery.builder(
-              reverse: appdata.settings[9] == "2",
-              scrollDirection: appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
-              itemCount: comicReadingPageLogic.urls.length + 2,
-              builder: (BuildContext context, int index) {
+    body =  PhotoViewGallery.builder(
+      reverse: appdata.settings[9] == "2",
+      scrollDirection: appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
+      itemCount: comicReadingPageLogic.urls.length + 2,
+      builder: (BuildContext context, int index) {
 
-                ImageProvider? imageProvider;
-                if (index != 0 && index != comicReadingPageLogic.urls.length + 1){
-                  if (type == ReadingType.ehentai && !comicReadingPageLogic.downloaded){
-                    imageProvider = EhCachedImageProvider(comicReadingPageLogic.urls[index - 1]);
-                  }else if (comicReadingPageLogic.downloaded){
-                    var id = target;
-                    if(type == ReadingType.ehentai){
-                      id = getGalleryId(target);
-                    }
-                    imageProvider = FileImage(downloadManager.getImage(
-                        id, comicReadingPageLogic.order, index - 1));
-                  }else if(type == ReadingType.picacg){
-                    imageProvider = CachedNetworkImageProvider(
-                        getImageUrl(comicReadingPageLogic.urls[index - 1]));
-                  }else{
-                    imageProvider = JmCachedImageProvider(comicReadingPageLogic.urls[index - 1], target);
-                  }
-                }else {
-                  return PhotoViewGalleryPageOptions(
-                    imageProvider: const AssetImage("images/black.png"),
-                  );
-                }
+        ImageProvider? imageProvider;
+        if (index != 0 && index != comicReadingPageLogic.urls.length + 1){
+          if (type == ReadingType.ehentai && !comicReadingPageLogic.downloaded){
+            imageProvider = EhCachedImageProvider(comicReadingPageLogic.urls[index - 1]);
+          }else if (comicReadingPageLogic.downloaded){
+            var id = target;
+            if(type == ReadingType.ehentai){
+              id = getGalleryId(target);
+            }
+            imageProvider = FileImage(downloadManager.getImage(
+                id, comicReadingPageLogic.order, index - 1));
+          }else if(type == ReadingType.picacg){
+            imageProvider = CachedNetworkImageProvider(
+                getImageUrl(comicReadingPageLogic.urls[index - 1]));
+          }else{
+            imageProvider = JmCachedImageProvider(comicReadingPageLogic.urls[index - 1], target);
+          }
+        }else {
+          return PhotoViewGalleryPageOptions(
+            imageProvider: const AssetImage("images/black.png"),
+          );
+        }
 
-                precacheComicImage(comicReadingPageLogic, type, context, index, target);
+        precacheComicImage(comicReadingPageLogic, type, context, index, target);
 
-                return PhotoViewGalleryPageOptions(
-                  minScale: PhotoViewComputedScale.contained * 0.9,
-                  imageProvider: imageProvider,
-                  initialScale: PhotoViewComputedScale.contained,
-                  heroAttributes: PhotoViewHeroAttributes(
-                      tag: "$index/${comicReadingPageLogic.urls.length}"),
-                );
-              },
-              pageController: comicReadingPageLogic.controller,
-              loadingBuilder: (context, event) => DecoratedBox(
-                decoration: const BoxDecoration(color: Colors.black),
-                child: Center(
-                  child: SizedBox(
-                    width: 20.0,
-                    height: 20.0,
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.white12,
-                      value: event == null
-                          ? 0
-                          : event.cumulativeBytesLoaded / (event.expectedTotalBytes??1000000000000),
-                    ),
-                  ),
-                ),
-              ),
-              backgroundDecoration: const BoxDecoration(color: Colors.black),
-              onPageChanged: (i) {
-                if (i == 0) {
-                  if (type == ReadingType.ehentai) {
-                    comicReadingPageLogic.controller.jumpToPage(1);
-                    showMessage(Get.context, "已经是第一页了");
-                    return;
-                  }
-                  if (comicReadingPageLogic.order != 1) {
-                    comicReadingPageLogic.order -= 1;
-                    comicReadingPageLogic.urls.clear();
-                    comicReadingPageLogic.isLoading = true;
-                    comicReadingPageLogic.tools = false;
-                    comicReadingPageLogic.update();
-                  } else {
-                    comicReadingPageLogic.controller.jumpToPage(1);
-                    showMessage(Get.context, "已经是第一章了");
-                  }
-                } else if (i == comicReadingPageLogic.urls.length + 1) {
-                  if (type == ReadingType.ehentai) {
-                    comicReadingPageLogic.controller.jumpToPage(i - 1);
-                    showMessage(Get.context, "已经是最后一页了");
-                    return;
-                  }
-                  if (comicReadingPageLogic.order != eps.length - 1) {
-                    comicReadingPageLogic.order += 1;
-                    comicReadingPageLogic.urls.clear();
-                    comicReadingPageLogic.isLoading = true;
-                    comicReadingPageLogic.tools = false;
-                    comicReadingPageLogic.update();
-                  } else {
-                    comicReadingPageLogic.controller.jumpToPage(i - 1);
-                    showMessage(Get.context, "已经是最后一章了");
-                  }
-                } else {
-                  comicReadingPageLogic.index = i;
-                  comicReadingPageLogic.update();
-                }
-              },
+        return PhotoViewGalleryPageOptions(
+          minScale: PhotoViewComputedScale.contained * 0.9,
+          imageProvider: imageProvider,
+          initialScale: PhotoViewComputedScale.contained,
+          heroAttributes: PhotoViewHeroAttributes(
+              tag: "$index/${comicReadingPageLogic.urls.length}"),
+        );
+      },
+      pageController: comicReadingPageLogic.controller,
+      loadingBuilder: (context, event) => DecoratedBox(
+        decoration: const BoxDecoration(color: Colors.black),
+        child: Center(
+          child: SizedBox(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.white12,
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded / (event.expectedTotalBytes??1000000000000),
             ),
           ),
-        ));
+        ),
+      ),
+      backgroundDecoration: const BoxDecoration(color: Colors.black),
+      onPageChanged: (i) {
+        if (i == 0) {
+          if (type == ReadingType.ehentai) {
+            comicReadingPageLogic.controller.jumpToPage(1);
+            showMessage(Get.context, "已经是第一页了");
+            return;
+          }
+          comicReadingPageLogic.jumpToLastChapter(type, eps);
+        } else if (i == comicReadingPageLogic.urls.length + 1) {
+          if (type == ReadingType.ehentai) {
+            comicReadingPageLogic.controller.jumpToPage(i - 1);
+            showMessage(Get.context, "已经是最后一页了");
+            return;
+          }
+          comicReadingPageLogic.jumpToNextChapter(type, eps);
+        } else {
+          comicReadingPageLogic.index = i;
+          comicReadingPageLogic.update();
+        }
+      },
+    );
   } else {
-    return Positioned(
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
+    body =  InteractiveViewer(
+        transformationController: comicReadingPageLogic.transformationController,
+        maxScale: GetPlatform.isDesktop ? 1.0 : 2.5,
         child: AbsorbPointer(
-          absorbing: comicReadingPageLogic.tools,
-          child: InteractiveViewer(
-              transformationController: comicReadingPageLogic.transformationController,
-              maxScale: GetPlatform.isDesktop ? 1.0 : 2.5,
-              child: AbsorbPointer(
-                absorbing: true, //使用控制器控制滚动
-                child: SizedBox(
-                    width: MediaQuery.of(Get.context!).size.width,
-                    height: MediaQuery.of(Get.context!).size.height,
-                    child: buildGallery(comicReadingPageLogic, type, target)),
-              )),
+          absorbing: true, //使用控制器控制滚动
+          child: SizedBox(
+              width: MediaQuery.of(Get.context!).size.width,
+              height: MediaQuery.of(Get.context!).size.height,
+              child: buildGallery(comicReadingPageLogic, type, target)),
         ));
   }
-}
 
-var _loadingImages = 0;
+  return Positioned(
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    child: Listener(
+      //监听鼠标滚轮
+      onPointerSignal: (pointerSignal) {
+        if (pointerSignal is PointerScrollEvent) {
+          if(appdata.settings[9] != "4"){
+            comicReadingPageLogic.controller.jumpToPage(pointerSignal.scrollDelta.dy > 0
+                ? comicReadingPageLogic.index + 1
+                : comicReadingPageLogic.index - 1);
+          }else{
+            comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy);
+          }
+        }
+      },
+      child: body,
+    ),
+  );
+}
 
 ///预加载图片
 void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType type,BuildContext context, int index, String target){
-  if(_loadingImages <= 1) {
-    _loadingImages++;
-  }else{
-    return;
-  }
   if (index < comicReadingPageLogic.urls.length && type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
     precacheImage(
         EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);

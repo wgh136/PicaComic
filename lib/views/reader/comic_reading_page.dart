@@ -39,7 +39,7 @@ class ComicReadingPage extends StatelessWidget {
   ///标题
   final String title;
 
-  ///初始章节, 仅picacg
+  ///picacg和禁漫有效
   final int order;
 
   ///画廊模型, 阅读非画廊此变量为null
@@ -66,9 +66,8 @@ class ComicReadingPage extends StatelessWidget {
     data.initialPage = initialPage;
   }
 
-  ComicReadingPage.jmComic(this.target, this.title, this.eps, {super.key, int initialPage = 0})
-    : order=0,
-      type = ReadingType.jm,
+  ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order, {super.key, int initialPage = 0})
+    : type = ReadingType.jm,
       gallery = null {
     data.initialPage = initialPage;
   }
@@ -115,7 +114,7 @@ class ComicReadingPage extends StatelessWidget {
             EhImageUrlsManager().saveData();
             MyCacheManager().saveData();
           },
-          init: ComicReadingPageLogic(order),
+          init: ComicReadingPageLogic(order, data),
           builder: (logic) {
             if (logic.isLoading) {
               //加载信息
@@ -444,6 +443,7 @@ class ComicReadingPage extends StatelessWidget {
           title: Text("第${i+1}章"),
           onTap: () {
             if (eps[i] != data.target) {
+              comicReadingPageLogic.order = i;
               data.target = eps[i];
               comicReadingPageLogic.urls.clear();
               comicReadingPageLogic.change();

@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
-import 'image_recombine.dart';
 
 var _loadingItem = 0;
 
@@ -53,7 +52,7 @@ class ImageLoader{
       String epsId
       ) async* {
     try {
-      if(_loadingItem >= 3){
+      if(_loadingItem >= 5){
         throw StateError("同时加载的图片过多");
       }
       _loadingItem++;
@@ -63,7 +62,14 @@ class ImageLoader{
       );
 
       var manager = MyCacheManager();
-      var stream = manager.getImage(url, headers);
+      var bookId = "";
+      for(int i = url.length-1;i>=0;i--){
+        if(url[i] == '/'){
+          bookId = url.substring(i+1,url.length-5);
+          break;
+        }
+      }
+      var stream = manager.getImage(url, headers, jm: true, bookId: bookId, epsId: epsId, scrambleId: "220980");
 
       DownloadProgress? finishProgress;
 
@@ -79,21 +85,13 @@ class ImageLoader{
 
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
-      var bookId = "";
-      for(int i = url.length-1;i>=0;i--){
-        if(url[i] == '/'){
-          bookId = url.substring(i+1,url.length-5);
-          break;
-        }
-      }
-      bytes = await startRecombineImage(bytes, epsId, "220980", bookId);
+
       chunkEvents.add(const ImageChunkEvent(
           cumulativeBytesLoaded: 10000,
           expectedTotalBytes: 10000)
       );
       var decoded = await decode(bytes);
       yield decoded;
-      _loadingItem--;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.
@@ -104,6 +102,7 @@ class ImageLoader{
       errorListener?.call();
       rethrow;
     } finally {
+      _loadingItem--;
       await chunkEvents.close();
     }
   }

@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/reader/comic_reading_page.dart'
+  show ReadingPageData;
+import 'package:pica_comic/views/reader/reading_type.dart';
 import '../../base.dart';
 import '../widgets/scrollable_list/src/item_positions_listener.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
+import '../widgets/widgets.dart';
 
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式
@@ -16,7 +20,9 @@ class ComicReadingPageLogic extends GetxController{
   ///用于非从上至下(连续)阅读方式, 获取放缩大小
   var transformationController = TransformationController();
 
-  ComicReadingPageLogic(this.order);
+  ComicReadingPageLogic(this.order, this.data);
+
+  ReadingPageData data;
 
   bool isLoading = true;
 
@@ -62,6 +68,43 @@ class ComicReadingPageLogic extends GetxController{
     }else{
       scrollController.jumpTo(index: i-1);
     }
+  }
+
+  void jumpToNextChapter(ReadingType type, List<String> eps){
+    if(order == eps.length - 1){
+      controller.jumpToPage(urls.length);
+      showMessage(Get.context, "已经是最后一章了");
+      return;
+    }
+    order += 1;
+    urls.clear();
+    isLoading = true;
+    tools = false;
+    if(type == ReadingType.jm){
+      data.target = eps[order];
+    }
+    update();
+  }
+
+  void jumpToLastChapter(ReadingType type, List<String> eps){
+    if(order == 1 && type == ReadingType.picacg){
+      controller.jumpToPage(1);
+      showMessage(Get.context, "已经是第一章了");
+      return;
+    }else if(order == 0 && type == ReadingType.jm){
+      controller.jumpToPage(1);
+      showMessage(Get.context, "已经是第一章了");
+      return;
+    }
+
+    order -= 1;
+    urls.clear();
+    isLoading = true;
+    tools = false;
+    if(type == ReadingType.jm){
+      data.target = eps[order];
+    }
+    update();
   }
 
   int get length => urls.length;

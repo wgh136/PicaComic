@@ -565,7 +565,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         onTap: (){},
                       ),
-                    if(!GetPlatform.isWeb&&GetPlatform.isAndroid)
+                    if(!GetPlatform.isWeb)
                     GetBuilder<CalculateCacheLogic>(
                         init: CalculateCacheLogic(),
                         builder: (logic){
@@ -587,6 +587,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                   eraseCache();
                                   logic.size = 0;
                                   logic.update();
+                                }else if(GetPlatform.isWindows){
+                                  eraseCache();
                                 }
                               },
                             );

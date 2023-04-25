@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../../../../base.dart';
 
 ///提供一个简单的图片缓存管理
@@ -48,7 +49,11 @@ class MyCacheManager{
   }
 
   ///获取图片, 如果缓存中没有, 则尝试下载
-  Stream<DownloadProgress> getImage(String url, Map<String, String>? headers) async*{
+  Stream<DownloadProgress> getImage(String url, Map<String, String>? headers, {bool jm=false, String? epsId, String? scrambleId, String? bookId}) async*{
+    if(jm && (epsId==null || scrambleId == null || bookId == null)){
+      throw ArgumentError("参数不正确");
+    }
+
     await readData();
     var directory = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
     if(!directory.existsSync()){
@@ -80,14 +85,11 @@ class MyCacheManager{
     var dio = Dio();
     yield DownloadProgress(0, 1, url, savePath);
 
+    var bytes = <int>[];
     try{
       var res =
           await dio.get<ResponseBody>(url, options: Options(responseType: ResponseType.stream));
       var stream = res.data!.stream;
-      var file = File(savePath);
-      if(! file.existsSync()){
-        file.create();
-      }
       int? expectedBytes;
       try {
         expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
@@ -101,14 +103,28 @@ class MyCacheManager{
         }
       }
       var currentBytes = 0;
-      await for (var bytes in stream) {
-        file.writeAsBytesSync(bytes.toList(),mode: FileMode.append);
-        currentBytes += bytes.length;
-        yield DownloadProgress(currentBytes, expectedBytes??currentBytes, url, savePath);
+
+      await for (var b in stream) {
+        //不直接写入文件, 因为禁漫太离谱了, 处理完成后再写入
+        bytes.addAll(b.toList());
+        currentBytes += b.length;
+        //不能在此时使currentBytes==expectedBytes, 这将导致调用者认为完成, 因此+1
+        yield DownloadProgress(currentBytes, (expectedBytes??currentBytes)+1, url, savePath);
       }
     }
     catch(e){
       rethrow;
+    }
+
+    var file = File(savePath);
+    if(! file.existsSync()){
+      file.create();
+    }
+    if(jm) {
+      var newBytes = await startRecombineImage(Uint8List.fromList(bytes), epsId!, scrambleId!, bookId!);
+      await startWriteFile(WriteInfo(savePath, newBytes));
+    } else {
+      await startWriteFile(WriteInfo(savePath, bytes));
     }
 
     yield DownloadProgress(1, 1, url, savePath);
@@ -128,13 +144,16 @@ class MyCacheManager{
   Future<void> clear() async{
     var appDataPath = (await getApplicationSupportDirectory()).path;
     var file = File("$appDataPath${pathSep}cache.json");
-    file.delete();
+    if(file.existsSync()) {
+      file.delete();
+    }
     if(_paths != null){
       _paths!.clear();
     }
     final savePath = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
-    savePath.deleteSync(recursive: true);
-
+    if(savePath.existsSync()) {
+      savePath.deleteSync(recursive: true);
+    }
   }
 }
 
@@ -151,4 +170,23 @@ class DownloadProgress{
   const DownloadProgress(this._currentBytes, this._expectedBytes, this.url, this.savePath);
 
   File getFile() => File(savePath);
+}
+
+class WriteInfo{
+  String path;
+  List<int> bytes;
+
+  WriteInfo(this.path, this.bytes);
+}
+
+Future<void> writeData(WriteInfo info) async{
+  var file = File(info.path);
+  if(!file.existsSync()){
+    file.createSync();
+  }
+  file.writeAsBytesSync(info.bytes);
+}
+
+Future<void> startWriteFile(WriteInfo info) async{
+  return compute(writeData, info);
 }

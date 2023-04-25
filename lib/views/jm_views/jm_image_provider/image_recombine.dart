@@ -65,6 +65,7 @@ Future<Uint8List> segmentationPicture(_Data data) async{
     var block = blocks[i];
     int currBlockHeight = block['end']! - block['start']!;
     image.Image tempImg = image.copyCrop(srcImg, 0, block['start']!, srcImg.width, block['end']!);
+    await Future.delayed(const Duration(milliseconds: 40));
     image.copyInto(desImg, tempImg, dstY: y);
     y += currBlockHeight;
   }
@@ -81,10 +82,21 @@ class _Data{
   _Data(this.imgData, this.epsId, this.scrambleId, this.bookId);
 }
 
+int recombiningItem = 0;
+
 ///启动一个新的线程转换图片
 ///
 /// 直接使用异步会导致卡顿
 Future<Uint8List> startRecombineImage(Uint8List imgData, String epsId, String scrambleId, String bookId) async{
-  print("start");
-  return compute(segmentationPicture,_Data(imgData,epsId,scrambleId,bookId));
+  //仅允许有三张图片在进行重组
+  //同时重组过多会导致占用资源过多
+  //当有其它图片进行重组时, 等待
+  if(recombiningItem > 3){
+    await Future.delayed(const Duration(milliseconds: 200));
+  }else{
+    recombiningItem++;
+  }
+  var res =  await compute(segmentationPicture,_Data(imgData,epsId,scrambleId,bookId));
+  recombiningItem--;
+  return res;
 }

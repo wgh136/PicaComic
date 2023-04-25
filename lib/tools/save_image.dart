@@ -12,8 +12,6 @@ import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../views/jm_views/jm_image_provider/image_recombine.dart';
-
 void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
   if(GetPlatform.isWeb){
     //Web端使用下载图片的方式
@@ -57,14 +55,6 @@ void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
       var f = file!;
       var basename = file.path;
       var bytes = await f.readAsBytes();
-      var bookId = "";
-      for(int i = url.length-1;i>=0;i--){
-        if(url[i] == '/'){
-          bookId = url.substring(i+1,url.length-5);
-          break;
-        }
-      }
-      bytes = await startRecombineImage(bytes, id, "220980", bookId);
       for(var i = basename.length-1;i>=0;i--){
         if(basename[i] == '/'||basename[i]=='\\'){
           basename = basename.substring(i+1);
@@ -107,14 +97,7 @@ Future<bool> saveImageFormCache(String url, String id, {bool eh = false, bool jm
     Uint8List data;
     if(jm){
       var bytes = await f.readAsBytes();
-      var bookId = "";
-      for(int i = url.length-1;i>=0;i--){
-        if(url[i] == '/'){
-          bookId = url.substring(i+1,url.length-5);
-          break;
-        }
-      }
-      data = await startRecombineImage(bytes, id, "220980", bookId);
+      data = bytes;
     }else{
       data = await f.readAsBytes();
     }
@@ -161,14 +144,6 @@ void shareImageFromCache(String url, String id, {bool eh=false, bool jm=false}) 
     }else if(jm){
       var file = await MyCacheManager().getFile(url);
       var bytes = await file!.readAsBytes();
-      var bookId = "";
-      for(int i = url.length-1;i>=0;i--){
-        if(url[i] == '/'){
-          bookId = url.substring(i+1,url.length-5);
-          break;
-        }
-      }
-      bytes = await startRecombineImage(bytes, id, "220980", bookId);
       Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
     }
     else {

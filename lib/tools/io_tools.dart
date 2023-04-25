@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -57,11 +58,16 @@ Future<double> calculateCacheSize() async{
 
 Future<void> eraseCache() async{
   if(GetPlatform.isAndroid) {
+    imageCache.clear();
     await DefaultCacheManager().emptyCache();
     await MyCacheManager().clear();
     var path = await getTemporaryDirectory();
     for(var i in path.listSync()){
       await i.delete(recursive: true);
     }
+  }else if(GetPlatform.isWindows){
+    imageCache.clear();
+    await DefaultCacheManager().emptyCache();
+    await MyCacheManager().clear();
   }
 }
