@@ -139,28 +139,17 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
 
   ///获取哔咔账号信息, 登录禁漫账号
   Future<void> login() async{
-    bool f1 = false;
-    bool f2 = false;
-    network.getProfile().then((p){
-      if(p == null){
-        if(network.status){
-          message = network.message;
-        }else{
-          message = "网络错误";
-        }
-      }else{
-        appdata.user = p;
-      }
-      f1 = true;
-    });
-    jmNetwork.loginFromAppdata().then((res){
-      if(res.error){
-        message = res.errorMessage;
-      }
-      f2 = true;
-    });
-    while(!f1&&!f2){
-      await Future.delayed(const Duration(milliseconds: 200));
+    //如果同时进行两个网络请求, jm的登录存在问题, 导致无法获取收藏, 并不清楚为什么
+    var res = await network.getProfile();
+    if(res == null){
+      message = network.status?network.message:"网络错误";
+    }else{
+      appdata.user = res;
+      appdata.writeData();
+    }
+    var res2 = await jmNetwork.loginFromAppdata();
+    if(res2.error){
+      message = res2.errorMessage;
     }
     if(message == null){
       goToMainPage();

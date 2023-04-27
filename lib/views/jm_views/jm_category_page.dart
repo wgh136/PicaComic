@@ -99,7 +99,8 @@ class JmCategoryPage extends StatelessWidget {
                         child: CircularProgressIndicator(),
                       ),
                     ),
-                  )
+                  ),
+                SliverPadding(padding: MediaQuery.of(context).padding),
               ],
             );
           }else{

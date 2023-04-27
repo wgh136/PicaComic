@@ -146,7 +146,7 @@ class EhGalleryPage extends StatelessWidget {
                 if(! logic.noNetwork)
                 buildComments(logic, context),
 
-                const SliverPadding(padding: EdgeInsets.all(10))
+                SliverPadding(padding: MediaQuery.of(context).padding),
               ],
             );
           }
@@ -173,6 +173,7 @@ class EhGalleryPage extends StatelessWidget {
                 if(! logic.noNetwork)
                 const SizedBox(height: 20,),
                 if(! logic.noNetwork)
+                ...buildInfoCards(logic, context),
                 SizedBox(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,6 +183,7 @@ class EhGalleryPage extends StatelessWidget {
                           height: 30,
                           child: Row(
                             children: [
+                              const SizedBox(width: 2,),
                               for(int i=0;i<s~/2;i++)
                                 Icon(Icons.star,size: 30,color: Theme.of(context).colorScheme.secondary,),
                               if(s%2==1)
@@ -197,8 +199,6 @@ class EhGalleryPage extends StatelessWidget {
                       ]
                   ),
                 ),
-                ...buildInfoCards(logic, context),
-
               ],
             ),
           ),
@@ -274,6 +274,8 @@ class EhGalleryPage extends StatelessWidget {
 
   List<Widget> buildInfoCards(GalleryPageLogic logic, BuildContext context){
     var res = <Widget>[];
+    var res2 = <Widget>[];
+
     res.add(const Padding(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Text("type"),
@@ -296,7 +298,7 @@ class EhGalleryPage extends StatelessWidget {
         ],
       ));
     }
-    res.add(Padding(
+    res2.add(Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 20, 0),
       child: Row(
         children: [
@@ -348,7 +350,7 @@ class EhGalleryPage extends StatelessWidget {
         ],
       ),
     ));
-    res.add(Padding(
+    res2.add(Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 20, 10),
       child: Row(
         children: [
@@ -402,7 +404,7 @@ class EhGalleryPage extends StatelessWidget {
         ],
       ),
     ));
-    return res;
+    return !UiMode.m1(context)?res+res2:res2+res;
   }
 
   Widget buildInfoCard(String title, BuildContext context, {bool allowSearch=true}){
@@ -448,7 +450,7 @@ class EhGalleryPage extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           onTap: allowSearch?()=>Get.to(()=>EhSearchPage(title),preventDuplicates: false):(){},
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(title),
+            padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(title),
           ),
         ),
       ),

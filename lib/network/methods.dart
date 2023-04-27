@@ -49,17 +49,9 @@ class Network{
     var dio = await request();
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
 
-    //从url获取json
-    if (kDebugMode) {
-      print('Try to get response from $url');
-    }
     try{
       var res = await dio.get(url,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
       if(res.statusCode == 200){
-        if (kDebugMode) {
-          print('Get response successfully');
-          print(res);
-        }
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         return jsonResponse;
       }else if(res.statusCode == 400){
@@ -100,19 +92,12 @@ class Network{
     if (kDebugMode) {
       print(data);
     }
-    //从url获取json
-    if (kDebugMode) {
-      print('Try to get response from $url');
-    }
     try{
       var res = await dio.post(url,data:data,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
       if (kDebugMode) {
         print(res);
       }
       if(res.statusCode == 200){
-        if (kDebugMode) {
-          print('Get response successfully');
-        }
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         return jsonResponse;
       }else if(res.statusCode == 400){

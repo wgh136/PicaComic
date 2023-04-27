@@ -82,21 +82,10 @@ class _Data{
   _Data(this.imgData, this.epsId, this.scrambleId, this.bookId);
 }
 
-int recombiningItem = 0;
-
 ///启动一个新的线程转换图片
 ///
 /// 直接使用异步会导致卡顿
 Future<Uint8List> startRecombineImage(Uint8List imgData, String epsId, String scrambleId, String bookId) async{
-  //仅允许有三张图片在进行重组
-  //同时重组过多会导致占用资源过多
-  //当有其它图片进行重组时, 等待
-  if(recombiningItem > 3){
-    await Future.delayed(const Duration(milliseconds: 200));
-  }else{
-    recombiningItem++;
-  }
   var res =  await compute(segmentationPicture,_Data(imgData,epsId,scrambleId,bookId));
-  recombiningItem--;
   return res;
 }

@@ -143,9 +143,15 @@ class ComicReadingPage extends StatelessWidget {
 
               //监听音量键
               if (appdata.settings[7] == "1") {
-                data.listenVolume = ListenVolumeController(
-                    () => logic.controller.jumpToPage(logic.index - 1),
-                    () => logic.controller.jumpToPage(logic.index + 1));
+                if(appdata.settings[9] != "4"){
+                  data.listenVolume = ListenVolumeController(
+                      () => logic.controller.jumpToPage(logic.index - 1),
+                      () => logic.controller.jumpToPage(logic.index + 1));
+                }else{
+                  data.listenVolume = ListenVolumeController(
+                      () => logic.cont.jumpTo(logic.cont.position.pixels - 400),
+                      () => logic.cont.jumpTo(logic.cont.position.pixels + 400));
+                }
                 data.listenVolume!.listenVolumeChange();
               } else if (data.listenVolume != null) {
                 data.listenVolume!.stop();
@@ -189,19 +195,27 @@ class ComicReadingPage extends StatelessWidget {
                           right: 0,
                           child: GestureDetector(
                             onTapUp: (detail) {
-                              if (appdata.settings[0] == "1" &&
-                                  appdata.settings[9] != "4" &&
-                                  !logic.tools &&
-                                  detail.globalPosition.dx >
-                                      MediaQuery.of(context).size.width * 0.75) {
-                                logic.jumpToNextPage();
-                              } else if (appdata.settings[0] == "1" &&
-                                  appdata.settings[9] != "4" &&
-                                  !logic.tools &&
-                                  detail.globalPosition.dx <
-                                      MediaQuery.of(context).size.width * 0.25) {
-                                logic.jumpToLastPage();
-                              } else {
+                              bool flag = false;
+                              bool flag2 = false;
+                              if(appdata.settings[0] == "1" && appdata.settings[9] != "4" && !logic.tools){
+                                switch(appdata.settings[9]){
+                                  case "1":
+                                    detail.globalPosition.dx > MediaQuery.of(context).size.width * 0.75?logic.jumpToNextPage():flag=true;
+                                    detail.globalPosition.dx < MediaQuery.of(context).size.width * 0.25?logic.jumpToLastPage():flag2=true;
+                                    break;
+                                  case "2":
+                                    detail.globalPosition.dx > MediaQuery.of(context).size.width * 0.75?logic.jumpToLastPage():flag=true;
+                                    detail.globalPosition.dx < MediaQuery.of(context).size.width * 0.25?logic.jumpToNextPage():flag2=true;
+                                    break;
+                                  case "3":
+                                    detail.globalPosition.dy > MediaQuery.of(context).size.height * 0.75?logic.jumpToNextPage():flag=true;
+                                    detail.globalPosition.dy < MediaQuery.of(context).size.height * 0.25?logic.jumpToLastPage():flag2=true;
+                                    break;
+                                }
+                              }else{
+                                flag = flag2 = true;
+                              }
+                              if(flag&&flag2){
                                 if (logic.showSettings) {
                                   logic.showSettings = false;
                                   logic.update();
@@ -264,14 +278,12 @@ class ComicReadingPage extends StatelessWidget {
                           }
                         }),
 
-                        ...buildBottoms(logic, context),
+                        ...buildButtons(logic, context),
 
                         //顶部工具栏
                         buildTopToolBar(logic, context, title),
 
                         buildPageInfoText(logic, type != ReadingType.ehentai, eps, context, jm: type == ReadingType.jm),
-
-
 
                         //设置
                         buildSettingWindow(logic, context),
@@ -285,8 +297,6 @@ class ComicReadingPage extends StatelessWidget {
     );
   }
 
-
-
   Widget buildErrorView(ComicReadingPageLogic comicReadingPageLogic) {
     return DecoratedBox(
         decoration: const BoxDecoration(color: Colors.black),
@@ -299,7 +309,7 @@ class ComicReadingPage extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back,
-                  color: Colors.white70,
+                  color: Colors.white,
                 ),
                 onPressed: () => Get.back(),
               ),
@@ -313,7 +323,7 @@ class ComicReadingPage extends StatelessWidget {
                 child: Icon(
                   Icons.error_outline,
                   size: 60,
-                  color: Colors.white70,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -323,14 +333,12 @@ class ComicReadingPage extends StatelessWidget {
               top: MediaQuery.of(Get.context!).size.height / 2 - 10,
               child: Align(
                 alignment: Alignment.topCenter,
-                child: network.status
-                    ? Text(network.message)
-                    : const Text(
-                        "网络错误",
-                        style: TextStyle(
-                          color: Colors.white70,
-                        ),
-                      ),
+                child: Text(
+                  data.message??"网络错误",
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
             Positioned(
