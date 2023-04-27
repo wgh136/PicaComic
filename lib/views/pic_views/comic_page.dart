@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
@@ -313,9 +314,102 @@ class ComicPage extends StatelessWidget{
   }
 
   List<Widget> buildInfoCards(ComicPageLogic logic, BuildContext context){
-    var res = <Widget>[
-      if(appdata.firstUse[2]=="1")
-      Padding(
+    var res = <Widget>[];
+    var res2 = <Widget>[];
+
+    if(!downloaded) {
+      res2.add(Padding(
+        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+        child: Row(
+          children: [
+            Expanded(child: ActionChip(
+              label: Text(logic.comicItem!.likes.toString()),
+              avatar: Icon((logic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
+              onPressed: (){
+                if(logic.noNetwork){
+                  showMessage(context, "无网络");
+                  return;
+                }
+                network.likeOrUnlikeComic(comic.id);
+                logic.comicItem!.isLiked = !logic.comicItem!.isLiked;
+                logic.update();
+              },
+            ),),
+            SizedBox.fromSize(size: const Size(10,1),),
+            Expanded(child: ActionChip(
+              label: const Text("收藏"),
+              avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
+              onPressed: (){
+                if(logic.noNetwork){
+                  showMessage(context, "无网络");
+                  return;
+                }
+                network.favouriteOrUnfavoriteComic(comic.id);
+                logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
+                logic.update();
+              },
+            ),),
+            SizedBox.fromSize(size: const Size(10,1),),
+            Expanded(child: ActionChip(
+              label: Text(logic.comicItem!.comments.toString()),
+              avatar: const Icon(Icons.comment_outlined),
+              onPressed: (){
+                if(logic.noNetwork){
+                  showMessage(context, "无网络");
+                  return;
+                }
+                showAdaptiveWidget(context, CommentsPage(comic.id,popUp: MediaQuery.of(context).size.width>600,));
+              },
+            ),),
+          ],
+        ),
+      ));
+    }
+
+    res2.add(Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: Row(
+        children: [
+          Expanded(child: FilledButton(
+            onPressed: (){
+              downloadComic(logic.comicItem!, context);
+            },
+            child: (downloadManager.downloaded.contains(comic.id))?const Text("已下载"):const Text("下载"),
+          ),),
+          SizedBox.fromSize(size: const Size(10,1),),
+          Expanded(child: FilledButton(
+            onPressed: (){
+              if(logic.history!=null){
+                if(logic.history!.ep!=0){
+                  showDialog(context: context, builder: (dialogContext)=>AlertDialog(
+                    title: const Text("继续阅读"),
+                    content: Text("上次阅读到第${logic.history!.ep}章第${logic.history!.page}页, 是否继续阅读?"),
+                    actions: [
+                      TextButton(onPressed: (){
+                        Get.back();
+                        Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
+                      }, child: const Text("从头开始")),
+                      TextButton(onPressed: (){
+                        Get.back();
+                        Get.to(()=>ComicReadingPage.picacg(comic.id, logic.history!.ep, logic.epsStr,comic.title,initialPage: logic.history!.page,));
+                      }, child: const Text("继续阅读")),
+                    ],
+                  ));
+                }else{
+                  Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
+                }
+              }else {
+                Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
+              }
+            },
+            child: const Text("阅读"),
+          ),),
+        ],
+      ),
+    ));
+
+    if(appdata.firstUse[2]=="1") {
+      res.add(Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
         child: MaterialBanner(
             elevation: 1,
@@ -327,8 +421,8 @@ class ComicPage extends StatelessWidget{
                 appdata.writeData();
               }, child: const Text("关闭"))
             ]),
-      )
-    ];
+      ));
+    }
 
     if(logic.comicItem!.author!=""){
       res.add(const SizedBox(
@@ -426,98 +520,7 @@ class ComicPage extends StatelessWidget{
       ));
     }
 
-    if(!downloaded) {
-      res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-        child: Row(
-          children: [
-            Expanded(child: ActionChip(
-              label: Text(logic.comicItem!.likes.toString()),
-              avatar: Icon((logic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
-              onPressed: (){
-                if(logic.noNetwork){
-                  showMessage(context, "无网络");
-                  return;
-                }
-                network.likeOrUnlikeComic(comic.id);
-                logic.comicItem!.isLiked = !logic.comicItem!.isLiked;
-                logic.update();
-              },
-            ),),
-            SizedBox.fromSize(size: const Size(10,1),),
-            Expanded(child: ActionChip(
-              label: const Text("收藏"),
-              avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
-              onPressed: (){
-                if(logic.noNetwork){
-                  showMessage(context, "无网络");
-                  return;
-                }
-                network.favouriteOrUnfavoriteComic(comic.id);
-                logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
-                logic.update();
-              },
-            ),),
-            SizedBox.fromSize(size: const Size(10,1),),
-            Expanded(child: ActionChip(
-              label: Text(logic.comicItem!.comments.toString()),
-              avatar: const Icon(Icons.comment_outlined),
-              onPressed: (){
-                if(logic.noNetwork){
-                  showMessage(context, "无网络");
-                  return;
-                }
-                showAdaptiveWidget(context, CommentsPage(comic.id,popUp: MediaQuery.of(context).size.width>600,));
-              },
-            ),),
-          ],
-        ),
-      ));
-    }
-
-    res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-      child: Row(
-        children: [
-          Expanded(child: FilledButton(
-            onPressed: (){
-              downloadComic(logic.comicItem!, context);
-            },
-            child: (downloadManager.downloaded.contains(comic.id))?const Text("已下载"):const Text("下载"),
-          ),),
-          SizedBox.fromSize(size: const Size(10,1),),
-          Expanded(child: FilledButton(
-            onPressed: (){
-              if(logic.history!=null){
-                if(logic.history!.ep!=0){
-                  showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                    title: const Text("继续阅读"),
-                    content: Text("上次阅读到第${logic.history!.ep}章第${logic.history!.page}页, 是否继续阅读?"),
-                    actions: [
-                      TextButton(onPressed: (){
-                        Get.back();
-                        Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
-                        }, child: const Text("从头开始")),
-                      TextButton(onPressed: (){
-                        Get.back();
-                        Get.to(()=>ComicReadingPage.picacg(comic.id, logic.history!.ep, logic.epsStr,comic.title,initialPage: logic.history!.page,));
-                        }, child: const Text("继续阅读")),
-                    ],
-                  ));
-                }else{
-                  Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
-                }
-              }else {
-                Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
-              }
-            },
-            child: const Text("阅读"),
-          ),),
-        ],
-      ),
-    ));
-
-    return res;
+    return !UiMode.m1(context)?res+res2:res2+res;
   }
 
   List<Widget> buildChapterDisplay(BuildContext context, ComicPageLogic logic){
@@ -642,7 +645,7 @@ class ComicPage extends StatelessWidget{
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           onTap: ()=>Get.to(() => CategoryComicPage(title),preventDuplicates: false),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 2, 5, 2), child: Text(title),
+            padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(title),
           ),
         ),
       ),

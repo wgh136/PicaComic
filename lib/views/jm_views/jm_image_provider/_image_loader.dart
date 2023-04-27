@@ -79,7 +79,7 @@ class ImageLoader{
         }
         chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: progress.currentBytes,
-            expectedTotalBytes: progress.expectedBytes*2)
+            expectedTotalBytes: progress.expectedBytes+1)
         );
       }
 

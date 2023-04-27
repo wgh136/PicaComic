@@ -109,7 +109,7 @@ class MyCacheManager{
         bytes.addAll(b.toList());
         currentBytes += b.length;
         //不能在此时使currentBytes==expectedBytes, 这将导致调用者认为完成, 因此+1
-        yield DownloadProgress(currentBytes, (expectedBytes??currentBytes)+1, url, savePath);
+        yield DownloadProgress((currentBytes * 0.75).floor(), expectedBytes??currentBytes, url, savePath);
       }
     }
     catch(e){

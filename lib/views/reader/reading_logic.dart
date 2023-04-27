@@ -48,7 +48,7 @@ class ComicReadingPageLogic extends GetxController{
 
   void jumpToNextPage(){
     if(appdata.settings[9]!="4") {
-      controller.jumpToPage(index+1);
+      controller.animateToPage(index+1, duration: const Duration(milliseconds: 300), curve: Curves.ease);
     }else{
       scrollController.jumpTo(index: index);
     }
@@ -56,7 +56,7 @@ class ComicReadingPageLogic extends GetxController{
 
   void jumpToLastPage(){
     if(appdata.settings[9]!="4") {
-      controller.jumpToPage(index-1);
+      controller.animateToPage(index-1, duration: const Duration(milliseconds: 300), curve: Curves.ease);
     }else{
       scrollController.jumpTo(index: index-2);
     }

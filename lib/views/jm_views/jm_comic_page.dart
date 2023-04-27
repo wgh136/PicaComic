@@ -192,6 +192,7 @@ class JmComicPage extends StatelessWidget {
                     childAspectRatio: comicTileAspectRatio,
                   ),
                 ),
+                SliverPadding(padding: MediaQuery.of(context).padding),
               ],
             );
           }
@@ -232,6 +233,8 @@ class JmComicPage extends StatelessWidget {
 
   List<Widget> buildInfoCards(JmComicPageLogic logic, BuildContext context) {
     var res = <Widget>[];
+    var res2 = <Widget>[];
+
     res.add(const Padding(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Text("作者"),
@@ -258,7 +261,7 @@ class JmComicPage extends StatelessWidget {
       children: List.generate(
           logic.comic!.tags.length, (index) => buildInfoCard(logic.comic!.tags[index], context)),
     ));
-    res.add(Padding(
+    res2.add(Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 20, 0),
       child: Row(
         children: [
@@ -306,7 +309,7 @@ class JmComicPage extends StatelessWidget {
         ],
       ),
     ));
-    res.add(Padding(
+    res2.add(Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 20, 10),
       child: Row(
         children: [
@@ -331,10 +334,11 @@ class JmComicPage extends StatelessWidget {
               child: const Text("阅读"),
             ),
           ),
+
         ],
       ),
     ));
-    return res;
+    return !UiMode.m1(context)?res+res2:res2+res;
   }
 
   Widget buildInfoCard(String title, BuildContext context, {bool allowSearch = true}) {
@@ -393,7 +397,7 @@ class JmComicPage extends StatelessWidget {
               ? () => Get.to(() => JmSearchPage(title), preventDuplicates: false)
               : () {},
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
+            padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
             child: Text(title),
           ),
         ),

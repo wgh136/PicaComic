@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
@@ -395,8 +396,17 @@ class _MainPageState extends State<MainPage> {
                 //  const VerticalDivider(),
                 Expanded(
                   child: ClipRect(
-                    child:AnimatedSwitcher(
+                    child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
+                      reverseDuration: const Duration(milliseconds: 0),
+                      switchInCurve: Curves.ease,
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        var tween = Tween<Offset>(begin: const Offset(0, 0.1), end: const Offset(0, 0));
+                        return SlideTransition(
+                          position: tween.animate(animation),
+                          child: child,
+                        );
+                      },
                       child: pages[i],
                     ),
                   ),

@@ -17,7 +17,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.5.1";
+const appVersion = "1.5.2";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;

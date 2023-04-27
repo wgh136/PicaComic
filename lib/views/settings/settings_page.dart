@@ -467,8 +467,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: Text("阅读"),
                     ),
                     ListTile(
-                      leading: Icon(Icons.switch_left,color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("点击屏幕左右区域翻页"),
+                      leading: Icon(Icons.touch_app_outlined,color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("点按翻页"),
                       trailing: Switch(
                         value: pageChangeValue,
                         onChanged: (b){

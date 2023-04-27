@@ -108,7 +108,7 @@ Widget buildBottomToolBar(
       },
       child: comicReadingPageLogic.tools
           ? Container(
-              height: 105 + Get.bottomBarHeight / 2,
+              height: 105 + MediaQuery.of(context).padding.bottom,
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10), topRight: Radius.circular(10)),
@@ -163,7 +163,10 @@ Widget buildBottomToolBar(
 ///显示当前的章节和页面位置
 Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showEps,
     List<String> eps, BuildContext context, {bool jm = false}) {
-  var epsText = eps[comicReadingPageLogic.order];
+  var epsText = "";
+  if(!eps.isEmpty){
+    epsText = eps[comicReadingPageLogic.order];
+  }
   if(jm){
     epsText = "第${comicReadingPageLogic.order+1}章";
   }
@@ -263,7 +266,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
   }
 }
 
-List<Widget> buildBottoms(ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
+List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
   return ((MediaQuery.of(context).size.width > MediaQuery.of(context).size.height &&
           appdata.settings[9] != "4" &&
           appdata.settings[4] == "1"))
@@ -274,10 +277,11 @@ List<Widget> buildBottoms(ComicReadingPageLogic comicReadingPageLogic, BuildCont
             child: IconButton(
               icon: const Icon(Icons.arrow_circle_left),
               onPressed: () {
-                final value = appdata.settings[9] == "2"
-                    ? comicReadingPageLogic.index + 1
-                    : comicReadingPageLogic.index - 1;
-                comicReadingPageLogic.jumpToPage(value);
+                if(appdata.settings[9] == "1") {
+                  comicReadingPageLogic.jumpToLastPage();
+                }else if(appdata.settings[9] == "2"){
+                  comicReadingPageLogic.jumpToNextPage();
+                }
               },
               iconSize: 50,
             ),
@@ -288,10 +292,11 @@ List<Widget> buildBottoms(ComicReadingPageLogic comicReadingPageLogic, BuildCont
             child: IconButton(
               icon: const Icon(Icons.arrow_circle_right),
               onPressed: () {
-                final value = appdata.settings[9] != "2"
-                    ? comicReadingPageLogic.index + 1
-                    : comicReadingPageLogic.index - 1;
-                comicReadingPageLogic.jumpToPage(value);
+                if(appdata.settings[9] == "2") {
+                  comicReadingPageLogic.jumpToLastPage();
+                }else if(appdata.settings[9] == "1"){
+                  comicReadingPageLogic.jumpToNextPage();
+                }
               },
               iconSize: 50,
             ),
