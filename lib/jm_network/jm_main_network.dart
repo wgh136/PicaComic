@@ -21,11 +21,28 @@ class JmNetwork {
   关于一些注意事项:
     1. jm的漫画列表加载, 当page大于存在的数量时返回最后一页, 而不是报错
    */
-  final baseUrl = "https://www.jmapinode.cc";
+
+  ///禁漫api地址
+  ///
+  /// "https://www.jmapinode1.cc", "https://www.jmapinode.cc",
+  /// "https://www.jmapibranch1.cc", "https://www.jmapibranch2.cc"
+  var baseUrl = "https://www.jmapinode1.cc";
+
   final baseData = "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
+
   final cookieJar = CookieJar(ignoreExpires: true);
 
   var hotTags = <String>[];
+
+  void updateApi(){
+    var urls = <String>[
+      "https://www.jmapinode1.cc",
+      "https://www.jmapinode.cc",
+      "https://www.jmapibranch1.cc",
+      "https://www.jmapibranch2.cc"
+    ];
+    baseUrl = urls[int.parse(appdata.settings[17])];
+  }
 
   ///解密数据
   String _convertData(String input, int time) {
@@ -58,25 +75,40 @@ class JmNetwork {
     int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     var dio = Dio(getHeader(time))..interceptors.add(LogInterceptor());
     dio.interceptors.add(CookieManager(cookieJar));
-    print(await cookieJar.loadForRequest(Uri.parse(url)));
-    var res = await dio.get(url, options: Options(validateStatus: (i) => i == 200 || i == 401));
-    if (res.statusCode == 401) {
-      return Res(null,
-          errorMessage:
-              const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["errorMsg"] ??
-                  "未知错误".toString());
+    try{
+      var res = await dio.get(url, options: Options(validateStatus: (i) => i == 200 || i == 401));
+      if (res.statusCode == 401) {
+        return Res(null,
+            errorMessage:
+                const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["errorMsg"] ??
+                    "未知错误".toString());
+      }
+      var givenData = const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["data"];
+      if (givenData is List && givenData.isEmpty) {
+        return Res(null, errorMessage: "无数据");
+      } else if (givenData is List) {
+        return Res(null, errorMessage: "解析出错");
+      }
+      var data = _convertData(givenData, time);
+      if (kDebugMode && GetPlatform.isWindows) {
+        saveDebugData(data);
+      }
+      return Res<dynamic>(const JsonDecoder().convert(data));
+    } on DioError catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      if (e.type != DioErrorType.unknown) {
+        return Res<String>(null, errorMessage: e.message ?? "网络错误");
+      }
+      return Res<String>(null, errorMessage: "网络错误");
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return Res<String>(null, errorMessage: "网络错误");
     }
-    var givenData = const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["data"];
-    if (givenData is List && givenData.isEmpty) {
-      return Res(null, errorMessage: "无数据");
-    } else if (givenData is List) {
-      return Res(null, errorMessage: "解析出错");
-    }
-    var data = _convertData(givenData, time);
-    if (kDebugMode && GetPlatform.isWindows) {
-      saveDebugData(data);
-    }
-    return Res<dynamic>(const JsonDecoder().convert(data));
+
   }
 
   ///post请求, 与get请求的一个显著区别是请求头中的Content-Type
@@ -154,7 +186,12 @@ class JmNetwork {
               comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
         }
       }
-      data.items.add(HomePageItem(item["title"], item["id"].toString(), comics));
+      String type = item["type"];
+      String id = item["id"].toString();
+      if(type == "category_id"){
+        id = item["slug"];
+      }
+      data.items.add(HomePageItem(item["title"], id, comics, type!="promote"));
     }
     return Res(data);
   }
@@ -451,7 +488,7 @@ class JmNetwork {
 
   Future<void> getCategoriesComicNextPage(CategoryComicsRes comics) async {
     var res = await get(
-        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${comics.category}&page=${comics.loadedPage}");
+        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${comics.category}&page=${comics.loadedPage+1}");
     if (res.error) {
       return;
     }
@@ -546,7 +583,6 @@ class JmNetwork {
 
   ///使用储存的数据进行登录, jm必须在每次启动app时进行登录
   Future<Res<bool>> loginFromAppdata() async {
-    await getHotTags();
     var account = appdata.jmName;
     var pwd = appdata.jmPwd;
     if (account == "") {
@@ -641,9 +677,21 @@ class JmNetwork {
   }
 
   ///获取收藏夹
-  Future<void> getFolders() async {
-    await get("$baseUrl/favorite?$baseData");
-    //TODO
+  Future<Res<Map<String, String>>> getFolders() async {
+    var res = await get("$baseUrl/favorite?$baseData");
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var folders = <String, String>{};
+      for(var folder in res.data["folder_list"]){
+        folders[folder["FID"]] = folder["name"];
+      }
+      return Res(folders);
+    }
+    catch(e){
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
   }
 
   ///移动漫画至指定的收藏夹

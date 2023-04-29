@@ -175,10 +175,10 @@ class RadioLogic extends GetxController{
 }
 
 class ModeRadioLogic2 extends GetxController{
-  int value = appdata.getSearchMod();
+  int value = appdata.getSearchMode();
   void change(int i){
     value = i;
-    appdata.saveSearchMode(i);
+    appdata.setSearchMode(i);
     update();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/jm_views/jm_category_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/promote_list_page.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
@@ -72,7 +73,13 @@ class JmHomePage extends StatelessWidget {
                 ),
                 const Spacer(),
                 TextButton(
-                    onPressed: () => Get.to(() => JmPromoteListPage(item.name, item.id)),
+                    onPressed: (){
+                      if(item.category){
+                        Get.to(()=>JmCategoryPage(Category(item.name, item.id, []), fromHomePage: true,));
+                      }else{
+                        Get.to(() => JmPromoteListPage(item.name, item.id));
+                      }
+                    },
                     child: const Text("查看更多"))
               ],
             ),

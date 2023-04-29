@@ -108,7 +108,17 @@ class MyCacheManager{
         //不直接写入文件, 因为禁漫太离谱了, 处理完成后再写入
         bytes.addAll(b.toList());
         currentBytes += b.length;
-        //不能在此时使currentBytes==expectedBytes, 这将导致调用者认为完成, 因此+1
+        if(jm) {
+          //构建虚假的进度条, 由于无法获取jm文件大小, 出此下策
+          //当获取到数据时, 就告知完成一半
+          yield DownloadProgress((currentBytes * 0.5).floor(), expectedBytes??currentBytes, url, savePath);
+        } else {
+          //由于未完成写入文件, 此处加一, 告知加载未完成
+          yield DownloadProgress(currentBytes, (expectedBytes??currentBytes)+1, url, savePath);
+        }
+      }
+      if(jm) {
+        //当获取到数据时, 告知完成3/4
         yield DownloadProgress((currentBytes * 0.75).floor(), expectedBytes??currentBytes, url, savePath);
       }
     }
@@ -126,7 +136,7 @@ class MyCacheManager{
     } else {
       await startWriteFile(WriteInfo(savePath, bytes));
     }
-
+    //告知完成
     yield DownloadProgress(1, 1, url, savePath);
     saveInfo(url, savePath);
   }

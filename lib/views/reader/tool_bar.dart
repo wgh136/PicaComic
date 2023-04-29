@@ -164,7 +164,7 @@ Widget buildBottomToolBar(
 Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showEps,
     List<String> eps, BuildContext context, {bool jm = false}) {
   var epsText = "";
-  if(!eps.isEmpty){
+  if(eps.isNotEmpty){
     epsText = eps[comicReadingPageLogic.order];
   }
   if(jm){
@@ -218,7 +218,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
                   ));
   } else {
     return Positioned(
-        bottom: 13 + Get.bottomBarHeight / 2,
+        bottom: 13 + MediaQuery.of(context).padding.bottom,
         left: 25,
         child: appdata.settings[9] == "4"
             ? ValueListenableBuilder(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import '../../base.dart';
+import '../widgets/list_loading.dart';
 import 'eh_widgets/eh_gallery_tile.dart';
 
 class EhLeaderboardLogic extends GetxController{
@@ -84,17 +85,8 @@ class OneEhLeaderboardPage extends StatelessWidget{
             ),
           ),
           if(logic.leaderboards[index].loaded!=EhLeaderboard.max&&!logic.networkStatus[index])
-            SliverToBoxAdapter(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 80,
-                child: const Center(
-                  child: SizedBox(
-                    width: 20,height: 20,
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              ),
+            const SliverToBoxAdapter(
+              child: ListLoadingIndicator(),
             ),
           if(logic.networkStatus[index])
             SliverToBoxAdapter(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
@@ -85,17 +86,8 @@ class HomePage extends StatelessWidget {
                       childAspectRatio: comicTileAspectRatio,
                     ),
                   ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      child: const Center(
-                        child: SizedBox(
-                          width: 20,height: 20,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
+                  const SliverToBoxAdapter(
+                    child: ListLoadingIndicator(),
                   ),
                   SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
                 ],

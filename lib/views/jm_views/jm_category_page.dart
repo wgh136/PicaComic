@@ -5,6 +5,7 @@ import 'package:pica_comic/jm_network/jm_main_network.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/settings/jm_settings.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'jm_widgets.dart';
 
 class CategoryPageLogic extends GetxController{
@@ -17,8 +18,14 @@ class CategoryPageLogic extends GetxController{
     update();
   }
 
-  void get(Category category,{bool leaderboard=false}) async{
-    var res = await jmNetwork.getCategoryComics(category.slug, ComicsOrder.values[int.parse(appdata.settings[16])]);
+  void get(Category category,{bool leaderboard=false, bool fromHomePage=false}) async{
+    ComicsOrder order;
+    if(fromHomePage){
+      order = ComicsOrder.latest;
+    }else{
+      order = ComicsOrder.values[int.parse(appdata.settings[16])];
+    }
+    var res = await jmNetwork.getCategoryComics(category.slug, order);
     if(res.error){
       message = res.errorMessage;
       change();
@@ -42,8 +49,9 @@ class CategoryPageLogic extends GetxController{
 }
 
 class JmCategoryPage extends StatelessWidget {
-  const JmCategoryPage(this.category, {Key? key}) : super(key: key);
+  const JmCategoryPage(this.category, {this.fromHomePage=false,Key? key}) : super(key: key);
   final Category category;
+  final bool fromHomePage;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +59,7 @@ class JmCategoryPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(category.name),
         actions: [
+          if(! fromHomePage)
           Tooltip(
             message: "设置排序方式",
             child: IconButton(
@@ -69,7 +78,7 @@ class JmCategoryPage extends StatelessWidget {
         init: CategoryPageLogic(),
         builder: (logic){
           if(logic.loading){
-            logic.get(category);
+            logic.get(category, fromHomePage: fromHomePage);
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -93,12 +102,7 @@ class JmCategoryPage extends StatelessWidget {
                 ),
                 if(logic.comics!.loaded < logic.comics!.total)
                   const SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 80,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+                    child: ListLoadingIndicator(),
                   ),
                 SliverPadding(padding: MediaQuery.of(context).padding),
               ],

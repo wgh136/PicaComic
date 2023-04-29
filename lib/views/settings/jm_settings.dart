@@ -166,6 +166,8 @@ class SetJmImageShutController extends GetxController{
     value = s;
     appdata.settings[17] = s;
     appdata.writeData();
+    jmNetwork.updateApi();
+    jmNetwork.loginFromAppdata();
     update();
   }
 }

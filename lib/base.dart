@@ -17,7 +17,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.5.2";
+const appVersion = "1.5.3";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -57,6 +57,7 @@ class Appdata{
     "1", //15 Cloudflare IP, //为1表示使用哔咔官方提供的Ip, 为0表示禁用, 其他值表示使用自定义的Ip
     "0", //16 Jm漫画排序模式, 值为 ComicsOrder 的索引
     "0", //17 Jm图源
+    "0", //18 夜间模式降低图片亮度
   ];
   List<String> blockingKeyword = [];
   List<String> firstUse = [
@@ -99,12 +100,12 @@ class Appdata{
     }
   }
 
-  int getSearchMod(){
+  int getSearchMode(){
     var modes = ["dd","da","ld","vd"];
     return modes.indexOf(settings[1]);
   }
 
-  void saveSearchMode(int mode) async{
+  void setSearchMode(int mode) async{
     var modes = ["dd","da","ld","vd"];
     settings[1] = modes[mode];
     var s = await SharedPreferences.getInstance();

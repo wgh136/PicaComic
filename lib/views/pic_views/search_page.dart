@@ -5,6 +5,7 @@ import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../base.dart';
+import '../widgets/list_loading.dart';
 
 class SearchPageLogic extends GetxController{
   var searchResult = SearchResult("", "", [], 1, 0);
@@ -27,10 +28,10 @@ class SearchPageLogic extends GetxController{
 }
 
 class ModeRadioLogic extends GetxController{
-  int value = appdata.getSearchMod();
+  int value = appdata.getSearchMode();
   void change(int i){
     value = i;
-    appdata.saveSearchMode(i);
+    appdata.setSearchMode(i);
     update();
   }
 }
@@ -201,17 +202,8 @@ class SearchPage extends StatelessWidget {
               }),
               GetBuilder<SearchPageLogic>(builder: (searchPageLogic){
                 if(searchPageLogic.searchResult.pages!=searchPageLogic.searchResult.loaded&&searchPageLogic.searchResult.pages!=1&&searchPageLogic.searchResult.pages!=0) {
-                  return SliverToBoxAdapter(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 80,
-                      child: const Center(
-                        child: SizedBox(
-                          width: 20,height: 20,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
+                  return const SliverToBoxAdapter(
+                    child: ListLoadingIndicator(),
                   );
                 }else{
                   return const SliverToBoxAdapter(child: SizedBox(height: 1,),);

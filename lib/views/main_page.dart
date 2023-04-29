@@ -397,11 +397,11 @@ class _MainPageState extends State<MainPage> {
                 Expanded(
                   child: ClipRect(
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 250),
                       reverseDuration: const Duration(milliseconds: 0),
                       switchInCurve: Curves.ease,
                       transitionBuilder: (Widget child, Animation<double> animation) {
-                        var tween = Tween<Offset>(begin: const Offset(0, 0.1), end: const Offset(0, 0));
+                        var tween = Tween<Offset>(begin: const Offset(0, 0.05), end: const Offset(0, 0));
                         return SlideTransition(
                           position: tween.animate(animation),
                           child: child,

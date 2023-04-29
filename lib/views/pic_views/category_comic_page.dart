@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../base.dart';
@@ -15,10 +16,10 @@ class CategoryComicPageLogic extends GetxController{
 }
 
 class ModeRadioLogic1 extends GetxController{
-  int value = appdata.getSearchMod();
+  int value = appdata.getSearchMode();
   void change(int i){
     value = i;
-    appdata.saveSearchMode(i);
+    appdata.setSearchMode(i);
     update();
   }
 }
@@ -191,17 +192,8 @@ class CategoryComicPage extends StatelessWidget {
                   ),
                 ),
                 if(categoryComicPageLogic.search.loaded!=categoryComicPageLogic.search.pages&&categoryComicPageLogic.search.pages!=1)
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 80,
-                    child: const Center(
-                      child: SizedBox(
-                        width: 20,height: 20,
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  ),
+                const SliverToBoxAdapter(
+                  child: ListLoadingIndicator(),
                 ),
                 SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
               ],

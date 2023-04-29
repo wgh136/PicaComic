@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
-const String jmAppVersion = "1.5.1";
+const String jmAppVersion = "1.5.2";
 
 BaseOptions getHeader(int time, {bool post=false, Map<String, String>? headers, bool byte=true}){
 

@@ -6,6 +6,7 @@ import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
+import '../widgets/list_loading.dart';
 
 class CommentsPageLogic extends GetxController{
   bool isLoading = true;
@@ -56,17 +57,8 @@ class CommentsPage extends StatelessWidget {
                           }
                       )),
                       if(commentsPageLogic.comments.loaded!=commentsPageLogic.comments.pages&&commentsPageLogic.comments.pages!=1)
-                        SliverToBoxAdapter(
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            height: 80,
-                            child: const Center(
-                              child: SizedBox(
-                                width: 20,height: 20,
-                                child: CircularProgressIndicator(),
-                              ),
-                            ),
-                          ),
+                        const SliverToBoxAdapter(
+                          child: ListLoadingIndicator(),
                         ),
                       SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
                     ],

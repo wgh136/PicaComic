@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../widgets/search.dart';
 
 class JmSearchPageLogic extends GetxController{
@@ -124,17 +125,8 @@ class JmSearchPage extends StatelessWidget {
 
   Widget buildLoading(JmSearchPageLogic logic, BuildContext context){
     if(logic.searchRes!=null&&logic.searchRes!.loaded<logic.searchRes!.total) {
-      return SliverToBoxAdapter(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: 80,
-          child: const Center(
-            child: SizedBox(
-              width: 20,height: 20,
-              child: CircularProgressIndicator(),
-            ),
-          ),
-        ),
+      return const SliverToBoxAdapter(
+        child: ListLoadingIndicator(),
       );
     }else{
       return const SliverToBoxAdapter(child: SizedBox(height: 1,),);

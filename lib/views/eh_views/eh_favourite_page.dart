@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../../base.dart';
 import '../widgets/widgets.dart';
@@ -108,17 +109,8 @@ class EhFavouritePage extends StatelessWidget {
           ),
         ),
         if(logic.galleries!.next!=null)
-          SliverToBoxAdapter(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 80,
-              child: const Center(
-                child: SizedBox(
-                  width: 20,height: 20,
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-            ),
+          const SliverToBoxAdapter(
+            child: ListLoadingIndicator(),
           ),
       ],
     );

@@ -44,7 +44,6 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
   - 转到游戏下载页面
 
 ### E-Hentai
-**目前尚未完善, 可能存在各种各样的问题**
 - 主页
 - 热门
 - 收藏夹
@@ -55,7 +54,6 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 下载画廊
 
 ### 禁漫天堂
-**目前尚未完善, 可能存在各种各样的问题**
 - 主页
 - 最新
 - 分类
@@ -63,7 +61,7 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 漫画详情
 - 漫画阅读
 - 登录
-- 收藏夹(分类收藏未完成)
+- 收藏夹
 
 ## Thanks
 

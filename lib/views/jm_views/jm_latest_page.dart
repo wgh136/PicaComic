@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 
 import 'jm_widgets.dart';
 
@@ -69,12 +70,7 @@ class JmLatestPage extends StatelessWidget {
               ),
               if(!logic.loadEnd)
                 const SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 80,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
+                  child: ListLoadingIndicator(),
                 )
             ],
           );

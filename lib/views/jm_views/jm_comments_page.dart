@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../widgets/avatar.dart';
 import '../widgets/pop_up_widget_scaffold.dart';
 import '../widgets/widgets.dart'
@@ -86,16 +87,7 @@ class JmCommentsPage extends StatelessWidget {
                     }
                     if(index == logic.comments!.length){
                       if(logic.totalComments >= logic.comments!.length){
-                        return const SizedBox(
-                          height: 30,
-                          child: Center(
-                            child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 3,),
-                            ),
-                          ),
-                        );
+                        return const ListLoadingIndicator();
                       }else{
                         return const SizedBox(height: 0,);
                       }

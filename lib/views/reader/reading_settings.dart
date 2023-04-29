@@ -48,6 +48,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   bool showThreeButton = appdata.settings[4] == "1";
   bool useVolumeKeyChangePage = appdata.settings[7] == "1";
   bool keepScreenOn = appdata.settings[14] == "1";
+  bool lowBrightness = appdata.settings[18] == "1";
   var value = int.parse(appdata.settings[9]);
   int i = 0;
   double opacityLevel = 1.0;
@@ -129,6 +130,22 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 },
               ),
             ),
+          ListTile(
+            leading: Icon(Icons.brightness_4, color: Theme.of(context).colorScheme.secondary),
+            title: const Text("夜间模式降低图片亮度"),
+            onTap: () {},
+            trailing: Switch(
+              value: lowBrightness,
+              onChanged: (b) {
+                b ? appdata.settings[18] = "1" : appdata.settings[18] = "0";
+                setState(() {
+                  lowBrightness = b;
+                });
+                appdata.writeData();
+                Get.find<ComicReadingPageLogic>().update();
+              },
+            ),
+          ),
           ListTile(
             leading: Icon(Icons.chrome_reader_mode, color: Theme.of(context).colorScheme.secondary),
             title: const Text("选择阅读模式"),

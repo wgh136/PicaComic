@@ -188,6 +188,16 @@ class ComicReadingPage extends StatelessWidget {
                     child: Stack(
                       children: [
                         buildComicView(logic, type, data.target, eps),
+                        if(Get.isDarkMode && appdata.settings[18] == "1")
+                          Positioned(
+                            top: 0,
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: ColoredBox(
+                              color: Colors.black.withOpacity(0.1),
+                            ),
+                          ),
                         Positioned(
                           top: 0,
                           bottom: 0,

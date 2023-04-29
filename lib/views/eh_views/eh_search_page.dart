@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../widgets/search.dart';
 import 'eh_widgets/eh_gallery_tile.dart';
 
@@ -118,17 +119,8 @@ class EhSearchPage extends StatelessWidget {
 
   Widget buildLoading(EhSearchPageLogic logic, BuildContext context){
     if(logic.galleries!=null&&logic.galleries!.next!=null) {
-      return SliverToBoxAdapter(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: 80,
-          child: const Center(
-            child: SizedBox(
-              width: 20,height: 20,
-              child: CircularProgressIndicator(),
-            ),
-          ),
-        ),
+      return const SliverToBoxAdapter(
+        child: ListLoadingIndicator(),
       );
     }else{
       return const SliverToBoxAdapter(child: SizedBox(height: 1,),);

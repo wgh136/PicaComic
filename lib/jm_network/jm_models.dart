@@ -7,9 +7,10 @@ class HomePageData{
 class HomePageItem{
   String name;
   String id;
+  bool category;
   List<JmComicBrief> comics;
 
-  HomePageItem(this.name, this.id, this.comics);
+  HomePageItem(this.name, this.id, this.comics, this.category);
 }
 
 class JmComicBrief{

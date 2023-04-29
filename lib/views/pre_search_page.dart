@@ -11,9 +11,16 @@ import 'jm_views/jm_comic_page.dart';
 
 class PreSearchController extends GetxController{
   int target = 0;
+  int picComicsOrder = appdata.getSearchMode();
 
   void updateTarget(int i){
     target = i;
+    update();
+  }
+
+  void updatePicComicsOrder(int i){
+    picComicsOrder = i;
+    appdata.setSearchMode(i);
     update();
   }
 }
@@ -55,73 +62,6 @@ class PreSearchPage extends StatelessWidget {
                   }
                 },
                   controller: controller,
-                  trailing: Tooltip(
-                    message: "选择模式",
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_drop_down_rounded),
-                      onPressed: (){
-                        showDialog(context: context, builder: (context){
-                          return SimpleDialog(
-                              title: const Text("选择漫画排序模式(哔咔)"),
-                              children: [GetBuilder<ModeRadioLogic>(
-                                init: ModeRadioLogic(),
-                                builder: (radioLogic){
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(width: 400,),
-                                    ListTile(
-                                      trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
-                                        radioLogic.change(i!);
-                                        Get.back();
-                                      },),
-                                      title: const Text("新书在前"),
-                                      onTap: (){
-                                        radioLogic.change(0);
-                                        Get.back();
-                                      },
-                                    ),
-                                    ListTile(
-                                      trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
-                                        radioLogic.change(i!);
-                                        Get.back();
-                                      },),
-                                      title: const Text("旧书在前"),
-                                      onTap: (){
-                                        radioLogic.change(1);
-                                        Get.back();
-                                      },
-                                    ),
-                                    ListTile(
-                                      trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
-                                        radioLogic.change(i!);
-                                        Get.back();
-                                      },),
-                                      title: const Text("最多喜欢"),
-                                      onTap: (){
-                                        radioLogic.change(2);
-                                        Get.back();
-                                      },
-                                    ),
-                                    ListTile(
-                                      trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
-                                        radioLogic.change(i!);
-                                        Get.back();
-                                      },),
-                                      title: const Text("最多指名"),
-                                      onTap: (){
-                                        radioLogic.change(3);
-                                        Get.back();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },),]
-                          );
-                        });
-                      },
-                    ),
-                  ),
                 ),
               ),
             ),
@@ -213,6 +153,78 @@ class PreSearchPage extends StatelessWidget {
                   ),
                 );
               },),
+            ),
+            SliverToBoxAdapter(
+              child: GetBuilder<PreSearchController>(
+                builder: (logic){
+                  if(logic.target == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Card(
+                        elevation: 0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(13, 5, 0, 0),
+                              child: Text("漫画排序模式"),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              child: Wrap(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("新到书"),
+                                      selected: logic.picComicsOrder == 0,
+                                      onSelected: (b) {
+                                        logic.updatePicComicsOrder(0);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("旧到新"),
+                                      selected: logic.picComicsOrder == 1,
+                                      onSelected: (b) {
+                                        logic.updatePicComicsOrder(1);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("最多喜欢"),
+                                      selected: logic.picComicsOrder == 2,
+                                      onSelected: (b) {
+                                        logic.updatePicComicsOrder(2);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("最多指名"),
+                                      selected: logic.picComicsOrder == 3,
+                                      onSelected: (b) {
+                                        logic.updatePicComicsOrder(2);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }else{
+                    return const SizedBox();
+                  }
+                },
+              ),
             ),
             const SliverPadding(padding: EdgeInsets.only(top: 5)),
             SliverToBoxAdapter(
