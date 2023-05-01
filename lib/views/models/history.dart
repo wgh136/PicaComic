@@ -164,6 +164,10 @@ class HistoryManager{
     catch(e){
       //没有之前的历史记录
       history.addFirst(NewHistory.fromMap(newItem.toMap()));
+      //做一个限制, 避免极端情况
+      if(history.length >= 10000){
+        history.remove(history.last);
+      }
     }
     saveDataAndClose();
   }
@@ -190,6 +194,18 @@ class HistoryManager{
     var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
     if(file.existsSync()){
       await file.delete();
+    }
+  }
+
+  Future<NewHistory?> find(String target) async{
+    if(!_open) {
+      await readData();
+    }
+    try {
+      return history.firstWhere((element) => element.target == target);
+    }
+    catch(e){
+      return null;
     }
   }
 }

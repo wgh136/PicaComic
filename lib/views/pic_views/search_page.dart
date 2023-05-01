@@ -191,10 +191,10 @@ class SearchPage extends StatelessWidget {
                       ),
                     );
                   }else{
-                    return const SliverToBoxAdapter(
+                    return SliverToBoxAdapter(
                       child: ListTile(
-                        leading: Icon(Icons.error_outline),
-                        title: Text("没有任何结果"),
+                        leading: const Icon(Icons.error_outline),
+                        title: Text(network.status?network.message:"没有任何结果"),
                       ),
                     );
                   }

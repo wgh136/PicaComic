@@ -40,6 +40,9 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.paused) {
       appdata.flag = true;
     }
+    //禁漫的登录有效期较短, 部分系统对后台的限制弱, 且本app占用资源少, 可能导致长期挂在后台的情况
+    //因此从后台进入前台时, 尝试重新登录
+    jmNetwork.loginFromAppdata();
   }
 
   @override

@@ -89,14 +89,8 @@ class Network{
     status = false;
     var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
-    if (kDebugMode) {
-      print(data);
-    }
     try{
       var res = await dio.post(url,data:data,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
-      if (kDebugMode) {
-        print(res);
-      }
       if(res.statusCode == 200){
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         return jsonResponse;
@@ -116,6 +110,7 @@ class Network{
       }
     }
     on DioError catch(e){
+      print(e);
       sendNetworkLog(url, e.message.toString());
       if(e.type == DioErrorType.badResponse){
         status = true;
@@ -127,6 +122,7 @@ class Network{
       return null;
     }
     catch(e){
+      print(e);
       return null;
     }
   }

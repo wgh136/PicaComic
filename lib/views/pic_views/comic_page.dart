@@ -8,6 +8,7 @@ import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
 import 'package:pica_comic/views/models/history.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
@@ -29,7 +30,6 @@ class ComicPageLogic extends GetxController{
   var categories = <Widget>[];
   var recommendation = <ComicItemBrief>[];
   final controller = ScrollController();
-  NewHistory? history;
   var eps = <Widget>[
     const ListTile(
       leading: Icon(Icons.library_books),
@@ -58,7 +58,7 @@ class ComicPage extends StatelessWidget{
           //添加历史记录
           try{
             Future.delayed(const Duration(milliseconds: 300), (){
-              logic.controller!.history = NewHistory(
+              var history = NewHistory(
                   HistoryType.picacg,
                   DateTime.now(),
                   comic.title,
@@ -68,7 +68,7 @@ class ComicPage extends StatelessWidget{
                   0,
                   comic.id
               );
-              appdata.history.addHistory(logic.controller!.history!);
+              appdata.history.addHistory(history);
             });
           }
           catch(e){
@@ -378,30 +378,7 @@ class ComicPage extends StatelessWidget{
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
-            onPressed: (){
-              if(logic.history!=null){
-                if(logic.history!.ep!=0){
-                  showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                    title: const Text("继续阅读"),
-                    content: Text("上次阅读到第${logic.history!.ep}章第${logic.history!.page}页, 是否继续阅读?"),
-                    actions: [
-                      TextButton(onPressed: (){
-                        Get.back();
-                        Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
-                      }, child: const Text("从头开始")),
-                      TextButton(onPressed: (){
-                        Get.back();
-                        Get.to(()=>ComicReadingPage.picacg(comic.id, logic.history!.ep, logic.epsStr,comic.title,initialPage: logic.history!.page,));
-                      }, child: const Text("继续阅读")),
-                    ],
-                  ));
-                }else{
-                  Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
-                }
-              }else {
-                Get.to(()=>ComicReadingPage.picacg(comic.id, 1, logic.epsStr,comic.title));
-              }
-            },
+            onPressed: () => readPicacgComic(logic.comicItem!.id, logic.comicItem!.title, logic.epsStr),
             child: const Text("阅读"),
           ),),
         ],

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
@@ -123,7 +124,11 @@ class PreSearchPage extends StatelessWidget {
                                       content: Padding(
                                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                         child: TextField(
+                                          keyboardType: TextInputType.number,
                                           controller: controller,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                                          ],
                                           decoration: const InputDecoration(
                                               border: OutlineInputBorder(),
                                               labelText: "ID",
@@ -209,7 +214,7 @@ class PreSearchPage extends StatelessWidget {
                                       label: const Text("最多指名"),
                                       selected: logic.picComicsOrder == 3,
                                       onSelected: (b) {
-                                        logic.updatePicComicsOrder(2);
+                                        logic.updatePicComicsOrder(3);
                                       },
                                     ),
                                   ),

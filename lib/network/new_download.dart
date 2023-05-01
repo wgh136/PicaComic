@@ -7,6 +7,8 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/eh_network/eh_download_model.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/jm_network/jm_download.dart';
+import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_download_model.dart';
 import 'models.dart';
@@ -32,6 +34,9 @@ class DownloadManager{
 
   ///已下载的e-hentai画廊
   List<String> downloadedGalleries = [];
+
+  ///已下载的禁漫漫画
+  List<String> downloadedJmComics = [];
 
   ///下载队列
   var downloading = Queue<DownloadingItem>();
@@ -78,6 +83,9 @@ class DownloadManager{
     for(var s in json["downloadedGalleries"]){
       downloadedGalleries.add(s);
     }
+    for(var s in json["downloadedJmComics"]??[]){
+      downloadedJmComics.add(s);
+    }
     for(var item in json["downloading"]){
       downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo)!);
     }
@@ -110,6 +118,7 @@ class DownloadManager{
     var data = <String, dynamic>{};
     data["downloaded"] = downloaded;
     data["downloadedGalleries"] = downloadedGalleries;
+    data["downloadedJmComics"] = downloadedJmComics;
     data["downloading"] = <Map<String, dynamic>>[];
     for(var item in downloading){
       data["downloading"].add(item.toMap());
@@ -142,11 +151,23 @@ class DownloadManager{
     }
   }
 
+  ///添加E-Hentai下载
   void addEhDownload(Gallery gallery){
     final id = getGalleryId(gallery.link);
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create();
     downloading.addLast(EhDownloadingItem(gallery, path!, _whenFinish, _whenError, _saveInfo, id));
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  ///添加禁漫下载
+  void addJmDownload(JmComicInfo comic){
+    var downloadPath = Directory("$path$pathSep${"jm"}${comic.id}");
+    downloadPath.create();
+    downloading.addLast(JmDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
     if(!isDownloading){
       downloading.first.start();
       isDownloading = true;
@@ -159,6 +180,8 @@ class DownloadManager{
       downloaded.add(downloading.first.id);
     }else if(downloading.first.type == DownloadType.ehentai){
       downloadedGalleries.add(downloading.first.id);
+    }else if(downloading.first.type == DownloadType.jm){
+      downloadedJmComics.add(downloading.first.id);
     }
     downloading.removeFirst();
     await _saveInfo();
@@ -234,19 +257,27 @@ class DownloadManager{
     return DownloadedGallery.fromJson(jsonDecode(json));
   }
 
+  ///通过禁漫id获取漫画信息
+  Future<DownloadedJmComic> getJmComicFormId(String id) async{
+    var file = File("$path$pathSep$id${pathSep}info.json");
+    var json = await file.readAsString();
+    return DownloadedJmComic.fromMap(jsonDecode(json));
+  }
+
   ///删除已下载的漫画
   Future<void> delete(List<String> ids) async{
     for (var id in ids) {
       downloaded.remove(id);
       downloadedGalleries.remove(id);
+      downloadedJmComics.remove(id);
       var comic = Directory("$path$pathSep$id");
       comic.delete(recursive: true);
     }
     _saveInfo();
   }
 
-  ///获取漫画章节的长度
-  Future<int> getPicEpLength(String id, int ep) async{
+  ///获取漫画章节的长度, 适用于picacg和禁漫
+  Future<int> getEpLength(String id, int ep) async{
     var directory = Directory("$path$pathSep$id$pathSep$ep");
     var files = directory.list();
     return files.length;
@@ -281,6 +312,7 @@ DownloadingItem? downloadingItemFromMap(
   switch(map["type"]){
     case 0: return PicDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 1: return EhDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    case 2: return JmDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     default: return null;
   }
 }

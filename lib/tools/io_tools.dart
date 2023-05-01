@@ -22,24 +22,47 @@ Future<double> getFolderSize(Directory path) async{
 
 Future<bool> exportComic(String id) async{
   try{
-    var path = Directory(downloadManager.path! + pathSep + id);
-    var encode = ZipFileEncoder();
-    encode.create('${downloadManager.path!}$pathSep$id.zip');
-    await encode.addDirectory(path);
-    encode.close();
+    var data = ExportComicData(id, downloadManager.path);
+    var res = await compute(runningExportComic, data);
+    if(! res){
+      return false;
+    }
     if(GetPlatform.isAndroid) {
-      var params = SaveFileDialogParams(sourceFilePath: '${downloadManager.path!}$pathSep$id.zip');
+      var params = SaveFileDialogParams(sourceFilePath: '${data.path!}$pathSep$id.zip');
       await FlutterFileDialog.saveFile(params: params);
     }else if(GetPlatform.isWindows){
       final String? directoryPath = await getDirectoryPath();
       if (directoryPath != null) {
-        var file = File('${downloadManager.path!}$pathSep$id.zip');
+        var file = File('${data.path!}$pathSep$id.zip');
         await file.copy("$directoryPath$pathSep$id.zip");
       }
     }
     Get.back();
-    var file = File('${downloadManager.path!}$pathSep$id.zip');
+    var file = File('${data.path!}$pathSep$id.zip');
     file.delete();
+    return true;
+  }
+  catch(e){
+    return false;
+  }
+}
+
+class ExportComicData{
+  String id;
+  String? path;
+
+  ExportComicData(this.id, this.path);
+}
+
+Future<bool> runningExportComic(ExportComicData data) async{
+  var id = data.id;
+  try{
+    var path = Directory(data.path! + pathSep + id);
+    var encode = ZipFileEncoder();
+    encode.create('${data.path!}$pathSep$id.zip');
+    await encode.addDirectory(path);
+    encode.close();
+
     return true;
   }
   catch(e){

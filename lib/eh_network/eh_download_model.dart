@@ -109,7 +109,6 @@ class EhDownloadingItem extends DownloadingItem{
       await _getUrls();
       await _downloadCover();
       while (_downloadedPages < _totalPages) {
-        print("$_downloadedPages/$_totalPages");
         if (_pauseFlag) return;
         var imagePath = await getEhImageUrl(_urls[_downloadedPages]);
         var dio = Dio();

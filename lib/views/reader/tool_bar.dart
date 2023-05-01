@@ -164,11 +164,11 @@ Widget buildBottomToolBar(
 Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showEps,
     List<String> eps, BuildContext context, {bool jm = false}) {
   var epsText = "";
-  if(eps.isNotEmpty){
+  if(eps.isNotEmpty && !jm){
     epsText = eps[comicReadingPageLogic.order];
   }
   if(jm){
-    epsText = "第${comicReadingPageLogic.order+1}章";
+    epsText = "第${comicReadingPageLogic.order}章";
   }
 
   if (!comicReadingPageLogic.tools) {

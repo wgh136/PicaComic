@@ -62,6 +62,7 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 漫画阅读
 - 登录
 - 收藏夹
+- 下载漫画
 
 ## Thanks
 

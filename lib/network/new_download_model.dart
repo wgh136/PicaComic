@@ -1,4 +1,5 @@
 import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/jm_network/jm_models.dart';
 import 'models.dart';
 
 class DownloadedComic{
@@ -30,7 +31,20 @@ class DownloadedGallery{
     size = map["size"];
 }
 
-enum DownloadType{picacg, ehentai}
+class DownloadedJmComic{
+  JmComicInfo comic;
+  double? size;
+  DownloadedJmComic(this.comic, this.size);
+  Map<String, dynamic> toMap()=>{
+    "comic": comic.toJson(),
+    "size": size
+  };
+  DownloadedJmComic.fromMap(Map<String, dynamic> map):
+      comic = JmComicInfo.fromMap(map["comic"]),
+      size = map["size"];
+}
+
+enum DownloadType{picacg, ehentai, jm}
 
 abstract class DownloadingItem{
   ///完成时调用

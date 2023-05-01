@@ -9,10 +9,12 @@ import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../jm_network/jm_models.dart';
 import '../../tools/ui_mode.dart';
+import '../models/history.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/selectable_text.dart';
@@ -39,6 +41,19 @@ class JmComicPageLogic extends GetxController {
       comic = res.data;
       change();
     }
+
+    //添加历史记录
+    var history = NewHistory(
+        HistoryType.jmComic,
+        DateTime.now(),
+        comic!.name,
+        comic!.author[0],
+        getJmCoverUrl(id),
+        0,
+        0,
+        id
+    );
+    appdata.history.addHistory(history);
   }
 
   void retry() {
@@ -324,10 +339,7 @@ class JmComicPage extends StatelessWidget {
         children: [
           Expanded(
             child: FilledButton(
-              onPressed: () {
-                //TODO
-                showMessage(context, "敬请期待");
-              },
+              onPressed: () => downloadComic(logic.comic!, context),
               child: const Text("下载"),
             ),
           ),
@@ -336,10 +348,7 @@ class JmComicPage extends StatelessWidget {
           ),
           Expanded(
             child: FilledButton(
-              onPressed: () {
-                Get.to(() => ComicReadingPage.jmComic(
-                    id, logic.comic!.name, logic.comic!.series.values.toList(), 0));
-              },
+              onPressed: () => readJmComic(id, logic.comic!.name, logic.comic!.series.values.toList()),
               child: const Text("阅读"),
             ),
           ),
@@ -503,8 +512,8 @@ class JmComicPage extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                Get.to(() => ComicReadingPage.jmComic(logic.comic!.series.values.toList()[i],
-                    logic.comic!.name, logic.comic!.series.values.toList(), i));
+                Get.to(() => ComicReadingPage.jmComic(logic.comic!.id,
+                    logic.comic!.name, logic.comic!.series.values.toList(), i+1));
               },
             ),
           );
@@ -681,4 +690,23 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
       loading = false;
     });
   }
+}
+
+void downloadComic(JmComicInfo comic, BuildContext context){
+  if(GetPlatform.isWeb){
+    showMessage(context, "Web端不支持下载");
+    return;
+  }
+  if(downloadManager.downloadedJmComics.contains(comic.id)){
+    showMessage(context, "已下载");
+    return;
+  }
+  for(var i in downloadManager.downloading){
+    if(i.id == comic.id){
+      showMessage(context, "下载中");
+      return;
+    }
+  }
+  downloadManager.addJmDownload(comic);
+  showMessage(context, "已加入下载队列");
 }

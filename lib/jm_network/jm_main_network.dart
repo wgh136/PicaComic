@@ -259,8 +259,8 @@ class JmNetwork {
     }
   }
 
-  Future<Res<List<JmComicBrief>>> getLatest(int page) async {
-    var res = await get("$baseUrl/latest?$baseData&page=$page");
+  Future<Res<List<JmComicBrief>>> getLatest() async {
+    var res = await get("$baseUrl/latest?$baseData");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -374,6 +374,9 @@ class JmNetwork {
   }
 
   Future<void> loadSearchNextPage(SearchRes search) async {
+    if(search.loaded >= search.total){
+      return;
+    }
     var res = await get(
         "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(search.keyword)}&page=${search.loadedPage + 1}");
     if (res.error) {

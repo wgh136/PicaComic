@@ -34,6 +34,16 @@ class MyCacheManager{
   ///保存数据同时清除内存中的数据
   Future<void> saveData() async{
     if(_paths != null){
+      if(_paths!.length > 1000){
+        var keys = _paths!.keys.toList();
+        for(int i = keys.length-1;i>=1000;i--){
+          var file = File(_paths![keys[i]]!);
+          if(file.existsSync()){
+            file.deleteSync();
+          }
+          _paths!.remove(keys[i]);
+        }
+      }
       var appDataPath = (await getApplicationSupportDirectory()).path;
       var file = File("$appDataPath${pathSep}cache.json");
       if(! file.existsSync()){
@@ -137,11 +147,17 @@ class MyCacheManager{
       await startWriteFile(WriteInfo(savePath, bytes));
     }
     //告知完成
+    await saveInfo(url, savePath);
     yield DownloadProgress(1, 1, url, savePath);
-    saveInfo(url, savePath);
   }
 
   Future<void> saveInfo(String url, String savePath) async{
+    if(_paths == null){
+      //此时为退出了阅读器, 数据已清除
+      var file = File(savePath);
+      file.deleteSync();
+      throw StateError("已退出阅读器");
+    }
     _paths![url] = savePath;
     //await saveData();
   }

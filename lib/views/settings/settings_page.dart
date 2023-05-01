@@ -354,6 +354,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool blockScreenshot = appdata.settings[12] == "1";
   bool needBiometrics = appdata.settings[13] == "1";
   bool keepScreenOn = appdata.settings[14] == "1";
+  bool lowBrightness = appdata.settings[18] == "1";
 
   @override
   Widget build(BuildContext context) {
@@ -591,6 +592,21 @@ class _SettingsPageState extends State<SettingsPage> {
                           },
                         ),
                       ),
+                    ListTile(
+                      leading: Icon(Icons.brightness_4, color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("夜间模式降低图片亮度"),
+                      onTap: () {},
+                      trailing: Switch(
+                        value: lowBrightness,
+                        onChanged: (b) {
+                          b ? appdata.settings[18] = "1" : appdata.settings[18] = "0";
+                          setState(() {
+                            lowBrightness = b;
+                          });
+                          appdata.writeData();
+                        },
+                      ),
+                    ),
                     ListTile(
                       leading: Icon(Icons.chrome_reader_mode,
                           color: Theme.of(context).colorScheme.secondary),

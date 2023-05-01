@@ -11,7 +11,7 @@ import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../eh_network/get_gallery_id.dart';
-import '../reader/comic_reading_page.dart';
+import '../reader/goto_reader.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/selectable_text.dart';
@@ -22,7 +22,6 @@ class GalleryPageLogic extends GetxController{
   Gallery? gallery;
   var controller = ScrollController();
   bool showAppbarTitle = false;
-  NewHistory? history;
   bool noNetwork = false;
 
   void loadInfo(EhGalleryBrief brief) async{
@@ -54,7 +53,7 @@ class EhGalleryPage extends StatelessWidget {
           //添加历史记录
           Future.delayed(const Duration(milliseconds: 300),(){
             try{
-              logic.controller!.history = NewHistory(
+              var history = NewHistory(
                   HistoryType.ehentai,
                   DateTime.now(),
                   brief.title,
@@ -64,7 +63,7 @@ class EhGalleryPage extends StatelessWidget {
                   0,
                   brief.link
               );
-              appdata.history.addHistory(logic.controller!.history!);
+              appdata.history.addHistory(history);
             }
             catch(e){
               //Get会在初始化logic前调用此函数, 延迟300ms可能仍然没有初始化完成
@@ -374,30 +373,7 @@ class EhGalleryPage extends StatelessWidget {
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
-            onPressed: (){
-              if(logic.history!=null){
-                if(logic.history!.ep!=0){
-                  showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                    title: const Text("继续阅读"),
-                    content: Text("上次阅读到第${logic.history!.ep}章第${logic.history!.page}页, 是否继续阅读?"),
-                    actions: [
-                      TextButton(onPressed: (){
-                        Get.back();
-                        Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!));
-                      }, child: const Text("从头开始")),
-                      TextButton(onPressed: (){
-                        Get.back();
-                        Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!,initialPage: logic.history!.page));
-                      }, child: const Text("继续阅读")),
-                    ],
-                  ));
-                }else{
-                  Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!));
-                }
-              }else {
-                Get.to(()=>ComicReadingPage.ehentai(brief.link,logic.gallery!));
-              }
-            },
+            onPressed: () => readEhGallery(brief.link, logic.gallery!),
             child: const Text("阅读"),
           ),),
 

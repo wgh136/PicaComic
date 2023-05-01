@@ -39,7 +39,13 @@ class ComicReadingPage extends StatelessWidget {
   ///标题
   final String title;
 
-  ///picacg和禁漫有效
+  ///picacg和禁漫有效, e-hentai为0
+  ///
+  /// 这里是初始值, 变量在logic中
+  ///
+  /// 注意: **从1开始**
+  ///
+  /// 当访问下载相关的api时, 务必注意对于禁漫需要加1
   final int order;
 
   ///画廊模型, 阅读非画廊此变量为null
@@ -49,7 +55,7 @@ class ComicReadingPage extends StatelessWidget {
   final ReadingType type;
 
   ///一些会发生变更的信息, 全放logic里面会很乱
-  late final ReadingPageData data = ReadingPageData(0, target);
+  late final ReadingPageData data = ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps[order-1]:target);
 
   ComicReadingPage.picacg(this.target, this.order, this.eps, this.title,
       {super.key, int initialPage = 0})
@@ -66,9 +72,10 @@ class ComicReadingPage extends StatelessWidget {
     data.initialPage = initialPage;
   }
 
-  ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order, {super.key, int initialPage = 0})
-    : type = ReadingType.jm,
-      gallery = null {
+  ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order,
+      {super.key, int initialPage = 0})
+      : type = ReadingType.jm,
+        gallery = null {
     data.initialPage = initialPage;
   }
 
@@ -91,19 +98,28 @@ class ComicReadingPage extends StatelessWidget {
             }
           },
           dispose: (logic) {
-            if(type != ReadingType.jm) {
+            //保存历史记录
+            if(type != ReadingType.ehentai) {
               if (logic.controller!.order == 1 && logic.controller!.index == 1) {
-                appdata.history.saveReadHistory(data.target, 0, 0);
+                appdata.history.saveReadHistory(target, 0, 0);
               } else {
                 if (logic.controller!.order == data.epsWidgets.length - 1 &&
                     logic.controller!.index == logic.controller!.length) {
-                  appdata.history.saveReadHistory(data.target, 0, 0);
+                  appdata.history.saveReadHistory(target, 0, 0);
                 } else {
-                  appdata.history
-                      .saveReadHistory(data.target, logic.controller!.order, logic.controller!.index);
+                  appdata.history.saveReadHistory(
+                      target, logic.controller!.order, logic.controller!.index);
                 }
               }
+            }else{
+              if(logic.controller!.index == 1 || logic.controller!.index == logic.controller!.length){
+                appdata.history.saveReadHistory(target, 0, 0);
+              }else{
+                appdata.history.saveReadHistory(
+                    target, 1, logic.controller!.index);
+              }
             }
+
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
             if (data.listenVolume != null) {
               data.listenVolume!.stop();
@@ -120,7 +136,7 @@ class ComicReadingPage extends StatelessWidget {
               //加载信息
               if (type == ReadingType.ehentai) {
                 loadGalleryInfo(logic);
-              } else if(type == ReadingType.picacg){
+              } else if (type == ReadingType.picacg) {
                 loadComicInfo(logic);
               } else {
                 loadJmComicInfo(logic);
@@ -135,19 +151,18 @@ class ComicReadingPage extends StatelessWidget {
               //检查传入的初始页面值, 并进行跳转
               if (data.initialPage != 0) {
                 int i = data.initialPage;
-                Future.delayed(
-                    const Duration(milliseconds: 300), () => logic.jumpToPage(i));
+                Future.delayed(const Duration(milliseconds: 300), () => logic.jumpToPage(i));
                 //重置为0, 避免切换章节时再次跳转
                 data.initialPage = 0;
               }
 
               //监听音量键
               if (appdata.settings[7] == "1") {
-                if(appdata.settings[9] != "4"){
+                if (appdata.settings[9] != "4") {
                   data.listenVolume = ListenVolumeController(
-                      () => logic.controller.jumpToPage(logic.index - 1),
-                      () => logic.controller.jumpToPage(logic.index + 1));
-                }else{
+                      () => logic.jumpToLastPage(),
+                      () => logic.jumpToNextPage());
+                } else {
                   data.listenVolume = ListenVolumeController(
                       () => logic.cont.jumpTo(logic.cont.position.pixels - 400),
                       () => logic.cont.jumpTo(logic.cont.position.pixels + 400));
@@ -187,15 +202,17 @@ class ComicReadingPage extends StatelessWidget {
                         : null,
                     child: Stack(
                       children: [
-                        buildComicView(logic, type, data.target, eps),
-                        if(Get.isDarkMode && appdata.settings[18] == "1")
+                        buildComicView(logic, type, (logic.downloaded&&type==ReadingType.jm)?"jm$target":data.target, eps),
+                        if (Get.isDarkMode && appdata.settings[18] == "1")
                           Positioned(
                             top: 0,
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            child: ColoredBox(
-                              color: Colors.black.withOpacity(0.1),
+                            child: IgnorePointer(
+                              child: ColoredBox(
+                                color: Colors.black.withOpacity(0.2),
+                              ),
                             ),
                           ),
                         Positioned(
@@ -207,25 +224,45 @@ class ComicReadingPage extends StatelessWidget {
                             onTapUp: (detail) {
                               bool flag = false;
                               bool flag2 = false;
-                              if(appdata.settings[0] == "1" && appdata.settings[9] != "4" && !logic.tools){
-                                switch(appdata.settings[9]){
+                              if (appdata.settings[0] == "1" &&
+                                  appdata.settings[9] != "4" &&
+                                  !logic.tools) {
+                                switch (appdata.settings[9]) {
                                   case "1":
-                                    detail.globalPosition.dx > MediaQuery.of(context).size.width * 0.75?logic.jumpToNextPage():flag=true;
-                                    detail.globalPosition.dx < MediaQuery.of(context).size.width * 0.25?logic.jumpToLastPage():flag2=true;
+                                    detail.globalPosition.dx >
+                                            MediaQuery.of(context).size.width * 0.75
+                                        ? logic.jumpToNextPage()
+                                        : flag = true;
+                                    detail.globalPosition.dx <
+                                            MediaQuery.of(context).size.width * 0.25
+                                        ? logic.jumpToLastPage()
+                                        : flag2 = true;
                                     break;
                                   case "2":
-                                    detail.globalPosition.dx > MediaQuery.of(context).size.width * 0.75?logic.jumpToLastPage():flag=true;
-                                    detail.globalPosition.dx < MediaQuery.of(context).size.width * 0.25?logic.jumpToNextPage():flag2=true;
+                                    detail.globalPosition.dx >
+                                            MediaQuery.of(context).size.width * 0.75
+                                        ? logic.jumpToLastPage()
+                                        : flag = true;
+                                    detail.globalPosition.dx <
+                                            MediaQuery.of(context).size.width * 0.25
+                                        ? logic.jumpToNextPage()
+                                        : flag2 = true;
                                     break;
                                   case "3":
-                                    detail.globalPosition.dy > MediaQuery.of(context).size.height * 0.75?logic.jumpToNextPage():flag=true;
-                                    detail.globalPosition.dy < MediaQuery.of(context).size.height * 0.25?logic.jumpToLastPage():flag2=true;
+                                    detail.globalPosition.dy >
+                                            MediaQuery.of(context).size.height * 0.75
+                                        ? logic.jumpToNextPage()
+                                        : flag = true;
+                                    detail.globalPosition.dy <
+                                            MediaQuery.of(context).size.height * 0.25
+                                        ? logic.jumpToLastPage()
+                                        : flag2 = true;
                                     break;
                                 }
-                              }else{
+                              } else {
                                 flag = flag2 = true;
                               }
-                              if(flag&&flag2){
+                              if (flag && flag2) {
                                 if (logic.showSettings) {
                                   logic.showSettings = false;
                                   logic.update();
@@ -259,32 +296,32 @@ class ComicReadingPage extends StatelessWidget {
                         }, () async {
                           if (logic.downloaded) {
                             var id = data.target;
-                            if(type == ReadingType.ehentai){
+                            if (type == ReadingType.ehentai) {
                               id = getGalleryId(data.target);
                             }
-                            shareImageFromDisk(downloadManager
-                                .getImage(id, logic.order, logic.index - 1)
-                                .path);
+                            if(type == ReadingType.jm){
+                              id = "jm$target";
+                            }
+                            shareImageFromDisk(
+                                downloadManager.getImage(id, logic.order, logic.index - 1).path);
                           } else {
-                            shareImageFromCache(logic.urls[logic.index - 1],data.target,
-                                eh: type == ReadingType.ehentai,
-                                jm: type == ReadingType.jm);
+                            shareImageFromCache(logic.urls[logic.index - 1], data.target,
+                                eh: type == ReadingType.ehentai, jm: type == ReadingType.jm);
                           }
-
                         }, () async {
                           if (logic.downloaded) {
                             var id = data.target;
-                            if(type == ReadingType.ehentai){
+                            if (type == ReadingType.ehentai) {
                               id = getGalleryId(data.target);
                             }
-                            saveImageFromDisk(downloadManager
-                                .getImage(id, logic.order, logic.index - 1)
-                                .path);
+                            if(type == ReadingType.jm){
+                              id = "jm$target";
+                            }
+                            saveImageFromDisk(
+                                downloadManager.getImage(id, logic.order, logic.index - 1).path);
                           } else {
-                            saveImage(logic.urls[logic.index - 1],data.target,
-                                eh: type == ReadingType.ehentai,
-                                jm: type == ReadingType.jm
-                            );
+                            saveImage(logic.urls[logic.index - 1], data.target,
+                                eh: type == ReadingType.ehentai, jm: type == ReadingType.jm);
                           }
                         }),
 
@@ -293,7 +330,8 @@ class ComicReadingPage extends StatelessWidget {
                         //顶部工具栏
                         buildTopToolBar(logic, context, title),
 
-                        buildPageInfoText(logic, type != ReadingType.ehentai, eps, context, jm: type == ReadingType.jm),
+                        buildPageInfoText(logic, type != ReadingType.ehentai, eps, context,
+                            jm: type == ReadingType.jm),
 
                         //设置
                         buildSettingWindow(logic, context),
@@ -344,7 +382,7 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  data.message??"网络错误",
+                  data.message ?? "网络错误",
                   style: const TextStyle(
                     color: Colors.white,
                   ),
@@ -404,7 +442,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     }
     if (comicReadingPageLogic.downloaded) {
-      downloadManager.getPicEpLength(data.target, comicReadingPageLogic.order).then((i) {
+      downloadManager.getEpLength(data.target, comicReadingPageLogic.order).then((i) {
         for (int p = 0; p < i; p++) {
           comicReadingPageLogic.urls.add("");
         }
@@ -413,8 +451,8 @@ class ComicReadingPage extends StatelessWidget {
     } else {
       network.getComicContent(data.target, comicReadingPageLogic.order).then((l) {
         comicReadingPageLogic.urls = l;
-        if(l.isEmpty){
-          data.message = network.status?network.message:"网络错误";
+        if (l.isEmpty) {
+          data.message = network.status ? network.message : "网络错误";
         }
         comicReadingPageLogic.change();
       });
@@ -422,9 +460,9 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadGalleryInfo(ComicReadingPageLogic logic) async {
-    if(downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))){
+    if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
       logic.downloaded = true;
-      for(int i = 0;i<await downloadManager.getEhPages(getGalleryId(gallery!.link));i++){
+      for (int i = 0; i < await downloadManager.getEhPages(getGalleryId(gallery!.link)); i++) {
         logic.urls.add("");
       }
       logic.change();
@@ -434,14 +472,15 @@ class ComicReadingPage extends StatelessWidget {
     ehNetwork.loadGalleryPages(gallery!).then((b) {
       if (b) {
         logic.urls = gallery!.urls;
-      }else{
-        data.message = ehNetwork.status?ehNetwork.message:"网络错误";
+      } else {
+        data.message = ehNetwork.status ? ehNetwork.message : "网络错误";
       }
       logic.change();
     });
   }
 
-  void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async{
+  void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
+    comicReadingPageLogic.downloaded = downloadManager.downloadedJmComics.contains("jm$target");
     comicReadingPageLogic.index = 1;
     comicReadingPageLogic.tools = false;
     if (data.epsWidgets.isEmpty) {
@@ -458,11 +497,12 @@ class ComicReadingPage extends StatelessWidget {
     if (data.epsWidgets.length == 1) {
       for (int i = 0; i < eps.length; i++) {
         data.epsWidgets.add(ListTile(
-          title: Text("第${i+1}章${(eps[i] == data.target)?"(当前)":""}"),
+          title: Text("第${i + 1}章${(comicReadingPageLogic.order == i+1) ? "(当前)" : ""}"),
           onTap: () {
-            if (eps[i] != data.target) {
-              comicReadingPageLogic.order = i;
+            if (comicReadingPageLogic.order != i+1) {
+              comicReadingPageLogic.order = i+1;
               data.target = eps[i];
+              data.epsWidgets.clear();
               comicReadingPageLogic.urls.clear();
               comicReadingPageLogic.change();
             }
@@ -471,10 +511,19 @@ class ComicReadingPage extends StatelessWidget {
         ));
       }
     }
+    if (comicReadingPageLogic.downloaded) {
+      downloadManager.getEpLength("jm$target", comicReadingPageLogic.order).then((i) {
+        for (int p = 0; p < i; p++) {
+          comicReadingPageLogic.urls.add("");
+        }
+        comicReadingPageLogic.change();
+      });
+      return;
+    }
     var res = await jmNetwork.getChapter(data.target);
-    if(res.error){
-      data.message = res.errorMessage??"网络错误";
-    }else{
+    if (res.error) {
+      data.message = res.errorMessage ?? "网络错误";
+    } else {
       comicReadingPageLogic.urls = res.data;
     }
     comicReadingPageLogic.isLoading = false;

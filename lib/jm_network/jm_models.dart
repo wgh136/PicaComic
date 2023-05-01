@@ -98,6 +98,51 @@ class JmComicInfo{
 
   JmComicInfo(this.name, this.id, this.author, this.description, this.likes, this.views,
       this.series, this.tags, this.relatedComics, this.liked, this.favorite);
+  
+  static Map<String, String> seriesToJsonMap(Map<int, String> map){
+    var res = <String, String>{};
+    for(var i in map.entries){
+      res[i.key.toString()] = i.value;
+    }
+    return res;
+  }
+  
+  static Map<int, String> jsonMapToSeries(Map<String, dynamic> map){
+    var res = <int, String>{};
+    for(var i in map.entries){
+      res[int.parse(i.key)] = i.value;
+    }
+    return res;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "id": id,
+      "author": author,
+      "description": description,
+      "likes": "",
+      "views": "",
+      "series": seriesToJsonMap(series),
+      "tags": tags,
+      "relatedComics": [],
+      "liked": "",
+      "favorite": "",
+    };
+  }
+
+  JmComicInfo.fromMap(Map<String, dynamic> map):
+    name = map["name"],
+    id = map["id"],
+    author = List<String>.from(map["author"]),
+    description = map["description"],
+    likes = 0,
+    views = 0,
+    series = jsonMapToSeries(map["series"]),
+    tags = List<String>.from(map["tags"]),
+    relatedComics = [],
+    liked = false,
+    favorite = false;
 }
 
 class FavoriteFolder{
