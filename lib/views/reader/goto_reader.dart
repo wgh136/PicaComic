@@ -73,7 +73,7 @@ void readJmComic(String id, String name, List<String> eps) async{
           }, child: const Text("从头开始")),
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1, initialPage: history.page,));
+            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history.ep, initialPage: history.page,));
           }, child: const Text("继续阅读")),
         ],
       ));

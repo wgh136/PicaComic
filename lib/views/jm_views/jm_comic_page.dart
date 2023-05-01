@@ -340,7 +340,7 @@ class JmComicPage extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onPressed: () => downloadComic(logic.comic!, context),
-              child: const Text("下载"),
+              child: downloadManager.downloadedJmComics.contains("jm$id")?const Text("已下载"):const Text("下载"),
             ),
           ),
           SizedBox.fromSize(
@@ -697,7 +697,7 @@ void downloadComic(JmComicInfo comic, BuildContext context){
     showMessage(context, "Web端不支持下载");
     return;
   }
-  if(downloadManager.downloadedJmComics.contains(comic.id)){
+  if(downloadManager.downloadedJmComics.contains("jm${comic.id}")){
     showMessage(context, "已下载");
     return;
   }
