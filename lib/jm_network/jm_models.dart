@@ -89,6 +89,7 @@ class JmComicInfo{
   String description;
   int likes;
   int views;
+  int comments;
   ///章节信息, 键为章节序号, 值为漫画ID
   Map<int, String> series;
   List<String> tags;
@@ -97,7 +98,7 @@ class JmComicInfo{
   bool favorite;
 
   JmComicInfo(this.name, this.id, this.author, this.description, this.likes, this.views,
-      this.series, this.tags, this.relatedComics, this.liked, this.favorite);
+      this.series, this.tags, this.relatedComics, this.liked, this.favorite, this.comments);
   
   static Map<String, String> seriesToJsonMap(Map<int, String> map){
     var res = <String, String>{};
@@ -142,7 +143,8 @@ class JmComicInfo{
     tags = List<String>.from(map["tags"]),
     relatedComics = [],
     liked = false,
-    favorite = false;
+    favorite = false,
+    comments = 0;
 }
 
 class FavoriteFolder{

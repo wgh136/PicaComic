@@ -13,6 +13,7 @@ import 'jm_views/jm_comic_page.dart';
 class PreSearchController extends GetxController{
   int target = 0;
   int picComicsOrder = appdata.getSearchMode();
+  int jmComicsOrder = int.parse(appdata.settings[19]);
 
   void updateTarget(int i){
     target = i;
@@ -22,6 +23,13 @@ class PreSearchController extends GetxController{
   void updatePicComicsOrder(int i){
     picComicsOrder = i;
     appdata.setSearchMode(i);
+    update();
+  }
+
+  void updateJmComicsOrder(int i){
+    jmComicsOrder = i;
+    appdata.settings[19] = i.toString();
+    appdata.updateSettings();
     update();
   }
 }
@@ -225,7 +233,70 @@ class PreSearchPage extends StatelessWidget {
                         ),
                       ),
                     );
-                  }else{
+                  }else if(logic.target == 2){
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Card(
+                        elevation: 0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(13, 5, 0, 0),
+                              child: Text("漫画排序模式"),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              child: Wrap(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("最新"),
+                                      selected: logic.jmComicsOrder == 0,
+                                      onSelected: (b) {
+                                        logic.updateJmComicsOrder(0);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("最多点击"),
+                                      selected: logic.jmComicsOrder == 1,
+                                      onSelected: (b) {
+                                        logic.updateJmComicsOrder(1);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("最多图片"),
+                                      selected: logic.jmComicsOrder == 5,
+                                      onSelected: (b) {
+                                        logic.updateJmComicsOrder(5);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: FilterChip(
+                                      label: const Text("最多喜欢"),
+                                      selected: logic.jmComicsOrder == 6,
+                                      onSelected: (b) {
+                                        logic.updateJmComicsOrder(6);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
                     return const SizedBox();
                   }
                 },

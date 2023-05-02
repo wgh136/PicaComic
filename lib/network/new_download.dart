@@ -145,6 +145,7 @@ class DownloadManager{
     var downloadPath = Directory("$path$pathSep${comic.id}");
     downloadPath.create();
     downloading.addLast(PicDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, comic.id));
+    _saveInfo();
     if(!isDownloading){
       downloading.first.start();
       isDownloading = true;
@@ -157,6 +158,7 @@ class DownloadManager{
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create();
     downloading.addLast(EhDownloadingItem(gallery, path!, _whenFinish, _whenError, _saveInfo, id));
+    _saveInfo();
     if(!isDownloading){
       downloading.first.start();
       isDownloading = true;
@@ -168,6 +170,7 @@ class DownloadManager{
     var downloadPath = Directory("$path$pathSep${"jm"}${comic.id}");
     downloadPath.create();
     downloading.addLast(JmDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
+    _saveInfo();
     if(!isDownloading){
       downloading.first.start();
       isDownloading = true;

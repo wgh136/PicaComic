@@ -106,7 +106,9 @@ class JmFavoritePage extends StatelessWidget {
                   ),
                 ),
                 if(logic.folder!.total > logic.folder!.loadedComics)
-                  const ListLoadingIndicator()
+                  const SliverToBoxAdapter(
+                    child: ListLoadingIndicator(),
+                  )
               ],
             ))
           ],

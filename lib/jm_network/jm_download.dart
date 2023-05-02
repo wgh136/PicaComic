@@ -175,8 +175,17 @@ class JmDownloadingItem extends DownloadingItem {
     "_downloadedPages": _downloadedPages,
     "_currentPage": _currentPage,
     "id": id,
-    "_downloadedCover": _downloadedCover
+    "_downloadedCover": _downloadedCover,
+    "_totalPages": _totalPages
   };
+  
+  static List<List<String>> array2dFromJson(List<dynamic> json){
+    var res = <List<String>>[];
+    for(var list in json){
+      res.add(List<String>.from(list));
+    }
+    return res;
+  }
 
   JmDownloadingItem.fromMap(
     Map<String, dynamic> map,
@@ -189,9 +198,10 @@ class JmDownloadingItem extends DownloadingItem {
     path = map["path"],
     _downloadedPages = map["_downloadedPages"],
     _index = map["_index"],
-    urls = map["urls"],
+    urls = array2dFromJson(map["urls"]),
     _currentPage = map["_currentPage"],
-    _downloadedCover = map["_downloadedCover"];
+    _downloadedCover = map["_downloadedCover"],
+    _totalPages = map["_totalPages"];
 
   @override
   int get totalPages => _totalPages;

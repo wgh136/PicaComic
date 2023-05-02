@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
+import 'package:pica_comic/views/settings/jm_settings.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../widgets/search.dart';
 
@@ -20,6 +21,7 @@ class JmSearchPageLogic extends GetxController{
   }
 
   void search() async{
+    searchRes = null;
     var res = await jmNetwork.search(controller.text);
     if(!res.error){
       searchRes = res.data;
@@ -27,6 +29,13 @@ class JmSearchPageLogic extends GetxController{
       message = res.errorMessage;
     }
     change();
+  }
+
+  void refresh_(){
+    searchRes = null;
+    message = null;
+    change();
+    search();
   }
 }
 
@@ -65,7 +74,16 @@ class JmSearchPage extends StatelessWidget {
                         logic.change();
                         logic.search();
                       },
-                      controller: logic.controller,),
+                      controller: logic.controller,
+                      trailing: IconButton(
+                        icon: const Icon(Icons.arrow_drop_down_sharp),
+                        onPressed: ()=>setJmComicsOrder(context, search: true).then((b){
+                          if(!b){
+                            logic.refresh_();
+                          }
+                        }),
+                      ),
+                    ),
                   ),
                 ),
                 const SliverPadding(padding: EdgeInsets.only(top: 5)),

@@ -503,9 +503,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       ListTile(
                         leading: Icon(Icons.sort, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置分类漫画排序模式"),
+                        title: const Text("设置分类中漫画排序模式"),
                         trailing: const Icon(Icons.arrow_right),
                         onTap: () => setJmComicsOrder(context),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.manage_search_outlined, color: Theme.of(context).colorScheme.secondary),
+                        title: const Text("设置搜索中漫画排序模式"),
+                        trailing: const Icon(Icons.arrow_right),
+                        onTap: () => setJmComicsOrder(context, search: true),
                       ),
                       ListTile(
                         leading: Icon(Icons.account_tree_outlined,

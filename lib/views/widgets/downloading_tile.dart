@@ -49,7 +49,7 @@ class DownloadingTile extends StatelessWidget {
               builder: (controller){
                 controller.downloadPages = comic.downloadedPages;
                 controller.pagesCount = comic.totalPages;
-                controller.value = controller.downloadPages/controller.pagesCount;
+                controller.value = controller.downloadPages/(controller.pagesCount==0?1:controller.pagesCount);
                 comic.updateUi = (){
                   controller.change(comic.downloadedPages,comic.totalPages);
                 };
