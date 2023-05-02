@@ -323,7 +323,12 @@ class EhNetwork{
     }
   }
 
-  Future<bool> loadGalleryPages(Gallery gallery) async{
+  ///获取图片链接
+  ///
+  /// 返回2表示成功加载了一页
+  /// 返回1表示加载完成
+  /// 返回0表示失败
+  Stream<int> loadGalleryPages(Gallery gallery) async*{
     for (int i = 1; i < int.parse(gallery.maxPage); i++) {
       try {
         var temp = parse(await request("${gallery.link}?p=$i"));
@@ -331,13 +336,15 @@ class EhNetwork{
         for (var link in links) {
           gallery.urls.add(link.attributes["href"]!);
         }
+        yield 2;
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
         //获取图片链接失败
-        return false;
+        yield 0;
+        break;
       }
     }
-    return true;
+    yield 1;
   }
 
   ///搜索e-hentai

@@ -326,7 +326,7 @@ class JmComicPage extends StatelessWidget {
           ),
           Expanded(
             child: ActionChip(
-                label: const Text("评论"),
+                label: Text(logic.comic!.comments.toString()),
                 avatar: const Icon(Icons.comment_outlined),
                 onPressed: () => showAdaptiveWidget(context, JmCommentsPage(id))),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/views/jm_views/detailed_categories.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import '../models/tab_listener.dart';
@@ -17,7 +18,7 @@ class _JmMainPageState extends State<JmMainPage> with SingleTickerProviderStateM
 
   @override
   void initState() {
-    controller = TabController(length: 3, vsync: this);
+    controller = TabController(length: 4, vsync: this);
     widget.tabListener.controller = controller;
     super.initState();
   }
@@ -31,7 +32,8 @@ class _JmMainPageState extends State<JmMainPage> with SingleTickerProviderStateM
           tabs: const [
             Tab(text: "主页",),
             Tab(text: "最新",),
-            Tab(text: "分类",)
+            Tab(text: "分类",),
+            Tab(text: "详细分类",),
           ], 
           controller: controller,),
         Expanded(
@@ -40,7 +42,8 @@ class _JmMainPageState extends State<JmMainPage> with SingleTickerProviderStateM
             children: const [
               JmHomePage(),
               JmLatestPage(),
-              JmCategoriesPage()
+              JmCategoriesPage(),
+              JmDetailedCategoriesPage()
             ],
           ),
         )

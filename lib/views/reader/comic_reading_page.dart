@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import '../../tools/key_down_event.dart';
+import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';
 import 'reading_logic.dart';
@@ -62,6 +64,7 @@ class ComicReadingPage extends StatelessWidget {
       : gallery = null,
         type = ReadingType.picacg {
     data.initialPage = initialPage;
+    Get.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.ehentai(this.target, this.gallery, {super.key, int initialPage = 0})
@@ -70,6 +73,7 @@ class ComicReadingPage extends StatelessWidget {
         order = 0,
         type = ReadingType.ehentai {
     data.initialPage = initialPage;
+    Get.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order,
@@ -77,6 +81,7 @@ class ComicReadingPage extends StatelessWidget {
       : type = ReadingType.jm,
         gallery = null {
     data.initialPage = initialPage;
+    Get.put(ComicReadingPageLogic(order, data));
   }
 
   @override
@@ -86,9 +91,7 @@ class ComicReadingPage extends StatelessWidget {
       endDrawerEnableOpenDragGesture: false,
       key: _scaffoldKey,
       endDrawer: Drawer(
-        child: ListView(
-          children: data.epsWidgets,
-        ),
+        child: buildEpsView(),
       ),
       body: GetBuilder<ComicReadingPageLogic>(
           initState: (logic) {
@@ -130,12 +133,35 @@ class ComicReadingPage extends StatelessWidget {
             EhImageUrlsManager().saveData();
             MyCacheManager().saveData();
           },
-          init: ComicReadingPageLogic(order, data),
           builder: (logic) {
             if (logic.isLoading) {
               //加载信息
               if (type == ReadingType.ehentai) {
-                loadGalleryInfo(logic);
+                var ehLoadingInfo = EhLoadingInfo();
+                ehLoadingInfo.total = int.parse(gallery!.maxPage);
+                loadGalleryInfo(logic, ehLoadingInfo);
+                return DecoratedBox(
+                  decoration: const BoxDecoration(color: Colors.black),
+                  child: Center(
+                    child: SizedBox(
+                      height: 100,
+                      child: Column(
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 5,),
+                          ValueListenableBuilder<int>(
+                            valueListenable: ehLoadingInfo.current,
+                            builder: (context,current,widget){
+                              return Text("已加载$current/${ehLoadingInfo.total}", style: const TextStyle(color: Colors.white),);
+                            }
+                          ),
+                          const SizedBox(height: 5,),
+                          FilledButton(onPressed: ()=>Get.back(), child: const Text("退出"))
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               } else if (type == ReadingType.picacg) {
                 loadComicInfo(logic);
               } else {
@@ -288,9 +314,7 @@ class ComicReadingPage extends StatelessWidget {
                                 context: context,
                                 useSafeArea: true,
                                 builder: (context) {
-                                  return ListView(
-                                    children: data.epsWidgets,
-                                  );
+                                  return buildEpsView();
                                 });
                           }
                         }, () async {
@@ -459,7 +483,7 @@ class ComicReadingPage extends StatelessWidget {
     }
   }
 
-  void loadGalleryInfo(ComicReadingPageLogic logic) async {
+  void loadGalleryInfo(ComicReadingPageLogic logic, EhLoadingInfo info) async {
     if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
       logic.downloaded = true;
       for (int i = 0; i < await downloadManager.getEhPages(getGalleryId(gallery!.link)); i++) {
@@ -469,14 +493,17 @@ class ComicReadingPage extends StatelessWidget {
       return;
     }
     await EhImageUrlsManager().readData();
-    ehNetwork.loadGalleryPages(gallery!).then((b) {
-      if (b) {
+    await for (var i in ehNetwork.loadGalleryPages(gallery!)){
+      if(i == 1){
         logic.urls = gallery!.urls;
-      } else {
+        logic.change();
+      }else if(i == 0){
         data.message = ehNetwork.status ? ehNetwork.message : "网络错误";
+        logic.change();
+      }else{
+        info.current.value++;
       }
-      logic.change();
-    });
+    }
   }
 
   void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
@@ -529,4 +556,13 @@ class ComicReadingPage extends StatelessWidget {
     comicReadingPageLogic.isLoading = false;
     comicReadingPageLogic.update();
   }
+
+  Widget buildEpsView(){
+    return EpsView(type, eps, data);
+  }
+}
+
+class EhLoadingInfo{
+  int total = 1;
+  var current = ValueNotifier<int>(0);
 }

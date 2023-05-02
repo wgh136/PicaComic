@@ -326,7 +326,7 @@ class JmNetwork {
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
     appdata.writeData();
-    var res = await get("$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}");
+    var res = await get("$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -566,7 +566,8 @@ class JmNetwork {
           tags,
           related,
           res.data["liked"] ?? false,
-          res.data["is_favorite"] ?? false));
+          res.data["is_favorite"] ?? false,
+          int.parse(res.data["comment_total"] ?? "0")));
     } catch (e) {
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
@@ -774,13 +775,21 @@ class JmNetwork {
   }
 }
 
+///禁漫漫画排序模式
 enum ComicsOrder {
+  ///最新
   latest("mr"),
+  ///总排行, 或者最多点击
   totalRanking("mv"),
+  ///月排行, 仅分类中
   monthRanking("mv_m"),
+  ///周排行, 仅分类中
   weekRanking("mv_w"),
+  ///日排行, 仅分类中
   dayRanking("mv_t"),
+  ///最多图片
   maxPictures("mp"),
+  ///最多喜欢
   maxLikes("tf");
 
   @override

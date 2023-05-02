@@ -111,7 +111,7 @@ class ComicPage extends StatelessWidget{
                 title: AnimatedOpacity(
                   opacity: logic.showAppbarTitle?1.0:0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: Text(comic.title),
+                  child: Text("${comic.title}(${logic.comicItem!.pagesCount}P)"),
                 ),
                 pinned: true,
                 actions: [
@@ -133,7 +133,7 @@ class ComicPage extends StatelessWidget{
                   child: SizedBox(
                     width: double.infinity,
                     child: SelectableTextCN(
-                      text: comic.title,
+                      text: "${comic.title}(${logic.comicItem!.pagesCount}P)",
                       style: const TextStyle(fontSize: 28),
                     ),
                   ),
