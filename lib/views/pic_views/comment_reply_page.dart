@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
 import '../widgets/list_loading.dart';
+import '../widgets/side_bar.dart';
 
 class ReplyPageLogic extends GetxController{
   bool isLoading = true;
@@ -136,10 +136,7 @@ class ReplyPage extends StatelessWidget {
       },);
 
     if(popUp){
-      return PopUpWidgetScaffold(
-          title: "回复",
-          body: body,
-      );
+      return body;
     }else{
       return Scaffold(
         appBar: AppBar(
@@ -149,4 +146,8 @@ class ReplyPage extends StatelessWidget {
       );
     }
   }
+}
+
+void showReply(BuildContext context, String id, Comment replyTo){
+  showSideBar(context, ReplyPage(id, replyTo, popUp: true,), "回复", showBarrier: false);
 }

@@ -354,16 +354,24 @@ class DownloadPage extends StatelessWidget {
   }
 
   Future<void> getComics(DownloadPageLogic logic) async {
-    for (var comic in (downloadManager.downloaded)) {
-      logic.comics.add(await downloadManager.getComicFromId(comic));
-    }
+    try{
+      for (var comic in (downloadManager.downloaded)) {
+        logic.comics.add(await downloadManager.getComicFromId(comic));
+      }
 
-    for (var gallery in (downloadManager.downloadedGalleries)) {
-      logic.galleries.add(await downloadManager.getGalleryFormId(gallery));
-    }
+      for (var gallery in (downloadManager.downloadedGalleries)) {
+        logic.galleries.add(await downloadManager.getGalleryFormId(gallery));
+      }
 
-    for (var comic in (downloadManager.downloadedJmComics)) {
-      logic.jmComics.add(await downloadManager.getJmComicFormId(comic));
+      for (var comic in (downloadManager.downloadedJmComics)) {
+        logic.jmComics.add(await downloadManager.getJmComicFormId(comic));
+      }
+    }
+    catch(e){
+      logic.jmComics.clear();
+      logic.galleries.clear();
+      logic.comics.clear();
+      await getComics(logic);
     }
   }
 

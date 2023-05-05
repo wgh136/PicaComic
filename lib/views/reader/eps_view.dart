@@ -73,7 +73,7 @@ class _EpsViewState extends State<EpsView> {
                         borderRadius: const BorderRadius.all(Radius.circular(5)),
                       ),
                       margin: const EdgeInsets.all(5),
-                      padding: const EdgeInsets.all(2),
+                      padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
                       child: const Text("当前", style: TextStyle(fontSize: 14),),
                     )
                 ],
@@ -95,7 +95,7 @@ class _EpsViewState extends State<EpsView> {
                 const SizedBox(width: 16,),
                 Icon(Icons.library_books, color: Theme.of(context).colorScheme.secondary,),
                 const SizedBox(width: 8,),
-                const Text("章节"),
+                const Text("章节", style: TextStyle(fontSize: 18),),
                 const Spacer(),
                 IconButton(
                   icon: Icon(Icons.my_location_outlined, color: Theme.of(context).colorScheme.secondary,size: 23,),

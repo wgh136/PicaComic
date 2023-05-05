@@ -11,6 +11,7 @@ import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_i
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
+import 'package:pica_comic/views/widgets/side_bar.dart';
 import '../../tools/key_down_event.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
@@ -241,74 +242,11 @@ class ComicReadingPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                        Positioned(
-                          top: 0,
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTapUp: (detail) {
-                              bool flag = false;
-                              bool flag2 = false;
-                              if (appdata.settings[0] == "1" &&
-                                  appdata.settings[9] != "4" &&
-                                  !logic.tools) {
-                                switch (appdata.settings[9]) {
-                                  case "1":
-                                    detail.globalPosition.dx >
-                                            MediaQuery.of(context).size.width * 0.75
-                                        ? logic.jumpToNextPage()
-                                        : flag = true;
-                                    detail.globalPosition.dx <
-                                            MediaQuery.of(context).size.width * 0.25
-                                        ? logic.jumpToLastPage()
-                                        : flag2 = true;
-                                    break;
-                                  case "2":
-                                    detail.globalPosition.dx >
-                                            MediaQuery.of(context).size.width * 0.75
-                                        ? logic.jumpToLastPage()
-                                        : flag = true;
-                                    detail.globalPosition.dx <
-                                            MediaQuery.of(context).size.width * 0.25
-                                        ? logic.jumpToNextPage()
-                                        : flag2 = true;
-                                    break;
-                                  case "3":
-                                    detail.globalPosition.dy >
-                                            MediaQuery.of(context).size.height * 0.75
-                                        ? logic.jumpToNextPage()
-                                        : flag = true;
-                                    detail.globalPosition.dy <
-                                            MediaQuery.of(context).size.height * 0.25
-                                        ? logic.jumpToLastPage()
-                                        : flag2 = true;
-                                    break;
-                                }
-                              } else {
-                                flag = flag2 = true;
-                              }
-                              if (flag && flag2) {
-                                if (logic.showSettings) {
-                                  logic.showSettings = false;
-                                  logic.update();
-                                  return;
-                                }
-                                logic.tools = !logic.tools;
-                                logic.update();
-                                if (logic.tools) {
-                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-                                } else {
-                                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-                                }
-                              }
-                            },
-                          ),
-                        ),
+                        buildTapDownListener(logic, context),
                         //底部工具栏
                         buildBottomToolBar(logic, context, type != ReadingType.ehentai, () {
                           if (MediaQuery.of(context).size.width > 600) {
-                            _scaffoldKey.currentState!.openEndDrawer();
+                            showSideBar(context, buildEpsView(), null, useSurfaceTintColor: true, width: 400);
                           } else {
                             showModalBottomSheet(
                                 context: context,
@@ -517,7 +455,7 @@ class ComicReadingPage extends StatelessWidget {
             Icons.library_books,
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
-          title: const Text("章节"),
+          title: const Text("章节", style: TextStyle(fontSize: 18),),
         ),
       );
     }

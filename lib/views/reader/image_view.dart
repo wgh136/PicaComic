@@ -171,6 +171,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
           }
         }else {
           return PhotoViewGalleryPageOptions(
+            scaleStateController: PhotoViewScaleStateController(),
             imageProvider: const AssetImage("images/black.png"),
           );
         }

@@ -26,6 +26,9 @@ class JmDownloadingItem extends DownloadingItem {
   int _currentPage = 0;
   bool _downloadedCover = false;
 
+  ///用于判断是否已经启动了另一个下载线程, 避免重复
+  int _runtimeKey = 0;
+
   void retry() {
     //允许重试两次
     if (_retryTimes > 2) {
@@ -81,6 +84,8 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   void start() async{
+    _runtimeKey++;
+    int currentKey = _runtimeKey;
     _pauseFlag = false;
     notifications.sendProgressNotification(
         _downloadedPages, _totalPages==0?1:_totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
@@ -99,6 +104,7 @@ class JmDownloadingItem extends DownloadingItem {
     }
     while(_downloadedPages < _totalPages){
       if(_pauseFlag)  return;
+      if(_runtimeKey != currentKey) return;
       try{
         var dio = Dio();
         var res = await dio.get(urls[_index][_currentPage],

@@ -11,6 +11,7 @@ import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 import 'eh_views/eh_login_page.dart';
 import 'history.dart';
@@ -133,7 +134,7 @@ class MePage extends StatelessWidget {
       showDialog(
           context: context,
           builder: (dialogContext) => SimpleDialog(
-                contentPadding: const EdgeInsets.fromLTRB(22, 12, 15, 10),
+                contentPadding: const EdgeInsets.fromLTRB(30, 12, 23, 10),
                 title: const Text("禁漫账户"),
                 children: [
                   SelectableTextCN(text: "当前账户: ${appdata.jmName}"),
@@ -143,16 +144,32 @@ class MePage extends StatelessWidget {
                   const Text("信息:"),
                   SelectableTextCN(text: "  邮箱: ${appdata.jmEmail}"),
                   const SizedBox(
-                    height: 12,
+                    height: 16,
                   ),
-                  Center(
-                    child: FilledButton(
-                      child: const Text("退出登录"),
-                      onPressed: () {
-                        jmNetwork.logout();
-                        Get.back();
-                      },
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FilledButton(
+                        child: const Text("退出登录"),
+                        onPressed: () {
+                          jmNetwork.logout();
+                          Get.back();
+                        },
+                      ),
+                      const SizedBox(width: 16,),
+                      FilledButton(
+                        child: const Text("重新登录"),
+                        onPressed: () async{
+                          showMessage(Get.context, "正在重新登录", time: 8);
+                          var res = await jmNetwork.loginFromAppdata();
+                          if(res.error){
+                            showMessage(Get.context, res.errorMessage!);
+                          }else{
+                            showMessage(Get.context, "重新登录成功");
+                          }
+                        },
+                      ),
+                    ],
                   )
                 ],
               ));

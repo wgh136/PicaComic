@@ -11,13 +11,13 @@ import '../widgets/widgets.dart';
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式
   final controller = PageController(initialPage: 1);
-  ///用于非从上至下(连续)阅读方式, 跳转至指定项目
+  ///用于从上至下(连续)阅读方式, 跳转至指定项目
   final scrollController = ItemScrollController();
-  ///用于非从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
+  ///用于从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
   var scrollListener = ItemPositionsListener.create();
   ///用于非从上至下(连续)阅读方式, 控制滚动
   var cont = ScrollController(keepScrollOffset: false);
-  ///用于非从上至下(连续)阅读方式, 获取放缩大小
+  ///用于从上至下(连续)阅读方式, 获取放缩大小
   var transformationController = TransformationController();
 
   ComicReadingPageLogic(this.order, this.data);

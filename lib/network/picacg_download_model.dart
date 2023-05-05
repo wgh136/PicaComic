@@ -42,6 +42,8 @@ class PicDownloadingItem extends DownloadingItem {
   ///重试次数
   int _retryTimes = 0;
 
+  int _runtimeKey = 0;
+
   @override
   Map<String, dynamic> toMap()=>{
     "type": type.index,
@@ -101,6 +103,8 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   void start() async {
+    _runtimeKey++;
+    int currentKey = _runtimeKey;
     notifications.sendProgressNotification(
         _downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
     _pauseFlag = false;
@@ -144,6 +148,7 @@ class PicDownloadingItem extends DownloadingItem {
       var epPath = Directory("$path$pathSep$id$pathSep$_downloadingEps");
       await epPath.create();
       while (_index < _urls.length) {
+        if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
         try {
           var dio = await request();

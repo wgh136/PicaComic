@@ -173,7 +173,7 @@ class CategoryTile extends StatelessWidget {
 
 ///显示消息
 void showMessage(context, String message, {int time=2, bool useGet=true}){
-  Get.closeAllSnackbars();
+  Get.closeCurrentSnackbar();
   if(useGet) {
     Get.showSnackbar(GetSnackBar(
       message: message,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PopUpWidgetScaffold extends StatelessWidget {
   //为弹出的窗口提供的一个骨架
@@ -15,15 +16,15 @@ class PopUpWidgetScaffold extends StatelessWidget {
           Container(
             height: 60,
             width: double.infinity,
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer.withAlpha(200)),
+            //decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer.withAlpha(200)),
             child: Row(
               children: [
-                if(Navigator.of(context).canPop())
+                const SizedBox(width: 8,),
                 Tooltip(
                   message: "返回",
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back_sharp),
-                    onPressed:()=>Navigator.of(context).pop()
+                    onPressed:()=>Navigator.of(context).canPop()?Navigator.of(context).pop():Get.back()
                   ),
                 ),
                 const SizedBox(width: 16,),

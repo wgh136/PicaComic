@@ -773,6 +773,18 @@ class JmNetwork {
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
+
+  Future<Res<bool>> deleteFolder(String id) async{
+    var res = await post("$baseUrl/favorite_folder", "type=del&folder_id=$id&$baseData");
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    } else {
+      if(res.data["code"] == 400){
+        return Res(null, errorMessage: res.data["msg"]);
+      }
+      return Res(true);
+    }
+  }
 }
 
 ///禁漫漫画排序模式

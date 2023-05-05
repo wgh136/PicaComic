@@ -1,9 +1,8 @@
 import 'dart:io';
-import '../base.dart';
 
 ///用于测试函数
 void debug() async{
-  jmNetwork.getFolders();
+
 }
 
 ///保存网络请求数据, 用于Debug

@@ -58,7 +58,7 @@ class JmLatestPage extends StatelessWidget {
             ],
           );
         }else{
-          return showNetworkError(logic.message!, logic.refresh_, context);
+          return showNetworkError(logic.message!, logic.refresh_, context, showBack: false);
         }
       },
     );
