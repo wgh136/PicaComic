@@ -1,6 +1,10 @@
 #pragma comment(lib, "winhttp.lib")
 #include "flutter_window.h"
+#include <dwmapi.h>
 #include <flutter/method_channel.h>
+#include <flutter/event_channel.h>
+#include <flutter/event_sink.h>
+#include <flutter/event_stream_handler_functions.h>
 #include <optional>
 #include "flutter/generated_plugin_registrant.h"
 #include <flutter/standard_method_codec.h>
@@ -8,7 +12,8 @@
 #include <Windows.h>
 #include <winbase.h>
 #define _CRT_SECURE_NO_WARNINGS
-#include <String>
+
+std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& mouseEvents = nullptr;
 
 char* wideCharToMultiByte(wchar_t* pWCStrKey)
 {
@@ -41,46 +46,70 @@ FlutterWindow::FlutterWindow(const flutter::DartProject& project)
 FlutterWindow::~FlutterWindow() {}
 
 bool FlutterWindow::OnCreate() {
-  if (!Win32Window::OnCreate()) {
-    return false;
-  }
+    if (!Win32Window::OnCreate())
+    {
+        return false;
+    }
 
-  RECT frame = GetClientArea();
+    const RECT frame = GetClientArea();
 
-  // The size here must match the window dimensions to avoid unnecessary surface
-  // creation / destruction in the startup path.
-  flutter_controller_ = std::make_unique<flutter::FlutterViewController>(
-      frame.right - frame.left, frame.bottom - frame.top, project_);
-  // Ensure that basic setup of the controller was successful.
-  if (!flutter_controller_->engine() || !flutter_controller_->view()) {
-    return false;
-  }
-  RegisterPlugins(flutter_controller_->engine());
-  flutter::MethodChannel<> channel(
-      flutter_controller_->engine()->messenger(), "kokoiro.xyz.pica_comic/proxy", 
-      &flutter::StandardMethodCodec::GetInstance()
-  );
-  channel.SetMethodCallHandler(
-      [](const flutter::MethodCall<>& call,
-          std::unique_ptr<flutter::MethodResult<>> result) {
-                auto res = getProxy();
-                  if (res != nullptr){
-                      std::string s = res;
-                      result->Success(s);
-                  }
-                  else
-                      result->Success(flutter::EncodableValue("No Proxy"));
-                if(res!=nullptr)
-                    delete(res);
-  });
+    // The size here must match the window dimensions to avoid unnecessary surface
+    // creation / destruction in the startup path.
+    flutter_controller_ = std::make_unique<flutter::FlutterViewController>(
+        frame.right - frame.left, frame.bottom - frame.top, project_);
+    // Ensure that basic setup of the controller was successful.
+    if (!flutter_controller_->engine() || !flutter_controller_->view()) {
+        return false;
+    }
+    RegisterPlugins(flutter_controller_->engine());
 
-  SetChildContent(flutter_controller_->view()->GetNativeWindow());
+    //检查系统代理的MethodChannel
+    const flutter::MethodChannel<> channel(
+        flutter_controller_->engine()->messenger(), "kokoiro.xyz.pica_comic/proxy", 
+        &flutter::StandardMethodCodec::GetInstance()
+    );
+    channel.SetMethodCallHandler(
+      [](const flutter::MethodCall<>& call,const std::unique_ptr<flutter::MethodResult<>>& result) {
+          const auto res = getProxy();
+          if (res != nullptr){
+              std::string s = res;
+              result->Success(s);
+          }
+          else
+              result->Success(flutter::EncodableValue("No Proxy"));
+          delete(res);
+    });
 
-  flutter_controller_->engine()->SetNextFrameCallback([&]() {
-    this->Show();
-  });
+    //监听鼠标侧键的EventChannel
+    const auto channelName = "kokoiro.xyz.pica_comic/mouse";
+    flutter::EventChannel<> channel2(
+        flutter_controller_->engine()->messenger(), channelName, 
+        &flutter::StandardMethodCodec::GetInstance()
+    );
 
-  return true;
+    auto eventHandler = std::make_unique<
+        flutter::StreamHandlerFunctions<flutter::EncodableValue>>(
+    [](
+        const flutter::EncodableValue* arguments,
+        std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events){
+            mouseEvents = std::move(events);
+            return nullptr;
+    },
+    [](const flutter::EncodableValue* arguments)
+        -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
+            mouseEvents = nullptr;
+            return nullptr;
+    });
+    
+    channel2.SetStreamHandler(std::move(eventHandler));
+    
+    SetChildContent(flutter_controller_->view()->GetNativeWindow());
+
+    flutter_controller_->engine()->SetNextFrameCallback([&]() {
+        this->Show();
+    });
+
+    return true;
 }
 
 void FlutterWindow::OnDestroy() {
@@ -91,25 +120,42 @@ void FlutterWindow::OnDestroy() {
   Win32Window::OnDestroy();
 }
 
+void mouse_side_button_listener(unsigned int input)
+{
+    if(mouseEvents != nullptr)
+    {
+        mouseEvents->Success(static_cast<int>(input));
+    }
+}
+
 LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
   // Give Flutter, including plugins, an opportunity to handle window messages.
-  if (flutter_controller_) {
-    std::optional<LRESULT> result =
-        flutter_controller_->HandleTopLevelWindowProc(hwnd, message, wparam,
-                                                      lparam);
-    if (result) {
-      return *result;
+    UINT button = GET_XBUTTON_WPARAM(wparam);  
+    if (button == XBUTTON1)
+    {
+        mouse_side_button_listener(0);
     }
-  }
+    else if (button == XBUTTON2)
+    {
+        mouse_side_button_listener(1);
+    }
+    if (flutter_controller_) {
+        std::optional<LRESULT> result =
+            flutter_controller_->HandleTopLevelWindowProc(hwnd, message, wparam,
+                                                      lparam);
+        if (result) {
+          return *result;
+        }
+    }
 
-  switch (message) {
-    case WM_FONTCHANGE:
-      flutter_controller_->engine()->ReloadSystemFonts();
-      break;
-  }
+    switch (message) {
+      case WM_FONTCHANGE:
+          flutter_controller_->engine()->ReloadSystemFonts();
+          break;
+    }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);
 }

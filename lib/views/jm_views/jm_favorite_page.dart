@@ -120,13 +120,12 @@ class JmFavoritePage extends StatelessWidget {
   Widget buildFolderSelector(BuildContext context, JmFavoritePageLogic logic, bool loading){
     return SizedBox(
       height: 80,
-      width: double.infinity,
       child: Row(
         children: [
           Container(
             margin: const EdgeInsets.all(10),
             padding: const EdgeInsets.all(5),
-            width: 300,
+            width: MediaQuery.of(context).size.width - 120 > 400 ? 400 : MediaQuery.of(context).size.width - 120,
             height: 50,
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,
@@ -185,7 +184,37 @@ class JmFavoritePage extends StatelessWidget {
                 return const CreateFolderDialog();
               });
             },
-          )
+          ),
+          const SizedBox(width: 5,),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: (){
+              if(logic.folderId == "0"){
+                showMessage(context, "不可删除全部收藏");
+                return;
+              }
+              showDialog(context: context, builder: (context){
+                return AlertDialog(
+                  title: const Text("确认删除"),
+                  content: const Text("要删除这个收藏夹吗"),
+                  actions: [
+                    TextButton(onPressed: () => Get.back(), child: const Text("取消")),
+                    TextButton(onPressed: () async{
+                      Get.back();
+                      showMessage(context, "正在删除收藏夹");
+                      var res = await jmNetwork.deleteFolder(logic.folderId);
+                      showMessage(Get.context, res.error?res.errorMessage!:"删除成功");
+                      if(! res.error){
+                        logic.folderId = "0";
+                        logic.folderName = "全部";
+                        logic.refresh_();
+                      }
+                    }, child: const Text("确认")),
+                  ],
+                );
+              });
+            },
+          ),
         ],
       ),
     );

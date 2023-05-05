@@ -248,23 +248,44 @@ class DownloadManager{
 
   ///通过漫画id获取漫画信息
   Future<DownloadedComic> getComicFromId(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    var json = await file.readAsString();
-    return DownloadedComic.fromJson(jsonDecode(json));
+    try {
+      var file = File("$path$pathSep$id${pathSep}info.json");
+      var json = await file.readAsString();
+      return DownloadedComic.fromJson(jsonDecode(json));
+    }
+    catch(e){
+      downloaded.remove(id);
+      _saveInfo();
+      rethrow;
+    }
   }
 
   ///通过画廊id获取画廊信息
   Future<DownloadedGallery> getGalleryFormId(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    var json = await file.readAsString();
-    return DownloadedGallery.fromJson(jsonDecode(json));
+    try {
+      var file = File("$path$pathSep$id${pathSep}info.json");
+      var json = await file.readAsString();
+      return DownloadedGallery.fromJson(jsonDecode(json));
+    }
+    catch(e){
+      downloadedGalleries.remove(id);
+      _saveInfo();
+      rethrow;
+    }
   }
 
   ///通过禁漫id获取漫画信息
   Future<DownloadedJmComic> getJmComicFormId(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    var json = await file.readAsString();
-    return DownloadedJmComic.fromMap(jsonDecode(json));
+    try {
+      var file = File("$path$pathSep$id${pathSep}info.json");
+      var json = await file.readAsString();
+      return DownloadedJmComic.fromMap(jsonDecode(json));
+    }
+    catch(e){
+      downloadedJmComics.remove(id);
+      _saveInfo();
+      rethrow;
+    }
   }
 
   ///删除已下载的漫画

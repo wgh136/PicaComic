@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
+import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/test_network_page.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(

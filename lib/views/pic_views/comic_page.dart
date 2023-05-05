@@ -13,7 +13,6 @@ import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -259,7 +258,7 @@ class ComicPage extends StatelessWidget{
   }
 
   Widget buildComicInfo(ComicPageLogic logic, BuildContext context){
-    if(MediaQuery.of(context).size.width<changePoint) {
+    if(UiMode.m1(context)) {
       return SliverToBoxAdapter(
         child: SizedBox(
           width: MediaQuery.of(context).size.width/2,
@@ -358,7 +357,7 @@ class ComicPage extends StatelessWidget{
                   showMessage(context, "无网络");
                   return;
                 }
-                showAdaptiveWidget(context, CommentsPage(comic.id,popUp: MediaQuery.of(context).size.width>600,));
+                showComments(context, comic.id);
               },
             ),),
           ],

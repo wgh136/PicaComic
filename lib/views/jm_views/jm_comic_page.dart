@@ -10,7 +10,6 @@ import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../jm_network/jm_models.dart';
 import '../../tools/ui_mode.dart';
@@ -328,7 +327,7 @@ class JmComicPage extends StatelessWidget {
             child: ActionChip(
                 label: Text(logic.comic!.comments.toString()),
                 avatar: const Icon(Icons.comment_outlined),
-                onPressed: () => showAdaptiveWidget(context, JmCommentsPage(id))),
+                onPressed: () => showComments(context, id)),
           ),
         ],
       ),

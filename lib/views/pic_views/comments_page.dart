@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/widgets/comment.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
+import 'package:pica_comic/views/test/comment.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
 import '../widgets/list_loading.dart';
+import '../widgets/side_bar.dart';
+import 'comment_reply_page.dart';
 
 class CommentsPageLogic extends GetxController{
   bool isLoading = true;
@@ -29,17 +30,17 @@ class CommentsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget body = GetBuilder<CommentsPageLogic>(
       init: CommentsPageLogic(),
-      builder: (commentsPageLogic){
-        if(commentsPageLogic.isLoading){
+      builder: (logic){
+        if(logic.isLoading){
           network.getCommends(id,type: type).then((c){
-            commentsPageLogic.comments = c;
-            commentsPageLogic.change();
+            logic.comments = c;
+            logic.change();
           });
           return const Center(
             child: CircularProgressIndicator(),
           );
-        }else if(commentsPageLogic.comments.loaded==0){
-          return showNetworkError(context, ()=>commentsPageLogic.change(),showBack: false);
+        }else if(logic.comments.loaded==0){
+          return showNetworkError(context, ()=>logic.change(),showBack: false);
         }else{
           return Column(
             children: [
@@ -47,16 +48,34 @@ class CommentsPage extends StatelessWidget {
                   child: CustomScrollView(
                     slivers: [
                       SliverList(delegate: SliverChildBuilderDelegate(
-                          childCount: commentsPageLogic.comments.comments.length,
+                          childCount: logic.comments.comments.length,
                               (context,index){
-                            if(index==commentsPageLogic.comments.comments.length-1&&commentsPageLogic.comments.pages!=commentsPageLogic.comments.loaded){
-                              network.loadMoreCommends(commentsPageLogic.comments, type: type).then((t){commentsPageLogic.update();});
+                            if(index==logic.comments.comments.length-1&&logic.comments.pages!=logic.comments.loaded){
+                              network.loadMoreCommends(logic.comments, type: type).then((t){logic.update();});
                             }
-                            return CommentTile(comment: commentsPageLogic.comments.comments[index],isReply: false,popUp: popUp,);
-
+                            var comment = logic.comments.comments[index];
+                            var subInfo = "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}";
+                            return CommentTile(
+                              avatarUrl: comment.avatarUrl,
+                              name: comment.name,
+                              content: comment.text,
+                              slogan: comment.slogan,
+                              level: comment.level,
+                              time: subInfo,
+                              like: (){
+                                network.likeOrUnlikeComment(comment.id);
+                                comment.isLiked = ! comment.isLiked;
+                                comment.isLiked?comment.likes++:comment.likes--;
+                                logic.update();
+                              },
+                              likes: comment.likes,
+                              liked: comment.isLiked,
+                              comments: comment.reply,
+                              onTap: ()=>showReply(context, comment.id, comment),
+                            );
                           }
                       )),
-                      if(commentsPageLogic.comments.loaded!=commentsPageLogic.comments.pages&&commentsPageLogic.comments.pages!=1)
+                      if(logic.comments.loaded!=logic.comments.pages&&logic.comments.pages!=1)
                         const SliverToBoxAdapter(
                           child: ListLoadingIndicator(),
                         ),
@@ -81,7 +100,7 @@ class CommentsPage extends StatelessWidget {
                           Expanded(child: Padding(
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: TextField(
-                              controller: commentsPageLogic.controller,
+                              controller: logic.controller,
                               decoration: const InputDecoration(
                                   border: InputBorder.none,
                                   isCollapsed: true,
@@ -91,34 +110,34 @@ class CommentsPage extends StatelessWidget {
                               maxLines: 5,
                             ),
                           )),
-                          commentsPageLogic.sending?const Padding(
+                          logic.sending?const Padding(
                             padding: EdgeInsets.all(8.5),
                             child: SizedBox(width: 23,height: 23,child: CircularProgressIndicator(),),
                           ):IconButton(onPressed: () async{
-                            if(commentsPageLogic.controller.text.length<2){
+                            if(logic.controller.text.length<2){
                               showMessage(context, "评论至少需要2个字");
                               return;
                             }
-                            commentsPageLogic.sending = true;
-                            commentsPageLogic.update();
-                            var b = await network.comment(id, commentsPageLogic.controller.text, false);
+                            logic.sending = true;
+                            logic.update();
+                            var b = await network.comment(id, logic.controller.text, false);
                             if(b){
-                              commentsPageLogic.controller.text = "";
-                              commentsPageLogic.sending = false;
+                              logic.controller.text = "";
+                              logic.sending = false;
                               var res = await network.getCommends(id);
-                              commentsPageLogic.comments = Comments([], id, 1, 1);
-                              commentsPageLogic.update();
+                              logic.comments = Comments([], id, 1, 1);
+                              logic.update();
                               await Future.delayed(const Duration(milliseconds: 200));
-                              commentsPageLogic.comments = res;
-                              commentsPageLogic.update();
+                              logic.comments = res;
+                              logic.update();
                             }else{
                               if(network.status){
                                 showMessage(Get.context, network.message);
                               }else{
                                 showMessage(Get.context, "网络错误");
                               }
-                              commentsPageLogic.sending = false;
-                              commentsPageLogic.update();
+                              logic.sending = false;
+                              logic.update();
                             }
                           }, icon: Icon(Icons.send, color: Theme.of(context).colorScheme.secondary,))
                         ],
@@ -127,25 +146,24 @@ class CommentsPage extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
             ],
           );
         }
       },);
 
     if(popUp){
-      return PopUpWidgetScaffold(
-          title: "评论",
-          body: body,
-      );
+      return body;
     }else{
       return Scaffold(
         appBar: AppBar(
           title: const Text("评论"),
-
         ),
         body: body,
       );
     }
   }
+}
+
+void showComments(BuildContext context, String id){
+  showSideBar(context, CommentsPage(id, popUp: true,), "评论",);
 }

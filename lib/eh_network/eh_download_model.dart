@@ -42,6 +42,8 @@ class EhDownloadingItem extends DownloadingItem{
   ///是否已经获取了全部url
   bool _gotUrls = false;
 
+  int _runtimeKey = 0;
+
   Future<void> _getUrls() async{
     try{
       if (_gotUrls) return;
@@ -101,6 +103,8 @@ class EhDownloadingItem extends DownloadingItem{
 
   @override
   void start() async{
+    _runtimeKey++;
+    int currentKey = _runtimeKey;
     _pauseFlag = false;
     notifications.sendProgressNotification(
         _downloadedPages, totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
@@ -109,11 +113,12 @@ class EhDownloadingItem extends DownloadingItem{
       await _getUrls();
       await _downloadCover();
       while (_downloadedPages < _totalPages) {
+        if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
         var imagePath = await getEhImageUrl(_urls[_downloadedPages]);
         var dio = Dio();
         var res =
-        await dio.get(imagePath, options: Options(responseType: ResponseType.bytes));
+          await dio.get(imagePath, options: Options(responseType: ResponseType.bytes));
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(res.data));
