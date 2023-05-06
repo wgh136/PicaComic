@@ -34,6 +34,13 @@ class JmNetwork {
 
   var hotTags = <String>[];
 
+  ///工厂构造函数, 确保在App运行时仅有一个JmNetwork类
+  factory JmNetwork() => cache==null?(cache=JmNetwork.create()):cache!;
+
+  JmNetwork.create();
+
+  static JmNetwork? cache;
+
   void updateApi(){
     var urls = <String>[
       "https://www.jmapinode1.cc",
@@ -785,6 +792,55 @@ class JmNetwork {
       return Res(true);
     }
   }
+
+  ///获取每周必看列表
+  ///
+  /// 返回Map, 键为ID, 值为名称
+  Future<Res<Map<String, String>>> getWeekRecommendation() async{
+    var res = await get("$baseUrl/week?$baseData");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage!);
+    }
+    try{
+      Map<String, String> categories = {};
+      for(var c in res.data["categories"]){
+        categories[c["id"]] = c["time"];
+      }
+      return Res(categories);
+    }
+    catch(e){
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
+  }
+
+  ///获取单个每周必看中的漫画
+  ///
+  /// 不需要传递page变量, 因为只有一页
+  Future<Res<List<JmComicBrief>>> getWeekRecommendationComics(String id, WeekRecommendationType type) async{
+    var res = await get("$baseUrl/week/filter?$baseData&id=$id&page=0$type");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage!);
+    }
+    try{
+      var comics = <JmComicBrief>[];
+      for (var comic in (res.data["list"])) {
+        var categories = <ComicCategoryInfo>[];
+        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+          categories
+              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        comics.add(JmComicBrief(
+            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+      }
+      return Res(comics);
+    }
+    catch(e){
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
+  }
 }
 
 ///禁漫漫画排序模式
@@ -809,4 +865,18 @@ enum ComicsOrder {
 
   final String value;
   const ComicsOrder(this.value);
+}
+
+///每周必看的类型
+enum WeekRecommendationType{
+  korean("&type=hanman"),
+  manga("&type=manga"),
+  another("&type=another");
+
+  const WeekRecommendationType(this.value);
+
+  final String value;
+
+  @override
+  String toString() => value;
 }
