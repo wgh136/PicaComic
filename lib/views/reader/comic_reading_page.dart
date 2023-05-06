@@ -246,7 +246,7 @@ class ComicReadingPage extends StatelessWidget {
                         //底部工具栏
                         buildBottomToolBar(logic, context, type != ReadingType.ehentai, () {
                           if (MediaQuery.of(context).size.width > 600) {
-                            showSideBar(context, buildEpsView(), null, useSurfaceTintColor: true, width: 400);
+                            showSideBar(context, buildEpsView(), title: null, useSurfaceTintColor: true, width: 400);
                           } else {
                             showModalBottomSheet(
                                 context: context,

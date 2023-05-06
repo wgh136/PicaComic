@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
-import 'package:pica_comic/views/test/comment.dart';
+import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import '../widgets/widgets.dart' show showMessage;
@@ -184,7 +184,7 @@ void showReply(BuildContext context, List<Comment> comments, Comment replyTo) {
           ],
         ),
       ),
-      "回复",
+      title: "回复",
       showBarrier: false);
 }
 
@@ -195,5 +195,5 @@ void showComments(BuildContext context, String id) {
         id,
         popUp: true,
       ),
-      "评论");
+      title: "评论");
 }

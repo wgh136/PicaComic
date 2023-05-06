@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/test/comment.dart';
+import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
@@ -165,5 +165,5 @@ class CommentsPage extends StatelessWidget {
 }
 
 void showComments(BuildContext context, String id){
-  showSideBar(context, CommentsPage(id, popUp: true,), "评论",);
+  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论",);
 }

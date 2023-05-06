@@ -44,7 +44,14 @@ class ReplyPage extends StatelessWidget {
               Expanded(child: CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
-                    child: CommentTile(comment: replyTo, isReply: true, isToReply: true,),
+                    child: CommentTile(
+                      avatarUrl: replyTo.avatarUrl,
+                      name: replyTo.name,
+                      content: replyTo.text,
+                      time: "${replyTo.time.substring(0,10)}  ${replyTo.time.substring(11,19)}",
+                      slogan: replyTo.slogan,
+                      level: replyTo.level,
+                    ),
                   ),
                   const SliverPadding(padding: EdgeInsets.all(2)),
                   const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.symmetric(horizontal: 15),child: Divider(),),),
@@ -54,8 +61,24 @@ class ReplyPage extends StatelessWidget {
                         if(index==commentsPageLogic.comments.comments.length-1&&commentsPageLogic.comments.total!=commentsPageLogic.comments.loaded){
                           network.getMoreReply(commentsPageLogic.comments).then((t){commentsPageLogic.update();});
                         }
-                        return CommentTile(comment: commentsPageLogic.comments.comments[index], isReply: true);
-
+                        var comment = commentsPageLogic.comments.comments[index];
+                        var subInfo = "${comment.time.substring(0,10)}  ${comment.time.substring(11,19)}";
+                        return CommentTile(
+                          avatarUrl: comment.avatarUrl,
+                          name: comment.name,
+                          content: comment.text,
+                          slogan: comment.slogan,
+                          level: comment.level,
+                          time: subInfo,
+                          like: (){
+                            network.likeOrUnlikeComment(comment.id);
+                            comment.isLiked = ! comment.isLiked;
+                            comment.isLiked?comment.likes++:comment.likes--;
+                            commentsPageLogic.update();
+                          },
+                          likes: comment.likes,
+                          liked: comment.isLiked,
+                        );
                       }
                   )),
                   if(commentsPageLogic.comments.loaded!=commentsPageLogic.comments.total&&commentsPageLogic.comments.total!=1)
@@ -149,5 +172,5 @@ class ReplyPage extends StatelessWidget {
 }
 
 void showReply(BuildContext context, String id, Comment replyTo){
-  showSideBar(context, ReplyPage(id, replyTo, popUp: true,), "回复", showBarrier: false);
+  showSideBar(context, ReplyPage(id, replyTo, popUp: true,), title: "回复", showBarrier: false);
 }

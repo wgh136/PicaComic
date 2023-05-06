@@ -7,7 +7,11 @@ import 'package:flutter/material.dart';
 /// 小于600显示为从侧边划入的页面
 class SideBarRoute<T> extends PopupRoute<T> {
   SideBarRoute(this.title, this.widget,
-      {this.showBarrier = true, this.useSurfaceTintColor = false, this.width = 450});
+      {this.showBarrier = true,
+      this.useSurfaceTintColor = false,
+      this.width = 450,
+      this.addBottomPadding = true,
+      this.addTopPadding = true});
 
   ///标题
   final String? title;
@@ -23,6 +27,10 @@ class SideBarRoute<T> extends PopupRoute<T> {
 
   ///宽度
   final double width;
+
+  final bool addTopPadding;
+
+  final bool addBottomPadding;
 
   @override
   Color? get barrierColor => showBarrier ? Colors.black54 : Colors.transparent;
@@ -51,13 +59,19 @@ class SideBarRoute<T> extends PopupRoute<T> {
           child: ClipRect(
             clipBehavior: Clip.antiAlias,
             child: Container(
-              padding: EdgeInsets.fromLTRB(0, title == null?MediaQuery.of(context).padding.top : 0,
-                  MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
+              padding: EdgeInsets.fromLTRB(
+                  0,
+                  addTopPadding ? MediaQuery.of(context).padding.top : 0,
+                  MediaQuery.of(context).padding.right,
+                  addBottomPadding ? MediaQuery.of(context).padding.bottom + MediaQuery.of(context).viewInsets.bottom : 0
+              ),
               color: useSurfaceTintColor
                   ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
                   : null,
               child: Column(
                 children: [
+                  /*
+                  不能使用Appbar, 它会自动在左侧加上padding以回避屏幕左侧的阻碍
                   if (title != null)
                     AppBar(
                       title: Text(title!),
@@ -70,6 +84,32 @@ class SideBarRoute<T> extends PopupRoute<T> {
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
+                      ),
+                    ),
+                   */
+                  if (title != null)
+                    SizedBox(
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          Tooltip(
+                            message: "返回",
+                            child: IconButton(
+                              iconSize: 25,
+                              icon: const Icon(Icons.arrow_back),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            title!,
+                            style: const TextStyle(fontSize: 22),
+                          )
+                        ],
                       ),
                     ),
                   Expanded(child: widget)
@@ -104,8 +144,21 @@ class SideBarRoute<T> extends PopupRoute<T> {
 /// 此组件会自动适应窗口大小:
 /// 大于600显示为右侧的侧边栏
 /// 小于600显示为从侧边划入的页面
-void showSideBar(BuildContext context, Widget widget, String? title,
-    {bool showBarrier = true, bool useSurfaceTintColor = false, double width = 450}) {
+///
+/// [width] 侧边栏的宽度
+///
+/// [title] 标题, 为空时不显示顶部的Appbar
+void showSideBar(BuildContext context, Widget widget,
+    { String? title,
+      bool showBarrier = true,
+      bool useSurfaceTintColor = false,
+      double width = 450,
+      bool addTopPadding = true,
+      bool addBottomPadding = true}) {
   Navigator.of(context).push(SideBarRoute(title, widget,
-      showBarrier: showBarrier, useSurfaceTintColor: useSurfaceTintColor, width: width));
+      showBarrier: showBarrier,
+      useSurfaceTintColor: useSurfaceTintColor,
+      width: width,
+      addTopPadding: addTopPadding,
+      addBottomPadding: addBottomPadding));
 }

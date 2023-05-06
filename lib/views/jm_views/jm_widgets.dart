@@ -13,7 +13,7 @@ class JmComicTile extends StatelessWidget {
   Widget build(BuildContext context) {
     var categories = "";
     for(final category in comic.categories){
-      categories += category.name += " ";
+      categories += "${category.name} ";
     }
 
     return InkWell(

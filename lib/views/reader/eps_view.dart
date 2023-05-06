@@ -100,7 +100,12 @@ class _EpsViewState extends State<EpsView> {
                 IconButton(
                   icon: Icon(Icons.my_location_outlined, color: Theme.of(context).colorScheme.secondary,size: 23,),
                   onPressed: (){
-                    controller.jumpTo(index: logic.order-1);
+                    var length = type==ReadingType.picacg?eps.length-1:eps.length;
+                    if(!value) {
+                      controller.jumpTo(index: length - logic.order-1);
+                    } else {
+                      controller.jumpTo(index: length - logic.order);
+                    }
                   },
                 ),
                 const Text(" 倒序"),
