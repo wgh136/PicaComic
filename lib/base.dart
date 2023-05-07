@@ -17,7 +17,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.5.6";
+const appVersion = "1.5.7";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -65,6 +65,7 @@ class Appdata{
     "1",//屏蔽关键词1
     "1",//屏蔽关键词2(已废弃)
     "1",//漫画详情页
+    "0",//是否进入过app
   ];
   String ehId = "";
   String ehPassHash = "";
@@ -74,7 +75,7 @@ class Appdata{
   String jmPwd = "";
   Appdata(){
     token = "";
-    var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
+    var temp = Profile("", defaultAvatarUrl, "", 0, 0, "", "",null,null,null);
     user = temp;
     appChannel = "3";
     searchHistory = [];
@@ -125,6 +126,11 @@ class Appdata{
     writeData();
   }
 
+  void writeFirstUse() async{
+    var s = await SharedPreferences.getInstance();
+    await s.setStringList("firstUse", firstUse);
+  }
+
   Future<void> writeData() async{
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
@@ -151,14 +157,14 @@ class Appdata{
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
     try{
-      token = (s.getString("token"))!;
-      user.name = s.getString("userName")!;
-      user.title = s.getString("userTitle")!;
-      user.level = s.getInt("userLevel")!;
-      user.email = s.getString("userEmail")!;
-      user.avatarUrl = s.getString("userAvatar")!;
-      user.id = s.getString("userId")!;
-      user.exp = s.getInt("userExp")!;
+      token = (s.getString("token"))??"";
+      user.name = s.getString("userName")??"";
+      user.title = s.getString("userTitle")??"";
+      user.level = s.getInt("userLevel")??0;
+      user.email = s.getString("userEmail")??"";
+      user.avatarUrl = s.getString("userAvatar")??defaultAvatarUrl;
+      user.id = s.getString("userId")??"";
+      user.exp = s.getInt("userExp")??0;
       if(s.getStringList("settings")!=null) {
         var st = s.getStringList("settings")!;
         for(int i=0;i<st.length;i++){
@@ -181,7 +187,7 @@ class Appdata{
       jmName = s.getString("jmName")??"";
       jmEmail = s.getString("jmEmail")??"";
       jmPwd = s.getString("jmPwd")??"";
-      return token==""?false:true;
+      return firstUse[3]=="1"||token!="";
     }
     catch(e){
       return false;

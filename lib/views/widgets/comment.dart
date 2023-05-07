@@ -38,7 +38,7 @@ class CommentTile extends StatelessWidget {
     return InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+        padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
         child: SizedBox(
           width: double.infinity,
           child: Row(

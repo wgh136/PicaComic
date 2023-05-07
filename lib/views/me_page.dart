@@ -6,6 +6,7 @@ import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/jm_views/jm_login_page.dart';
+import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pic_views/profile_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
@@ -52,7 +53,7 @@ class MePage extends StatelessWidget {
                                 ),
                               ),
                               Center(
-                                child: Text(appdata.user.name,
+                                child: Text(appdata.token==""?"未登录":appdata.user.name,
                                     style:
                                         const TextStyle(fontWeight: FontWeight.w600, fontSize: 20)),
                               ),
@@ -194,12 +195,18 @@ class MePage extends StatelessWidget {
                         Get.back();
                         Future.delayed(
                             const Duration(milliseconds: 200),
-                            () => showAdaptiveWidget(
-                                context,
-                                ProfilePage(
-                                  infoController,
-                                  popUp: MediaQuery.of(context).size.width > 600,
-                                )));
+                            (){
+                              if(appdata.token != ""){
+                                showAdaptiveWidget(
+                                    context,
+                                    ProfilePage(
+                                      infoController,
+                                      popUp: MediaQuery.of(context).size.width > 600,
+                                    ));
+                              }else{
+                                Get.to(() => const LoginPage());
+                              }
+                            });
                       },
                     ),
                     ListTile(

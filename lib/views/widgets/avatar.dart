@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/views/widgets/show_user_info.dart';
@@ -46,10 +47,11 @@ class Avatar extends StatelessWidget {
                 height: size*0.75,
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(size)),
-                child: avatarUrl==null?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CfCachedNetworkImage(
+                child: avatarUrl==null?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CachedNetworkImage(
                   imageUrl: getImageUrl(avatarUrl!),
                   fit: BoxFit.cover,
                   errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error),),
+                  placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
                 ),
               ),
             ),

@@ -102,7 +102,7 @@ class _EpsViewState extends State<EpsView> {
                   onPressed: (){
                     var length = type==ReadingType.picacg?eps.length-1:eps.length;
                     if(!value) {
-                      controller.jumpTo(index: length - logic.order-1);
+                      controller.jumpTo(index: logic.order-1);
                     } else {
                       controller.jumpTo(index: length - logic.order);
                     }

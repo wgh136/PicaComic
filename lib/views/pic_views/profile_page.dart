@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/me_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
@@ -417,6 +418,7 @@ void logout(BuildContext context){
         TextButton(onPressed: (){
           appdata.token = "";
           appdata.settings[13] = "0";
+          appdata.user = Profile("", defaultAvatarUrl, "", 0, 0, "", "",null,null,null);
           appdata.writeData();
           Get.offAll(const WelcomePage());
         }, child: const Text("确定",textAlign: TextAlign.end))

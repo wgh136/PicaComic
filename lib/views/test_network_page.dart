@@ -80,7 +80,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 child: Align(
                     alignment: Alignment.topCenter,
                     child: SizedBox(
-                      width: 200,
+                      width: 280,
                       height: 50,
                       child: Row(
                         children: [
@@ -103,6 +103,11 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                               Get.to(()=>const DownloadPage(noNetwork: true,));
                             },
                             child: const Text("已下载"),
+                          ),
+                          const Spacer(),
+                          FilledButton.tonal(
+                            onPressed: () => goToMainPage(),
+                            child: const Text("直接进入"),
                           )
                         ],
                       ),
@@ -142,12 +147,14 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     //如果同时进行两个网络请求, jm的登录存在问题, 导致无法获取收藏, 并不清楚为什么
     message = null;
     jmNetwork.updateApi();
-    var res = await network.getProfile();
-    if(res == null){
-      message = network.status?network.message:"网络错误";
-    }else{
-      appdata.user = res;
-      appdata.writeData();
+    if(appdata.token != "") {
+      var res = await network.getProfile();
+      if (res == null) {
+        message = network.status ? network.message : "网络错误";
+      } else {
+        appdata.user = res;
+        appdata.writeData();
+      }
     }
     var res2 = await jmNetwork.loginFromAppdata();
     if(res2.error){

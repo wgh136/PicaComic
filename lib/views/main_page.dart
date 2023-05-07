@@ -89,6 +89,11 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    if(appdata.firstUse[3] == "0") {
+      appdata.firstUse[3] = "1";
+      appdata.writeFirstUse();
+    }
+
     //清除未正常退出时的下载通知
     try {
       notifications.endProgress();
@@ -110,18 +115,22 @@ class _MainPageState extends State<MainPage> {
 
     //获取热搜
     if(hotSearch.isEmpty || jmNetwork.hotTags.isEmpty) {
-      jmNetwork.getHotTags();
-      network.getKeyWords().then((s){
-      if(s!=null){
-        hotSearch = s.keyWords;
-        try{
-          Get.find<PreSearchController>().update();
-        }
-        catch(e){
-          //处于搜索页面时更新页面, 否则忽视
-        }
+      if(jmNetwork.hotTags.isEmpty) {
+        jmNetwork.getHotTags();
       }
-    });
+      if(hotSearch.isEmpty) {
+        network.getKeyWords().then((s) {
+          if (s != null) {
+            hotSearch = s.keyWords;
+            try {
+              Get.find<PreSearchController>().update();
+            }
+            catch (e) {
+              //处于搜索页面时更新页面, 否则忽视
+            }
+          }
+        });
+      }
     }
 
     //检查更新

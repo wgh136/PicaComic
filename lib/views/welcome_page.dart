@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
 
@@ -17,7 +18,7 @@ class WelcomePage extends StatelessWidget {
       ),
       body: Center(
         child: SizedBox(
-          width: 200,
+          width: 300,
           height: 250,
           child: Column(
             children: [
@@ -28,18 +29,23 @@ class WelcomePage extends StatelessWidget {
               ),
               const Padding(padding: EdgeInsets.only(top: 20),child: Text("Pica Comic",style: TextStyle(fontSize: 20),),),
               SizedBox(
-                width: 200,
+                width: 300,
                 height: 80,
                 child: Row(
                   children: [
                     SizedBox(
                       width: 90,
-                      child: FilledButton(onPressed: (){Get.to(()=>const LoginPage());}, child: const Text("登录")),
+                      child: FilledButton(onPressed: () => Get.to(()=>const LoginPage()), child: const Text("登录")),
                     ),
                     const Spacer(),
                     SizedBox(
                       width: 90,
-                      child: FilledButton(onPressed: (){Get.to(()=>const RegisterPage());}, child: const Text("注册")),
+                      child: FilledButton(onPressed: () => Get.to(()=>const RegisterPage()), child: const Text("注册")),
+                    ),
+                    const Spacer(),
+                    SizedBox(
+                      width: 90,
+                      child: FilledButton(onPressed: () => Get.to(()=>const MainPage()), child: const Text("直接进入")),
                     ),
                   ],
                 ),

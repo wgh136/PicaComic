@@ -46,6 +46,12 @@ class Network{
 
   Future<Map<String, dynamic>?> get(String url) async{
     status = false;
+    if(appdata.token == ""){
+      await Future.delayed(const Duration(milliseconds: 500));
+      status = true;
+      message = "未登录";
+      return null;
+    }
     var dio = await request();
     dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
 
@@ -87,6 +93,13 @@ class Network{
 
   Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
     status = false;
+    var api = appdata.settings[3] == "1"?"https://api.kokoiro.xyz/picaapi":"https://picaapi.picacomic.com";
+    if(appdata.token == "" && url!='$api/auth/sign-in'){
+      await Future.delayed(const Duration(milliseconds: 500));
+      status = true;
+      message = "未登录";
+      return null;
+    }
     var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     try{
