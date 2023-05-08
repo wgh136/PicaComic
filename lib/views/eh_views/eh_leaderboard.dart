@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import '../../base.dart';
+import '../../eh_network/eh_main_network.dart';
 import '../widgets/list_loading.dart';
 import 'eh_widgets/eh_gallery_tile.dart';
 
@@ -57,7 +58,7 @@ class OneEhLeaderboardPage extends StatelessWidget{
   Widget build(BuildContext context) {
     return GetBuilder<EhLeaderboardLogic>(builder: (logic){
       if(logic.leaderboards[index].galleries.isEmpty&&!logic.networkStatus[index]){
-        ehNetwork.getLeaderboard(logic.leaderboards[index].type).then((board){
+        EhNetwork().getLeaderboard(logic.leaderboards[index].type).then((board){
           if(board!=null){
             logic.leaderboards[index] = board;
             logic.update();
@@ -74,7 +75,7 @@ class OneEhLeaderboardPage extends StatelessWidget{
                 childCount: logic.leaderboards[index].galleries.length,
                     (context, i){
                   if(i==logic.leaderboards[index].galleries.length-1&&logic.leaderboards[index].loaded!=EhLeaderboard.max){
-                    ehNetwork.getLeaderboardNextPage(logic.leaderboards[index]).then((v)=>logic.update());
+                    EhNetwork().getLeaderboardNextPage(logic.leaderboards[index]).then((v)=>logic.update());
                   }
                   return EhGalleryTile(logic.leaderboards[index].galleries[i]);
                 }
@@ -101,7 +102,7 @@ class OneEhLeaderboardPage extends StatelessWidget{
                         children: [
                           const Icon(Icons.error_outline,size: 25,),
                           const SizedBox(width: 2,),
-                          Text(ehNetwork.status?ehNetwork.message:"网络错误")
+                          Text(EhNetwork().status?EhNetwork().message:"网络错误")
                         ],
                       ),
                     ),

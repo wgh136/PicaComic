@@ -5,12 +5,7 @@ import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'eh_network/eh_main_network.dart';
 import 'network/models.dart';
-
-var network = Network();
-var ehNetwork = EhNetwork();
-var jmNetwork = JmNetwork();
 
 //定义宽屏设备的临界值
 const changePoint = 600;
@@ -59,6 +54,7 @@ class Appdata{
     "0", //17 Jm图源
     "0", //18 夜间模式降低图片亮度
     "0", //19 Jm搜索漫画排序模式, 值为 ComicsOrder 的索引
+    "0", //20 Eh画廊站点, 1表示e-hentai, 2表示exhentai
   ];
   List<String> blockingKeyword = [];
   List<String> firstUse = [
@@ -196,5 +192,6 @@ class Appdata{
 }
 
 var appdata = Appdata();
-
 var notifications = Notifications();
+var network = Network();
+var jmNetwork = JmNetwork();

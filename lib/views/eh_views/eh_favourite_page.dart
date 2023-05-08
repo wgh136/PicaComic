@@ -5,6 +5,7 @@ import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../../base.dart';
+import '../../eh_network/eh_main_network.dart';
 import '../widgets/widgets.dart';
 
 class EhFavouritePageLogic extends GetxController{
@@ -15,7 +16,7 @@ class EhFavouritePageLogic extends GetxController{
   var pages = <List<EhGalleryBrief>>[];
 
   Future<void> getGallery() async{
-    galleries = await ehNetwork.getGalleries("${ehNetwork.ehBaseUrl}/favorites.php");
+    galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php");
     pages.add([]);
     if(galleries != null) {
       for (var g in galleries!.galleries) {
@@ -48,7 +49,7 @@ class EhFavouritePageLogic extends GetxController{
       change();
       page++;
       galleries!.galleries.clear();
-      await ehNetwork.getNextPageGalleries(galleries!);
+      await EhNetwork().getNextPageGalleries(galleries!);
       pages.add([]);
       for (var g in galleries!.galleries) {
         pages[page].add(g);
@@ -98,7 +99,7 @@ class EhFavouritePage extends StatelessWidget {
               childCount: logic.galleries!.length,
                   (context, i){
                 if(i==logic.galleries!.length-1){
-                  ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                  EhNetwork().getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
                 }
                 return EhGalleryTile(logic.galleries![i]);
               }

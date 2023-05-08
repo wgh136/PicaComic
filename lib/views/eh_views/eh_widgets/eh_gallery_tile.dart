@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/eh_network/eh_main_network.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
@@ -41,11 +42,21 @@ class EhGalleryTile extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) => const Icon(Icons.error),
                       height: double.infinity,
+                      httpHeaders: {
+                        "Cookie": EhNetwork().cookiesStr,
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+                        "Referer": EhNetwork().ehBaseUrl,
+                      },
                     ):Image.network(
                       gallery.coverPath,
                       fit: BoxFit.cover,
                       errorBuilder: (context, url, error) => const Icon(Icons.error),
                       height: double.infinity,
+                      headers: {
+                        "Cookie": EhNetwork().cookiesStr,
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+                        "Referer": EhNetwork().ehBaseUrl,
+                      },
                     )
                   )
               ),

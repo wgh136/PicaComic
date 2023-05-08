@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 
 import '../tools/io_tools.dart';
+import 'eh_main_network.dart';
 
 ///e-hentai的下载进程模型
 class EhDownloadingItem extends DownloadingItem{
@@ -47,7 +48,11 @@ class EhDownloadingItem extends DownloadingItem{
   Future<void> _getUrls() async{
     try{
       if (_gotUrls) return;
-      await ehNetwork.loadGalleryPages(gallery);
+      await for(var i in EhNetwork().loadGalleryPages(gallery)) {
+        if(i == 0){
+          throw StateError("加载漫画信息出错");
+        }
+      }
       _urls = gallery.urls;
       _totalPages = _urls.length;
       _gotUrls = true;

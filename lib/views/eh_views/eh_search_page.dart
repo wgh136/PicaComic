@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
+import '../../eh_network/eh_main_network.dart';
 import '../widgets/search.dart';
 import 'eh_widgets/eh_gallery_tile.dart';
 
@@ -19,7 +20,7 @@ class EhSearchPageLogic extends GetxController{
   }
 
   void search() async{
-    galleries = await ehNetwork.search(controller.text);
+    galleries = await EhNetwork().search(controller.text);
     change();
   }
 }
@@ -96,7 +97,7 @@ class EhSearchPage extends StatelessWidget {
               childCount: logic.galleries!.length,
                   (context, i){
                 if(i==logic.galleries!.length-1){
-                  ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                  EhNetwork().getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
                 }
                 return EhGalleryTile(logic.galleries![i]);
               }

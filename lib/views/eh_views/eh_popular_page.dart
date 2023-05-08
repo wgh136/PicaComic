@@ -10,10 +10,9 @@ import '../widgets/show_network_error.dart';
 class EhPopularPageLogic extends GetxController{
   bool loading = true;
   Galleries? galleries;
-  var network = EhNetwork();
 
   void getGallery() async{
-    galleries = await network.getGalleries("${network.ehBaseUrl}/popular");
+    galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/popular");
     loading = false;
     update();
   }
@@ -51,7 +50,7 @@ class EhPopularPage extends StatelessWidget {
                       childCount: logic.galleries!.length,
                           (context, i){
                         if(i==logic.galleries!.length-1){
-                          logic.network.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                          EhNetwork().getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
                         }
                         return EhGalleryTile(logic.galleries![i]);
                       }

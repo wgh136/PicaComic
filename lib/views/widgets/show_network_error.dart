@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 
+import '../../eh_network/eh_main_network.dart';
+
 Widget showNetworkError(BuildContext context, void Function() retry, {bool showBack = true, bool eh=false}){
   final topPadding = showBack?0:80;
   return SafeArea(child: Stack(
@@ -31,7 +33,7 @@ Widget showNetworkError(BuildContext context, void Function() retry, {bool showB
         child: Align(
           alignment: Alignment.topCenter,
           child: eh?
-            (ehNetwork.status?Text(ehNetwork.message):const Text("网络错误"))
+            (EhNetwork().status?Text(EhNetwork().message):const Text("网络错误"))
               :(network.status?Text(network.message):const Text("网络错误")),
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/eh_network/eh_main_network.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
@@ -23,9 +24,11 @@ class GalleryPageLogic extends GetxController{
   var controller = ScrollController();
   bool showAppbarTitle = false;
   bool noNetwork = false;
+  String cookies = "";
 
   void loadInfo(EhGalleryBrief brief) async{
-    gallery = await ehNetwork.getGalleryInfo(brief);
+    gallery = await EhNetwork().getGalleryInfo(brief);
+    cookies = await EhNetwork().getCookies();
     loading = false;
     update();
   }
@@ -265,6 +268,9 @@ class EhGalleryPage extends StatelessWidget {
           height: height,
           imageUrl: logic.gallery!.coverPath,
           fit: BoxFit.contain,
+          httpHeaders: {
+            "Cookie": logic.cookies
+          },
           errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
@@ -326,9 +332,9 @@ class EhGalleryPage extends StatelessWidget {
                 return;
               }
               if(logic.gallery!.favorite){
-                ehNetwork.unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
+                EhNetwork().unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
               }else{
-                ehNetwork.favorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
+                EhNetwork().favorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
               }
               logic.gallery!.favorite = !logic.gallery!.favorite;
               logic.update();
@@ -516,7 +522,7 @@ class EhGalleryPage extends StatelessWidget {
                       FilledButton(onPressed: (){
                         logic.running = true;
                         logic.update();
-                        ehNetwork.rateGallery(auth,logic.rating.toInt()).then((b){
+                        EhNetwork().rateGallery(auth,logic.rating.toInt()).then((b){
                           if(b){
                             Get.back();
                             showMessage(context, "评分成功");
@@ -524,7 +530,7 @@ class EhGalleryPage extends StatelessWidget {
                           }else{
                             logic.running = false;
                             logic.update();
-                            showMessage(dialogContext, ehNetwork.status?ehNetwork.message:"网络错误");
+                            showMessage(dialogContext, EhNetwork().status?EhNetwork().message:"网络错误");
                           }
                         });
                       }, child: const Text("提交"))
@@ -568,7 +574,7 @@ class EhGalleryPage extends StatelessWidget {
                     FilledButton(onPressed: (){
                       logic.sending = true;
                       logic.update();
-                      ehNetwork.comment(logic.controller.text,link).then((b){
+                      EhNetwork().comment(logic.controller.text,link).then((b){
                         if(b){
                           Get.back();
                           showMessage(context, "评论成功");
@@ -578,7 +584,7 @@ class EhGalleryPage extends StatelessWidget {
                         }else{
                           logic.sending = false;
                           logic.update();
-                          showMessage(context, ehNetwork.status?ehNetwork.message:"网络错误");
+                          showMessage(context, EhNetwork().status?EhNetwork().message:"网络错误");
                         }
                       });
                     }, child: const Text("提交"))

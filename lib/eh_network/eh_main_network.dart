@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/js.dart';
 import '../base.dart';
@@ -7,11 +7,37 @@ import '../tools/proxy.dart';
 import 'package:html/parser.dart';
 import 'package:get/get.dart';
 import '../views/pre_search_page.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class EhNetwork{
+  factory EhNetwork() => cache==null?(cache=EhNetwork.create()):cache!;
+
+  static EhNetwork? cache;
+
+  static EhNetwork createEhNetwork() => EhNetwork();
+
+  EhNetwork.create(){
+    updateUrl();
+    getCookies();
+  }
+
   ///e-hentai的url
-  final ehBaseUrl = "https://e-hentai.org";
-  final ehApiUrl = "https://api.e-hentai.org/api.php";
+  var _ehBaseUrl = "https://e-hentai.org";
+
+  ///e-hentai的url
+  get ehBaseUrl => _ehBaseUrl;
+
+  ///api url
+  var _ehApiUrl = "https://api.e-hentai.org/api.php";
+
+  ///api url
+  get ehApiUrl => _ehApiUrl;
+
+  final cookieJar = CookieJar(ignoreExpires: true);
+
+  ///给图片加载使用的cookie
+  String cookiesStr = "";
 
   ///给出当前请求的状态
   bool status = false;
@@ -19,8 +45,35 @@ class EhNetwork{
   ///输出错误信息
   String message = "";
 
+  ///更新画廊站点
+  void updateUrl(){
+    _ehBaseUrl = appdata.settings[20]=="0"?"https://e-hentai.org":"https://exhentai.org";
+    _ehApiUrl = appdata.settings[20]=="0"?"https://api.e-hentai.org/api.php":"https://exhentai.org/api.php";
+    getCookies();
+  }
+
+  ///设置请求cookie
+  Future<String> getCookies() async{
+    if(appdata.ehAccount == ""){
+      return "";
+    }
+    cookieJar.saveFromResponse(Uri.parse(ehBaseUrl), [
+      Cookie("nw", "1"),
+      Cookie("ipb_member_id", appdata.ehId),
+      Cookie("ipb_pass_hash", appdata.ehPassHash),
+    ]);
+    var cookies = await cookieJar.loadForRequest(Uri.parse(ehBaseUrl));
+    var res = "";
+    for(var cookie in cookies){
+      res += "${cookie.name}=${cookie.value}; ";
+    }
+    cookiesStr = res.substring(0,res.length-2);
+    return cookiesStr;
+  }
+
   ///从url获取数据, 在请求时设置了cookie
   Future<String?> request(String url, {Map<String,String>? headers,}) async{
+    await getCookies();
     status = false; //重置
     await setNetworkProxy();//更新代理
 
@@ -31,15 +84,16 @@ class EhNetwork{
       followRedirects: true,
       headers: {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-        "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
         ...?headers
       }
     );
 
     var dio =  Dio(options)
       ..interceptors.add(LogInterceptor());
+    dio.interceptors.add(CookieManager(cookieJar));
     try {
       var data = (await dio.get(url)).data;
+      await getCookies();//确保cookie处于最新状态
       if((data as String).substring(0,4) == "Your"){
         status = true;
         message = "Your IP address has been temporarily banned";
@@ -251,7 +305,7 @@ class EhNetwork{
 
   ///从漫画详情页链接中获取漫画详细信息
   Future<Gallery?> getGalleryInfo(EhGalleryBrief brief) async{
-    try{
+
       var res = await request("${brief.link}?/hc=1");
       if (res == null) return null;
       var document = parse(res);
@@ -309,18 +363,10 @@ class EhNetwork{
       var time = document.querySelector("div#gdd > table > tbody > tr > td.gdt2")!.text;
       gallery.time = time;
       //身份认证数据
-      var js = document.getElementsByTagName("script")[3].text;
+      var js = document.getElementsByTagName("script")[1].text;
       gallery.auth = getVariablesFromJsCode(js);
       return gallery;
-    }
-    catch(e){
-      status = true;
-      message = "解析HTML时出现错误";
-      if(kDebugMode){
-        print(e);
-      }
-      return null;
-    }
+
   }
 
   ///获取图片链接

@@ -8,6 +8,11 @@ import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart
 import '../../../../base.dart';
 
 ///提供一个简单的图片缓存管理
+///
+/// 此缓存管理用于eh和禁漫阅读器,
+/// 前者在加载时需要爬取url, 后者需要对图片拆分重组
+///
+/// 看个本子真不容易 ε(┬┬﹏┬┬)3
 class MyCacheManager{
   static MyCacheManager? cache;
 

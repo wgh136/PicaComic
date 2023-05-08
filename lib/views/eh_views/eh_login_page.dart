@@ -5,6 +5,8 @@ import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
 
+import '../../eh_network/eh_main_network.dart';
+
 class EhLoginPage extends StatefulWidget {
   const EhLoginPage({Key? key}) : super(key: key);
 
@@ -129,12 +131,12 @@ class _EhLoginPageState extends State<EhLoginPage> {
       logging = true;
       appdata.ehId = id;
       appdata.ehPassHash = hash;
-      ehNetwork.getUserName().then((b){
+      EhNetwork().getUserName().then((b){
         if(b){
           Get.back();
           showMessage(context, "登录成功");
         }else{
-          showMessage(context, ehNetwork.status?ehNetwork.message:"登录失败");
+          showMessage(context, EhNetwork().status?EhNetwork().message:"登录失败");
           setState(() {
             logging = false;
           });

@@ -12,6 +12,7 @@ import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
+import '../../eh_network/eh_main_network.dart';
 import '../../tools/key_down_event.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
@@ -431,12 +432,12 @@ class ComicReadingPage extends StatelessWidget {
       return;
     }
     await EhImageUrlsManager().readData();
-    await for (var i in ehNetwork.loadGalleryPages(gallery!)){
+    await for (var i in EhNetwork().loadGalleryPages(gallery!)){
       if(i == 1){
         logic.urls = gallery!.urls;
         logic.change();
       }else if(i == 0){
-        data.message = ehNetwork.status ? ehNetwork.message : "网络错误";
+        data.message = EhNetwork().status ? EhNetwork().message : "网络错误";
         logic.change();
       }else{
         info.current.value++;

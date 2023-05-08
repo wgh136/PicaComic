@@ -182,3 +182,92 @@ class ModeRadioLogic2 extends GetxController{
     update();
   }
 }
+
+void setCloudflareIp(BuildContext context) {
+  showDialog(
+      context: context,
+      builder: (dialogContext) => GetBuilder<SetCloudFlareIpController>(
+          init: SetCloudFlareIpController(),
+          builder: (logic) => SimpleDialog(
+            title: const Text("Cloudflare IP"),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(6, 15, 6, 15),
+                  color: Colors.yellow,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.warning),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: Text(
+                          "使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ListTile(
+                title: const Text("不使用"),
+                trailing: Radio<String>(
+                  value: "0",
+                  groupValue: logic.value,
+                  onChanged: (value) => logic.setValue(value!),
+                ),
+              ),
+              ListTile(
+                title: const Text("使用哔咔官方提供的IP"),
+                trailing: Radio<String>(
+                  value: "1",
+                  groupValue: logic.value,
+                  onChanged: (value) => logic.setValue(value!),
+                ),
+              ),
+              ListTile(
+                title: const Text("自定义"),
+                trailing: Radio<String>(
+                  value: "2",
+                  groupValue: (logic.value != "0" && logic.value != "1") ? "2" : "-1",
+                  onChanged: (value) => logic.setValue(value!),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: TextField(
+                  enabled: logic.value != "0" && logic.value != "1",
+                  controller: logic.controller,
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: logic.value == "2" ? "输入一个Cloudflare CDN Ip" : ""),
+                ),
+              ),
+              Center(
+                child: FilledButton(
+                  child: const Text("确认"),
+                  onPressed: () => logic.submit(),
+                ),
+              )
+            ],
+          )));
+}
+
+class SetCloudFlareIpController extends GetxController {
+  var value = appdata.settings[15];
+  late var controller = TextEditingController(text: (value != "0" && value != "1") ? value : "");
+  void setValue(String s) {
+    value = s;
+    update();
+  }
+
+  void submit() {
+    appdata.settings[15] = (value != "0" && value != "1") ? controller.text : value;
+    appdata.writeData();
+    Get.back();
+    network.updateApi();
+  }
+}

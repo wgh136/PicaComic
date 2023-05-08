@@ -4,15 +4,15 @@ import 'package:pica_comic/eh_network/eh_models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-
 import '../../base.dart';
+import '../../eh_network/eh_main_network.dart';
 
 class EhHomePageLogic extends GetxController{
   bool loading = true;
   Galleries? galleries;
 
   void getGallery() async{
-    galleries = await ehNetwork.getGalleries(ehNetwork.ehBaseUrl);
+    galleries = await EhNetwork().getGalleries(EhNetwork().ehBaseUrl);
     loading = false;
     update();
   }
@@ -50,7 +50,7 @@ class EhHomePage extends StatelessWidget {
                       childCount: logic.galleries!.length,
                           (context, i){
                         if(i==logic.galleries!.length-1){
-                          ehNetwork.getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                          EhNetwork().getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
                         }
                         return EhGalleryTile(logic.galleries![i]);
                       }

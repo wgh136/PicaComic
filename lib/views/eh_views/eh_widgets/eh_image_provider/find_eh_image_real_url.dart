@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/eh_network/eh_main_network.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:get/get.dart';
 
@@ -15,7 +16,8 @@ Future<String> getEhImageUrl(String url) async{
       receiveTimeout: const Duration(seconds: 8),
       followRedirects: true,
       headers: {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "cookie": EhNetwork().cookiesStr
       }
   );
 
