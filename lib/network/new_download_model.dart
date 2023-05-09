@@ -46,14 +46,29 @@ class DownloadedGallery{
 class DownloadedJmComic{
   JmComicInfo comic;
   double? size;
-  DownloadedJmComic(this.comic, this.size);
+  List<int> downloadedChapters;
+  DownloadedJmComic(this.comic, this.size, this.downloadedChapters);
   Map<String, dynamic> toMap()=>{
     "comic": comic.toJson(),
-    "size": size
+    "size": size,
+    "downloadedChapters": downloadedChapters
   };
   DownloadedJmComic.fromMap(Map<String, dynamic> map):
       comic = JmComicInfo.fromMap(map["comic"]),
-      size = map["size"];
+      size = map["size"],
+      downloadedChapters = []{
+    if(map["downloadedChapters"] == null){
+      //旧版本中的数据不包含这一项
+      for(int i=0;i<comic.series.length;i++) {
+        downloadedChapters.add(i);
+      }
+      if(downloadedChapters.isEmpty){
+        downloadedChapters.add(0);
+      }
+    }else{
+      downloadedChapters = List<int>.from(map["downloadedChapters"]);
+    }
+  }
 }
 
 enum DownloadType{picacg, ehentai, jm}

@@ -11,7 +11,7 @@ import '../tools/io_tools.dart';
 
 class JmDownloadingItem extends DownloadingItem {
   JmDownloadingItem(
-      this.comic, this.path, super.whenFinish, super.whenError, super.updateInfo, super.id,
+      this.comic, this.path, this._downloadEps, super.whenFinish, super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.jm});
 
   JmComicInfo comic;
@@ -25,6 +25,8 @@ class JmDownloadingItem extends DownloadingItem {
   ///当前正在下载的页面
   int _currentPage = 0;
   bool _downloadedCover = false;
+  ///要下载的章节
+  List<int> _downloadEps;
 
   ///用于判断是否已经启动了另一个下载线程, 避免重复
   int _runtimeKey = 0;
@@ -58,6 +60,10 @@ class JmDownloadingItem extends DownloadingItem {
       return true;
     }
     for (int i = urls.length; i < comic.series.length; i++) {
+      if(!_downloadEps.contains(i)){
+        urls.add([]);
+        continue;
+      }
       var res = await jmNetwork.getChapter(comic.series.values.elementAt(i));
       if (res.error) {
         retry();
@@ -102,9 +108,13 @@ class JmDownloadingItem extends DownloadingItem {
       retry();
       return;
     }
-    while(_downloadedPages < _totalPages){
+    while(_downloadedPages < _totalPages && _index<comic.series.length){
       if(_pauseFlag)  return;
       if(_runtimeKey != currentKey) return;
+      if(!_downloadEps.contains(_index)){
+        _index++;
+        continue;
+      }
       try{
         var dio = Dio();
         var res = await dio.get(urls[_index][_currentPage],
@@ -156,7 +166,9 @@ class JmDownloadingItem extends DownloadingItem {
 
   void saveInfo() async{
     var file = File("$path/$id/info.json");
-    var downloadedItem = DownloadedJmComic(comic, await getFolderSize(Directory("$path$pathSep$id")));
+    var downloadedItem = DownloadedJmComic(comic, await getFolderSize(Directory("$path$pathSep$id")),
+      _downloadEps
+    );
     var json = jsonEncode(downloadedItem.toMap());
     await file.writeAsString(json);
   }
@@ -182,7 +194,8 @@ class JmDownloadingItem extends DownloadingItem {
     "_currentPage": _currentPage,
     "id": id,
     "_downloadedCover": _downloadedCover,
-    "_totalPages": _totalPages
+    "_totalPages": _totalPages,
+    "_downloadEps": _downloadEps
   };
   
   static List<List<String>> array2dFromJson(List<dynamic> json){
@@ -207,7 +220,17 @@ class JmDownloadingItem extends DownloadingItem {
     urls = array2dFromJson(map["urls"]),
     _currentPage = map["_currentPage"],
     _downloadedCover = map["_downloadedCover"],
-    _totalPages = map["_totalPages"];
+    _totalPages = map["_totalPages"],
+    _downloadEps = []{
+    if(map["_downloadEps"] == null){
+      _downloadEps = List<int>.generate(comic.series.length, (index) => index);
+      if(comic.series.isEmpty){
+        _downloadEps.add(0);
+      }
+    }else{
+      _downloadEps = List<int>.from(map["_downloadEps"]);
+    }
+  }
 
   @override
   int get totalPages => _totalPages;

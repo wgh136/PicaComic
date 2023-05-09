@@ -16,7 +16,9 @@ import '../../tools/ui_mode.dart';
 import '../models/history.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
+import '../widgets/select_download_eps.dart';
 import '../widgets/selectable_text.dart';
+import '../widgets/side_bar.dart';
 import '../widgets/widgets.dart';
 
 class JmComicPageLogic extends GetxController {
@@ -38,6 +40,9 @@ class JmComicPageLogic extends GetxController {
       change();
     } else {
       comic = res.data;
+      if(comic!.series.isEmpty){
+        comic!.series[0] = comic!.id;
+      }
       change();
     }
 
@@ -706,6 +711,29 @@ void downloadComic(JmComicInfo comic, BuildContext context){
       return;
     }
   }
-  downloadManager.addJmDownload(comic);
-  showMessage(context, "已加入下载队列");
+
+  List<String> eps = [];
+  if(comic.series.isEmpty){
+    eps.add("第一章");
+  }else{
+    eps = List<String>.generate(comic.series.length, (index) => "第$index章");
+  }
+
+  if(UiMode.m1(context)) {
+    showModalBottomSheet(context: context, builder: (context){
+      return SelectDownloadChapter(eps, (selectedEps){
+        downloadManager.addJmDownload(comic, selectedEps);
+        showMessage(context, "已加入下载");
+      });
+    });
+  }else{
+    showSideBar(
+        context,
+        SelectDownloadChapter(eps, (selectedEps){
+          downloadManager.addJmDownload(comic, selectedEps);
+          showMessage(context, "已加入下载");
+        }),
+        useSurfaceTintColor: true
+    );
+  }
 }

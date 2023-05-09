@@ -477,7 +477,17 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
-    comicReadingPageLogic.downloaded = downloadManager.downloadedJmComics.contains("jm$target");
+    if(downloadManager.downloadedJmComics.contains("jm$target")){
+      var downloadedItem = await downloadManager.getJmComicFormId("jm$target");
+      if(downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order-1)){
+        comicReadingPageLogic.downloaded = true;
+        data.downloadedEps = downloadedItem.downloadedChapters;
+      }else{
+        comicReadingPageLogic.downloaded = false;
+      }
+    }else{
+      comicReadingPageLogic.downloaded = false;
+    }
     comicReadingPageLogic.index = 1;
     comicReadingPageLogic.tools = false;
     if (data.epsWidgets.isEmpty) {

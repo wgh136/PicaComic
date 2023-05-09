@@ -490,15 +490,13 @@ class DownloadPage extends StatelessWidget {
                 }
                 logic.update();
               } else {
-                //TODO
                 if (index0 == 0) {
                   showInfo(index0, index1, logic, context);
                 } else if (index0 == 1) {
                   readEhGallery(
                       logic.galleries[index1].gallery.link, logic.galleries[index1].gallery);
                 } else if (index0 == 2) {
-                  readJmComic(logic.jmComics[index1].comic.id, logic.jmComics[index1].comic.name,
-                      logic.jmComics[index1].comic.series.values.toList());
+                  showInfo(index0, index1, logic, context);
                 }
               }
             },
@@ -625,6 +623,14 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
         eps = widget.logic.comics[widget.index1].chapters.sublist(1);
         downloadedEps = widget.logic.comics[widget.index1].downloadedChapters;
         break;
+      case 2:
+        name = widget.logic.jmComics[widget.index1].comic.name;
+        eps = List<String>.generate( widget.logic.jmComics[widget.index1].comic.series.length, (index) => "第$index章");
+        if(eps.isEmpty){
+          eps.add("第1章");
+        }
+        downloadedEps = widget.logic.jmComics[widget.index1].downloadedChapters;
+        break;
     }
   }
 
@@ -648,6 +654,8 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
     if(index0 == 0){
       Get.to(() =>
           ComicReadingPage.picacg(widget.logic.comics[index1].comicItem.id, i+1, widget.logic.comics[index1].chapters, widget.logic.comics[index1].comicItem.title));
+    }else if(index0 == 2){
+      Get.to(() => ComicReadingPage.jmComic(widget.logic.jmComics[widget.index1].comic.id, widget.logic.jmComics[widget.index1].comic.name, widget.logic.jmComics[widget.index1].comic.series.values.toList(), i+1));
     }
   }
 }

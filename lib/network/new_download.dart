@@ -166,10 +166,10 @@ class DownloadManager{
   }
 
   ///添加禁漫下载
-  void addJmDownload(JmComicInfo comic){
+  void addJmDownload(JmComicInfo comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${"jm"}${comic.id}");
     downloadPath.create();
-    downloading.addLast(JmDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
+    downloading.addLast(JmDownloadingItem(comic, path!, downloadEps, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
