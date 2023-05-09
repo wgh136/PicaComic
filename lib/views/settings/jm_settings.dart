@@ -2,6 +2,8 @@ import '../../base.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../widgets/select.dart';
+
 ///设置分类中漫画排序模式, 返回设置是否发生变化
 Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async{
   var settingOrder = search?19:16;
@@ -108,73 +110,78 @@ class SetJmComicsOrderController extends GetxController{
   }
 }
 
-void setJmImageShut(BuildContext context) async{
-  showDialog(context: context, builder: (context){
-    return SimpleDialog(
-      title: const Text("设置图片分流"),
-      children: [
-        GetBuilder(
-          init: SetJmImageShutController(),
-          builder: (logic){
-            return SizedBox(
-              width: 400,
-              child: Column(
-                children: [
-                  ListTile(
-                    title: const Text("分流1"),
-                    trailing: Radio<String>(
-                      groupValue: logic.value,
-                      value: "0",
-                      onChanged: (v)=>logic.set(v!),
-                    ),
-                    onTap: ()=>logic.set("0"),
-                  ),
-                  ListTile(
-                    title: const Text("分流2"),
-                    trailing: Radio<String>(
-                      groupValue: logic.value,
-                      value: "1",
-                      onChanged: (v)=>logic.set(v!),
-                    ),
-                    onTap: ()=>logic.set("1"),
-                  ),
-                  ListTile(
-                    title: const Text("分流3"),
-                    trailing: Radio<String>(
-                      groupValue: logic.value,
-                      value: "2",
-                      onChanged: (v)=>logic.set(v!),
-                    ),
-                    onTap: ()=>logic.set("2"),
-                  ),
-                  ListTile(
-                    title: const Text("分流4"),
-                    trailing: Radio<String>(
-                      groupValue: logic.value,
-                      value: "3",
-                      onChanged: (v)=>logic.set(v!),
-                    ),
-                    onTap: ()=>logic.set("3"),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  });
+
+class JmSettings extends StatefulWidget {
+  const JmSettings(this.popUp, {Key? key}) : super(key: key);
+  final bool popUp;
+
+  @override
+  State<JmSettings> createState() => _JmSettingsState();
 }
 
-class SetJmImageShutController extends GetxController{
-  var value = appdata.settings[17];
-
-  void set(String s){
-    value = s;
-    appdata.settings[17] = s;
-    appdata.writeData();
-    jmNetwork.updateApi();
-    jmNetwork.loginFromAppdata();
-    update();
+class _JmSettingsState extends State<JmSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        elevation: 0,
+        child: Column(
+          children: [
+            const ListTile(
+              title: Text("禁漫天堂"),
+            ),
+            ListTile(
+              leading: Icon(Icons.sort, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("分类中漫画排序模式"),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[16]),
+                values: const [
+                  "最新", "总排行", "月排行", "周排行", "日排行", "最多图片", "最多喜欢"
+                ],
+                whenChange: (i){
+                  appdata.settings[16] = i.toString();
+                  appdata.updateSettings();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.manage_search_outlined, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("搜索中漫画排序模式"),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[19]),
+                values: const [
+                  "最新", "最多点击", "月排行", "周排行", "日排行", "最多图片", "最多喜欢"
+                ],
+                whenChange: (i){
+                  appdata.settings[19] = i.toString();
+                  appdata.updateSettings();
+                },
+                disabledValues: const [2,3,4],
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_tree_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: const Text("设置分流"),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[17]),
+                values: const [
+                  "分流1","分流2","分流3","分流4"
+                ],
+                whenChange: (i){
+                  appdata.settings[17] = i.toString();
+                  appdata.updateSettings();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("清除登录状态"),
+              onTap: () => jmNetwork.logout(),
+            ),
+          ],
+        ));
   }
 }

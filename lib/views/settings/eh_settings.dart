@@ -1,70 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/eh_network/eh_main_network.dart';
-
 import '../../base.dart';
+import '../widgets/select.dart';
 
-class EhDomainSetting extends StatefulWidget {
-  const EhDomainSetting({Key? key}) : super(key: key);
+class EhSettings extends StatefulWidget {
+  const EhSettings(this.popUp, {Key? key}) : super(key: key);
+  final bool popUp;
 
   @override
-  State<EhDomainSetting> createState() => _EhDomainSettingState();
+  State<EhSettings> createState() => _EhSettingsState();
 }
 
-class _EhDomainSettingState extends State<EhDomainSetting> {
+class _EhSettingsState extends State<EhSettings> {
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: const Text("设置画廊站点"),
-      children: [
-        ListTile(
-          title: const Text("e-hentai.org"),
-          onTap: (){
-            setState(() {
-              appdata.settings[20] = "0";
-            });
-            appdata.updateSettings();
-            EhNetwork().updateUrl();
-          },
-          trailing: Radio<String>(
-            value: "0",
-            groupValue: appdata.settings[20],
-            onChanged: (s){
-              setState(() {
-                appdata.settings[20] = s!;
-              });
-              appdata.updateSettings();
-              EhNetwork().updateUrl();
-            },
-          ),
-        ),
-        ListTile(
-          title: const Text("exhentai.org"),
-          onTap: (){
-            setState(() {
-              appdata.settings[20] = "1";
-            });
-            appdata.updateSettings();
-            EhNetwork().updateUrl();
-          },
-          trailing: Radio<String>(
-            value: "1",
-            groupValue: appdata.settings[20],
-            onChanged: (s){
-              setState(() {
-                appdata.settings[20] = s!;
-              });
-              appdata.updateSettings();
-              EhNetwork().updateUrl();
-            },
-          ),
-        ),
-      ],
-    );
+    return Card(
+        elevation: 0,
+        child: Column(
+          children: [
+            const ListTile(
+              title: Text("E-Hentai"),
+            ),
+            ListTile(
+              leading: Icon(Icons.domain, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("画廊站点"),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[20]),
+                width: 150,
+                values: const [
+                  "e-hentai.org",
+                  "exhentai.org",
+                ],
+                whenChange: (i){
+                  appdata.settings[20] = i.toString();
+                  appdata.updateSettings();
+                  EhNetwork().updateUrl();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+              //onTap: () => setEhDomain(context),
+            ),
+          ],
+        ));
   }
-}
-
-void setEhDomain(BuildContext context){
-  showDialog(context: context, builder: (context){
-    return const EhDomainSetting();
-  });
 }

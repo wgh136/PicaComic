@@ -1,187 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../base.dart';
+import '../me_page.dart';
+import '../widgets/select.dart';
 import '../widgets/widgets.dart';
-
-void setSearchMode(BuildContext context){
-  showDialog(context: context, builder: (context){
-    return SimpleDialog(
-        title: const Text("选择漫画排序模式"),
-        children: [GetBuilder<ModeRadioLogic2>(
-          init: ModeRadioLogic2(),
-          builder: (radioLogic){
-            return Column(
-              children: [
-                const SizedBox(width: 400,),
-                ListTile(
-                  trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
-                    radioLogic.change(i!);
-                  },),
-                  title: const Text("新书在前"),
-                  onTap: (){
-                    radioLogic.change(0);
-                  },
-                ),
-                ListTile(
-                  trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
-                    radioLogic.change(i!);
-                  },),
-                  title: const Text("旧书在前"),
-                  onTap: (){
-                    radioLogic.change(1);
-                  },
-                ),
-                ListTile(
-                  trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
-                    radioLogic.change(i!);
-                  },),
-                  title: const Text("最多喜欢"),
-                  onTap: (){
-                    radioLogic.change(2);
-                  },
-                ),
-                ListTile(
-                  trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
-                    radioLogic.change(i!);
-                  },),
-                  title: const Text("最多指名"),
-                  onTap: (){
-                    radioLogic.change(3);
-                  },
-                ),
-              ],
-            );
-          },),]
-    );
-  });
-}
-
-void setShut(BuildContext context){
-  showDialog(context: context, builder: (BuildContext context) => SimpleDialog(
-      title: const Text("选择分流"),
-      children: [GetBuilder<RadioLogic>(
-        init: RadioLogic(),
-        builder: (radioLogic){
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 400,),
-              ListTile(
-                trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.change(i!);
-                },),
-                title: const Text("分流1"),
-                onTap: (){
-                  radioLogic.change(0);
-                },
-              ),
-              ListTile(
-                trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.change(i!);
-                },),
-                title: const Text("分流2"),
-                onTap: (){
-                  radioLogic.change(1);
-                },
-              ),
-              ListTile(
-                trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.change(i!);
-                },),
-                title: const Text("分流3"),
-                onTap: (){
-                  radioLogic.change(2);
-                },
-              ),
-            ],
-          );
-        },),]
-  ));
-}
-
-void setImageQuality(BuildContext context){
-  showDialog(context: context, builder: (BuildContext context) => SimpleDialog(
-      title: const Text("设置图片质量"),
-      children: [GetBuilder<SetImageQualityLogic>(
-        init: SetImageQualityLogic(),
-        builder: (radioLogic){
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 400,),
-              ListTile(
-                trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.setValue(i!);
-                },),
-                title: const Text("低"),
-                onTap: (){
-                  radioLogic.setValue(1);
-                },
-              ),
-              ListTile(
-                trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.setValue(i!);
-                },),
-                title: const Text("中"),
-                onTap: (){
-                  radioLogic.setValue(2);
-                },
-              ),
-              ListTile(
-                trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.setValue(i!);
-                },),
-                title: const Text("高"),
-                onTap: (){
-                  radioLogic.setValue(3);
-                },
-              ),
-              ListTile(
-                trailing: Radio<int>(value: 4,groupValue: radioLogic.value,onChanged: (i){
-                  radioLogic.setValue(i!);
-                },),
-                title: const Text("原图"),
-                onTap: (){
-                  radioLogic.setValue(4);
-                },
-              ),
-            ],
-          );
-        },),]
-  ));
-}
-
-class SetImageQualityLogic extends GetxController{
-  var value = appdata.getQuality();
-
-  void setValue(int i){
-    value = i;
-    appdata.setQuality(i);
-    update();
-  }
-}
-
-class RadioLogic extends GetxController{
-  int value = int.parse(appdata.appChannel)-1;
-  void change(int i){
-    value = i;
-    appdata.appChannel = (i+1).toString();
-    appdata.writeData();
-    showMessage(Get.context, "正在获取分流IP",time: 8);
-    network.updateApi().then((v)=>Get.closeAllSnackbars());
-    update();
-  }
-}
-
-class ModeRadioLogic2 extends GetxController{
-  int value = appdata.getSearchMode();
-  void change(int i){
-    value = i;
-    appdata.setSearchMode(i);
-    update();
-  }
-}
 
 void setCloudflareIp(BuildContext context) {
   showDialog(
@@ -269,5 +91,147 @@ class SetCloudFlareIpController extends GetxController {
     appdata.writeData();
     Get.back();
     network.updateApi();
+  }
+}
+
+class PicacgSettings extends StatefulWidget {
+  const PicacgSettings(this.popUp, {Key? key}) : super(key: key);
+  final bool popUp;
+
+  @override
+  State<PicacgSettings> createState() => _PicacgSettingsState();
+}
+
+class _PicacgSettingsState extends State<PicacgSettings> {
+  bool showFrame = appdata.settings[5] == "1";
+  bool punchIn = appdata.settings[6] == "1";
+  bool useMyServer = appdata.settings[3] == "1";
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        elevation: 0,
+        child: Column(
+          children: [
+            const ListTile(
+              title: Text("哔咔漫画"),
+            ),
+            if (!GetPlatform.isWeb)
+              ListTile(
+                leading: Icon(Icons.change_circle,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: const Text("使用转发服务器"),
+                subtitle: const Text("同时使用网络代理工具会减慢速度"),
+                trailing: Switch(
+                  value: useMyServer,
+                  onChanged: (b) {
+                    b ? appdata.settings[3] = "1" : appdata.settings[3] = "0";
+                    setState(() {
+                      useMyServer = b;
+                    });
+                    network.updateApi();
+                    appdata.writeData();
+                  },
+                ),
+                onTap: () {},
+              ),
+            ListTile(
+              leading: Icon(Icons.hub_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: const Text("设置分流"),
+              trailing: Select(
+                initialValue: int.parse(appdata.appChannel)-1,
+                values: const [
+                  "分流1",
+                  "分流2",
+                  "分流3"
+                ],
+                whenChange: (i){
+                  appdata.appChannel = (i+1).toString();
+                  appdata.writeData();
+                  showMessage(Get.context, "正在获取分流IP",time: 8);
+                  network.updateApi().then((v)=>Get.closeAllSnackbars());
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
+              leading:
+              Icon(Icons.device_hub, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("Cloudflare IP"),
+              trailing: const Icon(
+                Icons.arrow_right,
+              ),
+              onTap: () {
+                setCloudflareIp(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.image, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("设置图片质量"),
+              trailing: Select(
+                initialValue: appdata.getQuality()-1,
+                values: const [
+                  "低",
+                  "中",
+                  "高",
+                  "原图"
+                ],
+                whenChange: (i){
+                  appdata.setQuality(i+1);
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.manage_search_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              trailing: Select(
+                initialValue: appdata.getSearchMode(),
+                values: const [
+                  "新书在前","旧书在前","最多喜欢","最多指名"
+                ],
+                whenChange: (i){
+                  appdata.setSearchMode(i);
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+              title: const Text("设置搜索及分类排序模式"),
+            ),
+            ListTile(
+              leading: Icon(Icons.circle_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: const Text("显示头像框"),
+              trailing: Switch(
+                value: showFrame,
+                onChanged: (b) {
+                  b ? appdata.settings[5] = "1" : appdata.settings[5] = "0";
+                  setState(() {
+                    showFrame = b;
+                  });
+                  var t = Get.find<InfoController>();
+                  t.update();
+                  appdata.writeData();
+                },
+              ),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("启动时打卡"),
+              onTap: () {},
+              trailing: Switch(
+                value: punchIn,
+                onChanged: (b) {
+                  b ? appdata.settings[6] = "1" : appdata.settings[6] = "0";
+                  setState(() {
+                    punchIn = b;
+                  });
+                  appdata.writeData();
+                },
+              ),
+            ),
+          ],
+        ));
   }
 }

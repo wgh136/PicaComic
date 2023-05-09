@@ -7,7 +7,7 @@ import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import '../me_page.dart';
+import '../widgets/select.dart';
 import 'eh_settings.dart';
 import 'jm_settings.dart';
 import 'app_settings.dart';
@@ -24,10 +24,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool pageChangeValue = appdata.settings[0] == "1";
   bool checkUpdateValue = appdata.settings[2] == "1";
-  bool useMyServer = appdata.settings[3] == "1";
   bool showThreeButton = appdata.settings[4] == "1";
-  bool showFrame = appdata.settings[5] == "1";
-  bool punchIn = appdata.settings[6] == "1";
   bool useVolumeKeyChangePage = appdata.settings[7] == "1";
   bool blockScreenshot = appdata.settings[12] == "1";
   bool needBiometrics = appdata.settings[13] == "1";
@@ -41,6 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
         SliverToBoxAdapter(
           child: Column(
             children: [
+
               Card(
                 elevation: 0,
                 child: Column(
@@ -72,155 +70,19 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               ),
+
               const Divider(),
-              Card(
-                  elevation: 0,
-                  child: Column(
-                    children: [
-                      const ListTile(
-                        title: Text("哔咔漫画"),
-                      ),
-                      if (!GetPlatform.isWeb)
-                        ListTile(
-                          leading: Icon(Icons.change_circle,
-                              color: Theme.of(context).colorScheme.secondary),
-                          title: const Text("使用转发服务器"),
-                          subtitle: const Text("同时使用网络代理工具会减慢速度"),
-                          trailing: Switch(
-                            value: useMyServer,
-                            onChanged: (b) {
-                              b ? appdata.settings[3] = "1" : appdata.settings[3] = "0";
-                              setState(() {
-                                useMyServer = b;
-                              });
-                              network.updateApi();
-                              appdata.writeData();
-                            },
-                          ),
-                          onTap: () {},
-                        ),
-                      ListTile(
-                        leading: Icon(Icons.hub_outlined,
-                            color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置分流"),
-                        trailing: const Icon(
-                          Icons.arrow_right,
-                        ),
-                        onTap: () {
-                          setShut(context);
-                        },
-                      ),
-                      ListTile(
-                        leading:
-                            Icon(Icons.device_hub, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("Cloudflare IP"),
-                        trailing: const Icon(
-                          Icons.arrow_right,
-                        ),
-                        onTap: () {
-                          setCloudflareIp(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.image, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置图片质量"),
-                        onTap: () => setImageQuality(context),
-                        trailing: const Icon(Icons.arrow_right),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.manage_search_outlined,
-                            color: Theme.of(context).colorScheme.secondary),
-                        trailing: const Icon(Icons.arrow_right),
-                        title: const Text("设置搜索及分类排序模式"),
-                        onTap: () {
-                          setSearchMode(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.circle_outlined,
-                            color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("显示头像框"),
-                        trailing: Switch(
-                          value: showFrame,
-                          onChanged: (b) {
-                            b ? appdata.settings[5] = "1" : appdata.settings[5] = "0";
-                            setState(() {
-                              showFrame = b;
-                            });
-                            var t = Get.find<InfoController>();
-                            t.update();
-                            appdata.writeData();
-                          },
-                        ),
-                        onTap: () {},
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("启动时打卡"),
-                        onTap: () {},
-                        trailing: Switch(
-                          value: punchIn,
-                          onChanged: (b) {
-                            b ? appdata.settings[6] = "1" : appdata.settings[6] = "0";
-                            setState(() {
-                              punchIn = b;
-                            });
-                            appdata.writeData();
-                          },
-                        ),
-                      ),
-                    ],
-                  )),
+
+              PicacgSettings(widget.popUp),
+
               const Divider(),
-              Card(
-                  elevation: 0,
-                  child: Column(
-                    children: [
-                      const ListTile(
-                        title: Text("E-Hentai"),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.domain, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("画廊站点"),
-                        trailing: const Icon(Icons.arrow_right),
-                        onTap: () => setEhDomain(context),
-                      ),
-                    ],
-                  )),
+
+              EhSettings(widget.popUp),
+
               const Divider(),
-              Card(
-                  elevation: 0,
-                  child: Column(
-                    children: [
-                      const ListTile(
-                        title: Text("禁漫天堂"),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.sort, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置分类中漫画排序模式"),
-                        trailing: const Icon(Icons.arrow_right),
-                        onTap: () => setJmComicsOrder(context),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.manage_search_outlined, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置搜索中漫画排序模式"),
-                        trailing: const Icon(Icons.arrow_right),
-                        onTap: () => setJmComicsOrder(context, search: true),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.account_tree_outlined,
-                            color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置分流"),
-                        trailing: const Icon(Icons.arrow_right),
-                        onTap: () => setJmImageShut(context),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("清除登录状态"),
-                        onTap: () => jmNetwork.logout(),
-                      ),
-                    ],
-                  )),
+
+              JmSettings(widget.popUp),
+
               const Divider(),
               Card(
                 elevation: 0,
@@ -311,8 +173,21 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading: Icon(Icons.chrome_reader_mode,
                           color: Theme.of(context).colorScheme.secondary),
                       title: const Text("选择阅读模式"),
-                      trailing: const Icon(Icons.arrow_right),
-                      onTap: () => setReadingMethod(context),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[9])-1,
+                        values: const [
+                          "从左向右",
+                          "从右向左",
+                          "从上至下",
+                          "从上至下(连续)"
+                        ],
+                        whenChange: (i){
+                          appdata.settings[9] = (i+1).toString();
+                          appdata.updateSettings();
+                        },
+                        inPopUpWidget: widget.popUp,
+                        width: 140,
+                      ),
                     )
                   ],
                 ),
