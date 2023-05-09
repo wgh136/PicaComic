@@ -66,6 +66,16 @@ class _EpsViewState extends State<EpsView> {
                   const SizedBox(width: 16,),
                   Text(title),
                   const Spacer(),
+                  if(data.downloadedEps.contains(index))
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      ),
+                      margin: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
+                      child: const Text("已下载", style: TextStyle(fontSize: 14),),
+                    ),
                   if(logic.order == index+1)
                     Container(
                       decoration: BoxDecoration(

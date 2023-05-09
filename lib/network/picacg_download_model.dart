@@ -14,6 +14,7 @@ class PicDownloadingItem extends DownloadingItem {
   PicDownloadingItem(
       this.comic,
       this.path,
+      this._downloadEps,
       super.whenFinish,
       super.whenError,
       super.updateInfo,
@@ -27,7 +28,7 @@ class PicDownloadingItem extends DownloadingItem {
   final String path;
   ///总共的章节数
   late final int _totalEps = comic.epsCount;
-  ///正在下载的章节
+  ///正在下载的章节, 0表示正在获取信息, 章节从1开始编号
   int _downloadingEps = 0;
   ///正在下载的页面
   int _index = 0;
@@ -44,6 +45,11 @@ class PicDownloadingItem extends DownloadingItem {
 
   int _runtimeKey = 0;
 
+
+
+  ///要下载的章节序号
+  List<int> _downloadEps;
+
   @override
   Map<String, dynamic> toMap()=>{
     "type": type.index,
@@ -54,7 +60,8 @@ class PicDownloadingItem extends DownloadingItem {
     "_urls": _urls,
     "_eps": _eps,
     "_downloadPages": _downloadPages,
-    "id": id
+    "id": id,
+    "downloadEps": _downloadEps
   };
 
   PicDownloadingItem.fromMap(
@@ -70,11 +77,18 @@ class PicDownloadingItem extends DownloadingItem {
     _index = map["_index"],
     _urls = List<String>.from(map["_urls"]),
     _eps = List<String>.from(map["_eps"]),
-    _downloadPages = map["_downloadPages"];
+    _downloadPages = map["_downloadPages"],
+    _downloadEps = []{
+    if(map["downloadEps"] == null){
+      _downloadEps = List<int>.generate(eps.length, (index) => index);
+    }else{
+      _downloadEps = List<int>.from(map["downloadEps"]);
+    }
+  }
 
 
   ///获取各章节名称
-  get eps => _eps;
+  List<String> get eps => _eps;
 
   Future<void> getEps() async {
     _eps = await network.getEps(id);
@@ -136,6 +150,10 @@ class PicDownloadingItem extends DownloadingItem {
       _downloadingEps++;
     }
     while (_downloadingEps <= _totalEps) {
+      if(!_downloadEps.contains(_downloadingEps-1)){
+        _downloadingEps++;
+        continue;
+      }
       if (_index == _urls.length) {
         _index = 0;
       }
@@ -191,7 +209,7 @@ class PicDownloadingItem extends DownloadingItem {
   ///储存漫画信息
   Future<void> saveInfo() async{
     var file = File("$path/$id/info.json");
-    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")));
+    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")),_downloadEps);
     var json = jsonEncode(downloadedItem.toJson());
     await file.writeAsString(json);
   }

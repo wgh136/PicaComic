@@ -27,6 +27,7 @@ class ReadingPageData {
   ScrollManager? scrollManager;
   String? message;
   String target;
+  List<int> downloadedEps = [];
   ReadingPageData(this.initialPage, this.target);
 }
 
@@ -302,13 +303,13 @@ class ComicReadingPage extends StatelessWidget {
                     ),
                   ));
             } else {
-              return buildErrorView(logic);
+              return buildErrorView(logic, context);
             }
           }),
     );
   }
 
-  Widget buildErrorView(ComicReadingPageLogic comicReadingPageLogic) {
+  Widget buildErrorView(ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
     return DecoratedBox(
         decoration: const BoxDecoration(color: Colors.black),
         child: SafeArea(
@@ -359,14 +360,34 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                   alignment: Alignment.topCenter,
                   child: SizedBox(
-                    width: 100,
+                    width: 200,
                     height: 40,
-                    child: FilledButton(
-                      onPressed: () {
-                        data.epsWidgets.clear();
-                        comicReadingPageLogic.change();
-                      },
-                      child: const Text("重试"),
+                    child: Row(
+                      children: [
+                        Expanded(child: FilledButton(
+                          onPressed: () {
+                            data.epsWidgets.clear();
+                            comicReadingPageLogic.change();
+                          },
+                          child: const Text("重试"),
+                        ),),
+                        const SizedBox(width: 8,),
+                        Expanded(child: FilledButton(
+                          onPressed: () {
+                            if (MediaQuery.of(context).size.width > 600) {
+                              showSideBar(context, buildEpsView(), title: null, useSurfaceTintColor: true, width: 400);
+                            } else {
+                              showModalBottomSheet(
+                                  context: context,
+                                  useSafeArea: false,
+                                  builder: (context) {
+                                    return buildEpsView();
+                                  });
+                            }
+                          },
+                          child: const Text("切换章节"),
+                        )),
+                      ],
                     ),
                   )),
             ),
@@ -374,8 +395,18 @@ class ComicReadingPage extends StatelessWidget {
         )));
   }
 
-  void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) {
-    comicReadingPageLogic.downloaded = downloadManager.downloaded.contains(data.target);
+  void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) async{
+    if(downloadManager.downloaded.contains(data.target)){
+      var downloadedItem = await downloadManager.getComicFromId(data.target);
+      data.downloadedEps = downloadedItem.downloadedChapters;
+      if(downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order-1)){
+        comicReadingPageLogic.downloaded = true;
+      }else{
+        comicReadingPageLogic.downloaded = false;
+      }
+    }else{
+      comicReadingPageLogic.downloaded = false;
+    }
     comicReadingPageLogic.index = 1;
     comicReadingPageLogic.tools = false;
     if (data.epsWidgets.isEmpty) {

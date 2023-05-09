@@ -141,10 +141,10 @@ class DownloadManager{
   }
 
   ///添加哔咔漫画下载
-  void addPicDownload(ComicItem comic){
+  void addPicDownload(ComicItem comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${comic.id}");
     downloadPath.create();
-    downloading.addLast(PicDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, comic.id));
+    downloading.addLast(PicDownloadingItem(comic, path!, downloadEps, _whenFinish, _whenError, _saveInfo, comic.id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();

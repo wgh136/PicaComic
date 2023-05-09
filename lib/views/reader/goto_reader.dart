@@ -15,19 +15,19 @@ void readPicacgComic(String id, String name, List<String> epsStr) async{
         actions: [
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name));
+            Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
           }, child: const Text("从头开始")),
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.picacg(id, history.ep, epsStr, name, initialPage: history.page,));
+            Get.to(()=>ComicReadingPage.picacg(id, history.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
           }, child: const Text("继续阅读")),
         ],
       ));
     }else{
-      Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name));
+      Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
     }
   }else {
-    Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name));
+    Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
   }
 }
 
@@ -42,19 +42,19 @@ void readEhGallery(String target, Gallery gallery) async{
         actions: [
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.ehentai(target, gallery));
+            Get.to(()=>ComicReadingPage.ehentai(target, gallery), preventDuplicates: false);
           }, child: const Text("从头开始")),
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.ehentai(target, gallery, initialPage: history.page));
+            Get.to(()=>ComicReadingPage.ehentai(target, gallery, initialPage: history.page), preventDuplicates: false);
           }, child: const Text("继续阅读")),
         ],
       ));
     }else{
-      Get.to(()=>ComicReadingPage.ehentai(target, gallery));
+      Get.to(()=>ComicReadingPage.ehentai(target, gallery), preventDuplicates: false);
     }
   }else {
-    Get.to(()=>ComicReadingPage.ehentai(target, gallery));
+    Get.to(()=>ComicReadingPage.ehentai(target, gallery), preventDuplicates: false);
   }
 }
 
@@ -69,18 +69,18 @@ void readJmComic(String id, String name, List<String> eps) async{
         actions: [
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1));
+            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
           }, child: const Text("从头开始")),
           TextButton(onPressed: (){
             Get.back();
-            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history.ep, initialPage: history.page,));
+            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history.ep, initialPage: history.page,), preventDuplicates: false);
           }, child: const Text("继续阅读")),
         ],
       ));
     }else{
-      Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1));
+      Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
     }
   }else {
-    Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1));
+    Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
   }
 }

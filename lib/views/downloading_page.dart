@@ -61,7 +61,7 @@ class _DownloadingPageState extends State<DownloadingPage> {
               if(index == 0){
                 return MaterialBanner(
                     leading: downloadManager.isDownloading?const Icon(Icons.downloading,color: Colors.blue,):const Icon(Icons.pause_circle_outline_outlined,color: Colors.red,),
-                    content: downloadManager.error?const Text("下载出错, 如果无网络问题, 请移除第一项下载任务"):Text("${downloadManager.downloading.length}项下载任务${downloadManager.isDownloading?" 下载中":(downloadManager.downloading.isNotEmpty?" 已暂停":"")}"),
+                    content: downloadManager.error?const Text("下载出错"):Text("${downloadManager.downloading.length}项下载任务${downloadManager.isDownloading?" 下载中":(downloadManager.downloading.isNotEmpty?" 已暂停":"")}"),
                     actions: [
                       if(downloadManager.downloading.isNotEmpty)
                       TextButton(

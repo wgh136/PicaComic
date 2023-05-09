@@ -15,9 +15,11 @@ import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:pica_comic/base.dart';
 import 'package:share_plus/share_plus.dart';
+import '../widgets/select_download_eps.dart';
 
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
@@ -371,7 +373,7 @@ class ComicPage extends StatelessWidget{
         children: [
           Expanded(child: FilledButton(
             onPressed: (){
-              downloadComic(logic.comicItem!, context);
+              downloadComic(logic.comicItem!, context, logic.epsStr);
             },
             child: (downloadManager.downloaded.contains(comic.id))?const Text("已下载"):const Text("下载"),
           ),),
@@ -640,7 +642,7 @@ class ComicPage extends StatelessWidget{
   }
 }
 
-void downloadComic(ComicItem comic, BuildContext context){
+void downloadComic(ComicItem comic, BuildContext context, List<String> eps){
   if(GetPlatform.isWeb){
     showMessage(context, "Web端不支持下载");
     return;
@@ -655,6 +657,21 @@ void downloadComic(ComicItem comic, BuildContext context){
       return;
     }
   }
-  downloadManager.addPicDownload(comic);
-  showMessage(context, "已加入下载队列");
+  if(UiMode.m1(context)) {
+    showModalBottomSheet(context: context, builder: (context){
+      return SelectDownloadChapter(eps.sublist(1), (selectedEps){
+        downloadManager.addPicDownload(comic, selectedEps);
+        showMessage(context, "已加入下载");
+      });
+    });
+  }else{
+    showSideBar(
+      context,
+      SelectDownloadChapter(eps.sublist(1), (selectedEps){
+        downloadManager.addPicDownload(comic, selectedEps);
+        showMessage(context, "已加入下载");
+      }),
+      useSurfaceTintColor: true
+    );
+  }
 }
