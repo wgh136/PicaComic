@@ -605,11 +605,20 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
               height: 50,
               child: Row(
                 children: [
-                  Expanded(child: FilledButton(onPressed: (){}, child: const Text("删除")),),
+                  Expanded(child: FilledButton(onPressed: (){
+                    switch(widget.index0){
+                      case 0: Get.to(()=>ComicPage(widget.logic.comics[widget.index1].comicItem.toBrief()));break;
+                      case 1: Get.to(()=>EhGalleryPage(widget.logic.galleries[widget.index1].gallery.toBrief()));break;
+                      case 2: Get.to(()=>JmComicPage(widget.logic.jmComics[widget.index1].comic.id));break;
+                    }
+                  }, child: const Text("查看详情")),),
                   const SizedBox(width: 16,),
                   Expanded(child: FilledButton(onPressed: () => read(), child: const Text("阅读")),),
                 ],
               )
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).padding.bottom,
           )
         ],
       ),

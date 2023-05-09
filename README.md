@@ -1,7 +1,7 @@
 # Pica Comic
 
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![flutter](https://img.shields.io/badge/flutter-3.7.11-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.7.12-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
@@ -10,14 +10,19 @@
 
 目前支持Android, Windows, Web
 
-Web端仅支持picacg
+Web端仅支持picacg且长期未更新, 因为太麻烦了
 
 Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
+
+欢迎提出问题和功能建议
 
 请尽量使用官方App
 
 ## 已实现的功能
 ### Picacg
+
+没有相关推荐和本子母推荐不是App的问题, 哔咔官方告知缺乏资金, 如有能力请支持哔咔官方
+
 - 账号
   - 登录
   - 注册
@@ -90,6 +95,8 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 
 ### 感谢以下项目
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=tonquer&repo=JMComic-qt)](https://github.com/anuraghazra/github-readme-stats)
+
+禁漫图片分割算法来自此项目, 并且使用chatgpt将python函数转换为了dart函数
 
 ## 屏幕截图
 
