@@ -83,7 +83,15 @@ class EhDownloadingItem extends DownloadingItem{
       if (_downloadedCover) return;
       var dio = Dio();
       var res =
-          await dio.get(gallery.coverPath, options: Options(responseType: ResponseType.bytes));
+          await dio.get(
+            gallery.coverPath,
+            options: Options(
+              responseType: ResponseType.bytes,
+              headers: {
+                "cookie": await EhNetwork().getCookies()
+              }
+            ),
+          );
       var file = File("$path$pathSep$id${pathSep}cover.jpg");
       if (!await file.exists()) await file.create();
       await file.writeAsBytes(Uint8List.fromList(res.data));
@@ -123,7 +131,12 @@ class EhDownloadingItem extends DownloadingItem{
         var imagePath = await getEhImageUrl(_urls[_downloadedPages]);
         var dio = Dio();
         var res =
-          await dio.get(imagePath, options: Options(responseType: ResponseType.bytes));
+          await dio.get(imagePath, options: Options(
+              responseType: ResponseType.bytes,
+              headers: {
+                "cookie": await EhNetwork().getCookies()
+              }
+          ),);
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(res.data));

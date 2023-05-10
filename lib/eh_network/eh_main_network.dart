@@ -73,10 +73,13 @@ class EhNetwork{
 
   ///从url获取数据, 在请求时设置了cookie
   Future<String?> request(String url, {Map<String,String>? headers,}) async{
-    await getCookies();
+    await cookieJar.saveFromResponse(Uri.parse(url), [
+      Cookie("nw", "1"),
+      Cookie("ipb_member_id", appdata.ehId),
+      Cookie("ipb_pass_hash", appdata.ehPassHash),
+    ]);
     status = false; //重置
     await setNetworkProxy();//更新代理
-
     var options = BaseOptions(
       connectTimeout: const Duration(seconds: 8),
       sendTimeout: const Duration(seconds: 8),
@@ -184,7 +187,9 @@ class EhNetwork{
 
   ///获取用户名, 同时用于检测cookie是否有效
   Future<bool> getUserName() async{
-    var res = await request("https://forums.e-hentai.org/index.php?act=UserCP&CODE=00",headers: {
+    await cookieJar.deleteAll();
+    cookiesStr = "";
+    var res = await request("https://forums.e-hentai.org/",headers: {
       "referer": "https://forums.e-hentai.org/index.php?",
       "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
       "accept-encoding": "gzip, deflate, br",
@@ -193,6 +198,7 @@ class EhNetwork{
     if(res == null){
       return false;
     }
+
     var html = parse(res);
     var name = html.querySelector("div#userlinks > p.home > b > a");
     if (name != null) {

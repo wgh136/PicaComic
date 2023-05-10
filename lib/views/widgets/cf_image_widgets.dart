@@ -58,7 +58,8 @@ class CfCachedNetworkImage extends StatelessWidget {
         this.width,
         this.height,
         this.fit,
-        this.progressIndicatorBuilder
+        this.progressIndicatorBuilder,
+        this.filterQuality = FilterQuality.low
       }) : super(key: key);
   final String imageUrl;
   final Widget Function(BuildContext, String, dynamic)? errorWidget;
@@ -66,6 +67,7 @@ class CfCachedNetworkImage extends StatelessWidget {
   final double? height;
   final BoxFit? fit;
   final Widget Function(BuildContext, String, DownloadProgress)? progressIndicatorBuilder;
+  final FilterQuality filterQuality;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +94,7 @@ class CfCachedNetworkImage extends StatelessWidget {
       height: height,
       fit: fit,
       progressIndicatorBuilder: progressIndicatorBuilder,
+      filterQuality: filterQuality,
     );
   }
 }

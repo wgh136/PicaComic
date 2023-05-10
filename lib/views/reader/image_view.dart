@@ -32,6 +32,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
       if (type == ReadingType.ehentai && ! comicReadingPageLogic.downloaded) {
         final height = Get.width * 1.42;
         return Image(
+          filterQuality: FilterQuality.medium,
           image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
@@ -73,6 +74,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           id = getGalleryId(target);
         }
         return Image.file(
+          filterQuality: FilterQuality.medium,
           downloadManager.getImage(id, comicReadingPageLogic.order, index),
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
@@ -83,6 +85,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         if(type == ReadingType.picacg){
           //加载哔咔图片
           return CfCachedNetworkImage(
+            filterQuality: FilterQuality.medium,
             imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
@@ -111,6 +114,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
               minHeight: 200
             ),
             child: Image(
+              filterQuality: FilterQuality.medium,
               image: JmCachedImageProvider(comicReadingPageLogic.urls[index], target),
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.fitWidth,
@@ -179,6 +183,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         precacheComicImage(comicReadingPageLogic, type, context, index, target);
 
         return PhotoViewGalleryPageOptions(
+          filterQuality: FilterQuality.medium,
           minScale: PhotoViewComputedScale.contained * 0.9,
           imageProvider: imageProvider,
           initialScale: PhotoViewComputedScale.contained,
