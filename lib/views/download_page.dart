@@ -634,7 +634,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
         break;
       case 2:
         name = widget.logic.jmComics[widget.index1].comic.name;
-        eps = List<String>.generate( widget.logic.jmComics[widget.index1].comic.series.length, (index) => "第$index章");
+        eps = List<String>.generate( widget.logic.jmComics[widget.index1].comic.series.length, (index) => "第${index+1}章");
         if(eps.isEmpty){
           eps.add("第1章");
         }

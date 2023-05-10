@@ -11,17 +11,14 @@ import '../widgets/widgets.dart';
 class EhFavouritePageLogic extends GetxController{
   bool loading = true;
   Galleries? galleries;
-  int page = 0;
-
-  var pages = <List<EhGalleryBrief>>[];
+  ///收藏夹编号, 为-1表示加载全部
+  int folder = -1;
 
   Future<void> getGallery() async{
-    galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php");
-    pages.add([]);
-    if(galleries != null) {
-      for (var g in galleries!.galleries) {
-        pages[page].add(g);
-      }
+    if(folder == -1) {
+      galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php");
+    }else{
+      galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder");
     }
     loading = false;
     update();
@@ -37,33 +34,9 @@ class EhFavouritePageLogic extends GetxController{
     update();
   }
 
-  void changeToNextPage() async{
-    if(galleries?.next == null && page+1 == pages.length){
-      showMessage(Get.context, "已经是最后一页了");
-      return;
-    }
-    if(pages.length>page+1){
-      page++;
-      update();
-    }else{
-      change();
-      page++;
-      galleries!.galleries.clear();
-      await EhNetwork().getNextPageGalleries(galleries!);
-      pages.add([]);
-      for (var g in galleries!.galleries) {
-        pages[page].add(g);
-      }
-      change();
-    }
-  }
-
-  void changeToLastPage(){
-    if(page == 0){
-      showMessage(Get.context, "已经是第一页了");
-      return;
-    }
-    page--;
+  void refresh_(){
+    galleries = null;
+    loading = true;
     update();
   }
 }
@@ -73,21 +46,31 @@ class EhFavouritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<EhFavouritePageLogic>(
-      builder: (logic){
-        if(logic.loading){
-          if(appdata.settings[11]=="0"||logic.pages.isEmpty) {
-            logic.getGallery();
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }else if(logic.galleries!=null){
-          return appdata.settings[11]=="0"?buildNormalView(logic, context):buildPagesView(logic, context);
-        }else{
-          return showNetworkError(context, logic.retry, showBack:false, eh: true);
-        }
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GetBuilder<EhFavouritePageLogic>(
+          builder: (logic) => buildFolderSelector(context, logic),
+        ),
+        Expanded(
+          child: GetBuilder<EhFavouritePageLogic>(
+            builder: (logic){
+              if(logic.loading){
+                if(appdata.settings[11]=="0") {
+                  logic.getGallery();
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }else if(logic.galleries!=null){
+                return buildNormalView(logic, context);
+              }else{
+                return showNetworkError(context, logic.retry, showBack:false, eh: true);
+              }
+            },
+          ),
+        )
+      ],
     );
   }
 
@@ -117,52 +100,63 @@ class EhFavouritePage extends StatelessWidget {
     );
   }
 
-  Widget buildPagesView(EhFavouritePageLogic logic, BuildContext context){
-    return CustomScrollView(
-      slivers: [
-        SliverGrid(
-          delegate: SliverChildBuilderDelegate(
-              childCount: logic.pages[logic.page].length,
-                  (context, i){
-                return EhGalleryTile(logic.pages[logic.page][i]);
+  Widget buildFolderSelector(BuildContext context, EhFavouritePageLogic logic){
+    var logic = Get.find<EhFavouritePageLogic>();
+    final double width = MediaQuery.of(context).size.width > 400 ? 400 : MediaQuery.of(context).size.width;
+    return Container(
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(5),
+      width: width,
+      height: 50,
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: const BorderRadius.all(Radius.circular(16))
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Text("  收藏夹:  "),
+          logic.folder==-1 ? const Text("全部") : Text("Favorites ${logic.folder}"),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.arrow_drop_down_sharp),
+            onPressed: (){
+              if(logic.loading){
+                showMessage(context, "加载中");
+                return;
               }
-          ),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: comicTileMaxWidth,
-            childAspectRatio: comicTileAspectRatio,
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 80,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width>600?600:MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 10,),
-                      FilledButton(
-                          onPressed: logic.changeToLastPage,
-                          child: const Text("上一页")
-                      ),
-                      const Spacer(),
-                      Text("${logic.page+1}/?"),
-                      const Spacer(),
-                      FilledButton(
-                          onPressed: logic.changeToNextPage,
-                          child: const Text("下一页")
-                      ),
-                      const SizedBox(width: 10,),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ],
+              showMenu(
+                  context: context,
+                  position: RelativeRect.fromLTRB(width, 150, MediaQuery.of(context).size.width-width, MediaQuery.of(context).size.height-150),
+                  items: [
+                    PopupMenuItem(
+                      height: 40,
+                      child: const Text("全部"),
+                      onTap: (){
+                        if(logic.folder != -1){
+                          logic.folder = -1;
+                          logic.refresh_();
+                        }
+                      },
+                    ),
+                    for(int i=0;i<=9;i++)
+                      PopupMenuItem(
+                        height: 40,
+                        child: Text("Favorites $i"),
+                        onTap: (){
+                          if(logic.folder != i){
+                            logic.folder = i;
+                            logic.refresh_();
+                          }
+                        },
+                      )
+                  ]
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 }

@@ -102,7 +102,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
     showDialog(context: context, builder: (dialogContext)=>GetBuilder(
         init: RadioLogic(),
         builder: (logic)=>SimpleDialog(
-          title: const Text("选择浏览方式"),
+          title: const Text("选择浏览方式(仅哔咔)"),
           children: [
             const SizedBox(width: 400,),
             ListTile(
@@ -173,6 +173,5 @@ class RadioLogic extends GetxController{
     update();
     Get.back();
     Get.find<FavoritesPageLogic>().change();
-    Get.find<EhFavouritePageLogic>().update();
   }
 }

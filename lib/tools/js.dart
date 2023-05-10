@@ -1,14 +1,16 @@
 ///解析JS代码, 返回定义的变量, Js代码必须合法
-Map<String, String> getVariablesFromJsCode(String jsCode){
-  final pattern = RegExp(r'var\s+(\w+)\s*=\s*(.+?);', dotAll: true);
-  final matches = pattern.allMatches(jsCode);
+Map<String, String> getVariablesFromJsCode(String html){
+  Map<String, String> variables = {};
 
-  final variables = <String, String>{};
-  for (final match in matches) {
-    final key = match.group(1);
-    final value = match.group(2)!.replaceAll(RegExp('[\'"]'), '');
-    variables[key!] = value;
+  RegExp variableRegex = RegExp(r"var\s+(\w+)\s*=\s*(.*?);");
+  var matches = variableRegex.allMatches(html);
+
+  for (Match match in matches) {
+    if(match.group(2)![0]=="\"" || match.group(2)![0]=="'"){
+      variables[match.group(1)!] = match.group(2)!.substring(1,match.group(2)!.length-1);
+    }else {
+      variables[match.group(1)!] = match.group(2)!;
+    }
   }
-
   return variables;
 }

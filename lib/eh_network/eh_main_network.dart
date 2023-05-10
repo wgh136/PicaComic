@@ -363,8 +363,7 @@ class EhNetwork{
       var time = document.querySelector("div#gdd > table > tbody > tr > td.gdt2")!.text;
       gallery.time = time;
       //身份认证数据
-      var js = document.getElementsByTagName("script")[1].text;
-      gallery.auth = getVariablesFromJsCode(js);
+      gallery.auth = getVariablesFromJsCode(res);
       return gallery;
 
   }
@@ -407,7 +406,7 @@ class EhNetwork{
 
   ///获取排行榜
   Future<EhLeaderboard?> getLeaderboard(EhLeaderboardType type) async{
-    var res = await getGalleries("$ehBaseUrl/toplist.php?tl=${type.value}",leaderboard: true);
+    var res = await getGalleries("https://e-hentai.org/toplist.php?tl=${type.value}",leaderboard: true);
     if(res == null) return null;
     return EhLeaderboard(type, res.galleries, 0);
   }
@@ -439,15 +438,19 @@ class EhNetwork{
   }
 
   ///收藏
-  Future<bool> favorite(String gid, String token) async{
+  Future<bool> favorite(String gid, String token, {String id = "0"}) async{
     var res = await post(
       "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
-      "favcat=0&favnote=&apply=Add+to+Favorites&update=1",
+      "favcat=$id&favnote=&apply=Add+to+Favorites&update=1",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
-    return res!=null;
+    if(res == null || res[0] != "<"){
+      return false;
+    }else {
+      return true;
+    }
   }
 
   ///取消收藏
@@ -459,7 +462,11 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
-    return res!=null;
+    if(res == null || res[0] != "<"){
+      return false;
+    }else {
+      return true;
+    }
   }
 
   ///发送评论

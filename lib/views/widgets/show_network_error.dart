@@ -32,15 +32,18 @@ Widget showNetworkError(BuildContext context, void Function() retry, {bool showB
         top: MediaQuery.of(context).size.height/2-10-topPadding,
         child: Align(
           alignment: Alignment.topCenter,
-          child: eh?
+          child: SizedBox(
+            width: 300,
+            child: eh?
             (EhNetwork().status?Text(EhNetwork().message):const Text("网络错误"))
-              :(network.status?Text(network.message):const Text("网络错误")),
+                :(network.status?Text(network.message):const Text("网络错误")),
+          )
         ),
       ),
       Positioned(
         left: 0,
         right: 0,
-        top: MediaQuery.of(context).size.height/2+30-topPadding,
+        top: MediaQuery.of(context).size.height/2+40-topPadding,
         child: Align(
             alignment: Alignment.topCenter,
             child: SizedBox(

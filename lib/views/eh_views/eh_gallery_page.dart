@@ -81,10 +81,6 @@ class EhGalleryPage extends StatelessWidget {
             logic.loadInfo(brief);
             return showLoading(context);
           }else if(logic.gallery == null){
-            if(downloadManager.downloadedGalleries.contains(getGalleryId(brief.link))){
-              loadGalleryInfoFromFile(logic);
-              return showLoading(context);
-            }
             return showNetworkError(context, logic.retry, eh: true);
           }else{
             logic.controller.addListener(() {
@@ -322,22 +318,21 @@ class EhGalleryPage extends StatelessWidget {
           Expanded(child: ActionChip(
             label: const Text("收藏"),
             avatar: logic.gallery!.favorite?const Icon(Icons.bookmark):const Icon(Icons.bookmark_outline),
-            onPressed: () {
-              if(logic.noNetwork){
-                showMessage(context, "无网络");
-                return;
-              }
-              if(appdata.ehId==""){
-                showMessage(context, "未登录");
-                return;
-              }
-              if(logic.gallery!.favorite){
-                EhNetwork().unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
+            onPressed: (){
+              if(!logic.gallery!.favorite){
+                showDialog(context: context, builder: (context)=>FavoriteComicDialog(logic));
               }else{
-                EhNetwork().favorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!);
+                showMessage(context, "正在取消收藏");
+                EhNetwork().unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!).then((b){
+                  if(b){
+                    showMessage(Get.context, "取消收藏成功");
+                    logic.gallery!.favorite = false;
+                    logic.update();
+                  }else{
+                    showMessage(Get.context, "取消收藏失败");
+                  }
+                });
               }
-              logic.gallery!.favorite = !logic.gallery!.favorite;
-              logic.update();
             }
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
@@ -604,6 +599,8 @@ class EhGalleryPage extends StatelessWidget {
     logic.noNetwork = true;
     logic.update();
   }
+
+
 }
 
 class RatingLogic extends GetxController{
@@ -614,4 +611,131 @@ class RatingLogic extends GetxController{
 class CommentLogic extends GetxController{
   final controller = TextEditingController();
   bool sending = false;
+}
+
+class FavoriteComicDialog extends StatefulWidget {
+  const FavoriteComicDialog(this.logic, {Key? key}) : super(key: key);
+  final GalleryPageLogic logic;
+
+  @override
+  State<FavoriteComicDialog> createState() => _FavoriteComicDialogState();
+}
+
+class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
+  bool loading = false;
+  Map<String, String> folders = {
+    "Favorite 0": "0",
+    "Favorite 1": "1",
+    "Favorite 2": "2",
+    "Favorite 3": "3",
+    "Favorite 4": "4",
+    "Favorite 5": "5",
+    "Favorite 6": "6",
+    "Favorite 7": "7",
+    "Favorite 8": "8",
+    "Favorite 9": "9",
+  };
+  String? message;
+  String folderId = "0";
+  String folderName = "Favorite 0";
+
+  @override
+  Widget build(BuildContext context) {
+    if(loading){
+      get();
+    }
+    return SimpleDialog(
+      title: const Text("收藏漫画"),
+      children: [
+        SizedBox(
+          key: const Key("2"),
+          width: 300,
+          height: 150,
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(5),
+                width: 300,
+                height: 50,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: const BorderRadius.all(Radius.circular(16))
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text("  选择收藏夹:  "),
+                    Text(folderName),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_drop_down_sharp),
+                      onPressed: (){
+                        showMenu(
+                            context: context,
+                            position: RelativeRect.fromLTRB(
+                                MediaQuery.of(context).size.width/2+150,
+                                MediaQuery.of(context).size.height/2,
+                                MediaQuery.of(context).size.width/2-150,
+                                MediaQuery.of(context).size.height/2),
+                            items: [
+                              for(var folder in folders.entries)
+                                PopupMenuItem(
+                                  child: Text(folder.key),
+                                  onTap: (){
+                                    setState(() {
+                                      folderName = folder.key;
+                                    });
+                                    folderId = folder.value;
+                                  },
+                                )
+                            ]
+                        );
+                      },
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20,),
+              if(!loading)
+                FilledButton(onPressed: () async{
+                  setState(() {
+                    loading = true;
+                  });
+                  var res = await EhNetwork().favorite(widget.logic.gallery!.auth!["gid"]!,widget.logic.gallery!.auth!["token"]!, id: folderId);
+                  if (!res) {
+                    showMessage(Get.context, EhNetwork().status?EhNetwork().message:"网络错误");
+                    setState(() {
+                      loading = false;
+                    });
+                    return;
+                  }
+                  Get.back();
+                  widget.logic.gallery!.favorite = true;
+                  widget.logic.update();
+                  showMessage(Get.context, "添加成功");
+                }, child: const Text("提交"))
+              else
+                const Center(
+                  child: CircularProgressIndicator(),
+                )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  void get() async{
+    var r = await jmNetwork.getFolders();
+    if(r.error){
+      message = r.errorMessage;
+    }else{
+      folders = r.data;
+    }
+    setState(() {
+      loading = false;
+    });
+  }
 }

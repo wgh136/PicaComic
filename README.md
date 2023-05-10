@@ -94,7 +94,7 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - [image](https://pub.flutter-io.cn/packages/image): 对禁漫图片进行切割并重新组合
 
 ### 感谢以下项目
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=tonquer&repo=JMComic-qt)](https://github.com/anuraghazra/github-readme-stats)
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=tonquer&repo=JMComic-qt)](https://github.com/tonquer/JMComic-qt)
 
 禁漫图片分割算法来自此项目, 并且使用chatgpt将python函数转换为了dart函数
 
