@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/me_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../../network/methods.dart';
+import '../../network/picacg_network/methods.dart';
 import '../welcome_page.dart';
 
 class SloganLogic extends GetxController{

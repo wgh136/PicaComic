@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import '../../base.dart';
 import '../widgets/select.dart';
 

@@ -3,18 +3,17 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:pica_comic/jm_network/headers.dart';
-import 'package:pica_comic/jm_network/jm_image.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
-import 'package:pica_comic/jm_network/res.dart';
+import 'headers.dart';
+import 'jm_image.dart';
+import 'jm_models.dart';
+import 'res.dart';
 import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pointycastle/export.dart';
 import 'package:get/get.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-
-import '../base.dart';
+import 'package:pica_comic/base.dart';
 
 class JmNetwork {
   /*

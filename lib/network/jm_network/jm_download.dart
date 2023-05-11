@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/jm_network/jm_image.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
+import 'jm_image.dart';
+import 'jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import 'dart:io';
-import '../tools/io_tools.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'jm_main_network.dart';
 
 class JmDownloadingItem extends DownloadingItem {

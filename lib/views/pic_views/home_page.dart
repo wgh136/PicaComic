@@ -4,8 +4,8 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../../network/models.dart';
-import 'package:pica_comic/network/methods.dart';
+import '../../network/picacg_network/models.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class HomePageLogic extends GetxController{
   bool isLoading = true;

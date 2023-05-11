@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'jm_widgets.dart';
-import '../../jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_models.dart';
 
 class JmLatestPageLogic extends GetxController{
   bool loading = true;

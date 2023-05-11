@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../../jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_models.dart';
 import 'jm_widgets.dart';
 
 class JmFavoritePageLogic extends GetxController{

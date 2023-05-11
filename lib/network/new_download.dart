@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/eh_network/eh_download_model.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
-import 'package:pica_comic/eh_network/get_gallery_id.dart';
-import 'package:pica_comic/jm_network/jm_download.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
+import 'package:pica_comic/network/eh_network/eh_download_model.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/network/jm_network/jm_download.dart';
+import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
-import 'package:pica_comic/network/picacg_download_model.dart';
-import 'models.dart';
+import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
+import 'picacg_network/models.dart';
 
 /*
 关于数据储存:

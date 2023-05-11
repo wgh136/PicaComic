@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/eh_network/get_gallery_id.dart';
-import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/ui_mode.dart';

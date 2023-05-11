@@ -2,9 +2,9 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
-import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
+import '../../network/jm_network/jm_models.dart';
 
 /*
 为了能够存储eh历史记录, 弃用此类, 重构历史记录功能

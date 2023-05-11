@@ -3,7 +3,7 @@ import 'dart:ui' as ui show Codec;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'eh_cached_image.dart' as image_provider;
 import '_image_loader.dart';
 

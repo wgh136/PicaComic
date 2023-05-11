@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import '../tools/proxy.dart';
+import '../../tools/proxy.dart';
 
 Future<Dio> request() async{
   /*

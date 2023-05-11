@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter/services.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
 
 class ShowImagePage extends StatefulWidget {

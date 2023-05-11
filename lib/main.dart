@@ -10,8 +10,8 @@ import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
-import 'jm_network/jm_main_network.dart';
-import 'network/methods.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'network/picacg_network/methods.dart';
 
 bool isLogged = false;
 

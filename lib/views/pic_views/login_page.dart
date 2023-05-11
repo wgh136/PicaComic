@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
-import '../../network/methods.dart';
+import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
 import '../main_page.dart';
 

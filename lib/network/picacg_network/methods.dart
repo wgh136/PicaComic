@@ -2,16 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'dart:convert' as convert;
-import 'package:pica_comic/network/headers.dart';
-import 'package:pica_comic/network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
+import 'package:pica_comic/network/picacg_network/headers.dart';
+import 'package:pica_comic/network/picacg_network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
-import '../base.dart';
+import '../../base.dart';
 import 'models.dart';
 
 const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";//历史遗留, 不改了
 
+///哔咔网络请求类
 class Network{
   String apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
     "https://api.kokoiro.xyz/picaapi"

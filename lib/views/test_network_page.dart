@@ -6,8 +6,8 @@ import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
-import '../jm_network/jm_main_network.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class TestNetworkPage extends StatefulWidget {
   const TestNetworkPage({Key? key}) : super(key: key);

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
@@ -14,7 +14,7 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
-import '../jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'eh_views/eh_login_page.dart';
 import 'history.dart';
 

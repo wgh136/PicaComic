@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/widgets/show_user_info.dart';
 
 import '../../base.dart';

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:get/get.dart';
 

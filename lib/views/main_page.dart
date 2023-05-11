@@ -17,7 +17,7 @@ import 'package:pica_comic/views/eh_views/ehentai_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import '../jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/update.dart';
 import '../tools/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
@@ -25,7 +25,7 @@ import 'models/tab_listener.dart';
 import 'pic_views/home_page.dart';
 import 'me_page.dart';
 import 'widgets/my_icons_icons.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class Destination {
   const Destination(this.label, this.icon, this.selectedIcon);

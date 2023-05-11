@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/game_page.dart';
 
-import '../../network/methods.dart';
+import '../../network/picacg_network/methods.dart';
 import 'cf_image_widgets.dart';
 
 class GameTile extends StatelessWidget {

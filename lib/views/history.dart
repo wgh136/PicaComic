@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
-import 'package:pica_comic/jm_network/jm_image.dart';
-import 'package:pica_comic/network/models.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
+import '../network/jm_network/jm_image.dart';
 
 
 class HistoryPage extends StatefulWidget {

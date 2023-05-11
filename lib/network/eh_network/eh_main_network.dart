@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/js.dart';
-import '../base.dart';
-import '../tools/proxy.dart';
+import '../../base.dart';
+import '../../tools/proxy.dart';
 import 'package:html/parser.dart';
 import 'package:get/get.dart';
-import '../views/pre_search_page.dart';
+import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 

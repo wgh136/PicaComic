@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
 import '../../base.dart';
 import 'comic_reading_page.dart';
 import 'package:flutter/material.dart';

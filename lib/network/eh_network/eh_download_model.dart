@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'dart:io';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 
-import '../tools/io_tools.dart';
+import '../../tools/io_tools.dart';
 import 'eh_main_network.dart';
 
 ///e-hentai的下载进程模型

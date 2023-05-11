@@ -5,7 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';

@@ -5,7 +5,7 @@ import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
 
-import '../../eh_network/eh_main_network.dart';
+import '../../network/eh_network/eh_main_network.dart';
 
 class EhLoginPage extends StatefulWidget {
   const EhLoginPage({Key? key}) : super(key: key);

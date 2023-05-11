@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'network/models.dart';
+import 'network/picacg_network/models.dart';
 
 //定义宽屏设备的临界值
 const changePoint = 600;

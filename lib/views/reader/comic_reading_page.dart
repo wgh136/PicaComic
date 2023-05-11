@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
-import 'package:pica_comic/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
@@ -11,15 +11,15 @@ import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-import '../../eh_network/eh_main_network.dart';
-import '../../jm_network/jm_main_network.dart';
+import '../../network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../tools/key_down_event.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';
 import 'reading_logic.dart';
 import 'reading_settings.dart';
-import 'package:pica_comic/network/methods.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class ReadingPageData {
   int initialPage;

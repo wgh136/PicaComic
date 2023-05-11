@@ -1,6 +1,6 @@
-import 'package:pica_comic/eh_network/eh_models.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
-import 'models.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/jm_network/jm_models.dart';
+import 'picacg_network/models.dart';
 
 class DownloadedComic{
   ComicItem comicItem;

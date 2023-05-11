@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/jm_network/jm_image.dart';
-import 'package:pica_comic/jm_network/jm_models.dart';
+import 'package:pica_comic/network/jm_network/jm_image.dart';
+import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:get/get.dart';
 

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
-import '../../jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 
 class JmLoginPage extends StatefulWidget {
   const JmLoginPage({Key? key}) : super(key: key);

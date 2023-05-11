@@ -1,8 +1,7 @@
 import '../../base.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../widgets/select.dart';
 
 ///设置分类中漫画排序模式, 返回设置是否发生变化

@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/eh_network/eh_main_network.dart';
-import 'package:pica_comic/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 
