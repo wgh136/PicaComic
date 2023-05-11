@@ -11,6 +11,7 @@ import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../jm_network/jm_main_network.dart';
 import '../../jm_network/jm_models.dart';
 import '../../tools/ui_mode.dart';
 import '../models/history.dart';

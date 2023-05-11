@@ -6,6 +6,7 @@ import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/promote_list_page.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
+import '../../jm_network/jm_main_network.dart';
 
 class JmHomePageLogic extends GetxController {
   bool loading = true;

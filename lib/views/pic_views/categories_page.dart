@@ -6,6 +6,7 @@ import 'package:pica_comic/views/pic_views/collections_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class CategoriesPageLogic extends GetxController{
   var categories = <CategoryItem>[];

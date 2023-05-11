@@ -641,9 +641,6 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if(loading){
-      get();
-    }
     return SimpleDialog(
       title: const Text("收藏漫画"),
       children: [
@@ -725,17 +722,5 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
         )
       ],
     );
-  }
-
-  void get() async{
-    var r = await jmNetwork.getFolders();
-    if(r.error){
-      message = r.errorMessage;
-    }else{
-      folders = r.data;
-    }
-    setState(() {
-      loading = false;
-    });
   }
 }

@@ -4,6 +4,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);

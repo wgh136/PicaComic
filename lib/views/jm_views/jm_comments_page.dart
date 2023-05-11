@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/jm_network/jm_models.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
+import '../../jm_network/jm_main_network.dart';
 import '../widgets/widgets.dart' show showMessage;
 
 class JmCommentsPageLogic extends GetxController {

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../base.dart';
+import 'package:pica_comic/network/methods.dart';
 
 ///自动检测cf设置并应用的Image.Network
 class CfImageNetwork extends StatelessWidget {

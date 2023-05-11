@@ -4,7 +4,7 @@ import 'package:pica_comic/network/models.dart';
 import 'package:pica_comic/views/widgets/game_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-import '../../base.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class GamesPageLogic extends GetxController{
   bool isLoading = true;

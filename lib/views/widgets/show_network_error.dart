@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/base.dart';
-
+import 'package:pica_comic/network/methods.dart';
 import '../../eh_network/eh_main_network.dart';
 
 Widget showNetworkError(BuildContext context, void Function() retry, {bool showBack = true, bool eh=false}){

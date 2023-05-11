@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:pica_comic/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/methods.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
@@ -193,5 +192,3 @@ class Appdata{
 
 var appdata = Appdata();
 var notifications = Notifications();
-var network = Network();
-var jmNetwork = JmNetwork();

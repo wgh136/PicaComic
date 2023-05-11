@@ -8,6 +8,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import 'dart:io';
 import '../tools/io_tools.dart';
+import 'jm_main_network.dart';
 
 class JmDownloadingItem extends DownloadingItem {
   JmDownloadingItem(

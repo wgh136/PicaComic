@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/jm_views/jm_category_page.dart';
 import 'package:pica_comic/views/jm_views/show_error.dart';
-import '../../base.dart';
+import '../../jm_network/jm_main_network.dart';
 import '../../jm_network/jm_models.dart';
 
 class JmCategoriesPageLogic extends GetxController{

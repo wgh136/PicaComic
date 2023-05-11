@@ -7,6 +7,7 @@ import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/models.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/side_bar.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class ReplyPageLogic extends GetxController{
   bool isLoading = true;

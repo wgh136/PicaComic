@@ -880,3 +880,5 @@ enum WeekRecommendationType{
   @override
   String toString() => value;
 }
+
+var jmNetwork = JmNetwork();

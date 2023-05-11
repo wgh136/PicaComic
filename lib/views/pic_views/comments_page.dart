@@ -8,6 +8,7 @@ import '../../network/models.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/side_bar.dart';
 import 'comment_reply_page.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class CommentsPageLogic extends GetxController{
   bool isLoading = true;

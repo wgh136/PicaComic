@@ -5,6 +5,7 @@ import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../base.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class CategoryComicPageLogic extends GetxController{
   var search = SearchResult("", "", [], 1, 0);

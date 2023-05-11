@@ -8,6 +8,7 @@ import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
+import '../jm_network/jm_main_network.dart';
 import 'jm_views/jm_comic_page.dart';
 
 class PreSearchController extends GetxController{

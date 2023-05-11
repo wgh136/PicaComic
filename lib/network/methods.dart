@@ -952,3 +952,5 @@ void sendNetworkLog(String url, String error) async{
     //服务器不可用时忽视
   }
 }
+
+var network = Network();

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -13,12 +12,14 @@ import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import '../../eh_network/eh_main_network.dart';
+import '../../jm_network/jm_main_network.dart';
 import '../../tools/key_down_event.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';
 import 'reading_logic.dart';
 import 'reading_settings.dart';
+import 'package:pica_comic/network/methods.dart';
 
 class ReadingPageData {
   int initialPage;

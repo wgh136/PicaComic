@@ -6,6 +6,7 @@ import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import '../../base.dart';
 import 'jm_widgets.dart';
+import '../../jm_network/jm_main_network.dart';
 
 class JmPromoteListPageLogic extends GetxController{
   bool loading = true;
