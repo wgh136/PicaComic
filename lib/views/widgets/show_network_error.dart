@@ -33,9 +33,11 @@ Widget showNetworkError(BuildContext context, void Function() retry, {bool showB
           alignment: Alignment.topCenter,
           child: SizedBox(
             width: 300,
-            child: eh?
-            (EhNetwork().status?Text(EhNetwork().message):const Text("网络错误"))
-                :(network.status?Text(network.message):const Text("网络错误")),
+            child: Center(
+              child: eh?
+              (EhNetwork().status?Text(EhNetwork().message):const Text("网络错误"))
+                  :(network.status?Text(network.message):const Text("网络错误")),
+            )
           )
         ),
       ),

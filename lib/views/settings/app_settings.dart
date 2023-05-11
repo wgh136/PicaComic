@@ -72,7 +72,7 @@ void giveComments(BuildContext context) {
               leading: Icon(Icons.mail, color: Theme.of(context).colorScheme.secondary),
               title: const Text("发送邮件"),
               onTap: () {
-                launchUrlString("mailto:wgh1624044369@gmail.com",
+                launchUrlString("mailto:nyne19710@proton.me",
                     mode: LaunchMode.externalApplication);
               },
             ),

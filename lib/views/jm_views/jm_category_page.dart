@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
-import 'package:pica_comic/views/jm_views/show_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/settings/jm_settings.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'jm_widgets.dart';

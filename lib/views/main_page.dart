@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_main_page.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
@@ -18,6 +19,7 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/update.dart';
 import '../tools/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
@@ -61,6 +63,7 @@ class _MainPageState extends State<MainPage> {
   TabListener picListener = TabListener();
   TabListener ehListener = TabListener();
   TabListener jmListener = TabListener();
+  TabListener hiListener = TabListener();
 
   var titles = [
     "我",
@@ -73,7 +76,8 @@ class _MainPageState extends State<MainPage> {
     MePage(),
     PicacgPage(picListener),
     EhentaiPage(ehListener),
-    JmMainPage(jmListener)
+    JmMainPage(jmListener),
+    HitomiPage(hiListener),
   ];
 
   @override
@@ -86,6 +90,9 @@ class _MainPageState extends State<MainPage> {
     Get.put(JmHomePageLogic());
     Get.put(JmLatestPageLogic());
     Get.put(JmCategoriesPageLogic());
+    Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageAll);
+    Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageCn);
+    Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageJp);
     super.initState();
   }
 
@@ -211,7 +218,8 @@ class _MainPageState extends State<MainPage> {
       "我",
       "Picacg",
       "EHentai",
-      "JmComic"
+      "JmComic",
+      "Hitomi"
     ];
 
     return Scaffold(
@@ -266,6 +274,12 @@ class _MainPageState extends State<MainPage> {
               case 1: Get.find<JmLatestPageLogic>().refresh_();break;
               case 2: Get.find<JmCategoriesPageLogic>().refresh_();break;
             }
+          }else if(i == 4){
+            switch(hiListener.getIndex()){
+              case 0: Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageAll).refresh_();break;
+              case 1: Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageCn).refresh_();break;
+              case 2: Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageJp).refresh_();break;
+            }
           }
         },
         child: const Icon(Icons.refresh),
@@ -293,6 +307,10 @@ class _MainPageState extends State<MainPage> {
           NavigationDestination(
             icon: Icon(MyIcons.jm, size: 18,),
             label: 'JmComic',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.book, size: 18,),
+            label: 'Hitomi',
           ),
         ],
       ),
@@ -341,6 +359,7 @@ class _MainPageState extends State<MainPage> {
                         NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
                         NavigatorItem(MyIcons.eh,MyIcons.eh, "Ehentai",i==2,()=>setState(()=>i=2)),
                         NavigatorItem(MyIcons.jm,MyIcons.jm, "JmComic",i==3,()=>setState(()=>i=3)),
+                        NavigatorItem(Icons.book_outlined,Icons.book, "Hitomi",i==3,()=>setState(()=>i=4)),
                         const Divider(),
                         const Spacer(),
                         NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
@@ -400,6 +419,11 @@ class _MainPageState extends State<MainPage> {
                         icon: Icon(MyIcons.jm, size: 18,),
                         selectedIcon: Icon(MyIcons.jm, size: 18,),
                         label: Text('JmComic'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.book_outlined, size: 18,),
+                        selectedIcon: Icon(Icons.book, size: 18,),
+                        label: Text('Hitomi'),
                       ),
                     ],
                   ),

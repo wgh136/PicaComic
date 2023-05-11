@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'headers.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
-import 'res.dart';
+import '../res.dart';
 import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pointycastle/export.dart';

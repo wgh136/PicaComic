@@ -7,7 +7,7 @@ import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/views/jm_views/jm_comments_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
-import 'package:pica_comic/views/jm_views/show_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:share_plus/share_plus.dart';

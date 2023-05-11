@@ -1,26 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_image.dart';
-import 'package:pica_comic/network/jm_network/jm_models.dart';
-import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 
-class JmComicTile extends StatelessWidget {
-  final JmComicBrief comic;
-  const JmComicTile(this.comic, {super.key});
+class HiComicTile extends StatelessWidget {
+  final HitomiComicBrief comic;
+  const HiComicTile(this.comic, {super.key});
 
   @override
   Widget build(BuildContext context) {
-
-    var categories = "";
-    for(final category in comic.categories){
-      categories += "${category.name} ";
-    }
-
     return InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: (){
-          Get.to(()=>JmComicPage(comic.id), preventDuplicates: false);
+          //TODO
         },
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
@@ -34,7 +25,11 @@ class JmComicTile extends StatelessWidget {
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: CachedNetworkImage(
-                      imageUrl: getJmCoverUrl(comic.id),
+                      httpHeaders: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+                        "Referer": "https://hitomi.la/"
+                      },
+                      imageUrl: comic.cover,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) => const Icon(Icons.error),
                       height: double.infinity,
@@ -46,8 +41,8 @@ class JmComicTile extends StatelessWidget {
                 flex: 7,
                 child: ComicDescription(
                   title: comic.name,
-                  user: comic.author,
-                  subDescription: categories,
+                  user: comic.name,
+                  subDescription: comic.time,
                 ),
               ),
               //const Center(

@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../../../../base.dart';
+import '../../../../network/eh_network/eh_main_network.dart';
 
 ///提供一个简单的图片缓存管理
 ///
@@ -98,6 +99,12 @@ class MyCacheManager{
     final savePath = "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
 
     var dio = Dio();
+    if(! jm){
+      dio.options.headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "cookie": EhNetwork().cookiesStr
+      };
+    }
     yield DownloadProgress(0, 1, url, savePath);
 
     var bytes = <int>[];
