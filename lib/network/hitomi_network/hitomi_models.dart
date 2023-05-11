@@ -25,7 +25,7 @@ class ComicList{
   ///要获取的开始位置
   int toLoad = 0;
   ///总共的byte数量
-  int total = 99;
+  int total = 100;
 
   var comics = <HitomiComicBrief>[];
 

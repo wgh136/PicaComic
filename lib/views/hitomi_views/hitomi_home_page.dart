@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../base.dart';
@@ -57,7 +58,7 @@ class HitomiHomePage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }else if(logic.message != null){
-          return showNetworkError(logic.message!, () => logic.refresh_(), context);
+          return showNetworkError(logic.message!, () => logic.refresh_(), context, showBack: false);
         }else{
           return CustomScrollView(
             slivers: [
@@ -73,6 +74,8 @@ class HitomiHomePage extends StatelessWidget {
                   childAspectRatio: comicTileAspectRatio,
                 ),
               ),
+              if(logic.comics!.toLoad < logic.comics!.total)
+                const SliverToBoxAdapter(child: ListLoadingIndicator(),)
             ],
           );
         }

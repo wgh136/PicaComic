@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_leaderboard_page.dart';
 import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -22,6 +23,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   final logic2 = Get.put(LeaderBoardD7Logic());
   final logic3 = Get.put(LeaderBoardD30Logic());
   final logic4 = Get.put(LeaderBoardH24Logic());
+  final logic5 = Get.put(HitomiLeaderboardPageLogic());
 
 
   final List<Tab> tabs = <Tab>[
@@ -42,19 +44,21 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
     logic2.dispose();
     logic3.dispose();
     logic4.dispose();
+    logic5.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 3, child: Scaffold(
+    return DefaultTabController(length: 4, child: Scaffold(
       appBar: AppBar(title:
         const TabBar(
           splashBorderRadius: BorderRadius.all(Radius.circular(10)),
           tabs: [
             Tab(text: "Picacg",),
             Tab(text: "E-Hentai",),
-            Tab(text: "JmComic",)
+            Tab(text: "JmComic",),
+            Tab(text: "Hitomi",),
           ],
       ),),
       body: TabBarView(children: [
@@ -74,7 +78,8 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
           ),
         ),
         const EhLeaderboardPage(),
-        const JmLeaderboardPage()
+        const JmLeaderboardPage(),
+        const HitomiLeaderboardPage()
       ],),
     ));
   }

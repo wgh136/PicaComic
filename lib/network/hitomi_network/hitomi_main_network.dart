@@ -20,13 +20,21 @@ class HiNetwork{
   ///
   /// 接收byte数据, 将每4个byte合成1个int32即为漫画id
   ///
-  /// 发送请求时需要在请求头设置开始接收位置和最后接收位置, 为和js脚本保持一致, 设置长度为 100 byte,
-  /// 因此只需要传入开始位置即可
+  /// 发送请求时需要在请求头设置开始接收位置和最后接收位置,
+  ///
+  /// 获取主页时不需要传入end, 因为需要和js脚本保持一致, 设置获取宽度100, 避免出现问题
   ///
   /// 响应头中 Content-Range 指明数据范围, 此函数用subData形式返回此值
-  Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength}) async{
+  Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, int? endData}) async{
     try{
       var end = start + 100 - 1;
+      if(endData != null){
+        end = endData;
+      }
+      if(maxLength != null && maxLength < end){
+        end = maxLength;
+      }
+      assert(start < end);
       var dio = Dio();
       dio.options.responseType = ResponseType.bytes;
       dio.options.headers = {
@@ -46,12 +54,12 @@ class HiNetwork{
         int number = list.buffer.asByteData().getInt32(0);
         comicIds.add(number);
       }
-      var range = res.headers["content-range"]?? res.headers["Content-Range"];
+      var range = (res.headers["content-range"]?? res.headers["Content-Range"])![0];
       int i = 0;
-      for(;i<range!.length;i++){
+      for(;i<range.length;i++){
         if(range[i] == '/') break;
       }
-      return Res(comicIds, subData: range.sublist(i));
+      return Res(comicIds, subData: range.substring(i+1));
     }
     catch(e){
       return Res(null, errorMessage: e.toString()=="null" ? "未知错误" : e.toString());
@@ -88,10 +96,11 @@ class HiNetwork{
 
   Future<Res<bool>> loadNextPage(ComicList comicList) async{
     if(comicList.toLoad >= comicList.total) return Res(false);
-    var comicIds = await fetchComicData(comicList.url, comicList.toLoad);
+    var comicIds = await fetchComicData(comicList.url, comicList.toLoad, maxLength: comicList.total);
     if(comicIds.error){
       return Res(false, errorMessage: comicIds.errorMessage!);
     }
+    comicList.total = int.parse(comicIds.subData);
     int loadingItem = 0;
     for(var id in comicIds.data){
       if(loadingItem > 5){
@@ -160,10 +169,31 @@ class HiNetwork{
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
+
+  Future<void> search(String keyword) async{
+    //首先需要获取版本号
+    var version = await get("https://ltn.hitomi.la/galleriesindex/version?_=${DateTime.now().millisecondsSinceEpoch ~/ 1000}");
+    if(version.error){
+      //TODO
+    }
+    //然后进行搜索
+    //TODO
+  }
+
+  Future<void> getComicInfo(String id) async{
+    await get("https://ltn.hitomi.la/galleries/$id.js");
+    //返回一个js脚本, 图片url也在这里面
+    //直接将前面的"var galleryinfo = "删掉, 然后作为json解析即可
+    //TODO
+  }
 }
 
 class HitomiDataUrls{
   static String homePageAll = 'https://ltn.hitomi.la/index-all.nozomi';
   static String homePageCn = "https://ltn.hitomi.la/index-chinese.nozomi";
   static String homePageJp = "https://ltn.hitomi.la/index-japanese.nozomi";
+  static String todayPopular = "https://ltn.hitomi.la/popular/today-all.nozomi";
+  static String weekPopular = "https://ltn.hitomi.la/popular/week-all.nozomi";
+  static String monthPopular = "https://ltn.hitomi.la/popular/month-all.nozomi";
+  static String yearPopular = "https://ltn.hitomi.la/popular/year-all.nozomi";
 }
