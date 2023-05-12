@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
@@ -50,6 +51,7 @@ class PreSearchPage extends StatelessWidget {
             case 0: Get.to(()=>SearchPage(controller.text));break;
             case 1: Get.to(()=>EhSearchPage(controller.text));break;
             case 2: Get.to(()=>JmSearchPage(controller.text));break;
+            case 3: Get.to(()=>HitomiSearchPage(controller.text));break;
           }
         },
       ),
@@ -69,6 +71,7 @@ class PreSearchPage extends StatelessWidget {
                     case 0: Get.to(()=>SearchPage(controller.text));break;
                     case 1: Get.to(()=>EhSearchPage(controller.text));break;
                     case 2: Get.to(()=>JmSearchPage(controller.text));break;
+                    case 3: Get.to(()=>HitomiSearchPage(controller.text));break;
                   }
                 },
                   controller: controller,
@@ -118,6 +121,16 @@ class PreSearchPage extends StatelessWidget {
                                 selected: logic.target==2,
                                 onSelected: (b){
                                   logic.updateTarget(2);
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: FilterChip(
+                                label: const Text("Hitomi"),
+                                selected: logic.target==3,
+                                onSelected: (b){
+                                  logic.updateTarget(3);
                                 },
                               ),
                             ),
@@ -384,6 +397,7 @@ class PreSearchPage extends StatelessWidget {
                                       case 0: Get.to(()=>SearchPage(s));break;
                                       case 1: Get.to(()=>EhSearchPage(s));break;
                                       case 2: Get.to(()=>JmSearchPage(s));break;
+                                      case 3: Get.to(()=>HitomiSearchPage(s));break;
                                     }
                                   },
                                   child: Padding(
