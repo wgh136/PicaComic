@@ -4,8 +4,8 @@ import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 
 ///用于测试函数
 void debug() async{
-  var res = await HiNetwork().getComicInfoBrief("2549873");
-  print(res.data.cover);
+  var res = await HiNetwork().search("13975");
+
 }
 
 ///保存网络请求数据, 用于Debug

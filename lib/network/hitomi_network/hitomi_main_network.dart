@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
-import 'package:pica_comic/tools/debug.dart';
 import '../res.dart';
 import 'hitomi_models.dart';
 
@@ -25,7 +24,7 @@ class HiNetwork{
   /// 获取主页时不需要传入end, 因为需要和js脚本保持一致, 设置获取宽度100, 避免出现问题
   ///
   /// 响应头中 Content-Range 指明数据范围, 此函数用subData形式返回此值
-  Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, int? endData}) async{
+  Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, int? endData, String? ref}) async{
     try{
       var end = start + 100 - 1;
       if(endData != null){
@@ -40,7 +39,9 @@ class HiNetwork{
       dio.options.headers = {
         "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-        "Range": "bytes=$start-$end"
+        "Range": "bytes=$start-$end",
+        if(ref != null)
+          "Referer": ref
       };
       var res = await dio.get(url);
       var bytes = Uint8List.fromList(res.data);
@@ -75,7 +76,6 @@ class HiNetwork{
 
       };
       var res = await dio.get(url);
-      saveDebugData(res.data);
       return Res(res.data.toString());
     }
     catch(e){
@@ -178,6 +178,48 @@ class HiNetwork{
     }
     //然后进行搜索
     //TODO
+    /*
+    这东西比较复杂, 居然有一部分逻辑在本地段进行
+    以下是chatgpt的解析:
+      1. 解码查询字符串：通过decodeURIComponent()函数解码URL查询字符串，
+        并使用正则表达式替换掉字符串开头的“?”，得到实际的查询字符串。
+      2. 设置搜索框内容：将查询字符串设置为页面上的搜索框中的值。
+      3. 拆分查询字符串： 使用正则表达式拆分查询字符串并生成一个搜索词数组。
+         同时，准备两个空数组positive_terms和negative_terms来存储正向和负向搜索词。
+      4. 遍历搜索词数组并将其分类： 对搜索词数组进行迭代，如果该词以“-”开头，
+        则将其添加到negative_terms数组中。否则，则将其添加到positive_terms数组中。
+      5. 执行搜索：使用Promise对象确保搜索的顺序性。
+        首先，如果没有指定任何正向搜索词，则直接调用get_galleryids_from_nozomi()函数，
+        否则调用get_galleryids_for_query()函数获取与第一个正向搜索词相关联的图库ID列表。
+      6. 处理正向搜索：对于每个其他的正向搜索词，
+        都调用get_galleryids_for_query()函数来获取与该词相关联的图库ID列表，
+        并使用Promise.all()方法并行处理这些搜索词。
+        对于每个结果集，我们使用Set()对象生成一个新的结果集，并将其与现有结果进行过滤。
+      7. 处理负向搜索：对于每个负向搜索词，同样调用get_galleryids_for_query()函数，
+        并使用Promise.all()方法并行处理所有负向搜索词。
+        对于每个结果集，我们使用Set()对象生成一个新的结果集，再通过过滤操作将它们从现有结果集中删除。
+      8. 处理最终结果：计算最终结果数并在页面上显示它们。
+        如果结果为空，则隐藏加载条并显示“no-results-content”内容；否则，在页面上显示结果。
+
+        get_galleryids_for_query()
+        此函数期望传入一个查询字符串query，并返回一个Promise对象。在解析查询之前，它会先将下划线替换为空格。
+      1. 如果查询字符串中包含冒号（:），则会根据冒号的位置对查询字符串进行分割。
+        第一部分将作为命名空间（namespace），第二部分将作为标签（tag）。
+        如果命名空间是female或male，则查询将在标签区域执行，而标记将保持不变。
+        如果命名空间是language，则查询将在所有语言的索引中执行，而标记将被设置为“index”。
+      2. 否则，该函数将使用哈希算法处理查询字符串，以获得散列键（key），
+        并在指定字段（field）的节点（node）中搜索键值（key）。
+        如果找到匹配项，则从数据中提取画廊ID（gallery ids）并将其返回。
+      3.如果未能找到匹配项，则返回一个空数组。
+        注意，此函数可能返回一个Promise对象，因此可能需要使用async/await或.then()语法来处理结果
+     */
+    var res = await fetchComicData(
+        "https://ltn.hitomi.la/galleriesindex/galleries.${version.data}.data",
+        85097004,
+        endData: 85152907,
+        ref: "https://hitomi.la/search.html?${Uri.encodeComponent(keyword)}"
+    );
+    print(res.data);
   }
 
   Future<void> getComicInfo(String id) async{
