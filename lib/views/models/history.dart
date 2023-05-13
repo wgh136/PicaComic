@@ -44,7 +44,8 @@ class HistoryItem{
 enum HistoryType{
   picacg(0),
   ehentai(1),
-  jmComic(2);
+  jmComic(2),
+  hitomi(3);
 
   final int value;
   const HistoryType(this.value);

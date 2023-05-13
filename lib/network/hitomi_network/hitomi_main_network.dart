@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
@@ -130,53 +132,95 @@ class HiNetwork{
   ///
   /// hitomi搜索功能过于复杂, 通过大量前端js进行, 因此在服务器端使用模拟浏览器方式进行爬虫
   Future<Res<List<HitomiComicBrief>>> search(String keyword, int page) async{
-    var dio = Dio();
-    dio.options.responseType = ResponseType.plain;
-    var res = await dio.post("https://api.kokoiro.xyz/hitomi", data: {
-      "keyword": keyword,
-      "page": page
-    });
-    var document = parse(res.data);
-    var comics = <HitomiComicBrief>[];
-
-    for(var comicDiv in document.querySelectorAll("div.gallery-content > div")){
-      var name = comicDiv.querySelector("h1.lillie > a")!.text;
-      var link = comicDiv.querySelector("h1.lillie > a")!.attributes["href"]!;
-      link = baseUrl+link;
-      var artist = comicDiv.querySelector("div.artist-list")!.text;
-      var cover = comicDiv.querySelector("div.dj-img1 > picture > source")!.attributes["data-srcset"]!;
-      cover = cover.substring(2);
-      cover = "https://$cover";
-      cover = cover.replaceAll(RegExp(r"2x.*"), "");
-      cover = cover.removeAllWhitespace;
-      var table = comicDiv.querySelectorAll("table.dj-desc > tbody");
-      String type = "",lang="";
-      var tags = <Tag>[];
-      for(var tr in table){
-        if(tr.firstChild!.text == "Type"){
-          type = tr.children[1].text;
-        }else if(tr.firstChild!.text == "Language"){
-          lang = tr.children[1].text;
-        }else if(tr.firstChild!.text == "Tags"){
-          for(var liA in tr.querySelectorAll("td.relatedtags > ul > li > a")){
-            tags.add(Tag(liA.text, liA.attributes["href"]!));
+    dynamic res;
+    try{
+      var dio = Dio();
+      dio.options.responseType = ResponseType.plain;
+      res = await dio
+          .post("https://api.kokoiro.xyz/hitomi", data: {"keyword": keyword, "page": page});
+    }
+    catch(e){
+      return Res(null, errorMessage: e.toString()=="null"?"网络错误":e.toString());
+    }
+    try{
+      var document = parse(res.data);
+      var comics = <HitomiComicBrief>[];
+      for (var comicDiv in document.querySelectorAll("div.gallery-content > div")) {
+        if (comicDiv.className == "search-message" && comicDiv.text == "No results") {
+          return Res(comics, subData: 1);
+        }
+        var name = comicDiv.querySelector("h1.lillie > a")!.text;
+        var link = comicDiv.querySelector("h1.lillie > a")!.attributes["href"]!;
+        link = baseUrl + link;
+        var artist = comicDiv.querySelector("div.artist-list")!.text;
+        var cover =
+            comicDiv.querySelector("div.dj-img1 > picture > source")!.attributes["data-srcset"]!;
+        cover = cover.substring(2);
+        cover = "https://$cover";
+        cover = cover.replaceAll(RegExp(r"2x.*"), "");
+        cover = cover.removeAllWhitespace;
+        var table = comicDiv.querySelectorAll("table.dj-desc > tbody");
+        String type = "", lang = "";
+        var tags = <Tag>[];
+        for (var tr in table) {
+          if (tr.firstChild!.text == "Type") {
+            type = tr.children[1].text;
+          } else if (tr.firstChild!.text == "Language") {
+            lang = tr.children[1].text;
+          } else if (tr.firstChild!.text == "Tags") {
+            for (var liA in tr.querySelectorAll("td.relatedtags > ul > li > a")) {
+              tags.add(Tag(liA.text, liA.attributes["href"]!));
+            }
           }
         }
+        var time = comicDiv.querySelector("div.dj-content > p")!.text;
+        comics.add(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
       }
-      var time = comicDiv.querySelector("div.dj-content > p")!.text;
-      comics.add(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
+      int maxPage;
+      var links = document.querySelectorAll("div.page-container > ul > li > a");
+      maxPage = int.parse(links.last.text);
+      return Res(comics, subData: maxPage);
     }
-    int maxPage;
-    var links = document.querySelectorAll("div.page-container > ul > li > a");
-    maxPage = int.parse(links.last.text);
-    return Res(comics, subData: maxPage);
+    catch(e){
+      return Res(null, errorMessage: "解析错误: $e");
+    }
   }
 
-  Future<void> getComicInfo(String id) async{
-    await get("https://ltn.hitomi.la/galleries/$id.js");
+  ///获取漫画信息
+  ///
+  /// 为了避免不必要的网络请求, 需要传入漫画标题
+  Future<Res<HitomiComic>> getComicInfo(String url, String name) async{
+    var id = RegExp(r"\d+(?=\.html)").firstMatch(url)![0]!;
+    var res = await get("https://ltn.hitomi.la/galleries/$id.js");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage!);
+    }
     //返回一个js脚本, 图片url也在这里面
     //直接将前面的"var galleryinfo = "删掉, 然后作为json解析即可
-    //TODO
+    var data = res.data.substring(res.data.indexOf('{'));
+    var json = const JsonDecoder().convert(data);
+    var tags = <Tag>[];
+    var files = <HitomiFile>[];
+
+    for(var tag in json["tags"]??[]){
+      tags.add(Tag(tag["tag"], "$baseUrl${tag["url"]}"));
+    }
+
+    for(var file in json["files"]??[]){
+      files.add(HitomiFile(file["name"], file["hash"],
+          file["haswebp"]==1, file["hasavif"]==1, file["height"], file["width"], id));
+    }
+    return Res(HitomiComic(
+      id,
+      name,
+      List<int>.from(json["related"]),
+      json["type"],
+      List<String>.from((json["artists"] as List<dynamic>).map((e) => e["artist"]).toList()),
+      json["language_localname"],
+      tags,
+      json["date"],
+      files
+    ));
   }
 }
 

@@ -1,6 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:get/get.dart';
 
 class HiComicTile extends StatelessWidget {
   final HitomiComicBrief comic;
@@ -10,9 +14,7 @@ class HiComicTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: (){
-          //TODO
-        },
+        onTap: () => Get.to(()=>HitomiComicPage(comic)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
           child: Row(
@@ -106,5 +108,65 @@ class ComicDescription extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class HitomiComicTileDynamicLoading extends StatefulWidget {
+  const HitomiComicTileDynamicLoading(this.id, {Key? key}) : super(key: key);
+  final int id;
+
+  @override
+  State<HitomiComicTileDynamicLoading> createState() => _HitomiComicTileDynamicLoadingState();
+}
+
+class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLoading> {
+  HitomiComicBrief? comic;
+  bool onScreen = true;
+
+  static List<HitomiComicBrief> cache = [];
+
+  @override
+  void dispose() {
+    onScreen = false;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    for(var cachedComic in cache){
+      var id = RegExp(r"\d+(?=\.html)").firstMatch(cachedComic.link)![0]!;
+      if(id == widget.id.toString()){
+        comic = cachedComic;
+      }
+    }
+    if(comic == null) {
+      HiNetwork().getComicInfoBrief(widget.id.toString()).then((c){
+        if(c.error){
+          showMessage(context, c.errorMessage!);
+          return;
+        }
+        cache.add(c.data);
+        if(onScreen) {
+          setState(() {
+          comic = c.data;
+        });
+        }
+      });
+      return Center(
+        child: SizedBox(
+          width: 80,
+          height: 40,
+          child: Row(
+            children: const [
+              CircularProgressIndicator(),
+              Spacer(),
+              Text("加载中")
+            ],
+          ),
+        ),
+      );
+    }else{
+      return HiComicTile(comic!);
+    }
   }
 }
