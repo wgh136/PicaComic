@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:html/parser.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import '../../base.dart';
+import '../../tools/proxy.dart';
 import '../res.dart';
 import 'fetch_data.dart';
 import 'hitomi_models.dart';
@@ -26,11 +27,15 @@ class HiNetwork{
 
   ///基本的get请求
   Future<Res<String>> get(String url) async{
+    await getProxy();
     try{
-      var dio = Dio();
+      var dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
+        sendTimeout: const Duration(seconds: 5),
+      ));
       dio.options.headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-
       };
       var res = await dio.get(url);
       return Res(res.data.toString());
@@ -151,13 +156,18 @@ class HiNetwork{
   ///
   /// hitomi搜索功能过于复杂, 通过大量前端js进行, 因此在服务器端使用模拟浏览器方式进行爬虫
   Future<Res<List<HitomiComicBrief>>> search(String keyword, int page) async{
+    await getProxy();
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
     appdata.writeData();
     dynamic res;
     try{
-      var dio = Dio();
-      dio.options.responseType = ResponseType.plain;
+      var dio = Dio(BaseOptions(
+        responseType: ResponseType.plain,
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
+        sendTimeout: const Duration(seconds: 5),
+      ));
       res = await dio
           .post("https://api.kokoiro.xyz/hitomi", data: {"keyword": keyword, "page": page});
     }

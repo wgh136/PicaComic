@@ -38,7 +38,7 @@ class PreSearchController extends GetxController{
 
 class PreSearchPage extends StatelessWidget {
   PreSearchPage({Key? key}) : super(key: key);
-  final controller = TextEditingController();
+  final controller = SearchController();
   final searchController = Get.put(PreSearchController());
 
   @override
@@ -58,14 +58,14 @@ class PreSearchPage extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverPadding(padding: EdgeInsets.only(top: 10)),
+            const SliverPadding(padding: EdgeInsets.only(top: 16)),
             SliverPersistentHeader(
               floating: true,
               pinned: true,
               delegate: _SliverAppBarDelegate(
                 minHeight: 60,
                 maxHeight: 0,
-                child: FloatingSearchBar(supportingText: '搜索',f:(s){
+                child: NewFloatingSearchBar(supportingText: "搜索", f: (s){
                   if(s=="") return;
                   switch(searchController.target){
                     case 0: Get.to(()=>SearchPage(controller.text));break;
@@ -73,11 +73,10 @@ class PreSearchPage extends StatelessWidget {
                     case 2: Get.to(()=>JmSearchPage(controller.text));break;
                     case 3: Get.to(()=>HitomiSearchPage(controller.text));break;
                   }
-                },
-                  controller: controller,
-                ),
+                }, controller: controller),
               ),
             ),
+
             const SliverPadding(padding: EdgeInsets.only(top: 5)),
             SliverToBoxAdapter(
               child: GetBuilder<PreSearchController>(builder: (logic){
@@ -373,85 +372,7 @@ class PreSearchPage extends StatelessWidget {
                 ),
               ),
             ),
-            GetBuilder<PreSearchController>(
-              builder: (controller){
-                return SliverToBoxAdapter(
-                  child: Card(
-                    margin: const EdgeInsets.all(10),
-                    elevation: 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("  历史搜索"),
-                        Wrap(
-                          children: [
-                            for(var s in appdata.searchHistory.reversed)
-                              Card(
-                                margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                elevation: 0,
-                                color: Theme.of(context).colorScheme.surfaceVariant,
-                                child: InkWell(
-                                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                                  onTap: (){
-                                    switch(searchController.target){
-                                      case 0: Get.to(()=>SearchPage(s));break;
-                                      case 1: Get.to(()=>EhSearchPage(s));break;
-                                      case 2: Get.to(()=>JmSearchPage(s));break;
-                                      case 3: Get.to(()=>HitomiSearchPage(s));break;
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
-                                ),
-                              ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            GetBuilder<PreSearchController>(
-              builder: (controller){
-                if(appdata.searchHistory.isNotEmpty) {
-                  return SliverToBoxAdapter(
-                  child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 13),
-                          child: InkWell(
-                            borderRadius: const BorderRadius.all(Radius.circular(10),),
-                            onTap: (){
-                              appdata.searchHistory.clear();
-                              appdata.writeData();
-                              controller.update();
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                  color: Theme.of(context).colorScheme.secondaryContainer
-                              ),
-                              width: 125,
-                              height: 26,
-                              child: Row(
-                                children: const [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.clear_all,color: Colors.indigo,),
-                                  Text("清除历史记录")
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ]
-                  ),
-                );
-                }else{
-                  return const SliverPadding(padding: EdgeInsets.all(0));
-                }
-              },
-            ),
+
           ],
         ),
       ),

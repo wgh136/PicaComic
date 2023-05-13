@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'package:pica_comic/network/res.dart';
 import 'package:dio/dio.dart';
 
+import '../../tools/proxy.dart';
+
 ///改写自 hitomi.la 网站上的js脚本
 ///
 /// 接收byte数据, 将每4个byte合成1个int32即为漫画id
@@ -12,6 +14,7 @@ import 'package:dio/dio.dart';
 ///
 /// 响应头中 Content-Range 指明数据范围, 此函数用subData形式返回此值
 Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, int? endData, String? ref}) async{
+  await getProxy();
   try{
     var end = start + 100 - 1;
     if(endData != null){
@@ -21,7 +24,11 @@ Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, in
       end = maxLength;
     }
     assert(start < end);
-    var dio = Dio();
+    var dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+      sendTimeout: const Duration(seconds: 5),
+    ));
     dio.options.responseType = ResponseType.bytes;
     dio.options.headers = {
       "User-Agent":
