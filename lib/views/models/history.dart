@@ -87,7 +87,7 @@ class NewHistory extends LinkedListEntry<NewHistory>{
   NewHistory.fromHitomiComic(HitomiComic comic, this.cover, this.time, this.ep, this.page):
       type = HistoryType.hitomi,
       title = comic.name,
-      subtitle = comic.artists?[0]??"",
+      subtitle = (comic.artists??[]).isEmpty?"":comic.artists![0],
       target = comic.id;
 
   Map<String, dynamic> toMap()=>{
