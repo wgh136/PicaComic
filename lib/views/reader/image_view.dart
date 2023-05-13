@@ -24,28 +24,26 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
     itemCount: comicReadingPageLogic.urls.length,
     addSemanticIndexes: false,
     scrollController: comicReadingPageLogic.cont,
-    minCacheExtent: 20,
     itemBuilder: (context, index) {
 
       precacheComicImage(comicReadingPageLogic, type, context, index+1, target);
 
       //加载eh图片
       if (type == ReadingType.ehentai && ! comicReadingPageLogic.downloaded) {
-        final height = Get.width * 1.42;
         return Image(
           filterQuality: FilterQuality.medium,
           image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
           frameBuilder: (context, widget, i, b) {
-            return widget;
+            return ConstrainedBox(constraints: BoxConstraints(minHeight: 300), child: widget,);
           },
           loadingBuilder: (context, widget, event) {
             if (event == null) {
               return widget;
             } else {
               return SizedBox(
-                height: height,
+                height: 300,
                 child: Center(
                     child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
                         ? CircularProgressIndicator(
@@ -56,9 +54,8 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
               );
             }
           },
-          errorBuilder: (context, s, d) => SizedBox(
-            height: height,
-            child: const Center(
+          errorBuilder: (context, s, d) => const SizedBox(
+            child: Center(
               child: Icon(
                 Icons.error,
                 color: Colors.white12,
@@ -76,7 +73,10 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
           frameBuilder: (context, widget, i, b) {
-            return widget;
+            return SizedBox(
+              height: height,
+              child: widget,
+            );
           },
           loadingBuilder: (context, widget, event) {
             if (event == null) {
@@ -150,7 +150,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           //加载禁漫图片
           return Container(
             constraints: const BoxConstraints(
-              minHeight: 200
+              minHeight: 300
             ),
             child: Image(
               filterQuality: FilterQuality.medium,

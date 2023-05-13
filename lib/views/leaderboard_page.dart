@@ -54,6 +54,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
       appBar: AppBar(title:
         const TabBar(
           splashBorderRadius: BorderRadius.all(Radius.circular(10)),
+          isScrollable: true,
           tabs: [
             Tab(text: "Picacg",),
             Tab(text: "E-Hentai",),

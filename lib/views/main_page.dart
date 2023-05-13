@@ -205,7 +205,7 @@ class _MainPageState extends State<MainPage> {
           text: TextSpan(children: [
             TextSpan(text: "感谢使用本软件, 请注意:\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "此项目与Picacg, e-hentai.org, JmComic无任何关系",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            TextSpan(text: "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系",style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ]),
         ),
         actions: [
@@ -310,7 +310,7 @@ class _MainPageState extends State<MainPage> {
             label: 'JmComic',
           ),
           NavigationDestination(
-            icon: Icon(Icons.book, size: 18,),
+            icon: Icon(Icons.book,),
             label: 'Hitomi',
           ),
         ],

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
-
+import 'dart:math';
 import '../../base.dart';
 
 ///Flutter并没有提供能够进行放缩的列表, 在InteractiveViewer放入任何可滚动的组件, InteractiveViewer的手势将会失效.
@@ -16,7 +16,7 @@ class ScrollManager{
   ScrollController scrollController;
 
   ///小于此值的滑动判定为缓慢滑动
-  static const slowMove = 1.8;
+  static const slowMove = 2.0;
 
   final height = Get.height;
 
@@ -29,6 +29,14 @@ class ScrollManager{
 
   ///当滑动时调用此函数进行处理
   void addOffset(double value){
+    if(value > 30){
+      value = 30;
+    }else if(value < -30){
+      value = -30;
+    }
+    if(value*offset < 0){
+      offset = 0;
+    }
     moveScrollView(value);
   }
 
@@ -37,7 +45,9 @@ class ScrollManager{
     //移动ScrollView
     scrollController.jumpTo(scrollController.position.pixels-value);
     if(value*height/400>slowMove||value*height/400<0-slowMove){
-      offset += value*value*(value~/1)/5*height/600;
+      if(offset < 2000) {
+        offset += value*( (value > 1 || value < -1) ? log(value>0?value:0-value) : value>0?value:0-value)*height/150;
+      }
       if (!runningRelease) {
         releaseOffset();
       }
@@ -56,16 +66,22 @@ class ScrollManager{
           offset = 0;
           break;
         }
-        if(offset < 0.5&&offset > -0.5){
+        if(offset < 1&&offset > -1){
           moveScrollView(offset);
           offset = 0;
           break;
         }
-        var value = offset / 20;
-        if(value > 40){
-          value = 40;
-        }else if(value < -40){
-          value = -40;
+        var p = offset / 200;
+        if(p > 4){
+          p = 4;
+        }else if(p < -4){
+          p = -4;
+        }
+        double value = log(offset>0?offset:0-offset) * p;
+        if(value > 50){
+          value = 50;
+        }else if(value < -50){
+          value = -50;
         }
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
@@ -83,6 +99,9 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
     left: 0,
     right: 0,
     child: GestureDetector(
+      onDoubleTap: (){
+        //防误触
+      },
       onTapUp: (detail) {
         bool flag = false;
         bool flag2 = false;
