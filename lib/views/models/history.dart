@@ -211,6 +211,11 @@ class HistoryManager{
     }
   }
 
+  void remove(String id) async{
+    await readData();
+    history.remove(history.firstWhere((element) => element.target==id));
+  }
+
   Future<NewHistory?> find(String target) async{
     if(!_open) {
       await readData();

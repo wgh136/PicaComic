@@ -23,6 +23,12 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
   var comics = <NewHistory>[];
   bool status = true;
+  
+  @override
+  void dispose() {
+    appdata.history.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +39,6 @@ class _HistoryPageState extends State<HistoryPage> {
           for(var c in appdata.history.history){
             comics.add(c);
           }
-          appdata.history.close();
         });
       });
     }
@@ -76,6 +81,25 @@ class _HistoryPageState extends State<HistoryPage> {
                         comics[i].target
                     );
                     return ComicTile(
+                      key: Key(comics[i].target),
+                      onLongTap: (){
+                        showDialog(context: context, builder: (context){
+                          return AlertDialog(
+                            title: const Text("确认删除"),
+                            content: const Text("要删除这条历史记录吗"),
+                            actions: [
+                              TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
+                              TextButton(onPressed: (){
+                                appdata.history.remove(comics[i].target);
+                                setState(() {
+                                  comics.removeAt(i);
+                                });
+                                Get.back();
+                              }, child: const Text("删除")),
+                            ],
+                          );
+                        });
+                      },
                       comic,
                       time: "${comics[i].time.year}-${comics[i].time.month}-${comics[i].time.day} ${comics[i].time.hour}:${comics[i].time.minute}",
                       onTap: (){
