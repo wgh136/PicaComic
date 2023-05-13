@@ -1,7 +1,7 @@
 # Pica Comic
 
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![flutter](https://img.shields.io/badge/flutter-3.7.12-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.10.0-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)

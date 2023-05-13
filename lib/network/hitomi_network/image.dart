@@ -8,11 +8,12 @@ import 'package:dio/dio.dart';
 /// gg.js内容会动态变化
 class GG{
   List<String> numbers = [];
+  int initialG = 1;
   int mm(int g){
     if(numbers.contains(g.toString())){
-      return 0;
+      return ~initialG&1;
     }else{
-      return 1;
+      return initialG;
     }
   }
 
@@ -55,6 +56,8 @@ class GG{
     }
     exp = RegExp(r"(?<=b: ')\d+");
     b = exp.firstMatch(res.data!)![0];
+    exp = RegExp(r"(?<=var o = )[0-9]+");
+    initialG = int.parse(exp.firstMatch(res.data!)![0]!);
     cacheTime = DateTime.now();
     cacheB = b;
     cacheNumbers = numbers;
@@ -95,7 +98,6 @@ class GG{
   ///获取图像信息
   Future<String> urlFromUrlFromHash(String galleryId, HitomiFile image, String? dir, String? ext) async{
     await getGg(galleryId);
-    print(urlFromHash(image, dir, ext));
     return urlFromUrl(urlFromHash(image, dir, ext), 'a');
   }
 }
