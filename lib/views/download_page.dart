@@ -494,7 +494,7 @@ class DownloadPage extends StatelessWidget {
                   showInfo(index0, index1, logic, context);
                 } else if (index0 == 1) {
                   readEhGallery(
-                      logic.galleries[index1].gallery.link, logic.galleries[index1].gallery);
+                      logic.galleries[index1].gallery);
                 } else if (index0 == 2) {
                   showInfo(index0, index1, logic, context);
                 }
@@ -647,12 +647,12 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
     var index0 = widget.index0;
     var index1 = widget.index1;
     if (index0 == 0) {
-      readPicacgComic(widget.logic.comics[index1].comicItem.id, name, widget.logic.comics[index1].chapters);
+      readPicacgComic(widget.logic.comics[index1].comicItem, widget.logic.comics[index1].chapters);
     } else if (index0 == 1) {
       readEhGallery(
-          widget.logic.galleries[index1].gallery.link, widget.logic.galleries[index1].gallery);
+          widget.logic.galleries[index1].gallery);
     } else if (index0 == 2) {
-      readJmComic(widget.logic.jmComics[index1].comic.id, widget.logic.jmComics[index1].comic.name,
+      readJmComic(widget.logic.jmComics[index1].comic,
           widget.logic.jmComics[index1].comic.series.values.toList());
     }
   }
@@ -661,9 +661,11 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
     var index0 = widget.index0;
     var index1 = widget.index1;
     if(index0 == 0){
+      addPicacgHistory(widget.logic.comics[index1].comicItem);
       Get.to(() =>
           ComicReadingPage.picacg(widget.logic.comics[index1].comicItem.id, i+1, widget.logic.comics[index1].chapters, widget.logic.comics[index1].comicItem.title));
     }else if(index0 == 2){
+      addJmHistory(widget.logic.jmComics[widget.index1].comic);
       Get.to(() => ComicReadingPage.jmComic(widget.logic.jmComics[widget.index1].comic.id, widget.logic.jmComics[widget.index1].comic.name, widget.logic.jmComics[widget.index1].comic.series.values.toList(), i+1));
     }
   }

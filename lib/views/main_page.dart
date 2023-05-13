@@ -224,6 +224,7 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       appBar: UiMode.m1(context)?AppBar(
+        scrolledUnderElevation: 0,
         title: Text(titles[i]),
         actions: [
           Tooltip(

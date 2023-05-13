@@ -374,7 +374,7 @@ class EhGalleryPage extends StatelessWidget {
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
-            onPressed: () => readEhGallery(brief.link, logic.gallery!),
+            onPressed: () => readEhGallery(logic.gallery!),
             child: const Text("阅读"),
           ),),
 

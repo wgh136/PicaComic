@@ -1,13 +1,61 @@
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/models/history.dart';
 import '../../base.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
+import '../../network/jm_network/jm_image.dart';
+import '../../network/jm_network/jm_models.dart';
 import 'comic_reading_page.dart';
 import 'package:flutter/material.dart';
 
-void readPicacgComic(String id, String name, List<String> epsStr) async{
-  var history = await appdata.history.find(id);
+void addPicacgHistory(ComicItem comic){
+  var history = NewHistory(
+      HistoryType.picacg,
+      DateTime.now(),
+      comic.title,
+      comic.author,
+      comic.thumbUrl,
+      0,
+      0,
+      comic.id
+  );
+  appdata.history.addHistory(history);
+}
+
+void addEhHistory(Gallery gallery){
+  var history = NewHistory(
+      HistoryType.ehentai,
+      DateTime.now(),
+      gallery.title,
+      gallery.uploader,
+      gallery.coverPath,
+      0,
+      0,
+      gallery.link
+  );
+  appdata.history.addHistory(history);
+}
+
+void addJmHistory(JmComicInfo comic){
+  var history = NewHistory(
+      HistoryType.jmComic,
+      DateTime.now(),
+      comic.name,
+      comic.author[0],
+      getJmCoverUrl(comic.id),
+      0,
+      0,
+      comic.id
+  );
+  appdata.history.addHistory(history);
+}
+
+void readPicacgComic(ComicItem comic, List<String> epsStr) async{
+  addPicacgHistory(comic);
+  var history = await appdata.history.find(comic.id);
+  var id = comic.id;
+  var name = comic.title;
 
   if(history!=null){
     if(history.ep!=0){
@@ -33,7 +81,9 @@ void readPicacgComic(String id, String name, List<String> epsStr) async{
   }
 }
 
-void readEhGallery(String target, Gallery gallery) async{
+void readEhGallery(Gallery gallery) async{
+  addEhHistory(gallery);
+  var target = gallery.link;
   var history = await appdata.history.find(target);
 
   if(history!=null){
@@ -60,7 +110,10 @@ void readEhGallery(String target, Gallery gallery) async{
   }
 }
 
-void readJmComic(String id, String name, List<String> eps) async{
+void readJmComic(JmComicInfo comic, List<String> eps) async{
+  addJmHistory(comic);
+  var id = comic.id;
+  var name = comic.name;
   var history = await appdata.history.find(id);
 
   if(history!=null){

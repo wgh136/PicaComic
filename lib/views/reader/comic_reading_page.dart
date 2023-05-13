@@ -492,6 +492,7 @@ class ComicReadingPage extends StatelessWidget {
       return;
     }
     await EhImageUrlsManager().readData();
+    info.current.value++;
     await for (var i in EhNetwork().loadGalleryPages(gallery!)){
       if(i == 1){
         logic.urls = gallery!.urls;

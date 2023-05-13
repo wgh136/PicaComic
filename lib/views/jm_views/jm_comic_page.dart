@@ -14,7 +14,6 @@ import 'package:share_plus/share_plus.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../tools/ui_mode.dart';
-import '../models/history.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';
@@ -46,19 +45,6 @@ class JmComicPageLogic extends GetxController {
       }
       change();
     }
-
-    //添加历史记录
-    var history = NewHistory(
-        HistoryType.jmComic,
-        DateTime.now(),
-        comic!.name,
-        comic!.author[0],
-        getJmCoverUrl(id),
-        0,
-        0,
-        id
-    );
-    appdata.history.addHistory(history);
   }
 
   void retry() {
@@ -353,7 +339,7 @@ class JmComicPage extends StatelessWidget {
           ),
           Expanded(
             child: FilledButton(
-              onPressed: () => readJmComic(id, logic.comic!.name, logic.comic!.series.values.toList()),
+              onPressed: () => readJmComic(logic.comic!, logic.comic!.series.values.toList()),
               child: const Text("阅读"),
             ),
           ),
@@ -517,6 +503,7 @@ class JmComicPage extends StatelessWidget {
                 ),
               ),
               onTap: () {
+                addJmHistory(logic.comic!);
                 Get.to(() => ComicReadingPage.jmComic(logic.comic!.id,
                     logic.comic!.name, logic.comic!.series.values.toList(), i+1));
               },

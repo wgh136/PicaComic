@@ -7,7 +7,6 @@ import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
-import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
@@ -55,27 +54,6 @@ class ComicPage extends StatelessWidget{
       body: GetBuilder<ComicPageLogic>(
         tag: comic.id,
         init: ComicPageLogic(),
-        initState: (logic){
-          //添加历史记录
-          try{
-            Future.delayed(const Duration(milliseconds: 300), (){
-              var history = NewHistory(
-                  HistoryType.picacg,
-                  DateTime.now(),
-                  comic.title,
-                  comic.author,
-                  comic.path,
-                  0,
-                  0,
-                  comic.id
-              );
-              appdata.history.addHistory(history);
-            });
-          }
-          catch(e){
-            //Get会在初始化logic前调用此函数, 延迟300ms可能仍然没有初始化完成
-          }
-        },
         builder: (logic){
           //检查是否下载
         if(downloaded){
@@ -379,7 +357,7 @@ class ComicPage extends StatelessWidget{
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
-            onPressed: () => readPicacgComic(logic.comicItem!.id, logic.comicItem!.title, logic.epsStr),
+            onPressed: () => readPicacgComic(logic.comicItem!, logic.epsStr),
             child: const Text("阅读"),
           ),),
         ],
@@ -522,6 +500,7 @@ class ComicPage extends StatelessWidget{
                   child: Center(child: Text(logic.epsStr[i+1]),),
                 ),
                 onTap: () {
+                  addPicacgHistory(logic.comicItem!);
                   Get.to(() =>
                       ComicReadingPage.picacg(comic.id, i+1, logic.epsStr, comic.title));
                 },
