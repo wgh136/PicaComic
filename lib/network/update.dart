@@ -9,11 +9,29 @@ Future<bool?> checkUpdate() async{
     var dio = Dio();
     var res = await dio.get("https://api.kokoiro.xyz/version");
     var s = res.data;
-    return version == s ? false : true; //有更新返回true
+    return compareSemVer(s, version); //有更新返回true
   }
   catch(e){
     return null;
   }
+}
+
+bool compareSemVer(String ver1, String ver2) {
+  List<String> v1 = ver1.split('.'); // 将版本号字符串按照 "." 分割成列表
+  List<String> v2 = ver2.split('.');
+
+  for (int i = 0; i < v1.length || i < v2.length; i++) {
+    int num1 = i < v1.length ? int.parse(v1[i]) : 0; // 如果已经到达某个版本号结尾，则默认该版本号对应数字为 0
+    int num2 = i < v2.length ? int.parse(v2[i]) : 0;
+
+    if (num1 > num2) {
+      return true;
+    } else if (num1 < num2) {
+      return false;
+    }
+  }
+
+  return false; // 两个版本号相同
 }
 
 Future<String?> getUpdatesInfo() async{

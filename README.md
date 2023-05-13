@@ -6,7 +6,7 @@
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
 
-非官方Picacg App, 同时支持查看E-Hentai, 禁漫天堂
+使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi
 
 目前支持Android, Windows, Web
 
@@ -68,6 +68,13 @@ Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 - 登录
 - 收藏夹
 - 下载漫画
+
+### Hitomi
+- 主页
+- 排行榜(popular)
+- 搜索
+- 漫画详情
+- 漫画阅读
 
 ## Thanks
 

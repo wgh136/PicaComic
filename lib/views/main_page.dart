@@ -422,8 +422,8 @@ class _MainPageState extends State<MainPage> {
                         label: Text('JmComic'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.book_outlined, size: 18,),
-                        selectedIcon: Icon(Icons.book, size: 18,),
+                        icon: Icon(Icons.book_outlined,),
+                        selectedIcon: Icon(Icons.book,),
                         label: Text('Hitomi'),
                       ),
                     ],
