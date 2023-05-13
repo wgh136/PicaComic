@@ -8,7 +8,7 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;

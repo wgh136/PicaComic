@@ -58,6 +58,7 @@ dependencies:
   flutter_inappwebview: any
   dio_cookie_manager: any
   image: ^3.0.2
+  shimmer_animation: ^2.1.0
 
 dev_dependencies:
   flutter_test:

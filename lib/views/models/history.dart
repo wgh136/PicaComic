@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import '../../network/hitomi_network/hitomi_models.dart';
 import '../../network/jm_network/jm_models.dart';
 
 /*
@@ -83,6 +84,12 @@ class NewHistory extends LinkedListEntry<NewHistory>{
      cover="",
      target=brief.id;
 
+  NewHistory.fromHitomiComic(HitomiComic comic, this.cover, this.time, this.ep, this.page):
+      type = HistoryType.hitomi,
+      title = comic.name,
+      subtitle = comic.artists?[0]??"",
+      target = comic.id;
+
   Map<String, dynamic> toMap()=>{
     "type": type.value,
     "time": time.millisecondsSinceEpoch,
@@ -114,6 +121,13 @@ class HistoryManager{
   //粗略计算, 1000个本子的数据将占据1.38mb左右的内存空间(按照int64位,char8位计算), 显然难以接受, 应该不会有人历史记录超过10000吧?这样硬盘IO的速度可以接受
   //也没必要整数据库, 遍历一遍用时不高(除非历史记录多得离谱)
   //如果因为历史记录过多导致卡顿, 我的建议是注意身体, 卡顿可以帮助戒色
+
+  static HistoryManager? cache;
+
+  HistoryManager.create();
+
+  factory HistoryManager() => cache==null?(cache=HistoryManager.create()):cache!;
+
   var history = LinkedList<NewHistory>();
   bool _open = false;
 
@@ -148,10 +162,9 @@ class HistoryManager{
     }
   }
 
+  ///搜索是否存在, 存在则移至最前, 并且转移历史记录
+  ///调用此方法不会记录阅读数据, 只是添加历史记录
   Future<void> addHistory(NewHistory newItem) async{
-    //搜索是否存在, 存在则移至最前, 并且转移历史记录
-    //调用此方法应当是进入漫画详情页时, 此时传入的参数不应有阅读数据, 即ep为0
-    //漫画详情页在调用此函数后, 可以通过传入的NewHistory对象获取上次阅读位置
     if(!_open) {
       await readData();
     }
@@ -173,8 +186,8 @@ class HistoryManager{
     saveDataAndClose();
   }
 
+  ///退出阅读器时调用此函数, 修改阅读位置
   Future<void> saveReadHistory(String target, int ep, int page) async{
-    //退出阅读器时调用此函数, 修改阅读位置
     if(!_open) {
       await readData();
     }

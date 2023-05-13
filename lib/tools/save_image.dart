@@ -6,34 +6,35 @@ import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
+///保存图片
+void saveImage(String urlOrHash, String id, {bool eh=false, bool jmOrHitomi=false}) async{
   if(GetPlatform.isWeb){
     //Web端使用下载图片的方式
     showMessage(Get.context, "下载中");
     int i;
-    for (i = url.length - 1; i >= 0; i--) {
-      if (url[i] == '/') {
+    for (i = urlOrHash.length - 1; i >= 0; i--) {
+      if (urlOrHash[i] == '/') {
         break;
       }
     }
-    launchUrlString("https://api.kokoiro.xyz/storage/download/$url");
+    launchUrlString("https://api.kokoiro.xyz/storage/download/$urlOrHash");
   }
   else if(GetPlatform.isAndroid) {
       var url_ = "";
       if(eh){
-        url_ = await EhImageUrlsManager.getUrl(url);
-      }else if(jm){
-        url_ = url;
+        url_ = await EhImageUrlsManager.getUrl(urlOrHash);
+      }else if(jmOrHitomi){
+        url_ = urlOrHash;
       }else{
-        url_ = getImageUrl(url);
+        url_ = getImageUrl(urlOrHash);
       }
-      var b = await saveImageFormCache(url_, id, eh: eh, jm: jm);
+      var b = await saveImageFormCache(url_, id, eh: eh, jmOrHitomi: jmOrHitomi);
       if(b) {
         showMessage(Get.context, "成功保存于Picture中");
       }
@@ -44,12 +45,12 @@ void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
     try {
       File? file;
       if(eh){
-        file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(url));
-      }else if(jm){
-        file = await MyCacheManager().getFile(url);
+        file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(urlOrHash));
+      }else if(jmOrHitomi){
+        file = await MyCacheManager().getFile(urlOrHash);
       }
       else {
-        var f = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+        var f = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
         file = f!.file;
       }
       var f = file!;
@@ -77,13 +78,13 @@ void saveImage(String url, String id, {bool eh=false, bool jm=false}) async{
   }
 }
 
-Future<bool> saveImageFormCache(String url, String id, {bool eh = false, bool jm = false}) async{
+Future<bool> saveImageFormCache(String urlOrHash, String id, {bool eh = false, bool jmOrHitomi = false}) async{
   try {
     File? file;
-    if(eh || jm){
-      file = await MyCacheManager().getFile(url);
+    if(eh || jmOrHitomi){
+      file = await MyCacheManager().getFile(urlOrHash);
     }else {
-      var f = await DefaultCacheManager().getFileFromCache(url);
+      var f = await DefaultCacheManager().getFileFromCache(urlOrHash);
       file = f!.file;
     }
     var f = file!;
@@ -95,7 +96,7 @@ Future<bool> saveImageFormCache(String url, String id, {bool eh = false, bool jm
       }
     }
     Uint8List data;
-    if(jm){
+    if(jmOrHitomi){
       var bytes = await f.readAsBytes();
       data = bytes;
     }else{
@@ -136,18 +137,18 @@ void saveImageFromDisk(String image) async{
   }
 }
 
-void shareImageFromCache(String url, String id, {bool eh=false, bool jm=false}) async{
+void shareImageFromCache(String urlOrHash, String id, {bool eh=false, bool jmOrHitomi=false}) async{
   try{
     if(eh){
-      var file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(url));
+      var file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(urlOrHash));
       Share.shareXFiles([XFile(file!.path)]);
-    }else if(jm){
-      var file = await MyCacheManager().getFile(url);
+    }else if(jmOrHitomi){
+      var file = await MyCacheManager().getFile(urlOrHash);
       var bytes = await file!.readAsBytes();
       Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
     }
     else {
-      var file = await DefaultCacheManager().getFileFromCache(getImageUrl(url));
+      var file = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
       Share.shareXFiles([XFile(file!.file.path)]);
     }
   }

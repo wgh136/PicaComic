@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/views/models/history.dart';
 import '../../base.dart';
+import '../../network/hitomi_network/hitomi_models.dart';
 import 'comic_reading_page.dart';
 import 'package:flutter/material.dart';
 
@@ -82,5 +84,32 @@ void readJmComic(String id, String name, List<String> eps) async{
     }
   }else {
     Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
+  }
+}
+
+void readHitomiComic(HitomiComic comic, String cover) async{
+  var history = await appdata.history.find(comic.id);
+  if(history!=null){
+    if(history.ep!=0){
+      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
+        title: const Text("继续阅读"),
+        content: Text("上次阅读到第${history.page}页, 是否继续阅读?"),
+        actions: [
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files), preventDuplicates: false);
+          }, child: const Text("从头开始")),
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files, initialPage: history.page,), preventDuplicates: false);
+          }, child: const Text("继续阅读")),
+        ],
+      ));
+    }else{
+      Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files,), preventDuplicates: false);
+    }
+  } else {
+    HistoryManager().addHistory(NewHistory.fromHitomiComic(comic, cover, DateTime.now(), 0, 1));
+    Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files,), preventDuplicates: false);
   }
 }

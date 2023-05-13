@@ -2,31 +2,30 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 
-var _loadingItem = 0;
-
-
-/// 为禁漫提供的ImageLoader class, 需要对image重组
+/// ImageLoader class to load images on IO platforms.
 class ImageLoader{
 
   Stream<ui.Codec> loadBufferAsync(
-      String url,
+      HitomiFile image,
+      String galleryID,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
       DecoderBufferCallback decode,
       int? maxHeight,
       int? maxWidth,
       Map<String, String>? headers,
-      String epsId,
       Function()? errorListener,
       Function() evictImage) {
     return _load(
-      url,
+      image,
+      galleryID,
       cacheKey,
       chunkEvents,
-          (bytes) async {
+      (bytes) async {
         final buffer = await ImmutableBuffer.fromUint8List(bytes);
         return decode(buffer);
       },
@@ -35,41 +34,24 @@ class ImageLoader{
       headers,
       errorListener,
       evictImage,
-      epsId,
     );
   }
 
   Stream<ui.Codec> _load(
-      String url,
-      String? cacheKey,
-      StreamController<ImageChunkEvent> chunkEvents,
-      _FileDecoderCallback decode,
-      int? maxHeight,
-      int? maxWidth,
-      Map<String, String>? headers,
-      Function()? errorListener,
-      Function() evictImage,
-      String epsId
-      ) async* {
+    HitomiFile image,
+    String id,
+    String? cacheKey,
+    StreamController<ImageChunkEvent> chunkEvents,
+    _FileDecoderCallback decode,
+    int? maxHeight,
+    int? maxWidth,
+    Map<String, String>? headers,
+    Function()? errorListener,
+    Function() evictImage,
+  ) async* {
     try {
-      if(_loadingItem >= 5){
-        throw StateError("同时加载的图片过多");
-      }
-      _loadingItem++;
-      chunkEvents.add(const ImageChunkEvent(
-          cumulativeBytesLoaded: 0,
-          expectedTotalBytes: 1)
-      );
-
       var manager = MyCacheManager();
-      var bookId = "";
-      for(int i = url.length-1;i>=0;i--){
-        if(url[i] == '/'){
-          bookId = url.substring(i+1,url.length-5);
-          break;
-        }
-      }
-      var stream = manager.getImage(url, headers, jm: true, bookId: bookId, epsId: epsId, scrambleId: "220980");
+      var stream = manager.getHitomiImage(image, id);
 
       DownloadProgress? finishProgress;
 
@@ -79,17 +61,12 @@ class ImageLoader{
         }
         chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: progress.currentBytes,
-            expectedTotalBytes: progress.expectedBytes+1)
+            expectedTotalBytes: progress.expectedBytes)
         );
       }
 
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
-
-      chunkEvents.add(const ImageChunkEvent(
-          cumulativeBytesLoaded: 10000,
-          expectedTotalBytes: 10000)
-      );
       var decoded = await decode(bytes);
       yield decoded;
     } catch (e) {
@@ -102,7 +79,6 @@ class ImageLoader{
       errorListener?.call();
       rethrow;
     } finally {
-      _loadingItem--;
       await chunkEvents.close();
     }
   }

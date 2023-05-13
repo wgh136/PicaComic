@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 import 'find_eh_image_real_url.dart';
 
 /// ImageLoader class to load images on IO platforms.

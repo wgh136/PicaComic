@@ -4,6 +4,7 @@ import 'package:pica_comic/views/reader/comic_reading_page.dart'
   show ReadingPageData;
 import 'package:pica_comic/views/reader/reading_type.dart';
 import '../../base.dart';
+import '../../network/hitomi_network/hitomi_models.dart';
 import '../widgets/scrollable_list/src/item_positions_listener.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import '../widgets/widgets.dart';
@@ -36,6 +37,8 @@ class ComicReadingPageLogic extends GetxController{
   bool showSettings = false;
   ///所有的图片链接
   var urls = <String>[];
+  ///hitomi阅读使用的图片数据
+  var images = <HitomiFile>[];
   ///章节部件
   var epsWidgets = <Widget>[];
   ///是否是已下载的漫画

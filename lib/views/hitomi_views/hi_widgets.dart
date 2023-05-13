@@ -5,6 +5,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:get/get.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 
 class HiComicTile extends StatelessWidget {
   final HitomiComicBrief comic;
@@ -12,9 +13,11 @@ class HiComicTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var description = "${comic.type}    ";
+    description += comic.lang;
     return InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => Get.to(()=>HitomiComicPage(comic)),
+        onTap: () => Get.to(()=>HitomiComicPage(comic), preventDuplicates: false),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
           child: Row(
@@ -44,7 +47,7 @@ class HiComicTile extends StatelessWidget {
                 child: ComicDescription(
                   title: comic.name,
                   user: comic.name,
-                  subDescription: comic.time,
+                  subDescription: description,
                 ),
               ),
               //const Center(
@@ -148,25 +151,76 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
         cache.add(c.data);
         if(onScreen) {
           setState(() {
-          comic = c.data;
-        });
+            comic = c.data;
+          });
         }
       });
-      return Center(
-        child: SizedBox(
-          width: 80,
-          height: 40,
-          child: Row(
-            children: const [
-              CircularProgressIndicator(),
-              Spacer(),
-              Text("加载中")
-            ],
-          ),
-        ),
-      );
+
+      return buildLoadingWidget();
     }else{
       return HiComicTile(comic!);
     }
   }
+
+  Widget buildLoadingWidget(){
+    return Shimmer(
+      color: Theme.of(context).colorScheme.surfaceVariant,
+      child: Container(
+        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16)
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16,),
+            Expanded(
+                flex: 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Theme.of(context).colorScheme.secondaryContainer.withAlpha(140)
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                )
+            ),
+            SizedBox.fromSize(size: const Size(16,5),),
+            Expanded(
+              flex: 7,
+              child: Column(
+                children: [
+                  const SizedBox(height: 3,),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
+                    ),
+                    height: 25,
+                  ),
+                  const SizedBox(height: 3,),
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
+                    ),
+                    height: 20,
+                  ),
+                  const Spacer(),
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
+                    ),
+                    height: 20,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16,),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 }

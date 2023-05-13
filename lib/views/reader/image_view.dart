@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pica_comic/views/hitomi_views/image_loader/hitomi_cached_image_provider.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:flutter/material.dart';
 import '../../base.dart';
@@ -34,6 +35,44 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         return Image(
           filterQuality: FilterQuality.medium,
           image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
+          width: MediaQuery.of(context).size.width,
+          fit: BoxFit.fill,
+          frameBuilder: (context, widget, i, b) {
+            return widget;
+          },
+          loadingBuilder: (context, widget, event) {
+            if (event == null) {
+              return widget;
+            } else {
+              return SizedBox(
+                height: height,
+                child: Center(
+                    child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
+                        ? CircularProgressIndicator(
+                      value: event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                      backgroundColor: Colors.white12,
+                    )
+                        : const CircularProgressIndicator()),
+              );
+            }
+          },
+          errorBuilder: (context, s, d) => SizedBox(
+            height: height,
+            child: const Center(
+              child: Icon(
+                Icons.error,
+                color: Colors.white12,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if(type == ReadingType.hitomi && !comicReadingPageLogic.downloaded){
+        final height = Get.width / comicReadingPageLogic.images[index].width * comicReadingPageLogic.images[index].height;
+        return Image(
+          filterQuality: FilterQuality.medium,
+          image: HitomiCachedImageProvider(comicReadingPageLogic.images[index], target),
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
           frameBuilder: (context, widget, i, b) {
@@ -170,10 +209,12 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
           }else if(type == ReadingType.picacg){
             imageProvider = CachedNetworkImageProvider(
                 getImageUrl(comicReadingPageLogic.urls[index - 1]));
-          }else{
+          }else if(type == ReadingType.jm){
             imageProvider = JmCachedImageProvider(comicReadingPageLogic.urls[index - 1], target);
+          }else{
+            imageProvider = HitomiCachedImageProvider(comicReadingPageLogic.images[index-1], target);
           }
-        }else {
+        } else {
           return PhotoViewGalleryPageOptions(
             scaleStateController: PhotoViewScaleStateController(),
             imageProvider: const AssetImage("images/black.png"),
@@ -278,6 +319,9 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
   } else if(index < comicReadingPageLogic.urls.length && type == ReadingType.jm &&
       !comicReadingPageLogic.downloaded){
     precacheImage(JmCachedImageProvider(comicReadingPageLogic.urls[index], target), context);
+  }else if(index < comicReadingPageLogic.urls.length && type == ReadingType.hitomi &&
+      !comicReadingPageLogic.downloaded){
+    precacheImage(HitomiCachedImageProvider(comicReadingPageLogic.images[index], target), context);
   }else if (index < comicReadingPageLogic.urls.length &&
       comicReadingPageLogic.downloaded) {
     var id = target;

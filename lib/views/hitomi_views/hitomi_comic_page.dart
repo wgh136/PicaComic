@@ -6,6 +6,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:share_plus/share_plus.dart';
@@ -213,7 +214,7 @@ class HitomiComicPage extends StatelessWidget {
     var res = <Widget>[];
     var res2 = <Widget>[];
 
-    if (logic.comic!.artists != null) {
+    if (logic.comic!.artists != null && logic.comic!.artists!.isNotEmpty) {
       res.add(const Padding(
         padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
         child: Text("作者"),
@@ -269,9 +270,7 @@ class HitomiComicPage extends StatelessWidget {
           ),
           Expanded(
             child: FilledButton(
-              onPressed: (){
-                //TODO
-              },
+              onPressed: () => readHitomiComic(logic.comic!, comic.cover),
               child: const Text("阅读"),
             ),
           ),

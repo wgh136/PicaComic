@@ -1,8 +1,9 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
+import '../../base.dart';
 import '../res.dart';
 import 'fetch_data.dart';
 import 'hitomi_models.dart';
@@ -104,10 +105,10 @@ class HiNetwork{
       cover = "https://a$cover";
       cover = cover.replaceAll(RegExp(r"2x.*"), "");
       cover = cover.removeAllWhitespace;
-      var table = comicDiv.querySelectorAll("table.dj-desc > tbody");
+      var table = comicDiv.querySelectorAll("div.dj-content > table.dj-desc > tbody");
       String type = "", lang = "";
       var tags = <Tag>[];
-      for (var tr in table) {
+      for (var tr in table[0].children) {
         if (tr.firstChild!.text == "Type") {
           type = tr.children[1].text;
         } else if (tr.firstChild!.text == "Language") {
@@ -119,6 +120,21 @@ class HiNetwork{
         }
       }
       var time = comicDiv.querySelector("div.dj-content > p")!.text;
+      //检查屏蔽词
+      if(appdata.blockingKeyword.contains(name)||
+          appdata.blockingKeyword.contains(artist)){
+        return Res(null, errorMessage: "block");
+      }
+      bool flag = false;
+      for(var tag in tags){
+        if(appdata.blockingKeyword.contains(tag.name)){
+          flag = true;
+          break;
+        }
+      }
+      if(flag){
+        return Res(null, errorMessage: "block");
+      }
       return Res(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
     }
     catch(e){
@@ -128,10 +144,16 @@ class HiNetwork{
 
   ///搜索Hitomi
   ///
-  /// 此函数通过服务器端爬虫进行获取数据
+  /// 请不要复制以及使用此函数中的代码, 此函数通过服务器端爬虫进行获取数据, 我的服务器仅用于PicaComic项目.
+  /// Please do not copy and use the code in this function,
+  /// this function fetches data through server-side crawler,
+  /// my server is only used for PicaComic project.
   ///
   /// hitomi搜索功能过于复杂, 通过大量前端js进行, 因此在服务器端使用模拟浏览器方式进行爬虫
   Future<Res<List<HitomiComicBrief>>> search(String keyword, int page) async{
+    appdata.searchHistory.remove(keyword);
+    appdata.searchHistory.add(keyword);
+    appdata.writeData();
     dynamic res;
     try{
       var dio = Dio();
@@ -159,10 +181,10 @@ class HiNetwork{
         cover = "https://$cover";
         cover = cover.replaceAll(RegExp(r"2x.*"), "");
         cover = cover.removeAllWhitespace;
-        var table = comicDiv.querySelectorAll("table.dj-desc > tbody");
+        var table = comicDiv.querySelectorAll("div.dj-content > table.dj-desc > tbody");
         String type = "", lang = "";
         var tags = <Tag>[];
-        for (var tr in table) {
+        for (var tr in table[0].children) {
           if (tr.firstChild!.text == "Type") {
             type = tr.children[1].text;
           } else if (tr.firstChild!.text == "Language") {
@@ -174,11 +196,32 @@ class HiNetwork{
           }
         }
         var time = comicDiv.querySelector("div.dj-content > p")!.text;
+        //检查屏蔽词
+        if(appdata.blockingKeyword.contains(name)||
+            appdata.blockingKeyword.contains(artist)){
+          continue;
+        }
+        bool flag = false;
+        for(var tag in tags){
+          if(appdata.blockingKeyword.contains(tag.name)){
+            flag = true;
+            break;
+          }
+        }
+        if(flag){
+          continue;
+        }
         comics.add(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
       }
       int maxPage;
       var links = document.querySelectorAll("div.page-container > ul > li > a");
       maxPage = int.parse(links.last.text);
+      try{
+        Get.find<PreSearchController>().update();
+      }
+      catch(e){
+        //忽略
+      }
       return Res(comics, subData: maxPage);
     }
     catch(e){
@@ -189,8 +232,13 @@ class HiNetwork{
   ///获取漫画信息
   ///
   /// 为了避免不必要的网络请求, 需要传入漫画标题
-  Future<Res<HitomiComic>> getComicInfo(String url, String name) async{
-    var id = RegExp(r"\d+(?=\.html)").firstMatch(url)![0]!;
+  Future<Res<HitomiComic>> getComicInfo(String target, String name) async{
+    String id;
+    if(target.isNum){
+      id = target;
+    }else {
+      id = RegExp(r"\d+(?=\.html)").firstMatch(target)![0]!;
+    }
     var res = await get("https://ltn.hitomi.la/galleries/$id.js");
     if(res.error){
       return Res(null, errorMessage: res.errorMessage!);
@@ -215,7 +263,7 @@ class HiNetwork{
       name,
       List<int>.from(json["related"]),
       json["type"],
-      List<String>.from((json["artists"] as List<dynamic>).map((e) => e["artist"]).toList()),
+      List<String>.from((json["artists"]??[]).map((e) => e["artist"]).toList()),
       json["language_localname"],
       tags,
       json["date"],

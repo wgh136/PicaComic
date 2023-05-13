@@ -5,7 +5,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/cache_manager.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
@@ -13,6 +13,7 @@ import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
@@ -36,10 +37,10 @@ class ReadingPageData {
 class ComicReadingPage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  ///目标, 对于picacg和jm是漫画id, 对于ehentai是漫画链接
+  ///目标, 对于picacg,jm,hitomi是漫画id, 对于ehentai是漫画链接
   final String target;
 
-  ///章节信息, picacg为各章节名称 ,ehentai此数组为空, jm为各章节id
+  ///章节信息, picacg为各章节名称 ,ehentai, hitomi此数组为空, jm为各章节id
   final List<String> eps; //注意: eps的第一个是标题, 不是章节
 
   ///标题
@@ -63,10 +64,16 @@ class ComicReadingPage extends StatelessWidget {
   ///一些会发生变更的信息, 全放logic里面会很乱
   late final ReadingPageData data = ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps[order-1]:target);
 
+  ///阅读Hitomi画廊时使用的图片数据
+  ///
+  /// 仅Hitomi有效, 其它都为null
+  final List<HitomiFile>? images;
+
   ComicReadingPage.picacg(this.target, this.order, this.eps, this.title,
       {super.key, int initialPage = 0})
       : gallery = null,
-        type = ReadingType.picacg {
+        type = ReadingType.picacg,
+        images = null{
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
@@ -75,7 +82,8 @@ class ComicReadingPage extends StatelessWidget {
       : eps = [],
         title = gallery!.title,
         order = 0,
-        type = ReadingType.ehentai {
+        type = ReadingType.ehentai,
+        images = null{
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
@@ -83,7 +91,17 @@ class ComicReadingPage extends StatelessWidget {
   ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order,
       {super.key, int initialPage = 0})
       : type = ReadingType.jm,
-        gallery = null {
+        gallery = null,
+        images = null{
+    data.initialPage = initialPage;
+    Get.put(ComicReadingPageLogic(order, data));
+  }
+
+  ComicReadingPage.hitomi(this.target, this.title, this.images, {super.key, int initialPage=0})
+      : eps = [],
+        order = 0,
+        type = ReadingType.hitomi,
+        gallery = null{
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
@@ -168,8 +186,10 @@ class ComicReadingPage extends StatelessWidget {
                 );
               } else if (type == ReadingType.picacg) {
                 loadComicInfo(logic);
-              } else {
+              } else if(type == ReadingType.jm){
                 loadJmComicInfo(logic);
+              } else {
+                loadHitomiData(logic);
               }
               return const DecoratedBox(
                 decoration: BoxDecoration(color: Colors.black),
@@ -247,7 +267,7 @@ class ComicReadingPage extends StatelessWidget {
                           ),
                         buildTapDownListener(logic, context),
                         //底部工具栏
-                        buildBottomToolBar(logic, context, type != ReadingType.ehentai, () {
+                        buildBottomToolBar(logic, context, type != ReadingType.ehentai && type != ReadingType.hitomi, () {
                           if (MediaQuery.of(context).size.width > 600) {
                             showSideBar(context, buildEpsView(), title: null, useSurfaceTintColor: true, width: 400);
                           } else {
@@ -270,8 +290,12 @@ class ComicReadingPage extends StatelessWidget {
                             shareImageFromDisk(
                                 downloadManager.getImage(id, logic.order, logic.index - 1).path);
                           } else {
-                            shareImageFromCache(logic.urls[logic.index - 1], data.target,
-                                eh: type == ReadingType.ehentai, jm: type == ReadingType.jm);
+                            shareImageFromCache(
+                                type==ReadingType.hitomi?logic.images[logic.index-1].hash:logic.urls[logic.index - 1],
+                                data.target,
+                                eh: type == ReadingType.ehentai,
+                                jmOrHitomi: type == ReadingType.jm || type==ReadingType.hitomi
+                            );
                           }
                         }, () async {
                           if (logic.downloaded) {
@@ -285,8 +309,12 @@ class ComicReadingPage extends StatelessWidget {
                             saveImageFromDisk(
                                 downloadManager.getImage(id, logic.order, logic.index - 1).path);
                           } else {
-                            saveImage(logic.urls[logic.index - 1], data.target,
-                                eh: type == ReadingType.ehentai, jm: type == ReadingType.jm);
+                            saveImage(
+                                type==ReadingType.hitomi?logic.images[logic.index-1].hash:logic.urls[logic.index - 1],
+                                data.target,
+                                eh: type == ReadingType.ehentai,
+                                jmOrHitomi: type == ReadingType.jm || type == ReadingType.hitomi
+                            );
                           }
                         }),
 
@@ -295,7 +323,7 @@ class ComicReadingPage extends StatelessWidget {
                         //顶部工具栏
                         buildTopToolBar(logic, context, title),
 
-                        buildPageInfoText(logic, type != ReadingType.ehentai, eps, context,
+                        buildPageInfoText(logic, type != ReadingType.ehentai && type != ReadingType.hitomi, eps, context,
                             jm: type == ReadingType.jm),
 
                         //设置
@@ -536,6 +564,14 @@ class ComicReadingPage extends StatelessWidget {
     }
     comicReadingPageLogic.isLoading = false;
     comicReadingPageLogic.update();
+  }
+
+  void loadHitomiData(ComicReadingPageLogic logic)async{
+    logic.images = images!;
+    logic.urls = images!.map<String>((e) => "").toList();
+    await Future.delayed(const Duration(milliseconds: 200));
+    logic.isLoading = false;
+    logic.update();
   }
 
   Widget buildEpsView(){

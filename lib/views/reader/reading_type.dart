@@ -1,1 +1,1 @@
-enum ReadingType { picacg, ehentai, jm }
+enum ReadingType { picacg, ehentai, jm , hitomi}

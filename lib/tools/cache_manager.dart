@@ -4,9 +4,11 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
-import '../../../../base.dart';
-import '../../../../network/eh_network/eh_main_network.dart';
+import '../base.dart';
+import '../network/eh_network/eh_main_network.dart';
+import '../network/hitomi_network/image.dart';
 
 ///提供一个简单的图片缓存管理
 ///
@@ -42,7 +44,7 @@ class MyCacheManager{
     if(_paths != null){
       if(_paths!.length > 1000){
         var keys = _paths!.keys.toList();
-        for(int i = keys.length-1;i>=1000;i--){
+        for(int i = 0;i<1000-_paths!.length;i++){
           var file = File(_paths![keys[i]]!);
           if(file.existsSync()){
             file.deleteSync();
@@ -55,13 +57,80 @@ class MyCacheManager{
       if(! file.existsSync()){
         await file.create();
       }
-      while(_paths!.length > 8000){
-        //删除数据, 过多的记录没有意义
-        _paths!.remove(_paths!.keys.first);
-      }
       await file.writeAsString(const JsonEncoder().convert(_paths),mode: FileMode.writeOnly);
       _paths = null;
     }
+  }
+
+  ///为Hitomi设计的图片加载函数
+  ///
+  /// 使用hash标识图片
+  Stream<DownloadProgress> getHitomiImage(HitomiFile image, String galleryId) async*{
+    await readData();
+    //检查缓存
+    if(_paths![image.hash] != null){
+      if(File(_paths![image.hash]!).existsSync()) {
+        yield DownloadProgress(1, 1, image.hash, _paths![image.hash]!);
+        return;
+      }else{
+        _paths!.remove(image.hash);
+      }
+    }
+    var directory = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
+    if(!directory.existsSync()){
+      directory.create();
+    }
+    final gg = GG();
+    var url = await gg.urlFromUrlFromHash(galleryId, image, 'webp', null);
+    int l;
+    for(l = url.length-1;l>=0;l--){
+      if(url[l] == '.'){
+        break;
+      }
+    }
+    var fileName = image.hash + url.substring(l);
+    final savePath = "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
+    var dio = Dio();
+    dio.options.headers = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      "Referer": "https://hitomi.la/reader/$galleryId.html"
+    };
+    var file = File(savePath);
+    try{
+      var res =
+      await dio.get<ResponseBody>(url, options: Options(responseType: ResponseType.stream));
+      var stream = res.data!.stream;
+      int? expectedBytes;
+      try {
+        expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
+      }
+      catch(e){
+        try{
+          expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
+        }
+        catch(e){
+          //忽视
+        }
+      }
+      if(! file.existsSync()){
+        file.create();
+      }
+      var currentBytes = 0;
+      await for (var b in stream) {
+        //不直接写入文件, 因为禁漫太离谱了, 处理完成后再写入
+        file.writeAsBytesSync(b.toList(), mode: FileMode.append);
+        currentBytes += b.length;
+        yield DownloadProgress(currentBytes, expectedBytes??(currentBytes+1), url, savePath);
+      }
+      yield DownloadProgress(currentBytes, currentBytes, url, savePath);
+    }
+    catch(e){
+      if(file.existsSync()){
+        file.deleteSync();
+      }
+      rethrow;
+    }
+    await saveInfo(image.hash, savePath);
   }
 
   ///获取图片, 如果缓存中没有, 则尝试下载
@@ -168,7 +237,7 @@ class MyCacheManager{
       //此时为退出了阅读器, 数据已清除
       var file = File(savePath);
       file.deleteSync();
-      throw StateError("已退出阅读器");
+      return;
     }
     _paths![url] = savePath;
     //await saveData();

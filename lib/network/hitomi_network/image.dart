@@ -1,6 +1,11 @@
 import 'hitomi_models.dart';
 import 'package:dio/dio.dart';
 
+///获取图像url使用的一个临时的类
+///
+/// 需要发起一个网络请求获取gg.js并对其进行解析
+///
+/// gg.js内容会动态变化
 class GG{
   List<String> numbers = [];
   int mm(int g){
@@ -24,7 +29,16 @@ class GG{
 
   String? b;
 
+  ///通过缓存减少请求时间, 短时间内gg.js不会变化
+  static DateTime? cacheTime;
+  static String? cacheB;
+  static List<String>? cacheNumbers;
+
   Future<void> getGg(String galleryId) async{
+    if(cacheTime!=null && DateTime.now().millisecondsSinceEpoch - cacheTime!.millisecondsSinceEpoch < 60000){
+      numbers = cacheNumbers!;
+      b = cacheB!;
+    }
     var dio = Dio(BaseOptions(
         responseType: ResponseType.plain,
         headers: {
@@ -35,12 +49,15 @@ class GG{
     var res = await dio.get<String>("https://ltn.hitomi.la/gg.js?_=1683939645979");
     RegExp exp = RegExp(r'(?<=case )\d+');
     Iterable<RegExpMatch> matches = exp.allMatches(res.data!);
-    List<String> numbers = [];
+    numbers = [];
     for (RegExpMatch match in matches) {
       numbers.add(match.group(0)!);
     }
     exp = RegExp(r"(?<=b: ')\d+");
     b = exp.firstMatch(res.data!)![0];
+    cacheTime = DateTime.now();
+    cacheB = b;
+    cacheNumbers = numbers;
   }
 
   String subdomainFromUrl(String url, String? base){
@@ -62,7 +79,7 @@ class GG{
   }
 
   String fullPathFromHash(String hash) {
-    return '$b${GG.s(hash)}/$hash';
+    return '$b/${GG.s(hash)}/$hash';
   }
 
   String urlFromUrl(String url, String? base) {
@@ -75,8 +92,10 @@ class GG{
     return 'https://a.hitomi.la/$dir/${fullPathFromHash(image.hash)}.$ext';
   }
 
+  ///获取图像信息
   Future<String> urlFromUrlFromHash(String galleryId, HitomiFile image, String? dir, String? ext) async{
     await getGg(galleryId);
+    print(urlFromHash(image, dir, ext));
     return urlFromUrl(urlFromHash(image, dir, ext), 'a');
   }
 }
