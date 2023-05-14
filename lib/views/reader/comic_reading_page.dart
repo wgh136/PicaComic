@@ -11,6 +11,7 @@ import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
@@ -124,7 +125,7 @@ class ComicReadingPage extends StatelessWidget {
           },
           dispose: (logic) {
             //保存历史记录
-            if(type != ReadingType.ehentai) {
+            if(type != ReadingType.ehentai && type != ReadingType.hitomi) {
               if (logic.controller!.order == 1 && logic.controller!.index == 1) {
                 appdata.history.saveReadHistory(target, 0, 0);
               } else {
@@ -389,7 +390,7 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                   alignment: Alignment.topCenter,
                   child: SizedBox(
-                    width: 200,
+                    width: 250,
                     height: 40,
                     child: Row(
                       children: [
@@ -403,6 +404,10 @@ class ComicReadingPage extends StatelessWidget {
                         const SizedBox(width: 8,),
                         Expanded(child: FilledButton(
                           onPressed: () {
+                            if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+                              showMessage(context, "没有其它章节");
+                              return;
+                            }
                             if (MediaQuery.of(context).size.width > 600) {
                               showSideBar(context, buildEpsView(), title: null, useSurfaceTintColor: true, width: 400);
                             } else {

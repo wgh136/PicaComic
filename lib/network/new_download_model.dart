@@ -1,8 +1,26 @@
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'picacg_network/models.dart';
 
-class DownloadedComic{
+abstract class DownloadedItem{
+  ///漫画源
+  DownloadType get type;
+  ///漫画名
+  String get name;
+  ///章节
+  List<String> get eps;
+  ///已下载的章节
+  List<int> get downloadedEps;
+  ///标识符, 禁漫必须在前加jm
+  String get id;
+  ///副标题, 通常为作者
+  String get subTitle;
+  ///大小
+  double? get comicSize;
+}
+
+class DownloadedComic extends DownloadedItem{
   ComicItem comicItem;
   List<String> chapters;
   List<int> downloadedChapters;
@@ -28,9 +46,30 @@ class DownloadedComic{
       downloadedChapters = List<int>.from(json["downloadedChapters"]);
     }
   }
+
+  @override
+  DownloadType get type => DownloadType.picacg;
+
+  @override
+  List<int> get downloadedEps => downloadedChapters;
+
+  @override
+  List<String> get eps => chapters.sublist(1);
+
+  @override
+  String get name => comicItem.title;
+
+  @override
+  String get id => comicItem.id;
+
+  @override
+  String get subTitle => comicItem.author;
+
+  @override
+  double? get comicSize => size;
 }
 
-class DownloadedGallery{
+class DownloadedGallery extends DownloadedItem{
   Gallery gallery;
   double? size;
   DownloadedGallery(this.gallery,this.size);
@@ -41,9 +80,30 @@ class DownloadedGallery{
   DownloadedGallery.fromJson(Map<String, dynamic> map):
     gallery = Gallery.fromJson(map["gallery"]),
     size = map["size"];
+
+  @override
+  DownloadType get type => DownloadType.ehentai;
+
+  @override
+  List<int> get downloadedEps => [0];
+
+  @override
+  List<String> get eps => ["第一章"];
+
+  @override
+  String get name => gallery.title;
+
+  @override
+  String get id => getGalleryId(gallery.link);
+
+  @override
+  String get subTitle => gallery.uploader;
+
+  @override
+  double? get comicSize => size;
 }
 
-class DownloadedJmComic{
+class DownloadedJmComic extends DownloadedItem{
   JmComicInfo comic;
   double? size;
   List<int> downloadedChapters;
@@ -69,6 +129,27 @@ class DownloadedJmComic{
       downloadedChapters = List<int>.from(map["downloadedChapters"]);
     }
   }
+
+  @override
+  DownloadType get type => DownloadType.jm;
+
+  @override
+  List<int> get downloadedEps => downloadedChapters;
+
+  @override
+  List<String> get eps => List<String>.generate(comic.series.isEmpty?1:comic.series.length, (index) => "第${index+1}章");
+
+  @override
+  String get name => comic.name;
+
+  @override
+  String get id => "jm${comic.id}";
+
+  @override
+  String get subTitle => comic.author[0];
+
+  @override
+  double? get comicSize => size;
 }
 
 enum DownloadType{picacg, ehentai, jm}

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -27,16 +26,10 @@ class DownloadPageLogic extends GetxController {
   int selectedNum = 0;
 
   ///已选择的漫画
-  var selected = <List<bool>>[[], [], []];
+  var selected = <bool>[];
 
   ///已下载的漫画
-  var comics = <DownloadedComic>[];
-
-  ///已下载的禁漫漫画
-  var jmComics = <DownloadedJmComic>[];
-
-  ///已下载的画廊
-  var galleries = <DownloadedGallery>[];
+  var comics = <DownloadedItem>[];
 
   void change() {
     loading = !loading;
@@ -46,21 +39,16 @@ class DownloadPageLogic extends GetxController {
   void fresh() {
     selecting = false;
     selectedNum = 0;
-    selected[0].clear();
-    selected[1].clear();
-    selected[2].clear();
+    selected.clear();
     comics.clear();
-    jmComics.clear();
-    galleries.clear();
     change();
   }
 }
 
 class DownloadPage extends StatelessWidget {
-  const DownloadPage({this.noNetwork = false, Key? key}) : super(key: key);
+  const DownloadPage({Key? key}) : super(key: key);
 
-  ///无网络时直接跳过漫画详情页的加载
-  final bool noNetwork;
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +58,7 @@ class DownloadPage extends StatelessWidget {
           if (logic.loading) {
             getComics(logic).then((v) {
               for (var i = 0; i < logic.comics.length; i++) {
-                logic.selected[0].add(false);
-              }
-              for (var i = 0; i < logic.galleries.length; i++) {
-                logic.selected[1].add(false);
-              }
-              for (var i = 0; i < logic.jmComics.length; i++) {
-                logic.selected[2].add(false);
+                logic.selected.add(false);
               }
               logic.change();
             });
@@ -89,11 +71,8 @@ class DownloadPage extends StatelessWidget {
                         onPressed: () {
                           logic.selecting = false;
                           logic.selectedNum = 0;
-                          for (int i = 0; i < logic.selected[0].length; i++) {
-                            logic.selected[0][i] = false;
-                          }
-                          for (int i = 0; i < logic.selected[1].length; i++) {
-                            logic.selected[1][i] = false;
+                          for (int i = 0; i < logic.selected.length; i++) {
+                            logic.selected[i] = false;
                           }
                           logic.update();
                         },
@@ -130,16 +109,8 @@ class DownloadPage extends StatelessWidget {
                                 PopupMenuItem(
                                   child: const Text("全选"),
                                   onTap: () {
-                                    for (int i = 0; i < logic.selected[0].length; i++) {
-                                      logic.selected[0][i] = true;
-                                      logic.selectedNum++;
-                                    }
-                                    for (int i = 0; i < logic.selected[1].length; i++) {
-                                      logic.selected[1][i] = true;
-                                      logic.selectedNum++;
-                                    }
-                                    for (int i = 0; i < logic.selected[2].length; i++) {
-                                      logic.selected[2][i] = true;
+                                    for (int i = 0; i < logic.selected.length; i++) {
+                                      logic.selected[i] = true;
                                       logic.selectedNum++;
                                     }
                                     logic.update();
@@ -159,7 +130,7 @@ class DownloadPage extends StatelessWidget {
                                           context: context,
                                           barrierColor: Colors.black26,
                                           barrierDismissible: false,
-                                          builder: (context) => SimpleDialog(
+                                          builder: (context) => const SimpleDialog(
                                             children: [
                                               SizedBox(
                                                 width: 200,
@@ -169,7 +140,7 @@ class DownloadPage extends StatelessWidget {
                                                     width: 50,
                                                     height: 75,
                                                     child: Column(
-                                                      children: const [
+                                                      children: [
                                                         SizedBox(height: 10,),
                                                         CircularProgressIndicator(),
                                                         SizedBox(height: 9,),
@@ -218,19 +189,9 @@ class DownloadPage extends StatelessWidget {
                                   onPressed: () async {
                                     Get.back();
                                     var comics = <String>[];
-                                    for (int i = 0; i < logic.selected[0].length; i++) {
-                                      if (logic.selected[0][i]) {
-                                        comics.add(logic.comics[i].comicItem.id);
-                                      }
-                                    }
-                                    for (int i = 0; i < logic.selected[1].length; i++) {
-                                      if (logic.selected[1][i]) {
-                                        comics.add(getGalleryId(logic.galleries[i].gallery.link));
-                                      }
-                                    }
-                                    for (int i = 0; i < logic.selected[2].length; i++) {
-                                      if (logic.selected[2][i]) {
-                                        comics.add("jm${logic.jmComics[i].comic.id}");
+                                    for (int i = 0; i < logic.selected.length; i++) {
+                                      if (logic.selected[i]) {
+                                        comics.add(logic.comics[i].id);
                                       }
                                     }
                                     await downloadManager.delete(comics);
@@ -246,110 +207,19 @@ class DownloadPage extends StatelessWidget {
                     ? const Icon(Icons.delete_forever_outlined)
                     : const Icon(Icons.checklist_outlined),
               ),
-              body: DefaultTabController(
-                length: 3,
-                child: Column(
-                  children: [
-                    const TabBar(splashBorderRadius: BorderRadius.all(Radius.circular(10)), tabs: [
-                      Tab(
-                        text: "Picacg",
-                      ),
-                      Tab(
-                        text: "E-Hentai",
-                      ),
-                      Tab(
-                        text: "JmComic",
-                      )
-                    ]),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          CustomScrollView(
-                            slivers: [
-                              SliverGrid(
-                                delegate: SliverChildBuilderDelegate(
-                                    childCount: logic.comics.length, (context, index) {
-                                  var size = logic.comics[index].size;
-                                  String? s;
-                                  if (size != null) {
-                                    s = size.toStringAsFixed(2);
-                                  }
-                                  return buildItem(
-                                      context,
-                                      logic.comics[index].comicItem.id,
-                                      0,
-                                      index,
-                                      logic,
-                                      logic.comics[index].comicItem.title,
-                                      logic.comics[index].comicItem.author,
-                                      s ?? "未知");
-                                }),
-                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: comicTileMaxWidth,
-                                  childAspectRatio: comicTileAspectRatio,
-                                ),
-                              )
-                            ],
-                          ),
-                          CustomScrollView(
-                            slivers: [
-                              SliverGrid(
-                                delegate: SliverChildBuilderDelegate(
-                                    childCount: logic.galleries.length, (context, index) {
-                                  var size = logic.galleries[index].size;
-                                  String? s;
-                                  if (size != null) {
-                                    s = size.toStringAsFixed(2);
-                                  }
-                                  return buildItem(
-                                      context,
-                                      getGalleryId(logic.galleries[index].gallery.link),
-                                      1,
-                                      index,
-                                      logic,
-                                      logic.galleries[index].gallery.title,
-                                      logic.galleries[index].gallery.uploader,
-                                      s ?? "未知");
-                                }),
-                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: comicTileMaxWidth,
-                                  childAspectRatio: comicTileAspectRatio,
-                                ),
-                              )
-                            ],
-                          ),
-                          CustomScrollView(
-                            slivers: [
-                              SliverGrid(
-                                delegate: SliverChildBuilderDelegate(
-                                    childCount: logic.jmComics.length, (context, index) {
-                                  var size = logic.jmComics[index].size;
-                                  String? s;
-                                  if (size != null) {
-                                    s = size.toStringAsFixed(2);
-                                  }
-                                  return buildItem(
-                                      context,
-                                      "jm${logic.jmComics[index].comic.id}",
-                                      2,
-                                      index,
-                                      logic,
-                                      logic.jmComics[index].comic.name,
-                                      logic.jmComics[index].comic.author[0],
-                                      s ?? "未知");
-                                }),
-                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: comicTileMaxWidth,
-                                  childAspectRatio: comicTileAspectRatio,
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+              body: CustomScrollView(
+                slivers: [
+                  SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                        childCount: logic.comics.length, (context, index) {
+                      return buildItem(context, logic, index);
+                    }),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: comicTileMaxWidth,
+                      childAspectRatio: comicTileAspectRatio,
+                    ),
+                  )
+                ],
               ),
             );
           }
@@ -363,42 +233,29 @@ class DownloadPage extends StatelessWidget {
       }
 
       for (var gallery in (downloadManager.downloadedGalleries)) {
-        logic.galleries.add(await downloadManager.getGalleryFormId(gallery));
+        logic.comics.add(await downloadManager.getGalleryFormId(gallery));
       }
 
       for (var comic in (downloadManager.downloadedJmComics)) {
-        logic.jmComics.add(await downloadManager.getJmComicFormId(comic));
+        logic.comics.add(await downloadManager.getJmComicFormId(comic));
       }
     }
     catch(e){
-      logic.jmComics.clear();
-      logic.galleries.clear();
       logic.comics.clear();
       await getComics(logic);
     }
   }
 
   Future<void> export(DownloadPageLogic logic) async {
-    for (int i0 = 0; i0 < logic.selected.length; i0++) {
-      for (int i1 = 0; i1 < logic.selected[i0].length; i1++) {
-        if (logic.selected[i0][i1]) {
-          if (i0 == 0 || i0 == 1) {
-            exportComic(logic.comics[i1].comicItem.id);
-            return;
-          } else if (i0 == 1) {
-            exportComic(getGalleryId(logic.galleries[i1].gallery.link));
-            return;
-          } else if(i0 == 2){
-            exportComic("jm${logic.jmComics[i1].comic.id}");
-          }
-        }
+    for(int i = 0; i < logic.selected.length; i++){
+      if(logic.selected[i]){
+        exportComic(logic.comics[i].id);
       }
     }
   }
 
-  Widget buildItem(BuildContext context, String id, int index0, int index1, DownloadPageLogic logic,
-      String title, String subTitle, String size) {
-    bool selected = logic.selected[index0][index1];
+  Widget buildItem(BuildContext context, DownloadPageLogic logic, int index) {
+    bool selected = logic.selected[index];
     return GestureDetector(
         onSecondaryTapUp: (details) {
           showMenu(
@@ -408,15 +265,9 @@ class DownloadPage extends StatelessWidget {
               items: [
                 PopupMenuItem(
                   onTap: () {
-                    downloadManager.delete([id]);
-                    if (index0 == 0) {
-                      logic.comics.removeAt(index1);
-                    } else if (index0 == 1) {
-                      logic.galleries.removeAt(index1);
-                    } else if (index0 == 2) {
-                      logic.jmComics.removeAt(index1);
-                    }
-                    logic.selected[index0].removeAt(index1);
+                    downloadManager.delete([logic.comics[index].id]);
+                    logic.comics.removeAt(index);
+                    logic.selected.removeAt(index);
                     logic.update();
                   },
                   child: const Text("删除"),
@@ -430,7 +281,7 @@ class DownloadPage extends StatelessWidget {
                         context: context,
                         barrierDismissible: false,
                         barrierColor: Colors.black26,
-                        builder: (context) => SimpleDialog(
+                        builder: (context) => const SimpleDialog(
                           children: [
                             SizedBox(
                               width: 200,
@@ -440,7 +291,7 @@ class DownloadPage extends StatelessWidget {
                                   width: 50,
                                   height: 80,
                                   child: Column(
-                                    children: const [
+                                    children: [
                                       SizedBox(height: 10,),
                                       CircularProgressIndicator(),
                                       SizedBox(height: 9,),
@@ -455,20 +306,18 @@ class DownloadPage extends StatelessWidget {
                       ),
                     );
                     Future<void>.delayed(const Duration(milliseconds: 500), () {
-                      exportComic(id);
+                      exportComic(logic.comics[index].id);
                     });
                   },
                 ),
                 PopupMenuItem(
                   child: const Text("查看漫画详情"),
                   onTap: () {
-                    var i = index0;
-                    var j = index1;
                     Future.delayed(const Duration(milliseconds: 300), (){
-                      switch(i){
-                        case 0: Get.to(()=>ComicPage(logic.comics[j].comicItem.toBrief()));break;
-                        case 1: Get.to(()=>EhGalleryPage(logic.galleries[j].gallery.toBrief()));break;
-                        case 2: Get.to(()=>JmComicPage(logic.jmComics[j].comic.id));break;
+                      switch(logic.comics[index].type.index){
+                        case 0: Get.to(()=>ComicPage((logic.comics[index] as DownloadedComic).comicItem.toBrief()));break;
+                        case 1: Get.to(()=>EhGalleryPage((logic.comics[index] as DownloadedGallery).gallery.toBrief()));break;
+                        case 2: Get.to(()=>JmComicPage((logic.comics[index] as DownloadedJmComic).comic.id));break;
                       }
                     });
                   },
@@ -479,31 +328,30 @@ class DownloadPage extends StatelessWidget {
           decoration: BoxDecoration(
               color: selected ? const Color.fromARGB(100, 121, 125, 127) : Colors.transparent),
           child: ComicTile(
-            ComicItemBrief(title, subTitle, 0, "", id),
+            ComicItemBrief(logic.comics[index].name, logic.comics[index].subTitle, 0, "", logic.comics[index].id),
             downloaded: true,
             onTap: () async {
               if (logic.selecting) {
-                logic.selected[index0][index1] = !logic.selected[index0][index1];
-                logic.selected[index0][index1] ? logic.selectedNum++ : logic.selectedNum--;
+                logic.selected[index] = !logic.selected[index];
+                logic.selected[index] ? logic.selectedNum++ : logic.selectedNum--;
                 if (logic.selectedNum == 0) {
                   logic.selecting = false;
                 }
                 logic.update();
               } else {
-                if (index0 == 0) {
-                  showInfo(index0, index1, logic, context);
-                } else if (index0 == 1) {
-                  readEhGallery(
-                      logic.galleries[index1].gallery);
-                } else if (index0 == 2) {
-                  showInfo(index0, index1, logic, context);
-                }
+                showInfo(index, logic, context);
               }
             },
-            size: size,
+            size: (){
+              if(logic.comics[index].comicSize != null) {
+                return "${logic.comics[index].comicSize!.toStringAsFixed(2)}Mb";
+              }else{
+                return "未知大小";
+              }
+            }.call(),
             onLongTap: () {
               if (logic.selecting) return;
-              logic.selected[index0][index1] = true;
+              logic.selected[index] = true;
               logic.selectedNum++;
               logic.selecting = true;
               logic.update();
@@ -516,37 +364,32 @@ class DownloadPage extends StatelessWidget {
     if(logic.selectedNum != 1){
       showMessage(Get.context, "请选择一个漫画");
     }else{
-      for(int i = 0;i<logic.selected.length;i++){
-        for(int j = 0;j<logic.selected[i].length;j++){
-          if(logic.selected[i][j]){
-            Future.delayed(const Duration(milliseconds: 300), (){
-              switch(i){
-                case 0: Get.to(()=>ComicPage(logic.comics[j].comicItem.toBrief()));break;
-                case 1: Get.to(()=>EhGalleryPage(logic.galleries[j].gallery.toBrief()));break;
-                case 2: Get.to(()=>JmComicPage(logic.jmComics[j].comic.id));break;
-              }
-            });
+      for(int i = 0; i<logic.selected.length;i++){
+        if(logic.selected[i]){
+          switch(logic.comics[i].type.index){
+            case 0: Get.to(()=>ComicPage((logic.comics[i] as DownloadedComic).comicItem.toBrief()));break;
+            case 1: Get.to(()=>EhGalleryPage((logic.comics[i] as DownloadedGallery).gallery.toBrief()));break;
+            case 2: Get.to(()=>JmComicPage(logic.comics[i].id.substring(2)));break;
           }
         }
       }
     }
   }
 
-  void showInfo(int index0, int index1, DownloadPageLogic logic, BuildContext context){
+  void showInfo(int index, DownloadPageLogic logic, BuildContext context){
     if(UiMode.m1(context)){
       showModalBottomSheet(context: context, builder: (context){
-        return DownloadedComicInfoView(index0, index1, logic);
+        return DownloadedComicInfoView(logic.comics[index], logic);
       });
     }else{
-      showSideBar(context, DownloadedComicInfoView(index0, index1, logic),useSurfaceTintColor: true);
+      showSideBar(context, DownloadedComicInfoView(logic.comics[index], logic),useSurfaceTintColor: true);
     }
   }
 }
 
 class DownloadedComicInfoView extends StatefulWidget {
-  const DownloadedComicInfoView(this.index0, this.index1, this.logic, {Key? key}) : super(key: key);
-  final int index0;
-  final int index1;
+  const DownloadedComicInfoView(this.item, this.logic, {Key? key}) : super(key: key);
+  final DownloadedItem item;
   final DownloadPageLogic logic;
 
   @override
@@ -557,9 +400,11 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
   String name = "";
   List<String> eps = [];
   List<int> downloadedEps = [];
+  late final comic = widget.item;
 
   @override
   Widget build(BuildContext context) {
+
     getInfo();
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -606,10 +451,12 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
               child: Row(
                 children: [
                   Expanded(child: FilledButton(onPressed: (){
-                    switch(widget.index0){
-                      case 0: Get.to(()=>ComicPage(widget.logic.comics[widget.index1].comicItem.toBrief()));break;
-                      case 1: Get.to(()=>EhGalleryPage(widget.logic.galleries[widget.index1].gallery.toBrief()));break;
-                      case 2: Get.to(()=>JmComicPage(widget.logic.jmComics[widget.index1].comic.id));break;
+                    if(widget.item is DownloadedComic){
+                      Get.to(()=>ComicPage((widget.item as DownloadedComic).comicItem.toBrief()));
+                    }else if(widget.item is DownloadedJmComic){
+                      Get.to(()=>EhGalleryPage((widget.item as DownloadedGallery).gallery.toBrief()));
+                    }else if(widget.item is DownloadedJmComic){
+                      Get.to(()=>JmComicPage((widget.item as DownloadedJmComic).comic.id));
                     }
                   }, child: const Text("查看详情")),),
                   const SizedBox(width: 16,),
@@ -626,47 +473,34 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
   }
 
   void getInfo(){
-    switch(widget.index0){
-      case 0:
-        name = widget.logic.comics[widget.index1].comicItem.title;
-        eps = widget.logic.comics[widget.index1].chapters.sublist(1);
-        downloadedEps = widget.logic.comics[widget.index1].downloadedChapters;
-        break;
-      case 2:
-        name = widget.logic.jmComics[widget.index1].comic.name;
-        eps = List<String>.generate( widget.logic.jmComics[widget.index1].comic.series.length, (index) => "第${index+1}章");
-        if(eps.isEmpty){
-          eps.add("第1章");
-        }
-        downloadedEps = widget.logic.jmComics[widget.index1].downloadedChapters;
-        break;
-    }
+    name = comic.name;
+    eps = comic.eps;
+    downloadedEps = comic.downloadedEps;
   }
 
   void read(){
-    var index0 = widget.index0;
-    var index1 = widget.index1;
-    if (index0 == 0) {
-      readPicacgComic(widget.logic.comics[index1].comicItem, widget.logic.comics[index1].chapters);
-    } else if (index0 == 1) {
+    if (comic.type == DownloadType.picacg) {
+      readPicacgComic((comic as DownloadedComic).comicItem, ["",...comic.eps]);
+    } else if (comic.type == DownloadType.ehentai) {
       readEhGallery(
-          widget.logic.galleries[index1].gallery);
-    } else if (index0 == 2) {
-      readJmComic(widget.logic.jmComics[index1].comic,
-          widget.logic.jmComics[index1].comic.series.values.toList());
+          (comic as DownloadedGallery).gallery);
+    } else if (comic.type == DownloadType.jm) {
+      readJmComic((comic as DownloadedJmComic).comic,
+          (comic as DownloadedJmComic).comic.series.values.toList());
     }
   }
 
   void readSpecifiedEps(int i){
-    var index0 = widget.index0;
-    var index1 = widget.index1;
-    if(index0 == 0){
-      addPicacgHistory(widget.logic.comics[index1].comicItem);
+    if(comic.type == DownloadType.picacg){
+      addPicacgHistory((comic as DownloadedComic).comicItem);
       Get.to(() =>
-          ComicReadingPage.picacg(widget.logic.comics[index1].comicItem.id, i+1, widget.logic.comics[index1].chapters, widget.logic.comics[index1].comicItem.title));
-    }else if(index0 == 2){
-      addJmHistory(widget.logic.jmComics[widget.index1].comic);
-      Get.to(() => ComicReadingPage.jmComic(widget.logic.jmComics[widget.index1].comic.id, widget.logic.jmComics[widget.index1].comic.name, widget.logic.jmComics[widget.index1].comic.series.values.toList(), i+1));
+          ComicReadingPage.picacg((comic as DownloadedComic).comicItem.id, i+1, (comic as DownloadedComic).chapters, (comic as DownloadedComic).comicItem.title));
+    }else if(comic.type == DownloadType.jm){
+      addJmHistory((comic as DownloadedJmComic).comic);
+      Get.to(() => ComicReadingPage.jmComic((comic as DownloadedJmComic).comic.id, (comic as DownloadedJmComic).comic.name, (comic as DownloadedJmComic).comic.series.values.toList(), i+1));
+    }else if(comic.type == DownloadType.ehentai){
+      readEhGallery(
+          (comic as DownloadedGallery).gallery);
     }
   }
 }

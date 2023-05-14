@@ -59,7 +59,10 @@ class JmPromoteListPage extends StatelessWidget {
             return CustomScrollView(
               slivers: [
                 SliverAppBar.large(
-                  title: Text(title),
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 40),
+                    child: Text(title),
+                  ),
                 ),
                 SliverGrid(
                   delegate: SliverChildBuilderDelegate(

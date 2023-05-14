@@ -260,6 +260,7 @@ class HitomiComicPage extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onPressed: (){
+                showMessage(context, "敬请期待");
                 //TODO
               },
               child: const Text("下载"),

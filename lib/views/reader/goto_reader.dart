@@ -9,7 +9,7 @@ import '../../network/jm_network/jm_models.dart';
 import 'comic_reading_page.dart';
 import 'package:flutter/material.dart';
 
-void addPicacgHistory(ComicItem comic){
+Future<void> addPicacgHistory(ComicItem comic) async{
   var history = NewHistory(
       HistoryType.picacg,
       DateTime.now(),
@@ -20,10 +20,10 @@ void addPicacgHistory(ComicItem comic){
       0,
       comic.id
   );
-  appdata.history.addHistory(history);
+  await appdata.history.addHistory(history);
 }
 
-void addEhHistory(Gallery gallery){
+Future<void> addEhHistory(Gallery gallery) async{
   var history = NewHistory(
       HistoryType.ehentai,
       DateTime.now(),
@@ -34,10 +34,10 @@ void addEhHistory(Gallery gallery){
       0,
       gallery.link
   );
-  appdata.history.addHistory(history);
+  await appdata.history.addHistory(history);
 }
 
-void addJmHistory(JmComicInfo comic){
+Future<void> addJmHistory(JmComicInfo comic) async{
   var history = NewHistory(
       HistoryType.jmComic,
       DateTime.now(),
@@ -48,11 +48,25 @@ void addJmHistory(JmComicInfo comic){
       0,
       comic.id
   );
-  appdata.history.addHistory(history);
+  await appdata.history.addHistory(history);
+}
+
+Future<void> addHitomiHistory(HitomiComic comic, String cover) async{
+  var history = NewHistory(
+      HistoryType.hitomi,
+      DateTime.now(),
+      comic.name,
+      (comic.artists??["未知"])[0],
+      cover,
+      0,
+      0,
+      comic.id
+  );
+  await appdata.history.addHistory(history);
 }
 
 void readPicacgComic(ComicItem comic, List<String> epsStr) async{
-  addPicacgHistory(comic);
+  await addPicacgHistory(comic);
   var history = await appdata.history.find(comic.id);
   var id = comic.id;
   var name = comic.title;
@@ -111,7 +125,7 @@ void readEhGallery(Gallery gallery) async{
 }
 
 void readJmComic(JmComicInfo comic, List<String> eps) async{
-  addJmHistory(comic);
+  await addJmHistory(comic);
   var id = comic.id;
   var name = comic.name;
   var history = await appdata.history.find(id);
@@ -141,6 +155,7 @@ void readJmComic(JmComicInfo comic, List<String> eps) async{
 }
 
 void readHitomiComic(HitomiComic comic, String cover) async{
+  await addHitomiHistory(comic, cover);
   var history = await appdata.history.find(comic.id);
   if(history!=null){
     if(history.ep!=0){

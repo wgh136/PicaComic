@@ -67,7 +67,7 @@ class JmCategoryPage extends StatelessWidget {
               onPressed: () async{
                 var res = await setJmComicsOrder(context);
                 if(!res) {
-                  Get.find<CategoryPageLogic>().refresh_();
+                  Get.find<CategoryPageLogic>(tag: "jm").refresh_();
                 }
               },
             ),
@@ -76,6 +76,7 @@ class JmCategoryPage extends StatelessWidget {
       ),
       body: GetBuilder<CategoryPageLogic>(
         init: CategoryPageLogic(),
+        tag: "jm",
         builder: (logic){
           if(logic.loading){
             logic.get(category, fromHomePage: fromHomePage);

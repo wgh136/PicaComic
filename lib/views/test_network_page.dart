@@ -102,7 +102,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                                 showMessage(context, "Web端不支持下载");
                                 return;
                               }
-                              Get.to(()=>const DownloadPage(noNetwork: true,));
+                              Get.to(()=>const DownloadPage());
                             },
                             child: const Text("已下载"),
                           ),

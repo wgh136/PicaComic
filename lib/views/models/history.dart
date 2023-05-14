@@ -139,13 +139,12 @@ class HistoryManager{
       await file.create();
     }
     file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
-    _open = false;
-    history.clear();
+    //_open = false;
+    //history.clear();
   }
 
   void close() async{
-    _open = false;
-    history.clear();
+    saveDataAndClose();
   }
 
   Future<void> readData() async{
@@ -183,7 +182,9 @@ class HistoryManager{
         history.remove(history.last);
       }
     }
-    saveDataAndClose();
+    finally{
+      saveDataAndClose();
+    }
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
