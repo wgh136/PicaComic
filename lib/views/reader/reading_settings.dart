@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/widgets/widgets.dart';
 import '../../tools/keep_screen_on.dart';
 import 'reading_logic.dart';
 
@@ -268,5 +269,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.tools = false;
     logic.showSettings = false;
     logic.update();
+    showMessage(Get.context, i==4?"双击屏幕打开工具栏":"点击屏幕中部打开工具栏", time: 3);
   }
 }

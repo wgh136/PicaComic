@@ -100,7 +100,13 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
     right: 0,
     child: GestureDetector(
       onDoubleTap: (){
-        //防误触
+        if(appdata.settings[9] == "4"){
+          if (!logic.tools) {
+            logic.tools = true;
+            logic.update();
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+          }
+        }
       },
       onTapUp: (detail) {
         bool flag = false;
@@ -144,6 +150,9 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
           flag = flag2 = true;
         }
         if (flag && flag2) {
+          if(!logic.tools && appdata.settings[9] == "4"){
+            return;
+          }
           if (logic.showSettings) {
             logic.showSettings = false;
             logic.update();
