@@ -104,6 +104,7 @@ class PreSearchPage extends StatelessWidget {
                                 },
                               ),
                             ),
+                            if(appdata.settings[21][1] == "1")
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: FilterChip(
@@ -114,6 +115,7 @@ class PreSearchPage extends StatelessWidget {
                                 },
                               ),
                             ),
+                            if(appdata.settings[21][2] == "1")
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: FilterChip(
@@ -124,6 +126,7 @@ class PreSearchPage extends StatelessWidget {
                                 },
                               ),
                             ),
+                            if(appdata.settings[21][3] == "1")
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: FilterChip(
@@ -134,6 +137,7 @@ class PreSearchPage extends StatelessWidget {
                                 },
                               ),
                             ),
+                            if(appdata.settings[21][2] == "1")
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: ActionChip(
@@ -345,6 +349,7 @@ class PreSearchPage extends StatelessWidget {
                 ),
               ),
             ),
+            if(appdata.settings[21][2] == "1")
             SliverToBoxAdapter(
               child: Card(
                 margin: const EdgeInsets.all(10),
