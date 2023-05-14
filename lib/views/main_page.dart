@@ -234,7 +234,38 @@ class _MainPageState extends State<MainPage> {
       ):null,
       floatingActionButton: i!=0?FloatingActionButton(
         onPressed: () {
-          //TODO
+          if(i==1){
+            int page = exploreListener.getIndex();
+            var logics = [
+              () => Get.find<HomePageLogic>().refresh_(),
+              () => Get.find<GamesPageLogic>().refresh_(),
+              if(appdata.settings[21][1] == "1")
+                () => Get.find<EhHomePageLogic>().refresh_(),
+              if(appdata.settings[21][1] == "1")
+                () => Get.find<EhPopularPageLogic>().refresh_(),
+              if(appdata.settings[21][2] == "1")
+                () => Get.find<JmHomePageLogic>().refresh_(),
+              if(appdata.settings[21][2] == "1")
+                () => Get.find<JmLatestPageLogic>().refresh_(),
+              if(appdata.settings[21][3] == "1")
+                () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageAll).refresh_(),
+              if(appdata.settings[21][3] == "1")
+                () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageCn).refresh_(),
+              if(appdata.settings[21][3] == "1")
+                () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageJp).refresh_(),
+            ];
+            logics[page]();
+          } else if (i == 2) {
+            int page = categoriesListener.getIndex();
+            var logics = [
+              () => Get.find<CategoriesPageLogic>().refresh_(),
+              if(appdata.settings[21][2] == "1")
+                () => Get.find<JmCategoriesPageLogic>().refresh_(),
+              if(appdata.settings[21][2] == "1")
+                (){}
+            ];
+            logics[page]();
+          }
         },
         child: const Icon(Icons.refresh),
       ):null,
