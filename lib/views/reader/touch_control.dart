@@ -101,8 +101,18 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
     child: GestureDetector(
       onDoubleTap: (){
         if(appdata.settings[9] == "4"){
+          if (logic.showSettings) {
+            logic.showSettings = false;
+            logic.update();
+            return;
+          }
           if (!logic.tools) {
             logic.tools = true;
+            logic.update();
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+            return;
+          }else{
+            logic.tools = false;
             logic.update();
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
           }
