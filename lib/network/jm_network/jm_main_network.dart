@@ -331,7 +331,7 @@ class JmNetwork {
   Future<Res<SearchRes>> search(String keyword) async {
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
-    appdata.writeData();
+    appdata.writeHistory();
     var res = await get("$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);

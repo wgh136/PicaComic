@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/category_page.dart';
+import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
-import 'package:pica_comic/views/hitomi_views/hitomi_main_page.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
-import 'package:pica_comic/views/jm_views/jm_main_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
-import 'package:pica_comic/views/pic_views/picacg_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
-import 'package:pica_comic/views/eh_views/ehentai_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -46,38 +44,16 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   var updateFlag = true;
-  var downloadFlag = true;
   var downloadManagerFlag = true;
 
-  List<Destination> destinations = <Destination>[
-    const Destination(
-        '最近阅读', Icon(Icons.history), Icon(Icons.history)),
-    const Destination(
-        '排行榜', Icon(Icons.leaderboard), Icon(Icons.leaderboard)),
-    const Destination(
-        '设置', Icon(Icons.settings), Icon(Icons.settings)),
-  ];
-
   int i = 0;//页面
-  int m = 0;//导航栏页面
-  TabListener picListener = TabListener();
-  TabListener ehListener = TabListener();
-  TabListener jmListener = TabListener();
-  TabListener hiListener = TabListener();
-
-  var titles = [
-    "我",
-    "探索",
-    "分类",
-    "游戏"
-  ];
+  TabListener exploreListener = TabListener();
+  TabListener categoriesListener = TabListener();
 
   late var pages = [
     MePage(),
-    PicacgPage(picListener),
-    EhentaiPage(ehListener),
-    JmMainPage(jmListener),
-    HitomiPage(hiListener),
+    ExplorePageWithGetControl(exploreListener),
+    CategoryPageWithGetControl(categoriesListener),
   ];
 
   @override
@@ -93,6 +69,8 @@ class _MainPageState extends State<MainPage> {
     Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageAll);
     Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageCn);
     Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageJp);
+    Get.put(ExplorePageLogic());
+    Get.put(CategoryPageLogic());
     super.initState();
   }
 
@@ -216,10 +194,8 @@ class _MainPageState extends State<MainPage> {
 
     var titles = [
       "我",
-      "Picacg",
-      "EHentai",
-      "JmComic",
-      "Hitomi"
+      "探索",
+      "分类",
     ];
 
     return Scaffold(
@@ -258,30 +234,7 @@ class _MainPageState extends State<MainPage> {
       ):null,
       floatingActionButton: i!=0?FloatingActionButton(
         onPressed: () {
-          if(i == 1){
-            switch(picListener.getIndex()){
-              case 0: Get.find<HomePageLogic>().refresh_();break;
-              case 1: Get.find<CategoriesPageLogic>().refresh_();break;
-              case 2: Get.find<GamesPageLogic>().refresh_();break;
-            }
-          }else if(i == 2){
-            switch(ehListener.getIndex()){
-              case 0: Get.find<EhHomePageLogic>().refresh_();break;
-              case 1: Get.find<EhPopularPageLogic>().refresh_();break;
-            }
-          }else if(i == 3){
-            switch(jmListener.getIndex()){
-              case 0: Get.find<JmHomePageLogic>().refresh_();break;
-              case 1: Get.find<JmLatestPageLogic>().refresh_();break;
-              case 2: Get.find<JmCategoriesPageLogic>().refresh_();break;
-            }
-          }else if(i == 4){
-            switch(hiListener.getIndex()){
-              case 0: Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageAll).refresh_();break;
-              case 1: Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageCn).refresh_();break;
-              case 2: Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageJp).refresh_();break;
-            }
-          }
+          //TODO
         },
         child: const Icon(Icons.refresh),
       ):null,
@@ -299,19 +252,11 @@ class _MainPageState extends State<MainPage> {
           ),
           NavigationDestination(
             icon: Icon(Icons.explore),
-            label: 'Picacg',
+            label: '探索',
           ),
           NavigationDestination(
-            icon: Icon(MyIcons.eh, size: 20,),
-            label: 'Ehentai',
-          ),
-          NavigationDestination(
-            icon: Icon(MyIcons.jm, size: 18,),
-            label: 'JmComic',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.book,),
-            label: 'Hitomi',
+            icon: Icon(Icons.account_tree, size: 20,),
+            label: '分类',
           ),
         ],
       ),
@@ -357,10 +302,8 @@ class _MainPageState extends State<MainPage> {
                         const Text("      Pica Comic"),
                         const SizedBox(height: 10,),
                         NavigatorItem(Icons.person_outlined,Icons.person, "我",i==0,()=>setState(()=>i=0)),
-                        NavigatorItem(Icons.explore_outlined,Icons.explore, "Picacg",i==1,()=>setState(()=>i=1)),
-                        NavigatorItem(MyIcons.eh,MyIcons.eh, "Ehentai",i==2,()=>setState(()=>i=2)),
-                        NavigatorItem(MyIcons.jm,MyIcons.jm, "JmComic",i==3,()=>setState(()=>i=3)),
-                        NavigatorItem(Icons.book_outlined,Icons.book, "Hitomi",i==3,()=>setState(()=>i=4)),
+                        NavigatorItem(Icons.explore_outlined,Icons.explore, "探索",i==1,()=>setState(()=>i=1)),
+                        NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类",i==2,()=>setState(()=>i=2)),
                         const Divider(),
                         const Spacer(),
                         NavigatorItem(Icons.search,Icons.games, "搜索",false,()=>Get.to(()=>PreSearchPage())),
@@ -409,22 +352,12 @@ class _MainPageState extends State<MainPage> {
                       NavigationRailDestination(
                         icon: Icon(Icons.explore_outlined),
                         selectedIcon: Icon(Icons.explore),
-                        label: Text('Picacg'),
+                        label: Text('探索'),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(MyIcons.eh, size: 20,),
-                        selectedIcon: Icon(MyIcons.eh, size: 20,),
-                        label: Text('EHentai'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(MyIcons.jm, size: 18,),
-                        selectedIcon: Icon(MyIcons.jm, size: 18,),
-                        label: Text('JmComic'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.book_outlined,),
-                        selectedIcon: Icon(Icons.book,),
-                        label: Text('Hitomi'),
+                        icon: Icon(Icons.account_tree_outlined),
+                        selectedIcon: Icon(Icons.account_tree),
+                        label: Text('分类'),
                       ),
                     ],
                   ),

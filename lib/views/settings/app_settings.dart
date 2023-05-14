@@ -1,3 +1,5 @@
+import 'package:pica_comic/views/category_page.dart';
+import 'package:pica_comic/views/explore_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../network/update.dart';
 import '../../tools/io_tools.dart';
@@ -238,5 +240,61 @@ class ReadingMethodLogic extends GetxController {
     value = i;
     appdata.settings[9] = value.toString();
     update();
+  }
+}
+
+void setComicSource(BuildContext context){
+  showDialog(context: context, builder: (context){
+    return const SimpleDialog(
+      title: Text("设置漫画源"),
+      children: [
+        SizedBox(width: 400,),
+        ComicSourceSetting(),
+      ],
+    );
+  });
+}
+
+class ComicSourceSetting extends StatefulWidget {
+  const ComicSourceSetting({Key? key}) : super(key: key);
+
+  @override
+  State<ComicSourceSetting> createState() => _ComicSourceSettingState();
+}
+
+class _ComicSourceSettingState extends State<ComicSourceSetting> {
+  @override
+  void dispose() {
+    Future.delayed(const Duration(milliseconds: 500),(){
+      Get.find<CategoryPageLogic>().update();
+      Get.find<ExplorePageLogic>().update();
+    });
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var titles = ["Picacg(不能禁用)", "E-hentai", "禁漫天堂", "Hitomi.la"];
+    return SizedBox(
+      child: Column(
+        children: [
+          for(int i = 0; i < 4; i++)
+          CheckboxListTile(
+            value: appdata.settings[21][i]=="1",
+            onChanged: (b){
+              setState(() {
+                if(b!){
+                  appdata.settings[21] = appdata.settings[21].replaceRange(i, i+1, '1');
+                }else{
+                  appdata.settings[21] = appdata.settings[21].replaceRange(i, i+1, '0');
+                }
+              });
+            },
+            enabled: i!=0,
+            title: Text(titles[i]),
+          ),
+        ],
+      ),
+    );
   }
 }

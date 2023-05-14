@@ -52,10 +52,10 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   Widget build(BuildContext context) {
     return DefaultTabController(length: 4, child: Scaffold(
       appBar: AppBar(title:
-        const TabBar(
-          splashBorderRadius: BorderRadius.all(Radius.circular(10)),
-          isScrollable: true,
-          tabs: [
+        TabBar(
+          splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+          isScrollable: MediaQuery.of(context).size.width<450?true:false,
+          tabs: const [
             Tab(text: "Picacg",),
             Tab(text: "E-Hentai",),
             Tab(text: "JmComic",),

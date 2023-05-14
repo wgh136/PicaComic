@@ -159,7 +159,7 @@ class HiNetwork{
     await getProxy();
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
-    appdata.writeData();
+    appdata.writeHistory();
     dynamic res;
     try{
       var dio = Dio(BaseOptions(

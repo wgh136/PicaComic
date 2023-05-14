@@ -67,6 +67,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           setProxy(context);
                         },
                       ),
+                    ListTile(
+                      leading: Icon(Icons.source, color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("启用的漫画源"),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => setComicSource(context),
+                    )
                   ],
                 ),
               ),

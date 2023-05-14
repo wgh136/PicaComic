@@ -54,6 +54,7 @@ class Appdata{
     "0", //18 夜间模式降低图片亮度
     "0", //19 Jm搜索漫画排序模式, 值为 ComicsOrder 的索引
     "0", //20 Eh画廊站点, 1表示e-hentai, 2表示exhentai
+    "111111", //21 启用的漫画源
   ];
   List<String> blockingKeyword = [];
   List<String> firstUse = [
@@ -126,6 +127,11 @@ class Appdata{
     await s.setStringList("firstUse", firstUse);
   }
 
+  void writeHistory() async{
+    var s = await SharedPreferences.getInstance();
+    await s.setStringList("search", searchHistory);
+  }
+
   Future<void> writeData() async{
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
@@ -138,7 +144,6 @@ class Appdata{
     await s.setString("userTitle", user.title);
     await s.setString("appChannel",appChannel);
     await s.setStringList("settings", settings);
-    await s.setStringList("search", searchHistory);
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
     await s.setString("image", imageQuality);

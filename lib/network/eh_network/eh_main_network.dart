@@ -403,7 +403,7 @@ class EhNetwork{
     if(keyword!=""){
       appdata.searchHistory.remove(keyword);
       appdata.searchHistory.add(keyword);
-      appdata.writeData();
+      appdata.writeHistory();
     }
     var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword");
     Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
