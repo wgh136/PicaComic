@@ -10,13 +10,14 @@
 
 目前支持Android, Windows, Web
 
-Web端仅支持picacg且长期未更新, 因为太麻烦了
-
-Web端地址 [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
+Web端仅支持picacg且长期未更新, 因为太麻烦了.
+地址: [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 
 欢迎提出问题和功能建议
 
 请尽量使用官方App
+
+**注意: 本项目更新频繁, 且本人有强迫症, 可能因为一个小问题的修复单独发一个版本, 如果无法接受可以关闭App的更新检查**
 
 ## 已实现的功能
 ### Picacg
