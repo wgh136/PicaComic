@@ -15,10 +15,12 @@ class AllFavoritesPage extends StatefulWidget {
 
 class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerProviderStateMixin{
   late TabController controller;
+  int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1]) +
+      int.parse(appdata.settings[21][2]);
 
   @override
   void initState() {
-    controller = TabController(length: 3, vsync: this);
+    controller = TabController(length: pages, vsync: this);
     Get.put(FavoritesPageLogic());
     Get.put(EhFavouritePageLogic());
     Get.put(JmFavoritePageLogic());
@@ -77,19 +79,23 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
         children: [
           TabBar(
             splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-            tabs: const [
-              Tab(text: "Picacg",),
-              Tab(text: "EHentai",),
-              Tab(text: "JmComic",)
+            tabs: [
+              const Tab(text: "Picacg",),
+              if(appdata.settings[21][1] == "1")
+                const Tab(text: "EHentai",),
+              if(appdata.settings[21][2] == "1")
+                const Tab(text: "JmComic",)
             ],
             controller: controller,),
           Expanded(
             child: TabBarView(
               controller: controller,
-              children: const [
-                FavoritesPage(),
-                EhFavouritePage(),
-                JmFavoritePage()
+              children: [
+                const FavoritesPage(),
+                if(appdata.settings[21][1] == "1")
+                  const EhFavouritePage(),
+                if(appdata.settings[21][2] == "1")
+                  const JmFavoritePage()
               ],
             ),
           )
