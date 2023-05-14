@@ -50,16 +50,21 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 4, child: Scaffold(
+    int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1]) +
+        int.parse(appdata.settings[21][2]) + int.parse(appdata.settings[21][3]);
+    return DefaultTabController(length: pages, child: Scaffold(
       appBar: AppBar(title:
         TabBar(
           splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-          isScrollable: MediaQuery.of(context).size.width<450?true:false,
-          tabs: const [
-            Tab(text: "Picacg",),
-            Tab(text: "E-Hentai",),
-            Tab(text: "JmComic",),
-            Tab(text: "Hitomi",),
+          isScrollable: (MediaQuery.of(context).size.width<450?true:false) && pages>3,
+          tabs: [
+            const Tab(text: "Picacg",),
+            if(appdata.settings[21][1] == "1")
+              const Tab(text: "E-Hentai",),
+            if(appdata.settings[21][2] == "1")
+              const Tab(text: "JmComic",),
+            if(appdata.settings[21][3] == "1")
+              const Tab(text: "Hitomi",),
           ],
       ),),
       body: TabBarView(children: [
@@ -78,9 +83,12 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
             ],
           ),
         ),
-        const EhLeaderboardPage(),
-        const JmLeaderboardPage(),
-        const HitomiLeaderboardPage()
+        if(appdata.settings[21][1] == "1")
+          const EhLeaderboardPage(),
+        if(appdata.settings[21][2] == "1")
+          const JmLeaderboardPage(),
+        if(appdata.settings[21][3] == "1")
+          const HitomiLeaderboardPage()
       ],),
     ));
   }
