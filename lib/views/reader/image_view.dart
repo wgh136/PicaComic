@@ -36,7 +36,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
           frameBuilder: (context, widget, i, b) {
-            return ConstrainedBox(constraints: BoxConstraints(minHeight: 300), child: widget,);
+            return ConstrainedBox(constraints: const BoxConstraints(minHeight: 300), child: widget,);
           },
           loadingBuilder: (context, widget, event) {
             if (event == null) {
@@ -55,6 +55,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             }
           },
           errorBuilder: (context, s, d) => const SizedBox(
+            height: 300,
             child: Center(
               child: Icon(
                 Icons.error,
@@ -128,6 +129,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fill,
+
             progressIndicatorBuilder: (context, s, progress) => SizedBox(
               height: height,
               child: Center(
@@ -166,6 +168,9 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
                     child: const Center(child: CircularProgressIndicator()),
                   );
                 }
+              },
+              frameBuilder: (context, widget, i, b) {
+                return ConstrainedBox(constraints: const BoxConstraints(minHeight: 300), child: widget,);
               },
               errorBuilder: (context, s, d) => SizedBox(
                 height: height,

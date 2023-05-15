@@ -111,8 +111,8 @@ class DownloadPage extends StatelessWidget {
                                   onTap: () {
                                     for (int i = 0; i < logic.selected.length; i++) {
                                       logic.selected[i] = true;
-                                      logic.selectedNum++;
                                     }
+                                    logic.selectedNum = logic.comics.length;
                                     logic.update();
                                   },
                                 ),
@@ -161,7 +161,7 @@ class DownloadPage extends StatelessWidget {
                                 ),
                                 PopupMenuItem(
                                   child: const Text("查看漫画详情"),
-                                  onTap: () => toComicInfoPage(logic),
+                                  onTap: () => Future.delayed(const Duration(milliseconds: 200),()=>toComicInfoPage(logic)),
                                 ),
                               ]);
                         },
@@ -344,7 +344,7 @@ class DownloadPage extends StatelessWidget {
             },
             size: (){
               if(logic.comics[index].comicSize != null) {
-                return "${logic.comics[index].comicSize!.toStringAsFixed(2)}Mb";
+                return "${logic.comics[index].comicSize!.toStringAsFixed(2)}";
               }else{
                 return "未知大小";
               }
