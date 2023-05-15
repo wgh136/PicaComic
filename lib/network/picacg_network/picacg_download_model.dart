@@ -9,6 +9,55 @@ import 'methods.dart';
 import 'models.dart';
 import 'dart:io';
 
+class DownloadedComic extends DownloadedItem{
+  ComicItem comicItem;
+  List<String> chapters;
+  List<int> downloadedChapters;
+  double? size;
+  DownloadedComic(this.comicItem,this.chapters,this.size,this.downloadedChapters);
+  Map<String,dynamic> toJson()=>{
+    "comicItem": comicItem.toJson(),
+    "chapters": chapters,
+    "size": size,
+    "downloadedChapters": downloadedChapters
+  };
+  DownloadedComic.fromJson(Map<String,dynamic> json):
+        comicItem = ComicItem.fromJson(json["comicItem"]),
+        chapters = json["chapters"].cast<String>(),
+        size = json["size"],
+        downloadedChapters = []{
+    if(json["downloadedChapters"] == null){
+      //旧版本中的数据不包含这一项
+      for(int i=0;i<chapters.length;i++) {
+        downloadedChapters.add(i);
+      }
+    }else{
+      downloadedChapters = List<int>.from(json["downloadedChapters"]);
+    }
+  }
+
+  @override
+  DownloadType get type => DownloadType.picacg;
+
+  @override
+  List<int> get downloadedEps => downloadedChapters;
+
+  @override
+  List<String> get eps => chapters.sublist(1);
+
+  @override
+  String get name => comicItem.title;
+
+  @override
+  String get id => comicItem.id;
+
+  @override
+  String get subTitle => comicItem.author;
+
+  @override
+  double? get comicSize => size;
+}
+
 ///picacg的下载进程模型
 class PicDownloadingItem extends DownloadingItem {
   PicDownloadingItem(

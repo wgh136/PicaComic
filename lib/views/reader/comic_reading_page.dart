@@ -287,6 +287,8 @@ class ComicReadingPage extends StatelessWidget {
                             }
                             if(type == ReadingType.jm){
                               id = "jm$target";
+                            }else if(type == ReadingType.hitomi){
+                              id = "hitomi$target";
                             }
                             shareImageFromDisk(
                                 downloadManager.getImage(id, logic.order, logic.index - 1).path);
@@ -306,6 +308,8 @@ class ComicReadingPage extends StatelessWidget {
                             }
                             if(type == ReadingType.jm){
                               id = "jm$target";
+                            }else if(type == ReadingType.hitomi){
+                              id = "hitomi$target";
                             }
                             saveImageFromDisk(
                                 downloadManager.getImage(id, logic.order, logic.index - 1).path);
@@ -490,7 +494,7 @@ class ComicReadingPage extends StatelessWidget {
   void loadGalleryInfo(ComicReadingPageLogic logic, EhLoadingInfo info) async {
     if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
       logic.downloaded = true;
-      for (int i = 0; i < await downloadManager.getEhPages(getGalleryId(gallery!.link)); i++) {
+      for (int i = 0; i < await downloadManager.getEhOrHitomiPages(getGalleryId(gallery!.link)); i++) {
         logic.urls.add("");
       }
       logic.change();
@@ -575,6 +579,9 @@ class ComicReadingPage extends StatelessWidget {
   void loadHitomiData(ComicReadingPageLogic logic)async{
     logic.images = images!;
     logic.urls = images!.map<String>((e) => "").toList();
+    if(downloadManager.downloadedHitomiComics.contains("hitomi$target")){
+      logic.downloaded = true;
+    }
     await Future.delayed(const Duration(milliseconds: 200));
     logic.isLoading = false;
     logic.update();

@@ -373,8 +373,8 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: e319bc600a8c3e5ab4d414b890dc7844f6f9d6d9
-      url: "https://github.com/hui-z/image_gallery_saver"
+      resolved-ref: "3f8c4d2cc41002d3ffdb770cab3b62583326ce01"
+      url: "https://github.com/wgh136/image_gallery_saver"
     source: git
     version: "2.0.0"
   image_picker:
@@ -914,10 +914,10 @@ packages:
     dependency: transitive
     description:
       name: xdg_directories
-      sha256: bd512f03919aac5f1313eb8249f223bacf4927031bf60b02601f81f687689e86
+      sha256: ee1505df1426458f7f60aac270645098d318a8b4766d85fde75f76f2e21807d1
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0+3"
+    version: "1.0.0"
   xml:
     dependency: transitive
     description:

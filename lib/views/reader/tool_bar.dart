@@ -275,7 +275,7 @@ List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildCont
             left: 20,
             top: MediaQuery.of(context).size.height / 2 - 25,
             child: IconButton(
-              icon: const Icon(Icons.arrow_circle_left),
+              icon: const Icon(Icons.keyboard_arrow_left),
               onPressed: () {
                 if(appdata.settings[9] == "1") {
                   comicReadingPageLogic.jumpToLastPage();
@@ -290,7 +290,7 @@ List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildCont
             right: 20,
             top: MediaQuery.of(context).size.height / 2 - 25,
             child: IconButton(
-              icon: const Icon(Icons.arrow_circle_right),
+              icon: const Icon(Icons.keyboard_arrow_right),
               onPressed: () {
                 if(appdata.settings[9] == "2") {
                   comicReadingPageLogic.jumpToLastPage();

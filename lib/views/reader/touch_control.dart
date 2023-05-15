@@ -78,10 +78,10 @@ class ScrollManager{
           p = -4;
         }
         double value = log(offset>0?offset:0-offset) * p;
-        if(value > 50){
-          value = 50;
-        }else if(value < -50){
-          value = -50;
+        if(value > 80){
+          value = 80;
+        }else if(value < -80){
+          value = -80;
         }
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
