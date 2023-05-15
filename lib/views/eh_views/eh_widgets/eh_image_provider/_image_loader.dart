@@ -47,6 +47,10 @@ class ImageLoader{
     Function() evictImage,
   ) async* {
     try {
+      chunkEvents.add(const ImageChunkEvent(
+          cumulativeBytesLoaded: 0,
+          expectedTotalBytes: 100)
+      );
       var realUrl = await EhImageUrlsManager.getUrl(url);
 
       var manager = MyCacheManager();

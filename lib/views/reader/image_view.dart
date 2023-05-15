@@ -28,165 +28,82 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
 
       precacheComicImage(comicReadingPageLogic, type, context, index+1, target);
 
-      //加载eh图片
-      if (type == ReadingType.ehentai && ! comicReadingPageLogic.downloaded) {
-        return Image(
+      ImageProvider image;
+
+      if (type == ReadingType.ehentai && ! comicReadingPageLogic.downloaded){
+        image = EhCachedImageProvider(comicReadingPageLogic.urls[index]);
+      }else if(type == ReadingType.hitomi && !comicReadingPageLogic.downloaded){
+        image = HitomiCachedImageProvider(comicReadingPageLogic.images[index], target);
+      }else if(type == ReadingType.picacg && !comicReadingPageLogic.downloaded){
+        return CfCachedNetworkImage(
           filterQuality: FilterQuality.medium,
-          image: EhCachedImageProvider(comicReadingPageLogic.urls[index]),
+          imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
-          frameBuilder: (context, widget, i, b) {
-            return ConstrainedBox(constraints: const BoxConstraints(minHeight: 300), child: widget,);
-          },
-          loadingBuilder: (context, widget, event) {
-            if (event == null) {
-              return widget;
-            } else {
-              return SizedBox(
-                height: 300,
-                child: Center(
-                    child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
-                        ? CircularProgressIndicator(
-                      value: event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-                      backgroundColor: Colors.white12,
-                    )
-                        : const CircularProgressIndicator()),
-              );
-            }
-          },
-          errorBuilder: (context, s, d) => const SizedBox(
+          progressIndicatorBuilder: (context, s, progress) => SizedBox(
+            height: 300,
+            child: Center(
+                child: CircularProgressIndicator(
+                  value: progress.progress,
+                  backgroundColor: Colors.white12,
+                )),
+          ),
+          errorWidget: (context, s, d) => const SizedBox(
             height: 300,
             child: Center(
               child: Icon(
                 Icons.error,
-                color: Colors.white12,
+                color: Colors.white70,
               ),
             ),
           ),
         );
-      }
-
-      if(type == ReadingType.hitomi && !comicReadingPageLogic.downloaded){
-        final height = Get.width / comicReadingPageLogic.images[index].width * comicReadingPageLogic.images[index].height;
-        return Image(
-          filterQuality: FilterQuality.medium,
-          image: HitomiCachedImageProvider(comicReadingPageLogic.images[index], target),
-          width: MediaQuery.of(context).size.width,
-          fit: BoxFit.fill,
-          frameBuilder: (context, widget, i, b) {
-            return SizedBox(
-              height: height,
-              child: widget,
-            );
-          },
-          loadingBuilder: (context, widget, event) {
-            if (event == null) {
-              return widget;
-            } else {
-              return SizedBox(
-                height: height,
-                child: Center(
-                    child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
-                        ? CircularProgressIndicator(
-                      value: event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-                      backgroundColor: Colors.white12,
-                    )
-                        : const CircularProgressIndicator()),
-              );
-            }
-          },
-          errorBuilder: (context, s, d) => SizedBox(
-            height: height,
-            child: const Center(
-              child: Icon(
-                Icons.error,
-                color: Colors.white12,
-              ),
-            ),
-          ),
-        );
-      }
-
-      if (comicReadingPageLogic.downloaded) {
-        //加载已下载的图片
+      }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
+        image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
+      }else{
         var id = target;
         if(type == ReadingType.ehentai){
           id = getGalleryId(target);
         }else if(type == ReadingType.hitomi){
           id = "hitomi$target";
         }
-        return Image.file(
-          filterQuality: FilterQuality.medium,
-          downloadManager.getImage(id, comicReadingPageLogic.order, index),
-          width: MediaQuery.of(context).size.width,
-          fit: BoxFit.fill,
-        );
-      } else {
-        //加载未下载的图片
-        final height = Get.width * 1.42;
-        if(type == ReadingType.picacg){
-          //加载哔咔图片
-          return CfCachedNetworkImage(
-            filterQuality: FilterQuality.medium,
-            imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
-            width: MediaQuery.of(context).size.width,
-            fit: BoxFit.fill,
-
-            progressIndicatorBuilder: (context, s, progress) => SizedBox(
-              height: height,
-              child: Center(
-                  child: CircularProgressIndicator(
-                    value: progress.progress,
-                    backgroundColor: Colors.white12,
-                  )),
-            ),
-            errorWidget: (context, s, d) => SizedBox(
-              height: height,
-              child: const Center(
-                child: Icon(
-                  Icons.error,
-                  color: Colors.white12,
-                ),
-              ),
-            ),
-          );
-        }else{
-          //加载禁漫图片
-          return Container(
-            constraints: const BoxConstraints(
-              minHeight: 300
-            ),
-            child: Image(
-              filterQuality: FilterQuality.medium,
-              image: JmCachedImageProvider(comicReadingPageLogic.urls[index], target),
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.fitWidth,
-              loadingBuilder: (context, widget, event) {
-                if (event == null) {
-                  return widget;
-                } else {
-                  return SizedBox(
-                    height: height,
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                }
-              },
-              frameBuilder: (context, widget, i, b) {
-                return ConstrainedBox(constraints: const BoxConstraints(minHeight: 300), child: widget,);
-              },
-              errorBuilder: (context, s, d) => SizedBox(
-                height: height,
-                child: const Center(
-                  child: Icon(
-                    Icons.error,
-                    color: Colors.white12,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
+        image = FileImage(downloadManager.getImage(id, comicReadingPageLogic.order, index));
       }
+
+      return Image(
+        filterQuality: FilterQuality.medium,
+        image: image,
+        width: MediaQuery.of(context).size.width,
+        fit: BoxFit.fill,
+        frameBuilder: (context, widget, i, b) {
+          return ConstrainedBox(constraints: const BoxConstraints(minHeight: 300), child: widget,);
+        },
+        loadingBuilder: (context, widget, event) {
+          if (event == null) {
+            return widget;
+          } else {
+            return SizedBox(
+              height: 300,
+              child: Center(
+                  child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
+                      ? CircularProgressIndicator(
+                    value: event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                    backgroundColor: Colors.white12,
+                  )
+                      : const CircularProgressIndicator()),
+            );
+          }
+        },
+        errorBuilder: (context, s, d) => const SizedBox(
+          height: 300,
+          child: Center(
+            child: Icon(
+              Icons.error,
+              color: Colors.white70,
+            ),
+          ),
+        ),
+      );
     },
   );
 }
@@ -249,7 +166,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             width: 20.0,
             height: 20.0,
             child: CircularProgressIndicator(
-              backgroundColor: Colors.white12,
+              backgroundColor: Colors.white70,
               value: event == null
                   ? 0
                   : event.cumulativeBytesLoaded / (event.expectedTotalBytes??1000000000000),
