@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
@@ -14,6 +16,9 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
+import '../network/eh_network/eh_download_model.dart';
+import '../network/jm_network/jm_download.dart';
+import '../network/picacg_network/picacg_download_model.dart';
 
 class DownloadPageLogic extends GetxController {
   ///是否正在加载
@@ -47,8 +52,6 @@ class DownloadPageLogic extends GetxController {
 
 class DownloadPage extends StatelessWidget {
   const DownloadPage({Key? key}) : super(key: key);
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -141,9 +144,13 @@ class DownloadPage extends StatelessWidget {
                                                     height: 75,
                                                     child: Column(
                                                       children: [
-                                                        SizedBox(height: 10,),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
                                                         CircularProgressIndicator(),
-                                                        SizedBox(height: 9,),
+                                                        SizedBox(
+                                                          height: 9,
+                                                        ),
                                                         Text("打包中")
                                                       ],
                                                     ),
@@ -161,7 +168,8 @@ class DownloadPage extends StatelessWidget {
                                 ),
                                 PopupMenuItem(
                                   child: const Text("查看漫画详情"),
-                                  onTap: () => Future.delayed(const Duration(milliseconds: 200),()=>toComicInfoPage(logic)),
+                                  onTap: () => Future.delayed(const Duration(milliseconds: 200),
+                                      () => toComicInfoPage(logic)),
                                 ),
                               ]);
                         },
@@ -210,8 +218,8 @@ class DownloadPage extends StatelessWidget {
               body: CustomScrollView(
                 slivers: [
                   SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                        childCount: logic.comics.length, (context, index) {
+                    delegate: SliverChildBuilderDelegate(childCount: logic.comics.length,
+                        (context, index) {
                       return buildItem(context, logic, index);
                     }),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -239,6 +247,10 @@ class DownloadPage extends StatelessWidget {
       for (var comic in (downloadManager.downloadedJmComics)) {
         logic.comics.add(await downloadManager.getJmComicFormId(comic));
       }
+
+      for(var comic in downloadManager.downloadedHitomiComics){
+        logic.comics.add(await downloadManager.getHitomiComicFromId(comic));
+      }
     }
     catch(e){
       logic.comics.clear();
@@ -247,8 +259,8 @@ class DownloadPage extends StatelessWidget {
   }
 
   Future<void> export(DownloadPageLogic logic) async {
-    for(int i = 0; i < logic.selected.length; i++){
-      if(logic.selected[i]){
+    for (int i = 0; i < logic.selected.length; i++) {
+      if (logic.selected[i]) {
         exportComic(logic.comics[i].id);
       }
     }
@@ -292,9 +304,13 @@ class DownloadPage extends StatelessWidget {
                                   height: 80,
                                   child: Column(
                                     children: [
-                                      SizedBox(height: 10,),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
                                       CircularProgressIndicator(),
-                                      SizedBox(height: 9,),
+                                      SizedBox(
+                                        height: 9,
+                                      ),
                                       Text("打包中")
                                     ],
                                   ),
@@ -313,11 +329,23 @@ class DownloadPage extends StatelessWidget {
                 PopupMenuItem(
                   child: const Text("查看漫画详情"),
                   onTap: () {
-                    Future.delayed(const Duration(milliseconds: 300), (){
-                      switch(logic.comics[index].type.index){
-                        case 0: Get.to(()=>ComicPage((logic.comics[index] as DownloadedComic).comicItem.toBrief()));break;
-                        case 1: Get.to(()=>EhGalleryPage((logic.comics[index] as DownloadedGallery).gallery.toBrief()));break;
-                        case 2: Get.to(()=>JmComicPage((logic.comics[index] as DownloadedJmComic).comic.id));break;
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      switch (logic.comics[index].type.index) {
+                        case 0:
+                          Get.to(() => ComicPage(
+                              (logic.comics[index] as DownloadedComic).comicItem.toBrief()));
+                          break;
+                        case 1:
+                          Get.to(() => EhGalleryPage(
+                              (logic.comics[index] as DownloadedGallery).gallery.toBrief()));
+                          break;
+                        case 2:
+                          Get.to(() =>
+                              JmComicPage((logic.comics[index] as DownloadedJmComic).comic.id));
+                          break;
+                        case 3:
+                          Get.to(() => HitomiComicPage((logic.comics[index] as DownloadedHitomiComic).toBrief()));
+                          break;
                       }
                     });
                   },
@@ -328,7 +356,8 @@ class DownloadPage extends StatelessWidget {
           decoration: BoxDecoration(
               color: selected ? const Color.fromARGB(100, 121, 125, 127) : Colors.transparent),
           child: ComicTile(
-            ComicItemBrief(logic.comics[index].name, logic.comics[index].subTitle, 0, "", logic.comics[index].id),
+            ComicItemBrief(logic.comics[index].name, logic.comics[index].subTitle, 0, "",
+                logic.comics[index].id),
             downloaded: true,
             onTap: () async {
               if (logic.selecting) {
@@ -342,10 +371,10 @@ class DownloadPage extends StatelessWidget {
                 showInfo(index, logic, context);
               }
             },
-            size: (){
-              if(logic.comics[index].comicSize != null) {
-                return "${logic.comics[index].comicSize!.toStringAsFixed(2)}";
-              }else{
+            size: () {
+              if (logic.comics[index].comicSize != null) {
+                return logic.comics[index].comicSize!.toStringAsFixed(2);
+              } else {
                 return "未知大小";
               }
             }.call(),
@@ -360,29 +389,41 @@ class DownloadPage extends StatelessWidget {
         ));
   }
 
-  void toComicInfoPage(DownloadPageLogic logic){
-    if(logic.selectedNum != 1){
+  void toComicInfoPage(DownloadPageLogic logic) {
+    if (logic.selectedNum != 1) {
       showMessage(Get.context, "请选择一个漫画");
-    }else{
-      for(int i = 0; i<logic.selected.length;i++){
-        if(logic.selected[i]){
-          switch(logic.comics[i].type.index){
-            case 0: Get.to(()=>ComicPage((logic.comics[i] as DownloadedComic).comicItem.toBrief()));break;
-            case 1: Get.to(()=>EhGalleryPage((logic.comics[i] as DownloadedGallery).gallery.toBrief()));break;
-            case 2: Get.to(()=>JmComicPage(logic.comics[i].id.substring(2)));break;
+    } else {
+      for (int i = 0; i < logic.selected.length; i++) {
+        if (logic.selected[i]) {
+          switch (logic.comics[i].type.index) {
+            case 0:
+              Get.to(() => ComicPage((logic.comics[i] as DownloadedComic).comicItem.toBrief()));
+              break;
+            case 1:
+              Get.to(() => EhGalleryPage((logic.comics[i] as DownloadedGallery).gallery.toBrief()));
+              break;
+            case 2:
+              Get.to(() => JmComicPage(logic.comics[i].id.substring(2)));
+              break;
+            case 3:
+              Get.to(() => HitomiComicPage((logic.comics[i] as DownloadedHitomiComic).toBrief()));
+              break;
           }
         }
       }
     }
   }
 
-  void showInfo(int index, DownloadPageLogic logic, BuildContext context){
-    if(UiMode.m1(context)){
-      showModalBottomSheet(context: context, builder: (context){
-        return DownloadedComicInfoView(logic.comics[index], logic);
-      });
-    }else{
-      showSideBar(context, DownloadedComicInfoView(logic.comics[index], logic),useSurfaceTintColor: true);
+  void showInfo(int index, DownloadPageLogic logic, BuildContext context) {
+    if (UiMode.m1(context)) {
+      showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return DownloadedComicInfoView(logic.comics[index], logic);
+          });
+    } else {
+      showSideBar(context, DownloadedComicInfoView(logic.comics[index], logic),
+          useSurfaceTintColor: true);
     }
   }
 }
@@ -404,7 +445,6 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
 
   @override
   Widget build(BuildContext context) {
-
     getInfo();
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -413,57 +453,86 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            child: Text(name, style: const TextStyle(fontSize: 22),),
-          ),
-          Expanded(child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 250,
-              childAspectRatio: 4,
+            child: Text(
+              name,
+              style: const TextStyle(fontSize: 22),
             ),
-            itemBuilder: (BuildContext context, int i) {
-              return Padding(padding: const EdgeInsets.all(4),child: InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                child: AnimatedContainer(
-                  decoration: BoxDecoration(
+          ),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 250,
+                childAspectRatio: 4,
+              ),
+              itemBuilder: (BuildContext context, int i) {
+                return Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: InkWell(
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    color: downloadedEps.contains(i)?Theme.of(context).colorScheme.primaryContainer:Theme.of(context).colorScheme.surfaceVariant,
+                    child: AnimatedContainer(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(16)),
+                        color: downloadedEps.contains(i)
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.surfaceVariant,
+                      ),
+                      duration: const Duration(milliseconds: 200),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 16,
+                          ),
+                          Expanded(
+                            child: Text(
+                              eps[i],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 4,
+                          ),
+                          if (downloadedEps.contains(i)) const Icon(Icons.download_done),
+                          const SizedBox(
+                            width: 16,
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () => readSpecifiedEps(i),
                   ),
-                  duration: const Duration(milliseconds: 200),
-
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 16,),
-                      Expanded(child: Text(eps[i],),),
-                      const SizedBox(width: 4,),
-                      if(downloadedEps.contains(i))
-                        const Icon(Icons.download_done),
-                      const SizedBox(width: 16,),
-                    ],
-                  ),
-                ),
-                onTap: () => readSpecifiedEps(i),
-              ),);
-            },
-            itemCount: eps.length,
-          ),),
+                );
+              },
+              itemCount: eps.length,
+            ),
+          ),
           SizedBox(
               height: 50,
               child: Row(
                 children: [
-                  Expanded(child: FilledButton(onPressed: (){
-                    if(widget.item is DownloadedComic){
-                      Get.to(()=>ComicPage((widget.item as DownloadedComic).comicItem.toBrief()));
-                    }else if(widget.item is DownloadedJmComic){
-                      Get.to(()=>EhGalleryPage((widget.item as DownloadedGallery).gallery.toBrief()));
-                    }else if(widget.item is DownloadedJmComic){
-                      Get.to(()=>JmComicPage((widget.item as DownloadedJmComic).comic.id));
-                    }
-                  }, child: const Text("查看详情")),),
-                  const SizedBox(width: 16,),
-                  Expanded(child: FilledButton(onPressed: () => read(), child: const Text("阅读")),),
+                  Expanded(
+                    child: FilledButton(
+                        onPressed: () {
+                          if (widget.item is DownloadedComic) {
+                            Get.to(() =>
+                                ComicPage((widget.item as DownloadedComic).comicItem.toBrief()));
+                          } else if (widget.item is DownloadedJmComic) {
+                            Get.to(() => EhGalleryPage(
+                                (widget.item as DownloadedGallery).gallery.toBrief()));
+                          } else if (widget.item is DownloadedJmComic) {
+                            Get.to(() => JmComicPage((widget.item as DownloadedJmComic).comic.id));
+                          } else if (widget.item is DownloadedHitomiComic) {
+                            Get.to(() => HitomiComicPage((widget.item as DownloadedHitomiComic).toBrief()));
+                          }
+                        },
+                        child: const Text("查看详情")),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  Expanded(
+                    child: FilledButton(onPressed: () => read(), child: const Text("阅读")),
+                  ),
                 ],
-              )
-          ),
+              )),
           SizedBox(
             height: MediaQuery.of(context).padding.bottom,
           )
@@ -472,36 +541,41 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
     );
   }
 
-  void getInfo(){
+  void getInfo() {
     name = comic.name;
     eps = comic.eps;
     downloadedEps = comic.downloadedEps;
   }
 
-  void read(){
+  void read() {
     if (comic.type == DownloadType.picacg) {
-      readPicacgComic((comic as DownloadedComic).comicItem, ["",...comic.eps]);
+      readPicacgComic((comic as DownloadedComic).comicItem, ["", ...comic.eps]);
     } else if (comic.type == DownloadType.ehentai) {
-      readEhGallery(
-          (comic as DownloadedGallery).gallery);
+      readEhGallery((comic as DownloadedGallery).gallery);
     } else if (comic.type == DownloadType.jm) {
       readJmComic((comic as DownloadedJmComic).comic,
           (comic as DownloadedJmComic).comic.series.values.toList());
+    } else if (comic.type == DownloadType.hitomi) {
+      readHitomiComic((comic as DownloadedHitomiComic).comic, (comic as DownloadedHitomiComic).cover);
     }
   }
 
-  void readSpecifiedEps(int i){
-    if(comic.type == DownloadType.picacg){
+  void readSpecifiedEps(int i) {
+    if (comic.type == DownloadType.picacg) {
       addPicacgHistory((comic as DownloadedComic).comicItem);
-      Get.to(() =>
-          ComicReadingPage.picacg((comic as DownloadedComic).comicItem.id, i+1, (comic as DownloadedComic).chapters, (comic as DownloadedComic).comicItem.title));
-    }else if(comic.type == DownloadType.jm){
+      Get.to(() => ComicReadingPage.picacg((comic as DownloadedComic).comicItem.id, i + 1,
+          (comic as DownloadedComic).chapters, (comic as DownloadedComic).comicItem.title));
+    } else if (comic.type == DownloadType.jm) {
       addJmHistory((comic as DownloadedJmComic).comic);
-      Get.to(() => ComicReadingPage.jmComic((comic as DownloadedJmComic).comic.id, (comic as DownloadedJmComic).comic.name, (comic as DownloadedJmComic).comic.series.values.toList(), i+1));
-    }else if(comic.type == DownloadType.ehentai){
-      readEhGallery(
-          (comic as DownloadedGallery).gallery);
+      Get.to(() => ComicReadingPage.jmComic(
+          (comic as DownloadedJmComic).comic.id,
+          (comic as DownloadedJmComic).comic.name,
+          (comic as DownloadedJmComic).comic.series.values.toList(),
+          i + 1));
+    } else if (comic.type == DownloadType.ehentai) {
+      readEhGallery((comic as DownloadedGallery).gallery);
+    } else if (comic.type == DownloadType.hitomi) {
+      readHitomiComic((comic as DownloadedHitomiComic).comic, (comic as DownloadedHitomiComic).cover);
     }
   }
 }
-

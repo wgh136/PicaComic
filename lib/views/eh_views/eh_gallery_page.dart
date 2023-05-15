@@ -255,7 +255,7 @@ class EhGalleryPage extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
         child: logic.noNetwork?Image.file(
-          downloadManager.getPicCover(getGalleryId(brief.link)),
+          downloadManager.getCover(getGalleryId(brief.link)),
           width: width-50,
           height: height,
           fit: BoxFit.contain,

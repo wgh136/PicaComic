@@ -10,6 +10,55 @@ import 'dart:io';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'jm_main_network.dart';
 
+class DownloadedJmComic extends DownloadedItem{
+  JmComicInfo comic;
+  double? size;
+  List<int> downloadedChapters;
+  DownloadedJmComic(this.comic, this.size, this.downloadedChapters);
+  Map<String, dynamic> toMap()=>{
+    "comic": comic.toJson(),
+    "size": size,
+    "downloadedChapters": downloadedChapters
+  };
+  DownloadedJmComic.fromMap(Map<String, dynamic> map):
+        comic = JmComicInfo.fromMap(map["comic"]),
+        size = map["size"],
+        downloadedChapters = []{
+    if(map["downloadedChapters"] == null){
+      //旧版本中的数据不包含这一项
+      for(int i=0;i<comic.series.length;i++) {
+        downloadedChapters.add(i);
+      }
+      if(downloadedChapters.isEmpty){
+        downloadedChapters.add(0);
+      }
+    }else{
+      downloadedChapters = List<int>.from(map["downloadedChapters"]);
+    }
+  }
+
+  @override
+  DownloadType get type => DownloadType.jm;
+
+  @override
+  List<int> get downloadedEps => downloadedChapters;
+
+  @override
+  List<String> get eps => List<String>.generate(comic.series.isEmpty?1:comic.series.length, (index) => "第${index+1}章");
+
+  @override
+  String get name => comic.name;
+
+  @override
+  String get id => "jm${comic.id}";
+
+  @override
+  String get subTitle => comic.author[0];
+
+  @override
+  double? get comicSize => size;
+}
+
 class JmDownloadingItem extends DownloadingItem {
   JmDownloadingItem(
       this.comic, this.path, this._downloadEps, super.whenFinish, super.whenError, super.updateInfo, super.id,

@@ -112,6 +112,8 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         var id = target;
         if(type == ReadingType.ehentai){
           id = getGalleryId(target);
+        }else if(type == ReadingType.hitomi){
+          id = "hitomi$target";
         }
         return Image.file(
           filterQuality: FilterQuality.medium,
@@ -208,6 +210,8 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             var id = target;
             if(type == ReadingType.ehentai){
               id = getGalleryId(target);
+            }else if(type == ReadingType.hitomi){
+              id = "hitomi$target";
             }
             imageProvider = FileImage(downloadManager.getImage(
                 id, comicReadingPageLogic.order, index - 1));
@@ -332,6 +336,8 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
     var id = target;
     if(type == ReadingType.ehentai){
       id = getGalleryId(target);
+    }else if(type == ReadingType.hitomi){
+      id = "hitomi$target";
     }
     precacheImage(
         FileImage(

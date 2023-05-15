@@ -7,6 +7,8 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
@@ -26,6 +28,12 @@ import 'picacg_network/models.dart';
  */
 
 class DownloadManager{
+  static DownloadManager? cache;
+
+  factory DownloadManager() => cache??(cache=DownloadManager._create());
+
+  DownloadManager._create();
+
   ///下载目录
   String? path;
 
@@ -37,6 +45,9 @@ class DownloadManager{
 
   ///已下载的禁漫漫画
   List<String> downloadedJmComics = [];
+
+  ///已下载的Hitomi漫画
+  List<String> downloadedHitomiComics = [];
 
   ///下载队列
   var downloading = Queue<DownloadingItem>();
@@ -86,6 +97,9 @@ class DownloadManager{
     for(var s in json["downloadedJmComics"]??[]){
       downloadedJmComics.add(s);
     }
+    for(var s in json["downloadedHitomiComics"]??[]){
+      downloadedHitomiComics.add(s);
+    }
     for(var item in json["downloading"]){
       downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo)!);
     }
@@ -119,6 +133,7 @@ class DownloadManager{
     data["downloaded"] = downloaded;
     data["downloadedGalleries"] = downloadedGalleries;
     data["downloadedJmComics"] = downloadedJmComics;
+    data["downloadedHitomiComics"] = downloadedHitomiComics;
     data["downloading"] = <Map<String, dynamic>>[];
     for(var item in downloading){
       data["downloading"].add(item.toMap());
@@ -177,6 +192,18 @@ class DownloadManager{
     }
   }
 
+  void addHitomiDownload(HitomiComic comic, String cover, String link){
+    final id = "hitomi${comic.id}";
+    var downloadPath = Directory("$path$pathSep$id");
+    downloadPath.create();
+    downloading.addLast(HitomiDownloadingItem(comic, path!, cover, link, _whenFinish, _whenError, _saveInfo, id));
+    _saveInfo();
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
   ///当一个下载任务完成时, 调用此函数
   void _whenFinish() async{
     if(downloading.first.type == DownloadType.picacg) {
@@ -185,6 +212,8 @@ class DownloadManager{
       downloadedGalleries.add(downloading.first.id);
     }else if(downloading.first.type == DownloadType.jm){
       downloadedJmComics.add(downloading.first.id);
+    }else if(downloading.first.type == DownloadType.hitomi){
+      downloadedHitomiComics.add(downloading.first.id);
     }
     downloading.removeFirst();
     await _saveInfo();
@@ -288,16 +317,30 @@ class DownloadManager{
     }
   }
 
+  Future<DownloadedHitomiComic> getHitomiComicFromId(String id) async{
+    try {
+      var file = File("$path$pathSep$id${pathSep}info.json");
+      var json = await file.readAsString();
+      return DownloadedHitomiComic.fromMap(jsonDecode(json));
+    }
+    catch(e){
+      downloadedHitomiComics.remove(id);
+      _saveInfo();
+      rethrow;
+    }
+  }
+
   ///删除已下载的漫画
   Future<void> delete(List<String> ids) async{
     for (var id in ids) {
       downloaded.remove(id);
       downloadedGalleries.remove(id);
       downloadedJmComics.remove(id);
+      downloadedHitomiComics.remove(id);
       var comic = Directory("$path$pathSep$id");
       comic.delete(recursive: true);
     }
-    _saveInfo();
+    await _saveInfo();
   }
 
   ///获取漫画章节的长度, 适用于picacg和禁漫
@@ -307,14 +350,14 @@ class DownloadManager{
     return files.length;
   }
 
-  ///获取画廊长度
-  Future<int> getEhPages(String id) async{
+  ///获取eh或hitomi画廊长度
+  Future<int> getEhOrHitomiPages(String id) async{
     var directory = Directory("$path$pathSep$id");
     var files = directory.list();
     return await files.length - 2;
   }
 
-  ///获取图片, 对于eh, ep参数为0
+  ///获取图片, 对于 eh 和 hitomi , ep参数为0
   File getImage(String id, int ep, int index){
     if(ep == 0){
       return File("$path$pathSep$id$pathSep$index.jpg");
@@ -322,8 +365,8 @@ class DownloadManager{
     return File("$path$pathSep$id$pathSep$ep$pathSep$index.jpg");
   }
 
-  ///获取封面
-  File getPicCover(String id){
+  ///获取封面, 所有漫画源通用
+  File getCover(String id){
     return File("$path$pathSep$id${pathSep}cover.jpg");
   }
 }
@@ -337,6 +380,7 @@ DownloadingItem? downloadingItemFromMap(
     case 0: return PicDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 1: return EhDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 2: return JmDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    case 3: return HitomiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     default: return null;
   }
 }

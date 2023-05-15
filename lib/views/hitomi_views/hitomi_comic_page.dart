@@ -259,10 +259,7 @@ class HitomiComicPage extends StatelessWidget {
         children: [
           Expanded(
             child: FilledButton(
-              onPressed: (){
-                showMessage(context, "敬请期待");
-                //TODO
-              },
+              onPressed: () => downloadComic(logic.comic!, context, comic.cover, comic.link),
               child: const Text("下载"),
             ),
           ),
@@ -373,4 +370,23 @@ class HitomiComicPage extends StatelessWidget {
       ),
     );
   }
+}
+
+void downloadComic(HitomiComic comic, BuildContext context, String cover, String link){
+  if(GetPlatform.isWeb){
+    showMessage(context, "Web端不支持下载");
+    return;
+  }
+  if(downloadManager.downloaded.contains(comic.id)){
+    showMessage(context, "已下载");
+    return;
+  }
+  for(var i in downloadManager.downloading){
+    if(i.id == comic.id){
+      showMessage(context, "下载中");
+      return;
+    }
+  }
+  downloadManager.addHitomiDownload(comic, cover, link);
+  showMessage(context, "已加入下载");
 }

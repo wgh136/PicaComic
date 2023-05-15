@@ -6,9 +6,43 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'dart:io';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
-
 import '../../tools/io_tools.dart';
 import 'eh_main_network.dart';
+import 'get_gallery_id.dart';
+
+class DownloadedGallery extends DownloadedItem{
+  Gallery gallery;
+  double? size;
+  DownloadedGallery(this.gallery,this.size);
+  Map<String, dynamic> toJson()=>{
+    "gallery": gallery.toJson(),
+    "size": size
+  };
+  DownloadedGallery.fromJson(Map<String, dynamic> map):
+        gallery = Gallery.fromJson(map["gallery"]),
+        size = map["size"];
+
+  @override
+  DownloadType get type => DownloadType.ehentai;
+
+  @override
+  List<int> get downloadedEps => [0];
+
+  @override
+  List<String> get eps => ["第一章"];
+
+  @override
+  String get name => gallery.title;
+
+  @override
+  String get id => getGalleryId(gallery.link);
+
+  @override
+  String get subTitle => gallery.uploader;
+
+  @override
+  double? get comicSize => size;
+}
 
 ///e-hentai的下载进程模型
 class EhDownloadingItem extends DownloadingItem{

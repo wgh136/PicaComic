@@ -278,7 +278,7 @@ class ComicPage extends StatelessWidget{
 
   Widget buildCover(BuildContext context, ComicPageLogic logic, double height, double width){
     return downloaded?Image.file(
-      downloadManager.getPicCover(comic.id),
+      downloadManager.getCover(comic.id),
       width: width,
       height: height,
     ):GestureDetector(
