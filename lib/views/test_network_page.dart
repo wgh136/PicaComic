@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/auth_page.dart';
-import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -70,19 +68,19 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 top: MediaQuery.of(context).size.height/2-80,
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: Text(message??"网络错误"),
+                  child: Text(message??"网络错误", textAlign: TextAlign.center,),
                 ),
               ),
 
             if(!isLoading)
               Positioned(
-                top: MediaQuery.of(context).size.height/2-40,
+                top: MediaQuery.of(context).size.height/2-30,
                 left: 0,
                 right: 0,
                 child: Align(
                     alignment: Alignment.topCenter,
                     child: SizedBox(
-                      width: 280,
+                      width: 220,
                       height: 50,
                       child: Row(
                         children: [
@@ -94,17 +92,6 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                               });
                             },
                             child: const Text("   重试   "),
-                          ),
-                          const Spacer(),
-                          FilledButton.tonal(
-                            onPressed: (){
-                              if(GetPlatform.isWeb){
-                                showMessage(context, "Web端不支持下载");
-                                return;
-                              }
-                              Get.to(()=>const DownloadPage());
-                            },
-                            child: const Text("已下载"),
                           ),
                           const Spacer(),
                           FilledButton.tonal(
@@ -157,10 +144,12 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
         appdata.user = res;
         appdata.writeData();
       }
+      message = "登录哔咔时发生错误\n$message";
     }
     var res2 = await jmNetwork.loginFromAppdata();
     if(res2.error){
       message = res2.errorMessage;
+      message = "登录禁漫时发生错误\n$message";
     }
     if(message == null){
       goToMainPage();
