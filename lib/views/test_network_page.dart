@@ -145,6 +145,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
         appdata.user = res;
         appdata.writeData();
       }
+      message = "登录哔咔时发生错误\n$message";
     }
     var res2 = await jmNetwork.loginFromAppdata();
     if(res2.error){
