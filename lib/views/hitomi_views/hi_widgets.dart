@@ -23,7 +23,7 @@ class HiComicTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16)
@@ -34,6 +34,7 @@ class HiComicTile extends StatelessWidget {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
                         "Referer": "https://hitomi.la/"
                       },
+                      placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
                       imageUrl: comic.cover,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -43,7 +44,7 @@ class HiComicTile extends StatelessWidget {
               ),
               SizedBox.fromSize(size: const Size(16,5),),
               Expanded(
-                flex: 7,
+                flex: 8,
                 child: ComicDescription(
                   title: comic.name,
                   user: comic.name,

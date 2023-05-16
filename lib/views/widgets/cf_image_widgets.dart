@@ -45,6 +45,9 @@ class CfImageNetwork extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
+        return ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant, child: child,);
+      },
     );
   }
 }

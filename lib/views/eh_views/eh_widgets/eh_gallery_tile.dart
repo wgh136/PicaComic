@@ -31,7 +31,7 @@ class EhGalleryTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16)
@@ -42,6 +42,7 @@ class EhGalleryTile extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) => const Icon(Icons.error),
                       height: double.infinity,
+                      placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
                       httpHeaders: {
                         "Cookie": EhNetwork().cookiesStr,
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
@@ -52,6 +53,9 @@ class EhGalleryTile extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, url, error) => const Icon(Icons.error),
                       height: double.infinity,
+                      frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
+                        return ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant, child: child,);
+                      },
                       headers: {
                         "Cookie": EhNetwork().cookiesStr,
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
@@ -62,7 +66,7 @@ class EhGalleryTile extends StatelessWidget {
               ),
               SizedBox.fromSize(size: const Size(16,5),),
               Expanded(
-                flex: 7,
+                flex: 8,
                 child: ComicDescription(
                   title: gallery.title,
                   user: gallery.uploader,

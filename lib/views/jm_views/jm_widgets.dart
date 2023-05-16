@@ -27,7 +27,7 @@ class JmComicTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16)
@@ -36,6 +36,7 @@ class JmComicTile extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: getJmCoverUrl(comic.id),
                       fit: BoxFit.cover,
+                      placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
                       errorWidget: (context, url, error) => const Icon(Icons.error),
                       height: double.infinity,
                     ),
@@ -43,7 +44,7 @@ class JmComicTile extends StatelessWidget {
               ),
               SizedBox.fromSize(size: const Size(16,5),),
               Expanded(
-                flex: 7,
+                flex: 8,
                 child: ComicDescription(
                   title: comic.name,
                   user: comic.author,
