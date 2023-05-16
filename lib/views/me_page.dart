@@ -109,6 +109,7 @@ class MePage extends StatelessWidget {
                   const Text("cookies:"),
                   SelectableTextCN(text: "  ipb_member_id: ${appdata.ehId}"),
                   SelectableTextCN(text: "  ipb_pass_hash: ${appdata.ehPassHash}"),
+                  SelectableTextCN(text: "  igneous: ${appdata.igneous}"),
                   const SizedBox(
                     height: 12,
                   ),
@@ -119,6 +120,7 @@ class MePage extends StatelessWidget {
                         appdata.ehPassHash = "";
                         appdata.ehId = "";
                         appdata.ehAccount = "";
+                        appdata.igneous = "";
                         appdata.writeData();
                         Get.back();
                       },
