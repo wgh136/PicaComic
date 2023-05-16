@@ -5,6 +5,7 @@ import '../../network/eh_network/eh_main_network.dart';
 
 Widget showNetworkError(BuildContext context, void Function() retry, {bool showBack = true, bool eh=false}){
   final topPadding = showBack?0:80;
+  String message = eh?(EhNetwork().status?EhNetwork().message:"网络错误"):(network.status?network.message:"网络错误");
   return SafeArea(child: Stack(
     children: [
       if(showBack)
@@ -32,11 +33,9 @@ Widget showNetworkError(BuildContext context, void Function() retry, {bool showB
         child: Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-            width: 400,
+            width: 300,
             child: Center(
-              child: eh?
-              (EhNetwork().status?Text(EhNetwork().message):const Text("网络错误"))
-                  :(network.status?Text(network.message):const Text("网络错误")),
+              child: Text(message, textAlign: TextAlign.center,),
             )
           )
         ),
