@@ -16,6 +16,8 @@ import '../widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'reading_type.dart';
 
+Map<int, PhotoViewController> _controllers = {};
+
 ///构建从上至下(连续)阅读方式
 Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType type, String target) {
   return ScrollablePositionedList.builder(
@@ -141,7 +143,9 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             imageProvider = HitomiCachedImageProvider(comicReadingPageLogic.images[index-1], target);
           }
         } else {
+          _controllers[index] = PhotoViewController();
           return PhotoViewGalleryPageOptions(
+            controller: _controllers[index],
             scaleStateController: PhotoViewScaleStateController(),
             imageProvider: const AssetImage("images/black.png"),
           );
@@ -149,8 +153,10 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
 
         precacheComicImage(comicReadingPageLogic, type, context, index, target);
 
+        _controllers[index] = PhotoViewController();
         return PhotoViewGalleryPageOptions(
           filterQuality: FilterQuality.medium,
+          controller: _controllers[index],
           minScale: PhotoViewComputedScale.contained * 0.9,
           imageProvider: imageProvider,
           initialScale: PhotoViewComputedScale.contained,
@@ -218,10 +224,25 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
       //监听鼠标滚轮
       onPointerSignal: (pointerSignal) {
         if (pointerSignal is PointerScrollEvent) {
+          final controller = _controllers[comicReadingPageLogic.index];
           if(appdata.settings[9] != "4"){
-            comicReadingPageLogic.controller.jumpToPage(pointerSignal.scrollDelta.dy > 0
-                ? comicReadingPageLogic.index + 1
-                : comicReadingPageLogic.index - 1);
+            final width = MediaQuery.of(Get.context!).size.width;
+            final height = MediaQuery.of(Get.context!).size.height;
+            var offset = Offset(
+                width/2 - pointerSignal.position.dx,
+                height/2 - pointerSignal.position.dy
+            );
+            if(pointerSignal.scrollDelta.dy > 0){
+              offset = Offset(
+                  0 - offset.dx,
+                  0 - offset.dy
+              );
+            }
+            final updatedOffset = Offset(
+              controller!.position.dx > offset.dx ? controller.position.dx - 20 : controller.position.dx + 20,
+              controller.position.dy > offset.dy ? controller.position.dy - 20 : controller.position.dy + 20
+            );
+            controller.updateMultiple(position: updatedOffset, scale: controller.scale! - pointerSignal.scrollDelta.dy/4000);
           }else{
             comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy);
           }
