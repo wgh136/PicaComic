@@ -57,10 +57,12 @@ class EhNetwork{
     if(appdata.ehAccount == ""){
       return "";
     }
-    cookieJar.saveFromResponse(Uri.parse(ehBaseUrl), [
+    await cookieJar.saveFromResponse(Uri.parse(ehBaseUrl), [
       Cookie("nw", "1"),
       Cookie("ipb_member_id", appdata.ehId),
       Cookie("ipb_pass_hash", appdata.ehPassHash),
+      if(appdata.igneous != "")
+        Cookie("igneous", appdata.igneous),
     ]);
     var cookies = await cookieJar.loadForRequest(Uri.parse(ehBaseUrl));
     var res = "";
@@ -73,11 +75,15 @@ class EhNetwork{
 
   ///从url获取数据, 在请求时设置了cookie
   Future<String?> request(String url, {Map<String,String>? headers,}) async{
-    await cookieJar.saveFromResponse(Uri.parse(url), [
-      Cookie("nw", "1"),
-      Cookie("ipb_member_id", appdata.ehId),
-      Cookie("ipb_pass_hash", appdata.ehPassHash),
+    if(appdata.ehId != "") {
+      await cookieJar.saveFromResponse(Uri.parse(url), [
+        Cookie("nw", "1"),
+        Cookie("ipb_member_id", appdata.ehId),
+        Cookie("ipb_pass_hash", appdata.ehPassHash),
+        if(appdata.igneous != "")
+          Cookie("igneous", appdata.igneous),
     ]);
+    }
     status = false; //重置
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
@@ -151,6 +157,13 @@ class EhNetwork{
   }
 
   Future<String?> post(String url, dynamic data, {Map<String,String>? headers,}) async{
+    await cookieJar.saveFromResponse(Uri.parse(url), [
+      Cookie("nw", "1"),
+      Cookie("ipb_member_id", appdata.ehId),
+      Cookie("ipb_pass_hash", appdata.ehPassHash),
+      if(appdata.igneous != "")
+        Cookie("igneous", appdata.igneous),
+    ]);
     status = false; //重置
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
@@ -161,14 +174,13 @@ class EhNetwork{
         validateStatus: (status)=>status==200||status==302,
         headers: {
           "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-          "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
           ...?headers
         }
     );
 
     var dio =  Dio(options)
       ..interceptors.add(LogInterceptor());
-
+    dio.interceptors.add(CookieManager(cookieJar));
     try{
       var res = await dio.post(url, data: data);
       return res.data??"";
@@ -207,6 +219,7 @@ class EhNetwork{
     }else{
       appdata.ehId = "";
       appdata.ehPassHash = "";
+      appdata.igneous = "";
     }
     return name != null;
   }

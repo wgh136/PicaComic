@@ -20,14 +20,14 @@ Widget showNetworkError(String message, void Function() retry, BuildContext cont
         bottom: 0,
         child: Center(
           child: SizedBox(
-            height: 150,
-            width: 400,
+            height: 170,
+            width: 300,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(Icons.error_outline, size: 60,),
                 const SizedBox(height: 5,),
-                Text(message),
+                Text(message, textAlign: TextAlign.center,),
                 const SizedBox(height: 5,),
                 FilledButton(onPressed: retry, child: const Text('重试'))
               ],

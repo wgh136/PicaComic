@@ -11,7 +11,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.6.3";
+const appVersion = "1.6.4";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -19,19 +19,28 @@ var pathSep = Platform.pathSeparator;
 //ComicTile的最大宽度
 const double comicTileMaxWidth = 665.0;
 //ComicTile的宽高比
-const double comicTileAspectRatio = 3.0;
+const double comicTileAspectRatio = 2.5;
 
 var hotSearch = <String>[];
 var downloadManager = DownloadManager();
 
 class Appdata{
+  //哔咔相关信息
   late String token;
   late Profile user;
   late String appChannel;
   late String imageQuality;
+
+  ///搜索历史
   late List<String> searchHistory;
-  bool flag = true; //用于提供一些页面间通讯
+
+  ///用于身份认证页面判断当前状态
+  bool flag = true;
+
+  ///历史记录管理器, 可以通过factory构造函数访问, 也可以通过这里访问
   var history = HistoryManager();
+
+  ///设置
   List<String> settings = [
     "1", //0 点击屏幕左右区域翻页
     "dd", //1 排序方式
@@ -56,19 +65,29 @@ class Appdata{
     "0", //20 Eh画廊站点, 1表示e-hentai, 2表示exhentai
     "111111", //21 启用的漫画源
   ];
+
+  ///屏蔽的关键词
   List<String> blockingKeyword = [];
+
+  ///是否第一次使用的判定, 用于显示提示
   List<String> firstUse = [
     "1",//屏蔽关键词1
     "1",//屏蔽关键词2(已废弃)
     "1",//漫画详情页
     "0",//是否进入过app
   ];
+
+  //eh相关信息
   String ehId = "";
   String ehPassHash = "";
   String ehAccount = "";
+  String igneous = "";
+
+  //jm相关信息
   String jmName = "";
   String jmEmail = "";
   String jmPwd = "";
+
   Appdata(){
     token = "";
     var temp = Profile("", defaultAvatarUrl, "", 0, 0, "", "",null,null,null);
@@ -153,6 +172,7 @@ class Appdata{
     await s.setString("jmName", jmName);
     await s.setString("jmEmail", jmEmail);
     await s.setString("jmPwd", jmPwd);
+    await s.setString("ehIgneous", igneous);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -184,6 +204,7 @@ class Appdata{
       ehId = s.getString("ehId")??"";
       ehAccount = s.getString("ehAccount")??"";
       ehPassHash = s.getString("ehPassHash")??"";
+      igneous = s.getString("ehIgneous")??"";
       jmName = s.getString("jmName")??"";
       jmEmail = s.getString("jmEmail")??"";
       jmPwd = s.getString("jmPwd")??"";

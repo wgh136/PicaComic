@@ -166,7 +166,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             width: 20.0,
             height: 20.0,
             child: CircularProgressIndicator(
-              backgroundColor: Colors.white70,
+              backgroundColor: Colors.white12,
               value: event == null
                   ? 0
                   : event.cumulativeBytesLoaded / (event.expectedTotalBytes??1000000000000),
@@ -177,14 +177,14 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
       backgroundDecoration: const BoxDecoration(color: Colors.black),
       onPageChanged: (i) {
         if (i == 0) {
-          if (type == ReadingType.ehentai) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(1);
             showMessage(Get.context, "已经是第一页了");
             return;
           }
           comicReadingPageLogic.jumpToLastChapter(type, eps);
         } else if (i == comicReadingPageLogic.urls.length + 1) {
-          if (type == ReadingType.ehentai) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(i - 1);
             showMessage(Get.context, "已经是最后一页了");
             return;

@@ -30,7 +30,7 @@ class ComicTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16)
@@ -41,6 +41,7 @@ class ComicTile extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                     height: double.infinity,
+                    progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
                   ):CfImageNetwork(
                     getImageUrl(comic.path),
                     fit: BoxFit.cover,
@@ -55,7 +56,7 @@ class ComicTile extends StatelessWidget {
               ),
               SizedBox.fromSize(size: const Size(16,5),),
               Expanded(
-                flex: 7,
+                flex: 8,
                 child: ComicDescription(
                   title: comic.title,
                   user: comic.author,
@@ -153,6 +154,7 @@ class CategoryTile extends StatelessWidget {
                   child: CfCachedNetworkImage(
                     imageUrl: getImageUrl(categoryItem.path),
                     errorWidget: (context, url, error) => const Icon(Icons.error),
+                    progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
                     fit: BoxFit.cover,
                   ),
                 ),),
