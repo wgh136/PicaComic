@@ -15,6 +15,7 @@ class JmCommentsPageLogic extends GetxController {
   String? message;
   int totalComments = 0;
   int page = 1;
+  var controller = TextEditingController();
 
   void change() {
     loading = !loading;
@@ -54,6 +55,16 @@ class JmCommentsPageLogic extends GetxController {
       comments!.addAll(res.data);
       update();
     }
+  }
+
+  void refresh_(){
+    comments = null;
+    message = null;
+    totalComments = 0;
+    page = 1;
+    controller.text = "";
+    loading = true;
+    update();
   }
 }
 
@@ -115,25 +126,30 @@ class JmCommentsPage extends StatelessWidget {
                           borderRadius: const BorderRadius.all(Radius.circular(30))),
                       child: Row(
                         children: [
-                          const Expanded(
+                          Expanded(
                               child: Padding(
-                            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: TextField(
-                              //controller: commentsPageLogic.controller,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                isCollapsed: true,
-                                hintText: "评论",
-                              ),
-                              minLines: 1,
-                              maxLines: 5,
-                              enabled: false,
-                            ),
+                                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: TextField(
+                                  controller: logic.controller,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    isCollapsed: true,
+                                    hintText: "评论",
+                                  ),
+                                  minLines: 1,
+                                  maxLines: 5,
+                                ),
                           )),
                           IconButton(
                               onPressed: () async {
-                                //TODO
-                                showMessage(context, "敬请期待");
+                                showMessage(context, "正在发送评论");
+                                var res = await JmNetwork().comment(id, logic.controller.text);
+                                if(res.error){
+                                  showMessage(Get.context, res.errorMessage!);
+                                }else{
+                                  showMessage(Get.context, res.data);
+                                  logic.refresh_();
+                                }
                               },
                               icon: Icon(
                                 Icons.send,

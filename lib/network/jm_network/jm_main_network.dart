@@ -840,6 +840,15 @@ class JmNetwork {
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
+
+  Future<Res<dynamic>> comment(String aid, String content) async{
+    var res = await post("$baseUrl/comment","comment=${Uri.encodeComponent(content)}&status=undefined&aid=$aid&$baseData");
+    if(res.error){
+      return res;
+    }else{
+      return Res(res.data["msg"]);
+    }
+  }
 }
 
 ///禁漫漫画排序模式
