@@ -1,9 +1,9 @@
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 
 ///用于测试函数
 void debug() async{
-
+  print(await getTemporaryDirectory());
 }
 
 ///保存网络请求数据, 用于Debug

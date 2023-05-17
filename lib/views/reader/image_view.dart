@@ -85,7 +85,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             return widget;
           } else {
             return SizedBox(
-              height: 300,
+              height: MediaQuery.of(context).size.width/400*300,
               child: Center(
                   child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
                       ? CircularProgressIndicator(
@@ -96,9 +96,9 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             );
           }
         },
-        errorBuilder: (context, s, d) => const SizedBox(
-          height: 300,
-          child: Center(
+        errorBuilder: (context, s, d) => SizedBox(
+          height: MediaQuery.of(context).size.width/400*300,
+          child: const Center(
             child: Icon(
               Icons.error,
               color: Colors.white70,
@@ -255,6 +255,38 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
 
 ///预加载图片
 void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType type,BuildContext context, int index, String target){
+  if (index < comicReadingPageLogic.urls.length && type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
+    precacheImage(
+        EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);
+  } else if (index < comicReadingPageLogic.urls.length && type == ReadingType.picacg &&
+      !comicReadingPageLogic.downloaded) {
+    precacheImage(
+        CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])),
+        context);
+  } else if(index < comicReadingPageLogic.urls.length && type == ReadingType.jm &&
+      !comicReadingPageLogic.downloaded){
+    precacheImage(JmCachedImageProvider(comicReadingPageLogic.urls[index], target), context);
+  }else if(index < comicReadingPageLogic.urls.length && type == ReadingType.hitomi &&
+      !comicReadingPageLogic.downloaded){
+    precacheImage(HitomiCachedImageProvider(comicReadingPageLogic.images[index], target), context);
+  }else if (index < comicReadingPageLogic.urls.length &&
+      comicReadingPageLogic.downloaded) {
+    var id = target;
+    if(type == ReadingType.ehentai){
+      id = getGalleryId(target);
+    }else if(type == ReadingType.hitomi){
+      id = "hitomi$target";
+    }
+    precacheImage(
+        FileImage(
+            downloadManager.getImage(id, comicReadingPageLogic.order, index)),
+        context);
+  }
+
+  index -= 2;
+
+  if(index < 0) return;
+
   if (index < comicReadingPageLogic.urls.length && type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
     precacheImage(
         EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);

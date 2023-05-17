@@ -13,6 +13,7 @@ import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'picacg_network/models.dart';
 
 /*
@@ -72,12 +73,43 @@ class DownloadManager{
 
   ///获取下载目录
   Future<void> _getPath() async{
-    final appPath = await getApplicationSupportDirectory();
-    path = "${appPath.path}${pathSep}download";
+    if(appdata.settings[22] == "") {
+      final appPath = await getApplicationSupportDirectory();
+      path = "${appPath.path}${pathSep}download";
+    }else{
+      path = appdata.settings[22];
+    }
     var file = Directory(path!);
     if(! await file.exists()){
       await file.create(recursive: true);
     }
+  }
+
+  ///更换下载目录
+  Future<String> updatePath(String newPath, {bool transform = true}) async{
+    if(transform) {
+      var source = Directory(path!);
+      final appPath = await getApplicationSupportDirectory();
+      var destination = Directory(newPath==""?"${appPath.path}${pathSep}download":newPath);
+      try {
+        await copyDirectory(source, destination);
+        for(var i in source.listSync()){
+          await i.delete(recursive: true);
+        }
+      }
+      catch (e) {
+        return e.toString();
+      }
+    }
+
+    _runInit = false;
+    downloaded.clear();
+    downloadedHitomiComics.clear();
+    downloadedGalleries.clear();
+    downloadedJmComics.clear();
+    downloading.clear();
+    await init();
+    return "ok";
   }
 
   ///读取数据, 获取未完成的下载和已下载的漫画ID

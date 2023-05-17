@@ -14,6 +14,7 @@ import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
 import '../network/eh_network/eh_download_model.dart';
@@ -91,7 +92,7 @@ class DownloadPage extends StatelessWidget {
                       child: IconButton(
                         icon: const Icon(Icons.download_for_offline),
                         onPressed: () {
-                          Get.to(() => const DownloadingPage());
+                          showAdaptiveWidget(context, const DownloadingPage());
                         },
                       ),
                     )
