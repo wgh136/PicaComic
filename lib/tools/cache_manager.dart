@@ -263,7 +263,8 @@ class MyCacheManager{
     }
   }
 
-  bool find(String key){
+  Future<bool> find(String key) async{
+    await readData();
     return _paths![key] != null;
   }
 }

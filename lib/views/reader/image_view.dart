@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -74,7 +75,8 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
 
       return Image(
         filterQuality: FilterQuality.medium,
-        image: image,
+        //限制图片大小, 避免图片过大导致内存中缓存图片数量过少
+        image: ResizeImage(image, width: 1500, height: 2000, policy: ResizeImagePolicy.fit),
         width: MediaQuery.of(context).size.width,
         fit: BoxFit.fill,
         frameBuilder: (context, widget, i, b) {
@@ -96,15 +98,21 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             );
           }
         },
-        errorBuilder: (context, s, d) => SizedBox(
-          height: MediaQuery.of(context).size.width/400*300,
-          child: const Center(
-            child: Icon(
-              Icons.error,
-              color: Colors.white70,
+        errorBuilder: (context, s, d){
+          if(kDebugMode){
+            print(s);
+            print(d);
+          }
+          return SizedBox(
+            height: MediaQuery.of(context).size.width/400*300,
+            child: const Center(
+              child: Icon(
+                Icons.error,
+                color: Colors.white70,
+              ),
             ),
-          ),
-        ),
+          );
+        },
       );
     },
   );

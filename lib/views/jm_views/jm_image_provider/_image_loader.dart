@@ -60,7 +60,7 @@ class ImageLoader{
       //同时加载太多会导致内存占用极高
       var manager = MyCacheManager();
       while(_loadingItem > 3){
-        if(manager.find(url)){
+        if(await manager.find(url)){
           break;
         }
         await Future.delayed(const Duration(milliseconds: 100));
