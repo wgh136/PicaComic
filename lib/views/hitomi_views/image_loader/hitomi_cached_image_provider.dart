@@ -59,8 +59,8 @@ class HitomiCachedImageProvider
   }
 
   @override
-  ImageStreamCompleter loadBuffer(image_provider.HitomiCachedImageProvider key,
-      DecoderBufferCallback decode) {
+  ImageStreamCompleter loadImage(image_provider.HitomiCachedImageProvider key,
+      ImageDecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiImageStreamCompleter(
       codec: _loadBufferAsync(key, chunkEvents, decode),
@@ -79,7 +79,7 @@ class HitomiCachedImageProvider
   Stream<ui.Codec> _loadBufferAsync(
       image_provider.HitomiCachedImageProvider key,
       StreamController<ImageChunkEvent> chunkEvents,
-      DecoderBufferCallback decode,
+      ImageDecoderCallback decode,
       ) {
     assert(key == this);
     return ImageLoader().loadBufferAsync(

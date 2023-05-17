@@ -60,8 +60,8 @@ class JmCachedImageProvider
   }
 
   @override
-  ImageStreamCompleter loadBuffer(image_provider.JmCachedImageProvider key,
-      DecoderBufferCallback decode) {
+  ImageStreamCompleter loadImage(image_provider.JmCachedImageProvider key,
+      ImageDecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
     return MultiImageStreamCompleter(
       codec: _loadBufferAsync(key, chunkEvents, decode),
@@ -80,7 +80,7 @@ class JmCachedImageProvider
   Stream<ui.Codec> _loadBufferAsync(
       image_provider.JmCachedImageProvider key,
       StreamController<ImageChunkEvent> chunkEvents,
-      DecoderBufferCallback decode,
+      ImageDecoderCallback decode,
       ) {
     assert(key == this);
     return ImageLoader().loadBufferAsync(
