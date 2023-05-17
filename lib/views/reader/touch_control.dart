@@ -20,6 +20,8 @@ class ScrollManager{
 
   final height = Get.height;
 
+  final maxScrollOnce = Get.height/10;
+
   ///是否正在进行释放缓存的偏移值
   bool runningRelease = false;
 
@@ -77,10 +79,10 @@ class ScrollManager{
           p = -4;
         }
         double value = log(offset>0?offset:0-offset) * p;
-        if(value > 80){
-          value = 80;
-        }else if(value < -80){
-          value = -80;
+        if(value > maxScrollOnce){
+          value = maxScrollOnce;
+        }else if(value < 0-maxScrollOnce){
+          value = 0-maxScrollOnce;
         }
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
