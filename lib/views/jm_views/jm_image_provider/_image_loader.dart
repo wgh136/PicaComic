@@ -52,17 +52,21 @@ class ImageLoader{
       String epsId
       ) async* {
     try {
-      //由于需要使用多线程对图片重组
-      //同时加载太多会导致内存占用极高
       chunkEvents.add(const ImageChunkEvent(
           cumulativeBytesLoaded: 1,
           expectedTotalBytes: 10000)
       );
+      //由于需要使用多线程对图片重组
+      //同时加载太多会导致内存占用极高
+      var manager = MyCacheManager();
       while(_loadingItem > 3){
+        if(manager.find(url)){
+          break;
+        }
         await Future.delayed(const Duration(milliseconds: 100));
       }
       _loadingItem++;
-      var manager = MyCacheManager();
+
       var bookId = "";
       for(int i = url.length-1;i>=0;i--){
         if(url[i] == '/'){

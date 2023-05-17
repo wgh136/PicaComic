@@ -262,6 +262,10 @@ class MyCacheManager{
       savePath.deleteSync(recursive: true);
     }
   }
+
+  bool find(String key){
+    return _paths![key] != null;
+  }
 }
 
 @immutable
