@@ -80,7 +80,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         width: MediaQuery.of(context).size.width,
         fit: BoxFit.fill,
         frameBuilder: (context, widget, i, b) {
-          return ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*300), child: Align(
+          return ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
             alignment: Alignment.topCenter,
             child: widget,
           ),);
@@ -90,7 +90,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             return widget;
           } else {
             return SizedBox(
-              height: MediaQuery.of(context).size.width/400*300,
+              height: MediaQuery.of(context).size.width/400*200,
               child: Center(
                   child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
                       ? CircularProgressIndicator(
