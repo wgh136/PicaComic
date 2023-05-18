@@ -80,7 +80,10 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         width: MediaQuery.of(context).size.width,
         fit: BoxFit.fill,
         frameBuilder: (context, widget, i, b) {
-          return ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*300), child: widget,);
+          return ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*300), child: Align(
+            alignment: Alignment.topCenter,
+            child: widget,
+          ),);
         },
         loadingBuilder: (context, widget, event) {
           if (event == null) {

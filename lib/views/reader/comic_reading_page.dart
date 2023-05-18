@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -607,6 +608,7 @@ class EhLoadingInfo{
 bool listen = false;
 
 void listenCacheSize() async{
+  if(!kDebugMode) return;
   listen = true;
   while(true){
     if(! listen){
