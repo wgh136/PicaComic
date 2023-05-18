@@ -261,6 +261,7 @@ class DownloadPage extends StatelessWidget {
       logic.comics.clear();
       await getComics(logic);
     }
+    logic.comics.sort((a, b)=>a.name.compareTo(b.name));
   }
 
   Future<void> export(DownloadPageLogic logic) async {
