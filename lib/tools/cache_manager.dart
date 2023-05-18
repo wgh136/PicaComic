@@ -262,6 +262,11 @@ class MyCacheManager{
       savePath.deleteSync(recursive: true);
     }
   }
+
+  Future<bool> find(String key) async{
+    await readData();
+    return _paths![key] != null;
+  }
 }
 
 @immutable

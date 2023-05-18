@@ -15,7 +15,7 @@ class ImageLoader{
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
-      DecoderBufferCallback decode,
+      ImageDecoderCallback decode,
       int? maxHeight,
       int? maxWidth,
       Map<String, String>? headers,
@@ -52,16 +52,21 @@ class ImageLoader{
       String epsId
       ) async* {
     try {
-      if(_loadingItem >= 5){
-        throw StateError("同时加载的图片过多");
+      chunkEvents.add(const ImageChunkEvent(
+          cumulativeBytesLoaded: 1,
+          expectedTotalBytes: 10000)
+      );
+      //由于需要使用多线程对图片重组
+      //同时加载太多会导致内存占用极高
+      var manager = MyCacheManager();
+      while(_loadingItem > 3){
+        if(await manager.find(url)){
+          break;
+        }
+        await Future.delayed(const Duration(milliseconds: 100));
       }
       _loadingItem++;
-      chunkEvents.add(const ImageChunkEvent(
-          cumulativeBytesLoaded: 0,
-          expectedTotalBytes: 1)
-      );
 
-      var manager = MyCacheManager();
       var bookId = "";
       for(int i = url.length-1;i>=0;i--){
         if(url[i] == '/'){

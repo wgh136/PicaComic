@@ -13,7 +13,7 @@ class ImageLoader{
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
-      DecoderBufferCallback decode,
+      ImageDecoderCallback decode,
       int? maxHeight,
       int? maxWidth,
       Map<String, String>? headers,

@@ -11,7 +11,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.6.4";
+const appVersion = "1.6.5";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -64,6 +64,7 @@ class Appdata{
     "0", //19 Jm搜索漫画排序模式, 值为 ComicsOrder 的索引
     "0", //20 Eh画廊站点, 1表示e-hentai, 2表示exhentai
     "111111", //21 启用的漫画源
+    "", //22 下载目录, 仅Windows端, 为空表示使用App数据目录
   ];
 
   ///屏蔽的关键词

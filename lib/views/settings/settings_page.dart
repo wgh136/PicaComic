@@ -230,6 +230,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         onTap: () {},
                       ),
+                    if(GetPlatform.isWindows)
+                      ListTile(
+                        leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
+                        title: const Text("设置下载目录"),
+                        onTap: () => setDownloadFolder(context),
+                      ),
                     if (!GetPlatform.isWeb)
                       GetBuilder<CalculateCacheLogic>(
                           init: CalculateCacheLogic(),

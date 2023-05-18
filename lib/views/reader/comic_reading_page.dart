@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -122,8 +123,15 @@ class ComicReadingPage extends StatelessWidget {
             if (appdata.settings[14] == "1") {
               setKeepScreenOn();
             }
+            //进入阅读器时清除内存中的缓存, 并且增大限制
+            PaintingBinding.instance.imageCache.clear();
+            PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+            listenCacheSize();
           },
           dispose: (logic) {
+            listen = false;
+            PaintingBinding.instance.imageCache.clear();
+            PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
             //保存历史记录
             if(type != ReadingType.ehentai && type != ReadingType.hitomi) {
               if (logic.controller!.order == 1 && logic.controller!.index == 1) {
@@ -595,4 +603,19 @@ class ComicReadingPage extends StatelessWidget {
 class EhLoadingInfo{
   int total = 1;
   var current = ValueNotifier<int>(0);
+}
+
+bool listen = false;
+
+void listenCacheSize() async{
+  if(!kDebugMode) return;
+  listen = true;
+  while(true){
+    if(! listen){
+      return;
+    }
+    print(PaintingBinding.instance.imageCache.currentSizeBytes);
+    print(PaintingBinding.instance.imageCache.currentSize);
+    await Future.delayed(const Duration(milliseconds: 1000));
+  }
 }

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -295,6 +298,89 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
           ),
         ],
       ),
+    );
+  }
+}
+
+void setDownloadFolder(BuildContext context){
+  showDialog(context: context, builder: (context)=>const SetDownloadFolderDialog());
+}
+
+class SetDownloadFolderDialog extends StatefulWidget {
+  const SetDownloadFolderDialog({Key? key}) : super(key: key);
+
+  @override
+  State<SetDownloadFolderDialog> createState() => _SetDownloadFolderDialogState();
+}
+
+class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
+  final controller = TextEditingController();
+  bool transform = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text("设置下载目录"),
+      children: [
+        SizedBox(
+          width: 400,
+          height: 220,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "路径",
+                    hintText: "为空表示使用App数据目录"
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: CheckboxListTile(value: transform, onChanged: (b) => setState(() {
+                  transform = b!;
+                }),title: const Text("转移数据"),),
+              ),
+              Center(
+                child: FilledButton(
+                  onPressed: () async{
+                    if(controller.text == appdata.settings[22]) return;
+                    var directory = Directory(controller.text);
+                    if(directory.existsSync() || controller.text == ""){
+                      var oldPath = appdata.settings[22];
+                      appdata.settings[22] = controller.text;
+                      if(transform) {
+                        showMessage(Get.context, "正在复制文件");
+                        await Future.delayed(const Duration(milliseconds: 200));
+                      }
+                      var res = await downloadManager.updatePath(controller.text, transform: transform);
+                      if(res == "ok"){
+                        Get.back();
+                        showMessage(Get.context, "更新成功");
+                        appdata.updateSettings();
+                      }else{
+                        appdata.settings[22] = oldPath;
+                        showMessage(Get.context, res);
+                      }
+                    }else{
+                      showMessage(context, "目录不存在");
+                    }
+                  },
+                  child: const Text("提交"),
+                ),
+              ),
+              const SizedBox(height: 8,),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                child: Text("现在的路径为: ${DownloadManager().path}"),
+              )
+            ],
+          ),
+        )
+      ],
     );
   }
 }
