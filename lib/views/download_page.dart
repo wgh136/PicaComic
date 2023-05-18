@@ -13,7 +13,6 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/widgets.dart';
@@ -66,7 +65,12 @@ class DownloadPage extends StatelessWidget {
               }
               logic.change();
             });
-            return showLoading(context, withScaffold: true);
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(
+                child: Text("加载中"),
+              ),
+            );
           } else {
             return Scaffold(
               appBar: AppBar(
@@ -92,7 +96,7 @@ class DownloadPage extends StatelessWidget {
                       child: IconButton(
                         icon: const Icon(Icons.download_for_offline),
                         onPressed: () {
-                          showAdaptiveWidget(context, const DownloadingPage());
+                          showAdaptiveWidget(context, DownloadingPage(inPopupWidget: MediaQuery.of(context).size.width>600,));
                         },
                       ),
                     )
