@@ -4,8 +4,10 @@ import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
-class EhGalleryTile extends StatelessWidget {
+class EhGalleryTile extends ComicTile{
   final EhGalleryBrief gallery;
   final void Function()? onTap;
   final void Function()? onLongTap;
@@ -15,141 +17,73 @@ class EhGalleryTile extends StatelessWidget {
   const EhGalleryTile(this.gallery,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  void favorite() {
+    showMessage(Get.context, "暂未实现, 请在漫画详情页收藏");
+  }
+
+  @override
+  String get description => (){
     var lang = "";
     if(gallery.tags.isNotEmpty&&gallery.tags[0].substring(0,4) == "lang"){
       lang = gallery.tags[0].substring(9);
     }
-    return InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap??() async{
-          Get.to(()=>EhGalleryPage(gallery));
-        },
-        onLongPress: onLongTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
-          child: Row(
-            children: [
-              Expanded(
-                  flex: 3,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16)
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: cached?CachedNetworkImage(
-                      imageUrl: gallery.coverPath,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      height: double.infinity,
-                      placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-                      httpHeaders: {
-                        "Cookie": EhNetwork().cookiesStr,
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-                        "Referer": EhNetwork().ehBaseUrl,
-                      },
-                    ):Image.network(
-                      gallery.coverPath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, url, error) => const Icon(Icons.error),
-                      height: double.infinity,
-                      frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
-                        return ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant, child: child,);
-                      },
-                      headers: {
-                        "Cookie": EhNetwork().cookiesStr,
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-                        "Referer": EhNetwork().ehBaseUrl,
-                      },
-                    )
-                  )
-              ),
-              SizedBox.fromSize(size: const Size(16,5),),
-              Expanded(
-                flex: 8,
-                child: ComicDescription(
-                  title: gallery.title,
-                  user: gallery.uploader,
-                  subDescription: "${gallery.time}  ${gallery.type}  $lang",
-                  star: gallery.stars,
-                ),
-              ),
-              //const Center(
-              //  child: Icon(Icons.arrow_right),
-              //)
-            ],
-          ),
-        )
-    );
-  }
-}
-
-class ComicDescription extends StatelessWidget {
-  const ComicDescription({super.key,
-    required this.title,
-    required this.user,
-    required this.subDescription,
-    required this.star
-  });
-
-  final String title;
-  final String user;
-  final String subDescription;
-  final double star;
+    return "${gallery.time}  ${gallery.type}  $lang";
+  }.call();
 
   @override
-  Widget build(BuildContext context) {
-    final s = star ~/ 0.5;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 0.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14.0,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),
-          Text(
-            user,
-            style: const TextStyle(fontSize: 10.0),
-            maxLines: 1,
-          ),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                SizedBox(
-                  height: 20,
-                  child: Row(
-                    children: [
-                      for(int i=0;i<s~/2;i++)
-                        Icon(Icons.star,size: 20,color: Theme.of(context).colorScheme.secondary,),
-                      if(s%2==1)
-                        Icon(Icons.star_half,size: 20,color: Theme.of(context).colorScheme.secondary,),
-                      for(int i=0;i<(5 - s~/2 - s%2);i++)
-                        const Icon(Icons.star_border,size: 20,)
-                    ],
-                  ),
-                ),
-                Text(
-                  subDescription,
-                  style: const TextStyle(
-                    fontSize: 12.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
+  Widget get image => cached?CachedNetworkImage(
+    imageUrl: gallery.coverPath,
+    fit: BoxFit.cover,
+    errorWidget: (context, url, error) => const Icon(Icons.error),
+    height: double.infinity,
+    placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
+    httpHeaders: {
+      "Cookie": EhNetwork().cookiesStr,
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+      "Referer": EhNetwork().ehBaseUrl,
+    },
+  ):Image.network(
+    gallery.coverPath,
+    fit: BoxFit.cover,
+    errorBuilder: (context, url, error) => const Icon(Icons.error),
+    height: double.infinity,
+    frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
+      return ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant, child: child,);
+    },
+    headers: {
+      "Cookie": EhNetwork().cookiesStr,
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+      "Referer": EhNetwork().ehBaseUrl,
+    },
+  );
+
+  @override
+  void onTap_() {
+    Get.to(() => EhGalleryPage(gallery));
+  }
+
+  @override
+  Widget? buildSubDescription(context){
+    final s = gallery.stars ~/ 0.5;
+    return SizedBox(
+      height: 20,
+      child: Row(
+        children: [
+          for(int i=0;i<s~/2;i++)
+            Icon(Icons.star,size: 20,color: Theme.of(context).colorScheme.secondary,),
+          if(s%2==1)
+            Icon(Icons.star_half,size: 20,color: Theme.of(context).colorScheme.secondary,),
+          for(int i=0;i<(5 - s~/2 - s%2);i++)
+            const Icon(Icons.star_border,size: 20,)
         ],
       ),
     );
   }
+
+  @override
+  String get subTitle => gallery.uploader;
+
+  @override
+  String get title => gallery.title;
+
 }

@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
 import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
 import 'package:pica_comic/views/pic_views/favorites_page.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class AllFavoritesPage extends StatefulWidget {
   const AllFavoritesPage({Key? key}) : super(key: key);

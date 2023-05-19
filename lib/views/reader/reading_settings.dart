@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../tools/keep_screen_on.dart';
 import 'reading_logic.dart';
 

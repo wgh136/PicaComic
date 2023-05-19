@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../base.dart';
 import '../me_page.dart';
 import '../widgets/select.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
 void setCloudflareIp(BuildContext context) {

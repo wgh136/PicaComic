@@ -15,10 +15,11 @@ import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../network/eh_network/eh_download_model.dart';
 import '../network/jm_network/jm_download.dart';
 import '../network/picacg_network/picacg_download_model.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class DownloadPageLogic extends GetxController {
   ///是否正在加载
@@ -361,7 +362,7 @@ class DownloadPage extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
               color: selected ? const Color.fromARGB(100, 121, 125, 127) : Colors.transparent),
-          child: ComicTile(
+          child: PicComicTile(
             ComicItemBrief(logic.comics[index].name, logic.comics[index].subTitle, 0, "",
                 logic.comics[index].id),
             downloaded: true,

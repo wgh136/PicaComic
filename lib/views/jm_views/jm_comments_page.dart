@@ -7,7 +7,7 @@ import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 
 import '../../network/jm_network/jm_main_network.dart';
-import '../widgets/widgets.dart' show showMessage;
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class JmCommentsPageLogic extends GetxController {
   bool loading = true;

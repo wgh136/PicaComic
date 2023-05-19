@@ -15,10 +15,11 @@ import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/base.dart';
 import 'package:share_plus/share_plus.dart';
 import '../widgets/select_download_eps.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
@@ -161,7 +162,7 @@ class ComicPage extends StatelessWidget{
                 delegate: SliverChildBuilderDelegate(
                     childCount: logic.recommendation.length,
                         (context, i){
-                      return ComicTile(logic.recommendation[i]);
+                      return PicComicTile(logic.recommendation[i]);
                     }
                 ),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

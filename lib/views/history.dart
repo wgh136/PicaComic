@@ -8,7 +8,7 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../base.dart';
 import '../network/jm_network/jm_image.dart';
 
@@ -80,7 +80,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
                         comics[i].target
                     );
-                    return ComicTile(
+                    return PicComicTile(
                       key: Key(comics[i].target),
                       onLongTap: (){
                         showDialog(context: context, builder: (context){

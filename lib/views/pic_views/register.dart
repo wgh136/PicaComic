@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class RegisterPageLogic extends GetxController{

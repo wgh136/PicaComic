@@ -19,7 +19,7 @@ import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/side_bar.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class JmComicPageLogic extends GetxController {
   bool loading = true;
@@ -702,9 +702,9 @@ void downloadComic(JmComicInfo comic, BuildContext context){
 
   List<String> eps = [];
   if(comic.series.isEmpty){
-    eps.add("第一章");
+    eps.add("第1章");
   }else{
-    eps = List<String>.generate(comic.series.length, (index) => "第$index章");
+    eps = List<String>.generate(comic.series.length, (index) => "第${index+1}章");
   }
 
   if(UiMode.m1(context)) {

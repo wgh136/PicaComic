@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';

@@ -16,7 +16,7 @@ import '../reader/goto_reader.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/selectable_text.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class GalleryPageLogic extends GetxController{
   bool loading = true;

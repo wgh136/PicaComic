@@ -14,7 +14,7 @@ import '../../base.dart';
 import '../../tools/ui_mode.dart';
 import '../show_image_page.dart';
 import '../widgets/selectable_text.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class HitomiComicPageLogic extends GetxController{
   bool loading = true;

@@ -7,7 +7,7 @@ import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'jm_views/jm_comic_page.dart';

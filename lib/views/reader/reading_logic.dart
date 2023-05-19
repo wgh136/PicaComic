@@ -7,7 +7,7 @@ import '../../base.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../widgets/scrollable_list/src/item_positions_listener.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式

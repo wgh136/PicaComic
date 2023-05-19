@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
@@ -7,7 +6,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../network/update.dart';
 import '../../tools/io_tools.dart';
 import '../../tools/proxy.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';

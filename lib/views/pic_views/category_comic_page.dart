@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
@@ -184,7 +184,7 @@ class CategoryComicPage extends StatelessWidget {
                             });
                           }
                       }
-                        return ComicTile(categoryComicPageLogic.search.comics[i]);
+                        return PicComicTile(categoryComicPageLogic.search.comics[i]);
                       }
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

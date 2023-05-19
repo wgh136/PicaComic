@@ -12,7 +12,7 @@ import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../network/hitomi_network/hitomi_models.dart';

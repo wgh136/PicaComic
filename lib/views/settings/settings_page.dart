@@ -5,7 +5,7 @@ import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
 import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../widgets/select.dart';
 import 'eh_settings.dart';

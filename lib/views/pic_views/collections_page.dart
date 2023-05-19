@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class CollectionPageLogic extends GetxController{
@@ -98,7 +97,7 @@ class CollectionsPage extends StatelessWidget {
                   delegate: SliverChildBuilderDelegate(
                       childCount: logic.c1.length,
                           (context, i){
-                        return ComicTile(logic.c1[i]);
+                        return PicComicTile(logic.c1[i]);
                       }
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -118,7 +117,7 @@ class CollectionsPage extends StatelessWidget {
                   delegate: SliverChildBuilderDelegate(
                       childCount: logic.c2.length,
                           (context, i){
-                        return ComicTile(logic.c2[i]);
+                        return PicComicTile(logic.c2[i]);
                       }
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

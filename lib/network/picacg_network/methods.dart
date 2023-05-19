@@ -6,7 +6,7 @@ import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/picacg_network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 import 'models.dart';
 
@@ -557,11 +557,12 @@ class Network{
 
   Future<bool> favouriteOrUnfavoriteComic(String id) async {
     var res = await post('$apiUrl/comics/$id/favourite',{});
-    if(res != null){
-      return true;
-    }else{
+    if(res == null){
+      showMessage(Get.context, "网络错误");
       return false;
     }
+    showMessage(Get.context, (res["data"]["action"]=="favourite")?"添加收藏成功":"取消收藏成功");
+    return true;
   }
 
   Future<List<ComicItemBrief>> getLeaderboard(String time) async{

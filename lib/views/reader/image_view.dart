@@ -13,7 +13,7 @@ import '../eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
 import '../jm_views/jm_image_provider/jm_cached_image.dart';
 import '../widgets/cf_image_widgets.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'reading_type.dart';
 

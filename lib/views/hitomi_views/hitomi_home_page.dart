@@ -4,7 +4,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 

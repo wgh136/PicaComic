@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/widgets/search.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../base.dart';
 import '../widgets/list_loading.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -183,7 +183,7 @@ class SearchPage extends StatelessWidget {
                                 searchPageLogic.update();
                               });
                             }
-                            return ComicTile(searchPageLogic.searchResult.comics[i]);
+                            return PicComicTile(searchPageLogic.searchResult.comics[i]);
                           }
                       ),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

@@ -8,7 +8,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

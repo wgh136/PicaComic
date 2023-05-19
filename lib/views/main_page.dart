@@ -14,7 +14,6 @@ import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
@@ -26,6 +25,7 @@ import 'pic_views/home_page.dart';
 import 'me_page.dart';
 import 'widgets/my_icons_icons.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class Destination {
   const Destination(this.label, this.icon, this.selectedIcon);

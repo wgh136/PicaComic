@@ -6,7 +6,7 @@ import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class EhFavouritePageLogic extends GetxController{
   bool loading = true;
