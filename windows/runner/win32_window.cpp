@@ -282,7 +282,15 @@ void Win32Window::UpdateTheme(HWND const window) {
 
   if (result == ERROR_SUCCESS) {
     BOOL enable_dark_mode = light_mode == 0;
-    DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE,
-                          &enable_dark_mode, sizeof(enable_dark_mode));
+    COLORREF color;
+    if(enable_dark_mode)
+    {
+      color = 0x333333;
+    }else
+    {
+      color = 0xF1F1F1;
+    }
+    DwmSetWindowAttribute(window, DWMWA_CAPTION_COLOR,
+                          &color, sizeof(color));
   }
 }
