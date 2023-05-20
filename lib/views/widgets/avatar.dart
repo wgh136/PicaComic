@@ -52,6 +52,7 @@ class Avatar extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error),),
                   placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
+                  filterQuality: FilterQuality.medium
                 ),
               ),
             ),

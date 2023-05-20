@@ -110,7 +110,7 @@ class EhGalleryPage extends StatelessWidget {
                   pinned: true,
                   actions: [
                     Tooltip(
-                      message: "分享",
+                      message: "分享".tr,
                       child: IconButton(
                         icon: const Icon(Icons.share,),
                         onPressed: () {
@@ -176,7 +176,7 @@ class EhGalleryPage extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("评分"),
+                        Text("评分".tr),
                         SizedBox(
                           height: 30,
                           child: Row(
@@ -221,7 +221,7 @@ class EhGalleryPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if(! logic.noNetwork)
-                  const Text("评分"),
+                    Text("评分".tr),
                   if(! logic.noNetwork)
                   SizedBox(
                     height: 30,
@@ -304,7 +304,7 @@ class EhGalleryPage extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: ActionChip(
-            label: const Text("评分"),
+            label: Text("评分".tr),
             avatar: const Icon(Icons.star),
             onPressed: (){
               if(logic.noNetwork){
@@ -316,20 +316,20 @@ class EhGalleryPage extends StatelessWidget {
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: ActionChip(
-            label: const Text("收藏"),
+            label: Text("收藏".tr),
             avatar: logic.gallery!.favorite?const Icon(Icons.bookmark):const Icon(Icons.bookmark_outline),
             onPressed: (){
               if(!logic.gallery!.favorite){
                 showDialog(context: context, builder: (context)=>FavoriteComicDialog(logic));
               }else{
-                showMessage(context, "正在取消收藏");
+                showMessage(context, "正在取消收藏".tr);
                 EhNetwork().unfavorite(logic.gallery!.auth!["gid"]!, logic.gallery!.auth!["token"]!).then((b){
                   if(b){
-                    showMessage(Get.context, "取消收藏成功");
+                    showMessage(Get.context, "取消收藏成功".tr);
                     logic.gallery!.favorite = false;
                     logic.update();
                   }else{
-                    showMessage(Get.context, "取消收藏失败");
+                    showMessage(Get.context, "取消收藏失败".tr);
                   }
                 });
               }
@@ -340,11 +340,7 @@ class EhGalleryPage extends StatelessWidget {
             label: const Text("评论"),
             avatar: const Icon(Icons.comment_outlined),
             onPressed: (){
-              if(logic.noNetwork){
-                showMessage(context, "无网络");
-              }else{
-                comment(context, logic.gallery!.link);
-              }
+              comment(context, logic.gallery!.link);
             }
           ),),
         ],
@@ -358,24 +354,24 @@ class EhGalleryPage extends StatelessWidget {
             onPressed: (){
               final id = getGalleryId(logic.gallery!.link);
               if(downloadManager.downloadedGalleries.contains(id)){
-                showMessage(context, "已下载");
+                showMessage(context, "已下载".tr);
                 return;
               }
               for(var i in downloadManager.downloading){
                 if(i.id == id){
-                  showMessage(context, "下载中");
+                  showMessage(context, "下载中".tr);
                   return;
                 }
               }
               downloadManager.addEhDownload(logic.gallery!);
-              showMessage(context, "已加入下载队列");
+              showMessage(context, "已加入下载队列".tr);
             },
             child: (downloadManager.downloadedGalleries.contains(getGalleryId(logic.gallery!.link)))?const Text("已下载"):const Text("下载"),
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
             onPressed: () => readEhGallery(logic.gallery!),
-            child: const Text("阅读"),
+            child: Text("阅读".tr),
           ),),
 
         ],
@@ -392,10 +388,10 @@ class EhGalleryPage extends StatelessWidget {
             position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: (){
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
             ]
@@ -407,10 +403,10 @@ class EhGalleryPage extends StatelessWidget {
             position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: (){
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
             ]
@@ -488,7 +484,7 @@ class EhGalleryPage extends StatelessWidget {
 
   void starRating(BuildContext context, Map<String, String> auth){
     if(appdata.ehId==""){
-      showMessage(context, "未登录");
+      showMessage(context, "未登录".tr);
       return;
     }
     showDialog(context: context, builder: (dialogContext)=>GetBuilder<RatingLogic>(
@@ -520,7 +516,7 @@ class EhGalleryPage extends StatelessWidget {
                         EhNetwork().rateGallery(auth,logic.rating.toInt()).then((b){
                           if(b){
                             Get.back();
-                            showMessage(context, "评分成功");
+                            showMessage(context, "评分成功".tr);
                             Get.find<GalleryPageLogic>().updateStars(logic.rating);
                           }else{
                             logic.running = false;
@@ -528,7 +524,7 @@ class EhGalleryPage extends StatelessWidget {
                             showMessage(dialogContext, EhNetwork().status?EhNetwork().message:"网络错误");
                           }
                         });
-                      }, child: const Text("提交"))
+                      }, child: Text("提交".tr))
                     else
                       const CircularProgressIndicator()
                   ],
@@ -543,13 +539,13 @@ class EhGalleryPage extends StatelessWidget {
 
   void comment(BuildContext context, String link){
     if(appdata.ehId==""){
-      showMessage(context, "未登录");
+      showMessage(context, "未登录".tr);
       return;
     }
     showDialog(context: context, builder: (dialogContext)=>GetBuilder<CommentLogic>(
       init: CommentLogic(),
         builder: (logic)=>SimpleDialog(
-          title: const Text("发布评论"),
+          title: Text("发布评论".tr),
           children: [
             SizedBox(
               width: 400,
@@ -572,7 +568,7 @@ class EhGalleryPage extends StatelessWidget {
                       EhNetwork().comment(logic.controller.text,link).then((b){
                         if(b){
                           Get.back();
-                          showMessage(context, "评论成功");
+                          showMessage(context, "评论成功".tr);
                           var pageLogic = Get.find<GalleryPageLogic>();
                           pageLogic.gallery!.comments.add(Comment(appdata.ehAccount, logic.controller.text, "now"));
                           pageLogic.update();
@@ -582,7 +578,7 @@ class EhGalleryPage extends StatelessWidget {
                           showMessage(context, EhNetwork().status?EhNetwork().message:"网络错误");
                         }
                       });
-                    }, child: const Text("提交"))
+                    }, child: Text("提交".tr))
                   else
                     const CircularProgressIndicator()
                 ],
@@ -642,7 +638,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text("收藏漫画"),
+      title: Text("收藏漫画".tr),
       children: [
         SizedBox(
           key: const Key("2"),
@@ -663,7 +659,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Text("  选择收藏夹:  "),
+                    Text("  选择收藏夹:  ".tr),
                     Text(folderName),
                     const Spacer(),
                     IconButton(
@@ -711,8 +707,8 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                   Get.back();
                   widget.logic.gallery!.favorite = true;
                   widget.logic.update();
-                  showMessage(Get.context, "添加成功");
-                }, child: const Text("提交"))
+                  showMessage(Get.context, "添加成功".tr);
+                }, child: Text("提交".tr))
               else
                 const Center(
                   child: CircularProgressIndicator(),

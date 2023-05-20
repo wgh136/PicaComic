@@ -76,7 +76,7 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToNextChapter(ReadingType type, List<String> eps){
     if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || (type==ReadingType.jm) && order == eps.length){
       controller.jumpToPage(urls.length);
-      showMessage(Get.context, "已经是最后一章了");
+      showMessage(Get.context, "已经是最后一章了".tr);
       return;
     }
     order += 1;
@@ -92,11 +92,11 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToLastChapter(ReadingType type, List<String> eps){
     if(order == 1 && type == ReadingType.picacg){
       controller.jumpToPage(1);
-      showMessage(Get.context, "已经是第一章了");
+      showMessage(Get.context, "已经是第一章了".tr);
       return;
     }else if(order == 1 && type == ReadingType.jm){
       controller.jumpToPage(1);
-      showMessage(Get.context, "已经是第一章了");
+      showMessage(Get.context, "已经是第一章了".tr);
       return;
     }
 

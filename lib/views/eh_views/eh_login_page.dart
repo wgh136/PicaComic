@@ -23,7 +23,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("登录E-Hentai账户"),),
+      appBar: AppBar(title: Text("登录E-Hentai账户".tr),),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -35,7 +35,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("  使用cookie登录",style: TextStyle(fontSize: 18),),
+                    Text("  使用cookie登录".tr,style: const TextStyle(fontSize: 18),),
                     const SizedBox(height: 3,),
                     Padding(
                       padding: const EdgeInsets.all(5),
@@ -61,9 +61,9 @@ class _EhLoginPageState extends State<EhLoginPage> {
                       padding: const EdgeInsets.all(5),
                       child: TextField(
                         controller: c3,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "igneous(非必要)"
+                        decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: "igneous(非必要)".tr
                         ),
                       ),
                     ),
@@ -71,10 +71,10 @@ class _EhLoginPageState extends State<EhLoginPage> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                         child: !logging?FilledButton(
-                          child: const Text("登录"),
+                          child: Text("登录".tr),
                           onPressed: (){
                             if(c1.text=="" || c2.text==""){
-                              showMessage(context, "请填写完整");
+                              showMessage(context, "请填写完整".tr);
                             }else{
                               login(c1.text, c2.text, c3.text);
                             }
@@ -99,15 +99,15 @@ class _EhLoginPageState extends State<EhLoginPage> {
                                   login(id!.value, hash!.value, igneous==null?"":igneous.value);
                                 }
                                 catch(e){
-                                  showMessage(Get.context, "登录失败");
+                                  showMessage(Get.context, "登录失败".tr);
                                 }
                               });
                               await browser.openUrlRequest(urlRequest: URLRequest(url: Uri.parse("https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
                             },
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Text("在Webview中登录"),
-                                Icon(Icons.arrow_outward,size: 15,)
+                                Text("在Webview中登录".tr),
+                                const Icon(Icons.arrow_outward,size: 15,)
                               ],
                             ),
                           ),
@@ -120,22 +120,22 @@ class _EhLoginPageState extends State<EhLoginPage> {
                       height: 40,
                       child: TextButton(
                         onPressed: ()=>launchUrlString("https://forums.e-hentai.org/index.php?act=Reg&CODE=00",mode: LaunchMode.externalApplication),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Text("注册"),
-                            Icon(Icons.arrow_outward,size: 15,)
+                            Text("注册".tr),
+                            const Icon(Icons.arrow_outward,size: 15,)
                           ],
                         ),
                       ),
                     ),),
-                    const SizedBox(
+                    SizedBox(
                       width: 400,
                       height: 40,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.info_outline,size: 20,),
-                          Text("由于需要captcha响应, 暂不支持直接密码登录",maxLines: 2,)
+                          const Icon(Icons.info_outline,size: 20,),
+                          Text("由于需要captcha响应, 暂不支持直接密码登录".tr,maxLines: 2,)
                         ],
                       ),
                     )
@@ -158,9 +158,9 @@ class _EhLoginPageState extends State<EhLoginPage> {
       EhNetwork().getUserName().then((b){
         if(b){
           Get.back();
-          showMessage(context, "登录成功");
+          showMessage(context, "登录成功".tr);
         }else{
-          showMessage(context, EhNetwork().status?EhNetwork().message:"登录失败");
+          showMessage(context, EhNetwork().status?EhNetwork().message:"登录失败".tr);
           setState(() {
             logging = false;
           });

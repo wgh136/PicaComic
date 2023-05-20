@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ListLoadingIndicator extends StatelessWidget {
   const ListLoadingIndicator({Key? key}) : super(key: key);
@@ -13,13 +14,13 @@ class ListLoadingIndicator extends StatelessWidget {
           width: 100,
           height: 60,
           child: Row(
-            children: const [
-              SizedBox(
+            children: [
+              const SizedBox(
                 width: 25,
                 height: 25,
                 child: CircularProgressIndicator(strokeWidth: 3,),
               ),
-              Text("  加载中...")
+              Text("  加载中...".tr)
             ],
           ),
         ),

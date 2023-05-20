@@ -35,12 +35,12 @@ class WelcomePage extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: 90,
-                      child: FilledButton(onPressed: () => Get.to(()=>const LoginPage()), child: const Text("登录")),
+                      child: FilledButton(onPressed: () => Get.to(()=>const LoginPage()), child: Text("登录".tr)),
                     ),
                     const Spacer(),
                     SizedBox(
                       width: 90,
-                      child: FilledButton(onPressed: () => Get.to(()=>const RegisterPage()), child: const Text("注册")),
+                      child: FilledButton(onPressed: () => Get.to(()=>const RegisterPage()), child: Text("注册".tr)),
                     ),
                   ],
                 ),
@@ -50,7 +50,7 @@ class WelcomePage extends StatelessWidget {
                 height: 40,
                 child: Center(
                   child: TextButton(
-                    child: const Text("直接进入"),
+                    child: Text("直接进入".tr),
                     onPressed: () => Get.offAll(()=>const MainPage()),
                   ),
                 ),

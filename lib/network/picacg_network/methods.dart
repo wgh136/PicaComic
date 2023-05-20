@@ -70,7 +70,7 @@ class Network{
         appdata.settings[13] = "0";
         appdata.writeData();
         Get.offAll(const LoginPage());
-        showMessage(Get.context, "登录失效");
+        showMessage(Get.context, "登录失效".tr);
         return null;
       } else{
         return null;
@@ -117,7 +117,7 @@ class Network{
         appdata.settings[13] = "0";
         appdata.writeData();
         Get.offAll(const LoginPage());
-        showMessage(Get.context, "登录失效");
+        showMessage(Get.context, "登录失效".tr);
         return null;
       } else{
         return null;
@@ -558,10 +558,10 @@ class Network{
   Future<bool> favouriteOrUnfavoriteComic(String id) async {
     var res = await post('$apiUrl/comics/$id/favourite',{});
     if(res == null){
-      showMessage(Get.context, "网络错误");
+      showMessage(Get.context, "网络错误".tr);
       return false;
     }
-    showMessage(Get.context, (res["data"]["action"]=="favourite")?"添加收藏成功":"取消收藏成功");
+    showMessage(Get.context, (res["data"]["action"]=="favourite")?"添加收藏成功".tr:"取消收藏成功".tr);
     return true;
   }
 

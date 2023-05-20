@@ -68,8 +68,8 @@ class DownloadPage extends StatelessWidget {
             });
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(
-                child: Text("加载中"),
+              body: Center(
+                child: Text("加载中".tr),
               ),
             );
           } else {
@@ -89,11 +89,13 @@ class DownloadPage extends StatelessWidget {
                     : IconButton(onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
                 backgroundColor:
                     logic.selecting ? Theme.of(context).colorScheme.secondaryContainer : null,
-                title: logic.selecting ? Text("已选择${logic.selectedNum}个项目") : const Text("已下载"),
+                title: logic.selecting ? Text("已选择 @num 个项目".trParams({
+                    "num": logic.selectedNum.toString()
+                  })) : Text("已下载".tr),
                 actions: [
                   if (!logic.selecting)
                     Tooltip(
-                      message: "下载管理器",
+                      message: "下载管理器".tr,
                       child: IconButton(
                         icon: const Icon(Icons.download_for_offline),
                         onPressed: () {
@@ -103,7 +105,7 @@ class DownloadPage extends StatelessWidget {
                     )
                   else
                     Tooltip(
-                      message: "更多",
+                      message: "更多".tr,
                       child: IconButton(
                         icon: const Icon(Icons.more_horiz),
                         onPressed: () {
@@ -116,7 +118,7 @@ class DownloadPage extends StatelessWidget {
                                   50),
                               items: [
                                 PopupMenuItem(
-                                  child: const Text("全选"),
+                                  child: Text("全选".tr),
                                   onTap: () {
                                     for (int i = 0; i < logic.selected.length; i++) {
                                       logic.selected[i] = true;
@@ -126,12 +128,12 @@ class DownloadPage extends StatelessWidget {
                                   },
                                 ),
                                 PopupMenuItem(
-                                  child: const Text("导出"),
+                                  child: Text("导出".tr),
                                   onTap: () {
                                     if (logic.selectedNum == 0) {
-                                      showMessage(context, "请选择漫画");
+                                      showMessage(context, "请选择漫画".tr);
                                     } else if (logic.selectedNum > 1) {
-                                      showMessage(context, "一次只能导出一部漫画");
+                                      showMessage(context, "一次只能导出一部漫画".tr);
                                     } else {
                                       Future<void>.delayed(
                                         const Duration(milliseconds: 200),
@@ -173,7 +175,7 @@ class DownloadPage extends StatelessWidget {
                                   },
                                 ),
                                 PopupMenuItem(
-                                  child: const Text("查看漫画详情"),
+                                  child: Text("查看漫画详情".tr),
                                   onTap: () => Future.delayed(const Duration(milliseconds: 200),
                                       () => toComicInfoPage(logic)),
                                 ),
@@ -195,8 +197,8 @@ class DownloadPage extends StatelessWidget {
                         context: context,
                         builder: (dialogContext) {
                           return AlertDialog(
-                            title: const Text("删除"),
-                            content: Text("要删除已选择的${logic.selectedNum}项吗? 此操作无法撤销"),
+                            title: Text("删除".tr),
+                            content: Text("要删除已选择的项目吗? 此操作无法撤销".tr),
                             actions: [
                               TextButton(onPressed: () => Get.back(), child: const Text("取消")),
                               TextButton(
@@ -211,7 +213,7 @@ class DownloadPage extends StatelessWidget {
                                     await downloadManager.delete(comics);
                                     logic.fresh();
                                   },
-                                  child: const Text("确认")),
+                                  child: Text("确认".tr)),
                             ],
                           );
                         });
@@ -289,10 +291,10 @@ class DownloadPage extends StatelessWidget {
                     logic.selected.removeAt(index);
                     logic.update();
                   },
-                  child: const Text("删除"),
+                  child: Text("删除".tr),
                 ),
                 PopupMenuItem(
-                  child: const Text("导出"),
+                  child: Text("导出".tr),
                   onTap: () {
                     Future<void>.delayed(
                       const Duration(milliseconds: 200),
@@ -300,7 +302,7 @@ class DownloadPage extends StatelessWidget {
                         context: context,
                         barrierDismissible: false,
                         barrierColor: Colors.black26,
-                        builder: (context) => const SimpleDialog(
+                        builder: (context) => SimpleDialog(
                           children: [
                             SizedBox(
                               width: 200,
@@ -311,14 +313,14 @@ class DownloadPage extends StatelessWidget {
                                   height: 80,
                                   child: Column(
                                     children: [
-                                      SizedBox(
+                                      const SizedBox(
                                         height: 10,
                                       ),
-                                      CircularProgressIndicator(),
-                                      SizedBox(
+                                      const CircularProgressIndicator(),
+                                      const SizedBox(
                                         height: 9,
                                       ),
-                                      Text("打包中")
+                                      Text("打包中".tr)
                                     ],
                                   ),
                                 ),
@@ -334,7 +336,7 @@ class DownloadPage extends StatelessWidget {
                   },
                 ),
                 PopupMenuItem(
-                  child: const Text("查看漫画详情"),
+                  child: Text("查看漫画详情".tr),
                   onTap: () {
                     Future.delayed(const Duration(milliseconds: 300), () {
                       switch (logic.comics[index].type.index) {
@@ -382,7 +384,7 @@ class DownloadPage extends StatelessWidget {
               if (logic.comics[index].comicSize != null) {
                 return logic.comics[index].comicSize!.toStringAsFixed(2);
               } else {
-                return "未知大小";
+                return "未知大小".tr;
               }
             }.call(),
             onLongTap: () {
@@ -398,7 +400,7 @@ class DownloadPage extends StatelessWidget {
 
   void toComicInfoPage(DownloadPageLogic logic) {
     if (logic.selectedNum != 1) {
-      showMessage(Get.context, "请选择一个漫画");
+      showMessage(Get.context, "请选择一个漫画".tr);
     } else {
       for (int i = 0; i < logic.selected.length; i++) {
         if (logic.selected[i]) {
@@ -530,13 +532,13 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             Get.to(() => HitomiComicPage((widget.item as DownloadedHitomiComic).toBrief()));
                           }
                         },
-                        child: const Text("查看详情")),
+                        child: Text("查看详情".tr)),
                   ),
                   const SizedBox(
                     width: 16,
                   ),
                   Expanded(
-                    child: FilledButton(onPressed: () => read(), child: const Text("阅读")),
+                    child: FilledButton(onPressed: () => read(), child: Text("阅读".tr)),
                   ),
                 ],
               )),

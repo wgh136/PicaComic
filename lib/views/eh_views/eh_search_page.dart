@@ -54,7 +54,7 @@ class EhSearchPage extends StatelessWidget {
                     minHeight: 60,
                     maxHeight: 0,
                     child: FloatingSearchBar(
-                      supportingText: '搜索',
+                      supportingText: '搜索'.tr,
                       f:(s){
                         if(s=="") return;
                         logic.change();
@@ -108,10 +108,10 @@ class EhSearchPage extends StatelessWidget {
           ),
         );
       }else{
-        return const SliverToBoxAdapter(
+        return SliverToBoxAdapter(
           child: ListTile(
-            leading: Icon(Icons.error_outline),
-            title: Text("没有任何结果"),
+            leading: const Icon(Icons.error_outline),
+            title: Text("没有任何结果".tr),
           ),
         );
       }

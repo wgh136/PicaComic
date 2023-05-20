@@ -101,10 +101,10 @@ class CommentsPage extends StatelessWidget {
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: TextField(
                               controller: logic.controller,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                   border: InputBorder.none,
                                   isCollapsed: true,
-                                  hintText: "评论"
+                                  hintText: "评论".tr
                               ),
                               minLines: 1,
                               maxLines: 5,
@@ -115,7 +115,7 @@ class CommentsPage extends StatelessWidget {
                             child: SizedBox(width: 23,height: 23,child: CircularProgressIndicator(),),
                           ):IconButton(onPressed: () async{
                             if(logic.controller.text.length<2){
-                              showMessage(context, "评论至少需要2个字");
+                              showMessage(context, "评论至少需要2个字".tr);
                               return;
                             }
                             logic.sending = true;
@@ -134,7 +134,7 @@ class CommentsPage extends StatelessWidget {
                               if(network.status){
                                 showMessage(Get.context, network.message);
                               }else{
-                                showMessage(Get.context, "网络错误");
+                                showMessage(Get.context, "网络错误".tr);
                               }
                               logic.sending = false;
                               logic.update();
@@ -156,7 +156,7 @@ class CommentsPage extends StatelessWidget {
     }else{
       return Scaffold(
         appBar: AppBar(
-          title: const Text("评论"),
+          title: Text("评论".tr),
         ),
         body: body,
       );
@@ -165,5 +165,5 @@ class CommentsPage extends StatelessWidget {
 }
 
 void showComments(BuildContext context, String id){
-  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论",);
+  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论".tr,);
 }

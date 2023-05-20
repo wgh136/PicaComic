@@ -29,7 +29,7 @@ Widget showNetworkError(String message, void Function() retry, BuildContext cont
                 const SizedBox(height: 5,),
                 Text(message, textAlign: TextAlign.center,),
                 const SizedBox(height: 5,),
-                FilledButton(onPressed: retry, child: const Text('重试'))
+                FilledButton(onPressed: retry, child: Text('重试'.tr))
               ],
             ),
           ),

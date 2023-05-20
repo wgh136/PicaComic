@@ -12,7 +12,7 @@ class JmDetailedCategoriesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildTitle("每周必看"),
+          buildTitle("每周必看".tr),
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 16),
             child: SizedBox(
@@ -24,11 +24,11 @@ class JmDetailedCategoriesPage extends StatelessWidget {
                 child: Card(
                   margin: EdgeInsets.zero,
                   child: Row(
-                    children: const [
-                      SizedBox(width: 8,),
-                      Icon(Icons.book_outlined),
-                      SizedBox(width: 16,),
-                      Text("每周必看"),
+                    children: [
+                      const SizedBox(width: 8,),
+                      const Icon(Icons.book_outlined),
+                      const SizedBox(width: 16,),
+                      Text("每周必看".tr),
                     ],
                   ),
                 ),

@@ -28,16 +28,16 @@ class EhLeaderboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(length: 4, child: Column(
-      children: const [
+      children: [
         TabBar(
-          splashBorderRadius: BorderRadius.all(Radius.circular(10)),
+          splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
           tabs: [
-            Tab(text: "昨天"),
-            Tab(text: "一个月"),
-            Tab(text: "一年"),
-            Tab(text: "所有时间"),
+            Tab(text: "昨天".tr),
+            Tab(text: "一个月".tr),
+            Tab(text: "一年".tr),
+            Tab(text: "所有时间".tr),
           ]),
-        Expanded(child: TabBarView(
+        const Expanded(child: TabBarView(
             children: [
               OneEhLeaderboardPage(0),
               OneEhLeaderboardPage(1),
@@ -102,12 +102,12 @@ class OneEhLeaderboardPage extends StatelessWidget{
                         children: [
                           const Icon(Icons.error_outline,size: 25,),
                           const SizedBox(width: 2,),
-                          Text(EhNetwork().status?EhNetwork().message:"网络错误")
+                          Text(EhNetwork().status?EhNetwork().message:"网络错误".tr)
                         ],
                       ),
                     ),
                     Expanded(child: Center(child: FilledButton(
-                      child: const Text("重试"),
+                      child: Text("重试".tr),
                       onPressed: (){
                         logic.networkStatus[index] = false;
                         logic.update();

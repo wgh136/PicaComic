@@ -58,7 +58,7 @@ class DownloadingTile extends StatelessWidget {
                   children: [
                     Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
                     const Spacer(),
-                    Text("已下载${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
+                    Text("${"已下载".tr}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
                     const SizedBox(height: 3,),
                     LinearProgressIndicator(
                       value: controller.value,

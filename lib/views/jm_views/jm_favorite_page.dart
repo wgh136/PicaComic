@@ -10,7 +10,7 @@ import 'jm_widgets.dart';
 
 class JmFavoritePageLogic extends GetxController{
   bool loading = true;
-  String folderName = "全部";
+  String folderName = "全部".tr;
   String folderId = "0";
   FavoriteFolder? folder;
   String? message;
@@ -66,8 +66,8 @@ class JmFavoritePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<JmFavoritePageLogic>(builder: (logic){
       if(appdata.jmName == ""){
-        return const Center(
-          child: Text("未登录"),
+        return Center(
+          child: Text("未登录".tr),
         );
       }
       if(logic.loading){
@@ -140,14 +140,14 @@ class JmFavoritePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Text("  收藏夹:  "),
+                Text("  收藏夹:  ".tr),
                 Text(logic.folderName),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_down_sharp),
                   onPressed: (){
                     if(loading){
-                      showMessage(context, "加载中");
+                      showMessage(context, "加载中".tr);
                       return;
                     }
                     showMenu(
@@ -155,11 +155,11 @@ class JmFavoritePage extends StatelessWidget {
                         position: RelativeRect.fromLTRB(280, 150, MediaQuery.of(context).size.width-280, MediaQuery.of(context).size.height-150),
                         items: [
                           PopupMenuItem(
-                            child: const Text("全部"),
+                            child: Text("全部".tr),
                             onTap: (){
                               if(logic.folderId != "0"){
                                 logic.folderId = "0";
-                                logic.folderName = "全部";
+                                logic.folderName = "全部".tr;
                                 logic.refresh_();
                               }
                             },
@@ -195,26 +195,26 @@ class JmFavoritePage extends StatelessWidget {
             icon: const Icon(Icons.delete_outline),
             onPressed: (){
               if(logic.folderId == "0"){
-                showMessage(context, "不可删除全部收藏");
+                showMessage(context, "不可删除全部收藏".tr);
                 return;
               }
               showDialog(context: context, builder: (context){
                 return AlertDialog(
-                  title: const Text("确认删除"),
-                  content: const Text("要删除这个收藏夹吗"),
+                  title: Text("确认删除".tr),
+                  content: Text("要删除这个收藏夹吗(删除操作存在延迟, 暂时不知道原因)".tr),
                   actions: [
                     TextButton(onPressed: () => Get.back(), child: const Text("取消")),
                     TextButton(onPressed: () async{
                       Get.back();
-                      showMessage(context, "正在删除收藏夹");
+                      showMessage(context, "正在删除收藏夹".tr);
                       var res = await jmNetwork.deleteFolder(logic.folderId);
-                      showMessage(Get.context, res.error?res.errorMessage!:"删除成功");
+                      showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tr);
                       if(! res.error){
                         logic.folderId = "0";
-                        logic.folderName = "全部";
+                        logic.folderName = "全部".tr;
                         logic.refresh_();
                       }
-                    }, child: const Text("确认")),
+                    }, child: Text("确认".tr)),
                   ],
                 );
               });
@@ -239,15 +239,15 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text("创建收藏夹"),
+      title: Text("创建收藏夹".tr),
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: TextField(
             controller: controller,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "名称",
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: "名称".tr,
             ),
           ),
         ),
@@ -277,11 +277,11 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                     });
                   }else{
                     Get.back();
-                    showMessage(context, "成功创建");
+                    showMessage(context, "成功创建".tr);
                     Get.find<JmFavoritePageLogic>().refresh_();
                   }
                 });
-              }, child: const Text("提交")),
+              }, child: Text("提交".tr)),
             )
           )
       ],

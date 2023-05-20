@@ -36,7 +36,7 @@ class JmComicTile extends ComicTile {
       if(res.error){
         showMessage(Get.context, res.errorMessage!);
       }else{
-        showMessage(Get.context, res.data?"添加收藏成功":"取消收藏成功");
+        showMessage(Get.context, res.data?"添加收藏成功".tr:"取消收藏成功".tr);
       }
     });
   }

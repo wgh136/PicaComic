@@ -131,10 +131,10 @@ class JmCommentsPage extends StatelessWidget {
                                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                                 child: TextField(
                                   controller: logic.controller,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     border: InputBorder.none,
                                     isCollapsed: true,
-                                    hintText: "评论",
+                                    hintText: "评论".tr,
                                   ),
                                   minLines: 1,
                                   maxLines: 5,
@@ -142,7 +142,7 @@ class JmCommentsPage extends StatelessWidget {
                           )),
                           IconButton(
                               onPressed: () async {
-                                showMessage(context, "正在发送评论");
+                                showMessage(context, "正在发送评论".tr);
                                 var res = await JmNetwork().comment(id, logic.controller.text);
                                 if(res.error){
                                   showMessage(Get.context, res.errorMessage!);
@@ -169,7 +169,7 @@ class JmCommentsPage extends StatelessWidget {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("评论"),
+          title: Text("评论".tr),
         ),
         body: body,
       );
@@ -201,7 +201,7 @@ void showReply(BuildContext context, List<Comment> comments, Comment replyTo) {
           ],
         ),
       ),
-      title: "回复",
+      title: "回复".tr,
       showBarrier: false);
 }
 
@@ -212,5 +212,5 @@ void showComments(BuildContext context, String id) {
         id,
         popUp: true,
       ),
-      title: "评论");
+      title: "评论".tr);
 }

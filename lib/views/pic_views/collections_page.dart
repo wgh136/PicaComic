@@ -23,7 +23,7 @@ class CollectionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("推荐"),
+        title: Text("推荐".tr),
       ),
       body: GetBuilder<CollectionPageLogic>(
         init: CollectionPageLogic(),
@@ -58,9 +58,9 @@ class CollectionsPage extends StatelessWidget {
                   left: 0,
                   right: 0,
                   top: MediaQuery.of(context).size.height/2-80,
-                  child: const Align(
+                  child: Align(
                     alignment: Alignment.topCenter,
-                    child: Text("没有推荐, 可能等级不足"),
+                    child: Text("没有推荐, 可能等级不足".tr),
                   ),
                 ),
                 Positioned(
@@ -87,10 +87,10 @@ class CollectionsPage extends StatelessWidget {
           } else if(logic.status){
             return CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(10, 0, 0, 5),
-                    child: Text("本子妹推荐",style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                    child: Text("本子妹推荐".tr,style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
                   )
                 ),
                 SliverGrid(
@@ -107,10 +107,10 @@ class CollectionsPage extends StatelessWidget {
                 ),
                 const SliverPadding(padding: EdgeInsets.only(top: 20)),
                 const SliverToBoxAdapter(child: Divider(),),
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(10, 0, 0, 5),
-                      child: Text("本子母推荐",style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
+                      padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                      child: Text("本子母推荐".tr,style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
                     )
                 ),
                 SliverGrid(

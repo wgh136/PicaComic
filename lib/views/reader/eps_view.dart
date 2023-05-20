@@ -34,7 +34,7 @@ class _EpsViewState extends State<EpsView> {
       }
       String title = "";
       if(type == ReadingType.jm){
-        title = "第${index+1}章";
+        title = "第 @c 章".trParams({"c": (index+1).toString()});
       }else if(type == ReadingType.picacg){
         title = eps[index+1];
       }
@@ -74,7 +74,7 @@ class _EpsViewState extends State<EpsView> {
                       ),
                       margin: const EdgeInsets.all(5),
                       padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-                      child: const Text("已下载", style: TextStyle(fontSize: 14),),
+                      child: Text("已下载".tr, style: const TextStyle(fontSize: 14),),
                     ),
                   if(logic.order == index+1)
                     Container(
@@ -84,7 +84,7 @@ class _EpsViewState extends State<EpsView> {
                       ),
                       margin: const EdgeInsets.all(5),
                       padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-                      child: const Text("当前", style: TextStyle(fontSize: 14),),
+                      child: Text("当前".tr, style: const TextStyle(fontSize: 14),),
                     )
                 ],
               ),
@@ -105,7 +105,7 @@ class _EpsViewState extends State<EpsView> {
                 const SizedBox(width: 16,),
                 Icon(Icons.library_books, color: Theme.of(context).colorScheme.secondary,),
                 const SizedBox(width: 8,),
-                const Text("章节", style: TextStyle(fontSize: 18),),
+                Text("章节".tr, style: const TextStyle(fontSize: 18),),
                 const Spacer(),
                 IconButton(
                   icon: Icon(Icons.my_location_outlined, color: Theme.of(context).colorScheme.secondary,size: 23,),
@@ -118,7 +118,7 @@ class _EpsViewState extends State<EpsView> {
                     }
                   },
                 ),
-                const Text(" 倒序"),
+                Text(" 倒序".tr),
                 Transform.scale(
                   scale: 0.8,
                   child: Switch(

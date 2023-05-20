@@ -32,7 +32,7 @@ class _AuthPageState extends State<AuthPage> {
                   children: [
                     Icon(Icons.security,size: 40,color: Theme.of(context).colorScheme.secondary,),
                     const SizedBox(height: 5,),
-                    const Text("需要身份验证")
+                    Text("需要身份验证".tr)
                   ],
                 ),
               ),
@@ -44,7 +44,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void auth() async{
-    var res = await LocalAuthentication().authenticate(localizedReason: "需要身份验证");
+    var res = await LocalAuthentication().authenticate(localizedReason: "需要身份验证".tr);
     if(res){
       if(appdata.flag){
         Get.offAll(()=>const MainPage());

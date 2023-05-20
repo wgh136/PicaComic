@@ -27,9 +27,9 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 
 
   final List<Tab> tabs = <Tab>[
-    const Tab(text: '24小时'),
-    const Tab(text: '7天'),
-    const Tab(text: '30天'),
+    Tab(text: '24小时'.tr),
+    Tab(text: '7天'.tr),
+    Tab(text: '30天'.tr),
   ];
 
   @override

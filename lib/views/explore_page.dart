@@ -35,23 +35,23 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
           isScrollable: true,
           tabs: [
             if(appdata.settings[21][0] == "1")
-              const Tab(text: "Picacg", key: Key("Picacg"),),
+              Tab(text: "Picacg".tr, key: const Key("Picacg"),),
             if(appdata.settings[21][0] == "1")
-              const Tab(text: "Picacg游戏", key: Key("Picacg游戏"),),
+              Tab(text: "Picacg游戏".tr, key: const Key("Picacg游戏"),),
             if(appdata.settings[21][1] == "1")
-              const Tab(text: "Eh主页", key: Key("Eh主页"),),
+              Tab(text: "Eh主页".tr, key: const Key("Eh主页"),),
             if(appdata.settings[21][1] == "1")
-              const Tab(text: "Eh热门", key: Key("Eh热门"),),
+              Tab(text: "Eh热门".tr, key: const Key("Eh热门"),),
             if(appdata.settings[21][2] == "1")
-              const Tab(text: "禁漫主页", key: Key("禁漫主页")),
+              Tab(text: "禁漫主页".tr, key: const Key("禁漫主页")),
             if(appdata.settings[21][2] == "1")
-              const Tab(text: "禁漫最新", key: Key("禁漫最新")),
+              Tab(text: "禁漫最新".tr, key: const Key("禁漫最新")),
             if(appdata.settings[21][3] == "1")
-              const Tab(text: "Hitomi主页", key: Key("Hitomi主页")),
+              Tab(text: "Hitomi主页".tr, key: const Key("Hitomi主页")),
             if(appdata.settings[21][3] == "1")
-              const Tab(text: "Hitomi中文", key: Key("Hitomi中文")),
+              Tab(text: "Hitomi中文".tr, key: const Key("Hitomi中文")),
             if(appdata.settings[21][3] == "1")
-              const Tab(text: "Hitomi日文", key: Key("Hitomi日文")),
+              Tab(text: "Hitomi日文".tr, key: const Key("Hitomi日文")),
           ],
           controller: controller,
         ),

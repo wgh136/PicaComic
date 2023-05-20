@@ -55,7 +55,7 @@ class CategoryComicPage extends StatelessWidget {
                     children: [
                       Icon(Icons.error,size: 40,color: Theme.of(context).colorScheme.error,),
                       const SizedBox(height: 10,),
-                      Text("[$keyWord]已被屏蔽")
+                      Text("[$keyWord]${"已被屏蔽".tr}")
                     ],
                   ),
                 ),
@@ -86,14 +86,14 @@ class CategoryComicPage extends StatelessWidget {
                   title: Text(keyWord),
                   actions: [
                     Tooltip(
-                      message: "选择漫画排序模式",
+                      message: "选择漫画排序模式".tr,
                       child: IconButton(
                         icon: const Icon(Icons.manage_search_rounded),
                         onPressed: (){
                           showDialog(context: context, builder: (context){
                             Get.put(ModeRadioLogic1());
                             return SimpleDialog(
-                              title: const Text("选择漫画排序模式"),
+                              title: Text("选择漫画排序模式".tr),
                               children: [GetBuilder<ModeRadioLogic1>(builder: (radioLogic){
                                 return Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -106,7 +106,7 @@ class CategoryComicPage extends StatelessWidget {
                                         categoryComicPageLogic.change();
                                         Get.back();
                                       },),
-                                      title: const Text("新书在前"),
+                                      title: Text("新到书".tr),
                                       onTap: (){
                                         radioLogic.change(0);
                                         categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
@@ -121,7 +121,7 @@ class CategoryComicPage extends StatelessWidget {
                                         categoryComicPageLogic.change();
                                         Get.back();
                                       },),
-                                      title: const Text("旧书在前"),
+                                      title: Text("旧到新".tr),
                                       onTap: (){
                                         radioLogic.change(1);
                                         categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
@@ -136,7 +136,7 @@ class CategoryComicPage extends StatelessWidget {
                                         categoryComicPageLogic.change();
                                         Get.back();
                                       },),
-                                      title: const Text("最多喜欢"),
+                                      title: Text("最多喜欢".tr),
                                       onTap: (){
                                         radioLogic.change(2);
                                         categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
@@ -151,7 +151,7 @@ class CategoryComicPage extends StatelessWidget {
                                         categoryComicPageLogic.change();
                                         Get.back();
                                       },),
-                                      title: const Text("最多指名"),
+                                      title: Text("最多指名".tr),
                                       onTap: (){
                                         radioLogic.change(3);
                                         categoryComicPageLogic.search = SearchResult("", "", [], 1, 0);
@@ -206,10 +206,10 @@ class CategoryComicPage extends StatelessWidget {
                   centerTitle: true,
                   title: Text(keyWord),
                 ),
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: ListTile(
-                    leading: Icon(Icons.error_outline),
-                    title: Text("没有任何结果"),
+                    leading: const Icon(Icons.error_outline),
+                    title: Text("没有任何结果".tr),
                   ),
                 )
               ],

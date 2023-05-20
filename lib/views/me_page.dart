@@ -54,7 +54,7 @@ class MePage extends StatelessWidget {
                                 ),
                               ),
                               Center(
-                                child: Text(appdata.token==""?"未登录":appdata.user.name,
+                                child: Text(appdata.token==""?"未登录".tr:appdata.user.name,
                                     style:
                                         const TextStyle(fontWeight: FontWeight.w600, fontSize: 20)),
                               ),
@@ -71,13 +71,13 @@ class MePage extends StatelessWidget {
                 Wrap(
                   children: [
                     mePageItem(
-                        context, Icons.badge, () => manageAccounts(context), "账号管理", "查看或修改账号信息"),
+                        context, Icons.badge, () => manageAccounts(context), "账号管理".tr, "查看或修改账号信息".tr),
                     mePageItem(context, Icons.bookmarks,
-                        () => Get.to(() => const AllFavoritesPage()), "收藏夹", "查看已收藏的漫画"),
+                        () => Get.to(() => const AllFavoritesPage()), "收藏夹".tr, "查看已收藏的漫画".tr),
                     mePageItem(context, Icons.download_for_offline,
-                        () => Get.to(() => const DownloadPage()), "已下载", "管理已下载的漫画"),
+                        () => Get.to(() => const DownloadPage()), "已下载".tr, "管理已下载的漫画".tr),
                     mePageItem(context, Icons.history, () => Get.to(() => const HistoryPage()),
-                        "历史记录", "查看历史记录"),
+                        "历史记录".tr, "查看历史记录".tr),
                     if (kDebugMode)
                       mePageItem(context, Icons.bug_report, () async {
                         debug();
@@ -102,7 +102,7 @@ class MePage extends StatelessWidget {
                 contentPadding: const EdgeInsets.fromLTRB(22, 12, 15, 10),
                 title: const Text("Eh账户"),
                 children: [
-                  SelectableTextCN(text: "当前账户: ${appdata.ehAccount}"),
+                  SelectableTextCN(text: "${"当前账户".tr}: ${appdata.ehAccount}"),
                   const SizedBox(
                     height: 10,
                   ),
@@ -115,7 +115,7 @@ class MePage extends StatelessWidget {
                   ),
                   Center(
                     child: FilledButton(
-                      child: const Text("退出登录"),
+                      child: Text("退出登录".tr),
                       onPressed: () {
                         appdata.ehPassHash = "";
                         appdata.ehId = "";
@@ -139,14 +139,14 @@ class MePage extends StatelessWidget {
           context: context,
           builder: (dialogContext) => SimpleDialog(
                 contentPadding: const EdgeInsets.fromLTRB(30, 12, 23, 10),
-                title: const Text("禁漫账户"),
+                title: Text("禁漫账户".tr),
                 children: [
-                  SelectableTextCN(text: "当前账户: ${appdata.jmName}"),
+                  SelectableTextCN(text: "${"当前账户".tr}: ${appdata.jmName}"),
                   const SizedBox(
                     height: 10,
                   ),
-                  const Text("信息:"),
-                  SelectableTextCN(text: "  邮箱: ${appdata.jmEmail}"),
+                  Text("信息:".tr),
+                  SelectableTextCN(text: "  ${"邮箱".tr}: ${appdata.jmEmail}"),
                   const SizedBox(
                     height: 16,
                   ),
@@ -154,7 +154,7 @@ class MePage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FilledButton(
-                        child: const Text("退出登录"),
+                        child: Text("退出登录".tr),
                         onPressed: () {
                           jmNetwork.logout();
                           Get.back();
@@ -162,14 +162,14 @@ class MePage extends StatelessWidget {
                       ),
                       const SizedBox(width: 16,),
                       FilledButton(
-                        child: const Text("重新登录"),
+                        child: Text("重新登录".tr),
                         onPressed: () async{
-                          showMessage(Get.context, "正在重新登录", time: 8);
+                          showMessage(Get.context, "正在重新登录".tr, time: 8);
                           var res = await jmNetwork.loginFromAppdata();
                           if(res.error){
                             showMessage(Get.context, res.errorMessage!);
                           }else{
-                            showMessage(Get.context, "重新登录成功");
+                            showMessage(Get.context, "重新登录成功".tr);
                           }
                         },
                       ),
@@ -185,14 +185,14 @@ class MePage extends StatelessWidget {
         context: context,
         builder: (dialogContext) {
           return SimpleDialog(
-            title: const Text("账号管理"),
+            title: Text("账号管理".tr),
             children: [
               SizedBox(
                 width: 400,
                 child: Column(
                   children: [
                     ListTile(
-                      title: const Text("哔咔账号"),
+                      title: Text("哔咔账号".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () {
                         Get.back();
@@ -213,7 +213,7 @@ class MePage extends StatelessWidget {
                       },
                     ),
                     ListTile(
-                      title: const Text("E-Hentai账号"),
+                      title: Text("E-Hentai账号".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () {
                         Get.back();
@@ -222,7 +222,7 @@ class MePage extends StatelessWidget {
                       },
                     ),
                     ListTile(
-                      title: const Text("禁漫账号"),
+                      title: Text("禁漫账户".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () {
                         Get.back();

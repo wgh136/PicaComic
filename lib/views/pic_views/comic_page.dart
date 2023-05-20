@@ -32,9 +32,9 @@ class ComicPageLogic extends GetxController{
   var recommendation = <ComicItemBrief>[];
   final controller = ScrollController();
   var eps = <Widget>[
-    const ListTile(
-      leading: Icon(Icons.library_books),
-      title: Text("章节"),
+    ListTile(
+      leading: const Icon(Icons.library_books),
+      title: Text("章节".tr),
     ),
   ];
   var epsStr = <String>[""];
@@ -96,7 +96,7 @@ class ComicPage extends StatelessWidget{
                 pinned: true,
                 actions: [
                   Tooltip(
-                    message: "分享",
+                    message: "分享".tr,
                     child: IconButton(
                       icon: const Icon(Icons.share,),
                       onPressed: () {
@@ -135,7 +135,7 @@ class ComicPage extends StatelessWidget{
                 const SizedBox(width: 20,),
                 Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 20,),
-                const Text("简介",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+                Text("简介".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
               ],)),),
               SliverToBoxAdapter(
                 child: Padding(
@@ -153,7 +153,7 @@ class ComicPage extends StatelessWidget{
                 const SizedBox(width: 20,),
                 Icon(Icons.recommend, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 20,),
-                const Text("相关推荐",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+                Text("相关推荐".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
               ],)),),
               if(!downloaded)
               const SliverPadding(padding: EdgeInsets.all(5)),
@@ -306,10 +306,6 @@ class ComicPage extends StatelessWidget{
               label: Text(logic.comicItem!.likes.toString()),
               avatar: Icon((logic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
               onPressed: (){
-                if(logic.noNetwork){
-                  showMessage(context, "无网络");
-                  return;
-                }
                 network.likeOrUnlikeComic(comic.id);
                 logic.comicItem!.isLiked = !logic.comicItem!.isLiked;
                 logic.update();
@@ -317,13 +313,9 @@ class ComicPage extends StatelessWidget{
             ),),
             SizedBox.fromSize(size: const Size(10,1),),
             Expanded(child: ActionChip(
-              label: const Text("收藏"),
+              label: Text("收藏".tr),
               avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
               onPressed: (){
-                if(logic.noNetwork){
-                  showMessage(context, "无网络");
-                  return;
-                }
                 network.favouriteOrUnfavoriteComic(comic.id);
                 logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
                 logic.update();
@@ -334,10 +326,6 @@ class ComicPage extends StatelessWidget{
               label: Text(logic.comicItem!.comments.toString()),
               avatar: const Icon(Icons.comment_outlined),
               onPressed: (){
-                if(logic.noNetwork){
-                  showMessage(context, "无网络");
-                  return;
-                }
                 showComments(context, comic.id);
               },
             ),),
@@ -354,12 +342,12 @@ class ComicPage extends StatelessWidget{
             onPressed: (){
               downloadComic(logic.comicItem!, context, logic.epsStr);
             },
-            child: (downloadManager.downloaded.contains(comic.id))?const Text("已下载"):const Text("下载"),
+            child: (downloadManager.downloaded.contains(comic.id))?Text("已下载".tr):Text("下载".tr),
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
             onPressed: () => readPicacgComic(logic.comicItem!, logic.epsStr),
-            child: const Text("阅读"),
+            child: Text("阅读".tr),
           ),),
         ],
       ),
@@ -370,13 +358,13 @@ class ComicPage extends StatelessWidget{
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
         child: MaterialBanner(
             elevation: 1,
-            content: const Text("要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键"),
+            content: Text("要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键".tr),
             actions: [
               TextButton(onPressed: (){
                 appdata.firstUse[2] = "0";
                 logic.update();
                 appdata.writeData();
-              }, child: const Text("关闭"))
+              }, child: Text("关闭".tr))
             ]),
       ));
     }
@@ -396,9 +384,9 @@ class ComicPage extends StatelessWidget{
     }
 
     if(logic.comicItem!.chineseTeam!=""){
-      res.add(const SizedBox(
+      res.add(SizedBox(
         height: 20,
-        child: Text("      汉化组"),
+        child: Text("      汉化组".tr),
       ));
     }
 
@@ -409,9 +397,9 @@ class ComicPage extends StatelessWidget{
       ));
     }
 
-    res.add(const SizedBox(
+    res.add(SizedBox(
       height: 20,
-      child: Text("      分类"),
+      child: Text("      分类".tr),
     ));
 
     res.add(Padding(
@@ -421,9 +409,9 @@ class ComicPage extends StatelessWidget{
       ),
     ));
 
-    res.add(const SizedBox(
+    res.add(SizedBox(
       height: 20,
-      child: Text("      标签"),
+      child: Text("      标签".tr),
     ));
 
     res.add(Padding(
@@ -487,7 +475,7 @@ class ComicPage extends StatelessWidget{
         const SizedBox(width: 20,),
         Icon(Icons.library_books, color: Theme.of(context).colorScheme.secondary),
         const SizedBox(width: 20,),
-        const Text("章节",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+        Text("章节".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
       ],)),),
       const SliverPadding(padding: EdgeInsets.all(5)),
       SliverGrid(
@@ -554,14 +542,14 @@ class ComicPage extends StatelessWidget{
             position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: (){
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
               PopupMenuItem(
-                child: const Text("添加到屏蔽词"),
+                child: Text("添加到屏蔽词".tr),
                 onTap: (){
                   appdata.blockingKeyword.add(title);
                   appdata.writeData();
@@ -576,14 +564,14 @@ class ComicPage extends StatelessWidget{
             position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: (){
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
               PopupMenuItem(
-                child: const Text("添加到屏蔽词"),
+                child: Text("添加到屏蔽词".tr),
                 onTap: (){
                   appdata.blockingKeyword.add(title);
                   appdata.writeData();
@@ -624,16 +612,16 @@ class ComicPage extends StatelessWidget{
 
 void downloadComic(ComicItem comic, BuildContext context, List<String> eps){
   if(GetPlatform.isWeb){
-    showMessage(context, "Web端不支持下载");
+    showMessage(context, "Web端不支持下载".tr);
     return;
   }
   if(downloadManager.downloaded.contains(comic.id)){
-    showMessage(context, "已下载");
+    showMessage(context, "已下载".tr);
     return;
   }
   for(var i in downloadManager.downloading){
     if(i.id == comic.id){
-      showMessage(context, "下载中");
+      showMessage(context, "下载中".tr);
       return;
     }
   }
@@ -641,7 +629,7 @@ void downloadComic(ComicItem comic, BuildContext context, List<String> eps){
     showModalBottomSheet(context: context, builder: (context){
       return SelectDownloadChapter(eps.sublist(1), (selectedEps){
         downloadManager.addPicDownload(comic, selectedEps);
-        showMessage(context, "已加入下载");
+        showMessage(context, "已加入下载".tr);
       });
     });
   }else{
@@ -649,7 +637,7 @@ void downloadComic(ComicItem comic, BuildContext context, List<String> eps){
       context,
       SelectDownloadChapter(eps.sublist(1), (selectedEps){
         downloadManager.addPicDownload(comic, selectedEps);
-        showMessage(context, "已加入下载");
+        showMessage(context, "已加入下载".tr);
       }),
       useSurfaceTintColor: true
     );

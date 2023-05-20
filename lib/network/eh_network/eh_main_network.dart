@@ -324,7 +324,7 @@ class EhNetwork{
 
   ///从漫画详情页链接中获取漫画详细信息
   Future<Gallery?> getGalleryInfo(EhGalleryBrief brief) async{
-
+    try{
       var res = await request("${brief.link}?/hc=1");
       if (res == null) return null;
       var document = parse(res);
@@ -361,17 +361,17 @@ class EhNetwork{
       //评论
       var comments = document.getElementsByClassName("c1");
       for(var c in comments){
-        var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a")[0].text;
+        var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a").elementAtOrNull(0)?.text??"未知";
         var time = c.getElementsByClassName("c3")[0].text.substring(11,32);
         var content = c.getElementsByClassName("c6")[0].text;
         gallery.comments.add(Comment(name, content, time));
       }
       //上传者
-      var uploader = document.getElementById("gdn")!.children[0].text;
+      var uploader = document.getElementById("gdn")!.children.elementAtOrNull(0)?.text??"未知";
       gallery.uploader = uploader;
       //星星
       var stars =
-          getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
+      getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
       gallery.stars = stars;
       //平均分数
       gallery.rating = document.getElementById("rating_label")?.text;
@@ -384,7 +384,12 @@ class EhNetwork{
       //身份认证数据
       gallery.auth = getVariablesFromJsCode(res);
       return gallery;
-
+    }
+    catch(e){
+      status = true;
+      message = e.toString();
+      return null;
+    }
   }
 
   ///获取图片链接

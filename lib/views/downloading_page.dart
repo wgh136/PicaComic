@@ -60,8 +60,12 @@ class _DownloadingPageState extends State<DownloadingPage> {
             itemBuilder: (context,index){
               if(index == 0){
                 return MaterialBanner(
-                    leading: downloadManager.isDownloading?const Icon(Icons.downloading,color: Colors.blue,):const Icon(Icons.pause_circle_outline_outlined,color: Colors.red,),
-                    content: downloadManager.error?const Text("下载出错"):Text("${downloadManager.downloading.length}项下载任务${downloadManager.isDownloading?" 下载中":(downloadManager.downloading.isNotEmpty?" 已暂停":"")}"),
+                    leading: downloadManager.isDownloading?
+                      const Icon(Icons.downloading,color: Colors.blue,):
+                      const Icon(Icons.pause_circle_outline_outlined,color: Colors.red,),
+                    content: downloadManager.error?
+                      Text("下载出错".tr):
+                      Text("${"@length 项下载任务".trParams({"length":downloadManager.downloading.length.toString()})}${downloadManager.isDownloading?" 下载中".tr:(downloadManager.downloading.isNotEmpty?" 已暂停".tr:"")}"),
                     actions: [
                       if(downloadManager.downloading.isNotEmpty)
                         TextButton(
@@ -69,7 +73,9 @@ class _DownloadingPageState extends State<DownloadingPage> {
                             downloadManager.isDownloading?downloadManager.pause():downloadManager.start();
                             logic.update();
                           },
-                          child: downloadManager.isDownloading?const Text("暂停"):(downloadManager.error?const Text("重试"):const Text("继续")),
+                          child: downloadManager.isDownloading?
+                            Text("暂停".tr):
+                            (downloadManager.error?Text("重试".tr):Text("继续".tr)),
                         )
                       else
                         const Text(""),
@@ -84,12 +90,12 @@ class _DownloadingPageState extends State<DownloadingPage> {
     );
     if(widget.inPopupWidget){
       return PopUpWidgetScaffold(
-        title: "下载管理器",
+        title: "下载管理器".tr,
         body: body,
       );
     }else{
       return Scaffold(
-        appBar: AppBar(title: const Text("下载管理器"),),
+        appBar: AppBar(title: Text("下载管理器".tr),),
         body: body,
       );
     }

@@ -107,10 +107,10 @@ class ReplyPage extends StatelessWidget {
                             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                             child: TextField(
                               controller: commentsPageLogic.controller,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                   border: InputBorder.none,
                                   isCollapsed: true,
-                                  hintText: "回复"
+                                  hintText: "回复".tr
                               ),
                               minLines: 1,
                               maxLines: 5,
@@ -121,7 +121,7 @@ class ReplyPage extends StatelessWidget {
                             child: SizedBox(width: 23,height: 23,child: CircularProgressIndicator(),),
                           ):IconButton(onPressed: () async{
                             if(commentsPageLogic.controller.text.length<2){
-                              showMessage(context, "评论至少需要2个字");
+                              showMessage(context, "评论至少需要2个字".tr);
                               return;
                             }
                             commentsPageLogic.sending = true;
@@ -140,7 +140,7 @@ class ReplyPage extends StatelessWidget {
                               if(network.status){
                                 showMessage(Get.context, network.message);
                               }else{
-                                showMessage(Get.context, "网络错误");
+                                showMessage(Get.context, "网络错误".tr);
                               }
                               commentsPageLogic.sending = false;
                               commentsPageLogic.update();
@@ -163,7 +163,7 @@ class ReplyPage extends StatelessWidget {
     }else{
       return Scaffold(
         appBar: AppBar(
-          title: const Text("回复"),
+          title: Text("回复".tr),
         ),
         body: body,
       );
@@ -172,5 +172,5 @@ class ReplyPage extends StatelessWidget {
 }
 
 void showReply(BuildContext context, String id, Comment replyTo){
-  showSideBar(context, ReplyPage(id, replyTo, popUp: true,), title: "回复", showBarrier: false);
+  showSideBar(context, ReplyPage(id, replyTo, popUp: true,), title: "回复".tr, showBarrier: false);
 }

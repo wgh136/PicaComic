@@ -22,14 +22,14 @@ class GamePageLogic extends GetxController{
 void gameDownload(BuildContext context, String url){
   showDialog(context: context, builder: (dialogContext){
     return AlertDialog(
-      title: const Text("下载游戏"),
-      content: const Text("将前往哔咔游戏下载页面, 请注意, 该页面的广告与本项目无关"),
+      title: Text("下载游戏".tr),
+      content: Text("将前往哔咔游戏下载页面, 是否继续".tr),
       actions: [
-        TextButton(onPressed: (){Get.back();}, child: const Text("取消")),
+        TextButton(onPressed: () => Get.back(), child: Text("取消".tr)),
         TextButton(onPressed: (){
           Get.back();
           launchUrlString(url,mode: LaunchMode.externalApplication);
-        }, child: const Text("继续"))
+        }, child: Text("继续".tr))
       ],
     );
   });
@@ -119,7 +119,7 @@ class GamePage extends StatelessWidget {
                                 onPressed: (){
                                   gameDownload(context, logic.gameInfo.link);
                                 },
-                                child: const Text("下载"),
+                                child: Text("下载".tr),
                               ),
                             )
                           ],
@@ -188,7 +188,7 @@ class GamePage extends StatelessWidget {
                                       onPressed: (){
                                         gameDownload(context, logic.gameInfo.link);
                                       },
-                                      child: const Text("下载"),
+                                      child: Text("下载".tr),
                                     ),
                                   )
                                 ],
@@ -203,7 +203,7 @@ class GamePage extends StatelessWidget {
                     const SizedBox(width: 20,),
                     Icon(Icons.book, color: Theme.of(context).colorScheme.secondary),
                     const SizedBox(width: 20,),
-                    const Text("简介",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+                    Text("简介".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
                   ],)),),
                   const SliverPadding(padding: EdgeInsets.all(5)),
                   SliverToBoxAdapter(
@@ -222,7 +222,7 @@ class GamePage extends StatelessWidget {
                     const SizedBox(width: 20,),
                     Icon(Icons.camera, color: Theme.of(context).colorScheme.secondary),
                     const SizedBox(width: 20,),
-                    const Text("屏幕截图",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
+                    Text("屏幕截图".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
                   ],)),),
                   const SliverPadding(padding: EdgeInsets.all(5)),
                   SliverToBoxAdapter(
@@ -298,9 +298,9 @@ class GamePage extends StatelessWidget {
                     left: 0,
                     right: 0,
                     top: MediaQuery.of(context).size.height/2-10,
-                    child: const Align(
+                    child: Align(
                       alignment: Alignment.topCenter,
-                      child: Text("网络错误"),
+                      child: Text("网络错误".tr),
                     ),
                   ),
                   Positioned(
@@ -316,7 +316,7 @@ class GamePage extends StatelessWidget {
                             onPressed: (){
                               logic.change();
                             },
-                            child: const Text("重试"),
+                            child: Text("重试".tr),
                           ),
                         )
                     ),

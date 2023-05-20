@@ -90,7 +90,7 @@ class HitomiComicPage extends StatelessWidget {
                   pinned: true,
                   actions: [
                     Tooltip(
-                      message: "分享",
+                      message: "分享".tr,
                       child: IconButton(
                         icon: const Icon(Icons.share,),
                         onPressed: () {
@@ -132,9 +132,9 @@ class HitomiComicPage extends StatelessWidget {
                           const SizedBox(
                             width: 20,
                           ),
-                          const Text(
-                            "相关推荐",
-                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                          Text(
+                            "相关推荐".tr,
+                            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                           )
                         ],
                       )),
@@ -215,9 +215,9 @@ class HitomiComicPage extends StatelessWidget {
     var res2 = <Widget>[];
 
     if (logic.comic!.artists != null && logic.comic!.artists!.isNotEmpty) {
-      res.add(const Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: Text("作者"),
+      res.add(Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Text("作者".tr),
       ));
       res.add(Wrap(
         children: List.generate(logic.comic!.artists!.length,
@@ -225,9 +225,9 @@ class HitomiComicPage extends StatelessWidget {
       ));
     }
 
-    res.add(const Padding(
-      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: Text("类型"),
+    res.add(Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: Text("类型".tr),
     ));
     res.add(buildInfoCard(logic.comic!.type, context));
 
@@ -237,9 +237,9 @@ class HitomiComicPage extends StatelessWidget {
     ));
     res.add(buildInfoCard(logic.comic!.time, context, allowSearch: false));
 
-    res.add(const Padding(
-      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: Text("语言"),
+    res.add(Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: Text("语言".tr),
     ));
     res.add(buildInfoCard(logic.comic!.lang, context, allowSearch: false));
 
@@ -260,7 +260,7 @@ class HitomiComicPage extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onPressed: () => downloadComic(logic.comic!, context, comic.cover, comic.link),
-              child: const Text("下载"),
+              child: Text("下载".tr),
             ),
           ),
           SizedBox.fromSize(
@@ -269,7 +269,7 @@ class HitomiComicPage extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onPressed: () => readHitomiComic(logic.comic!, comic.cover),
-              child: const Text("阅读"),
+              child: Text("阅读".tr),
             ),
           ),
 
@@ -316,14 +316,14 @@ class HitomiComicPage extends StatelessWidget {
                 details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
               PopupMenuItem(
-                child: const Text("添加到屏蔽词"),
+                child: Text("添加到屏蔽词".tr),
                 onTap: () {
                   appdata.blockingKeyword.add(title);
                   appdata.writeData();
@@ -338,14 +338,14 @@ class HitomiComicPage extends StatelessWidget {
                 details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
               PopupMenuItem(
-                child: const Text("添加到屏蔽词"),
+                child: Text("添加到屏蔽词".tr),
                 onTap: () {
                   appdata.blockingKeyword.add(title);
                   appdata.writeData();
@@ -373,20 +373,16 @@ class HitomiComicPage extends StatelessWidget {
 }
 
 void downloadComic(HitomiComic comic, BuildContext context, String cover, String link){
-  if(GetPlatform.isWeb){
-    showMessage(context, "Web端不支持下载");
-    return;
-  }
   if(downloadManager.downloaded.contains(comic.id)){
-    showMessage(context, "已下载");
+    showMessage(context, "已下载".tr);
     return;
   }
   for(var i in downloadManager.downloading){
     if(i.id == comic.id){
-      showMessage(context, "下载中");
+      showMessage(context, "下载中".tr);
       return;
     }
   }
   downloadManager.addHitomiDownload(comic, cover, link);
-  showMessage(context, "已加入下载");
+  showMessage(context, "已加入下载".tr);
 }

@@ -196,14 +196,14 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         if (i == 0) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(1);
-            showMessage(Get.context, "已经是第一页了");
+            showMessage(Get.context, "已经是第一页了".tr);
             return;
           }
           comicReadingPageLogic.jumpToLastChapter(type, eps);
         } else if (i == comicReadingPageLogic.urls.length + 1) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(i - 1);
-            showMessage(Get.context, "已经是最后一页了");
+            showMessage(Get.context, "已经是最后一页了".tr);
             return;
           }
           comicReadingPageLogic.jumpToNextChapter(type, eps);

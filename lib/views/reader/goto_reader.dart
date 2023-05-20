@@ -56,7 +56,7 @@ Future<void> addHitomiHistory(HitomiComic comic, String cover) async{
       HistoryType.hitomi,
       DateTime.now(),
       comic.name,
-      (comic.artists??["未知"])[0],
+      (comic.artists??["未知".tr])[0],
       cover,
       0,
       0,
@@ -74,17 +74,20 @@ void readPicacgComic(ComicItem comic, List<String> epsStr) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: const Text("继续阅读"),
-        content: Text("上次阅读到第${history.ep}章第${history.page}页, 是否继续阅读?"),
+        title: Text("继续阅读".tr),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+          "ep": history.ep.toString(),
+          "page": history.page.toString()
+        })),
         actions: [
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
-          }, child: const Text("从头开始")),
+          }, child: Text("从头开始".tr)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.picacg(id, history.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
-          }, child: const Text("继续阅读")),
+          }, child: Text("继续阅读".tr)),
         ],
       ));
     }else{
@@ -103,17 +106,20 @@ void readEhGallery(Gallery gallery) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: const Text("继续阅读"),
-        content: Text("上次阅读到第${history.page}页, 是否继续阅读?"),
+        title: Text("继续阅读".tr),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+          "ep": history.ep.toString(),
+          "page": history.page.toString()
+        })),
         actions: [
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.ehentai(target, gallery), preventDuplicates: false);
-          }, child: const Text("从头开始")),
+          }, child: Text("从头开始".tr)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.ehentai(target, gallery, initialPage: history.page), preventDuplicates: false);
-          }, child: const Text("继续阅读")),
+          }, child: Text("继续阅读".tr)),
         ],
       ));
     }else{
@@ -133,17 +139,20 @@ void readJmComic(JmComicInfo comic, List<String> eps) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: const Text("继续阅读"),
-        content: Text("上次阅读到第${history.ep}章第${history.page}页, 是否继续阅读?"),
+        title: Text("继续阅读".tr),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+          "ep": history.ep.toString(),
+          "page": history.page.toString()
+        })),
         actions: [
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
-          }, child: const Text("从头开始")),
+          }, child: Text("从头开始".tr)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history.ep, initialPage: history.page,), preventDuplicates: false);
-          }, child: const Text("继续阅读")),
+          }, child: Text("继续阅读".tr)),
         ],
       ));
     }else{
@@ -160,17 +169,20 @@ void readHitomiComic(HitomiComic comic, String cover) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: const Text("继续阅读"),
-        content: Text("上次阅读到第${history.page}页, 是否继续阅读?"),
+        title: Text("继续阅读".tr),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+          "ep": history.ep.toString(),
+          "page": history.page.toString()
+        })),
         actions: [
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files), preventDuplicates: false);
-          }, child: const Text("从头开始")),
+          }, child: Text("从头开始".tr)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files, initialPage: history.page,), preventDuplicates: false);
-          }, child: const Text("继续阅读")),
+          }, child: Text("继续阅读".tr)),
         ],
       ));
     }else{

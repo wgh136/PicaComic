@@ -120,14 +120,14 @@ class EhFavouritePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Text("  收藏夹:  "),
-          logic.folder==-1 ? const Text("全部") : Text("Favorites ${logic.folder}"),
+          Text("  收藏夹:  ".tr),
+          logic.folder==-1 ? Text("全部".tr) : Text("Favorites ${logic.folder}"),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.arrow_drop_down_sharp),
             onPressed: (){
               if(logic.loading){
-                showMessage(context, "加载中");
+                showMessage(context, "加载中".tr);
                 return;
               }
               showMenu(
@@ -136,7 +136,7 @@ class EhFavouritePage extends StatelessWidget {
                   items: [
                     PopupMenuItem(
                       height: 40,
-                      child: const Text("全部"),
+                      child: Text("全部".tr),
                       onTap: (){
                         if(logic.folder != -1){
                           logic.folder = -1;

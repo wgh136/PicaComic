@@ -32,7 +32,7 @@ class FavoritesPageLogic extends GetxController{
     try{
       i = int.parse(p);
       if(i<1||i>pages){
-        showMessage(Get.context, "输入的数字不合法");
+        showMessage(Get.context, "输入的数字不合法".tr);
       }
       if(i != page){
         page = i;
@@ -41,7 +41,7 @@ class FavoritesPageLogic extends GetxController{
       }
     }
     catch(e){
-      showMessage(Get.context, "输入的数字不合法");
+      showMessage(Get.context, "输入的数字不合法".tr);
     }
   }
 }
@@ -136,7 +136,7 @@ class FavoritesPage extends StatelessWidget {
                       FilledButton(
                           onPressed: (){
                             if(favoritesPageLogic.page==1||favoritesPageLogic.pages==0){
-                              showMessage(context, "已经是第一页了");
+                              showMessage(context, "已经是第一页了".tr);
                             }else{
                               favoritesPageLogic.page--;
                               favoritesPageLogic.change();
@@ -150,13 +150,13 @@ class FavoritesPage extends StatelessWidget {
                       FilledButton(
                           onPressed: (){
                             if(favoritesPageLogic.page==favoritesPageLogic.pages||favoritesPageLogic.pages==0){
-                              showMessage(context, "已经是最后一页了");
+                              showMessage(context, "已经是最后一页了".tr);
                             }else{
                               favoritesPageLogic.page++;
                               favoritesPageLogic.change();
                             }
                           },
-                          child: const Text("下一页")
+                          child: Text("下一页".tr)
                       ),
                       const SizedBox(width: 10,),
                     ],

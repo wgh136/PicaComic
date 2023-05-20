@@ -52,7 +52,7 @@ enum HistoryType{
   const HistoryType(this.value);
 }
 
-class NewHistory extends LinkedListEntry<NewHistory>{
+base class NewHistory extends LinkedListEntry<NewHistory>{
   HistoryType type;
   DateTime time;
   String title;

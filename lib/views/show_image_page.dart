@@ -64,7 +64,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                     child: Row(
                       children: [
                         Padding(padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),child: Tooltip(
-                          message: "返回",
+                          message: "返回".tr,
                           child: IconButton(
                             iconSize: 25,
                             icon: const Icon(Icons.arrow_back_outlined,color: Colors.white70),
@@ -75,13 +75,13 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           width: MediaQuery.of(context).size.width-150,
                           height: 50,
                           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
-                          child: const Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Text("图片",overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 20,color: Colors.white70),),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Text("图片".tr,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20,color: Colors.white70),),
                           )
                           ,),
                         Tooltip(
-                          message: "保存图片",
+                          message: "保存图片".tr,
                           child: IconButton(
                             icon: const Icon(Icons.download,color: Colors.white70,),
                             onPressed: () async{
@@ -90,7 +90,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           ),
                         ),
                         Tooltip(
-                          message: "分享",
+                          message: "分享".tr,
                           child: IconButton(
                             icon: const Icon(Icons.share,color: Colors.white70),
                             onPressed: () async{
