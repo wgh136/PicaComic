@@ -85,33 +85,38 @@ class JmFavoritePage extends StatelessWidget {
       }else if(logic.folder == null){
         return showNetworkError(logic.message!, logic.refresh_, context, showBack: false);
       }else{
-        return Column(
-          children: [
-            buildFolderSelector(context, logic, false),
-            Expanded(child: CustomScrollView(
-              slivers: [
-                SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                          (context, index){
-                        if(index == logic.folder!.comics.length-1){
-                          logic.loadMore();
-                        }
-                        return JmComicTile(logic.folder!.comics[index]);
-                      },
-                      childCount: logic.folder!.comics.length
+        return RefreshIndicator(
+          onRefresh: () async{
+            logic.refresh_();
+          },
+          child: Column(
+            children: [
+              buildFolderSelector(context, logic, false),
+              Expanded(child: CustomScrollView(
+                slivers: [
+                  SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                            (context, index){
+                          if(index == logic.folder!.comics.length-1){
+                            logic.loadMore();
+                          }
+                          return JmComicTile(logic.folder!.comics[index]);
+                        },
+                        childCount: logic.folder!.comics.length
+                    ),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: comicTileMaxWidth,
+                      childAspectRatio: comicTileAspectRatio,
+                    ),
                   ),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
-                  ),
-                ),
-                if(logic.folder!.total > logic.folder!.loadedComics)
-                  const SliverToBoxAdapter(
-                    child: ListLoadingIndicator(),
-                  )
-              ],
-            ))
-          ],
+                  if(logic.folder!.total > logic.folder!.loadedComics)
+                    const SliverToBoxAdapter(
+                      child: ListLoadingIndicator(),
+                    )
+                ],
+              ))
+            ],
+          ),
         );
       }
     });

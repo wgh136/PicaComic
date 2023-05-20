@@ -46,32 +46,36 @@ class EhFavouritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GetBuilder<EhFavouritePageLogic>(
-          builder: (logic) => buildFolderSelector(context, logic),
-        ),
-        Expanded(
-          child: GetBuilder<EhFavouritePageLogic>(
-            builder: (logic){
-              if(logic.loading){
-                if(appdata.settings[11]=="0") {
-                  logic.getGallery();
-                }
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }else if(logic.galleries!=null){
-                return buildNormalView(logic, context);
-              }else{
-                return showNetworkError(context, logic.retry, showBack:false, eh: true);
-              }
-            },
+    return RefreshIndicator(
+      onRefresh: () async{
+        Get.find<EhFavouritePageLogic>().refresh_();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GetBuilder<EhFavouritePageLogic>(
+            builder: (logic) => buildFolderSelector(context, logic),
           ),
-        )
-      ],
-    );
+          Expanded(
+            child: GetBuilder<EhFavouritePageLogic>(
+              builder: (logic){
+                if(logic.loading){
+                  if(appdata.settings[11]=="0") {
+                    logic.getGallery();
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }else if(logic.galleries!=null){
+                  return buildNormalView(logic, context);
+                }else{
+                  return showNetworkError(context, logic.retry, showBack:false, eh: true);
+                }
+              },
+            ),
+          )
+        ],
+    ));
   }
 
   Widget buildNormalView(EhFavouritePageLogic logic, BuildContext context){

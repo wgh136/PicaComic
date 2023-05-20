@@ -21,7 +21,7 @@ abstract class ComicTile extends StatelessWidget {
         const SizedBox(width: 400,),
         ListTile(
           leading: const Icon(Icons.menu_book_outlined),
-          title: const Text("阅读"),
+          title: const Text("查看详情"),
           onTap: onTap_,
         ),
         ListTile(
