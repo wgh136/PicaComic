@@ -4,8 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:get/get.dart';
 
 ///通过阅读器地址获取图片地址
 Future<String> getEhImageUrl(String url) async{
@@ -30,7 +28,6 @@ Future<String> getEhImageUrl(String url) async{
   document = parse(html.data);
   var res = document.querySelector("img#img")!.attributes["src"]!;
   if(res == "https://ehgt.org/g/509.gif"){
-    showMessage(Get.context, "当前IP已超出E-Hentai的图片上限");
     throw ImageExceedError();
   }
   return res;
@@ -115,5 +112,5 @@ class EhImageUrlsManager{
 
 class ImageExceedError extends Error{
   @override
-  String toString()=>"Image limit exceeded";
+  String toString()=>"当前IP超出E-Hentai图片限制";
 }

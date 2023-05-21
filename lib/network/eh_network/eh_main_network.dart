@@ -118,6 +118,10 @@ class EhNetwork{
       return null;
     }
     catch(e){
+      if(e.toString() != "null"){
+        status = true;
+        message = e.toString();
+      }
       return null;
     }
   }

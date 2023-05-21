@@ -126,7 +126,6 @@ class ComicReadingPage extends StatelessWidget {
             //进入阅读器时清除内存中的缓存, 并且增大限制
             PaintingBinding.instance.imageCache.clear();
             PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
-            listenCacheSize();
           },
           dispose: (logic) {
             listen = false;
@@ -607,16 +606,3 @@ class EhLoadingInfo{
 }
 
 bool listen = false;
-
-void listenCacheSize() async{
-  if(!kDebugMode) return;
-  listen = true;
-  while(true){
-    if(! listen){
-      return;
-    }
-    print(PaintingBinding.instance.imageCache.currentSizeBytes);
-    print(PaintingBinding.instance.imageCache.currentSize);
-    await Future.delayed(const Duration(milliseconds: 1000));
-  }
-}
