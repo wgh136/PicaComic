@@ -4,8 +4,9 @@ import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class FavoritesPageLogic extends GetxController{
   var favorites = Favorites([], 1, 0);
@@ -31,7 +32,7 @@ class FavoritesPageLogic extends GetxController{
     try{
       i = int.parse(p);
       if(i<1||i>pages){
-        showMessage(Get.context, "输入的数字不合法");
+        showMessage(Get.context, "输入的数字不合法".tr);
       }
       if(i != page){
         page = i;
@@ -40,7 +41,7 @@ class FavoritesPageLogic extends GetxController{
       }
     }
     catch(e){
-      showMessage(Get.context, "输入的数字不合法");
+      showMessage(Get.context, "输入的数字不合法".tr);
     }
   }
 }
@@ -79,7 +80,7 @@ class FavoritesPage extends StatelessWidget {
                     if(i == favoritesPageLogic.favorites.comics.length-1&&favoritesPageLogic.favorites.pages!=favoritesPageLogic.favorites.loaded){
                       network.loadMoreFavorites(favoritesPageLogic.favorites).then((t)=>favoritesPageLogic.update());
                     }
-                    return ComicTile(favoritesPageLogic.favorites.comics[i]);
+                    return PicComicTile(favoritesPageLogic.favorites.comics[i]);
                   }
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -114,7 +115,7 @@ class FavoritesPage extends StatelessWidget {
         SliverGrid(
           delegate: SliverChildBuilderDelegate(
               childCount: favoritesPageLogic.comics.length,
-                  (context, i)=>ComicTile(favoritesPageLogic.comics[i])
+                  (context, i)=>PicComicTile(favoritesPageLogic.comics[i])
           ),
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: comicTileMaxWidth,
@@ -135,7 +136,7 @@ class FavoritesPage extends StatelessWidget {
                       FilledButton(
                           onPressed: (){
                             if(favoritesPageLogic.page==1||favoritesPageLogic.pages==0){
-                              showMessage(context, "已经是第一页了");
+                              showMessage(context, "已经是第一页了".tr);
                             }else{
                               favoritesPageLogic.page--;
                               favoritesPageLogic.change();
@@ -149,13 +150,13 @@ class FavoritesPage extends StatelessWidget {
                       FilledButton(
                           onPressed: (){
                             if(favoritesPageLogic.page==favoritesPageLogic.pages||favoritesPageLogic.pages==0){
-                              showMessage(context, "已经是最后一页了");
+                              showMessage(context, "已经是最后一页了".tr);
                             }else{
                               favoritesPageLogic.page++;
                               favoritesPageLogic.change();
                             }
                           },
-                          child: const Text("下一页")
+                          child: Text("下一页".tr)
                       ),
                       const SizedBox(width: 10,),
                     ],

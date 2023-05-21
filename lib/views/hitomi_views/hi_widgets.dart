@@ -3,62 +3,52 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 
-class HiComicTile extends StatelessWidget {
+import '../widgets/comic_tile.dart';
+
+class HiComicTile extends ComicTile {
   final HitomiComicBrief comic;
   const HiComicTile(this.comic, {super.key});
 
   @override
-  Widget build(BuildContext context) {
+  void favorite() {
+    showMessage(Get.context, "无法添加收藏");
+  }
+
+  @override
+  String get description => (){
     var description = "${comic.type}    ";
     description += comic.lang;
-    return InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => Get.to(()=>HitomiComicPage(comic), preventDuplicates: false),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
-          child: Row(
-            children: [
-              Expanded(
-                  flex: 3,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16)
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: CachedNetworkImage(
-                      httpHeaders: const {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-                        "Referer": "https://hitomi.la/"
-                      },
-                      placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-                      imageUrl: comic.cover,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      height: double.infinity,
-                    ),
-                  )
-              ),
-              SizedBox.fromSize(size: const Size(16,5),),
-              Expanded(
-                flex: 8,
-                child: ComicDescription(
-                  title: comic.name,
-                  user: comic.name,
-                  subDescription: description,
-                ),
-              ),
-              //const Center(
-              //  child: Icon(Icons.arrow_right),
-              //)
-            ],
-          ),
-        )
-    );
+    return description;
+  }.call();
+
+  @override
+  Widget get image => CachedNetworkImage(
+    httpHeaders: const {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      "Referer": "https://hitomi.la/"
+    },
+    placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
+    imageUrl: comic.cover,
+    fit: BoxFit.cover,
+    errorWidget: (context, url, error) => const Icon(Icons.error),
+    height: double.infinity,
+  );
+
+  @override
+  void onTap_() {
+    Get.to(() => HitomiComicPage(comic));
   }
+
+  @override
+  String get subTitle => comic.artist;
+
+  @override
+  String get title => comic.name;
+
 }
 
 class ComicDescription extends StatelessWidget {

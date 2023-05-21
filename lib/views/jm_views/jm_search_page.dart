@@ -69,7 +69,7 @@ class JmSearchPage extends StatelessWidget {
                     minHeight: 60,
                     maxHeight: 0,
                     child: FloatingSearchBar(
-                      supportingText: '搜索',
+                      supportingText: '搜索'.tr,
                       f:(s){
                         if(s=="") return;
                         logic.change();

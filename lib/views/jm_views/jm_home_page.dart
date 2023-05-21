@@ -81,7 +81,7 @@ class JmHomePage extends StatelessWidget {
                         Get.to(() => JmPromoteListPage(item.name, item.id));
                       }
                     },
-                    child: const Text("查看更多"))
+                    child: Text("查看更多".tr))
               ],
             ),
           ),

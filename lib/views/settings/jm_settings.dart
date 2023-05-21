@@ -11,7 +11,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
   var mode = appdata.settings[settingOrder];
   await showDialog(context: context, builder: (dialogContext){
     return SimpleDialog(
-      title: const Text("设置漫画排序模式"),
+      title: Text("设置漫画排序模式".tr),
       children: [
         GetBuilder<SetJmComicsOrderController>(
           init: SetJmComicsOrderController(settingOrder),
@@ -21,7 +21,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
               child: Column(
                 children: [
                   ListTile(
-                    title: const Text("最新"),
+                    title: Text("最新".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "0",
@@ -30,7 +30,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
                     onTap: ()=>logic.set("0"),
                   ),
                   ListTile(
-                    title: settingOrder == 16?const Text("总排行"):const Text("最多点击"),
+                    title: settingOrder == 16?Text("总排行".tr):Text("最多点击".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "1",
@@ -40,7 +40,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
                   ),
                   if(settingOrder == 16)
                   ListTile(
-                    title: const Text("月排行"),
+                    title: Text("月排行".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "2",
@@ -50,7 +50,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
                   ),
                   if(settingOrder == 16)
                   ListTile(
-                    title: const Text("周排行"),
+                    title: Text("周排行".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "3",
@@ -60,7 +60,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
                   ),
                   if(settingOrder == 16)
                   ListTile(
-                    title: const Text("日排行"),
+                    title: Text("日排行".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "4",
@@ -69,7 +69,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
                     onTap: ()=>logic.set("4"),
                   ),
                   ListTile(
-                    title: const Text("最多图片"),
+                    title: Text("最多图片".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "5",
@@ -78,7 +78,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
                     onTap: ()=>logic.set("5"),
                   ),
                   ListTile(
-                    title: const Text("最多喜欢"),
+                    title: Text("最多喜欢".tr),
                     trailing: Radio<String>(
                       groupValue: logic.value,
                       value: "6",
@@ -126,16 +126,16 @@ class _JmSettingsState extends State<JmSettings> {
         elevation: 0,
         child: Column(
           children: [
-            const ListTile(
-              title: Text("禁漫天堂"),
+            ListTile(
+              title: Text("禁漫天堂".tr),
             ),
             ListTile(
               leading: Icon(Icons.sort, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("分类中漫画排序模式"),
+              title: Text("分类中漫画排序模式".tr),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[16]),
-                values: const [
-                  "最新", "总排行", "月排行", "周排行", "日排行", "最多图片", "最多喜欢"
+                values: [
+                  "最新".tr, "总排行".tr, "月排行".tr, "周排行".tr, "日排行".tr, "最多图片".tr, "最多喜欢".tr
                 ],
                 whenChange: (i){
                   appdata.settings[16] = i.toString();
@@ -146,11 +146,11 @@ class _JmSettingsState extends State<JmSettings> {
             ),
             ListTile(
               leading: Icon(Icons.manage_search_outlined, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("搜索中漫画排序模式"),
+              title: Text("搜索中漫画排序模式".tr),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[19]),
-                values: const [
-                  "最新", "最多点击", "月排行", "周排行", "日排行", "最多图片", "最多喜欢"
+                values: [
+                  "最新".tr, "最多点击".tr, "月排行".tr, "周排行".tr, "日排行".tr, "最多图片".tr, "最多喜欢".tr
                 ],
                 whenChange: (i){
                   appdata.settings[19] = i.toString();
@@ -163,11 +163,11 @@ class _JmSettingsState extends State<JmSettings> {
             ListTile(
               leading: Icon(Icons.account_tree_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: const Text("设置分流"),
+              title: Text("设置分流".tr),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[17]),
-                values: const [
-                  "分流1","分流2","分流3","分流4"
+                values: [
+                  "分流1".tr,"分流2".tr,"分流3".tr,"分流4".tr
                 ],
                 whenChange: (i){
                   appdata.settings[17] = i.toString();
@@ -178,7 +178,7 @@ class _JmSettingsState extends State<JmSettings> {
             ),
             ListTile(
               leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("清除登录状态"),
+              title: Text("清除登录状态".tr),
               onTap: () => jmNetwork.logout(),
             ),
           ],

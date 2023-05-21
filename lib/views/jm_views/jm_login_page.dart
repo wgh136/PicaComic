@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
@@ -18,7 +18,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("登录禁漫天堂"),),
+      appBar: AppBar(title: Text("登录禁漫天堂".tr),),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(5),
@@ -30,21 +30,21 @@ class _JmLoginPageState extends State<JmLoginPage> {
                 TextField(
                   autofocus: false,
                   controller: nameController,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "账号",
-                      hintText: "账号",
-                      prefixIcon: Icon(Icons.person)
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: "账号".tr,
+                      hintText: "账号".tr,
+                      prefixIcon: const Icon(Icons.person)
                   ),
                 ),
                 const Padding(padding: EdgeInsets.all(5),),
                 TextField(
                   controller: passwordController,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "密码",
-                      hintText: "您的登录密码",
-                      prefixIcon: Icon(Icons.lock)
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: "密码".tr,
+                      hintText: "您的登录密码".tr,
+                      prefixIcon: const Icon(Icons.lock)
                   ),
                   obscureText: true,
                   onSubmitted: (s)async{
@@ -67,7 +67,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                   SizedBox(
                     width: 90,
                     child: FilledButton(
-                      child: const Text("登录"),
+                      child: Text("登录".tr),
                       onPressed: ()async{
                         setState(() {
                           logging = true;
@@ -97,9 +97,9 @@ class _JmLoginPageState extends State<JmLoginPage> {
                   child: TextButton(
                     onPressed: ()=>launchUrlString("https://18comic.vip/signup",mode: LaunchMode.externalApplication),
                     child: Row(
-                      children: const [
-                        Text("注册"),
-                        Icon(Icons.arrow_outward,size: 15,)
+                      children: [
+                        Text("注册".tr),
+                        const Icon(Icons.arrow_outward,size: 15,)
                       ],
                     ),
                   ),

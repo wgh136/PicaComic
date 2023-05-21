@@ -45,11 +45,11 @@ class HitomiLeaderboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(length: 4, child: Column(
       children: [
-        const TabBar(tabs: [
-          Tab(text: "今天",),
-          Tab(text: "本周",),
-          Tab(text: "本月",),
-          Tab(text: "今年",),
+        TabBar(tabs: [
+          Tab(text: "今天".tr,),
+          Tab(text: "本周".tr,),
+          Tab(text: "本月".tr,),
+          Tab(text: "今年".tr,),
         ],),
         Expanded(
           child: GetBuilder<HitomiLeaderboardPageLogic>(

@@ -6,7 +6,7 @@ import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_leaderboard_page.dart';
 import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
 
@@ -27,9 +27,9 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 
 
   final List<Tab> tabs = <Tab>[
-    const Tab(text: '24小时'),
-    const Tab(text: '7天'),
-    const Tab(text: '30天'),
+    Tab(text: '24小时'.tr),
+    Tab(text: '7天'.tr),
+    Tab(text: '30天'.tr),
   ];
 
   @override
@@ -126,7 +126,7 @@ class LeaderBoardH24 extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                   childCount: leaderBoardLogic.comics.length,
                       (context, i){
-                    return ComicTile(leaderBoardLogic.comics[i]);
+                    return PicComicTile(leaderBoardLogic.comics[i]);
                   }
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -179,7 +179,7 @@ class LeaderBoardD7 extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                   childCount: leaderBoardLogic.comics.length,
                       (context, i){
-                    return ComicTile(leaderBoardLogic.comics[i]);
+                    return PicComicTile(leaderBoardLogic.comics[i]);
                   }
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -232,7 +232,7 @@ class LeaderBoardD30 extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                   childCount: leaderBoardLogic.comics.length,
                       (context, i){
-                    return ComicTile(leaderBoardLogic.comics[i]);
+                    return PicComicTile(leaderBoardLogic.comics[i]);
                   }
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

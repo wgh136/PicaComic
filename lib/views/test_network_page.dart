@@ -56,9 +56,9 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 left: 0,
                 right: 0,
                 top: MediaQuery.of(context).size.height/2-40,
-                child: const Align(
+                child: Align(
                   alignment: Alignment.topCenter,
-                  child: Text("正在获取用户信息"),
+                  child: Text("正在获取用户信息".tr),
                 ),
               ),
             if(!isLoading)
@@ -68,7 +68,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 top: MediaQuery.of(context).size.height/2-80,
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: Text(message??"网络错误", textAlign: TextAlign.center,),
+                  child: Text(message??"网络错误".tr, textAlign: TextAlign.center,),
                 ),
               ),
 
@@ -91,12 +91,12 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                                 login();
                               });
                             },
-                            child: const Text("   重试   "),
+                            child: Text("重试".tr),
                           ),
                           const Spacer(),
                           FilledButton.tonal(
                             onPressed: () => goToMainPage(),
-                            child: const Text("直接进入"),
+                            child: Text("直接进入".tr),
                           )
                         ],
                       ),
@@ -111,7 +111,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                   width: 400,
                   child: ListTile(
                     leading: const Icon(Icons.settings),
-                    title: const Text("转到设置"),
+                    title: Text("转到设置".tr),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: ()=>Get.to(()=>const SettingsPage()),
                   ),
@@ -139,8 +139,8 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     if(appdata.token != "") {
       var res = await network.getProfile();
       if (res == null) {
-        message = network.status ? network.message : "网络错误";
-        message = "登录哔咔时发生错误\n$message";
+        message = network.status ? network.message : "网络错误".tr;
+        message = "登录哔咔时发生错误\n".tr+message.toString();
       } else {
         appdata.user = res;
         appdata.writeData();
@@ -149,7 +149,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     var res2 = await jmNetwork.loginFromAppdata();
     if(res2.error){
       message = res2.errorMessage;
-      message = "登录禁漫时发生错误\n$message";
+      message = "登录禁漫时发生错误\n".tr + message.toString();
     }
     if(message == null){
       goToMainPage();

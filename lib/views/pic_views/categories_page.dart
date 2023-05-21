@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/pic_views/collections_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
@@ -71,11 +70,11 @@ class CategoriesPage extends StatelessWidget {
                                       ),
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
-                                  const Expanded(
+                                  Expanded(
                                       flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("本子妹/本子母推荐",style: TextStyle(fontWeight: FontWeight.w600),),
+                                        child: Text("本子妹/本子母推荐".tr,style: const TextStyle(fontWeight: FontWeight.w600),),
                                       )
                                   ),
                                 ],
@@ -86,14 +85,14 @@ class CategoriesPage extends StatelessWidget {
                         return InkWell(
                             borderRadius: BorderRadius.circular(18),
                             onTap: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                              title: const Text("援助哔咔"),
-                              content: const Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?"),
+                              title: Text("援助哔咔".tr),
+                              content: Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?".tr),
                               actions: [
-                                TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
+                                TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
                                 TextButton(onPressed: (){
                                   launchUrlString("https://donate.bidobido.xyz",mode: LaunchMode.externalApplication);
                                   Get.back();
-                                }, child: const Text("继续")),
+                                }, child: Text("继续".tr)),
                               ],
                             )),
                             child: Padding(
@@ -114,11 +113,11 @@ class CategoriesPage extends StatelessWidget {
                                       ),
                                     ),),
                                   SizedBox.fromSize(size: const Size(20,5),),
-                                  const Expanded(
+                                  Expanded(
                                       flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("援助哔咔",style: TextStyle(fontWeight: FontWeight.w600),),
+                                        child: Text("援助哔咔".tr,style: const TextStyle(fontWeight: FontWeight.w600),),
                                       )
                                   ),
                                 ],

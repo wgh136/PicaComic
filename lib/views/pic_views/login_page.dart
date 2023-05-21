@@ -21,13 +21,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('登录哔咔账号'),
+        title: Text('登录哔咔账号'.tr),
         actions: [
           Tooltip(
-            message: "转到注册",
+            message: "转到注册".tr,
             child: TextButton(
-              child: const Text("转到注册"),
-              onPressed: (){Get.off(()=>const RegisterPage());},
+              child: Text("转到注册".tr),
+              onPressed: ()=>Get.off(()=>const RegisterPage()),
             ),
           )
         ],
@@ -47,22 +47,22 @@ class _LoginPageState extends State<LoginPage> {
                       autofocus: false,
                       controller: nameController,
                       autofillHints: const [AutofillHints.email],
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "账号",
-                          hintText: "账号",
-                          prefixIcon: Icon(Icons.person)
+                      decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: "账号".tr,
+                          hintText: "账号".tr,
+                          prefixIcon: const Icon(Icons.person)
                       ),
                     ),
                     const Padding(padding: EdgeInsets.all(5),),
                     TextField(
                       controller: passwordController,
                       autofillHints: const [AutofillHints.password],
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "密码",
-                          hintText: "您的登录密码",
-                          prefixIcon: Icon(Icons.lock)
+                      decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: "密码".tr,
+                          hintText: "您的登录密码".tr,
+                          prefixIcon: const Icon(Icons.lock)
                       ),
                       obscureText: true,
                       onSubmitted: (s){
@@ -72,10 +72,10 @@ class _LoginPageState extends State<LoginPage> {
                         network = Network();
                         var fur = network.login(nameController.text, passwordController.text);
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           behavior: SnackBarBehavior.floating,
                           width: 400,
-                          content: Text("登录中"),
+                          content: Text("登录中".tr),
                         ));
                         fur.then((b){
                           if(b){
@@ -84,10 +84,10 @@ class _LoginPageState extends State<LoginPage> {
                             i.then((t){
                               if(t == null){
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   behavior: SnackBarBehavior.floating,
                                   width: 400,
-                                  content: Text("登录失败"),
+                                  content: Text("登录失败".tr),
                                 ));
                                 setState(() {
                                   isLogging = false;
@@ -113,10 +113,10 @@ class _LoginPageState extends State<LoginPage> {
                             });
                           }else{
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               behavior: SnackBarBehavior.floating,
                               width: 400,
-                              content: Text("网络错误"),
+                              content: Text("网络错误".tr),
                             ));
                             setState(() {
                               isLogging = false;
@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                   ListTile(
                     leading: Icon(Icons.change_circle, color: Theme.of(context).colorScheme.primary,),
                     title: const Text("使用转发服务器"),
-                    subtitle: const Text("同时使用网络代理工具会减慢速度"),
+                    subtitle: Text("同时使用网络代理工具会减慢速度".tr),
                     trailing: Switch(
                       value: useMyServer,
                       onChanged: (b){
@@ -157,10 +157,10 @@ class _LoginPageState extends State<LoginPage> {
                         network = Network();
                         var fur = network.login(nameController.text, passwordController.text);
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           behavior: SnackBarBehavior.floating,
                           width: 400,
-                          content: Text("登录中"),
+                          content: Text("登录中".tr),
                         ));
                         fur.then((b){
                           if(b){
@@ -169,10 +169,10 @@ class _LoginPageState extends State<LoginPage> {
                             i.then((t){
                               if(t == null){
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   behavior: SnackBarBehavior.floating,
                                   width: 400,
-                                  content: Text("登录失败"),
+                                  content: Text("登录失败".tr),
                                 ));
                                 setState(() {
                                   isLogging = false;
@@ -198,10 +198,10 @@ class _LoginPageState extends State<LoginPage> {
                             });
                           }else{
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               behavior: SnackBarBehavior.floating,
                               width: 400,
-                              content: Text("网络错误"),
+                              content: Text("网络错误".tr),
                             ));
                             setState(() {
                               isLogging = false;
@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         });
                       },
-                      child: const Text('登录'),
+                      child: Text('登录'.tr),
                     ),
                   ),
                 if(isLogging)

@@ -6,7 +6,7 @@ import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class EhFavouritePageLogic extends GetxController{
   bool loading = true;
@@ -46,32 +46,36 @@ class EhFavouritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GetBuilder<EhFavouritePageLogic>(
-          builder: (logic) => buildFolderSelector(context, logic),
-        ),
-        Expanded(
-          child: GetBuilder<EhFavouritePageLogic>(
-            builder: (logic){
-              if(logic.loading){
-                if(appdata.settings[11]=="0") {
-                  logic.getGallery();
-                }
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }else if(logic.galleries!=null){
-                return buildNormalView(logic, context);
-              }else{
-                return showNetworkError(context, logic.retry, showBack:false, eh: true);
-              }
-            },
+    return RefreshIndicator(
+      onRefresh: () async{
+        Get.find<EhFavouritePageLogic>().refresh_();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GetBuilder<EhFavouritePageLogic>(
+            builder: (logic) => buildFolderSelector(context, logic),
           ),
-        )
-      ],
-    );
+          Expanded(
+            child: GetBuilder<EhFavouritePageLogic>(
+              builder: (logic){
+                if(logic.loading){
+                  if(appdata.settings[11]=="0") {
+                    logic.getGallery();
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }else if(logic.galleries!=null){
+                  return buildNormalView(logic, context);
+                }else{
+                  return showNetworkError(context, logic.retry, showBack:false, eh: true);
+                }
+              },
+            ),
+          )
+        ],
+    ));
   }
 
   Widget buildNormalView(EhFavouritePageLogic logic, BuildContext context){
@@ -116,14 +120,14 @@ class EhFavouritePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Text("  收藏夹:  "),
-          logic.folder==-1 ? const Text("全部") : Text("Favorites ${logic.folder}"),
+          Text("  收藏夹:  ".tr),
+          logic.folder==-1 ? Text("全部".tr) : Text("Favorites ${logic.folder}"),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.arrow_drop_down_sharp),
             onPressed: (){
               if(logic.loading){
-                showMessage(context, "加载中");
+                showMessage(context, "加载中".tr);
                 return;
               }
               showMenu(
@@ -132,7 +136,7 @@ class EhFavouritePage extends StatelessWidget {
                   items: [
                     PopupMenuItem(
                       height: 40,
-                      child: const Text("全部"),
+                      child: Text("全部".tr),
                       onTap: (){
                         if(logic.folder != -1){
                           logic.folder = -1;

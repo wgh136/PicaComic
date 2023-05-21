@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 class SelectableTextCN extends StatelessWidget{
   //Flutter内置的SelectableText弹出菜单为英文, 这个对其作出修改
@@ -21,13 +22,13 @@ class SelectableTextCN extends StatelessWidget{
                   Clipboard.setData(ClipboardData(text: state.currentTextEditingValue.text));
                   state.hideToolbar();
                 },
-                label: "复制"
+                label: "复制".tr
             ),
             ContextMenuButtonItem(
                 onPressed: (){
                   state.selectAll(SelectionChangedCause.toolbar);
                 },
-                label: "全选"
+                label: "全选".tr
             ),
           ],
         );

@@ -12,7 +12,7 @@ import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
@@ -130,6 +130,7 @@ class ComicReadingPage extends StatelessWidget {
           },
           dispose: (logic) {
             listen = false;
+            //清除缓存并减小最大缓存
             PaintingBinding.instance.imageCache.clear();
             PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
             //保存历史记录
@@ -183,11 +184,11 @@ class ComicReadingPage extends StatelessWidget {
                           ValueListenableBuilder<int>(
                             valueListenable: ehLoadingInfo.current,
                             builder: (context,current,widget){
-                              return Text("已加载$current/${ehLoadingInfo.total}", style: const TextStyle(color: Colors.white),);
+                              return Text("$current/${ehLoadingInfo.total}", style: const TextStyle(color: Colors.white),);
                             }
                           ),
                           const SizedBox(height: 5,),
-                          FilledButton(onPressed: ()=>Get.back(), child: const Text("退出"))
+                          FilledButton(onPressed: ()=>Get.back(), child: Text("退出".tr))
                         ],
                       ),
                     ),
@@ -388,7 +389,7 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  data.message ?? "网络错误",
+                  data.message ?? "网络错误".tr,
                   style: const TextStyle(
                     color: Colors.white,
                   ),
@@ -411,13 +412,13 @@ class ComicReadingPage extends StatelessWidget {
                             data.epsWidgets.clear();
                             comicReadingPageLogic.change();
                           },
-                          child: const Text("重试"),
+                          child: Text("重试".tr),
                         ),),
                         const SizedBox(width: 8,),
                         Expanded(child: FilledButton(
                           onPressed: () {
                             if(type == ReadingType.ehentai || type == ReadingType.hitomi){
-                              showMessage(context, "没有其它章节");
+                              showMessage(context, "没有其它章节".tr);
                               return;
                             }
                             if (MediaQuery.of(context).size.width > 600) {
@@ -431,7 +432,7 @@ class ComicReadingPage extends StatelessWidget {
                                   });
                             }
                           },
-                          child: const Text("切换章节"),
+                          child: Text("切换章节".tr),
                         )),
                       ],
                     ),
@@ -462,7 +463,7 @@ class ComicReadingPage extends StatelessWidget {
             Icons.library_books,
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
-          title: const Text("章节"),
+          title: Text("章节".tr),
         ),
       );
     }
@@ -492,7 +493,7 @@ class ComicReadingPage extends StatelessWidget {
       network.getComicContent(data.target, comicReadingPageLogic.order).then((l) {
         comicReadingPageLogic.urls = l;
         if (l.isEmpty) {
-          data.message = network.status ? network.message : "网络错误";
+          data.message = network.status ? network.message : "网络错误".tr;
         }
         comicReadingPageLogic.change();
       });
@@ -515,7 +516,7 @@ class ComicReadingPage extends StatelessWidget {
         logic.urls = gallery!.urls;
         logic.change();
       }else if(i == 0){
-        data.message = EhNetwork().status ? EhNetwork().message : "网络错误";
+        data.message = EhNetwork().status ? EhNetwork().message : "网络错误".tr;
         logic.change();
       }else{
         info.current.value++;
@@ -544,14 +545,14 @@ class ComicReadingPage extends StatelessWidget {
             Icons.library_books,
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
-          title: const Text("章节", style: TextStyle(fontSize: 18),),
+          title: Text("章节".tr, style: TextStyle(fontSize: 18),),
         ),
       );
     }
     if (data.epsWidgets.length == 1) {
       for (int i = 0; i < eps.length; i++) {
         data.epsWidgets.add(ListTile(
-          title: Text("第${i + 1}章${(comicReadingPageLogic.order == i+1) ? "(当前)" : ""}"),
+          title: Text("${"第 @c 章".trParams({"c": (i+1).toString()})}${(comicReadingPageLogic.order == i+1) ? "(当前)".tr : ""}"),
           onTap: () {
             if (comicReadingPageLogic.order != i+1) {
               comicReadingPageLogic.order = i+1;
@@ -576,7 +577,7 @@ class ComicReadingPage extends StatelessWidget {
     }
     var res = await jmNetwork.getChapter(data.target);
     if (res.error) {
-      data.message = res.errorMessage ?? "网络错误";
+      data.message = res.errorMessage ?? "网络错误".tr;
     } else {
       comicReadingPageLogic.urls = res.data;
     }

@@ -19,7 +19,7 @@ import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/side_bar.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class JmComicPageLogic extends GetxController {
   bool loading = true;
@@ -99,7 +99,7 @@ class JmComicPage extends StatelessWidget {
                   pinned: true,
                   actions: [
                     Tooltip(
-                      message: "分享",
+                      message: "分享".tr,
                       child: IconButton(
                         icon: const Icon(
                           Icons.share,
@@ -180,9 +180,9 @@ class JmComicPage extends StatelessWidget {
                           const SizedBox(
                             width: 20,
                           ),
-                          const Text(
-                            "相关推荐",
-                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                          Text(
+                            "相关推荐".tr,
+                            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                           )
                         ],
                       )),
@@ -241,9 +241,9 @@ class JmComicPage extends StatelessWidget {
     var res = <Widget>[];
     var res2 = <Widget>[];
 
-    res.add(const Padding(
-      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: Text("作者"),
+    res.add(Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: Text("作者".tr),
     ));
     res.add(Wrap(
       children: List.generate(logic.comic!.author.length,
@@ -293,13 +293,13 @@ class JmComicPage extends StatelessWidget {
           ),
           Expanded(
             child: ActionChip(
-                label: const Text("收藏"),
+                label: Text("收藏".tr),
                 avatar: logic.comic!.favorite
                     ? const Icon(Icons.bookmark)
                     : const Icon(Icons.bookmark_outline),
                 onPressed: () {
                   if(logic.comic!.favorite){
-                    showMessage(Get.context, "正在取消收藏");
+                    showMessage(Get.context, "正在取消收藏".tr);
                     jmNetwork.favorite(id).then((v){
                       logic.comic!.favorite = false;
                       logic.update();
@@ -340,7 +340,7 @@ class JmComicPage extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onPressed: () => readJmComic(logic.comic!, logic.comic!.series.values.toList()),
-              child: const Text("阅读"),
+              child: Text("阅读".tr),
             ),
           ),
 
@@ -359,14 +359,14 @@ class JmComicPage extends StatelessWidget {
                 details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
+                  showMessage(context, "已复制".tr);
                 },
               ),
               PopupMenuItem(
-                child: const Text("添加到屏蔽词"),
+                child: Text("添加到屏蔽词".tr),
                 onTap: () {
                   appdata.blockingKeyword.add(title);
                   appdata.writeData();
@@ -381,14 +381,14 @@ class JmComicPage extends StatelessWidget {
                 details.globalPosition.dx, details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: const Text("复制"),
+                child: Text("复制".tr),
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: (title)));
                   showMessage(context, "已复制");
                 },
               ),
               PopupMenuItem(
-                child: const Text("添加到屏蔽词"),
+                child: Text("添加到屏蔽词".tr),
                 onTap: () {
                   appdata.blockingKeyword.add(title);
                   appdata.writeData();
@@ -482,9 +482,9 @@ class JmComicPage extends StatelessWidget {
                 const SizedBox(
                   width: 20,
                 ),
-                const Text(
-                  "章节",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                Text(
+                  "章节".tr,
+                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 )
               ],
             )),
@@ -499,7 +499,7 @@ class JmComicPage extends StatelessWidget {
                 elevation: 1,
                 color: Theme.of(context).colorScheme.secondaryContainer,
                 child: Center(
-                  child: Text("第${i + 1}章"),
+                  child: Text("第 @c 章".trParams({"c": (i+1).toString()})),
                 ),
               ),
               onTap: () {
@@ -533,7 +533,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
   bool loading = true;
   Map<String, String> folders = {};
   String? message;
-  String folderName = "全部收藏";
+  String folderName = "全部收藏".tr;
   String folderId = "0";
   bool loading2 = false;
   bool addedFavorite = false;
@@ -544,7 +544,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
       get();
     }
     return SimpleDialog(
-      title: const Text("收藏漫画"),
+      title: Text("收藏漫画".tr),
       children: [
         if(loading)
           const SizedBox(
@@ -584,14 +584,14 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text("  选择收藏夹:  "),
+                      Text("  选择收藏夹:  ".tr),
                       Text(folderName),
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.arrow_drop_down_sharp),
                         onPressed: (){
                           if(loading){
-                            showMessage(context, "加载中");
+                            showMessage(context, "加载中".tr);
                             return;
                           }
                           showMenu(
@@ -603,10 +603,10 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                                   MediaQuery.of(context).size.height/2),
                               items: [
                                 PopupMenuItem(
-                                  child: const Text("全部收藏"),
+                                  child: Text("全部收藏".tr),
                                   onTap: (){
                                     setState(() {
-                                      folderName = "全部收藏";
+                                      folderName = "全部收藏".tr;
                                     });
                                     folderId = "0";
                                   },
@@ -658,8 +658,8 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                     Get.back();
                     widget.logic.comic!.favorite = true;
                     widget.logic.update();
-                    showMessage(Get.context, "添加成功");
-                  }, child: const Text("提交"))
+                    showMessage(Get.context, "添加成功".tr);
+                  }, child: Text("提交".tr))
                 else
                   const Center(
                     child: CircularProgressIndicator(),
@@ -685,33 +685,29 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context){
-  if(GetPlatform.isWeb){
-    showMessage(context, "Web端不支持下载");
-    return;
-  }
   if(downloadManager.downloadedJmComics.contains("jm${comic.id}")){
-    showMessage(context, "已下载");
+    showMessage(context, "已下载".tr);
     return;
   }
   for(var i in downloadManager.downloading){
     if(i.id == comic.id){
-      showMessage(context, "下载中");
+      showMessage(context, "下载中".tr);
       return;
     }
   }
 
   List<String> eps = [];
   if(comic.series.isEmpty){
-    eps.add("第一章");
+    eps.add("第1章".tr);
   }else{
-    eps = List<String>.generate(comic.series.length, (index) => "第$index章");
+    eps = List<String>.generate(comic.series.length, (index) => "第 @c 章".trParams({"c": (index+1).toString()}));
   }
 
   if(UiMode.m1(context)) {
     showModalBottomSheet(context: context, builder: (context){
       return SelectDownloadChapter(eps, (selectedEps){
         downloadManager.addJmDownload(comic, selectedEps);
-        showMessage(context, "已加入下载");
+        showMessage(context, "已加入下载".tr);
       });
     });
   }else{
@@ -719,7 +715,7 @@ void downloadComic(JmComicInfo comic, BuildContext context){
         context,
         SelectDownloadChapter(eps, (selectedEps){
           downloadManager.addJmDownload(comic, selectedEps);
-          showMessage(context, "已加入下载");
+          showMessage(context, "已加入下载".tr);
         }),
         useSurfaceTintColor: true
     );

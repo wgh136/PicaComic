@@ -42,10 +42,10 @@ class JmWeekRecommendationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var key = GlobalKey();
-    final titleLength = 190;
+    const titleLength = 190;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("每周必看"),
+        title: Text("每周必看".tr),
         actions: [
           GetBuilder<JWRPLogic>(builder: (logic)=>Container(
             key: key,
@@ -147,10 +147,10 @@ class WeekRecommendationList extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(length: 3, child: Column(
       children: [
-        const TabBar(tabs: [
-          Tab(text: "韩漫",),
-          Tab(text: "日漫",),
-          Tab(text: "其它",)
+        TabBar(tabs: [
+          Tab(text: "韩漫".tr,),
+          Tab(text: "日漫".tr,),
+          Tab(text: "其它".tr,)
         ]),
         Expanded(child: GetBuilder<WRLLogic>(
             init: WRLLogic(),
@@ -172,7 +172,7 @@ class WeekRecommendationList extends StatelessWidget {
         child: CircularProgressIndicator(),
       );
     }else if(logic.comics[index].isEmpty){
-      return showNetworkError(logic.messages[index]??"未知错误", ()=>logic.retry(index, id), context);
+      return showNetworkError(logic.messages[index]??"未知错误".tr, ()=>logic.retry(index, id), context);
     }else{
       return CustomScrollView(
         slivers: [

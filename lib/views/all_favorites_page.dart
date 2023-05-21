@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
 import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
 import 'package:pica_comic/views/pic_views/favorites_page.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
 import '../base.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class AllFavoritesPage extends StatefulWidget {
   const AllFavoritesPage({Key? key}) : super(key: key);
@@ -39,10 +39,10 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("收藏夹"),
+        title: Text("收藏夹".tr),
         actions: [
           Tooltip(
-            message: "更多",
+            message: "更多".tr,
             child: IconButton(
               icon: const Icon(Icons.more_horiz),
               onPressed: (){
@@ -50,14 +50,14 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
                     position: RelativeRect.fromLTRB(MediaQuery.of(context).size.width-60, 50, MediaQuery.of(context).size.width-60, 50),
                     items: [
                       PopupMenuItem(
-                        child: const Text("浏览模式"),
+                        child: Text("浏览模式".tr),
                         onTap: (){
                           Future.delayed(const Duration(microseconds: 200),()=>changeMode(context));
                         },
                       ),
                       if(appdata.settings[11]=="1")
                         PopupMenuItem(
-                          child: const Text("跳页"),
+                          child: Text("跳页".tr),
                           onTap: ()=>Future.delayed(const Duration(microseconds: 200),() async{
                             Future.delayed(const Duration(milliseconds: 200),(){
                               switch(controller.index){
@@ -108,16 +108,16 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
     showDialog(context: context, builder: (dialogContext)=>GetBuilder(
         init: RadioLogic(),
         builder: (logic)=>SimpleDialog(
-          title: const Text("选择浏览方式(仅哔咔)"),
+          title: Text("选择浏览方式(仅哔咔)".tr),
           children: [
             const SizedBox(width: 400,),
             ListTile(
-              title: const Text("顺序浏览"),
+              title: Text("顺序浏览".tr),
               trailing: Radio(value: 0, groupValue: logic.value, onChanged: (i)=>logic.changeValue(i!)),
               onTap: ()=>logic.changeValue(0),
             ),
             ListTile(
-              title: const Text("分页浏览"),
+              title: Text("分页浏览".tr),
               trailing: Radio(value: 1, groupValue: logic.value, onChanged: (i)=>logic.changeValue(i!)),
               onTap: ()=>logic.changeValue(1),
             )
@@ -131,7 +131,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
     var logic = Get.find<FavoritesPageLogic>();
     String res = "";
     await showDialog(context: context, builder: (dialogContext)=>SimpleDialog(
-      title: const Text("切换页面"),
+      title: Text("切换页面".tr),
       children: [
         const SizedBox(width: 400,),
         Padding(
@@ -139,8 +139,8 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
           child: TextField(
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              labelText: "页码",
-              suffixText: "输入1-${logic.pages}之间的数字",
+              labelText: "页码".tr,
+              suffixText: "${"输入范围: ".tr}1-${logic.pages}",
             ),
             controller: controller,
             onSubmitted: (s){
@@ -150,7 +150,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
           ),
         ),
         Center(child: FilledButton(
-          child: const Text("提交"),
+          child: Text("提交".tr),
           onPressed: (){
             res = controller.text;
             Get.back();
@@ -162,11 +162,11 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   }
 
   Future<void> changeEhPage() async{
-    showMessage(context, "暂不支持");
+    showMessage(context, "暂不支持".tr);
   }
 
   Future<void> changeJmPage() async{
-    showMessage(context, "暂不支持");
+    showMessage(context, "暂不支持".tr);
   }
 }
 

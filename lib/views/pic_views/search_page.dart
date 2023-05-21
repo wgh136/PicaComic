@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/widgets/search.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../base.dart';
 import '../widgets/list_loading.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -68,16 +68,16 @@ class SearchPage extends StatelessWidget {
                   minHeight: 60,
                   maxHeight: 0,
                   child: FloatingSearchBar(
-                    supportingText: '搜索',
+                    supportingText: '搜索'.tr,
                     trailing: Tooltip(
-                      message: "选择模式",
+                      message: "选择搜索模式".tr,
                       child: IconButton(
                         icon: const Icon(Icons.arrow_drop_down_rounded),
                         onPressed: (){
                           showDialog(context: context, builder: (context){
                             Get.put(ModeRadioLogic());
                             return SimpleDialog(
-                                title: const Text("选择漫画排序模式"),
+                                title: Text("选择漫画排序模式".tr),
                                 children: [GetBuilder<ModeRadioLogic>(builder: (radioLogic){
                                   return Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -89,7 +89,7 @@ class SearchPage extends StatelessWidget {
                                           searchPageLogic._refresh();
                                           Get.back();
                                         },),
-                                        title: const Text("新书在前"),
+                                        title: Text("新到书".tr),
                                         onTap: (){
                                           radioLogic.change(0);
                                           searchPageLogic._refresh();
@@ -102,7 +102,7 @@ class SearchPage extends StatelessWidget {
                                           searchPageLogic._refresh();
                                           Get.back();
                                         },),
-                                        title: const Text("旧书在前"),
+                                        title: Text("旧到新".tr),
                                         onTap: (){
                                           radioLogic.change(1);
                                           searchPageLogic._refresh();
@@ -115,7 +115,7 @@ class SearchPage extends StatelessWidget {
                                           searchPageLogic._refresh();
                                           Get.back();
                                         },),
-                                        title: const Text("最多喜欢"),
+                                        title: Text("最多喜欢".tr),
                                         onTap: (){
                                           radioLogic.change(2);
                                           searchPageLogic._refresh();
@@ -128,7 +128,7 @@ class SearchPage extends StatelessWidget {
                                           searchPageLogic._refresh();
                                           Get.back();
                                         },),
-                                        title: const Text("最多指名"),
+                                        title: Text("最多指名".tr),
                                         onTap: (){
                                           radioLogic.change(3);
                                           searchPageLogic._refresh();
@@ -183,7 +183,7 @@ class SearchPage extends StatelessWidget {
                                 searchPageLogic.update();
                               });
                             }
-                            return ComicTile(searchPageLogic.searchResult.comics[i]);
+                            return PicComicTile(searchPageLogic.searchResult.comics[i]);
                           }
                       ),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

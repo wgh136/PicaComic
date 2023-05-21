@@ -51,7 +51,7 @@ Widget showNetworkError(BuildContext context, void Function() retry, {bool showB
               height: 40,
               child: FilledButton(
                 onPressed: ()=>retry(),
-                child: const Text("重试"),
+                child: Text("重试".tr),
               ),
             )
         ),

@@ -27,7 +27,7 @@ Widget buildTopToolBar(
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: Tooltip(
-                        message: "返回",
+                        message: "返回".tr,
                         child: IconButton(
                           iconSize: 25,
                           icon: const Icon(Icons.arrow_back_outlined),
@@ -52,7 +52,7 @@ Widget buildTopToolBar(
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: Tooltip(
-                        message: "阅读设置",
+                        message: "阅读设置".tr,
                         child: IconButton(
                           iconSize: 25,
                           icon: const Icon(Icons.settings),
@@ -124,21 +124,21 @@ Widget buildBottomToolBar(
                     children: [
                       if (showEps)
                         Tooltip(
-                          message: "章节",
+                          message: "章节".tr,
                           child: IconButton(
                             icon: const Icon(Icons.library_books),
                             onPressed: openEpsDrawer,
                           ),
                         ),
                       Tooltip(
-                        message: "保存图片",
+                        message: "保存图片".tr,
                         child: IconButton(
                           icon: const Icon(Icons.download),
                           onPressed: downloadCurrentImage,
                         ),
                       ),
                       Tooltip(
-                        message: "分享",
+                        message: "分享".tr,
                         child: IconButton(
                           icon: const Icon(Icons.share),
                           onPressed: share,
@@ -168,7 +168,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
     epsText = eps[comicReadingPageLogic.order];
   }
   if(jm){
-    epsText = "第${comicReadingPageLogic.order}章";
+    epsText = "第 @c 章".trParams({"c": comicReadingPageLogic.order.toString()});
   }
 
   if (!comicReadingPageLogic.tools) {

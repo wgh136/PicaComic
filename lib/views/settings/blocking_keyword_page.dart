@@ -17,28 +17,28 @@ class BlockingKeywordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var tailing = Tooltip(
-      message: "添加",
+      message: "添加".tr,
       child: IconButton(
         icon: const Icon(Icons.add),
         onPressed: (){
           showDialog(context: context,
             builder: (dialogContext)=>GetBuilder<BlockingKeywordPageLogic>(builder: (logic)=>SimpleDialog(
-              title: const Text("添加屏蔽关键词"),
+              title: Text("添加屏蔽关键词".tr),
               children: [
                 const SizedBox(width: 400,),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
                   child: TextField(
                     controller: logic.controller,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: "添加关键词"
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: "添加关键词".tr
                     ),
                   ),
                 ),
                 Center(
                   child: FilledButton(
-                    child: const Text("提交"),
+                    child: Text("提交".tr),
                     onPressed: (){
                       appdata.blockingKeyword.add(logic.controller.text);
                       logic.update();
@@ -64,7 +64,7 @@ class BlockingKeywordPage extends StatelessWidget {
                   forceActionsBelow: true,
                   padding: const EdgeInsets.all(15),
                   leading: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary,size: 30,),
-                  content: const Text("关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息"), actions: [
+                  content: Text("关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息".tr), actions: [
                 TextButton(onPressed: (){
                   appdata.firstUse[0] = "0";
                   appdata.writeData();
@@ -90,9 +90,9 @@ class BlockingKeywordPage extends StatelessWidget {
     );
 
     return popUp?
-      PopUpWidgetScaffold(title: "关键词屏蔽", body: widget,tailing: tailing,)
+      PopUpWidgetScaffold(title: "关键词屏蔽".tr, body: widget,tailing: tailing,)
         :Scaffold(
-          appBar: AppBar(title: const Text("关键词屏蔽"),actions: [tailing],),
+          appBar: AppBar(title: Text("关键词屏蔽".tr),actions: [tailing],),
           body: widget,
     );
   }

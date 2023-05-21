@@ -61,7 +61,7 @@ class JmCategoryPage extends StatelessWidget {
         actions: [
           if(! fromHomePage)
           Tooltip(
-            message: "设置排序方式",
+            message: "选择漫画排序模式".tr,
             child: IconButton(
               icon: const Icon(Icons.manage_search_outlined),
               onPressed: () async{

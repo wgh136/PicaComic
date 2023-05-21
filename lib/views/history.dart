@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/pic_views/widgets.dart';
+import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import '../base.dart';
 import '../network/jm_network/jm_image.dart';
 
@@ -47,22 +49,22 @@ class _HistoryPageState extends State<HistoryPage> {
           slivers: [
             SliverAppBar.large(
               centerTitle: true,
-              title: Text("历史记录(${comics.length})"),
+              title: Text("${"历史记录".tr}(${comics.length})"),
               actions: [
                 Tooltip(
-                  message: "清除",
+                  message: "清除".tr,
                   child: IconButton(
                     icon: const Icon(Icons.clear_all),
                     onPressed: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                      title: const Text("清除记录"),
-                      content: const Text("要清除历史记录吗?"),
+                      title: Text("清除记录".tr),
+                      content: Text("要清除历史记录吗?".tr),
                       actions: [
-                        TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
+                        TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
                         TextButton(onPressed: (){
                           appdata.history.clearHistory();
                           setState(()=>comics.clear());
                           Get.back();
-                        }, child: const Text("清除")),
+                        }, child: Text("清除".tr)),
                       ],
                     )),
                   ),
@@ -80,28 +82,30 @@ class _HistoryPageState extends State<HistoryPage> {
                         comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
                         comics[i].target
                     );
-                    return ComicTile(
+                    return NormalComicTile(
                       key: Key(comics[i].target),
                       onLongTap: (){
                         showDialog(context: context, builder: (context){
                           return AlertDialog(
-                            title: const Text("确认删除"),
-                            content: const Text("要删除这条历史记录吗"),
+                            title: Text("删除".tr),
+                            content: Text("要删除这条历史记录吗".tr),
                             actions: [
-                              TextButton(onPressed: ()=>Get.back(), child: const Text("取消")),
+                              TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
                               TextButton(onPressed: (){
                                 appdata.history.remove(comics[i].target);
                                 setState(() {
                                   comics.removeAt(i);
                                 });
                                 Get.back();
-                              }, child: const Text("删除")),
+                              }, child: Text("删除".tr)),
                             ],
                           );
                         });
                       },
-                      comic,
-                      time: "${comics[i].time.year}-${comics[i].time.month}-${comics[i].time.day} ${comics[i].time.hour}:${comics[i].time.minute}",
+                      description_: timeToString(comics[i].time),
+                      coverPath: comic.path,
+                      name: comic.title,
+                      subTitle_: comic.author,
                       onTap: (){
                         if(comics[i].type == HistoryType.picacg){
                           Get.to(()=>ComicPage(comic));

@@ -717,14 +717,13 @@ class JmNetwork {
 
   ///收藏漫画
   ///
-  /// Jm的收藏逻辑大概为: 收藏后会加入收藏夹页的全部漫画中, 此时如果使用官方App会出现一个选择收藏夹的弹窗, 选择后将会
-  /// 再次发送一个网络请求进行移动漫画
+  /// 返回值的data为是否是添加收藏
   Future<Res<bool>> favorite(String id) async {
     var res = await post("$baseUrl/favorite", "aid=$id&$baseData");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     } else {
-      return Res(true);
+      return Res(res.data["type"]=="add");
     }
   }
 

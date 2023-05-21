@@ -7,7 +7,7 @@ import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'jm_views/jm_comic_page.dart';
@@ -65,7 +65,7 @@ class PreSearchPage extends StatelessWidget {
               delegate: _SliverAppBarDelegate(
                 minHeight: 60,
                 maxHeight: 0,
-                child: FloatingSearchBar(supportingText: '搜索',f:(s){
+                child: FloatingSearchBar(supportingText: '搜索'.tr,f:(s){
                   if(s=="") return;
                   switch(searchController.target){
                     case 0: Get.to(()=>SearchPage(controller.text));break;
@@ -86,9 +86,9 @@ class PreSearchPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(13, 5, 0, 0),
-                        child: Text("目标"),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(13, 5, 0, 0),
+                        child: Text("目标".tr),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -141,12 +141,12 @@ class PreSearchPage extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: ActionChip(
-                                label: const Text("禁漫漫画ID"),
+                                label: Text("禁漫漫画ID".tr),
                                 onPressed: (){
                                   var controller = TextEditingController();
                                   showDialog(context: context, builder: (context){
                                     return AlertDialog(
-                                      title: const Text("输入禁漫漫画ID"),
+                                      title: Text("输入禁漫漫画ID".tr),
                                       content: Padding(
                                         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                         child: TextField(
@@ -168,9 +168,9 @@ class PreSearchPage extends StatelessWidget {
                                           if(controller.text.isNum){
                                             Get.to(()=>JmComicPage(controller.text));
                                           }else{
-                                            showMessage(Get.context, "输入的ID不是数字");
+                                            showMessage(Get.context, "输入的ID不是数字".tr);
                                           }
-                                        }, child: const Text("提交"))
+                                        }, child: Text("提交".tr))
                                       ],
                                     );
                                   });
@@ -196,9 +196,9 @@ class PreSearchPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(13, 5, 0, 0),
-                              child: Text("漫画排序模式"),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(13, 5, 0, 0),
+                              child: Text("漫画排序模式".tr),
                             ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -207,7 +207,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("新到书"),
+                                      label: Text("新到书".tr),
                                       selected: logic.picComicsOrder == 0,
                                       onSelected: (b) {
                                         logic.updatePicComicsOrder(0);
@@ -217,7 +217,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("旧到新"),
+                                      label: Text("旧到新".tr),
                                       selected: logic.picComicsOrder == 1,
                                       onSelected: (b) {
                                         logic.updatePicComicsOrder(1);
@@ -227,7 +227,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("最多喜欢"),
+                                      label: Text("最多喜欢".tr),
                                       selected: logic.picComicsOrder == 2,
                                       onSelected: (b) {
                                         logic.updatePicComicsOrder(2);
@@ -237,7 +237,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("最多指名"),
+                                      label: Text("最多指名".tr),
                                       selected: logic.picComicsOrder == 3,
                                       onSelected: (b) {
                                         logic.updatePicComicsOrder(3);
@@ -259,9 +259,9 @@ class PreSearchPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(13, 5, 0, 0),
-                              child: Text("漫画排序模式"),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(13, 5, 0, 0),
+                              child: Text("漫画排序模式".tr),
                             ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -270,7 +270,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("最新"),
+                                      label: Text("最新".tr),
                                       selected: logic.jmComicsOrder == 0,
                                       onSelected: (b) {
                                         logic.updateJmComicsOrder(0);
@@ -280,7 +280,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("最多点击"),
+                                      label: Text("最多点击".tr),
                                       selected: logic.jmComicsOrder == 1,
                                       onSelected: (b) {
                                         logic.updateJmComicsOrder(1);
@@ -290,7 +290,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("最多图片"),
+                                      label: Text("最多图片".tr),
                                       selected: logic.jmComicsOrder == 5,
                                       onSelected: (b) {
                                         logic.updateJmComicsOrder(5);
@@ -300,7 +300,7 @@ class PreSearchPage extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: FilterChip(
-                                      label: const Text("最多喜欢"),
+                                      label: Text("最多喜欢".tr),
                                       selected: logic.jmComicsOrder == 6,
                                       onSelected: (b) {
                                         logic.updateJmComicsOrder(6);
@@ -328,7 +328,7 @@ class PreSearchPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("  哔咔热搜"),
+                    Text("  哔咔热搜".tr),
                     Wrap(
                       children: [
                         for(var s in hotSearch)
@@ -357,7 +357,7 @@ class PreSearchPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("  禁漫热搜"),
+                    Text("  禁漫热搜".tr),
                     Wrap(
                       children: [
                         for(var s in jmNetwork.hotTags)
@@ -387,7 +387,7 @@ class PreSearchPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("  历史搜索"),
+                        Text("  历史搜索".tr),
                         Wrap(
                           children: [
                             for(var s in appdata.searchHistory.reversed)
@@ -439,11 +439,11 @@ class PreSearchPage extends StatelessWidget {
                               ),
                               width: 125,
                               height: 26,
-                              child: const Row(
+                              child: Row(
                                 children: [
-                                  SizedBox(width: 5,),
-                                  Icon(Icons.clear_all,color: Colors.indigo,),
-                                  Text("清除历史记录")
+                                  const SizedBox(width: 5,),
+                                  const Icon(Icons.clear_all,color: Colors.indigo,),
+                                  Text("清除历史记录".tr)
                                 ],
                               ),
                             ),

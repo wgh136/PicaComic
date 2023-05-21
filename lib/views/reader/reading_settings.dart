@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../tools/keep_screen_on.dart';
 import 'reading_logic.dart';
 
@@ -60,16 +60,16 @@ class _ReadingSettingsState extends State<ReadingSettings> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 10, 0, 5),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 0, 5),
             child: Text(
-              "阅读设置",
-              style: TextStyle(fontSize: 18),
+              "阅读设置".tr,
+              style: const TextStyle(fontSize: 18),
             ),
           ),
           ListTile(
             leading: Icon(Icons.touch_app_outlined, color: Theme.of(context).colorScheme.secondary),
-            title: const Text("点按翻页"),
+            title: Text("点按翻页".tr),
             trailing: Switch(
               value: pageChangeValue,
               onChanged: (b) {
@@ -84,7 +84,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           ListTile(
             leading: Icon(Icons.volume_mute, color: Theme.of(context).colorScheme.secondary),
-            title: const Text("使用音量键翻页"),
+            title: Text("使用音量键翻页".tr),
             trailing: Switch(
               value: useVolumeKeyChangePage,
               onChanged: (b) {
@@ -100,7 +100,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           ListTile(
             leading: Icon(Icons.control_camera, color: Theme.of(context).colorScheme.secondary),
-            title: const Text("宽屏时显示前进后退关闭按钮"),
+            title: Text("宽屏时显示前进后退关闭按钮".tr),
             onTap: () {},
             trailing: Switch(
               value: showThreeButton,
@@ -117,7 +117,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ListTile(
               leading:
               Icon(Icons.screenshot_outlined, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("保持屏幕常亮"),
+              title: Text("保持屏幕常亮".tr),
               onTap: () {},
               trailing: Switch(
                 value: keepScreenOn,
@@ -133,7 +133,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ListTile(
             leading: Icon(Icons.brightness_4, color: Theme.of(context).colorScheme.secondary),
-            title: const Text("夜间模式降低图片亮度"),
+            title: Text("夜间模式降低图片亮度".tr),
             onTap: () {},
             trailing: Switch(
               value: lowBrightness,
@@ -149,7 +149,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           ListTile(
             leading: Icon(Icons.chrome_reader_mode, color: Theme.of(context).colorScheme.secondary),
-            title: const Text("选择阅读模式"),
+            title: Text("选择阅读模式".tr),
             trailing: const Icon(Icons.arrow_right),
             onTap: () => setState(() {
               i = 1;
@@ -174,7 +174,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                     i = 0;
                   }),
                 ),
-                const Text("选择阅读模式", style: TextStyle(fontSize: 18),),
+                Text("选择阅读模式".tr, style: const TextStyle(fontSize: 18),),
               ],
             ),
           ),
@@ -186,7 +186,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: const Text("从左至右"),
+            title: Text("从左至右".tr),
             onTap: () {
               setValue(1);
             },
@@ -199,7 +199,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: const Text("从右至左"),
+            title: Text("从右至左".tr),
             onTap: () {
               setValue(2);
             },
@@ -212,7 +212,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: const Text("从上至下"),
+            title: Text("从上至下".tr),
             onTap: () {
               setValue(3);
             },
@@ -225,7 +225,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: const Text("从上至下(连续)"),
+            title: Text("从上至下(连续)".tr),
             onTap: () {
               setValue(4);
             },
@@ -269,6 +269,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.tools = false;
     logic.showSettings = false;
     logic.update();
-    showMessage(Get.context, i==4?"双击屏幕打开工具栏":"点击屏幕中部打开工具栏", time: 3);
+    showMessage(Get.context, i==4?"双击屏幕打开工具栏".tr:"点击屏幕中部打开工具栏".tr, time: 3);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SelectDownloadChapter extends StatefulWidget {
   const SelectDownloadChapter(this.eps, this.finishSelect, {Key? key}) : super(key: key);
@@ -19,9 +20,9 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
-            child: Text("下载漫画", style: TextStyle(fontSize: 22),),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+            child: Text("下载漫画".tr, style: const TextStyle(fontSize: 22),),
           ),
           Expanded(child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -69,11 +70,11 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
                 const SizedBox(width: 16,),
                 Expanded(child: FilledButton.tonal(onPressed: (){
                   widget.finishSelect(List<int>.generate(widget.eps.length, (index) => index));
-                }, child: const Text("下载全部")),),
+                }, child: Text("下载全部".tr)),),
                 const SizedBox(width: 16,),
                 Expanded(child: FilledButton.tonal(onPressed: (){
                   widget.finishSelect(selected);
-                }, child: const Text("下载选择")),),
+                }, child: Text("下载选择".tr)),),
                 const SizedBox(width: 16,),
               ],
             ),

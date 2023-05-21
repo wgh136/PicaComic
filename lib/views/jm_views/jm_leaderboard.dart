@@ -61,16 +61,16 @@ class JmLeaderboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(length: 4, child: Column(
-      children: const [
+      children: [
         TabBar(
-            splashBorderRadius: BorderRadius.all(Radius.circular(10)),
+            splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
             tabs: [
-              Tab(text: "总排行"),
-              Tab(text: "月排行"),
-              Tab(text: "周排行"),
-              Tab(text: "日排行"),
+              Tab(text: "总排行".tr),
+              Tab(text: "月排行".tr),
+              Tab(text: "周排行".tr),
+              Tab(text: "日排行".tr),
             ]),
-        Expanded(child: TabBarView(
+        const Expanded(child: TabBarView(
             children: [
               OneJmLeaderboardPage(ComicsOrder.totalRanking),
               OneJmLeaderboardPage(ComicsOrder.monthRanking),

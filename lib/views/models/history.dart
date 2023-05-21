@@ -52,7 +52,7 @@ enum HistoryType{
   const HistoryType(this.value);
 }
 
-class NewHistory extends LinkedListEntry<NewHistory>{
+base class NewHistory extends LinkedListEntry<NewHistory>{
   HistoryType type;
   DateTime time;
   String title;
@@ -210,6 +210,7 @@ class HistoryManager{
     if(file.existsSync()){
       await file.delete();
     }
+    history.clear();
   }
 
   void remove(String id) async{

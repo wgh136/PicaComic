@@ -43,7 +43,7 @@ class FloatingSearchBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(children: [
               Tooltip(
-                message: "返回",
+                message: "返回".tr,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: (){

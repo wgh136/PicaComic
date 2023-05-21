@@ -7,7 +7,7 @@ import '../../base.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../widgets/scrollable_list/src/item_positions_listener.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式
@@ -74,9 +74,9 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   void jumpToNextChapter(ReadingType type, List<String> eps){
-    if(order == eps.length - 1 || eps.isEmpty){
+    if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || (type==ReadingType.jm) && order == eps.length){
       controller.jumpToPage(urls.length);
-      showMessage(Get.context, "已经是最后一章了");
+      showMessage(Get.context, "已经是最后一章了".tr);
       return;
     }
     order += 1;
@@ -92,11 +92,11 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToLastChapter(ReadingType type, List<String> eps){
     if(order == 1 && type == ReadingType.picacg){
       controller.jumpToPage(1);
-      showMessage(Get.context, "已经是第一章了");
+      showMessage(Get.context, "已经是第一章了".tr);
       return;
-    }else if(order == 0 && type == ReadingType.jm){
+    }else if(order == 1 && type == ReadingType.jm){
       controller.jumpToPage(1);
-      showMessage(Get.context, "已经是第一章了");
+      showMessage(Get.context, "已经是第一章了".tr);
       return;
     }
 

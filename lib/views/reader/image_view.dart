@@ -13,7 +13,7 @@ import '../eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
 import '../jm_views/jm_image_provider/jm_cached_image.dart';
 import '../widgets/cf_image_widgets.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import '../widgets/widgets.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'reading_type.dart';
 
@@ -196,14 +196,14 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         if (i == 0) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(1);
-            showMessage(Get.context, "已经是第一页了");
+            showMessage(Get.context, "已经是第一页了".tr);
             return;
           }
           comicReadingPageLogic.jumpToLastChapter(type, eps);
         } else if (i == comicReadingPageLogic.urls.length + 1) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(i - 1);
-            showMessage(Get.context, "已经是最后一页了");
+            showMessage(Get.context, "已经是最后一页了".tr);
             return;
           }
           comicReadingPageLogic.jumpToNextChapter(type, eps);
