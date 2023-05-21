@@ -62,6 +62,7 @@ dependencies:
   dio_cookie_manager: any
   image: ^3.0.2
   shimmer_animation: ^2.1.0
+  sentry_flutter: any
 
 dev_dependencies:
   flutter_test:
