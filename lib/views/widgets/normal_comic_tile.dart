@@ -33,6 +33,7 @@ class NormalComicTile extends ComicTile {
         fit: BoxFit.cover,
         errorWidget: (context, url, error) => const Icon(Icons.error),
         height: double.infinity,
+        useOldImageOnUrlChange: true,
         progressIndicatorBuilder: (context, s, p) =>
             ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
       );

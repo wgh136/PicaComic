@@ -260,6 +260,7 @@ class EhGalleryPage extends StatelessWidget {
           height: height,
           fit: BoxFit.contain,
         ):CachedNetworkImage(
+          useOldImageOnUrlChange: true,
           width: width-50,
           height: height,
           imageUrl: logic.gallery!.coverPath,

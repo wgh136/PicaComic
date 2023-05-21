@@ -210,6 +210,7 @@ class HistoryManager{
     if(file.existsSync()){
       await file.delete();
     }
+    history.clear();
   }
 
   void remove(String id) async{

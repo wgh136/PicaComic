@@ -358,6 +358,8 @@ class EhNetwork{
         favorite = false;
       }
       var gallery = Gallery(brief, tags, urls, favorite,maxPage);
+      gallery.coverPath = document.querySelector("div#gleft > div#gd1 > div")!.attributes["style"]!;
+      gallery.coverPath = RegExp(r"https?://([-a-zA-Z0-9.]+(/\S*)?\.(?:jpg|jpeg|gif|png))").firstMatch(gallery.coverPath)![0]!;
       //评论
       var comments = document.getElementsByClassName("c1");
       for(var c in comments){

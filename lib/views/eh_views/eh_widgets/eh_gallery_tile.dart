@@ -32,6 +32,7 @@ class EhGalleryTile extends ComicTile{
 
   @override
   Widget get image => cached?CachedNetworkImage(
+    useOldImageOnUrlChange: true,
     imageUrl: gallery.coverPath,
     fit: BoxFit.cover,
     errorWidget: (context, url, error) => const Icon(Icons.error),

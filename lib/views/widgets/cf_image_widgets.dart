@@ -89,6 +89,7 @@ class CfCachedNetworkImage extends StatelessWidget {
       realUrl = "http://${appdata.settings[15]}${uri.path}";
     }
     return CachedNetworkImage(
+      useOldImageOnUrlChange: true,
       imageUrl: realUrl,
       httpHeaders: {
         "Host": uri.host
