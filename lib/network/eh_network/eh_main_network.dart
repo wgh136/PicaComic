@@ -114,6 +114,9 @@ class EhNetwork{
       if(e.type!=DioErrorType.unknown){
         status = true;
         message = e.message!;
+      }else{
+        status = true;
+        message = e.toString().split("\n")[1];
       }
       return null;
     }

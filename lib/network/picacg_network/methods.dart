@@ -77,13 +77,15 @@ class Network{
       }
     }
     on DioError catch(e){
-      sendNetworkLog(url, e.message.toString());
-      if(e.type == DioErrorType.badResponse){
-        status = true;
-        message = e.message.toString();
-      }else if(e.type == DioErrorType.connectionTimeout){
+      if(e.type == DioErrorType.connectionTimeout){
         status = true;
         message = "连接超时";
+      }else if(e.type!=DioErrorType.unknown){
+        status = true;
+        message = e.message!;
+      }else{
+        status = true;
+        message = e.toString().split("\n")[1];
       }
       return null;
     }
@@ -124,14 +126,15 @@ class Network{
       }
     }
     on DioError catch(e){
-      print(e);
-      sendNetworkLog(url, e.message.toString());
-      if(e.type == DioErrorType.badResponse){
-        status = true;
-        message = e.message.toString();
-      }else if(e.type == DioErrorType.connectionTimeout){
+      if(e.type == DioErrorType.connectionTimeout){
         status = true;
         message = "连接超时";
+      }else if(e.type!=DioErrorType.unknown){
+        status = true;
+        message = e.message!;
+      }else{
+        status = true;
+        message = e.toString().split("\n")[1];
       }
       return null;
     }

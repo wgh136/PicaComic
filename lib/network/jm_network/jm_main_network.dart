@@ -106,8 +106,9 @@ class JmNetwork {
       }
       if (e.type != DioErrorType.unknown) {
         return Res<String>(null, errorMessage: e.message ?? "网络错误");
+      }else{
+        return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
-      return Res<String>(null, errorMessage: "网络错误");
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -143,8 +144,9 @@ class JmNetwork {
       }
       if (e.type != DioErrorType.unknown) {
         return Res<String>(null, errorMessage: e.message ?? "网络错误");
+      }else{
+        return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
-      return Res<String>(null, errorMessage: "网络错误");
     } catch (e) {
       if (kDebugMode) {
         print(e);
