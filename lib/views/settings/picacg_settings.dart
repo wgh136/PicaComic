@@ -20,15 +20,15 @@ void setCloudflareIp(BuildContext context) {
                   padding: const EdgeInsets.fromLTRB(6, 15, 6, 15),
                   color: Colors.yellow,
                   child: Row(
-                    children: const [
-                      Icon(Icons.warning),
-                      SizedBox(
+                    children: [
+                      const Icon(Icons.warning),
+                      const SizedBox(
                         width: 5,
                       ),
                       Expanded(
                         child: Text(
-                          "使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置",
-                          style: TextStyle(color: Colors.black),
+                          "使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置".tr,
+                          style: const TextStyle(color: Colors.black),
                         ),
                       ),
                     ],
@@ -36,7 +36,7 @@ void setCloudflareIp(BuildContext context) {
                 ),
               ),
               ListTile(
-                title: const Text("不使用"),
+                title: Text("不使用".tr),
                 trailing: Radio<String>(
                   value: "0",
                   groupValue: logic.value,
@@ -44,7 +44,7 @@ void setCloudflareIp(BuildContext context) {
                 ),
               ),
               ListTile(
-                title: const Text("使用哔咔官方提供的IP"),
+                title: Text("使用哔咔官方提供的IP".tr),
                 trailing: Radio<String>(
                   value: "1",
                   groupValue: logic.value,
@@ -52,7 +52,7 @@ void setCloudflareIp(BuildContext context) {
                 ),
               ),
               ListTile(
-                title: const Text("自定义"),
+                title: Text("自定义".tr),
                 trailing: Radio<String>(
                   value: "2",
                   groupValue: (logic.value != "0" && logic.value != "1") ? "2" : "-1",
@@ -66,12 +66,12 @@ void setCloudflareIp(BuildContext context) {
                   controller: logic.controller,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      hintText: logic.value == "2" ? "输入一个Cloudflare CDN Ip" : ""),
+                      hintText: logic.value == "2" ? "输入一个Cloudflare CDN Ip".tr : ""),
                 ),
               ),
               Center(
                 child: FilledButton(
-                  child: const Text("确认"),
+                  child: Text("确认".tr),
                   onPressed: () => logic.submit(),
                 ),
               )
@@ -114,15 +114,15 @@ class _PicacgSettingsState extends State<PicacgSettings> {
         elevation: 0,
         child: Column(
           children: [
-            const ListTile(
-              title: Text("哔咔漫画"),
+            ListTile(
+              title: Text("哔咔漫画".tr),
             ),
             if (!GetPlatform.isWeb)
               ListTile(
                 leading: Icon(Icons.change_circle,
                     color: Theme.of(context).colorScheme.secondary),
-                title: const Text("使用转发服务器"),
-                subtitle: const Text("同时使用网络代理工具会减慢速度"),
+                title: Text("使用转发服务器".tr),
+                subtitle: Text("同时使用网络代理工具会减慢速度".tr),
                 trailing: Switch(
                   value: useMyServer,
                   onChanged: (b) {
@@ -139,18 +139,18 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ListTile(
               leading: Icon(Icons.hub_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: const Text("设置分流"),
+              title: Text("设置分流".tr),
               trailing: Select(
                 initialValue: int.parse(appdata.appChannel)-1,
-                values: const [
-                  "分流1",
-                  "分流2",
-                  "分流3"
+                values: [
+                  "分流1".tr,
+                  "分流2".tr,
+                  "分流3".tr
                 ],
                 whenChange: (i){
                   appdata.appChannel = (i+1).toString();
                   appdata.writeData();
-                  showMessage(Get.context, "正在获取分流IP",time: 8);
+                  showMessage(Get.context, "正在获取分流IP".tr,time: 8);
                   network.updateApi().then((v)=>Get.closeAllSnackbars());
                 },
                 inPopUpWidget: widget.popUp,
@@ -169,14 +169,14 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ),
             ListTile(
               leading: Icon(Icons.image, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("设置图片质量"),
+              title: Text("设置图片质量".tr),
               trailing: Select(
                 initialValue: appdata.getQuality()-1,
-                values: const [
-                  "低",
-                  "中",
-                  "高",
-                  "原图"
+                values: [
+                  "低".tr,
+                  "中".tr,
+                  "高".tr,
+                  "原图".tr
                 ],
                 whenChange: (i){
                   appdata.setQuality(i+1);
@@ -189,20 +189,20 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                   color: Theme.of(context).colorScheme.secondary),
               trailing: Select(
                 initialValue: appdata.getSearchMode(),
-                values: const [
-                  "新书在前","旧书在前","最多喜欢","最多指名"
+                values: [
+                  "新到书".tr,"旧到新".tr,"最多喜欢".tr,"最多指名".tr
                 ],
                 whenChange: (i){
                   appdata.setSearchMode(i);
                 },
                 inPopUpWidget: widget.popUp,
               ),
-              title: const Text("设置搜索及分类排序模式"),
+              title: Text("设置搜索及分类排序模式".tr),
             ),
             ListTile(
               leading: Icon(Icons.circle_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: const Text("显示头像框"),
+              title: Text("显示头像框".tr),
               trailing: Switch(
                 value: showFrame,
                 onChanged: (b) {
@@ -219,7 +219,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ),
             ListTile(
               leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("启动时打卡"),
+              title: Text("启动时打卡".tr),
               onTap: () {},
               trailing: Switch(
                 value: punchIn,

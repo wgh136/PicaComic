@@ -43,12 +43,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 elevation: 0,
                 child: Column(
                   children: [
-                    const ListTile(
-                      title: Text("浏览"),
+                    ListTile(
+                      title: Text("浏览".tr),
                     ),
                     ListTile(
                       leading: Icon(Icons.block, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("关键词屏蔽"),
+                      title: Text("关键词屏蔽".tr),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => BlockingKeywordPage(
                                 popUp: widget.popUp,
@@ -59,7 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ListTile(
                         leading: Icon(Icons.network_ping,
                             color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置代理"),
+                        title: Text("设置代理".tr),
                         trailing: const Icon(
                           Icons.arrow_right,
                         ),
@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ListTile(
                       leading: Icon(Icons.source, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("启用的漫画源"),
+                      title:  Text("启用的漫画源".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => setComicSource(context),
                     )
@@ -94,13 +94,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 elevation: 0,
                 child: Column(
                   children: [
-                    const ListTile(
-                      title: Text("阅读"),
+                    ListTile(
+                      title: Text("阅读".tr),
                     ),
                     ListTile(
                       leading: Icon(Icons.touch_app_outlined,
                           color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("点按翻页"),
+                      title: Text("点按翻页".tr),
                       trailing: Switch(
                         value: pageChangeValue,
                         onChanged: (b) {
@@ -114,8 +114,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading:
                           Icon(Icons.volume_mute, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("使用音量键翻页"),
-                      subtitle: const Text("仅安卓端有效"),
+                      title: Text("使用音量键翻页".tr),
+                      subtitle: Text("仅安卓端有效".tr),
                       trailing: Switch(
                         value: useVolumeKeyChangePage,
                         onChanged: (b) {
@@ -129,8 +129,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: Icon(Icons.control_camera,
                           color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("宽屏时显示前进后退关闭按钮"),
-                      subtitle: const Text("优化鼠标阅读体验"),
+                      title: Text("宽屏时显示前进后退关闭按钮".tr),
+                      subtitle: Text("优化鼠标阅读体验".tr),
                       onTap: () {},
                       trailing: Switch(
                         value: showThreeButton,
@@ -147,7 +147,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ListTile(
                         leading: Icon(Icons.screenshot_outlined,
                             color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("保持屏幕常亮"),
+                        title: Text("保持屏幕常亮".tr),
                         onTap: () {},
                         trailing: Switch(
                           value: keepScreenOn,
@@ -162,7 +162,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ListTile(
                       leading: Icon(Icons.brightness_4, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("夜间模式降低图片亮度"),
+                      title: Text("夜间模式降低图片亮度".tr),
                       onTap: () {},
                       trailing: Switch(
                         value: lowBrightness,
@@ -178,14 +178,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: Icon(Icons.chrome_reader_mode,
                           color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("选择阅读模式"),
+                      title: Text("选择阅读模式".tr),
                       trailing: Select(
                         initialValue: int.parse(appdata.settings[9])-1,
-                        values: const [
-                          "从左向右",
-                          "从右向左",
-                          "从上至下",
-                          "从上至下(连续)"
+                        values: [
+                          "从左至右".tr,
+                          "从右至左".tr,
+                          "从上至下".tr,
+                          "从上至下(连续)".tr
                         ],
                         whenChange: (i){
                           appdata.settings[9] = (i+1).toString();
@@ -209,8 +209,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     if (!GetPlatform.isWeb)
                       ListTile(
                         leading: Icon(Icons.update, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("检查更新"),
-                        subtitle: const Text("当前: $appVersion"),
+                        title: Text("检查更新".tr),
+                        subtitle: Text("${"当前:".tr} $appVersion"),
                         onTap: () {
                           findUpdate(context);
                         },
@@ -219,7 +219,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ListTile(
                         leading: Icon(Icons.security_update,
                             color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("启动时检查更新"),
+                        title: Text("启动时检查更新".tr),
                         trailing: Switch(
                           value: checkUpdateValue,
                           onChanged: (b) {
@@ -233,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     if(GetPlatform.isWindows)
                       ListTile(
                         leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("设置下载目录"),
+                        title: Text("设置下载目录".tr),
                         onTap: () => setDownloadFolder(context),
                       ),
                     if (!GetPlatform.isWeb)
@@ -245,15 +245,15 @@ class _SettingsPageState extends State<SettingsPage> {
                               return ListTile(
                                 leading: Icon(Icons.storage,
                                     color: Theme.of(context).colorScheme.secondary),
-                                title: const Text("缓存大小"),
-                                subtitle: const Text("计算中"),
+                                title: Text("缓存大小".tr),
+                                subtitle: Text("计算中".tr),
                                 onTap: () {},
                               );
                             } else {
                               return ListTile(
                                 leading: Icon(Icons.storage,
                                     color: Theme.of(context).colorScheme.secondary),
-                                title: const Text("清除缓存"),
+                                title: Text("清除缓存".tr),
                                 subtitle: Text(
                                     "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
                                 onTap: () {
@@ -277,15 +277,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   elevation: 0,
                   child: Column(
                     children: [
-                      const ListTile(
-                        title: Text("隐私"),
+                      ListTile(
+                        title: Text("隐私".tr),
                       ),
                       if (GetPlatform.isAndroid)
                         ListTile(
                           leading: Icon(Icons.screenshot,
                               color: Theme.of(context).colorScheme.secondary),
-                          title: const Text("阻止屏幕截图"),
-                          subtitle: const Text("需要重启App以应用更改"),
+                          title: Text("阻止屏幕截图".tr),
+                          subtitle: Text("需要重启App以应用更改".tr),
                           trailing: Switch(
                             value: blockScreenshot,
                             onChanged: (b) {
@@ -299,8 +299,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ListTile(
                         leading:
                             Icon(Icons.security, color: Theme.of(context).colorScheme.secondary),
-                        title: const Text("需要身份验证"),
-                        subtitle: const Text("如果系统中未设置任何认证方法请勿开启"),
+                        title: Text("需要身份验证".tr),
+                        subtitle: Text("如果系统中未设置任何认证方法请勿开启".tr),
                         trailing: Switch(
                           value: needBiometrics,
                           onChanged: (b) {
@@ -326,19 +326,19 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading:
                           Icon(Icons.info_outline, color: Theme.of(context).colorScheme.secondary),
                       title: const Text("PicaComic"),
-                      subtitle: const Text("本软件仅用于学习交流"),
+                      subtitle: Text("本软件仅用于学习交流".tr),
                       onTap: () => showMessage(context, "禁止涩涩"),
                     ),
                     ListTile(
                       leading: Icon(Icons.code, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("项目地址"),
+                      title: Text("项目地址".tr),
                       subtitle: const Text("https://github.com/wgh136/PicaComic"),
                       onTap: () => launchUrlString("https://github.com/wgh136/PicaComic",
                           mode: LaunchMode.externalApplication),
                     ),
                     ListTile(
                       leading: Icon(Icons.chat, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("提出建议"),
+                      title: Text("提出建议".tr),
                       onTap: () => giveComments(context),
                     ),
                   ],
@@ -351,10 +351,10 @@ class _SettingsPageState extends State<SettingsPage> {
       ],
     );
     if (widget.popUp) {
-      return PopUpWidgetScaffold(title: "设置", body: body);
+      return PopUpWidgetScaffold(title: "设置".tr, body: body);
     } else {
       return Scaffold(
-        appBar: AppBar(title: const Text("设置")),
+        appBar: AppBar(title: Text("设置".tr)),
         body: body,
       );
     }

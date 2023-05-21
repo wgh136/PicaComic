@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'dart:ui';
+import 'package:get/get.dart';
 
 ///用于测试函数
 void debug() async{
-  print(await getTemporaryDirectory());
+  Get.updateLocale(const Locale('zh','TW'));
 }
 
 ///保存网络请求数据, 用于Debug

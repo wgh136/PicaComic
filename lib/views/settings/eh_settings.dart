@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import '../../base.dart';
 import '../widgets/select.dart';
@@ -23,7 +24,7 @@ class _EhSettingsState extends State<EhSettings> {
             ),
             ListTile(
               leading: Icon(Icons.domain, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("画廊站点"),
+              title: Text("画廊站点".tr),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[20]),
                 width: 150,
