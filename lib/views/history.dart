@@ -10,6 +10,7 @@ import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
+import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import '../base.dart';
 import '../network/jm_network/jm_image.dart';
 
@@ -81,7 +82,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
                         comics[i].target
                     );
-                    return PicComicTile(
+                    return NormalComicTile(
                       key: Key(comics[i].target),
                       onLongTap: (){
                         showDialog(context: context, builder: (context){
@@ -101,8 +102,10 @@ class _HistoryPageState extends State<HistoryPage> {
                           );
                         });
                       },
-                      comic,
-                      time: timeToString(comics[i].time),
+                      description_: timeToString(comics[i].time),
+                      coverPath: comic.path,
+                      name: comic.title,
+                      subTitle_: comic.author,
                       onTap: (){
                         if(comics[i].type == HistoryType.picacg){
                           Get.to(()=>ComicPage(comic));
