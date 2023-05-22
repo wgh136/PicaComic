@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:pica_comic/network/hitomi_network/image.dart';
 import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
 import 'hitomi_models.dart';
@@ -142,16 +142,15 @@ class HitomiDownloadingItem extends DownloadingItem {
       while (_downloadedPages < _totalPages) {
         if (_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
-        var imagePath = await GG()
-            .urlFromUrlFromHash(id.substring(6), comic.files[_downloadedPages], 'webp', null);
-        var dio = Dio();
-        var res = await dio.get(
-          imagePath,
-          options: Options(responseType: ResponseType.bytes, headers: headers),
-        );
+        var bytes = <int>[];
+        await for(var progress in MyCacheManager().getHitomiImage(comic.files[_downloadedPages], id.substring(6))){
+          if(progress.expectedBytes == progress.currentBytes){
+            bytes = progress.getFile().readAsBytesSync();
+          }
+        }
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
-        await file.writeAsBytes(Uint8List.fromList(res.data));
+        await file.writeAsBytes(Uint8List.fromList(bytes));
         _downloadedPages++;
         super.updateUi?.call();
         await super.updateInfo?.call();
