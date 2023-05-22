@@ -51,6 +51,7 @@ class ComicPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: GetBuilder<ComicPageLogic>(
         tag: comic.id,
@@ -75,7 +76,7 @@ class ComicPage extends StatelessWidget{
                 boundingTextSize(
                     comic.title,
                     const TextStyle(fontSize: 22),
-                    maxWidth: MediaQuery.of(context).size.width
+                    maxWidth: width
                 ).height+50;
             if(temp!=logic.showAppbarTitle) {
               logic.update();
