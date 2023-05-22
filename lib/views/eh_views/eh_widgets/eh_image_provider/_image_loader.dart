@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
-import 'find_eh_image_real_url.dart';
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader{
@@ -51,10 +50,8 @@ class ImageLoader{
           cumulativeBytesLoaded: 0,
           expectedTotalBytes: 100)
       );
-      var realUrl = await EhImageUrlsManager.getUrl(url);
-
       var manager = MyCacheManager();
-      var stream = manager.getImage(realUrl, headers);
+      var stream = manager.getEhImage(url);
 
       DownloadProgress? finishProgress;
 
@@ -79,8 +76,6 @@ class ImageLoader{
       scheduleMicrotask(() {
         evictImage();
       });
-      //出现错误时清除记录的url
-      await EhImageUrlsManager.deleteUrl(url);
       errorListener?.call();
       rethrow;
     } finally {

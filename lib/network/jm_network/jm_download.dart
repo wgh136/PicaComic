@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
-import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import 'dart:io';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'jm_main_network.dart';
@@ -166,9 +166,6 @@ class JmDownloadingItem extends DownloadingItem {
         continue;
       }
       try{
-        var dio = Dio();
-        var res = await dio.get(urls[_index][_currentPage],
-            options: Options(responseType: ResponseType.bytes));
         var chapId = comic.id;
         if(comic.series.isNotEmpty){
           chapId = comic.series.values.elementAt(_index);
@@ -181,10 +178,18 @@ class JmDownloadingItem extends DownloadingItem {
             break;
           }
         }
-        var bytes = await startRecombineImage(Uint8List.fromList(res.data), chapId, "220980", bookId);
+        var bytes = <int>[];
         var file = File("$path$pathSep$id$pathSep${_index+1}$pathSep$_currentPage.jpg");
         if(! file.existsSync()){
           file.createSync(recursive: true);
+        }
+        await for(var progress in MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId, )){
+          if(progress.expectedBytes == progress.expectedBytes){
+            bytes = progress.getFile().readAsBytesSync();
+          }
+        }
+        if(bytes.isEmpty){
+          throw(StateError("下载图片失败"));
         }
         await file.writeAsBytes(bytes);
         _currentPage++;

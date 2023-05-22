@@ -7,7 +7,6 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -27,9 +26,7 @@ void saveImage(String urlOrHash, String id, {bool eh=false, bool jmOrHitomi=fals
   }
   else if(GetPlatform.isAndroid) {
       var url_ = "";
-      if(eh){
-        url_ = await EhImageUrlsManager.getUrl(urlOrHash);
-      }else if(jmOrHitomi){
+      if(jmOrHitomi){
         url_ = urlOrHash;
       }else{
         url_ = getImageUrl(urlOrHash);
@@ -44,12 +41,9 @@ void saveImage(String urlOrHash, String id, {bool eh=false, bool jmOrHitomi=fals
   }else if(GetPlatform.isWindows){
     try {
       File? file;
-      if(eh){
-        file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(urlOrHash));
-      }else if(jmOrHitomi){
+      if(eh || jmOrHitomi){
         file = await MyCacheManager().getFile(urlOrHash);
-      }
-      else {
+      } else {
         var f = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
         file = f!.file;
       }
@@ -139,15 +133,11 @@ void saveImageFromDisk(String image) async{
 
 void shareImageFromCache(String urlOrHash, String id, {bool eh=false, bool jmOrHitomi=false}) async{
   try{
-    if(eh){
-      var file = await MyCacheManager().getFile(await EhImageUrlsManager.getUrl(urlOrHash));
-      Share.shareXFiles([XFile(file!.path)]);
-    }else if(jmOrHitomi){
+    if(eh || jmOrHitomi){
       var file = await MyCacheManager().getFile(urlOrHash);
       var bytes = await file!.readAsBytes();
       Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
-    }
-    else {
+    } else {
       var file = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
       Share.shareXFiles([XFile(file!.file.path)]);
     }

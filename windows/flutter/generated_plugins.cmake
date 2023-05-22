@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   dynamic_color
   file_selector_windows
   local_auth_windows
+  sentry_flutter
   share_plus
   url_launcher_windows
 )

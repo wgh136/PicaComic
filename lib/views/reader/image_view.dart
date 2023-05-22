@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -51,15 +50,21 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
                   backgroundColor: Colors.white12,
                 )),
           ),
-          errorWidget: (context, s, d) => const SizedBox(
-            height: 300,
-            child: Center(
-              child: Icon(
-                Icons.error,
-                color: Colors.white70,
+          errorWidget: (context, s, d){
+            return Center(
+              child: SizedBox(
+                height: 80,
+                width: 300,
+                child: Column(
+                  children: [
+                    const Icon(Icons.error, color: Colors.white,size: 30,),
+                    const SizedBox(height: 10,),
+                    Text(s.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
         image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
@@ -102,16 +107,19 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           }
         },
         errorBuilder: (context, s, d){
-          if(kDebugMode){
-            print(s);
-            print(d);
-          }
           return SizedBox(
-            height: MediaQuery.of(context).size.width/400*300,
-            child: const Center(
-              child: Icon(
-                Icons.error,
-                color: Colors.white70,
+            height: 300,
+            child: Center(
+              child: SizedBox(
+                height: 100,
+                width: 300,
+                child: Column(
+                  children: [
+                    const Icon(Icons.error, color: Colors.white,size: 30,),
+                    const SizedBox(height: 10,),
+                    Text(s.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
+                  ],
+                ),
               ),
             ),
           );
@@ -131,7 +139,6 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
       scrollDirection: appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
       itemCount: comicReadingPageLogic.urls.length + 2,
       builder: (BuildContext context, int index) {
-
         ImageProvider? imageProvider;
         if (index != 0 && index != comicReadingPageLogic.urls.length + 1){
           if (type == ReadingType.ehentai && !comicReadingPageLogic.downloaded){
@@ -170,6 +177,21 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
           controller: _controllers[index],
           minScale: PhotoViewComputedScale.contained * 0.9,
           imageProvider: imageProvider,
+          errorBuilder: (w,o,s){
+            return Center(
+              child: SizedBox(
+                height: 80,
+                width: 300,
+                child: Column(
+                  children: [
+                    const Icon(Icons.error, color: Colors.white,size: 30,),
+                    const SizedBox(height: 10,),
+                    Text(o.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
+                  ],
+                ),
+              ),
+            );
+          },
           initialScale: PhotoViewComputedScale.contained,
           heroAttributes: PhotoViewHeroAttributes(
               tag: "$index/${comicReadingPageLogic.urls.length}"),

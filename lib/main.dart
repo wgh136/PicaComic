@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import 'package:pica_comic/views/language.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'network/picacg_network/methods.dart';
 
 bool isLogged = false;
@@ -24,7 +26,17 @@ void main() {
       network = Network(appdata.token);
     }
     setNetworkProxy(); //设置代理
-    runApp(MyApp());
+    if(kDebugMode){
+      runApp(MyApp());
+    }else{
+      await SentryFlutter.init(
+              (options){
+            options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
+            options.tracesSampleRate = 1.0;
+          },
+          appRunner: ()=>runApp(MyApp())
+      );
+    }
   });
 }
 
@@ -73,12 +85,14 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         theme: ThemeData(
             colorScheme: lightColorScheme ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
             useMaterial3: true,
-            fontFamily: "font"),
+            fontFamily: "font"
+        ),
         darkTheme: ThemeData(
             colorScheme: darkColorScheme ??
                 ColorScheme.fromSeed(seedColor: Colors.pinkAccent, brightness: Brightness.dark),
             useMaterial3: true,
-            fontFamily: "font"),
+            fontFamily: "font"
+        ),
         home: isLogged ? const TestNetworkPage() : const WelcomePage(),
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,

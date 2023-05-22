@@ -90,7 +90,7 @@ packages:
     source: hosted
     version: "3.1.1"
   cookie_jar:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: cookie_jar
       sha256: "700cda09e47e90c749a3bcaf6daef3cdef4eca246db63eceabceeb29cef93bcc"
@@ -521,6 +521,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  package_info_plus:
+    dependency: transitive
+    description:
+      name: package_info_plus
+      sha256: "28386bbe89ab5a7919a47cea99cdd1128e5a6e0bbd7eaafe20440ead84a15de3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      sha256: "9bc8ba46813a4cc42c66ab781470711781940780fd8beddd0c3da62506d3a6c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   path:
     dependency: transitive
     description:
@@ -641,6 +657,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  sentry:
+    dependency: transitive
+    description:
+      name: sentry
+      sha256: "01f8fc950b6a5f3daf8c2d2b0ae5c38812e63d703c19c56cb68524c0597660bc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.6.1"
+  sentry_flutter:
+    dependency: "direct main"
+    description:
+      name: sentry_flutter
+      sha256: "9583ebcdbbba6907e555a8eeaf42380021baff57db1e399a3a31e80ce1f1cbe5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.6.1"
   share_plus:
     dependency: "direct main"
     description:

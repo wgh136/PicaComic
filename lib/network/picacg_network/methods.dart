@@ -77,13 +77,15 @@ class Network{
       }
     }
     on DioError catch(e){
-      sendNetworkLog(url, e.message.toString());
-      if(e.type == DioErrorType.badResponse){
-        status = true;
-        message = e.message.toString();
-      }else if(e.type == DioErrorType.connectionTimeout){
+      if(e.type == DioErrorType.connectionTimeout){
         status = true;
         message = "连接超时";
+      }else if(e.type!=DioErrorType.unknown){
+        status = true;
+        message = e.message!;
+      }else{
+        status = true;
+        message = e.toString().split("\n")[1];
       }
       return null;
     }
@@ -124,14 +126,15 @@ class Network{
       }
     }
     on DioError catch(e){
-      print(e);
-      sendNetworkLog(url, e.message.toString());
-      if(e.type == DioErrorType.badResponse){
-        status = true;
-        message = e.message.toString();
-      }else if(e.type == DioErrorType.connectionTimeout){
+      if(e.type == DioErrorType.connectionTimeout){
         status = true;
         message = "连接超时";
+      }else if(e.type!=DioErrorType.unknown){
+        status = true;
+        message = e.message!;
+      }else{
+        status = true;
+        message = e.toString().split("\n")[1];
       }
       return null;
     }
@@ -943,16 +946,6 @@ class Network{
 
 String getImageUrl(String url){
   return appdata.settings[3]=="1"||GetPlatform.isWeb?"https://api.kokoiro.xyz/storage/$url":url;
-}
-
-void sendNetworkLog(String url, String error) async{
-  try {
-    var dio = Dio();
-    dio.post("https://api.kokoiro.xyz/log", data: {"data": "$url $error\n"});
-  }
-  catch(e){
-    //服务器不可用时忽视
-  }
 }
 
 var network = Network();
