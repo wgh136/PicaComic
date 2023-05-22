@@ -74,7 +74,7 @@ class ImageLoader{
           break;
         }
       }
-      var stream = manager.getImage(url, headers, jm: true, bookId: bookId, epsId: epsId, scrambleId: "220980");
+      var stream = manager.getJmImage(url, headers, jm: true, bookId: bookId, epsId: epsId, scrambleId: "220980");
 
       DownloadProgress? finishProgress;
 

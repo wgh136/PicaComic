@@ -222,8 +222,8 @@ class MyCacheManager{
     await saveInfo(image.hash, savePath);
   }
 
-  ///获取图片, 如果缓存中没有, 则尝试下载
-  Stream<DownloadProgress> getImage(String url, Map<String, String>? headers, {bool jm=false, String? epsId, String? scrambleId, String? bookId}) async*{
+  ///获取禁漫图片, 如果缓存中没有, 则尝试下载
+  Stream<DownloadProgress> getJmImage(String url, Map<String, String>? headers, {bool jm=false, String? epsId, String? scrambleId, String? bookId}) async*{
     if(jm && (epsId==null || scrambleId == null || bookId == null)){
       throw ArgumentError("参数不正确");
     }
@@ -257,12 +257,6 @@ class MyCacheManager{
     final savePath = "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
 
     var dio = Dio();
-    if(! jm){
-      dio.options.headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-        "cookie": EhNetwork().cookiesStr
-      };
-    }
     yield DownloadProgress(0, 1, url, savePath);
 
     var bytes = <int>[];
@@ -270,52 +264,29 @@ class MyCacheManager{
       var res =
           await dio.get<ResponseBody>(url, options: Options(responseType: ResponseType.stream));
       var stream = res.data!.stream;
-      int? expectedBytes;
-      try {
-        expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
-      }
-      catch(e){
-        try{
-          expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
-        }
-        catch(e){
-          //忽视
-        }
-      }
-      var currentBytes = 0;
-
+      int i = 0;
       await for (var b in stream) {
-        //不直接写入文件, 因为禁漫太离谱了, 处理完成后再写入
+        //不直接写入文件, 因为需要对图片进行重组, 处理完成后再写入
         bytes.addAll(b.toList());
-        currentBytes += b.length;
-        if(jm) {
-          //构建虚假的进度条, 由于无法获取jm文件大小, 出此下策
-          //当获取到数据时, 就告知完成一半
-          yield DownloadProgress((currentBytes * 0.5).floor(), expectedBytes??currentBytes, url, savePath);
-        } else {
-          //由于未完成写入文件, 此处加一, 告知加载未完成
-          yield DownloadProgress(currentBytes, (expectedBytes??currentBytes)+1, url, savePath);
+        //构建虚假的进度条, 由于无法获取jm文件大小, 出此下策
+        //每获取到一次数据, 进度条增加1%
+        i += 5;
+        if(i > 750){
+          i = 750;
         }
-      }
-      if(jm) {
-        //当获取到数据时, 告知完成3/4
-        yield DownloadProgress((currentBytes * 0.75).floor(), expectedBytes??currentBytes, url, savePath);
+        yield DownloadProgress(i, 1000, url, savePath);
       }
     }
     catch(e){
       rethrow;
     }
-
+    yield DownloadProgress(750, 1000, url, savePath);
     var file = File(savePath);
     if(! file.existsSync()){
       file.create();
     }
-    if(jm) {
-      var newBytes = await startRecombineImage(Uint8List.fromList(bytes), epsId!, scrambleId!, bookId!);
-      await startWriteFile(WriteInfo(savePath, newBytes));
-    } else {
-      await startWriteFile(WriteInfo(savePath, bytes));
-    }
+    var newBytes = await startRecombineImage(Uint8List.fromList(bytes), epsId!, scrambleId!, bookId!);
+    await startWriteFile(WriteInfo(savePath, newBytes));
     //告知完成
     await saveInfo(url, savePath);
     yield DownloadProgress(1, 1, url, savePath);
