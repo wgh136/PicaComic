@@ -13,7 +13,7 @@ String timeToString(DateTime time){
     return "@day 天前".trParams({"day": (current.difference(time).inDays).toString()});
   }else if(current.difference(time).inMinutes > 60){
     return "@hour 小时前".trParams({"hour": (current.difference(time).inHours).toString()});
-  }else if(current.difference(time).inMilliseconds > 60){
+  }else if(current.difference(time).inSeconds > 60){
     return "@minute 分钟前".trParams({"minute": (current.difference(time).inMinutes).toString()});
   }else{
     return "刚刚".tr;
