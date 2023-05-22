@@ -223,11 +223,11 @@ class MyCacheManager{
   }
 
   ///获取禁漫图片, 如果缓存中没有, 则尝试下载
-  Stream<DownloadProgress> getJmImage(String url, Map<String, String>? headers, {bool jm=false, String? epsId, String? scrambleId, String? bookId}) async*{
-    if(jm && (epsId==null || scrambleId == null || bookId == null)){
-      throw ArgumentError("参数不正确");
-    }
-
+  Stream<DownloadProgress> getJmImage(
+      String url,
+      Map<String, String>? headers,
+      {bool jm=true, required String epsId, required String scrambleId, required String bookId}
+      ) async*{
     await readData();
     var directory = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
     if(!directory.existsSync()){
@@ -285,7 +285,7 @@ class MyCacheManager{
     if(! file.existsSync()){
       file.create();
     }
-    var newBytes = await startRecombineImage(Uint8List.fromList(bytes), epsId!, scrambleId!, bookId!);
+    var newBytes = await startRecombineImage(Uint8List.fromList(bytes), epsId, scrambleId, bookId);
     await startWriteFile(WriteInfo(savePath, newBytes));
     //告知完成
     await saveInfo(url, savePath);

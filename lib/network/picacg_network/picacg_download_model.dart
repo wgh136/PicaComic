@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -218,12 +219,10 @@ class PicDownloadingItem extends DownloadingItem {
         if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
         try {
-          var dio = await request();
-          var res = await dio.get(getImageUrl(_urls[_index]),
-              options: Options(responseType: ResponseType.bytes));
+          var res = await DefaultCacheManager().getSingleFile(getImageUrl(_urls[_index]));
           var file = File("$path$pathSep$id$pathSep$_downloadingEps$pathSep$_index.jpg");
           if (!await file.exists()) await file.create();
-          await file.writeAsBytes(Uint8List.fromList(res.data));
+          await file.writeAsBytes(Uint8List.fromList(res.readAsBytesSync()));
           _index++;
           _downloadPages++;
           super.updateUi?.call();
