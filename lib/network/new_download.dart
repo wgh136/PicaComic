@@ -121,15 +121,23 @@ class DownloadManager{
     }
     var json = const JsonDecoder().convert(file.readAsStringSync());
     for(var s in json["downloaded"]){
+      var folder = Directory("$path$pathSep$s");
+      if(!folder.existsSync())  continue;
       downloaded.add(s);
     }
     for(var s in json["downloadedGalleries"]){
+      var folder = Directory("$path$pathSep$s");
+      if(!folder.existsSync())  continue;
       downloadedGalleries.add(s);
     }
     for(var s in json["downloadedJmComics"]??[]){
+      var folder = Directory("$path$pathSep$s");
+      if(!folder.existsSync())  continue;
       downloadedJmComics.add(s);
     }
     for(var s in json["downloadedHitomiComics"]??[]){
+      var folder = Directory("$path$pathSep$s");
+      if(!folder.existsSync())  continue;
       downloadedHitomiComics.add(s);
     }
     for(var item in json["downloading"]){

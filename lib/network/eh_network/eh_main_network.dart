@@ -436,7 +436,14 @@ class EhNetwork{
       appdata.writeHistory();
     }
     var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword");
-    Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
+    Future.delayed(const Duration(microseconds: 500),(){
+      try{
+        Get.find<PreSearchController>().update();
+      }
+      catch(e){
+        //忽视
+      }
+    });
     return res;
   }
 
