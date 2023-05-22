@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
@@ -60,6 +61,94 @@ class MyCacheManager{
       await file.writeAsString(const JsonEncoder().convert(_paths),mode: FileMode.writeOnly);
       _paths = null;
     }
+  }
+
+  ///获取eh图片, 传入的为阅读器地址
+  Stream<DownloadProgress> getEhImage(String url) async*{
+    await readData();
+    //检查缓存
+    if(_paths![url] != null){
+      if(File(_paths![url]!).existsSync()) {
+        yield DownloadProgress(1, 1, url, _paths![url]!);
+        return;
+      }else{
+        _paths!.remove(url);
+      }
+    }
+    var options = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        followRedirects: true,
+        headers: {
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "cookie": EhNetwork().cookiesStr
+        }
+    );
+
+    //生成文件名
+    var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
+    if(fileName.length>10){
+      fileName = fileName.substring(0,10);
+    }
+    fileName = "$fileName.jpg";
+    final savePath = "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
+    yield DownloadProgress(0, 100, url, savePath);
+
+    //获取图片地址
+    var dio =  Dio(options);
+    var html = await dio.get(url);
+    var document = parse(html.data);
+    var image = document.querySelector("img#img")!.attributes["src"]!;
+    var nl = document.getElementById("loadfail")!.attributes["onclick"]!;
+    if(image == "https://ehgt.org/g/509.gif"){
+      throw ImageExceedError();
+    }
+
+    Response<ResponseBody> res;
+
+    try{
+      res =
+          await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
+    }
+    catch(e){
+      html = await dio.get("$url?nl=${nl.substring(11,nl.length-2)}");
+      document = parse(html.data);
+      image = document.querySelector("img#img")!.attributes["src"]!;
+      if(image == "https://ehgt.org/g/509.gif"){
+        throw ImageExceedError();
+      }
+      res =
+          await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
+    }
+    var stream = res.data!.stream;
+    int? expectedBytes;
+    try {
+      expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
+    }
+    catch(e){
+      try{
+        expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
+      }
+      catch(e){
+        //忽视
+      }
+    }
+    var currentBytes = 0;
+    var file = File(savePath);
+    if(! file.existsSync()){
+      file.create();
+    }else{
+      file.deleteSync();
+      file.createSync();
+    }
+    await for (var b in stream) {
+      file.writeAsBytesSync(b, mode: FileMode.append);
+      currentBytes += b.length;
+      yield DownloadProgress(currentBytes, (expectedBytes??currentBytes)+1, url, savePath);
+    }
+    await saveInfo(url, savePath);
+    yield DownloadProgress(1, 1, url, savePath);
   }
 
   ///为Hitomi设计的图片加载函数
@@ -235,8 +324,6 @@ class MyCacheManager{
   Future<void> saveInfo(String url, String savePath) async{
     if(_paths == null){
       //此时为退出了阅读器, 数据已清除
-      var file = File(savePath);
-      file.deleteSync();
       return;
     }
     _paths![url] = savePath;
@@ -301,4 +388,9 @@ Future<void> writeData(WriteInfo info) async{
 
 Future<void> startWriteFile(WriteInfo info) async{
   return compute(writeData, info);
+}
+
+class ImageExceedError extends Error{
+  @override
+  String toString()=>"当前IP超出E-Hentai图片限制";
 }

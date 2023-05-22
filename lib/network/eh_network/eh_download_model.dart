@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/tools/cache_manager.dart';
 import 'dart:io';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_image_provider/find_eh_image_real_url.dart';
 import '../../tools/io_tools.dart';
 import 'eh_main_network.dart';
 import 'get_gallery_id.dart';
@@ -162,18 +162,18 @@ class EhDownloadingItem extends DownloadingItem{
       while (_downloadedPages < _totalPages) {
         if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
-        var imagePath = await getEhImageUrl(_urls[_downloadedPages]);
-        var dio = Dio();
-        var res =
-          await dio.get(imagePath, options: Options(
-              responseType: ResponseType.bytes,
-              headers: {
-                "cookie": await EhNetwork().getCookies()
-              }
-          ),);
+        var bytes = <int>[];
+        await for (var progress in MyCacheManager().getEhImage(_urls[_downloadedPages])){
+          if(progress.currentBytes == progress.expectedBytes){
+            bytes = progress.getFile().readAsBytesSync();
+          }
+        }
+        if(bytes.isEmpty){
+          throw StateError("下载出错");
+        }
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
-        await file.writeAsBytes(Uint8List.fromList(res.data));
+        await file.writeAsBytes(Uint8List.fromList(bytes));
         _downloadedPages++;
         super.updateUi?.call();
         await super.updateInfo?.call();
