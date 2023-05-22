@@ -51,16 +51,19 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
                 )),
           ),
           errorWidget: (context, s, d){
-            return Center(
-              child: SizedBox(
-                height: 80,
-                width: 300,
-                child: Column(
-                  children: [
-                    const Icon(Icons.error, color: Colors.white,size: 30,),
-                    const SizedBox(height: 10,),
-                    Text(s.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
-                  ],
+            return SizedBox(
+              height: 300,
+              child: Center(
+                child: SizedBox(
+                  height: 100,
+                  width: 300,
+                  child: Column(
+                    children: [
+                      const Icon(Icons.error, color: Colors.white,size: 30,),
+                      const SizedBox(height: 10,),
+                      Text(d.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
+                    ],
+                  ),
                 ),
               ),
             );
@@ -117,7 +120,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
                   children: [
                     const Icon(Icons.error, color: Colors.white,size: 30,),
                     const SizedBox(height: 10,),
-                    Text(s.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
+                    Text(d.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
                   ],
                 ),
               ),
