@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/js.dart';
+import 'package:pica_comic/tools/log.dart';
 import '../../base.dart';
 import '../../tools/proxy.dart';
 import 'package:html/parser.dart';
@@ -111,6 +112,7 @@ class EhNetwork{
       return data;
     }
     on DioError catch(e){
+      sendNetworkLog(url, e.toString());
       if(e.type!=DioErrorType.unknown){
         status = true;
         message = e.message!;
@@ -121,6 +123,7 @@ class EhNetwork{
       return null;
     }
     catch(e){
+      sendNetworkLog(url, e.toString());
       if(e.toString() != "null"){
         status = true;
         message = e.toString();

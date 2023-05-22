@@ -948,14 +948,4 @@ String getImageUrl(String url){
   return appdata.settings[3]=="1"||GetPlatform.isWeb?"https://api.kokoiro.xyz/storage/$url":url;
 }
 
-void sendNetworkLog(String url, String error) async{
-  try {
-    var dio = Dio();
-    dio.post("https://api.kokoiro.xyz/log", data: {"data": "$url $error\n"});
-  }
-  catch(e){
-    //服务器不可用时忽视
-  }
-}
-
 var network = Network();
