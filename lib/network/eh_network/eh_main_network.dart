@@ -115,7 +115,7 @@ class EhNetwork{
       sendNetworkLog(url, e.toString());
       if(e.type!=DioErrorType.unknown){
         status = true;
-        message = e.message!;
+        message = e.message??"未知".tr;
       }else{
         status = true;
         message = e.toString().split("\n")[1];

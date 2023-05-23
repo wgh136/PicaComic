@@ -30,7 +30,7 @@ class ComicPageLogic extends GetxController{
   var tags = <Widget>[];
   var categories = <Widget>[];
   var recommendation = <ComicItemBrief>[];
-  final controller = ScrollController();
+  var controller = ScrollController();
   var eps = <Widget>[
     ListTile(
       leading: const Icon(Icons.library_books),
@@ -69,6 +69,7 @@ class ComicPage extends StatelessWidget{
           return showLoading(context);
         }else if(logic.comicItem!=null){
           //成功获取到了漫画信息
+          logic.controller = ScrollController();
           logic.controller.addListener(() {
             //检测当前滚动位置, 决定是否显示Appbar的标题
             bool temp = logic.showAppbarTitle;
