@@ -29,7 +29,7 @@ class ComicReadingPageLogic extends GetxController{
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
   int index = 1;
-  ///当前的章节位置, picacg从1开始, 禁漫从0开始
+  ///当前的章节位置, 从1开始
   int order;
   ///工具栏是否打开
   bool tools = false;
@@ -84,7 +84,7 @@ class ComicReadingPageLogic extends GetxController{
     isLoading = true;
     tools = false;
     if(type == ReadingType.jm){
-      data.target = eps[order];
+      data.target = eps[order-1];
     }
     update();
   }

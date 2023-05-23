@@ -231,7 +231,7 @@ class ComicReadingPage extends StatelessWidget {
 
               //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
               if (appdata.settings[9] == "4") {
-                logic.cont = ScrollController();
+                //logic.cont = ScrollController();
                 data.scrollManager = ScrollManager(logic.cont);
               }
               return WillPopScope(

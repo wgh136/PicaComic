@@ -20,7 +20,7 @@ class ScrollManager{
 
   final height = Get.height;
 
-  final maxScrollOnce = Get.height/10;
+  final maxScrollOnce = Get.height/8;
 
   ///是否正在进行释放缓存的偏移值
   bool runningRelease = false;
@@ -45,6 +45,7 @@ class ScrollManager{
   ///响应滑动手势
   void moveScrollView(double value){
     //移动ScrollView
+    if(!scrollController.hasClients)  return;
     scrollController.jumpTo(scrollController.position.pixels-value);
     if(value*height/400>slowMove||value*height/400<0-slowMove){
       if(offset < 2000) {
