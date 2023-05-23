@@ -268,8 +268,13 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
   @override
   void dispose() {
     Future.delayed(const Duration(milliseconds: 500),(){
-      Get.find<CategoryPageLogic>().update();
-      Get.find<ExplorePageLogic>().update();
+      try {
+        Get.find<CategoryPageLogic>().update();
+        Get.find<ExplorePageLogic>().update();
+      }
+      catch(e){
+        //如果在test_network_page进行此操作将产生错误
+      }
     });
     super.dispose();
   }

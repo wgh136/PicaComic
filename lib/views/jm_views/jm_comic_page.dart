@@ -678,9 +678,14 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
     }else{
       folders = r.data;
     }
-    setState(() {
-      loading = false;
-    });
+    try {
+      setState(() {
+        loading = false;
+      });
+    }
+    catch(e){
+      //可能退出了弹窗后网络请求返回
+    }
   }
 }
 

@@ -94,7 +94,7 @@ class _MainPageState extends State<MainPage> {
       network.punchIn().then((b){
         if(b){
           appdata.user.isPunched = true;
-          showMessage(context, "打卡成功", useGet: false);
+          showMessage(Get.context, "打卡成功", useGet: false);
           appdata.user.exp+=10;
         }
       });

@@ -154,9 +154,14 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     if(message == null){
       goToMainPage();
     }else{
-      setState(() {
-        isLoading = false;
-      });
+      try {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      catch(e){
+        //已退出页面
+      }
     }
   }
 }

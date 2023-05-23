@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -232,6 +231,7 @@ class ComicReadingPage extends StatelessWidget {
 
               //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
               if (appdata.settings[9] == "4") {
+                logic.cont = ScrollController();
                 data.scrollManager = ScrollManager(logic.cont);
               }
               return WillPopScope(

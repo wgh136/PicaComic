@@ -61,6 +61,11 @@ class ScrollManager{
   ///异步函数, 释放缓存的滑动偏移值
   void releaseOffset() async{
     runningRelease = true;
+    if(!scrollController.hasClients){
+      offset = 0;
+      runningRelease = false;
+      return;
+    }
     while(offset!=0){
       //当手指离开时进行滚动
       if(fingers==0){

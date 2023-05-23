@@ -79,7 +79,7 @@ class EhNetwork{
     if(appdata.ehId != "") {
       await cookieJar.saveFromResponse(Uri.parse(url), [
         Cookie("nw", "1"),
-        Cookie("ipb_member_id", appdata.ehId),
+        Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
         Cookie("ipb_pass_hash", appdata.ehPassHash),
         if(appdata.igneous != "")
           Cookie("igneous", appdata.igneous),
