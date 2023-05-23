@@ -49,6 +49,7 @@ class EhGalleryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: GetBuilder<GalleryPageLogic>(
         init: GalleryPageLogic(),
@@ -83,6 +84,7 @@ class EhGalleryPage extends StatelessWidget {
           }else if(logic.gallery == null){
             return showNetworkError(context, logic.retry, eh: true);
           }else{
+            logic.controller = ScrollController();
             logic.controller.addListener(() {
               //检测当前滚动位置, 决定是否显示Appbar的标题
               bool temp = logic.showAppbarTitle;
@@ -90,7 +92,7 @@ class EhGalleryPage extends StatelessWidget {
                   boundingTextSize(
                       logic.gallery!.title,
                       const TextStyle(fontSize: 22),
-                      maxWidth: MediaQuery.of(context).size.width
+                      maxWidth: width
                   ).height+50;
               if(temp!=logic.showAppbarTitle) {
                 logic.update();
