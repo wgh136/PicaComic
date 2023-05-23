@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
 import '../main_page.dart';
@@ -156,24 +157,14 @@ class _LoginPageState extends State<LoginPage> {
                         });
                         network = Network();
                         var fur = network.login(nameController.text, passwordController.text);
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          behavior: SnackBarBehavior.floating,
-                          width: 400,
-                          content: Text("登录中".tr),
-                        ));
+                        showMessage(context, "登录中".tr);
                         fur.then((b){
                           if(b){
                             appdata.token = network.token;
                             var i = network.getProfile();
                             i.then((t){
                               if(t == null){
-                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  width: 400,
-                                  content: Text("登录失败".tr),
-                                ));
+                                showMessage(context, "登录失败".tr);
                                 setState(() {
                                   isLogging = false;
                                 });
@@ -181,28 +172,18 @@ class _LoginPageState extends State<LoginPage> {
                               else{
                                 appdata.user = t;
                                 appdata.writeData();
-                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                Get.offAll(const MainPage());
+                                Get.closeAllSnackbars();
+                                Get.offAll(() => const MainPage());
                               }
                             });
                           }
                           else if(network.status){
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              behavior: SnackBarBehavior.floating,
-                              width: 400,
-                              content: network.message=="invalid email or password"?const Text("账号或密码错误"):Text(network.message),
-                            ));
+                            showMessage(context, network.message=="invalid email or password"?"账号或密码错误":network.message);
                             setState(() {
                               isLogging = false;
                             });
                           }else{
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              behavior: SnackBarBehavior.floating,
-                              width: 400,
-                              content: Text("网络错误".tr),
-                            ));
+                            showMessage(context, "网络错误".tr);
                             setState(() {
                               isLogging = false;
                             });

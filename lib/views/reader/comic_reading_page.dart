@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -232,6 +231,7 @@ class ComicReadingPage extends StatelessWidget {
 
               //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
               if (appdata.settings[9] == "4") {
+                //logic.cont = ScrollController();
                 data.scrollManager = ScrollManager(logic.cont);
               }
               return WillPopScope(
@@ -440,15 +440,20 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) async{
-    if(downloadManager.downloaded.contains(data.target)){
-      var downloadedItem = await downloadManager.getComicFromId(data.target);
-      data.downloadedEps = downloadedItem.downloadedChapters;
-      if(downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order-1)){
-        comicReadingPageLogic.downloaded = true;
-      }else{
+    try {
+      if (downloadManager.downloaded.contains(data.target)) {
+        var downloadedItem = await downloadManager.getComicFromId(data.target);
+        data.downloadedEps = downloadedItem.downloadedChapters;
+        if (downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order - 1)) {
+          comicReadingPageLogic.downloaded = true;
+        } else {
+          comicReadingPageLogic.downloaded = false;
+        }
+      } else {
         comicReadingPageLogic.downloaded = false;
       }
-    }else{
+    }
+    catch(e){
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.index = 1;
@@ -498,13 +503,19 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadGalleryInfo(ComicReadingPageLogic logic, EhLoadingInfo info) async {
-    if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
-      logic.downloaded = true;
-      for (int i = 0; i < await downloadManager.getEhOrHitomiPages(getGalleryId(gallery!.link)); i++) {
-        logic.urls.add("");
+    try {
+      if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
+        logic.downloaded = true;
+        for (int i = 0; i <
+            await downloadManager.getEhOrHitomiPages(getGalleryId(gallery!.link)); i++) {
+          logic.urls.add("");
+        }
+        logic.change();
+        return;
       }
-      logic.change();
-      return;
+    }
+    catch(e){
+      logic.downloaded = false;
     }
     info.current.value++;
     await for (var i in EhNetwork().loadGalleryPages(gallery!)){
@@ -521,15 +532,20 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
-    if(downloadManager.downloadedJmComics.contains("jm$target")){
-      var downloadedItem = await downloadManager.getJmComicFormId("jm$target");
-      if(downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order-1)){
-        comicReadingPageLogic.downloaded = true;
-        data.downloadedEps = downloadedItem.downloadedChapters;
-      }else{
+    try {
+      if (downloadManager.downloadedJmComics.contains("jm$target")) {
+        var downloadedItem = await downloadManager.getJmComicFormId("jm$target");
+        if (downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order - 1)) {
+          comicReadingPageLogic.downloaded = true;
+          data.downloadedEps = downloadedItem.downloadedChapters;
+        } else {
+          comicReadingPageLogic.downloaded = false;
+        }
+      } else {
         comicReadingPageLogic.downloaded = false;
       }
-    }else{
+    }
+    catch(e){
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.index = 1;
@@ -541,7 +557,7 @@ class ComicReadingPage extends StatelessWidget {
             Icons.library_books,
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
-          title: Text("章节".tr, style: TextStyle(fontSize: 18),),
+          title: Text("章节".tr, style: const TextStyle(fontSize: 18),),
         ),
       );
     }

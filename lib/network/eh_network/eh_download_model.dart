@@ -7,6 +7,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
+import '../new_download.dart';
 import 'eh_main_network.dart';
 import 'get_gallery_id.dart';
 
@@ -100,6 +101,7 @@ class EhDownloadingItem extends DownloadingItem{
 
   void _retry() {
     //允许重试两次
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
@@ -189,6 +191,7 @@ class EhDownloadingItem extends DownloadingItem{
       _retry();
       return;
     }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     await _saveInfo();
     super.whenFinish?.call();
   }

@@ -887,11 +887,6 @@ class Network{
     }
   }
 
-  Future<void> downloadImage(String url, String path) async{
-    var dio = await request();
-    dio.download(url, path);
-  }
-
   Future<void> getMoreCategoryComics(SearchResult s) async{
     if(s.loaded!=s.pages){
       var res  = await get('$apiUrl/comics?page=${s.loaded+1}&c=${Uri.encodeComponent(s.keyWord)}&s=${s.sort}');

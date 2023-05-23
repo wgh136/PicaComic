@@ -21,7 +21,15 @@ class MyCacheManager{
   static MyCacheManager? cache;
 
   factory MyCacheManager() {
+    createFolder();
     return cache??(cache = MyCacheManager._create());
+  }
+
+  static void createFolder() async{
+    var folder = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
+    if(!folder.existsSync()){
+        folder.createSync(recursive: true);
+    }
   }
 
   MyCacheManager._create();

@@ -24,7 +24,12 @@ class FavoritesPageLogic extends GetxController{
   }
   void change(){
     isLoading = !isLoading;
-    update();
+    try {
+      update();
+    }
+    catch(e){
+      //已退出页面
+    }
   }
 
   void changePage(String p){

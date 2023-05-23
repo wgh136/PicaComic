@@ -6,6 +6,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import '../../base.dart';
+import '../new_download.dart';
 import 'methods.dart';
 import 'models.dart';
 import 'dart:io';
@@ -150,6 +151,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   void retry() {
     //允许重试两次
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
@@ -177,7 +179,7 @@ class PicDownloadingItem extends DownloadingItem {
     }
     if (_pauseFlag) return;
     if (_eps.isEmpty) {
-      super.whenError?.call(); //未能获取到章节信息调用处理错误函数
+      retry();
       return;
     }
     if (_downloadingEps == 0) {
@@ -210,7 +212,7 @@ class PicDownloadingItem extends DownloadingItem {
       if (_pauseFlag) return;
       await getUrls();
       if (_urls.isEmpty) {
-        whenError?.call(); //未能获取到内容调用错误处理函数
+        retry();
         return;
       }
       var epPath = Directory("$path$pathSep$id$pathSep$_downloadingEps");
@@ -243,6 +245,7 @@ class PicDownloadingItem extends DownloadingItem {
       }
       _downloadingEps++;
     }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     saveInfo();
     super.whenFinish?.call();
   }

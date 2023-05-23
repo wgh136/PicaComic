@@ -18,7 +18,12 @@ class JmFavoritePageLogic extends GetxController{
 
   void change(){
     loading = !loading;
-    update();
+    try {
+      update();
+    }
+    catch(e){
+      //已退出页面
+    }
   }
 
   void get() async{

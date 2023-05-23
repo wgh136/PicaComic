@@ -79,7 +79,7 @@ class EhNetwork{
     if(appdata.ehId != "") {
       await cookieJar.saveFromResponse(Uri.parse(url), [
         Cookie("nw", "1"),
-        Cookie("ipb_member_id", appdata.ehId),
+        Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
         Cookie("ipb_pass_hash", appdata.ehPassHash),
         if(appdata.igneous != "")
           Cookie("igneous", appdata.igneous),
@@ -115,7 +115,7 @@ class EhNetwork{
       sendNetworkLog(url, e.toString());
       if(e.type!=DioErrorType.unknown){
         status = true;
-        message = e.message!;
+        message = e.message??"未知".tr;
       }else{
         status = true;
         message = e.toString().split("\n")[1];
@@ -436,7 +436,14 @@ class EhNetwork{
       appdata.writeHistory();
     }
     var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword");
-    Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
+    Future.delayed(const Duration(microseconds: 500),(){
+      try{
+        Get.find<PreSearchController>().update();
+      }
+      catch(e){
+        //忽视
+      }
+    });
     return res;
   }
 

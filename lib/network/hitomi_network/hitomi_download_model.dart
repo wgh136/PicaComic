@@ -5,6 +5,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
+import '../new_download.dart';
 import 'hitomi_models.dart';
 import 'dart:io';
 
@@ -91,6 +92,7 @@ class HitomiDownloadingItem extends DownloadingItem {
 
   void _retry() {
     //允许重试两次
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
@@ -165,6 +167,7 @@ class HitomiDownloadingItem extends DownloadingItem {
       _retry();
       return;
     }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     await _saveInfo();
     if(currentKey == _runtimeKey) {
       super.whenFinish?.call();

@@ -30,7 +30,7 @@ class ComicPageLogic extends GetxController{
   var tags = <Widget>[];
   var categories = <Widget>[];
   var recommendation = <ComicItemBrief>[];
-  final controller = ScrollController();
+  var controller = ScrollController();
   var eps = <Widget>[
     ListTile(
       leading: const Icon(Icons.library_books),
@@ -51,6 +51,7 @@ class ComicPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: GetBuilder<ComicPageLogic>(
         tag: comic.id,
@@ -68,6 +69,7 @@ class ComicPage extends StatelessWidget{
           return showLoading(context);
         }else if(logic.comicItem!=null){
           //成功获取到了漫画信息
+          logic.controller = ScrollController();
           logic.controller.addListener(() {
             //检测当前滚动位置, 决定是否显示Appbar的标题
             bool temp = logic.showAppbarTitle;
@@ -75,7 +77,7 @@ class ComicPage extends StatelessWidget{
                 boundingTextSize(
                     comic.title,
                     const TextStyle(fontSize: 22),
-                    maxWidth: MediaQuery.of(context).size.width
+                    maxWidth: width
                 ).height+50;
             if(temp!=logic.showAppbarTitle) {
               logic.update();

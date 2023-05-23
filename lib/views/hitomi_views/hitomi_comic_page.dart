@@ -50,6 +50,7 @@ class HitomiComicPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: GetBuilder<HitomiComicPageLogic>(
         init: HitomiComicPageLogic(),
@@ -62,6 +63,7 @@ class HitomiComicPage extends StatelessWidget {
             return showNetworkError(logic.message!, logic.refresh_, context);
           }else{
             logic.comic!;
+            logic.controller = ScrollController();
             logic.controller.addListener(() {
               //检测当前滚动位置, 决定是否显示Appbar的标题
               bool temp = logic.showAppbarTitle;
@@ -69,7 +71,7 @@ class HitomiComicPage extends StatelessWidget {
                   boundingTextSize(
                       comic.name,
                       const TextStyle(fontSize: 22),
-                      maxWidth: MediaQuery.of(context).size.width
+                      maxWidth: width
                   ).height+50;
               if(temp!=logic.showAppbarTitle) {
                 logic.update();

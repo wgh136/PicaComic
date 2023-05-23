@@ -523,7 +523,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                           if (widget.item is DownloadedComic) {
                             Get.to(() =>
                                 ComicPage((widget.item as DownloadedComic).comicItem.toBrief()));
-                          } else if (widget.item is DownloadedJmComic) {
+                          } else if (widget.item is DownloadedGallery) {
                             Get.to(() => EhGalleryPage(
                                 (widget.item as DownloadedGallery).gallery.toBrief()));
                           } else if (widget.item is DownloadedJmComic) {

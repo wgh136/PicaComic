@@ -21,7 +21,12 @@ class EhFavouritePageLogic extends GetxController{
       galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder");
     }
     loading = false;
-    update();
+    try {
+      update();
+    }
+    catch(e){
+      //网络请求返回时页面已退出
+    }
   }
 
   void retry(){

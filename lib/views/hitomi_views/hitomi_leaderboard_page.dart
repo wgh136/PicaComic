@@ -25,7 +25,12 @@ class HitomiLeaderboardPageLogic extends GetxController{
       message[index] = res.errorMessage;
     }
     loading[index] = false;
-    update();
+    try {
+      update();
+    }
+    catch(e){
+      //已退出页面时网络请求返回会导致出错
+    }
   }
 
   void refresh_(int index){
