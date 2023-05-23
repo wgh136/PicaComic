@@ -188,7 +188,7 @@ class JmDownloadingItem extends DownloadingItem {
           file.createSync(recursive: true);
         }
         await for(var progress in MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId, )){
-          if(progress.expectedBytes == progress.expectedBytes){
+          if(progress.currentBytes == progress.expectedBytes){
             bytes = progress.getFile().readAsBytesSync();
           }
         }
