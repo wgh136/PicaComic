@@ -62,4 +62,15 @@ abstract class DownloadingItem{
   ///标题
   String get title;
 
+  @override
+  bool operator==(Object other){
+    if(other is DownloadingItem){
+      return id == other.id;
+    }else{
+      return false;
+    }
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

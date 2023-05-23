@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
@@ -83,6 +84,9 @@ class JmDownloadingItem extends DownloadingItem {
 
   void retry() {
     //允许重试两次
+    if(this != DownloadManager().downloading.first){
+      return;
+    }
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
