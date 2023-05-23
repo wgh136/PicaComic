@@ -101,9 +101,7 @@ class EhDownloadingItem extends DownloadingItem{
 
   void _retry() {
     //允许重试两次
-    if(this != DownloadManager().downloading.first){
-      return;
-    }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
@@ -193,6 +191,7 @@ class EhDownloadingItem extends DownloadingItem{
       _retry();
       return;
     }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     await _saveInfo();
     super.whenFinish?.call();
   }

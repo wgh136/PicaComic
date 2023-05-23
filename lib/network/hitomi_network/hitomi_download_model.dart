@@ -92,9 +92,7 @@ class HitomiDownloadingItem extends DownloadingItem {
 
   void _retry() {
     //允许重试两次
-    if(this != DownloadManager().downloading.first){
-      return;
-    }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
@@ -169,6 +167,7 @@ class HitomiDownloadingItem extends DownloadingItem {
       _retry();
       return;
     }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     await _saveInfo();
     if(currentKey == _runtimeKey) {
       super.whenFinish?.call();

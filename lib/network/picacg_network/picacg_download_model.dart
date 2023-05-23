@@ -151,9 +151,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   void retry() {
     //允许重试两次
-    if(this != DownloadManager().downloading.first){
-      return;
-    }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     if (_retryTimes > 2) {
       super.whenError?.call();
       _retryTimes = 0;
@@ -247,6 +245,7 @@ class PicDownloadingItem extends DownloadingItem {
       }
       _downloadingEps++;
     }
+    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     saveInfo();
     super.whenFinish?.call();
   }
