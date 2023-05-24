@@ -74,7 +74,12 @@ class FavoritesPage extends StatelessWidget {
         onRefresh: () async{
           favoritesPageLogic.favorites = Favorites([], 1, 0);
           await favoritesPageLogic.get();
-          favoritesPageLogic.update();
+          try {
+            favoritesPageLogic.update();
+          }
+          catch(e){
+            //忽视
+          }
         },
         child: CustomScrollView(
           slivers: [
@@ -111,7 +116,12 @@ class FavoritesPage extends StatelessWidget {
       network.getSelectedPageFavorites(favoritesPageLogic.page,favoritesPageLogic.comics).then((i){
         favoritesPageLogic.isLoading = false;
         favoritesPageLogic.pages = i;
-        favoritesPageLogic.update();
+        try {
+          favoritesPageLogic.update();
+        }
+        catch(e){
+          //忽视
+        }
       });
       return const Center(child: CircularProgressIndicator(),);
     }else {
