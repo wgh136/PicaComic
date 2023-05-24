@@ -203,7 +203,7 @@ class ComicReadingPage extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 ),
               );
-            } else if (logic.urls.isNotEmpty || logic.downloaded) {
+            } else if (logic.urls.isNotEmpty) {
               //检查传入的初始页面值, 并进行跳转
               if (data.initialPage != 0) {
                 int i = data.initialPage;
@@ -386,7 +386,7 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  data.message ?? "网络错误".tr,
+                  data.message ?? "未知错误".tr,
                   style: const TextStyle(
                     color: Colors.white,
                   ),

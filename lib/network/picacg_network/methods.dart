@@ -8,6 +8,7 @@ import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
+import '../../tools/log.dart';
 import 'models.dart';
 
 const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";//历史遗留, 不改了
@@ -153,7 +154,16 @@ class Network{
     });
     if(res!=null){
       if(res["message"]=="success"){
-        token = res["data"]["token"];
+        try {
+          token = res["data"]["token"];
+        }
+        catch(e){
+          status = true;
+          message = "未能获取到token";
+          //既然没能拿到token, 那么应该不存在敏感信息, 实在是不清楚为什么没有token, 因此将数据上报
+          sendNetworkLog("login", res["data"]);
+          return false;
+        }
         if(kDebugMode){
           print("Logging successfully");
         }
@@ -191,7 +201,7 @@ class Network{
     var res = await get("$apiUrl/keywords");
     if(res != null){
       var k = KeyWords();
-      for(int i=0;i<res["data"]["keywords"].length;i++){
+      for(int i=0;i<(res["data"]["keywords"]??[]).length;i++){
         k.keyWords.add(res["data"]["keywords"][i]);
       }
       return k;
@@ -298,7 +308,14 @@ class Network{
     }
     await loadMoreSearch(s);
     if(addToHistory) {
-      Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
+      Future.delayed(const Duration(microseconds: 500),(){
+        try{
+          Get.find<PreSearchController>().update();
+        }
+        catch(e){
+          //忽视
+        }
+      });
     }
     return s;
   }

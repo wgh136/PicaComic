@@ -36,7 +36,7 @@ dependencies:
   dio: ^5.1.2
   get: ^4.6.5
   shared_preferences: ^2.0.16
-  dynamic_color: ^1.6.3
+  dynamic_color: ^1.6.5
   cached_network_image: ^3.2.3
   cupertino_icons: ^1.0.2
   crypto: any
@@ -54,7 +54,7 @@ dependencies:
       ref: master
   flutter_file_dialog: any
   archive: any
-  flutter_local_notifications: ^14.0.0
+  flutter_local_notifications: ^14.1.0
   share_plus: ^7.0.0
   local_auth: ^2.1.6
   html: any

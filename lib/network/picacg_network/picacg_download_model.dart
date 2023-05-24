@@ -254,7 +254,9 @@ class PicDownloadingItem extends DownloadingItem {
   void stop() {
     _pauseFlag = true;
     var file = Directory("$path$pathSep$id");
-    file.delete(recursive: true);
+    if(file.existsSync()) {
+      file.delete(recursive: true);
+    }
   }
 
   ///储存漫画信息

@@ -7,9 +7,9 @@ class Notifications{
   FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
   final progressId = 72382;
 
-  Future<void> requestPermission() async{
-    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
-    await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
+  Future<bool?> requestPermission() async{
+    if(!GetPlatform.isAndroid)  return false;
+    return await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
   }
 
@@ -38,7 +38,7 @@ class Notifications{
 
   void sendProgressNotification(int progress, int total, String title, String content) async{
     if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
-    await requestPermission();
+    if (await requestPermission() != true)  return;
     AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails('download', '下载漫画',
       channelDescription: '显示下载进度',

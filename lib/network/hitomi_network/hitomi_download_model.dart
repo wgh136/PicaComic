@@ -187,7 +187,9 @@ class HitomiDownloadingItem extends DownloadingItem {
   void stop() {
     _pauseFlag = true;
     var file = Directory("$path$pathSep$id");
-    file.delete(recursive: true);
+    if(file.existsSync()) {
+      file.delete(recursive: true);
+    }
   }
 
   @override

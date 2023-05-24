@@ -91,9 +91,9 @@ class _MainPageState extends State<MainPage> {
 
     //检查是否打卡
     if(appdata.user.isPunched==false&&appdata.settings[6]=="1"){
+      appdata.user.isPunched = true;
       network.punchIn().then((b){
         if(b){
-          appdata.user.isPunched = true;
           showMessage(Get.context, "打卡成功", useGet: false);
           appdata.user.exp+=10;
         }
