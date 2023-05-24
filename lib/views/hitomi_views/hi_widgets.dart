@@ -40,7 +40,7 @@ class HiComicTile extends ComicTile {
 
   @override
   void onTap_() {
-    Get.to(() => HitomiComicPage(comic));
+    Get.to(() => HitomiComicPage(comic), preventDuplicates: false);
   }
 
   @override
