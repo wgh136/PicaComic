@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/pic_views/collections_page.dart';
+import 'package:pica_comic/views/pic_views/picacg_latest_page.dart';
 import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -44,7 +45,7 @@ class CategoriesPage extends StatelessWidget {
             slivers: [
               SliverGrid(
                 delegate: SliverChildBuilderDelegate(
-                    childCount: categoriesPageLogic.categories.length+2,
+                    childCount: categoriesPageLogic.categories.length+3,
                         (context, i){
                       if(i==0){
                         return InkWell(
@@ -65,7 +66,7 @@ class CategoriesPage extends StatelessWidget {
                                       ),
                                       clipBehavior: Clip.antiAlias,
                                       child: const Image(
-                                        image: AssetImage("images/collections.png"),
+                                        image: AssetImage("images/collections.jpg"),
                                         fit: BoxFit.cover,
                                       ),
                                     ),),
@@ -124,8 +125,40 @@ class CategoriesPage extends StatelessWidget {
                               ),
                             )
                         );
-                      }
-                      else {
+                      }else if(i==2){
+                        return InkWell(
+                            borderRadius: BorderRadius.circular(18),
+                            onTap: () => Get.to(()=>const PicacgLatestPage()),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 6,
+                                    child: Container(
+                                      height: double.infinity,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(18)
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: const Image(
+                                        image: AssetImage("images/latest.png"),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),),
+                                  SizedBox.fromSize(size: const Size(20,5),),
+                                  Expanded(
+                                      flex: 11,
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text("最新漫画".tr,style: const TextStyle(fontWeight: FontWeight.w600),),
+                                      )
+                                  ),
+                                ],
+                              ),
+                            )
+                        );
+                      } else {
                         return CategoryTile(categoriesPageLogic.categories[i-2], () {});
                       }
                     }

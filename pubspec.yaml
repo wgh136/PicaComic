@@ -99,8 +99,9 @@ flutter:
     - images/avatar_small.png
     - images/github.png
     - images/select.png
-    - images/collections.png
+    - images/collections.jpg
     - images/help.jpg
+    - images/latest.png
     - images/1.jpg
     - images/2.jpg
     - images/3.jpg
