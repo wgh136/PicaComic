@@ -15,7 +15,12 @@ class CategoryPageLogic extends GetxController{
 
   void change(){
     loading = !loading;
-    update();
+    try {
+      update();
+    }
+    catch(e){
+      //fix
+    }
   }
 
   void get(Category category,{bool leaderboard=false, bool fromHomePage=false}) async{

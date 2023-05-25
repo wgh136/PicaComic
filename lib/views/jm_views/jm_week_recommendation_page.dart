@@ -65,6 +65,7 @@ class JmWeekRecommendationPage extends StatelessWidget {
                   icon: const Icon(Icons.arrow_drop_down_sharp),
                   iconSize: 16,
                   onPressed: (){
+                    if(logic.rec == null) return;
                     var renderObject = key.currentContext!.findRenderObject() as RenderBox;
                     var offset = renderObject.localToGlobal(Offset.zero);
                     offset = Offset(offset.dx+246, offset.dy+53);
