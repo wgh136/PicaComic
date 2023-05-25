@@ -54,7 +54,7 @@ class DownloadedJmComic extends DownloadedItem{
   String get id => "jm${comic.id}";
 
   @override
-  String get subTitle => comic.author[0];
+  String get subTitle => comic.author.elementAtOrNull(0)??"";
 
   @override
   double? get comicSize => size;
