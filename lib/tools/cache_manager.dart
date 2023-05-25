@@ -112,23 +112,22 @@ class MyCacheManager{
     if(image == "https://ehgt.org/g/509.gif"){
       throw ImageExceedError();
     }
+    var originImage = document.querySelector("div#i7 > a")?.attributes["href"];
 
     Response<ResponseBody> res;
-
-    try{
-      res =
-          await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
-    }
-    catch(e){
-      html = await dio.get("$url?nl=${nl.substring(11,nl.length-2)}");
+    if(originImage == null) {
+      html = await dio.get("$url?nl=${nl.substring(11, nl.length - 2)}");
       document = parse(html.data);
       image = document.querySelector("img#img")!.attributes["src"]!;
-      if(image == "https://ehgt.org/g/509.gif"){
+      if (image == "https://ehgt.org/g/509.gif") {
         throw ImageExceedError();
       }
-      res =
-          await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
+    }else{
+      image = originImage;
     }
+    res =
+      await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
+
     var stream = res.data!.stream;
     int? expectedBytes;
     try {

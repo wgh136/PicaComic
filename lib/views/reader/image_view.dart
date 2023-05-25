@@ -84,7 +84,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
       return Image(
         filterQuality: FilterQuality.medium,
         //限制图片大小, 避免图片过大导致内存中缓存图片数量过少
-        image: ResizeImage(image, width: 1500, height: 2000, policy: ResizeImagePolicy.fit),
+        image: image,
         width: MediaQuery.of(context).size.width,
         fit: BoxFit.fill,
         frameBuilder: (context, widget, i, b) {
