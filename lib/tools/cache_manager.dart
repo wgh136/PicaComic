@@ -72,7 +72,7 @@ class MyCacheManager{
   }
 
   ///获取eh图片, 传入的为阅读器地址
-  Stream<DownloadProgress> getEhImage(String url) async*{
+  Stream<DownloadProgress> getEhImage(String url, {String? nl_}) async*{
     await readData();
     //检查缓存
     if(_paths![url] != null){
@@ -105,7 +105,7 @@ class MyCacheManager{
 
     //获取图片地址
     var dio =  Dio(options);
-    var html = await dio.get(url);
+    var html = await dio.get(nl_==null?url:"$url?nl=$nl_");
     var document = parse(html.data);
     var image = document.querySelector("img#img")!.attributes["src"]!;
     var nl = document.getElementById("loadfail")!.attributes["onclick"]!;
@@ -120,6 +120,9 @@ class MyCacheManager{
           await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
     }
     catch(e){
+      if(nl_ != null){
+        rethrow;
+      }
       html = await dio.get("$url?nl=${nl.substring(11,nl.length-2)}");
       document = parse(html.data);
       image = document.querySelector("img#img")!.attributes["src"]!;
@@ -156,7 +159,7 @@ class MyCacheManager{
       yield DownloadProgress(currentBytes, (expectedBytes??currentBytes)+1, url, savePath);
     }
     await saveInfo(url, savePath);
-    yield DownloadProgress(1, 1, url, savePath);
+    yield DownloadProgress(1, 1, url, savePath, loadFail: "$url?nl=${nl.substring(11,nl.length-2)}");
   }
 
   ///为Hitomi设计的图片加载函数
@@ -333,6 +336,18 @@ class MyCacheManager{
     await readData();
     return _paths![key] != null;
   }
+
+  Future<void> delete(String key) async{
+    await readData();
+    var path = _paths![key];
+    if(path != null){
+      var file = File(path);
+      if(file.existsSync()){
+        file.deleteSync();
+      }
+    }
+    _paths!.remove(key);
+  }
 }
 
 @immutable
@@ -341,11 +356,12 @@ class DownloadProgress{
   final int _expectedBytes;
   final String url;
   final String savePath;
+  final String? loadFail;
 
   get currentBytes => _currentBytes;
   get expectedBytes => _expectedBytes;
 
-  const DownloadProgress(this._currentBytes, this._expectedBytes, this.url, this.savePath);
+  const DownloadProgress(this._currentBytes, this._expectedBytes, this.url, this.savePath, {this.loadFail});
 
   File getFile() => File(savePath);
 }

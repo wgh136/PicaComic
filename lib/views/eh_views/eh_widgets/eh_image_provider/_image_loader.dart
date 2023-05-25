@@ -67,7 +67,29 @@ class ImageLoader{
 
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
-      var decoded = await decode(bytes);
+      Codec decoded;
+      try {
+        decoded = await decode(bytes);
+      }
+      catch(e){
+        await manager.delete(url);
+        if(finishProgress.loadFail == null){
+          rethrow;
+        }
+        stream = manager.getEhImage(finishProgress.loadFail!);
+        await for(var progress in stream){
+          if(progress.currentBytes == progress.expectedBytes){
+            finishProgress = progress;
+          }
+          chunkEvents.add(ImageChunkEvent(
+              cumulativeBytesLoaded: progress.currentBytes,
+              expectedTotalBytes: progress.expectedBytes)
+          );
+        }
+        var file = finishProgress!.getFile();
+        var bytes = await file.readAsBytes();
+        decoded = await decode(bytes);
+      }
       yield decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
