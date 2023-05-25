@@ -43,7 +43,7 @@ class JmComicTile extends ComicTile {
 
   @override
   void onTap_() {
-    Get.to(() => JmComicPage(comic.id));
+    Get.to(() => JmComicPage(comic.id), preventDuplicates: false);
   }
 
   @override

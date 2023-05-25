@@ -60,7 +60,7 @@ class EhGalleryTile extends ComicTile{
 
   @override
   void onTap_() {
-    Get.to(() => EhGalleryPage(gallery));
+    Get.to(() => EhGalleryPage(gallery), preventDuplicates: false);
   }
 
   @override

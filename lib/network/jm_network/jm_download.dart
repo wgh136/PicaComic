@@ -54,7 +54,7 @@ class DownloadedJmComic extends DownloadedItem{
   String get id => "jm${comic.id}";
 
   @override
-  String get subTitle => comic.author[0];
+  String get subTitle => comic.author.elementAtOrNull(0)??"";
 
   @override
   double? get comicSize => size;
@@ -148,13 +148,24 @@ class JmDownloadingItem extends DownloadingItem {
     notifications.sendProgressNotification(
         _downloadedPages, _totalPages==0?1:_totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
     if(! _downloadedCover){
-      var dio = Dio();
-      var res = await dio.get(cover,
-          options: Options(responseType: ResponseType.bytes));
-      var file = File("$path$pathSep$id${pathSep}cover.jpg");
-      if (!await file.exists()) await file.create();
-      await file.writeAsBytes(Uint8List.fromList(res.data));
-      _downloadedCover = true;
+      try {
+        var dio = Dio();
+        var res = await dio.get(cover,
+            options: Options(responseType: ResponseType.bytes));
+        var file = File("$path$pathSep$id${pathSep}cover.jpg");
+        if (!await file.exists()) await file.create();
+        await file.writeAsBytes(Uint8List.fromList(res.data));
+        _downloadedCover = true;
+      }
+      catch(e){
+        if (kDebugMode) {
+          print(e);
+        }
+        if (_pauseFlag) return;
+        //下载出错重试
+        retry();
+        return;
+      }
     }
     if(! await getInfo()){
       retry();
@@ -235,7 +246,9 @@ class JmDownloadingItem extends DownloadingItem {
   void stop() {
     _pauseFlag = true;
     var file = Directory("$path$pathSep$id");
-    file.delete(recursive: true);
+    if(file.existsSync()) {
+      file.delete(recursive: true);
+    }
   }
 
   @override

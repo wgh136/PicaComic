@@ -88,6 +88,9 @@ class EhGalleryPage extends StatelessWidget {
             logic.controller.addListener(() {
               //检测当前滚动位置, 决定是否显示Appbar的标题
               bool temp = logic.showAppbarTitle;
+              if(!logic.controller.hasClients){
+                return;
+              }
               logic.showAppbarTitle = logic.controller.position.pixels>
                   boundingTextSize(
                       logic.gallery!.title,

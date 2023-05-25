@@ -11,34 +11,24 @@ Future<String?> getProxy() async{
   //对于安卓, 将获取WIFI设置中的代理
   //Web端流量走系统代理且无法进行设置
   if(GetPlatform.isWeb) return null;
-
-  const channel = MethodChannel("kokoiro.xyz.pica_comic/proxy");
-  var res = await channel.invokeMethod("getProxy");
+  String res;
+  if(!GetPlatform.isLinux) {
+    const channel = MethodChannel("kokoiro.xyz.pica_comic/proxy");
+    res = await channel.invokeMethod("getProxy");
+  }else{
+    res = "No Proxy";
+  }
   if(res == "No Proxy") return null;
   //windows上部分代理工具会将代理设置为http=127.0.0.1:8888;https=127.0.0.1:8888;ftp=127.0.0.1:7890的形式
   //下面的代码从中提取正确的代理地址
   if(res[0] == 'h'){
-    var temp = "";
-    bool status = false;
-    bool status2 = false;
-    for(int i = 0;i < res.length;i++){
-      if(!status){
-        //找到第一个等号
-        if(res[i] == '='){
-          status = true;
-        }
-      }else{
-        if(res[i]==' ' || res[i]==';'){
-          if(status2){
-            break;
-          }
-          continue;
-        }
-        status2 = true;
-        temp += res[i];
+    var proxies = res.split(";");
+    for (String proxy in proxies) {
+      proxy = proxy.removeAllWhitespace;
+      if (proxy.startsWith('https=')) {
+        return proxy.substring(5);
       }
     }
-    res = temp;
   }
   return res;
 }

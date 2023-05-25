@@ -59,7 +59,7 @@ class PicComicTile extends ComicTile {
     if(onTap != null){
       onTap!();
     }else{
-      Get.to(()=>ComicPage(comic));
+      Get.to(()=>ComicPage(comic), preventDuplicates: false);
     }
   }
 

@@ -165,7 +165,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
     List<String> eps, BuildContext context, {bool jm = false}) {
   var epsText = "";
   if(eps.isNotEmpty && !jm){
-    epsText = eps[comicReadingPageLogic.order];
+    epsText = eps.elementAtOrNull(comicReadingPageLogic.order)??"";
   }
   if(jm){
     epsText = "第 @c 章".trParams({"c": comicReadingPageLogic.order.toString()});

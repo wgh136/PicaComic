@@ -8,18 +8,25 @@ import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
+import '../../tools/log.dart';
+import '../res.dart';
 import 'models.dart';
 
-const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";//历史遗留, 不改了
+const defaultAvatarUrl = "DEFAULT AVATAR URL";//历史遗留, 不改了
 
 ///哔咔网络请求类
 class Network{
+  factory Network([String token=""]) => cache??(cache=Network._create(token=token));
+
+  static Network? cache;
+
+  Network._create([this.token=""]);
+
   String apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
     "https://api.kokoiro.xyz/picaapi"
       :"https://picaapi.picacomic.com";
   InitData? initData;
   String token;
-  Network([this.token=""]);
   bool status = false; //用于判断请求出错时的情况, true意味着捕获了已知的错误
   String message = ""; //提供错误信息
   bool useCf = false;
@@ -144,8 +151,8 @@ class Network{
     }
   }
 
+  ///登录
   Future<bool> login(String email, String password) async {
-    //登录
     var api = appdata.settings[3] == "1"?"https://api.kokoiro.xyz/picaapi":"https://picaapi.picacomic.com";
     var res = await post('$api/auth/sign-in',{
       "email":email,
@@ -153,7 +160,16 @@ class Network{
     });
     if(res!=null){
       if(res["message"]=="success"){
-        token = res["data"]["token"];
+        try {
+          token = res["data"]["token"];
+        }
+        catch(e){
+          status = true;
+          message = "未能获取到token";
+          //既然没能拿到token, 那么应该不存在敏感信息, 实在是不清楚为什么没有token, 因此将数据上报
+          sendNetworkLog("login", res["data"]);
+          return false;
+        }
         if(kDebugMode){
           print("Logging successfully");
         }
@@ -168,8 +184,8 @@ class Network{
     }
   }
 
+  ///获取用户信息
   Future<Profile?> getProfile() async {
-    //获取用户信息
     var res = await get("$apiUrl/users/profile");
     if(res != null){
       res = res["data"]["user"];
@@ -191,7 +207,7 @@ class Network{
     var res = await get("$apiUrl/keywords");
     if(res != null){
       var k = KeyWords();
-      for(int i=0;i<res["data"]["keywords"].length;i++){
+      for(int i=0;i<(res["data"]["keywords"]??[]).length;i++){
         k.keyWords.add(res["data"]["keywords"][i]);
       }
       return k;
@@ -200,8 +216,8 @@ class Network{
     }
   }
 
+  ///获取分类
   Future<List<CategoryItem>?> getCategories() async{
-    //获取分类
     var res = await get("$apiUrl/categories");
     if(res!=null){
       var c = <CategoryItem>[];
@@ -221,8 +237,8 @@ class Network{
     }
   }
 
+  ///获取分流ip
   Future<String?> init() async {
-    //获取分流ip
     try{
       var dio = Dio();
       var res = await dio.get("http://68.183.234.72/init");
@@ -298,13 +314,20 @@ class Network{
     }
     await loadMoreSearch(s);
     if(addToHistory) {
-      Future.delayed(const Duration(microseconds: 500),()=>Get.find<PreSearchController>().update());
+      Future.delayed(const Duration(microseconds: 500),(){
+        try{
+          Get.find<PreSearchController>().update();
+        }
+        catch(e){
+          //忽视
+        }
+      });
     }
     return s;
   }
 
+  ///获取漫画信息
   Future<ComicItem?> getComicInfo(String id) async {
-    //获取漫画信息
     var res = await get("$apiUrl/comics/$id");
     if(res != null){
       String url;
@@ -936,6 +959,58 @@ class Network{
     var s = SearchResult(keyword, sort, [], 1, 0);
     await getMoreCategoryComics(s);
     return s;
+  }
+
+  ///获取最新漫画
+  Future<Res<List<ComicItemBrief>>> getLatest(int page) async{
+    var res = await get("$apiUrl/comics?page=$page&s=dd");
+    if(res == null){
+      return Res(null, errorMessage: status?message:"网络错误");
+    }else{
+      var comics = <ComicItemBrief>[];
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        try {
+          //检查屏蔽词
+          bool flag = false;
+          if (
+          appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["author"] ?? "") ||
+              appdata.blockingKeyword.contains(
+                  res["data"]["comics"]["docs"][i]["chineseTeam"] ?? "")
+          ) {
+            continue;
+          }
+
+          for (var s in res["data"]["comics"]["docs"][i]["tags"] ?? []) {
+            if (appdata.blockingKeyword.contains(s)) {
+              flag = true;
+              break;
+            }
+          }
+
+          for (var s in res["data"]["comics"]["docs"][i]["categories"] ?? []) {
+            if (appdata.blockingKeyword.contains(s)) {
+              flag = true;
+              break;
+            }
+          }
+
+          if (flag) continue;
+
+          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"] ?? "未知",
+              res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+              res["data"]["comics"]["docs"][i]["likesCount"] ?? 0,
+              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
+                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
+              res["data"]["comics"]["docs"][i]["_id"]
+          );
+          comics.add(si);
+        }
+        catch(e){
+          continue;
+        }
+      }
+      return Res(comics);
+    }
   }
 }
 

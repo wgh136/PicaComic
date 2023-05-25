@@ -198,7 +198,7 @@ class DownloadManager{
   ///添加哔咔漫画下载
   void addPicDownload(ComicItem comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${comic.id}");
-    downloadPath.create();
+    downloadPath.create(recursive: true);
     downloading.addLast(PicDownloadingItem(comic, path!, downloadEps, _whenFinish, _whenError, _saveInfo, comic.id));
     _saveInfo();
     if(!isDownloading){
@@ -211,7 +211,7 @@ class DownloadManager{
   void addEhDownload(Gallery gallery){
     final id = getGalleryId(gallery.link);
     var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create();
+    downloadPath.create(recursive: true);
     downloading.addLast(EhDownloadingItem(gallery, path!, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
@@ -223,7 +223,7 @@ class DownloadManager{
   ///添加禁漫下载
   void addJmDownload(JmComicInfo comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${"jm"}${comic.id}");
-    downloadPath.create();
+    downloadPath.create(recursive: true);
     downloading.addLast(JmDownloadingItem(comic, path!, downloadEps, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
     _saveInfo();
     if(!isDownloading){
@@ -235,7 +235,7 @@ class DownloadManager{
   void addHitomiDownload(HitomiComic comic, String cover, String link){
     final id = "hitomi${comic.id}";
     var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create();
+    downloadPath.create(recursive: true);
     downloading.addLast(HitomiDownloadingItem(comic, path!, cover, link, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
@@ -378,7 +378,16 @@ class DownloadManager{
       downloadedJmComics.remove(id);
       downloadedHitomiComics.remove(id);
       var comic = Directory("$path$pathSep$id");
-      comic.delete(recursive: true);
+      try {
+        comic.delete(recursive: true);
+      }
+      catch(e){
+        if(e is PathNotFoundException){
+          //忽略
+        }else{
+          rethrow;
+        }
+      }
     }
     await _saveInfo();
   }

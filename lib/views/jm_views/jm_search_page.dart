@@ -135,7 +135,7 @@ class JmSearchPage extends StatelessWidget {
         return SliverToBoxAdapter(
           child: ListTile(
             leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.secondary,),
-            title: Text(logic.message!),
+            title: Text(logic.message??"未知错误".tr),
           ),
         );
       }

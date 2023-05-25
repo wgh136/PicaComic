@@ -359,6 +359,10 @@ class EhNetwork{
         for (var link in links) {
           urls.add(link.attributes["href"]!);
         }
+        links = temp.querySelectorAll("div#gdt > div.gdtl > a");
+        for (var link in links) {
+          urls.add(link.attributes["href"]!);
+        }
       } catch (e) {
         //获取图片链接失败
         return null;
@@ -414,6 +418,10 @@ class EhNetwork{
       try {
         var temp = parse(await request("${gallery.link}?p=$i"));
         var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
+        for (var link in links) {
+          gallery.urls.add(link.attributes["href"]!);
+        }
+        links = temp.querySelectorAll("div#gdt > div.gdtl > a");
         for (var link in links) {
           gallery.urls.add(link.attributes["href"]!);
         }
