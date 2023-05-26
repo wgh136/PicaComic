@@ -28,23 +28,18 @@ class JmComicPageLogic extends GetxController {
   var controller = ScrollController();
   bool showAppbarTitle = false;
 
-  void change() {
-    loading = !loading;
-    update();
-  }
-
   void getInfo(String id) async {
     var res = await jmNetwork.getComicInfo(id);
     if (res.error) {
       message = res.errorMessage;
-      change();
     } else {
       comic = res.data;
       if(comic!.series.isEmpty){
         comic!.series[0] = comic!.id;
       }
-      change();
     }
+    loading = false;
+    update();
   }
 
   void retry() {

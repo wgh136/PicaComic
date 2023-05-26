@@ -159,7 +159,7 @@ class CategoriesPage extends StatelessWidget {
                             )
                         );
                       } else {
-                        return CategoryTile(categoriesPageLogic.categories[i-2], () {});
+                        return CategoryTile(categoriesPageLogic.categories[i-3], () {});
                       }
                     }
                 ),
