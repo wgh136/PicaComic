@@ -8,29 +8,31 @@ import flutter_local_notifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+    let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
 
     FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
-            GeneratedPluginRegistrant.register(with: registry)
-        }
-
-    if #available(iOS 10.0, *) {
-       UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+      GeneratedPluginRegistrant.register(with: registry)
     }
 
-    //用于获取系统代理配置的MethodChannel
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+    }
+
     // 用于获取系统代理配置的 MethodChannel
     let methodChannel = FlutterMethodChannel(name: "kokoiro.xyz.pica_comic/proxy", binaryMessenger: controller.binaryMessenger)
     methodChannel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-      let proxySettings = CFNetworkCopySystemProxySettings()?.takeUnretainedValue() as NSDictionary?
-      let dict = proxySettings?.object(forKey: kCFNetworkProxiesHTTPSEnable) as? NSDictionary
-      let host = dict?.object(forKey: kCFNetworkProxiesHTTPProxy) as? String ?? ""
-      let port = dict?.object(forKey: kCFNetworkProxiesHTTPPort) as? Int ?? 0
-      let proxyConfig = "\(host):\(port)"
-      result(proxyConfig)
+      if let proxySettings = CFNetworkCopySystemProxySettings()?.takeUnretainedValue() as NSDictionary? {
+        let dict = proxySettings.object(forKey: kCFNetworkProxiesHTTPProxy) as? NSDictionary
+        let host = dict?.object(forKey: kCFNetworkProxiesHTTPProxy) as? String ?? ""
+        let port = dict?.object(forKey: kCFNetworkProxiesHTTPPort) as? Int ?? 0
+        let proxyConfig = "\(host):\(port)"
+        result(proxyConfig)
+      } else {
+        result("")
+      }
     }
 
-    // 用于设置屏幕常亮的 EventChannel
+    // 用于设置屏幕常亮的 MethodChannel
     let channel2 = FlutterMethodChannel(name: "com.kokoiro.xyz.pica_comic/keepScreenOn", binaryMessenger: controller.binaryMessenger)
     channel2.setMethodCallHandler { (call: FlutterMethodCall, result: FlutterResult) in
       if call.method == "set" {
@@ -45,7 +47,7 @@ import flutter_local_notifications
 
     // 用于监听音量键的 MethodChannel
     let volumeChannel = FlutterEventChannel(name: "com.kokoiro.xyz.pica_comic/volume", binaryMessenger: controller.binaryMessenger)
-    volumeChannel?.setStreamHandler(VolumeStreamHandler())
+    volumeChannel.setStreamHandler(VolumeStreamHandler())
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
