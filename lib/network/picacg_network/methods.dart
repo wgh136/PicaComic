@@ -167,7 +167,7 @@ class Network{
           status = true;
           message = "未能获取到token";
           //既然没能拿到token, 那么应该不存在敏感信息, 实在是不清楚为什么没有token, 因此将数据上报
-          sendNetworkLog("login", res["data"]);
+          sendNetworkLog("login", res["data"]??"无数据");
           return false;
         }
         if(kDebugMode){

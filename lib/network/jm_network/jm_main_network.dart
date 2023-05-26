@@ -370,7 +370,14 @@ class JmNetwork {
         }
       }
       Future.delayed(
-          const Duration(microseconds: 500), () => Get.find<PreSearchController>().update());
+          const Duration(microseconds: 500), (){
+            try{
+              Get.find<PreSearchController>().update();
+            }
+            catch(e){
+              //跳过
+            }
+      });
       return Res(
         SearchRes(keyword, comics.length, int.parse(res.data["total"]), comics),
       );
