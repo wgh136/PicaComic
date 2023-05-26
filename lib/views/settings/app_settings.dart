@@ -126,6 +126,16 @@ void setProxy(BuildContext context) {
                           hintText: controller.value ? "使用系统代理时无法手动设置".tr : "设置代理, 例如127.0.0.1:7890".tr),
                     ),
                   ),
+                  if(!controller.value)
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(18, 10, 15, 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 20,),
+                          Text("  留空表示禁用网络代理")
+                        ],
+                      ),
+                    ),
                   Center(
                     child: FilledButton(
                         onPressed: () {
