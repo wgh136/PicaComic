@@ -24,7 +24,7 @@ void saveImage(String urlOrHash, String id, {bool eh=false, bool jmOrHitomi=fals
     }
     launchUrlString("https://api.kokoiro.xyz/storage/download/$urlOrHash");
   }
-  else if(GetPlatform.isAndroid) {
+  else if(GetPlatform.isAndroid || GetPlatform.isIOS) {
       var url_ = "";
       if(jmOrHitomi){
         url_ = urlOrHash;
@@ -108,7 +108,7 @@ Future<bool> saveImageFormCache(String urlOrHash, String id, {bool eh = false, b
 }
 
 void saveImageFromDisk(String image) async{
-  if(GetPlatform.isAndroid) {
+  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
     await ImageGallerySaver.saveFile(image);
     showMessage(Get.context, "成功保存到Picture中".tr);
   }else if(GetPlatform.isWindows){

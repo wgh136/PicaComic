@@ -19,8 +19,14 @@ class Notifications{
         FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@drawable/notification');
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid, );
+    final DarwinInitializationSettings initializationSettingsDarwin =
+    DarwinInitializationSettings(
+        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+    InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsDarwin,
+        );
     await flutterLocalNotificationsPlugin!.initialize(
         initializationSettings,
         onDidReceiveNotificationResponse: onDidReceiveNotificationResponse
@@ -33,6 +39,11 @@ class Notifications{
     if (notificationResponse.payload != null) {
       debugPrint('notification payload: $payload');
     }
+    Get.to(()=>const DownloadingPage());
+  }
+
+  void onDidReceiveLocalNotification(
+      int id, String? title, String? body, String? payload) async {
     Get.to(()=>const DownloadingPage());
   }
 

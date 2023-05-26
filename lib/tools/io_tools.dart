@@ -27,7 +27,7 @@ Future<bool> exportComic(String id) async{
     if(! res){
       return false;
     }
-    if(GetPlatform.isAndroid) {
+    if(GetPlatform.isAndroid || GetPlatform.isIOS) {
       var params = SaveFileDialogParams(sourceFilePath: '${data.path!}$pathSep$id.zip');
       await FlutterFileDialog.saveFile(params: params);
     }else if(GetPlatform.isWindows){
@@ -71,7 +71,7 @@ Future<bool> runningExportComic(ExportComicData data) async{
 }
 
 Future<double> calculateCacheSize() async{
-  if(GetPlatform.isAndroid) {
+  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
     var path = await getTemporaryDirectory();
     return compute(getFolderSize, path);
   }else{
@@ -80,7 +80,7 @@ Future<double> calculateCacheSize() async{
 }
 
 Future<void> eraseCache() async{
-  if(GetPlatform.isAndroid) {
+  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
     await MyCacheManager().clear();

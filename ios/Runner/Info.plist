@@ -47,5 +47,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save the images selected by user</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow user to Choose image as his avatar</string>
+	<key>NSFaceIDUsageDescription</key>
+    <string>Protect user's privacy</string>
 </dict>
 </plist>
