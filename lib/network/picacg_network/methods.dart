@@ -797,35 +797,45 @@ class Network{
     var comics = <List<ComicItemBrief>>[[],[]];
     var res = await get("$apiUrl/collections");
     if(res != null){
-      for(int i=0;i<res["data"]["collections"][0]["comics"].length;i++){
-        try {
-          var si = ComicItemBrief(
-              res["data"]["collections"][0]["comics"][i]["title"]??"未知",
-              res["data"]["collections"][0]["comics"][i]["author"]??"未知",
-              res["data"]["collections"][0]["comics"][i]["totalLikes"]??0,
-              res["data"]["collections"][0]["comics"][i]["thumb"]["fileServer"] + "/static/" +
-                  res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
-              res["data"]["collections"][0]["comics"][i]["_id"]
-          );
-          comics[0].add(si);
-        }
-        catch (e) {//出现错误跳过}
+      try {
+        for (int i = 0; i < res["data"]["collections"][0]["comics"].length; i++) {
+          try {
+            var si = ComicItemBrief(
+                res["data"]["collections"][0]["comics"][i]["title"] ?? "未知",
+                res["data"]["collections"][0]["comics"][i]["author"] ?? "未知",
+                res["data"]["collections"][0]["comics"][i]["totalLikes"] ?? 0,
+                res["data"]["collections"][0]["comics"][i]["thumb"]["fileServer"] + "/static/" +
+                    res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
+                res["data"]["collections"][0]["comics"][i]["_id"]
+            );
+            comics[0].add(si);
+          }
+          catch (e) { //出现错误跳过}
+          }
         }
       }
-      for(int i=0;i<res["data"]["collections"][1]["comics"].length;i++){
-        try {
-          var si = ComicItemBrief(
-              res["data"]["collections"][1]["comics"][i]["title"]??"未知",
-              res["data"]["collections"][1]["comics"][i]["author"]??"未知",
-              res["data"]["collections"][1]["comics"][i]["totalLikes"]??0,
-              res["data"]["collections"][1]["comics"][i]["thumb"]["fileServer"] + "/static/" +
-                  res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
-              res["data"]["collections"][1]["comics"][i]["_id"]
-          );
-          comics[1].add(si);
+      catch(e){
+        //跳过
+      }
+      try {
+        for (int i = 0; i < res["data"]["collections"][1]["comics"].length; i++) {
+          try {
+            var si = ComicItemBrief(
+                res["data"]["collections"][1]["comics"][i]["title"] ?? "未知",
+                res["data"]["collections"][1]["comics"][i]["author"] ?? "未知",
+                res["data"]["collections"][1]["comics"][i]["totalLikes"] ?? 0,
+                res["data"]["collections"][1]["comics"][i]["thumb"]["fileServer"] + "/static/" +
+                    res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
+                res["data"]["collections"][1]["comics"][i]["_id"]
+            );
+            comics[1].add(si);
+          }
+          catch (e) { //出现错误跳过}
+          }
         }
-        catch (e) {//出现错误跳过}
-        }
+      }
+      catch(e){
+        //跳过
       }
     }else{
       return null;

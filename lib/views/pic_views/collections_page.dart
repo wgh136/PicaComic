@@ -5,6 +5,8 @@ import 'package:pica_comic/views/widgets/show_network_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
+import '../../base.dart';
+
 class CollectionPageLogic extends GetxController{
   bool isLoading = true;
   var c1 = <ComicItemBrief>[];
@@ -101,8 +103,8 @@ class CollectionsPage extends StatelessWidget {
                       }
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 600,
-                    childAspectRatio: 3.5,
+                    maxCrossAxisExtent: comicTileMaxWidth,
+                    childAspectRatio: comicTileAspectRatio,
                   ),
                 ),
                 const SliverPadding(padding: EdgeInsets.only(top: 20)),
@@ -121,8 +123,8 @@ class CollectionsPage extends StatelessWidget {
                       }
                   ),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 600,
-                    childAspectRatio: 3.5,
+                    maxCrossAxisExtent: comicTileMaxWidth,
+                    childAspectRatio: comicTileAspectRatio,
                   ),
                 ),
                 SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
