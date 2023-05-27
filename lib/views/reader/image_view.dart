@@ -83,7 +83,6 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
 
       return Image(
         filterQuality: FilterQuality.medium,
-        //限制图片大小, 避免图片过大导致内存中缓存图片数量过少
         image: image,
         width: MediaQuery.of(context).size.width,
         fit: BoxFit.fill,
@@ -120,7 +119,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
                   children: [
                     const Icon(Icons.error, color: Colors.white,size: 30,),
                     const SizedBox(height: 10,),
-                    Text(d.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
+                    Text(s.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
                   ],
                 ),
               ),
