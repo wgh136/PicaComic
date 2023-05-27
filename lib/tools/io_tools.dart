@@ -20,25 +20,25 @@ Future<double> getFolderSize(Directory path) async{
   return total;
 }
 
-Future<bool> exportComic(String id) async{
+Future<bool> exportComic(String id, String name) async{
   try{
-    var data = ExportComicData(id, downloadManager.path);
+    name = sanitizeFileName(name);
+    var data = ExportComicData(id, downloadManager.path, name);
     var res = await compute(runningExportComic, data);
     if(! res){
       return false;
     }
     if(GetPlatform.isAndroid || GetPlatform.isIOS) {
-      var params = SaveFileDialogParams(sourceFilePath: '${data.path!}$pathSep$id.zip');
+      var params = SaveFileDialogParams(sourceFilePath: '${data.path!}$pathSep$name.zip');
       await FlutterFileDialog.saveFile(params: params);
     }else if(GetPlatform.isWindows){
       final String? directoryPath = await getDirectoryPath();
       if (directoryPath != null) {
-        var file = File('${data.path!}$pathSep$id.zip');
-        await file.copy("$directoryPath$pathSep$id.zip");
+        var file = File('${data.path!}$pathSep$name.zip');
+        await file.copy("$directoryPath$pathSep$name.zip");
       }
     }
-    Get.back();
-    var file = File('${data.path!}$pathSep$id.zip');
+    var file = File('${data.path!}$pathSep$name.zip');
     file.delete();
     return true;
   }
@@ -50,8 +50,9 @@ Future<bool> exportComic(String id) async{
 class ExportComicData{
   String id;
   String? path;
+  String name;
 
-  ExportComicData(this.id, this.path);
+  ExportComicData(this.id, this.path, this.name);
 }
 
 Future<bool> runningExportComic(ExportComicData data) async{
@@ -59,7 +60,7 @@ Future<bool> runningExportComic(ExportComicData data) async{
   try{
     var path = Directory(data.path! + pathSep + id);
     var encode = ZipFileEncoder();
-    encode.create('${data.path!}$pathSep$id.zip');
+    encode.create('${data.path!}$pathSep${data.name}.zip');
     await encode.addDirectory(path);
     encode.close();
 
@@ -113,4 +114,26 @@ Future<void> copyDirectory(Directory source, Directory destination) async{
       copyDirectory(content.absolute, newDirectory.absolute);
     }
   }
+}
+
+String sanitizeFileName(String fileName) {
+  // 定义不允许出现的特殊字符
+  final invalidChars = RegExp(r'[<>:"/\\|?*]');
+
+  // 替换特殊字符为空格
+  final sanitizedFileName = fileName.replaceAll(invalidChars, ' ');
+
+  // 移除字符串前后的空格
+  var trimmedFileName = sanitizedFileName.trim();
+
+  // 检查文件名长度是否为零
+  if (trimmedFileName.isEmpty) {
+    throw Exception('文件名无效');
+  }
+
+  if(trimmedFileName.length > 50){
+    trimmedFileName = "${trimmedFileName.substring(0, 47)}...";
+  }
+
+  return trimmedFileName;
 }

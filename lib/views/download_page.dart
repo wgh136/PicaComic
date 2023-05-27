@@ -270,7 +270,13 @@ class DownloadPage extends StatelessWidget {
   Future<void> export(DownloadPageLogic logic) async {
     for (int i = 0; i < logic.selected.length; i++) {
       if (logic.selected[i]) {
-        exportComic(logic.comics[i].id);
+        var res = await exportComic(logic.comics[i].id, logic.comics[i].name);
+        Get.back();
+        if(res){
+          showMessage(Get.context, "导出成功");
+        }else{
+          showMessage(Get.context, "导出失败");
+        }
       }
     }
   }
@@ -330,8 +336,14 @@ class DownloadPage extends StatelessWidget {
                         ),
                       ),
                     );
-                    Future<void>.delayed(const Duration(milliseconds: 500), () {
-                      exportComic(logic.comics[index].id);
+                    Future<void>.delayed(const Duration(milliseconds: 500), () async{
+                      var res = await exportComic(logic.comics[index].id, logic.comics[index].name);
+                      Get.back();
+                      if(res){
+                        showMessage(Get.context, "导出成功");
+                      }else{
+                        showMessage(Get.context, "导出失败");
+                      }
                     });
                   },
                 ),
