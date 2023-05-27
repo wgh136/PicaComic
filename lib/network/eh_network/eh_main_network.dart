@@ -157,7 +157,7 @@ class EhNetwork{
     on DioError catch(e){
       if(e.type!=DioErrorType.unknown){
         status = true;
-        message = e.message!;
+        message = e.message??e.toString();
       }
       return null;
     }
