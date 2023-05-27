@@ -34,23 +34,23 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
           splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
           isScrollable: true,
           tabs: [
-            if(appdata.settings[21][0] == "1")
+            if(appdata.settings[24][0] == "1")
               Tab(text: "Picacg".tr, key: const Key("Picacg"),),
-            if(appdata.settings[21][0] == "1")
+            if(appdata.settings[24][1] == "1")
               Tab(text: "Picacg游戏".tr, key: const Key("Picacg游戏"),),
-            if(appdata.settings[21][1] == "1")
+            if(appdata.settings[24][2] == "1")
               Tab(text: "Eh主页".tr, key: const Key("Eh主页"),),
-            if(appdata.settings[21][1] == "1")
+            if(appdata.settings[24][3] == "1")
               Tab(text: "Eh热门".tr, key: const Key("Eh热门"),),
-            if(appdata.settings[21][2] == "1")
+            if(appdata.settings[24][4] == "1")
               Tab(text: "禁漫主页".tr, key: const Key("禁漫主页")),
-            if(appdata.settings[21][2] == "1")
+            if(appdata.settings[24][5] == "1")
               Tab(text: "禁漫最新".tr, key: const Key("禁漫最新")),
-            if(appdata.settings[21][3] == "1")
+            if(appdata.settings[24][6] == "1")
               Tab(text: "Hitomi主页".tr, key: const Key("Hitomi主页")),
-            if(appdata.settings[21][3] == "1")
+            if(appdata.settings[24][7] == "1")
               Tab(text: "Hitomi中文".tr, key: const Key("Hitomi中文")),
-            if(appdata.settings[21][3] == "1")
+            if(appdata.settings[24][8] == "1")
               Tab(text: "Hitomi日文".tr, key: const Key("Hitomi日文")),
           ],
           controller: controller,
@@ -59,23 +59,23 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
           child: TabBarView(
             controller: controller,
             children: [
-              if(appdata.settings[21][0] == "1")
+              if(appdata.settings[24][0] == "1")
                 const HomePage(),
-              if(appdata.settings[21][0] == "1")
+              if(appdata.settings[24][1] == "1")
                 const GamesPage(),
-              if(appdata.settings[21][1] == "1")
+              if(appdata.settings[24][2] == "1")
                 const EhHomePage(),
-              if(appdata.settings[21][1] == "1")
+              if(appdata.settings[24][3] == "1")
                 const EhPopularPage(),
-              if(appdata.settings[21][2] == "1")
+              if(appdata.settings[24][4] == "1")
                 const JmHomePage(),
-              if(appdata.settings[21][2] == "1")
+              if(appdata.settings[24][5] == "1")
                 const JmLatestPage(),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[24][6] == "1")
                 HitomiHomePage(HitomiDataUrls.homePageAll),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[24][7] == "1")
                 HitomiHomePage(HitomiDataUrls.homePageCn),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[24][8] == "1")
                 HitomiHomePage(HitomiDataUrls.homePageJp),
             ],
           ),
@@ -94,8 +94,12 @@ class ExplorePageWithGetControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ExplorePageLogic>(builder: (logic){
-      int pages = int.parse(appdata.settings[21][0])*2 + int.parse(appdata.settings[21][1])*2 +
-          int.parse(appdata.settings[21][2])*2 + int.parse(appdata.settings[21][3])*3;
+      int pages = 0;
+      for(int i=0;i<appdata.settings[24].length;i++){
+        if(appdata.settings[24][i] == "1"){
+          pages++;
+        }
+      }
       return ExplorePage(listener, pages, key: Key(pages.toString()),);
     });
   }

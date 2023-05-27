@@ -238,20 +238,21 @@ class _MainPageState extends State<MainPage> {
             int page = exploreListener.getIndex();
             var logics = [
               () => Get.find<HomePageLogic>().refresh_(),
+              if(appdata.settings[24][1] == "1")
               () => Get.find<GamesPageLogic>().refresh_(),
-              if(appdata.settings[21][1] == "1")
+              if(appdata.settings[24][2] == "1")
                 () => Get.find<EhHomePageLogic>().refresh_(),
-              if(appdata.settings[21][1] == "1")
+              if(appdata.settings[24][3] == "1")
                 () => Get.find<EhPopularPageLogic>().refresh_(),
-              if(appdata.settings[21][2] == "1")
+              if(appdata.settings[24][4] == "1")
                 () => Get.find<JmHomePageLogic>().refresh_(),
-              if(appdata.settings[21][2] == "1")
+              if(appdata.settings[24][5] == "1")
                 () => Get.find<JmLatestPageLogic>().refresh_(),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[24][6] == "1")
                 () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageAll).refresh_(),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[24][7] == "1")
                 () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageCn).refresh_(),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[24][8] == "1")
                 () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageJp).refresh_(),
             ];
             logics[page]();

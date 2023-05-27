@@ -277,6 +277,7 @@ class ComicSourceSetting extends StatefulWidget {
 class _ComicSourceSettingState extends State<ComicSourceSetting> {
   @override
   void dispose() {
+    appdata.updateSettings();
     Future.delayed(const Duration(milliseconds: 500),(){
       try {
         Get.find<CategoryPageLogic>().update();
@@ -395,6 +396,75 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
           ),
         )
       ],
+    );
+  }
+}
+
+void setExplorePages(BuildContext context){
+  showDialog(context: context, builder: (logic)=>const SimpleDialog(
+    title: Text("设置探索页面"),
+    children: [
+      SetExplorePages()
+    ],
+  ));
+}
+
+class SetExplorePages extends StatefulWidget {
+  const SetExplorePages({Key? key}) : super(key: key);
+
+  @override
+  State<SetExplorePages> createState() => _SetExplorePagesState();
+}
+
+class _SetExplorePagesState extends State<SetExplorePages> {
+  @override
+  void dispose() {
+    appdata.updateSettings();
+    Future.delayed(const Duration(milliseconds: 500),(){
+      try {
+        Get.find<ExplorePageLogic>().update();
+      }
+      catch(e){
+        //如果在test_network_page进行此操作将产生错误
+      }
+    });
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var titles = [
+      "Picacg".tr,
+      "Picacg游戏".tr,
+      "Eh主页".tr,
+      "Eh热门".tr,
+      "禁漫主页".tr,
+      "禁漫最新".tr,
+      "Hitomi主页".tr,
+      "Hitomi中文".tr,
+      "Hitomi日文".tr
+    ];
+    return SizedBox(
+      width: 400,
+      child: Column(
+        children: [
+          for(int i = 0; i < 9; i++)
+            CheckboxListTile(
+              value: appdata.settings[24][i]=="1",
+              onChanged: (b){
+                setState(() {
+                  if(b!){
+                    appdata.settings[24] = appdata.settings[24].replaceRange(i, i+1, '1');
+                  }else{
+                    appdata.settings[24] = appdata.settings[24].replaceRange(i, i+1, '0');
+                  }
+                });
+              },
+              enabled: i!=0,
+              title: Text(titles[i]),
+            ),
+        ],
+      ),
     );
   }
 }

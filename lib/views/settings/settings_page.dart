@@ -83,9 +83,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: Icon(Icons.source, color: Theme.of(context).colorScheme.secondary),
-                      title:  Text("启用的漫画源".tr),
+                      title:  Text("启用的收藏夹, 搜索目标和分类".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => setComicSource(context),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.pages, color: Theme.of(context).colorScheme.secondary),
+                      title:  Text("显示的探索页面".tr),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => setExplorePages(context),
                     )
                   ],
                 ),
