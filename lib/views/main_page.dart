@@ -46,7 +46,7 @@ class _MainPageState extends State<MainPage> {
   var updateFlag = true;
   var downloadManagerFlag = true;
 
-  int i = 0;//页面
+  int i = int.parse(appdata.settings[23]);//页面
   TabListener exploreListener = TabListener();
   TabListener categoriesListener = TabListener();
 

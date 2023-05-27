@@ -68,6 +68,20 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                       ),
                     ListTile(
+                      leading: Icon(Icons.article_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("初始页面".tr),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[23]),
+                        whenChange: (i){
+                          appdata.settings[23] = i.toString();
+                          appdata.updateSettings();
+                        },
+                        values: const ["我", "探索", "分类"],
+                        inPopUpWidget: widget.popUp,
+                      ),
+                    ),
+                    ListTile(
                       leading: Icon(Icons.source, color: Theme.of(context).colorScheme.secondary),
                       title:  Text("启用的漫画源".tr),
                       trailing: const Icon(Icons.arrow_right),
