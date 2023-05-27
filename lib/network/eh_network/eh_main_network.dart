@@ -497,7 +497,7 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
-    if(res == null || res[0] != "<"){
+    if(res == null || res.isEmpty || res[0] != "<"){
       return false;
     }else {
       return true;
