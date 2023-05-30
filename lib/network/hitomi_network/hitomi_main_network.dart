@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
+import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import '../../base.dart';
 import '../../tools/proxy.dart';
@@ -26,19 +27,20 @@ class HiNetwork{
   final baseUrl = "https://hitomi.la/";
 
   ///基本的get请求
-  Future<Res<String>> get(String url) async{
+  Future<Res<String>> get(String url, {CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
     await getProxy();
     try{
-      var dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 5),
-        sendTimeout: const Duration(seconds: 5),
-      ));
-      dio.options.headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-      };
-      var res = await dio.get(url);
-      return Res(res.data.toString());
+      var options = BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+          sendTimeout: const Duration(seconds: 5),
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+          }
+      );
+      var dio = CachedNetwork();
+      var res = await dio.get(url, options, expiredTime: expiredTime);
+      return Res(res.data);
     }
     catch(e){
       return Res(null, errorMessage: e.toString()=="null"?"未知错误":e.toString());

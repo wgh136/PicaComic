@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/picacg_network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
@@ -52,7 +53,8 @@ class Network{
     }
   }
 
-  Future<Map<String, dynamic>?> get(String url) async{
+  Future<Map<String, dynamic>?> get(String url,
+      {CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
     status = false;
     if(appdata.token == ""){
       await Future.delayed(const Duration(milliseconds: 500));
@@ -60,17 +62,18 @@ class Network{
       message = "未登录";
       return null;
     }
-    var dio = await request();
-    dio.options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
+    var dio = CachedNetwork();
+    var options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
+    options.validateStatus = (i) => i==200||i==400||i==401;
 
     try{
-      var res = await dio.get(url,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
+      var res = await dio.get(url,options, expiredTime: expiredTime);
       if(res.statusCode == 200){
-        var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+        var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
         return jsonResponse;
       }else if(res.statusCode == 400){
         status = true;
-        var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+        var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
         message = jsonResponse["message"];
         return null;
       }else if(res.statusCode == 401){
@@ -96,9 +99,7 @@ class Network{
       }
       return null;
     }
-    catch(e){
-      return null;
-    }
+
   }
 
   Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
@@ -186,7 +187,7 @@ class Network{
 
   ///获取用户信息
   Future<Profile?> getProfile() async {
-    var res = await get("$apiUrl/users/profile");
+    var res = await get("$apiUrl/users/profile", expiredTime: CacheExpiredTime.no);
     if(res != null){
       res = res["data"]["user"];
       String url = "";
@@ -204,7 +205,7 @@ class Network{
 
   ///获取热搜词
   Future<KeyWords?> getKeyWords() async{
-    var res = await get("$apiUrl/keywords");
+    var res = await get("$apiUrl/keywords", expiredTime: CacheExpiredTime.no);
     if(res != null){
       var k = KeyWords();
       for(int i=0;i<(res["data"]["keywords"]??[]).length;i++){
@@ -423,7 +424,7 @@ class Network{
 
   Future<void> loadMoreCommends(Comments c, {String type="comics"}) async{
     if(c.loaded != c.pages){
-      var res = await get("$apiUrl/$type/${c.id}/comments?page=${c.loaded+1}");
+      var res = await get("$apiUrl/$type/${c.id}/comments?page=${c.loaded+1}", expiredTime: CacheExpiredTime.no);
       if(res!=null){
         c.pages = res["data"]["comments"]["pages"];
         for(int i=0;i<res["data"]["comments"]["docs"].length;i++){
@@ -482,7 +483,7 @@ class Network{
 
   Future<void> loadMoreFavorites(Favorites f) async{
     if(f.loaded<f.pages){
-      var res = await get("$apiUrl/users/favourite?s=dd&page=${f.loaded+1}");
+      var res = await get("$apiUrl/users/favourite?s=dd&page=${f.loaded+1}",expiredTime: CacheExpiredTime.no);
       if(res != null) {
         f.loaded++;
         f.pages = res["data"]["comics"]["pages"];
@@ -526,7 +527,7 @@ class Network{
 
   Future<List<ComicItemBrief>> getRandomComics() async {
     var comics = <ComicItemBrief>[];
-    var res = await get("$apiUrl/comics/random");
+    var res = await get("$apiUrl/comics/random", expiredTime: CacheExpiredTime.no);
     if (res != null) {
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
@@ -598,7 +599,7 @@ class Network{
       D7 过去7天
       D30 过去30天
      */
-    var res = await get("$apiUrl/comics/leaderboard?tt=$time&ct=VC");
+    var res = await get("$apiUrl/comics/leaderboard?tt=$time&ct=VC", expiredTime: CacheExpiredTime.no);
     var comics = <ComicItemBrief>[];
     if(res!=null){
       for (int i = 0; i < res["data"]["comics"].length; i++) {
@@ -702,7 +703,7 @@ class Network{
 
   Future<void> getMoreReply(Reply reply) async{
     if(reply.loaded==reply.total) return;
-    var res = await get("$apiUrl/comments/${reply.id}/childrens?page=${reply.loaded+1}"); //哔咔的英语水平有点烂
+    var res = await get("$apiUrl/comments/${reply.id}/childrens?page=${reply.loaded+1}",expiredTime: CacheExpiredTime.no); //哔咔的英语水平有点烂
     if(res!=null){
       reply.total = res["data"]["comments"]["pages"];
       for(int i=0;i<res["data"]["comments"]["docs"].length;i++){
@@ -795,7 +796,7 @@ class Network{
 
   Future<List<List<ComicItemBrief>>?> getCollection() async{
     var comics = <List<ComicItemBrief>>[[],[]];
-    var res = await get("$apiUrl/collections");
+    var res = await get("$apiUrl/collections", expiredTime: CacheExpiredTime.no);
     if(res != null){
       try {
         for (int i = 0; i < res["data"]["collections"][0]["comics"].length; i++) {
@@ -845,7 +846,7 @@ class Network{
 
   Future<void> getMoreGames(Games games) async{
     if(games.total==games.loaded) return;
-    var res = await get("$apiUrl/games?page=${games.loaded+1}");
+    var res = await get("$apiUrl/games?page=${games.loaded+1}", expiredTime: CacheExpiredTime.no);
     if(res!=null){
       games.total = res["data"]["games"]["pages"];
       for(int i=0;i<res["data"]["games"]["docs"].length;i++){
@@ -922,7 +923,7 @@ class Network{
 
   Future<void> getMoreCategoryComics(SearchResult s) async{
     if(s.loaded!=s.pages){
-      var res  = await get('$apiUrl/comics?page=${s.loaded+1}&c=${Uri.encodeComponent(s.keyWord)}&s=${s.sort}');
+      var res  = await get('$apiUrl/comics?page=${s.loaded+1}&c=${Uri.encodeComponent(s.keyWord)}&s=${s.sort}', expiredTime: CacheExpiredTime.no);
       if(res!=null) {
         s.loaded++;
         s.pages = res["data"]["comics"]["pages"];
@@ -973,7 +974,7 @@ class Network{
 
   ///获取最新漫画
   Future<Res<List<ComicItemBrief>>> getLatest(int page) async{
-    var res = await get("$apiUrl/comics?page=$page&s=dd");
+    var res = await get("$apiUrl/comics?page=$page&s=dd", expiredTime: CacheExpiredTime.no);
     if(res == null){
       return Res(null, errorMessage: status?message:"网络错误");
     }else{

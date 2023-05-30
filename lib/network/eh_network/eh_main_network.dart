@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:pica_comic/network/cache_network.dart';
 
 class EhNetwork{
   factory EhNetwork() => cache==null?(cache=EhNetwork.create()):cache!;
@@ -75,7 +76,8 @@ class EhNetwork{
   }
 
   ///从url获取数据, 在请求时设置了cookie
-  Future<String?> request(String url, {Map<String,String>? headers,}) async{
+  Future<String?> request(String url,
+      {Map<String,String>? headers, CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
     if(appdata.ehId != "") {
       await cookieJar.saveFromResponse(Uri.parse(url), [
         Cookie("nw", "1"),
@@ -88,28 +90,30 @@ class EhNetwork{
     status = false; //重置
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
-      connectTimeout: const Duration(seconds: 8),
-      sendTimeout: const Duration(seconds: 8),
-      receiveTimeout: const Duration(seconds: 8),
-      followRedirects: true,
-      headers: {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-        ...?headers
-      }
+        connectTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        followRedirects: true,
+        headers: {
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          ...?headers
+        }
     );
-
-    var dio =  Dio(options)
-      ..interceptors.add(LogInterceptor());
-    dio.interceptors.add(CookieManager(cookieJar));
+    var dio = CachedNetwork();
     try {
-      var data = (await dio.get(url)).data;
+      var data = await dio.get(
+          url,
+          options,
+          cookieJar: cookieJar,
+          expiredTime: expiredTime
+        );
       await getCookies();//确保cookie处于最新状态
-      if((data as String).substring(0,4) == "Your"){
+      if((data.data).substring(0,4) == "Your"){
         status = true;
         message = "Your IP address has been temporarily banned";
         return null;
       }
-      return data;
+      return data.data;
     }
     on DioError catch(e){
       sendNetworkLog(url, e.toString());
@@ -216,7 +220,7 @@ class EhNetwork{
       "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
       "accept-encoding": "gzip, deflate, br",
       "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-    });
+    },expiredTime: CacheExpiredTime.no);
     if(res == null){
       return false;
     }
@@ -266,7 +270,7 @@ class EhNetwork{
     if(leaderboard){
       t++;
     }
-    var res = await request(url);
+    var res = await request(url, expiredTime: CacheExpiredTime.no);
     if(res==null) return null;
     var document = parse(res);
     var items = document.querySelectorAll("table.itg.gltc > tbody > tr");
@@ -328,7 +332,8 @@ class EhNetwork{
   Future<void> getNextPageGalleries(Galleries galleries) async{
     if(galleries.next==null)  return;
     var next = await getGalleries(galleries.next!);
-    galleries.galleries.addAll(next!.galleries);
+    if(next == null)  return;
+    galleries.galleries.addAll(next.galleries);
     galleries.next = next.next;
   }
 
