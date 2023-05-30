@@ -5,6 +5,7 @@ import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/picacg_network/request.dart'  if(dart.library.html) 'package:pica_comic/network/request_web.dart';
+import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -114,6 +115,7 @@ class Network{
     var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     try{
+      await setNetworkProxy();
       var res = await dio.post(url,data:data,options: Options(validateStatus: (i){return i==200||i==400||i==401;}));
       if(res.statusCode == 200){
         var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;

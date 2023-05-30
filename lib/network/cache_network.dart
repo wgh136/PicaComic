@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/tools/proxy.dart';
 
 ///缓存网络请求, 仅提供get方法, 其它的没有意义
 class CachedNetwork{
@@ -20,6 +21,7 @@ class CachedNetwork{
 
   Future<CachedNetworkRes<String>> get(String url, BaseOptions options,
       {CacheExpiredTime expiredTime=CacheExpiredTime.short, CookieJar? cookieJar}) async{
+    await setNetworkProxy();
     await init();
     var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
     if(fileName.length > 20){
@@ -55,6 +57,7 @@ class CachedNetwork{
 
   Future<CachedNetworkRes<String>> getJm(String url, BaseOptions options, int time,
       {CacheExpiredTime expiredTime=CacheExpiredTime.short, CookieJar? cookieJar}) async{
+    await setNetworkProxy();
     await init();
     var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
     if(fileName.length > 20){

@@ -7,8 +7,8 @@ import '../base.dart';
 ///获取系统设置中的代理, 仅windows,安卓有效
 Future<String?> getProxy() async{
   //手动设置的代理
+  if(appdata.settings[8].removeAllWhitespace=="") return null;
   if(appdata.settings[8]!="0")  return appdata.settings[8];
-  if(appdata.settings[8]=="") return null;
   //对于安卓, 将获取WIFI设置中的代理
   //Web端流量走系统代理且无法进行设置
   if(GetPlatform.isWeb) return null;

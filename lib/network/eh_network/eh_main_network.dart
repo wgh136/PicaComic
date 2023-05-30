@@ -88,7 +88,6 @@ class EhNetwork{
     ]);
     }
     status = false; //重置
-    await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         sendTimeout: const Duration(seconds: 8),

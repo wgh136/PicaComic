@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/tools/proxy.dart';
 import 'headers.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
@@ -114,6 +115,7 @@ class JmNetwork {
   ///post请求, 与get请求的一个显著区别是请求头中的Content-Type
   Future<Res<dynamic>> post(String url, String data) async {
     try {
+      await setNetworkProxy();
       int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       var dio = Dio(getHeader(time, post: true))..interceptors.add(LogInterceptor());
       dio.interceptors.add(CookieManager(cookieJar));

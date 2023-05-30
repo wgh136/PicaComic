@@ -28,7 +28,6 @@ class HiNetwork{
 
   ///基本的get请求
   Future<Res<String>> get(String url, {CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
-    await getProxy();
     try{
       var options = BaseOptions(
           connectTimeout: const Duration(seconds: 5),
