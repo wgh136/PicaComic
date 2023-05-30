@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
+import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
@@ -20,6 +21,7 @@ bool isLogged = false;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  startClearCache();
   appdata.readData().then((b) async {
     isLogged = b;
     if (b) {
