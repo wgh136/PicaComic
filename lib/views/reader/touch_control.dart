@@ -124,7 +124,7 @@ class ScrollManager{
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
       }
-      await Future.delayed(const Duration(milliseconds: 12));
+      await Future.delayed(const Duration(milliseconds: 10));
     }
     runningRelease = false;
   }
