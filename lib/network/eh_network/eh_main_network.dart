@@ -212,29 +212,34 @@ class EhNetwork{
 
   ///获取用户名, 同时用于检测cookie是否有效
   Future<bool> getUserName() async{
-    await cookieJar.deleteAll();
-    cookiesStr = "";
-    var res = await request("https://forums.e-hentai.org/",headers: {
-      "referer": "https://forums.e-hentai.org/index.php?",
-      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "accept-encoding": "gzip, deflate, br",
-      "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-    },expiredTime: CacheExpiredTime.no);
-    if(res.error){
+    try {
+      await cookieJar.deleteAll();
+      cookiesStr = "";
+      var res = await request("https://forums.e-hentai.org/", headers: {
+        "referer": "https://forums.e-hentai.org/index.php?",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+      }, expiredTime: CacheExpiredTime.no);
+      if (res.error) {
+        return false;
+      }
+
+      var html = parse(res.data);
+      var name = html.querySelector("div#userlinks > p.home > b > a");
+      if (name != null) {
+        appdata.ehAccount = name.text;
+        appdata.writeData();
+      } else {
+        appdata.ehId = "";
+        appdata.ehPassHash = "";
+        appdata.igneous = "";
+      }
+      return name != null;
+    }
+    catch(e){
       return false;
     }
-
-    var html = parse(res.data);
-    var name = html.querySelector("div#userlinks > p.home > b > a");
-    if (name != null) {
-      appdata.ehAccount = name.text;
-      appdata.writeData();
-    }else{
-      appdata.ehId = "";
-      appdata.ehPassHash = "";
-      appdata.igneous = "";
-    }
-    return name != null;
   }
 
   ///解析星星的html元素的位置属性, 返回评分
@@ -273,60 +278,76 @@ class EhNetwork{
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }
-    var document = parse(res);
-    var items = document.querySelectorAll("table.itg.gltc > tbody > tr");
-    var galleries = <EhGalleryBrief>[];
-    for(int i = 1;i<items.length;i++){
-      //items的第一个为表格的标题, 忽略
-      try{
-        var type = items[i].children[0+t].children[0].text;
-        var time = items[i].children[1+t].children[2].children[0].text;
-        var stars = getStarsFromPosition(items[i].children[1+t].children[2].children[1].attributes["style"]!);
-        var cover = items[i].children[1+t].children[1].children[0].children[0].attributes["src"];
-        if(cover![0]=='d'){
-          cover = items[i].children[1+t].children[1].children[0].children[0].attributes["data-src"];
-        }
-        var title = items[i].children[2+t].children[0].children[0].text;
-        var link = items[i].children[2+t].children[0].attributes["href"];
-        String uploader = "";
-        try{
-          uploader = items[i].children[3 + t].children[0].children[0].text;
-        }
-        catch(e){
-          //收藏夹页没有uploader
-        }
-        var tags = <String>[];
-        for(var node in items[i].children[2+t].children[0].children[1].children){
-          tags.add(node.attributes["title"]!);
-        }
-        //检查屏蔽词
-        for(var word in appdata.blockingKeyword){
-          if(title.contains(word)){
-            continue;
+    try {
+      var document = parse(res.data);
+      var items = document.querySelectorAll("table.itg.gltc > tbody > tr");
+      var galleries = <EhGalleryBrief>[];
+      for (int i = 1; i < items.length; i++) {
+        //items的第一个为表格的标题, 忽略
+        try {
+          var type = items[i].children[0 + t].children[0].text;
+          var time = items[i].children[1 + t].children[2].children[0].text;
+          var stars = getStarsFromPosition(
+              items[i].children[1 + t].children[2].children[1].attributes["style"]!);
+          var cover = items[i].children[1 + t].children[1].children[0].children[0]
+              .attributes["src"];
+          if (cover![0] == 'd') {
+            cover =
+            items[i].children[1 + t].children[1].children[0].children[0].attributes["data-src"];
           }
-          if(type == word){
-            continue;
+          var title = items[i].children[2 + t].children[0].children[0].text;
+          var link = items[i].children[2 + t].children[0].attributes["href"];
+          String uploader = "";
+          try {
+            uploader = items[i].children[3 + t].children[0].children[0].text;
           }
-          if(tags.contains(word)){
-            continue;
+          catch (e) {
+            //收藏夹页没有uploader
           }
+          var tags = <String>[];
+          for (var node in items[i].children[2 + t].children[0].children[1].children) {
+            tags.add(node.attributes["title"]!);
+          }
+          //检查屏蔽词
+          for (var word in appdata.blockingKeyword) {
+            if (title.contains(word)) {
+              continue;
+            }
+            if (type == word) {
+              continue;
+            }
+            if (tags.contains(word)) {
+              continue;
+            }
+          }
+          galleries.add(EhGalleryBrief(
+              title,
+              type,
+              time,
+              uploader,
+              cover!,
+              stars,
+              link!,
+              tags));
         }
-        galleries.add(EhGalleryBrief(title, type, time, uploader, cover!, stars, link!, tags));
+        catch (e) {
+          //表格中存在空行, 我也不知道为什么这样设计
+          continue;
+        }
       }
-      catch(e){
-        //表格中存在空行, 我也不知道为什么这样设计
-        continue;
+      var g = Galleries();
+      var nextButton = document.getElementById("dnext");
+      if (nextButton == null) {
+        g.next = null;
+      } else {
+        g.next = nextButton.attributes["href"];
       }
+      g.galleries = galleries;
+      return Res(g);
     }
-    var g = Galleries();
-    var nextButton = document.getElementById("dnext");
-    if(nextButton == null){
-      g.next = null;
-    }else{
-      g.next = nextButton.attributes["href"];
+    catch(e){
+      return Res(null, errorMessage: "解析失败: $e");
     }
-    g.galleries = galleries;
-    return Res(g);
   }
 
   ///获取画廊的下一页
@@ -345,7 +366,7 @@ class EhNetwork{
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
-      var document = parse(res);
+      var document = parse(res.data);
       //tags
       var tags = <String, List<String>>{};
       var tagLists = document.querySelectorAll("div#taglist > table > tbody > tr");
@@ -538,7 +559,7 @@ class EhNetwork{
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }
-    var document = parse(res);
+    var document = parse(res.data);
     if(document.querySelector("p.br") != null){
       return Res(null,errorMessage: document.querySelector("p.br")!.text);
     }
