@@ -80,6 +80,9 @@ class ComicReadingPageLogic extends GetxController{
       controller.jumpToPage(urls.length);
       showMessage(Get.context, "已经是最后一章了".tr);
       return;
+    }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+      showMessage(Get.context, "已经是最后一章了".tr);
+      return;
     }
     order += 1;
     urls.clear();
@@ -100,6 +103,9 @@ class ComicReadingPageLogic extends GetxController{
       return;
     }else if(order == 1 && type == ReadingType.jm){
       controller.jumpToPage(1);
+      showMessage(Get.context, "已经是第一章了".tr);
+      return;
+    }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
       showMessage(Get.context, "已经是第一章了".tr);
       return;
     }
