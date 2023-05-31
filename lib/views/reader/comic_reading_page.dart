@@ -440,12 +440,14 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) async{
+    int? epLength;
     try {
       if (downloadManager.downloaded.contains(data.target)) {
         var downloadedItem = await downloadManager.getComicFromId(data.target);
         data.downloadedEps = downloadedItem.downloadedChapters;
         if (downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order - 1)) {
           comicReadingPageLogic.downloaded = true;
+          epLength = await downloadManager.getEpLength(data.target, comicReadingPageLogic.order);
         } else {
           comicReadingPageLogic.downloaded = false;
         }
@@ -454,6 +456,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     }
     catch(e){
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.index = 1;
@@ -484,13 +487,11 @@ class ComicReadingPage extends StatelessWidget {
         ));
       }
     }
-    if (comicReadingPageLogic.downloaded) {
-      downloadManager.getEpLength(data.target, comicReadingPageLogic.order).then((i) {
-        for (int p = 0; p < i; p++) {
-          comicReadingPageLogic.urls.add("");
-        }
-        comicReadingPageLogic.change();
-      });
+    if (comicReadingPageLogic.downloaded && epLength != null) {
+      for (int p = 0; p < epLength; p++) {
+        comicReadingPageLogic.urls.add("");
+      }
+      comicReadingPageLogic.change();
     } else {
       network.getComicContent(data.target, comicReadingPageLogic.order).then((l) {
         comicReadingPageLogic.urls = l;
@@ -515,6 +516,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     }
     catch(e){
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       logic.downloaded = false;
     }
     info.current.value++;
@@ -532,12 +534,14 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
+    int? epLength;
     try {
       if (downloadManager.downloadedJmComics.contains("jm$target")) {
         var downloadedItem = await downloadManager.getJmComicFormId("jm$target");
         if (downloadedItem.downloadedChapters.contains(comicReadingPageLogic.order - 1)) {
           comicReadingPageLogic.downloaded = true;
           data.downloadedEps = downloadedItem.downloadedChapters;
+          epLength = await downloadManager.getEpLength("jm$target", comicReadingPageLogic.order);
         } else {
           comicReadingPageLogic.downloaded = false;
         }
@@ -546,6 +550,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     }
     catch(e){
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.index = 1;
@@ -578,13 +583,11 @@ class ComicReadingPage extends StatelessWidget {
         ));
       }
     }
-    if (comicReadingPageLogic.downloaded) {
-      downloadManager.getEpLength("jm$target", comicReadingPageLogic.order).then((i) {
-        for (int p = 0; p < i; p++) {
-          comicReadingPageLogic.urls.add("");
-        }
-        comicReadingPageLogic.change();
-      });
+    if (comicReadingPageLogic.downloaded && epLength!=null) {
+      for (int p = 0; p < epLength; p++) {
+        comicReadingPageLogic.urls.add("");
+      }
+      comicReadingPageLogic.change();
       return;
     }
     var res = await jmNetwork.getChapter(data.target);
