@@ -30,7 +30,9 @@ class ReadingPageData {
   String? message;
   String target;
   List<int> downloadedEps = [];
-  ReadingPageData(this.initialPage, this.target);
+  ReadingType type;
+  List<String> eps;
+  ReadingPageData(this.initialPage, this.target, this.type, this.eps);
 }
 
 ///阅读器, 同时支持picacg和ehentai
@@ -62,7 +64,8 @@ class ComicReadingPage extends StatelessWidget {
   final ReadingType type;
 
   ///一些会发生变更的信息, 全放logic里面会很乱
-  late final ReadingPageData data = ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps[order-1]:target);
+  late final ReadingPageData data =
+      ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps[order-1]:target, type, eps);
 
   ///阅读Hitomi画廊时使用的图片数据
   ///

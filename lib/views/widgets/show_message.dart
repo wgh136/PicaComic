@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 ///显示消息
-void showMessage(context, String message, {int time=2, bool useGet=true}){
+void showMessage(context, String message, {int time=2, bool useGet=true, Widget? action}){
   Get.closeCurrentSnackbar();
   if(useGet) {
     Get.showSnackbar(GetSnackBar(
@@ -13,6 +13,7 @@ void showMessage(context, String message, {int time=2, bool useGet=true}){
       animationDuration: const Duration(microseconds: 400),
       borderRadius: 10,
       duration: Duration(seconds: time),
+      mainButton: action,
     ));
   }else{
     var padding = MediaQuery.of(context).size.width - 350;
