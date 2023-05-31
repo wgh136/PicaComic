@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
@@ -131,10 +131,11 @@ class CollectionsPage extends StatelessWidget {
               ],
             );
           }else{
-            return showNetworkError(context, () {
-              logic.status = true;
-              logic.change();
-            });
+            return showNetworkError(network.status?network.message:"网络错误".tr,
+                    () {
+                  logic.status = true;
+                  logic.change();
+                }, context);
           }
         },
       ),

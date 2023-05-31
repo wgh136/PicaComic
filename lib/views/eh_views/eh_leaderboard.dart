@@ -59,8 +59,8 @@ class OneEhLeaderboardPage extends StatelessWidget{
     return GetBuilder<EhLeaderboardLogic>(builder: (logic){
       if(logic.leaderboards[index].galleries.isEmpty&&!logic.networkStatus[index]){
         EhNetwork().getLeaderboard(logic.leaderboards[index].type).then((board){
-          if(board!=null){
-            logic.leaderboards[index] = board;
+          if(board.success){
+            logic.leaderboards[index] = board.data;
             logic.update();
           }else{
             logic.networkStatus[index] = true;
@@ -102,7 +102,7 @@ class OneEhLeaderboardPage extends StatelessWidget{
                         children: [
                           const Icon(Icons.error_outline,size: 25,),
                           const SizedBox(width: 2,),
-                          Text(EhNetwork().status?EhNetwork().message:"网络错误".tr)
+                          Text("网络错误".tr)
                         ],
                       ),
                     ),

@@ -13,6 +13,7 @@ class EhSearchPageLogic extends GetxController{
   var controller = TextEditingController();
   bool isLoading = true;
   bool firstSearch = true;
+  String? message;
 
   void change(){
     isLoading = !isLoading;
@@ -20,8 +21,15 @@ class EhSearchPageLogic extends GetxController{
   }
 
   void search() async{
-    galleries = await EhNetwork().search(controller.text);
-    change();
+    message = null;
+    var res = await EhNetwork().search(controller.text);
+    if(res.error){
+      message = res.errorMessage;
+    }else{
+      galleries = res.data;
+    }
+    isLoading = false;
+    update();
   }
 }
 
@@ -111,7 +119,7 @@ class EhSearchPage extends StatelessWidget {
         return SliverToBoxAdapter(
           child: ListTile(
             leading: const Icon(Icons.error_outline),
-            title: Text("没有任何结果".tr),
+            title: Text(logic.message??"网络错误".tr),
           ),
         );
       }

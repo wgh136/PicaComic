@@ -11,6 +11,7 @@ import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/network/res.dart';
 
 class EhNetwork{
   factory EhNetwork() => cache==null?(cache=EhNetwork.create()):cache!;
@@ -41,12 +42,6 @@ class EhNetwork{
   ///给图片加载使用的cookie
   String cookiesStr = "";
 
-  ///给出当前请求的状态
-  bool status = false;
-
-  ///输出错误信息
-  String message = "";
-
   ///更新画廊站点
   void updateUrl(){
     _ehBaseUrl = appdata.settings[20]=="0"?"https://e-hentai.org":"https://exhentai.org";
@@ -76,7 +71,7 @@ class EhNetwork{
   }
 
   ///从url获取数据, 在请求时设置了cookie
-  Future<String?> request(String url,
+  Future<Res<String>> request(String url,
       {Map<String,String>? headers, CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
     if(appdata.ehId != "") {
       await cookieJar.saveFromResponse(Uri.parse(url), [
@@ -87,7 +82,6 @@ class EhNetwork{
           Cookie("igneous", appdata.igneous),
     ]);
     }
-    status = false; //重置
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         sendTimeout: const Duration(seconds: 8),
@@ -108,36 +102,31 @@ class EhNetwork{
         );
       await getCookies();//确保cookie处于最新状态
       if((data.data).substring(0,4) == "Your"){
-        status = true;
-        message = "Your IP address has been temporarily banned";
-        return null;
+        return Res(null, errorMessage: "Your IP address has been temporarily banned");
       }
-      return data.data;
+      return Res(data.data);
     }
     on DioError catch(e){
+      String? message;
       sendNetworkLog(url, e.toString());
       if(e.type!=DioErrorType.unknown){
-        status = true;
         message = e.message??"未知".tr;
       }else{
-        status = true;
-        message = e.toString().split("\n")[1];
+        message = e.toString().split("\n").elementAtOrNull(1);
       }
-      return null;
+      return Res(null, errorMessage: message??"网络错误");
     }
     catch(e){
-      sendNetworkLog(url, e.toString());
+      String? message;
       if(e.toString() != "null"){
-        status = true;
         message = e.toString();
       }
-      return null;
+      return Res(null, errorMessage: message??"网络错误");
     }
   }
 
   ///eh APi请求
-  Future<String?> apiRequest(Map<String, dynamic> data, {Map<String,String>? headers,}) async{
-    status = false; //重置
+  Future<Res<String>> apiRequest(Map<String, dynamic> data, {Map<String,String>? headers,}) async{
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -154,22 +143,28 @@ class EhNetwork{
       ..interceptors.add(LogInterceptor());
 
     try{
-      var res = await dio.post(ehApiUrl, data: data);
-      return res.data;
+      var res = await dio.post<String>(ehApiUrl, data: data);
+      return Res(res.data);
     }
     on DioError catch(e){
+      String? message;
       if(e.type!=DioErrorType.unknown){
-        status = true;
-        message = e.message??e.toString();
+        message = e.message??"未知".tr;
+      }else{
+        message = e.toString().split("\n").elementAtOrNull(1);
       }
-      return null;
+      return Res(null, errorMessage: message??"网络错误");
     }
     catch(e){
-      return null;
+      String? message;
+      if(e.toString() != "null"){
+        message = e.toString();
+      }
+      return Res(null, errorMessage: message??"网络错误");
     }
   }
 
-  Future<String?> post(String url, dynamic data, {Map<String,String>? headers,}) async{
+  Future<Res<String>> post(String url, dynamic data, {Map<String,String>? headers,}) async{
     await cookieJar.saveFromResponse(Uri.parse(url), [
       Cookie("nw", "1"),
       Cookie("ipb_member_id", appdata.ehId),
@@ -177,7 +172,6 @@ class EhNetwork{
       if(appdata.igneous != "")
         Cookie("igneous", appdata.igneous),
     ]);
-    status = false; //重置
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -195,18 +189,24 @@ class EhNetwork{
       ..interceptors.add(LogInterceptor());
     dio.interceptors.add(CookieManager(cookieJar));
     try{
-      var res = await dio.post(url, data: data);
-      return res.data??"";
+      var res = await dio.post<String>(url, data: data);
+      return Res(res.data);
     }
     on DioError catch(e){
+      String? message;
       if(e.type!=DioErrorType.unknown){
-        status = true;
-        message = e.message!;
+        message = e.message??"未知".tr;
+      }else{
+        message = e.toString().split("\n").elementAtOrNull(1);
       }
-      return null;
+      return Res(null, errorMessage: message??"网络错误");
     }
     catch(e){
-      return null;
+      String? message;
+      if(e.toString() != "null"){
+        message = e.toString();
+      }
+      return Res(null, errorMessage: message??"网络错误");
     }
   }
 
@@ -220,11 +220,11 @@ class EhNetwork{
       "accept-encoding": "gzip, deflate, br",
       "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
     },expiredTime: CacheExpiredTime.no);
-    if(res == null){
+    if(res.error){
       return false;
     }
 
-    var html = parse(res);
+    var html = parse(res.data);
     var name = html.querySelector("div#userlinks > p.home > b > a");
     if (name != null) {
       appdata.ehAccount = name.text;
@@ -262,7 +262,7 @@ class EhNetwork{
   }
 
   ///从e-hentai链接中获取当前页面的所有画廊
-  Future<Galleries?> getGalleries(String url,{bool leaderboard = false}) async{
+  Future<Res<Galleries>> getGalleries(String url,{bool leaderboard = false}) async{
     //从一个链接中获取所有画廊, 同时获得下一页的链接
     //leaderboard比正常的表格多了第一列
     int t = 0;
@@ -270,7 +270,9 @@ class EhNetwork{
       t++;
     }
     var res = await request(url, expiredTime: CacheExpiredTime.no);
-    if(res==null) return null;
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
     var document = parse(res);
     var items = document.querySelectorAll("table.itg.gltc > tbody > tr");
     var galleries = <EhGalleryBrief>[];
@@ -324,23 +326,25 @@ class EhNetwork{
       g.next = nextButton.attributes["href"];
     }
     g.galleries = galleries;
-    return g;
+    return Res(g);
   }
 
   ///获取画廊的下一页
   Future<void> getNextPageGalleries(Galleries galleries) async{
     if(galleries.next==null)  return;
     var next = await getGalleries(galleries.next!);
-    if(next == null)  return;
-    galleries.galleries.addAll(next.galleries);
-    galleries.next = next.next;
+    if(next.error)  return;
+    galleries.galleries.addAll(next.data.galleries);
+    galleries.next = next.data.next;
   }
 
   ///从漫画详情页链接中获取漫画详细信息
-  Future<Gallery?> getGalleryInfo(EhGalleryBrief brief) async{
+  Future<Res<Gallery>> getGalleryInfo(EhGalleryBrief brief) async{
     try{
       var res = await request("${brief.link}?/hc=1");
-      if (res == null) return null;
+      if (res.error){
+        return Res(null, errorMessage: res.errorMessage);
+      }
       var document = parse(res);
       //tags
       var tags = <String, List<String>>{};
@@ -369,7 +373,7 @@ class EhNetwork{
         }
       } catch (e) {
         //获取图片链接失败
-        return null;
+        return Res(null, errorMessage: "解析失败: $e");
       }
       bool favorite = true;
       if(document.getElementById("favoritelink")?.text == " Add to Favorites"){
@@ -402,13 +406,11 @@ class EhNetwork{
       var time = document.querySelector("div#gdd > table > tbody > tr > td.gdt2")!.text;
       gallery.time = time;
       //身份认证数据
-      gallery.auth = getVariablesFromJsCode(res);
-      return gallery;
+      gallery.auth = getVariablesFromJsCode(res.data);
+      return Res(gallery);
     }
     catch(e){
-      status = true;
-      message = e.toString();
-      return null;
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -441,7 +443,7 @@ class EhNetwork{
   }
 
   ///搜索e-hentai
-  Future<Galleries?> search(String keyword) async{
+  Future<Res<Galleries>> search(String keyword) async{
     if(keyword!=""){
       appdata.searchHistory.remove(keyword);
       appdata.searchHistory.add(keyword);
@@ -460,10 +462,10 @@ class EhNetwork{
   }
 
   ///获取排行榜
-  Future<EhLeaderboard?> getLeaderboard(EhLeaderboardType type) async{
+  Future<Res<EhLeaderboard>> getLeaderboard(EhLeaderboardType type) async{
     var res = await getGalleries("https://e-hentai.org/toplist.php?tl=${type.value}",leaderboard: true);
-    if(res == null) return null;
-    return EhLeaderboard(type, res.galleries, 0);
+    if(res.error) return Res(null, errorMessage: res.errorMessage);
+    return Res(EhLeaderboard(type, res.data.galleries, 0));
   }
 
   ///获取排行榜的下一页
@@ -472,8 +474,8 @@ class EhNetwork{
       return;
     }else{
       var res = await getGalleries("$ehBaseUrl/toplist.php?tl=${leaderboard.type.value}&p=${leaderboard.loaded+1}",leaderboard: true);
-      if(res!=null){
-        leaderboard.galleries.addAll(res.galleries);
+      if(!res.error){
+        leaderboard.galleries.addAll(res.data.galleries);
       }
       leaderboard.loaded++;
     }
@@ -489,7 +491,7 @@ class EhNetwork{
       "token": auth["token"],
       "rating": rating
     });
-    return res!=null;
+    return !res.error;
   }
 
   ///收藏
@@ -501,7 +503,7 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
-    if(res == null || res.isEmpty || res[0] != "<"){
+    if(res.error || res.data.isEmpty || res.data[0] != "<"){
       return false;
     }else {
       return true;
@@ -517,7 +519,7 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
-    if(res == null || res[0] != "<"){
+    if(res.error || res.data[0] != "<"){
       return false;
     }else {
       return true;
@@ -525,7 +527,7 @@ class EhNetwork{
   }
 
   ///发送评论
-  Future<bool> comment(String content, String link) async{
+  Future<Res<bool>> comment(String content, String link) async{
     var res = await post(
       link,
       "commenttext_new=${Uri.encodeComponent(content)}",
@@ -533,15 +535,13 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
-    if(res == null){
-      return false;
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
     }
     var document = parse(res);
     if(document.querySelector("p.br") != null){
-      status = true;
-      message = document.querySelector("p.br")!.text;
-      return false;
+      return Res(null,errorMessage: document.querySelector("p.br")!.text);
     }
-    return true;
+    return Res(true);
   }
 }

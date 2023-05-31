@@ -25,7 +25,7 @@ void main() {
   appdata.readData().then((b) async {
     isLogged = b;
     if (b) {
-      network = Network(appdata.token);
+      network = PicacgNetwork(appdata.token);
     }
     setNetworkProxy(); //设置代理
     if(kDebugMode){

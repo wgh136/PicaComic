@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -107,7 +107,8 @@ class FavoritesPage extends StatelessWidget {
         ),
       );
     }else{
-      return showNetworkError(context, ()=>favoritesPageLogic.change(), showBack: false);
+      return showNetworkError(network.status?network.message:"网络错误".tr,
+              ()=>favoritesPageLogic.change(), context, showBack: false);
     }
   }
 

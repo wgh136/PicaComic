@@ -17,12 +17,12 @@ import 'models.dart';
 const defaultAvatarUrl = "DEFAULT AVATAR URL";//历史遗留, 不改了
 
 ///哔咔网络请求类
-class Network{
-  factory Network([String token=""]) => cache??(cache=Network._create(token=token));
+class PicacgNetwork{
+  factory PicacgNetwork([String token=""]) => cache??(cache=PicacgNetwork._create(token=token));
 
-  static Network? cache;
+  static PicacgNetwork? cache;
 
-  Network._create([this.token=""]);
+  PicacgNetwork._create([this.token=""]);
 
   String apiUrl = appdata.settings[3]=="1"||GetPlatform.isWeb?
     "https://api.kokoiro.xyz/picaapi"
@@ -1031,4 +1031,4 @@ String getImageUrl(String url){
   return appdata.settings[3]=="1"||GetPlatform.isWeb?"https://api.kokoiro.xyz/storage/$url":url;
 }
 
-var network = Network();
+var network = PicacgNetwork();

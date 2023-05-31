@@ -5,7 +5,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_leaderboard_page.dart';
 import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
@@ -138,8 +138,9 @@ class LeaderBoardH24 extends StatelessWidget {
         );
       }else{
         return showNetworkError(
-          context,
+          network.status?network.message:"网络错误",
           () => leaderBoardLogic.change(),
+          context,
           showBack: false
         );
       }
@@ -191,8 +192,9 @@ class LeaderBoardD7 extends StatelessWidget {
         );
       }else{
         return showNetworkError(
+            network.status?network.message:"网络错误",
+                () => leaderBoardLogic.change(),
             context,
-            () => leaderBoardLogic.change(),
             showBack: false
         );
       }
@@ -245,8 +247,9 @@ class LeaderBoardD30 extends StatelessWidget {
         );
       }else{
         return showNetworkError(
+            network.status?network.message:"网络错误",
+                () => leaderBoardLogic.change(),
             context,
-            () => leaderBoardLogic.change(),
             showBack: false
         );
       }

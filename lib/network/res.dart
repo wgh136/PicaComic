@@ -9,6 +9,8 @@ class Res<T>{
   ///是否出现错误
   bool get error => errorMessage!=null;
 
+  bool get success => !error;
+
   ///数据
   ///
   /// 当出现错误时调用此方法会产生错误

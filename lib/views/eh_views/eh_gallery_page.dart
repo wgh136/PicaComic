@@ -9,7 +9,7 @@ import 'package:pica_comic/tools/ui_mode.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/models/history.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../network/eh_network/get_gallery_id.dart';
 import '../reader/goto_reader.dart';
@@ -25,9 +25,15 @@ class GalleryPageLogic extends GetxController{
   bool showAppbarTitle = false;
   bool noNetwork = false;
   String cookies = "";
+  String? message;
 
   void loadInfo(EhGalleryBrief brief) async{
-    gallery = await EhNetwork().getGalleryInfo(brief);
+    var res = await EhNetwork().getGalleryInfo(brief);
+    if(res.error){
+      message = res.errorMessage;
+    }else {
+      gallery = res.data;
+    }
     cookies = await EhNetwork().getCookies();
     loading = false;
     update();
@@ -82,7 +88,7 @@ class EhGalleryPage extends StatelessWidget {
             logic.loadInfo(brief);
             return showLoading(context);
           }else if(logic.gallery == null){
-            return showNetworkError(context, logic.retry, eh: true);
+            return showNetworkError(logic.message??"网络错误", logic.retry, context);
           }else{
             logic.controller = ScrollController();
             logic.controller.addListener(() {
@@ -527,7 +533,7 @@ class EhGalleryPage extends StatelessWidget {
                           }else{
                             logic.running = false;
                             logic.update();
-                            showMessage(dialogContext, EhNetwork().status?EhNetwork().message:"网络错误");
+                            showMessage(dialogContext, "网络错误");
                           }
                         });
                       }, child: Text("提交".tr))
@@ -572,7 +578,7 @@ class EhGalleryPage extends StatelessWidget {
                       logic.sending = true;
                       logic.update();
                       EhNetwork().comment(logic.controller.text,link).then((b){
-                        if(b){
+                        if(!b.error){
                           Get.back();
                           showMessage(context, "评论成功".tr);
                           var pageLogic = Get.find<GalleryPageLogic>();
@@ -581,7 +587,7 @@ class EhGalleryPage extends StatelessWidget {
                         }else{
                           logic.sending = false;
                           logic.update();
-                          showMessage(context, EhNetwork().status?EhNetwork().message:"网络错误");
+                          showMessage(context, b.errorMessage??"网络错误.tr");
                         }
                       });
                     }, child: Text("提交".tr))
@@ -704,7 +710,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                   });
                   var res = await EhNetwork().favorite(widget.logic.gallery!.auth!["gid"]!,widget.logic.gallery!.auth!["token"]!, id: folderId);
                   if (!res) {
-                    showMessage(Get.context, EhNetwork().status?EhNetwork().message:"网络错误");
+                    showMessage(Get.context, "网络错误");
                     setState(() {
                       loading = false;
                     });

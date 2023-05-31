@@ -3,16 +3,22 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
 
 class EhHomePageLogic extends GetxController{
   bool loading = true;
   Galleries? galleries;
+  String? message;
 
   void getGallery() async{
-    galleries = await EhNetwork().getGalleries(EhNetwork().ehBaseUrl);
+    var res = await EhNetwork().getGalleries(EhNetwork().ehBaseUrl);
+    if(res.error){
+      message = res.errorMessage;
+    }else{
+      galleries = res.data;
+    }
     loading = false;
     update();
   }
@@ -23,6 +29,7 @@ class EhHomePageLogic extends GetxController{
   }
 
   void refresh_(){
+    message = null;
     galleries = null;
     loading = true;
     update();
@@ -69,7 +76,7 @@ class EhHomePage extends StatelessWidget {
             onRefresh: ()async => logic.refresh_(),
           );
         }else{
-          return showNetworkError(context, logic.retry, showBack:false, eh: true);
+          return showNetworkError(logic.message??"网络错误".tr, logic.retry, context, showBack:false);
         }
       },
     );
