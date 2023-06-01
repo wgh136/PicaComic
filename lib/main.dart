@@ -33,7 +33,7 @@ void main() {
     }else{
       await SentryFlutter.init(
               (options){
-            options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
+            options.dsn = 'https://37a9cc4e58ab48d28cdca4dc40394ac6@report.kokoiro.xyz/1';
             options.tracesSampleRate = 1.0;
           },
           appRunner: ()=>runApp(MyApp())
