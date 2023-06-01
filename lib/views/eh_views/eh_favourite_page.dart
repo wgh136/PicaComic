@@ -23,7 +23,7 @@ class EhFavouritePageLogic extends GetxController{
         message = res.errorMessage;
       } else {
         galleries = res.data;
-        folderNames = res.subData;
+        folderNames = res.subData??folderNames;
         EhNetwork().folderNames = folderNames;
       }
     }else{
