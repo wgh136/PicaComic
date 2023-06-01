@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/tools/proxy.dart';
 import 'headers.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
@@ -51,7 +53,7 @@ class JmNetwork {
   }
 
   ///解密数据
-  String _convertData(String input, int time) {
+  static String convertData(String input, int time) {
     //key为时间+18comicAPPContent的md5结果
     var key = md5.convert(const Utf8Encoder().convert("${time}18comicAPPContent"));
     BlockCipher cipher = ECBBlockCipher(AESEngine())
@@ -66,7 +68,7 @@ class JmNetwork {
     }
     //将得到的数据进行Utf8解码
     var res = const Utf8Decoder().convert(paddedPlainText);
-    //得到的数据再末尾有一些乱码
+    //得到的数据在末尾有一些乱码
     int i = res.length - 1;
     for (; i >= 0; i--) {
       if (res[i] == '}' || res[i] == ']') {
@@ -77,29 +79,21 @@ class JmNetwork {
   }
 
   ///get请求, 返回Json数据中的data
-  Future<Res<dynamic>> get(String url, {Map<String, String>? header}) async {
+  Future<Res<dynamic>> get(String url,
+      {Map<String, String>? header, CacheExpiredTime expiredTime=CacheExpiredTime.long}) async {
     int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    var dio = Dio(getHeader(time))..interceptors.add(LogInterceptor());
-    dio.interceptors.add(CookieManager(cookieJar));
+    var dio = CachedNetwork();
+    var options = getHeader(time);
+    options.validateStatus = (i) => i == 200 || i == 401;
     try{
-      var res = await dio.get(url, options: Options(validateStatus: (i) => i == 200 || i == 401));
+      var res = await dio.getJm(url, options, time, cookieJar: cookieJar, expiredTime: expiredTime);
       if (res.statusCode == 401) {
         return Res(null,
             errorMessage:
-                const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["errorMsg"] ??
+                const JsonDecoder().convert(res.data)["errorMsg"] ??
                     "未知错误".toString());
       }
-      var givenData = const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["data"];
-      if (givenData is List && givenData.isEmpty) {
-        return Res(null, errorMessage: "无数据");
-      } else if (givenData is List) {
-        return Res(null, errorMessage: "解析出错");
-      }
-      var data = _convertData(givenData, time);
-      if (kDebugMode && GetPlatform.isWindows) {
-        saveDebugData(data);
-      }
-      return Res<dynamic>(const JsonDecoder().convert(data));
+      return Res<dynamic>(const JsonDecoder().convert(res.data));
     } on DioError catch (e) {
       if (kDebugMode) {
         print(e);
@@ -121,6 +115,7 @@ class JmNetwork {
   ///post请求, 与get请求的一个显著区别是请求头中的Content-Type
   Future<Res<dynamic>> post(String url, String data) async {
     try {
+      await setNetworkProxy();
       int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       var dio = Dio(getHeader(time, post: true))..interceptors.add(LogInterceptor());
       dio.interceptors.add(CookieManager(cookieJar));
@@ -132,7 +127,7 @@ class JmNetwork {
                 const JsonDecoder().convert(const Utf8Decoder().convert(res.data))["errorMsg"] ??
                     "未知错误".toString());
       }
-      var resData = _convertData(
+      var resData = convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
       if (kDebugMode) {
         saveDebugData(resData);
@@ -157,7 +152,7 @@ class JmNetwork {
 
   ///获取主页
   Future<Res<HomePageData>> getHomePage() async {
-    var res = await get("$baseUrl/promote?$baseData&page=0");
+    var res = await get("$baseUrl/promote?$baseData&page=0", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -205,7 +200,7 @@ class JmNetwork {
   }
 
   Future<Res<PromoteList>> getPromoteList(String id) async {
-    var res = await get("$baseUrl/promote_list?$baseData&id=$id&page=0");
+    var res = await get("$baseUrl/promote_list?$baseData&id=$id&page=0", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -239,7 +234,7 @@ class JmNetwork {
     if (list.loaded >= list.total) {
       return;
     }
-    var res = await get("$baseUrl/promote_list?$baseData&id=${list.id}&page=${list.page}");
+    var res = await get("$baseUrl/promote_list?$baseData&id=${list.id}&page=${list.page}", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return;
     }
@@ -268,7 +263,7 @@ class JmNetwork {
   }
 
   Future<Res<List<JmComicBrief>>> getLatest() async {
-    var res = await get("$baseUrl/latest?$baseData");
+    var res = await get("$baseUrl/latest?$baseData", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -314,7 +309,7 @@ class JmNetwork {
 
   ///获取热搜词
   Future<void> getHotTags() async {
-    var res = await get("$baseUrl/hot_tags?$baseData");
+    var res = await get("$baseUrl/hot_tags?$baseData", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return;
     }
@@ -334,7 +329,10 @@ class JmNetwork {
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
     appdata.writeHistory();
-    var res = await get("$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}");
+    var res = await get(
+        "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}",
+        expiredTime: CacheExpiredTime.no
+    );
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -393,7 +391,8 @@ class JmNetwork {
       return;
     }
     var res = await get(
-        "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(search.keyword)}&page=${search.loadedPage + 1}");
+        "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(search.keyword)}&page=${search.loadedPage + 1}",
+        expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return;
     }
@@ -462,7 +461,7 @@ class JmNetwork {
       最新，总排行，月排行，周排行，日排行，最多图片, 最多爱心
       mr, mv, mv_m, mv_w, mv_t, mp, tf
      */
-    var res = await get("$baseUrl/categories/filter?$baseData&o=$order&c=$category&page=1");
+    var res = await get("$baseUrl/categories/filter?$baseData&o=$order&c=$category&page=1",expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -506,7 +505,9 @@ class JmNetwork {
 
   Future<void> getCategoriesComicNextPage(CategoryComicsRes comics) async {
     var res = await get(
-        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${comics.category}&page=${comics.loadedPage+1}");
+        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${comics.category}&page=${comics.loadedPage+1}",
+        expiredTime: CacheExpiredTime.no
+    );
     if (res.error) {
       return;
     }
@@ -642,7 +643,7 @@ class JmNetwork {
   ///
   /// 要获取全部收藏, 提供id为0
   Future<Res<FavoriteFolder>> getFolderComics(String id) async {
-    var res = await get("$baseUrl/favorite?$baseData&page=1&folder_id=$id&o=${ComicsOrder.latest}");
+    var res = await get("$baseUrl/favorite?$baseData&page=1&folder_id=$id&o=${ComicsOrder.latest}", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -675,7 +676,8 @@ class JmNetwork {
     }
     try {
       var res = await get(
-          "$baseUrl/favorite?$baseData&page=${folder.loadedPage + 1}&folder_id=${folder.id}&o=${ComicsOrder.latest}");
+          "$baseUrl/favorite?$baseData&page=${folder.loadedPage + 1}&folder_id=${folder.id}&o=${ComicsOrder.latest}",
+          expiredTime: CacheExpiredTime.no);
       for (var comic in (res.data["list"])) {
         var categories = <ComicCategoryInfo>[];
         if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
@@ -697,7 +699,7 @@ class JmNetwork {
 
   ///获取收藏夹
   Future<Res<Map<String, String>>> getFolders() async {
-    var res = await get("$baseUrl/favorite?$baseData");
+    var res = await get("$baseUrl/favorite?$baseData", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -767,7 +769,7 @@ class JmNetwork {
   }
 
   Future<Res<List<Comment>>> getComment(String id, int page) async {
-    var res = await get("$baseUrl/forum?$baseData&aid=$id&page=$page");
+    var res = await get("$baseUrl/forum?$baseData&aid=$id&page=$page", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -804,7 +806,7 @@ class JmNetwork {
   ///
   /// 返回Map, 键为ID, 值为名称
   Future<Res<Map<String, String>>> getWeekRecommendation() async{
-    var res = await get("$baseUrl/week?$baseData");
+    var res = await get("$baseUrl/week?$baseData", expiredTime: CacheExpiredTime.no);
     if(res.error){
       return Res(null, errorMessage: res.errorMessage!);
     }

@@ -210,8 +210,13 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                   setState(() {
                     showFrame = b;
                   });
-                  var t = Get.find<InfoController>();
-                  t.update();
+                  try {
+                    var t = Get.find<InfoController>();
+                    t.update();
+                  }
+                  catch(e){
+                    //忽视
+                  }
                   appdata.writeData();
                 },
               ),

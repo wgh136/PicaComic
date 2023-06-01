@@ -180,7 +180,12 @@ class SearchPage extends StatelessWidget {
                               (context, i){
                             if(i == searchPageLogic.searchResult.comics.length-1){
                               network.loadMoreSearch(searchPageLogic.searchResult).then((c){
-                                searchPageLogic.update();
+                                try {
+                                  searchPageLogic.update();
+                                }
+                                catch(e){
+                                  //忽视
+                                }
                               });
                             }
                             return PicComicTile(searchPageLogic.searchResult.comics[i]);

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -13,12 +13,25 @@ class EhFavouritePageLogic extends GetxController{
   Galleries? galleries;
   ///收藏夹编号, 为-1表示加载全部
   int folder = -1;
+  String? message;
+  var folderNames = List.generate(10, (index) => "Favorite $index");
 
   Future<void> getGallery() async{
     if(folder == -1) {
-      galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php");
+      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
+      if(res.error){
+        message = res.errorMessage;
+      } else {
+        galleries = res.data;
+        folderNames = res.subData;
+      }
     }else{
-      galleries = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder");
+      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder", favoritePage: true);
+      if(res.error){
+        message = res.errorMessage;
+      } else {
+        galleries = res.data;
+      }
     }
     loading = false;
     try {
@@ -40,6 +53,7 @@ class EhFavouritePageLogic extends GetxController{
   }
 
   void refresh_(){
+    message = null;
     galleries = null;
     loading = true;
     update();
@@ -74,7 +88,7 @@ class EhFavouritePage extends StatelessWidget {
                 }else if(logic.galleries!=null){
                   return buildNormalView(logic, context);
                 }else{
-                  return showNetworkError(context, logic.retry, showBack:false, eh: true);
+                  return showNetworkError(logic.message??"网络错误", logic.retry, context, showBack:false);
                 }
               },
             ),
@@ -152,7 +166,7 @@ class EhFavouritePage extends StatelessWidget {
                     for(int i=0;i<=9;i++)
                       PopupMenuItem(
                         height: 40,
-                        child: Text("Favorites $i"),
+                        child: Text(logic.folderNames[i]),
                         onTap: (){
                           if(logic.folder != i){
                             logic.folder = i;

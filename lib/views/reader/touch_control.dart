@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:math';
 import '../../base.dart';
 
@@ -20,12 +21,14 @@ class ScrollManager{
 
   final height = Get.height;
 
-  final maxScrollOnce = Get.height/8;
+  final maxScrollOnce = Get.height/7;
 
   ///是否正在进行释放缓存的偏移值
   bool runningRelease = false;
 
   int fingers = 0;
+
+  bool touching = false;
 
   ScrollManager(this.scrollController);
 
@@ -69,6 +72,34 @@ class ScrollManager{
         runningRelease = false;
         return;
       }
+      if(touching && fingers==0){
+        if(scrollController.position.pixels-scrollController.position.maxScrollExtent > 300){
+          showMessage(
+              Get.context,
+              "要切换下一章节吗",
+              action: TextButton(
+                  onPressed: (){
+                    Get.closeCurrentSnackbar();
+                    Get.find<ComicReadingPageLogic>().jumpToNextChapter();
+                  },
+                  child: Text("切换".tr)
+              )
+          );
+        }else if(scrollController.position.pixels-scrollController.position.minScrollExtent < -300){
+          showMessage(
+              Get.context,
+              "要切换上一章节吗",
+              action: TextButton(
+                  onPressed: (){
+                    Get.closeCurrentSnackbar();
+                    Get.find<ComicReadingPageLogic>().jumpToLastChapter();
+                  },
+                  child: Text("切换".tr)
+              )
+          );
+        }
+      }
+      touching = fingers != 0;
       if(fingers==0){
         if(scrollController.position.pixels<scrollController.position.minScrollExtent || scrollController.position.pixels>scrollController.position.maxScrollExtent){
           offset = 0;
@@ -93,7 +124,7 @@ class ScrollManager{
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
       }
-      await Future.delayed(const Duration(milliseconds: 8));
+      await Future.delayed(const Duration(milliseconds: 10));
     }
     runningRelease = false;
   }

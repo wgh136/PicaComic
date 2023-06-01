@@ -213,7 +213,6 @@ class MyCacheManager{
       }
       var currentBytes = 0;
       await for (var b in stream) {
-        //不直接写入文件, 因为禁漫太离谱了, 处理完成后再写入
         file.writeAsBytesSync(b.toList(), mode: FileMode.append);
         currentBytes += b.length;
         yield DownloadProgress(currentBytes, expectedBytes??(currentBytes+1), url, savePath);

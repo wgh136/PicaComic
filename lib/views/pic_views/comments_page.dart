@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/picacg_network/models.dart';
 import '../widgets/list_loading.dart';
@@ -40,7 +40,8 @@ class CommentsPage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }else if(logic.comments.loaded==0){
-          return showNetworkError(context, ()=>logic.change(),showBack: false);
+          return showNetworkError(network.status?network.message:"网络错误".tr,
+                  ()=>logic.change(), context, showBack: false);
         }else{
           return Column(
             children: [

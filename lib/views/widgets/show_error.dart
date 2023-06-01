@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Widget showNetworkError(String message, void Function() retry, BuildContext context, {bool showBack=true}){
+///显示错误提示
+Widget showNetworkError(String? message, void Function() retry, BuildContext context, {bool showBack=true}){
   return SafeArea(child: Stack(
     children: [
       if(showBack)
@@ -27,7 +28,7 @@ Widget showNetworkError(String message, void Function() retry, BuildContext cont
               children: [
                 const Icon(Icons.error_outline, size: 60,),
                 const SizedBox(height: 5,),
-                Text(message, textAlign: TextAlign.center,),
+                Text(message??"网络错误", textAlign: TextAlign.center,),
                 const SizedBox(height: 5,),
                 FilledButton(onPressed: retry, child: Text('重试'.tr))
               ],

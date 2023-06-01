@@ -9,8 +9,13 @@ class Notifications{
 
   Future<bool?> requestPermission() async{
     if(!GetPlatform.isAndroid)  return false;
-    return await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
+    try {
+      return await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
+    }
+    catch(e){
+      return false;
+    }
   }
 
   Future<void> init() async{

@@ -13,7 +13,7 @@ import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/base.dart';
@@ -187,9 +187,8 @@ class ComicPage extends StatelessWidget{
             );
           }
           //未能加载漫画信息显示网络错误
-          return showNetworkError(context, () {
-            logic.change();
-          });
+          return showNetworkError(network.status?network.message:"网络错误".tr,
+                  ()=>logic.change(), context);
         }
       }),
     );

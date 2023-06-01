@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/picacg_network/models.dart';
 import '../widgets/list_loading.dart';
@@ -37,7 +37,8 @@ class ReplyPage extends StatelessWidget {
           });
           return const Center(child: CircularProgressIndicator(),);
         }else if(commentsPageLogic.comments.loaded==0){
-          return showNetworkError(context, ()=>commentsPageLogic.change(),showBack: false);
+          return showNetworkError(network.status?network.message:"网络错误".tr,
+                  ()=>commentsPageLogic.change(), context, showBack: false);
         } else{
           return Column(
             children: [

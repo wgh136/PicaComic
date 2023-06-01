@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() {
                           isLogging = true;
                         });
-                        network = Network();
+                        network = PicacgNetwork();
                         var fur = network.login(nameController.text, passwordController.text);
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() {
                           isLogging = true;
                         });
-                        network = Network();
+                        network = PicacgNetwork();
                         var fur = network.login(nameController.text, passwordController.text);
                         showMessage(context, "登录中".tr);
                         fur.then((b){
@@ -179,9 +179,14 @@ class _LoginPageState extends State<LoginPage> {
                           }
                           else if(network.status){
                             showMessage(context, network.message=="invalid email or password"?"账号或密码错误":network.message);
-                            setState(() {
-                              isLogging = false;
-                            });
+                            try {
+                              setState(() {
+                                isLogging = false;
+                              });
+                            }
+                            catch(e){
+                              //忽视
+                            }
                           }else{
                             showMessage(context, "网络错误".tr);
                             setState(() {

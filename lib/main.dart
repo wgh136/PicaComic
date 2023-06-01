@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
+import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
@@ -20,10 +21,11 @@ bool isLogged = false;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  startClearCache();
   appdata.readData().then((b) async {
     isLogged = b;
     if (b) {
-      network = Network(appdata.token);
+      network = PicacgNetwork(appdata.token);
     }
     setNetworkProxy(); //设置代理
     if(kDebugMode){
@@ -31,7 +33,7 @@ void main() {
     }else{
       await SentryFlutter.init(
               (options){
-            options.dsn = 'https://89c7cb794fd946dfbb95cf210a4051e8@o4504661097119744.ingest.sentry.io/4504661099675648';
+            options.dsn = 'https://37a9cc4e58ab48d28cdca4dc40394ac6@report.kokoiro.xyz/1';
             options.tracesSampleRate = 1.0;
           },
           appRunner: ()=>runApp(MyApp())

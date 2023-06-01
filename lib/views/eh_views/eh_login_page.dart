@@ -160,7 +160,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
           Get.back();
           showMessage(context, "登录成功".tr);
         }else{
-          showMessage(context, EhNetwork().status?EhNetwork().message:"登录失败".tr);
+          showMessage(context, "登录失败".tr);
           setState(() {
             logging = false;
           });

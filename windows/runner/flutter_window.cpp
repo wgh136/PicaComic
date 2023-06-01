@@ -134,11 +134,11 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               LPARAM const lparam) noexcept {
   // Give Flutter, including plugins, an opportunity to handle window messages.
     UINT button = GET_XBUTTON_WPARAM(wparam);  
-    if (button == XBUTTON1)
+    if (button == XBUTTON1 && message == WM_XBUTTONDOWN)
     {
         mouse_side_button_listener(0);
     }
-    else if (button == XBUTTON2)
+    else if (button == XBUTTON2 && message == WM_XBUTTONDOWN)
     {
         mouse_side_button_listener(1);
     }

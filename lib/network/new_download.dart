@@ -119,29 +119,35 @@ class DownloadManager{
     if(! file.existsSync()){
       await _saveInfo();
     }
-    var json = const JsonDecoder().convert(file.readAsStringSync());
-    for(var s in json["downloaded"]){
-      var file = File("$path$pathSep$s${pathSep}info.json");
-      if(!file.existsSync()) continue;
-      downloaded.add(s);
+    try {
+      var json = const JsonDecoder().convert(file.readAsStringSync());
+      for (var s in json["downloaded"]) {
+        var file = File("$path$pathSep$s${pathSep}info.json");
+        if (!file.existsSync()) continue;
+        downloaded.add(s);
+      }
+      for (var s in json["downloadedGalleries"]) {
+        var file = File("$path$pathSep$s${pathSep}info.json");
+        if (!file.existsSync()) continue;
+        downloadedGalleries.add(s);
+      }
+      for (var s in json["downloadedJmComics"] ?? []) {
+        var file = File("$path$pathSep$s${pathSep}info.json");
+        if (!file.existsSync()) continue;
+        downloadedJmComics.add(s);
+      }
+      for (var s in json["downloadedHitomiComics"] ?? []) {
+        var file = File("$path$pathSep$s${pathSep}info.json");
+        if (!file.existsSync()) continue;
+        downloadedHitomiComics.add(s);
+      }
+      for (var item in json["downloading"]) {
+        downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo)!);
+      }
     }
-    for(var s in json["downloadedGalleries"]){
-      var file = File("$path$pathSep$s${pathSep}info.json");
-      if(!file.existsSync()) continue;
-      downloadedGalleries.add(s);
-    }
-    for(var s in json["downloadedJmComics"]??[]){
-      var file = File("$path$pathSep$s${pathSep}info.json");
-      if(!file.existsSync()) continue;
-      downloadedJmComics.add(s);
-    }
-    for(var s in json["downloadedHitomiComics"]??[]){
-      var file = File("$path$pathSep$s${pathSep}info.json");
-      if(!file.existsSync()) continue;
-      downloadedHitomiComics.add(s);
-    }
-    for(var item in json["downloading"]){
-      downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo)!);
+    catch(e){
+      file.deleteSync();
+      await _saveInfo();
     }
 
     //迁移旧版本的数据

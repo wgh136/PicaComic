@@ -216,7 +216,7 @@ class PicDownloadingItem extends DownloadingItem {
         return;
       }
       var epPath = Directory("$path$pathSep$id$pathSep$_downloadingEps");
-      await epPath.create();
+      await epPath.create(recursive: true);
       while (_index < _urls.length) {
         if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;

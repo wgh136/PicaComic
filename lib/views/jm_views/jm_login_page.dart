@@ -75,9 +75,14 @@ class _JmLoginPageState extends State<JmLoginPage> {
                         var res = await jmNetwork.login(nameController.text, passwordController.text);
                         if(res.error){
                           showMessage(Get.context, res.errorMessage!);
-                          setState(() {
-                            logging = false;
-                          });
+                          try {
+                            setState(() {
+                              logging = false;
+                            });
+                          }
+                          catch(e){
+                            //忽视
+                          }
                         }else{
                           Get.back();
                         }

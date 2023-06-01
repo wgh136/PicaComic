@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/pic_views/collections_page.dart';
 import 'package:pica_comic/views/pic_views/picacg_latest_page.dart';
-import 'package:pica_comic/views/widgets/show_network_error.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -174,7 +174,8 @@ class CategoriesPage extends StatelessWidget {
           onRefresh: ()async => categoriesPageLogic.refresh_(),
         );
       }else{
-        return showNetworkError(context, ()=>categoriesPageLogic.change(),showBack: false);
+        return showNetworkError(network.status?network.message:"网络错误".tr,
+                ()=>categoriesPageLogic.change(), context, showBack: false);
       }
     });
   }
