@@ -115,7 +115,7 @@ class ComicReadingPageLogic extends GetxController{
     isLoading = true;
     tools = false;
     if(type == ReadingType.jm){
-      data.target = eps[order];
+      data.target = eps[order-1];
     }
     update();
   }
