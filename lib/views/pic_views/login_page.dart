@@ -179,9 +179,14 @@ class _LoginPageState extends State<LoginPage> {
                           }
                           else if(network.status){
                             showMessage(context, network.message=="invalid email or password"?"账号或密码错误":network.message);
-                            setState(() {
-                              isLogging = false;
-                            });
+                            try {
+                              setState(() {
+                                isLogging = false;
+                              });
+                            }
+                            catch(e){
+                              //忽视
+                            }
                           }else{
                             showMessage(context, "网络错误".tr);
                             setState(() {

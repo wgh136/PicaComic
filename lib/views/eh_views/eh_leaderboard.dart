@@ -61,7 +61,12 @@ class OneEhLeaderboardPage extends StatelessWidget{
         EhNetwork().getLeaderboard(logic.leaderboards[index].type).then((board){
           if(board.success){
             logic.leaderboards[index] = board.data;
-            logic.update();
+            try {
+              logic.update();
+            }
+            catch(e){
+              //忽视
+            }
           }else{
             logic.networkStatus[index] = true;
             logic.update();

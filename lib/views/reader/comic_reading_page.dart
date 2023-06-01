@@ -53,8 +53,6 @@ class ComicReadingPage extends StatelessWidget {
   /// 这里是初始值, 变量在logic中
   ///
   /// 注意: **从1开始**
-  ///
-  /// 当访问下载相关的api时, 务必注意对于禁漫需要加1
   final int order;
 
   ///画廊模型, 阅读非画廊此变量为null
@@ -65,7 +63,7 @@ class ComicReadingPage extends StatelessWidget {
 
   ///一些会发生变更的信息, 全放logic里面会很乱
   late final ReadingPageData data =
-      ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps[order-1]:target, type, eps);
+      ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps.elementAtOrNull(order-1)??eps[0]:target, type, eps);
 
   ///阅读Hitomi画廊时使用的图片数据
   ///

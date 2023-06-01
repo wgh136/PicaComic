@@ -39,7 +39,12 @@ class DownloadPageLogic extends GetxController {
 
   void change() {
     loading = !loading;
-    update();
+    try {
+      update();
+    }
+    catch(e){
+      //忽视
+    }
   }
 
   void fresh() {

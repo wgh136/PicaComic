@@ -876,7 +876,7 @@ class PicacgNetwork{
     if(res != null){
       var gameInfo = GameInfo(
         id,
-        res["data"]["game"]["title"],
+        res["data"]["game"]["title"]??"未知",
         res["data"]["game"]["description"],
         res["data"]["game"]["icon"]["fileServer"]+"/static/"+res["data"]["game"]["icon"]["path"],
         res["data"]["game"]["publisher"],
