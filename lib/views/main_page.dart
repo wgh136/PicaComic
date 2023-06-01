@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
@@ -58,6 +59,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
+    EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
     Get.put(HomePageLogic());
     Get.put(CategoriesPageLogic());
     Get.put(GamesPageLogic());

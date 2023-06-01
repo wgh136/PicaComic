@@ -631,21 +631,11 @@ class FavoriteComicDialog extends StatefulWidget {
 
 class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
   bool loading = false;
-  Map<String, String> folders = {
-    "Favorite 0": "0",
-    "Favorite 1": "1",
-    "Favorite 2": "2",
-    "Favorite 3": "3",
-    "Favorite 4": "4",
-    "Favorite 5": "5",
-    "Favorite 6": "6",
-    "Favorite 7": "7",
-    "Favorite 8": "8",
-    "Favorite 9": "9",
-  };
+  Map<String, String> folders = Map<String, String>.fromIterables(
+      EhNetwork().folderNames, List<String>.generate(10, (index) => index.toString()));
   String? message;
   String folderId = "0";
-  String folderName = "Favorite 0";
+  late String folderName = folders.keys.first;
 
   @override
   Widget build(BuildContext context) {

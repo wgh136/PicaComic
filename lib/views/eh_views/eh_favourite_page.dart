@@ -24,6 +24,7 @@ class EhFavouritePageLogic extends GetxController{
       } else {
         galleries = res.data;
         folderNames = res.subData;
+        EhNetwork().folderNames = folderNames;
       }
     }else{
       var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder", favoritePage: true);
@@ -140,7 +141,7 @@ class EhFavouritePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text("  收藏夹:  ".tr),
-          logic.folder==-1 ? Text("全部".tr) : Text("Favorites ${logic.folder}"),
+          logic.folder==-1 ? Text("全部".tr) : Text(logic.folderNames[logic.folder]),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.arrow_drop_down_sharp),

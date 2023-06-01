@@ -20,6 +20,8 @@ class EhNetwork{
 
   static EhNetwork createEhNetwork() => EhNetwork();
 
+  var folderNames = List.generate(10, (index) => "Favorite $index");
+
   EhNetwork.create(){
     updateUrl();
     getCookies();
@@ -345,13 +347,24 @@ class EhNetwork{
       g.galleries = galleries;
 
       //获取收藏夹名称
-      if(favoritePage){
+      if(favoritePage && appdata.ehAccount != ""){
         var names = <String>[];
-        var folderDivs = document.querySelectorAll("div.fp");
-        for(var folderDiv in folderDivs){
-          names.add(folderDiv.children.elementAtOrNull(2)?.text??"Favorite ${names.length}");
+        try {
+          var folderDivs = document.querySelectorAll("div.fp");
+          for (var folderDiv in folderDivs) {
+            names.add(folderDiv.children
+                .elementAtOrNull(2)
+                ?.text ?? "Favorite ${names.length}");
+          }
+          if(names.length != 10){
+            names = names.sublist(0, 10);
+          }
+          folderNames = names;
         }
-        return Res(g, subData: names);
+        catch(e){
+          //忽视
+        }
+        return Res(g, subData: folderNames);
       }
 
       return Res(g);
