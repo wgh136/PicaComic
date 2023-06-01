@@ -267,7 +267,7 @@ class EhNetwork{
   }
 
   ///从e-hentai链接中获取当前页面的所有画廊
-  Future<Res<Galleries>> getGalleries(String url,{bool leaderboard = false}) async{
+  Future<Res<Galleries>> getGalleries(String url,{bool leaderboard = false, bool favoritePage=false}) async{
     //从一个链接中获取所有画廊, 同时获得下一页的链接
     //leaderboard比正常的表格多了第一列
     int t = 0;
@@ -343,6 +343,17 @@ class EhNetwork{
         g.next = nextButton.attributes["href"];
       }
       g.galleries = galleries;
+
+      //获取收藏夹名称
+      if(favoritePage){
+        var names = <String>[];
+        var folderDivs = document.querySelectorAll("div.fp");
+        for(var folderDiv in folderDivs){
+          names.add(folderDiv.children.elementAtOrNull(2)?.text??"Favorite ${names.length}");
+        }
+        return Res(g, subData: names);
+      }
+
       return Res(g);
     }
     catch(e){

@@ -14,17 +14,19 @@ class EhFavouritePageLogic extends GetxController{
   ///收藏夹编号, 为-1表示加载全部
   int folder = -1;
   String? message;
+  var folderNames = List.generate(10, (index) => "Favorite $index");
 
   Future<void> getGallery() async{
     if(folder == -1) {
-      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php");
+      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
       if(res.error){
         message = res.errorMessage;
       } else {
         galleries = res.data;
+        folderNames = res.subData;
       }
     }else{
-      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder");
+      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder", favoritePage: true);
       if(res.error){
         message = res.errorMessage;
       } else {
@@ -164,7 +166,7 @@ class EhFavouritePage extends StatelessWidget {
                     for(int i=0;i<=9;i++)
                       PopupMenuItem(
                         height: 40,
-                        child: Text("Favorites $i"),
+                        child: Text(logic.folderNames[i]),
                         onTap: (){
                           if(logic.folder != i){
                             logic.folder = i;
