@@ -40,6 +40,20 @@ ProxyHttpOverrides? proxyHttpOverrides;
 Future<void> setNetworkProxy() async{
   //Image加载使用的是Image.network()和CachedNetworkImage(), 均使用flutter内置http进行网络请求
   var proxy = await getProxy();
+  if(proxy != null){
+    if(!proxy.contains(":")){
+      proxy = null;
+    }else {
+      var lr = proxy.split(":");
+      if (lr.length != 2) {
+        proxy = null;
+      }else{
+        if(lr[0].split(".").length != 4 || !lr[1].isNum){
+          proxy = null;
+        }
+      }
+    }
+  }
   if(kDebugMode){
     print("Set Proxy $proxy");
   }
