@@ -550,6 +550,9 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
+    if(res.error){
+      return false;
+    }
     if(res.error || res.data.isEmpty || res.data[0] != "<"){
       return false;
     }else {
