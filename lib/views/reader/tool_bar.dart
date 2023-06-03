@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
@@ -83,6 +85,44 @@ Widget buildTopToolBar(
   );
 }
 
+Matrix4 composeMatrix({
+  double scale = 1,
+  double rotation = 0,
+  double translateX = 0,
+  double translateY = 0,
+  double anchorX = 0,
+  double anchorY = 0,
+}) {
+  final double c = cos(rotation) * scale;
+  final double s = sin(rotation) * scale;
+  final double dx = translateX - c * anchorX + s * anchorY;
+  final double dy = translateY - s * anchorX - c * anchorY;
+
+  //  ..[0]  = c       # x scale
+  //  ..[1]  = s       # y skew
+  //  ..[4]  = -s      # x skew
+  //  ..[5]  = c       # y scale
+  //  ..[10] = 1       # diagonal "one"
+  //  ..[12] = dx      # x translation
+  //  ..[13] = dy      # y translation
+  //  ..[15] = 1       # diagonal "one"
+  return Matrix4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, dx, dy, 0, 1);
+}
+
+Matrix4 composeMatrixFromOffsets({
+  double scale = 1,
+  double rotation = 0,
+  Offset translate = Offset.zero,
+  Offset anchor = Offset.zero,
+}) => composeMatrix(
+  scale: scale,
+  rotation: rotation,
+  translateX: translate.dx,
+  translateY: translate.dy,
+  anchorX: anchor.dx,
+  anchorY: anchor.dy,
+);
+
 ///构建底部工具栏
 Widget buildBottomToolBar(
     ComicReadingPageLogic comicReadingPageLogic,
@@ -122,6 +162,39 @@ Widget buildBottomToolBar(
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      Tooltip(
+                        message: "放大".tr,
+                        child: IconButton(
+                          icon: const Icon(Icons.zoom_in),
+                          onPressed: (){
+                            var value = comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis();
+                            final center = MediaQuery.of(context).size.center(Offset.zero);
+                            final anchor = comicReadingPageLogic.transformationController.toScene(center);
+                            comicReadingPageLogic.transformationController.value = composeMatrixFromOffsets(
+                              scale: value+0.2,
+                              anchor: anchor,
+                              translate: center,
+                            );
+                          },
+                        ),
+                      ),
+                      Tooltip(
+                        message: "缩小".tr,
+                        child: IconButton(
+                          icon: const Icon(Icons.zoom_out),
+                          onPressed: (){
+                            var value = comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis();
+                            if(value == 1)  return;
+                            final center = MediaQuery.of(context).size.center(Offset.zero);
+                            final anchor = comicReadingPageLogic.transformationController.toScene(center);
+                            comicReadingPageLogic.transformationController.value = composeMatrixFromOffsets(
+                              scale: value-0.2<1?1:value-0.2,
+                              anchor: anchor,
+                              translate: center,
+                            );
+                          },
+                        ),
+                      ),
                       if (showEps)
                         Tooltip(
                           message: "章节".tr,
@@ -162,12 +235,13 @@ Widget buildBottomToolBar(
 
 ///显示当前的章节和页面位置
 Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showEps,
-    List<String> eps, BuildContext context, {bool jm = false}) {
+    List<String> eps, BuildContext context,
+    {bool jm = false}) {
   var epsText = "";
-  if(eps.isNotEmpty && !jm){
-    epsText = eps.elementAtOrNull(comicReadingPageLogic.order)??"";
+  if (eps.isNotEmpty && !jm) {
+    epsText = eps.elementAtOrNull(comicReadingPageLogic.order) ?? "";
   }
-  if(jm){
+  if (jm) {
     epsText = "第 @c 章".trParams({"c": comicReadingPageLogic.order.toString()});
   }
 
@@ -268,39 +342,40 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
 
 List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
   return ((MediaQuery.of(context).size.width > MediaQuery.of(context).size.height &&
-          appdata.settings[9] != "4" &&
           appdata.settings[4] == "1"))
       ? [
-          Positioned(
-            left: 20,
-            top: MediaQuery.of(context).size.height / 2 - 25,
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_left),
-              onPressed: () {
-                if(appdata.settings[9] == "1") {
-                  comicReadingPageLogic.jumpToLastPage();
-                }else if(appdata.settings[9] == "2"){
-                  comicReadingPageLogic.jumpToNextPage();
-                }
-              },
-              iconSize: 50,
+          if (appdata.settings[9] != "4")
+            Positioned(
+              left: 20,
+              top: MediaQuery.of(context).size.height / 2 - 25,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_left),
+                onPressed: () {
+                  if (appdata.settings[9] == "1") {
+                    comicReadingPageLogic.jumpToLastPage();
+                  } else if (appdata.settings[9] == "2") {
+                    comicReadingPageLogic.jumpToNextPage();
+                  }
+                },
+                iconSize: 50,
+              ),
             ),
-          ),
-          Positioned(
-            right: 20,
-            top: MediaQuery.of(context).size.height / 2 - 25,
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right),
-              onPressed: () {
-                if(appdata.settings[9] == "2") {
-                  comicReadingPageLogic.jumpToLastPage();
-                }else if(appdata.settings[9] == "1"){
-                  comicReadingPageLogic.jumpToNextPage();
-                }
-              },
-              iconSize: 50,
+          if (appdata.settings[9] != "4")
+            Positioned(
+              right: 20,
+              top: MediaQuery.of(context).size.height / 2 - 25,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_right),
+                onPressed: () {
+                  if (appdata.settings[9] == "2") {
+                    comicReadingPageLogic.jumpToLastPage();
+                  } else if (appdata.settings[9] == "1") {
+                    comicReadingPageLogic.jumpToNextPage();
+                  }
+                },
+                iconSize: 50,
+              ),
             ),
-          ),
           Positioned(
             left: 5,
             top: 5,
