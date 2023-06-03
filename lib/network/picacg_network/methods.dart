@@ -329,6 +329,67 @@ class PicacgNetwork{
     return s;
   }
 
+  Future<Res<List<ComicItemBrief>>> search(String keyWord, String sort, int page, {bool addToHistory=false}) async{
+    var res  = await post('$apiUrl/comics/advanced-search?page=$page',{"keyword": keyWord,"sort": sort});
+    if(page == 1 && addToHistory && keyWord!=""){
+      appdata.searchHistory.remove(keyWord);
+      appdata.searchHistory.add(keyWord);
+      appdata.writeData();
+    }
+    if(res!=null) {
+      var pages = res["data"]["comics"]["pages"];
+      var comics = <ComicItemBrief>[];
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        //检查屏蔽词
+        bool flag = false;
+        if(
+        appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["author"]??"")||
+            appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["chineseTeam"]??"")
+        ){
+          continue;
+        }
+
+        for(var s in res["data"]["comics"]["docs"][i]["tags"]??[]){
+          if(appdata.blockingKeyword.contains(s)){
+            flag = true;
+            break;
+          }
+        }
+
+        for(var s in res["data"]["comics"]["docs"][i]["categories"]??[]){
+          if(appdata.blockingKeyword.contains(s)){
+            flag = true;
+            break;
+          }
+        }
+
+        if(flag)  continue;
+
+        var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
+            res["data"]["comics"]["docs"][i]["author"]??"未知",
+            res["data"]["comics"]["docs"][i]["likesCount"]??0,
+            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
+                res["data"]["comics"]["docs"][i]["thumb"]["path"],
+            res["data"]["comics"]["docs"][i]["_id"]
+        );
+        comics.add(si);
+      }
+      if(addToHistory) {
+        Future.delayed(const Duration(microseconds: 500),(){
+          try{
+            Get.find<PreSearchController>().update();
+          }
+          catch(e){
+            //忽视
+          }
+        });
+      }
+      return Res(comics, subData: pages);
+    }else{
+      return Res(null, errorMessage: status?message:"网络错误");
+    }
+  }
+
   ///获取漫画信息
   Future<ComicItem?> getComicInfo(String id) async {
     var res = await get("$apiUrl/comics/$id");
@@ -483,30 +544,25 @@ class PicacgNetwork{
     return t;
   }
 
-  Future<void> loadMoreFavorites(Favorites f) async{
-    if(f.loaded<f.pages){
-      var res = await get("$apiUrl/users/favourite?s=dd&page=${f.loaded+1}",expiredTime: CacheExpiredTime.no);
-      if(res != null) {
-        f.loaded++;
-        f.pages = res["data"]["comics"]["pages"];
-        for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
-              res["data"]["comics"]["docs"][i]["author"]??"未知",
-              res["data"]["comics"]["docs"][i]["likesCount"]??0,
-              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
-                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
-              res["data"]["comics"]["docs"][i]["_id"]
-          );
-          f.comics.add(si);
-        }
+  Future<Res<List<ComicItemBrief>>> getFavorites(int page) async{
+    var res = await get("$apiUrl/users/favourite?s=dd&page=$page",expiredTime: CacheExpiredTime.no);
+    if(res != null) {
+      var pages = res["data"]["comics"]["pages"];
+      var comics = <ComicItemBrief>[];
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
+            res["data"]["comics"]["docs"][i]["author"]??"未知",
+            res["data"]["comics"]["docs"][i]["likesCount"]??0,
+            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
+                res["data"]["comics"]["docs"][i]["thumb"]["path"],
+            res["data"]["comics"]["docs"][i]["_id"]
+        );
+        comics.add(si);
       }
+      return Res(comics, subData: pages);
+    }else{
+      return Res(null, errorMessage: status?message:"网络错误");
     }
-  }
-
-  Future<Favorites> getFavorites() async{
-    var f = Favorites([], 1, 0);
-    await loadMoreFavorites(f);
-    return f;
   }
 
   Future<int> getSelectedPageFavorites(int page, List<ComicItemBrief> comics) async{
@@ -923,55 +979,50 @@ class PicacgNetwork{
     }
   }
 
-  Future<void> getMoreCategoryComics(SearchResult s) async{
-    if(s.loaded!=s.pages){
-      var res  = await get('$apiUrl/comics?page=${s.loaded+1}&c=${Uri.encodeComponent(s.keyWord)}&s=${s.sort}', expiredTime: CacheExpiredTime.no);
-      if(res!=null) {
-        s.loaded++;
-        s.pages = res["data"]["comics"]["pages"];
-        for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-          //检查屏蔽词
-          bool flag = false;
-          if(
-          appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["author"]??"")||
-              appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["chineseTeam"]??"")
-          ){
-            continue;
-          }
-
-          for(var s in res["data"]["comics"]["docs"][i]["tags"]??[]){
-            if(appdata.blockingKeyword.contains(s)){
-              flag = true;
-              break;
-            }
-          }
-
-          for(var s in res["data"]["comics"]["docs"][i]["categories"]??[]){
-            if(appdata.blockingKeyword.contains(s)){
-              flag = true;
-              break;
-            }
-          }
-
-          if(flag)  continue;
-
-          var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
-              res["data"]["comics"]["docs"][i]["author"]??"未知",
-              res["data"]["comics"]["docs"][i]["likesCount"]??0,
-              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
-                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
-              res["data"]["comics"]["docs"][i]["_id"]
-          );
-          s.comics.add(si);
+  Future<Res<List<ComicItemBrief>>> getCategoryComics(String keyWord, int page, String sort) async{
+    var res  = await get('$apiUrl/comics?page=$page&c=${Uri.encodeComponent(keyWord)}&s=$sort', expiredTime: CacheExpiredTime.no);
+    if(res!=null) {
+      var pages = res["data"]["comics"]["pages"];
+      var comics = <ComicItemBrief>[];
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        //检查屏蔽词
+        bool flag = false;
+        if(
+        appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["author"]??"")||
+            appdata.blockingKeyword.contains(res["data"]["comics"]["docs"][i]["chineseTeam"]??"")
+        ){
+          continue;
         }
-      }
-    }
-  }
 
-  Future<SearchResult> getCategoryComics(String keyword, String sort) async{
-    var s = SearchResult(keyword, sort, [], 1, 0);
-    await getMoreCategoryComics(s);
-    return s;
+        for(var s in res["data"]["comics"]["docs"][i]["tags"]??[]){
+          if(appdata.blockingKeyword.contains(s)){
+            flag = true;
+            break;
+          }
+        }
+
+        for(var s in res["data"]["comics"]["docs"][i]["categories"]??[]){
+          if(appdata.blockingKeyword.contains(s)){
+            flag = true;
+            break;
+          }
+        }
+
+        if(flag)  continue;
+
+        var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
+            res["data"]["comics"]["docs"][i]["author"]??"未知",
+            res["data"]["comics"]["docs"][i]["likesCount"]??0,
+            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
+                res["data"]["comics"]["docs"][i]["thumb"]["path"],
+            res["data"]["comics"]["docs"][i]["_id"]
+        );
+        comics.add(si);
+      }
+      return Res(comics, subData: pages);
+    }else{
+      return Res(null, errorMessage: status?message:"网络错误");
+    }
   }
 
   ///获取最新漫画

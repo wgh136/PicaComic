@@ -80,7 +80,7 @@ class CategoryTile extends StatelessWidget {
     return InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: (){
-          Get.to(()=>CategoryComicPage(categoryItem.title,type: 1,));
+          Get.to(()=>CategoryComicPage(categoryItem.title,categoryType: 1,));
         },
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
