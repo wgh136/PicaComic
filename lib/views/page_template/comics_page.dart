@@ -187,7 +187,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
                       childAspectRatio: comicTileAspectRatio,
                     ),
                   ),
-                  if(logic.comics!.length < (logic.maxPage ?? 114514))
+                  if(logic.current < (logic.maxPage ?? 114514))
                     const SliverToBoxAdapter(
                       child: ListLoadingIndicator(),
                     )
