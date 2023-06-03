@@ -375,12 +375,13 @@ class EhNetwork{
   }
 
   ///获取画廊的下一页
-  Future<void> getNextPageGalleries(Galleries galleries) async{
-    if(galleries.next==null)  return;
+  Future<bool> getNextPageGalleries(Galleries galleries) async{
+    if(galleries.next==null)  return true;
     var next = await getGalleries(galleries.next!);
-    if(next.error)  return;
+    if(next.error)  return false;
     galleries.galleries.addAll(next.data.galleries);
     galleries.next = next.data.next;
+    return true;
   }
 
   ///从漫画详情页链接中获取漫画详细信息

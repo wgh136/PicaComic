@@ -1,139 +1,138 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
-import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../../network/eh_network/eh_main_network.dart';
+import '../../network/res.dart';
+import '../page_template/comics_page.dart';
 import '../widgets/search.dart';
-import 'eh_widgets/eh_gallery_tile.dart';
 
-class EhSearchPageLogic extends GetxController{
+class PageData{
   Galleries? galleries;
-  var controller = TextEditingController();
-  bool isLoading = true;
-  bool firstSearch = true;
-  String? message;
-
-  void change(){
-    isLoading = !isLoading;
-    update();
-  }
-
-  void search() async{
-    message = null;
-    var res = await EhNetwork().search(controller.text);
-    if(res.error){
-      message = res.errorMessage;
-    }else{
-      galleries = res.data;
-    }
-    isLoading = false;
-    update();
-  }
+  int page = 1;
+  Map<int, List<EhGalleryBrief>> comics = {};
 }
 
-class EhSearchPage extends StatelessWidget {
+class SearchPageComicsList extends ComicsPage<EhGalleryBrief>{
   final String keyword;
-  const EhSearchPage(this.keyword,{super.key});
+  final Widget? head_;
+  final PageData data;
+  const SearchPageComicsList(this.keyword, this.data, {this.head_, super.key});
+
+  @override
+  Future<Res<List<EhGalleryBrief>>> getComics(int i) async{
+    if(data.galleries == null){
+      var res = await EhNetwork().search(keyword);
+      if(res.error){
+        return Res(null, errorMessage: res.errorMessage);
+      }else{
+        data.galleries = res.data;
+        data.comics[1] = [];
+        data.comics[1]!.addAll(data.galleries!.galleries);
+        data.galleries!.galleries.clear();
+      }
+    }
+    if(data.comics[i] != null){
+      return Res(data.comics[i]!);
+    }else{
+      while(data.comics[i] == null){
+        data.page++;
+        if(! await EhNetwork().getNextPageGalleries(data.galleries!)){
+          return Res(null, errorMessage: "网络错误");
+        }
+        data.comics[data.page] = [];
+        data.comics[data.page]!.addAll(data.galleries!.galleries);
+        data.galleries!.galleries.clear();
+      }
+      return Res(data.comics[i]);
+    }
+  }
+
+  @override
+  String? get tag => "Picacg search $keyword";
+
+  @override
+  String get title => "";
+
+  @override
+  ComicType get type => ComicType.ehentai;
+
+  @override
+  bool get withScaffold => false;
+
+  @override
+  bool get showTitle => false;
+
+  @override
+  Widget? get head => head_;
+}
+
+class EhSearchPage extends StatefulWidget {
+  final String keyword;
+  const EhSearchPage(this.keyword, {Key? key}) : super(key: key);
+
+  @override
+  State<EhSearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<EhSearchPage> {
+  late String keyword = widget.keyword;
+  var controller = TextEditingController();
+  bool _showFab = true;
+  var data = PageData();
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      init: EhSearchPageLogic(),
-      tag: keyword,
-      builder: (logic)=>Scaffold(
-          floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.search),
-            onPressed: (){
-              var s = logic.controller.text;
-              if(s=="") return;
-              logic.change();
-              logic.search();
-            },
-          ),
-          body: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                const SliverPadding(padding: EdgeInsets.only(top: 10)),
-                SliverPersistentHeader(
-                  floating: true,
-                  delegate: _SliverAppBarDelegate(
-                    minHeight: 60,
-                    maxHeight: 0,
-                    child: FloatingSearchBar(
-                      supportingText: '搜索'.tr,
-                      f:(s){
-                        if(s=="") return;
-                        logic.change();
-                        logic.search();
-                      },
-                      controller: logic.controller,),
-                  ),
-                ),
-                const SliverPadding(padding: EdgeInsets.only(top: 5)),
-
-                buildBody(logic, context),
-                buildLoading(logic, context),
-
-                SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
-              ],
+    controller.text = keyword;
+    return Scaffold(
+      floatingActionButton: _showFab?FloatingActionButton(
+        child: const Icon(Icons.search),
+        onPressed: (){
+          var s = controller.text;
+          if(s=="") return;
+          data = PageData();
+          setState(() {
+            keyword = s;
+          });
+        },
+      ):null,
+      body: NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          final ScrollDirection direction = notification.direction;
+          setState(() {
+            if (direction == ScrollDirection.reverse) {
+              _showFab = false;
+            } else if (direction == ScrollDirection.forward) {
+              _showFab = true;
+            }
+          });
+          return true;
+        },
+        child: SearchPageComicsList(
+          keyword,
+          data,
+          key: Key(keyword),
+          head_: SliverPersistentHeader(
+            floating: true,
+            delegate: _SliverAppBarDelegate(
+              minHeight: 60,
+              maxHeight: 0,
+              child: FloatingSearchBar(
+                supportingText: '搜索'.tr,
+                f:(s){
+                  if(s=="") return;
+                  data = PageData();
+                  setState(() {
+                    keyword = s;
+                  });
+                },
+                controller: controller,),
             ),
-          )
+          ),
+        ),
       ),
     );
-  }
-
-  Widget buildBody(EhSearchPageLogic logic, BuildContext context){
-    if(logic.isLoading){
-      if(logic.firstSearch){
-        logic.firstSearch = false;
-        logic.controller.text = keyword;
-        logic.search();
-      }
-      return SliverToBoxAdapter(
-        child: SizedBox.fromSize(
-          size: Size(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height-60),
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),),
-      );
-    }else{
-      if(logic.galleries!=null){
-        return SliverGrid(
-          delegate: SliverChildBuilderDelegate(
-              childCount: logic.galleries!.length,
-                  (context, i){
-                if(i==logic.galleries!.length-1){
-                  EhNetwork().getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
-                }
-                return EhGalleryTile(logic.galleries![i]);
-              }
-          ),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: comicTileMaxWidth,
-            childAspectRatio: comicTileAspectRatio,
-          ),
-        );
-      }else{
-        return SliverToBoxAdapter(
-          child: ListTile(
-            leading: const Icon(Icons.error_outline),
-            title: Text(logic.message??"网络错误".tr),
-          ),
-        );
-      }
-    }
-  }
-
-  Widget buildLoading(EhSearchPageLogic logic, BuildContext context){
-    if(logic.galleries!=null&&logic.galleries!.next!=null) {
-      return const SliverToBoxAdapter(
-        child: ListLoadingIndicator(),
-      );
-    }else{
-      return const SliverToBoxAdapter(child: SizedBox(height: 1,),);
-    }
   }
 }
 
