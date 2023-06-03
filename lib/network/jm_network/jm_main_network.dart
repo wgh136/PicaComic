@@ -156,47 +156,57 @@ class JmNetwork {
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
-
-    var data = HomePageData([]);
-    for (var item in res.data) {
-      var comics = <JmComicBrief>[];
-      for (var comic in item["content"]) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+    try {
+      var data = HomePageData([]);
+      for (var item in res.data) {
+        var comics = <JmComicBrief>[];
+        for (var comic in item["content"]) {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+          }
+          //检查屏蔽词
+          bool status = true;
+          for (var s in appdata.blockingKeyword) {
+            if (comic["author"] == appdata.blockingKeyword ||
+                (comic["name"] as String).contains(s)) {
               status = false;
             }
+            for (var c in categories) {
+              if (c.name == s) {
+                status = false;
+              }
+            }
+            if (!status) {
+              break;
+            }
           }
-          if (!status) {
-            break;
+          if (status) {
+            comics.add(JmComicBrief(
+                comic["id"], comic["author"], comic["name"], comic["description"] ?? "",
+                categories));
           }
         }
-        if (status) {
-          comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+        String type = item["type"];
+        String id = item["id"].toString();
+        if (type == "category_id") {
+          id = item["slug"];
         }
+        data.items.add(HomePageItem(item["title"], id, comics, type != "promote"));
       }
-      String type = item["type"];
-      String id = item["id"].toString();
-      if(type == "category_id"){
-        id = item["slug"];
-      }
-      data.items.add(HomePageItem(item["title"], id, comics, type!="promote"));
+      return Res(data);
     }
-    return Res(data);
+    catch(e){
+      if (kDebugMode) {
+        print(e);
+      }
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
   }
 
   Future<Res<PromoteList>> getPromoteList(String id) async {
@@ -454,6 +464,48 @@ class JmNetwork {
     }
   }
 
+  Future<Res<List<JmComicBrief>>> getCategoryComicsNew(String category, ComicsOrder order, int page) async{
+    var res = await get("$baseUrl/categories/filter?$baseData&o=$order&c=${Uri.encodeComponent(category)}&page=$page",expiredTime: CacheExpiredTime.no);
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try {
+      var comics = <JmComicBrief>[];
+      for (var comic in (res.data["content"])) {
+        var categories = <ComicCategoryInfo>[];
+        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+          categories
+              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        //检查屏蔽词
+        bool status = true;
+        for (var s in appdata.blockingKeyword) {
+          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
+            status = false;
+          }
+          for (var c in categories) {
+            if (c.name == s) {
+              status = false;
+            }
+          }
+          if (!status) {
+            break;
+          }
+        }
+        if (status) {
+          comics.add(JmComicBrief(
+              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+        }
+      }
+      return Res(comics, subData: (int.parse(res.data["total"]) / comics.length).ceil());
+    } catch (e) {
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
+  }
+
   ///获取分类漫画
   Future<Res<CategoryComicsRes>> getCategoryComics(String category, ComicsOrder order) async {
     /*
@@ -461,7 +513,7 @@ class JmNetwork {
       最新，总排行，月排行，周排行，日排行，最多图片, 最多爱心
       mr, mv, mv_m, mv_w, mv_t, mp, tf
      */
-    var res = await get("$baseUrl/categories/filter?$baseData&o=$order&c=$category&page=1",expiredTime: CacheExpiredTime.no);
+    var res = await get("$baseUrl/categories/filter?$baseData&o=$order&c=${Uri.encodeComponent(category)}&page=1",expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -504,8 +556,9 @@ class JmNetwork {
   }
 
   Future<void> getCategoriesComicNextPage(CategoryComicsRes comics) async {
+    if(comics.total <= comics.loaded) return;
     var res = await get(
-        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${comics.category}&page=${comics.loadedPage+1}",
+        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${Uri.encodeComponent(comics.category)}&page=${comics.loadedPage+1}",
         expiredTime: CacheExpiredTime.no
     );
     if (res.error) {

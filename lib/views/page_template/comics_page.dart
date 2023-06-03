@@ -8,6 +8,7 @@ import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
@@ -122,7 +123,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
 
   ///刷新页面
   void refresh(){
-    Get.find<ComicsPageLogic<T>>(tag: tag).update();
+    Get.find<ComicsPageLogic<T>>(tag: tag).refresh_();
   }
 
   @override
@@ -136,7 +137,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
           }
           if(logic.loading){
             logic.get(getComics);
-            return const Center(child: CircularProgressIndicator(),);
+            return !showTitle?const Center(child: CircularProgressIndicator(),):showLoading(context);
           }else if(logic.comics != null){
             if(appdata.settings[25] == "0") {
               var comics = logic.comics!;
@@ -147,12 +148,14 @@ abstract class ComicsPage<T> extends StatelessWidget{
                       SliverAppBar.large(
                         title: Text(title),
                         centerTitle: centerTitle,
+                        actions: tailing!=null?[tailing!]:null,
                       )
                     else
                       SliverAppBar(
                         title: Text(title),
                         centerTitle: centerTitle,
                         pinned: true,
+                        actions: tailing!=null?[tailing!]:null,
                       ),
 
                   if(head != null)
@@ -199,12 +202,14 @@ abstract class ComicsPage<T> extends StatelessWidget{
                       SliverAppBar.large(
                         title: Text(title),
                         centerTitle: centerTitle,
+                        actions: tailing!=null?[tailing!]:null,
                       )
                     else
                       SliverAppBar(
                         title: Text(title),
                         centerTitle: centerTitle,
                         pinned: true,
+                        actions: tailing!=null?[tailing!]:null,
                       ),
 
                   if(head != null)
