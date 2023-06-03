@@ -114,14 +114,15 @@ Matrix4 composeMatrixFromOffsets({
   double rotation = 0,
   Offset translate = Offset.zero,
   Offset anchor = Offset.zero,
-}) => composeMatrix(
-  scale: scale,
-  rotation: rotation,
-  translateX: translate.dx,
-  translateY: translate.dy,
-  anchorX: anchor.dx,
-  anchorY: anchor.dy,
-);
+}) =>
+    composeMatrix(
+      scale: scale,
+      rotation: rotation,
+      translateX: translate.dx,
+      translateY: translate.dy,
+      anchorX: anchor.dx,
+      anchorY: anchor.dy,
+    );
 
 ///构建底部工具栏
 Widget buildBottomToolBar(
@@ -162,39 +163,47 @@ Widget buildBottomToolBar(
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Tooltip(
-                        message: "放大".tr,
-                        child: IconButton(
-                          icon: const Icon(Icons.zoom_in),
-                          onPressed: (){
-                            var value = comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis();
-                            final center = MediaQuery.of(context).size.center(Offset.zero);
-                            final anchor = comicReadingPageLogic.transformationController.toScene(center);
-                            comicReadingPageLogic.transformationController.value = composeMatrixFromOffsets(
-                              scale: value+0.2,
-                              anchor: anchor,
-                              translate: center,
-                            );
-                          },
+                      if (appdata.settings[9] == "4" && GetPlatform.isWindows)
+                        Tooltip(
+                          message: "放大".tr,
+                          child: IconButton(
+                            icon: const Icon(Icons.zoom_in),
+                            onPressed: () {
+                              var value = comicReadingPageLogic.transformationController.value
+                                  .getMaxScaleOnAxis();
+                              final center = MediaQuery.of(context).size.center(Offset.zero);
+                              final anchor =
+                                  comicReadingPageLogic.transformationController.toScene(center);
+                              comicReadingPageLogic.transformationController.value =
+                                  composeMatrixFromOffsets(
+                                scale: value + 0.2,
+                                anchor: anchor,
+                                translate: center,
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      Tooltip(
-                        message: "缩小".tr,
-                        child: IconButton(
-                          icon: const Icon(Icons.zoom_out),
-                          onPressed: (){
-                            var value = comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis();
-                            if(value == 1)  return;
-                            final center = MediaQuery.of(context).size.center(Offset.zero);
-                            final anchor = comicReadingPageLogic.transformationController.toScene(center);
-                            comicReadingPageLogic.transformationController.value = composeMatrixFromOffsets(
-                              scale: value-0.2<1?1:value-0.2,
-                              anchor: anchor,
-                              translate: center,
-                            );
-                          },
+                      if (appdata.settings[9] == "4" && GetPlatform.isWindows)
+                        Tooltip(
+                          message: "缩小".tr,
+                          child: IconButton(
+                            icon: const Icon(Icons.zoom_out),
+                            onPressed: () {
+                              var value = comicReadingPageLogic.transformationController.value
+                                  .getMaxScaleOnAxis();
+                              if (value == 1) return;
+                              final center = MediaQuery.of(context).size.center(Offset.zero);
+                              final anchor =
+                                  comicReadingPageLogic.transformationController.toScene(center);
+                              comicReadingPageLogic.transformationController.value =
+                                  composeMatrixFromOffsets(
+                                scale: value - 0.2 < 1 ? 1 : value - 0.2,
+                                anchor: anchor,
+                                translate: center,
+                              );
+                            },
+                          ),
                         ),
-                      ),
                       if (showEps)
                         Tooltip(
                           message: "章节".tr,
