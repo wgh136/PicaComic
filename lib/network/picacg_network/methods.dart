@@ -392,7 +392,7 @@ class PicacgNetwork{
 
   ///获取漫画信息
   Future<ComicItem?> getComicInfo(String id) async {
-    var res = await get("$apiUrl/comics/$id");
+    var res = await get("$apiUrl/comics/$id", expiredTime: CacheExpiredTime.no);
     if(res != null){
       String url;
       if(res["data"]["comic"]["_creator"]["avatar"]==null){

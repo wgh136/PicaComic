@@ -387,7 +387,7 @@ class EhNetwork{
   ///从漫画详情页链接中获取漫画详细信息
   Future<Res<Gallery>> getGalleryInfo(EhGalleryBrief brief) async{
     try{
-      var res = await request("${brief.link}?/hc=1");
+      var res = await request("${brief.link}?/hc=1", expiredTime: CacheExpiredTime.no);
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }

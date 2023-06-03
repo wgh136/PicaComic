@@ -669,7 +669,7 @@ class JmNetwork {
   }
 
   Future<Res<JmComicInfo>> getComicInfo(String id) async {
-    var res = await get("$baseUrl/album?$baseData&id=$id");
+    var res = await get("$baseUrl/album?$baseData&id=$id", expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
