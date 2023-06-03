@@ -467,7 +467,7 @@ class EhNetwork{
   Stream<int> loadGalleryPages(Gallery gallery) async*{
     for (int i = 1; i < int.parse(gallery.maxPage); i++) {
       try {
-        var temp = parse(await request("${gallery.link}?p=$i"));
+        var temp = parse((await request("${gallery.link}?p=$i")).data);
         var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
         for (var link in links) {
           gallery.urls.add(link.attributes["href"]!);
@@ -480,6 +480,7 @@ class EhNetwork{
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
         //获取图片链接失败
+        print(e);
         yield 0;
         break;
       }

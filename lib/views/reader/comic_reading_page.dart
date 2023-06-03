@@ -525,9 +525,11 @@ class ComicReadingPage extends StatelessWidget {
       if(i == 1){
         logic.urls = gallery!.urls;
         logic.change();
+        return;
       }else if(i == 0){
         data.message = "网络错误".tr;
         logic.change();
+        return;
       }else{
         info.current.value++;
       }
