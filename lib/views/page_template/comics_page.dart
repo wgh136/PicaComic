@@ -54,9 +54,6 @@ class ComicsPageLogic<T> extends GetxController{
         message = res.errorMessage;
       } else {
         dividedComics![current] = res.data;
-        if (res.subData is int) {
-          maxPage = res.subData;
-        }
       }
       loading = false;
       update();
@@ -121,6 +118,9 @@ abstract class ComicsPage<T> extends StatelessWidget{
 
   Widget? get head => null;
 
+  ///加载时显示返回按钮
+  bool get showBackWhenLoading => showTitle;
+
   ///刷新页面
   void refresh(){
     Get.find<ComicsPageLogic<T>>(tag: tag).refresh_();
@@ -137,7 +137,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
           }
           if(logic.loading){
             logic.get(getComics);
-            return !showTitle?const Center(child: CircularProgressIndicator(),):showLoading(context);
+            return !showBackWhenLoading?const Center(child: CircularProgressIndicator(),):showLoading(context);
           }else if(logic.comics != null){
             if(appdata.settings[25] == "0") {
               var comics = logic.comics!;

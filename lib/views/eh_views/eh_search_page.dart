@@ -50,7 +50,7 @@ class SearchPageComicsList extends ComicsPage<EhGalleryBrief>{
   }
 
   @override
-  String? get tag => "Picacg search $keyword";
+  String? get tag => "Eh search $keyword";
 
   @override
   String get title => "";
@@ -66,6 +66,9 @@ class SearchPageComicsList extends ComicsPage<EhGalleryBrief>{
 
   @override
   Widget? get head => head_;
+
+  @override
+  bool get showBackWhenLoading => true;
 }
 
 class EhSearchPage extends StatefulWidget {

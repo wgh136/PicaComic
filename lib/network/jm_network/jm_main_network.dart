@@ -334,6 +334,73 @@ class JmNetwork {
     }
   }
 
+  Future<Res<List<JmComicBrief>>> searchNew(String keyword, int page) async{
+    appdata.searchHistory.remove(keyword);
+    appdata.searchHistory.add(keyword);
+    appdata.writeHistory();
+    Res res;
+    if(page != 1) {
+      res = await get(
+        "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}&page=$page",
+        expiredTime: CacheExpiredTime.no
+      );
+    }else{
+      res = await get(
+          "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}",
+          expiredTime: CacheExpiredTime.no
+      );
+    }
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try {
+      var comics = <JmComicBrief>[];
+      for (var comic in (res.data["content"])) {
+        var categories = <ComicCategoryInfo>[];
+        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+          categories
+              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        //检查屏蔽词
+        bool status = true;
+        for (var s in appdata.blockingKeyword) {
+          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
+            status = false;
+          }
+          for (var c in categories) {
+            if (c.name == s) {
+              status = false;
+            }
+          }
+          if (!status) {
+            break;
+          }
+        }
+        if (status) {
+          comics.add(JmComicBrief(
+              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+        }
+      }
+      Future.delayed(
+          const Duration(microseconds: 500), (){
+        try{
+          Get.find<PreSearchController>().update();
+        }
+        catch(e){
+          //跳过
+        }
+      });
+      return Res(comics, subData: (int.parse(res.data["total"]) / comics.length).ceil());
+    } catch (e) {
+      Future.delayed(
+          const Duration(microseconds: 500), () => Get.find<PreSearchController>().update());
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+    }
+  }
+
   ///搜索
   Future<Res<SearchRes>> search(String keyword) async {
     appdata.searchHistory.remove(keyword);

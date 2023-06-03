@@ -45,6 +45,9 @@ class SearchPageComicsList extends ComicsPage{
 
   @override
   Widget? get head => head_;
+
+  @override
+  bool get showBackWhenLoading => true;
 }
 
 class SearchPage extends StatefulWidget {
