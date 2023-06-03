@@ -29,7 +29,7 @@ class FloatingSearchBar extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(10, MediaQuery.of(context).padding.top+10, 10, 0),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: Container(
         constraints: const BoxConstraints(minWidth: 360, maxWidth: 720),
         padding: const EdgeInsets.only(top: 5),

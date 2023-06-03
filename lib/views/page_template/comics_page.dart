@@ -128,7 +128,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
 
   @override
   Widget build(context){
-    var body =  GetBuilder<ComicsPageLogic<T>>(
+    Widget body =  GetBuilder<ComicsPageLogic<T>>(
         init: ComicsPageLogic<T>(),
         tag: tag,
         builder: (logic){
@@ -338,6 +338,9 @@ abstract class ComicsPage<T> extends StatelessWidget{
             return showNetworkError(logic.message??"网络错误", logic.refresh_, context, showBack: true);
           }
     });
+    if(head != null){
+      body = SafeArea(child: body);
+    }
     if(withScaffold){
       return Scaffold(
         floatingActionButton: withRefreshFloatingButton?FloatingActionButton(
