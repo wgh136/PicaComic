@@ -340,12 +340,12 @@ abstract class ComicsPage<T> extends StatelessWidget{
     });
     if(withScaffold){
       return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.search),
+        floatingActionButton: withRefreshFloatingButton?FloatingActionButton(
+          child: const Icon(Icons.refresh),
           onPressed: (){
             refresh();
           },
-        ),
+        ):null,
         body: body,
       );
     }else{
