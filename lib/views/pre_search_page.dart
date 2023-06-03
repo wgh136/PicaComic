@@ -58,7 +58,6 @@ class PreSearchPage extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverPadding(padding: EdgeInsets.only(top: 10)),
             SliverPersistentHeader(
               floating: true,
               pinned: true,
