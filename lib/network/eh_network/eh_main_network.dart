@@ -375,18 +375,19 @@ class EhNetwork{
   }
 
   ///获取画廊的下一页
-  Future<void> getNextPageGalleries(Galleries galleries) async{
-    if(galleries.next==null)  return;
+  Future<bool> getNextPageGalleries(Galleries galleries) async{
+    if(galleries.next==null)  return true;
     var next = await getGalleries(galleries.next!);
-    if(next.error)  return;
+    if(next.error)  return false;
     galleries.galleries.addAll(next.data.galleries);
     galleries.next = next.data.next;
+    return true;
   }
 
   ///从漫画详情页链接中获取漫画详细信息
   Future<Res<Gallery>> getGalleryInfo(EhGalleryBrief brief) async{
     try{
-      var res = await request("${brief.link}?/hc=1");
+      var res = await request("${brief.link}?/hc=1", expiredTime: CacheExpiredTime.no);
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
@@ -467,7 +468,7 @@ class EhNetwork{
   Stream<int> loadGalleryPages(Gallery gallery) async*{
     for (int i = 1; i < int.parse(gallery.maxPage); i++) {
       try {
-        var temp = parse(await request("${gallery.link}?p=$i"));
+        var temp = parse((await request("${gallery.link}?p=$i")).data);
         var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
         for (var link in links) {
           gallery.urls.add(link.attributes["href"]!);
@@ -480,6 +481,7 @@ class EhNetwork{
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
         //获取图片链接失败
+        print(e);
         yield 0;
         break;
       }
@@ -548,6 +550,9 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
+    if(res.error){
+      return false;
+    }
     if(res.error || res.data.isEmpty || res.data[0] != "<"){
       return false;
     }else {

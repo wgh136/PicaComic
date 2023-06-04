@@ -28,6 +28,15 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
     scrollController: comicReadingPageLogic.cont,
     itemBuilder: (context, index) {
 
+      double width =  MediaQuery.of(context).size.width;
+      double height = MediaQuery.of(context).size.height;
+
+      double imageWidth = width;
+
+      if(height / width < 1.2){
+        imageWidth = height / 1.2;
+      }
+
       precacheComicImage(comicReadingPageLogic, type, context, index+1, target);
 
       ImageProvider image;
@@ -42,6 +51,15 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.fill,
+          frameworkBuilder: (child, context){
+            return Padding(
+              padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
+              child: ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
+                alignment: Alignment.topCenter,
+                child: child,
+              ),),
+            );
+          },
           progressIndicatorBuilder: (context, s, progress) => SizedBox(
             height: 300,
             child: Center(
@@ -84,13 +102,16 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
       return Image(
         filterQuality: FilterQuality.medium,
         image: image,
-        width: MediaQuery.of(context).size.width,
-        fit: BoxFit.fill,
+        width: imageWidth,
+        fit: BoxFit.cover,
         frameBuilder: (context, widget, i, b) {
-          return ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
-            alignment: Alignment.topCenter,
-            child: widget,
-          ),);
+          return Padding(
+            padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
+            child: ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
+              alignment: Alignment.topCenter,
+              child: widget,
+              ),),
+          );
         },
         loadingBuilder: (context, widget, event) {
           if (event == null) {
@@ -238,16 +259,23 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
       },
     );
   } else {
-    body =  InteractiveViewer(
-        transformationController: comicReadingPageLogic.transformationController,
-        maxScale: GetPlatform.isDesktop ? 1.0 : 2.5,
-        child: AbsorbPointer(
-          absorbing: true, //使用控制器控制滚动
-          child: SizedBox(
-              width: MediaQuery.of(Get.context!).size.width,
-              height: MediaQuery.of(Get.context!).size.height,
-              child: buildGallery(comicReadingPageLogic, type, target)),
-        ));
+    body =  RawGestureDetector(
+        gestures: {
+
+        },
+      child: InteractiveViewer(
+          transformationController: comicReadingPageLogic.transformationController,
+          scaleEnabled: GetPlatform.isWindows?false:true,
+          maxScale: 2.5,
+          minScale: 1,
+          child: AbsorbPointer(
+            absorbing: true, //使用控制器控制滚动
+            child: SizedBox(
+                width: MediaQuery.of(Get.context!).size.width,
+                height: MediaQuery.of(Get.context!).size.height,
+                child: buildGallery(comicReadingPageLogic, type, target)),
+          )),
+    );
   }
 
   return Positioned(

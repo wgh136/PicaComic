@@ -63,7 +63,8 @@ class CfCachedNetworkImage extends StatelessWidget {
         this.height,
         this.fit,
         this.progressIndicatorBuilder,
-        this.filterQuality = FilterQuality.low
+        this.filterQuality = FilterQuality.low,
+        this.frameworkBuilder
       }) : super(key: key);
   final String imageUrl;
   final Widget Function(BuildContext, String, dynamic)? errorWidget;
@@ -72,6 +73,7 @@ class CfCachedNetworkImage extends StatelessWidget {
   final BoxFit? fit;
   final Widget Function(BuildContext, String, DownloadProgress)? progressIndicatorBuilder;
   final FilterQuality filterQuality;
+  final Widget Function(Widget child, BuildContext context)? frameworkBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +90,22 @@ class CfCachedNetworkImage extends StatelessWidget {
     }else{
       realUrl = "http://${appdata.settings[15]}${uri.path}";
     }
+    if(frameworkBuilder != null){
+      return frameworkBuilder!.call(CachedNetworkImage(
+        useOldImageOnUrlChange: true,
+        imageUrl: realUrl,
+        httpHeaders: {
+          "Host": uri.host
+        },
+        errorWidget: errorWidget,
+        width: width,
+        height: height,
+        fit: fit,
+        progressIndicatorBuilder: progressIndicatorBuilder,
+        filterQuality: filterQuality,
+
+      ), context);
+    }
     return CachedNetworkImage(
       useOldImageOnUrlChange: true,
       imageUrl: realUrl,
@@ -100,6 +118,7 @@ class CfCachedNetworkImage extends StatelessWidget {
       fit: fit,
       progressIndicatorBuilder: progressIndicatorBuilder,
       filterQuality: filterQuality,
+
     );
   }
 }

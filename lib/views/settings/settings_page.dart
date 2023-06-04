@@ -92,7 +92,22 @@ class _SettingsPageState extends State<SettingsPage> {
                       title:  Text("显示的探索页面".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => setExplorePages(context),
-                    )
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.article_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("漫画列表显示方式".tr),
+                      subtitle: Text("适用于非探索页面".tr),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[25]),
+                        whenChange: (i){
+                          appdata.settings[25] = i.toString();
+                          appdata.updateSettings();
+                        },
+                        values: const ["顺序显示", "分页显示"],
+                        inPopUpWidget: widget.popUp,
+                      ),
+                    ),
                   ],
                 ),
               ),

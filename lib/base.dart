@@ -11,7 +11,7 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.6.11";
+const appVersion = "1.6.12";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -66,7 +66,8 @@ class Appdata{
     "111111", //21 启用的漫画源
     "", //22 下载目录, 仅Windows端, 为空表示使用App数据目录
     "0", //23 初始页面,
-    "111111111" //24 分类页面
+    "111111111", //24 分类页面
+    "0", //25 漫画列表显示模式
   ];
 
   ///屏蔽的关键词
