@@ -1,7 +1,7 @@
 # Pica Comic
 
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![flutter](https://img.shields.io/badge/flutter-3.10.1-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.10.3-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
@@ -14,6 +14,8 @@
 
 Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 地址: [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
+
+Picacg的注册存在问题, 懒得修了, 可以去[官网](https://manhuabika.com/)注册
 
 欢迎提出问题和功能建议
 
