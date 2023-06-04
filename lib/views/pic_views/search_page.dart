@@ -18,13 +18,13 @@ class ModeRadioLogic extends GetxController{
   }
 }
 
-class SearchPageComicsList extends ComicsPage{
+class SearchPageComicsList extends ComicsPage<ComicItemBrief>{
   final String keyword;
   final Widget? head_;
   const SearchPageComicsList(this.keyword, {this.head_, super.key});
 
   @override
-  Future<Res<List>> getComics(int i) {
+  Future<Res<List<ComicItemBrief>>> getComics(int i) {
     return network.search(keyword, appdata.settings[1], i);
   }
 
