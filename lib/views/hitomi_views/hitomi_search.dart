@@ -1,166 +1,121 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
-import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
-import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
-import 'package:pica_comic/base.dart';
-import '../widgets/list_loading.dart';
+import '../../network/res.dart';
+import '../page_template/comics_page.dart';
 import '../widgets/search.dart';
 
-
-class HitomiSearchPageLogic extends GetxController{
-  var controller = TextEditingController();
-  bool isLoading = true;
-  bool firstSearch = true;
-  List<HitomiComicBrief>? comics;
-  String? message;
-  int totalPages = 1;
-  int loadedPages = 0;
-
-  void change(){
-    isLoading = !isLoading;
-    update();
-  }
-
-  void search() async{
-    var res = await HiNetwork().search(controller.text, 1);
-    if(res.error){
-      message = res.errorMessage;
-    }else{
-      comics = res.data;
-    }
-    totalPages = res.subData??1;
-    loadedPages++;
-    change();
-  }
-
-  void loadNestPage() async{
-    var res = await HiNetwork().search(controller.text, loadedPages+1);
-    if(res.error){
-      message = res.errorMessage;
-    }else{
-      comics!.addAll(res.data);
-    }
-    totalPages = res.subData??1;
-    loadedPages++;
-    update();
-  }
-
-  void refresh_(){
-    comics = null;
-    message = null;
-    totalPages = 1;
-    loadedPages = 0;
-    change();
-    search();
-  }
+class PageData{
+  List<int>? comics;
 }
 
-class HitomiSearchPage extends StatelessWidget {
+class SearchPageComicsList extends ComicsPage<int>{
   final String keyword;
-  const HitomiSearchPage(this.keyword,{super.key});
+  final Widget? head_;
+  final data = PageData();
+  SearchPageComicsList(this.keyword, {this.head_, super.key});
+
+  @override
+  Future<Res<List<int>>> getComics(int i) async{
+    if(data.comics == null){
+      var res = await HiNetwork().search(keyword);
+      if(res.error){
+        return Res(null, errorMessage: res.errorMessage);
+      }else{
+        data.comics = res.data;
+      }
+    }
+    return Res(data.comics!.sublist((i-1)*20, i*20>data.comics!.length?null:i*20), subData: (data.comics!.length/20).ceil());
+  }
+
+  @override
+  String? get tag => "Picacg search $keyword";
+
+  @override
+  String get title => "";
+
+  @override
+  ComicType get type => ComicType.hitomi;
+
+  @override
+  bool get withScaffold => false;
+
+  @override
+  bool get showTitle => false;
+
+  @override
+  Widget? get head => head_;
+
+  @override
+  bool get showBackWhenLoading => true;
+}
+
+class HitomiSearchPage extends StatefulWidget {
+  const HitomiSearchPage(this.keyword, {Key? key}) : super(key: key);
+  final String keyword;
+
+  @override
+  State<HitomiSearchPage> createState() => _HitomiSearchPageState();
+}
+
+class _HitomiSearchPageState extends State<HitomiSearchPage> {
+  late String keyword = widget.keyword;
+  var controller = TextEditingController();
+  bool _showFab = true;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      init: HitomiSearchPageLogic(),
-      tag: keyword,
-      builder: (logic)=>Scaffold(
-          floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.search),
-            onPressed: (){
-              var s = logic.controller.text;
-              if(s=="") return;
-              logic.change();
-              logic.search();
-            },
-          ),
-          body: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                const SliverPadding(padding: EdgeInsets.only(top: 10)),
-                SliverPersistentHeader(
-                  floating: true,
-                  delegate: _SliverAppBarDelegate(
-                    minHeight: 60,
-                    maxHeight: 0,
-                    child: FloatingSearchBar(
-                      supportingText: '搜索'.tr,
-                      f:(s){
-                        if(s=="") return;
-                        logic.change();
-                        logic.search();
-                      },
-                      controller: logic.controller,
-                    ),
-                  ),
-                ),
-                const SliverPadding(padding: EdgeInsets.only(top: 5)),
-
-                buildBody(logic, context),
-                buildLoading(logic, context),
-
-                SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
-              ],
+    controller.text = keyword;
+    return Scaffold(
+      floatingActionButton: _showFab?FloatingActionButton(
+        child: const Icon(Icons.search),
+        onPressed: (){
+          var s = controller.text;
+          if(s=="") return;
+          setState(() {
+            keyword = s;
+          });
+        },
+      ):null,
+      body: NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          final ScrollDirection direction = notification.direction;
+          setState(() {
+            if (direction == ScrollDirection.reverse) {
+              _showFab = false;
+            } else if (direction == ScrollDirection.forward) {
+              _showFab = true;
+            }
+          });
+          return true;
+        },
+        child: SearchPageComicsList(
+          keyword,
+          key: Key(keyword),
+          head_: SliverPersistentHeader(
+            floating: true,
+            delegate: _SliverAppBarDelegate(
+              minHeight: 60,
+              maxHeight: 0,
+              child: FloatingSearchBar(
+                supportingText: '搜索'.tr,
+                f:(s){
+                  if(s=="") return;
+                  setState(() {
+                    keyword = s;
+                  });
+                },
+                controller: controller,),
             ),
-          )
+          ),
+        ),
       ),
     );
   }
-
-  Widget buildBody(HitomiSearchPageLogic logic, BuildContext context){
-    if(logic.isLoading){
-      if(logic.firstSearch){
-        logic.firstSearch = false;
-        logic.controller.text = keyword;
-        logic.search();
-      }
-      return SliverToBoxAdapter(
-        child: SizedBox.fromSize(
-          size: Size(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height-60),
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),),
-      );
-    }else{
-      if(logic.comics!=null){
-        return SliverGrid(
-          delegate: SliverChildBuilderDelegate(
-              childCount: logic.comics!.length,
-                  (context, i){
-                if(i==logic.comics!.length-1){
-                  logic.loadNestPage();
-                }
-                return HiComicTile(logic.comics![i]);
-              }
-          ),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: comicTileMaxWidth,
-            childAspectRatio: comicTileAspectRatio,
-          ),
-        );
-      }else{
-        return SliverToBoxAdapter(
-          child: ListTile(
-            leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.secondary,),
-            title: Text(logic.message??"未知错误"),
-          ),
-        );
-      }
-    }
-  }
-
-  Widget buildLoading(HitomiSearchPageLogic logic, BuildContext context){
-    if(logic.comics!=null&&logic.loadedPages<logic.totalPages) {
-      return const SliverToBoxAdapter(
-        child: ListLoadingIndicator(),
-      );
-    }else{
-      return const SliverToBoxAdapter(child: SizedBox(height: 1,),);
-    }
-  }
 }
+
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate{
   _SliverAppBarDelegate({required this.child,required this.maxHeight,required this.minHeight});

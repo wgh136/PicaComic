@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
 import 'package:pica_comic/network/cache_network.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:pica_comic/network/hitomi_network/search.dart';
 import '../../base.dart';
 import '../../tools/proxy.dart';
 import '../res.dart';
@@ -11,12 +11,6 @@ import 'fetch_data.dart';
 import 'hitomi_models.dart';
 
 /// 用于 hitomi.la 的网络请求类
-///
-/// 请不要直接Copy这里的代码, 因为部分接口调用我的服务器端爬虫, 我的服务器仅用于PicaComic项目
-///
-/// Please do not copy the code here,
-/// because part of the interface calls my server-side crawler,
-/// and my server is only used for the PicaComic project
 class HiNetwork{
   factory HiNetwork() => cache==null ? (cache=HiNetwork._create()) : cache!;
 
@@ -149,94 +143,18 @@ class HiNetwork{
   }
 
   ///搜索Hitomi
-  ///
-  /// 请不要复制以及使用此函数中的代码, 此函数通过服务器端爬虫进行获取数据, 我的服务器仅用于PicaComic项目.
-  /// Please do not copy and use the code in this function,
-  /// this function fetches data through server-side crawler,
-  /// my server is only used for PicaComic project.
-  ///
-  /// hitomi搜索功能过于复杂, 通过大量前端js进行, 因此在服务器端使用模拟浏览器方式进行爬虫
-  Future<Res<List<HitomiComicBrief>>> search(String keyword, int page) async{
+  Future<Res<List<int>>> search(String keyword) async{
     await getProxy();
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
     appdata.writeHistory();
-    dynamic res;
     try{
-      var dio = Dio(BaseOptions(
-        responseType: ResponseType.plain,
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 5),
-        sendTimeout: const Duration(seconds: 5),
-      ));
-      res = await dio
-          .post("https://api.kokoiro.xyz/hitomi", data: {"keyword": keyword, "page": page});
+      var searchEngine = HitomiSearch(keyword);
+      var res = await searchEngine.search();
+      return Res(res.data);
     }
     catch(e){
-      return Res(null, errorMessage: e.toString()=="null"?"网络错误":e.toString());
-    }
-    try{
-      var document = parse(res.data);
-      var comics = <HitomiComicBrief>[];
-      for (var comicDiv in document.querySelectorAll("div.gallery-content > div")) {
-        if (comicDiv.className == "search-message" && comicDiv.text == "No results") {
-          return Res(comics, subData: 1);
-        }
-        var name = comicDiv.querySelector("h1.lillie > a")!.text;
-        var link = comicDiv.querySelector("h1.lillie > a")!.attributes["href"]!;
-        link = baseUrl + link;
-        var artist = comicDiv.querySelector("div.artist-list")!.text;
-        var cover =
-            comicDiv.querySelector("div.dj-img1 > picture > source")!.attributes["data-srcset"]!;
-        cover = cover.substring(2);
-        cover = "https://$cover";
-        cover = cover.replaceAll(RegExp(r"2x.*"), "");
-        cover = cover.removeAllWhitespace;
-        var table = comicDiv.querySelectorAll("div.dj-content > table.dj-desc > tbody");
-        String type = "", lang = "";
-        var tags = <Tag>[];
-        for (var tr in table[0].children) {
-          if (tr.firstChild!.text == "Type") {
-            type = tr.children[1].text;
-          } else if (tr.firstChild!.text == "Language") {
-            lang = tr.children[1].text;
-          } else if (tr.firstChild!.text == "Tags") {
-            for (var liA in tr.querySelectorAll("td.relatedtags > ul > li > a")) {
-              tags.add(Tag(liA.text, liA.attributes["href"]!));
-            }
-          }
-        }
-        var time = comicDiv.querySelector("div.dj-content > p")!.text;
-        //检查屏蔽词
-        if(appdata.blockingKeyword.contains(name)||
-            appdata.blockingKeyword.contains(artist)){
-          continue;
-        }
-        bool flag = false;
-        for(var tag in tags){
-          if(appdata.blockingKeyword.contains(tag.name)){
-            flag = true;
-            break;
-          }
-        }
-        if(flag){
-          continue;
-        }
-        comics.add(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
-      }
-      int maxPage;
-      var links = document.querySelectorAll("div.page-container > ul > li > a");
-      maxPage = int.parse(links.last.text);
-      try{
-        Get.find<PreSearchController>().update();
-      }
-      catch(e){
-        //忽略
-      }
-      return Res(comics, subData: maxPage);
-    }
-    catch(e){
-      return Res(null, errorMessage: "解析错误: $e");
+      return Res(null, errorMessage: "$e");
     }
   }
 

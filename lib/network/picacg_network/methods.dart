@@ -106,7 +106,7 @@ class PicacgNetwork{
   Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
     status = false;
     var api = appdata.settings[3] == "1"?"https://api.kokoiro.xyz/picaapi":"https://picaapi.picacomic.com";
-    if(appdata.token == "" && url!='$api/auth/sign-in'){
+    if(appdata.token == "" && (url!='$api/auth/sign-in' || url!="https://picaapi.picacomic.com/auth/register")){
       await Future.delayed(const Duration(milliseconds: 500));
       status = true;
       message = "未登录";
@@ -149,7 +149,6 @@ class PicacgNetwork{
       return null;
     }
     catch(e){
-      print(e);
       return null;
     }
   }
@@ -170,7 +169,7 @@ class PicacgNetwork{
           status = true;
           message = "未能获取到token";
           //既然没能拿到token, 那么应该不存在敏感信息, 实在是不清楚为什么没有token, 因此将数据上报
-          sendNetworkLog("login", res["data"]??"无数据");
+          sendNetworkLog("login", res.toString());
           return false;
         }
         if(kDebugMode){
@@ -182,7 +181,7 @@ class PicacgNetwork{
       }
     }else if(status){
       return false;
-    } else{
+    } else {
       return false;
     }
   }

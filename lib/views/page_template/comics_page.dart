@@ -61,6 +61,7 @@ class ComicsPageLogic<T> extends GetxController{
   }
 
   void loadNextPage(Future<Res<List<T>>> Function(int) getComics) async{
+    if(maxPage!=null&&current>=maxPage!)  return;
     var res = await getComics(current+1);
     if(res.error){
       showMessage(Get.context, res.errorMessage!);
@@ -132,7 +133,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
         init: ComicsPageLogic<T>(),
         tag: tag,
         builder: (logic){
-          if(logic.dividedComics?[logic.current] == null){
+          if(logic.dividedComics?[logic.current] == null && logic.message!=null){
             logic.loading = true;
           }
           if(logic.loading){
@@ -176,7 +177,10 @@ abstract class ComicsPage<T> extends StatelessWidget{
                             case 2:
                               return JmComicTile(comics[i] as JmComicBrief);
                             case 3:
-                              return HiComicTile(comics[i] as HitomiComicBrief);
+                              return
+                                (T is int)?
+                                  HitomiComicTileDynamicLoading(comics[i] as int):
+                                  HiComicTile(comics[i] as HitomiComicBrief);
                             default:
                               throw UnimplementedError();
                           }
@@ -227,7 +231,11 @@ abstract class ComicsPage<T> extends StatelessWidget{
                             case 2:
                               return JmComicTile(comics?[logic.current]![i] as JmComicBrief);
                             case 3:
-                              return HiComicTile(comics?[logic.current]![i] as HitomiComicBrief);
+                              if(comics?[logic.current]![i] is int){
+                                return HitomiComicTileDynamicLoading(comics?[logic.current]![i] as int);
+                              }else{
+                                return HiComicTile(comics?[logic.current]![i] as HitomiComicBrief);
+                              }
                             default:
                               throw UnimplementedError();
                           }
