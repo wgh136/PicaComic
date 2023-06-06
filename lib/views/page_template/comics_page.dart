@@ -177,10 +177,11 @@ abstract class ComicsPage<T> extends StatelessWidget{
                             case 2:
                               return JmComicTile(comics[i] as JmComicBrief);
                             case 3:
-                              return
-                                (T is int)?
-                                  HitomiComicTileDynamicLoading(comics[i] as int):
-                                  HiComicTile(comics[i] as HitomiComicBrief);
+                              if(comics[i] is int){
+                                return HitomiComicTileDynamicLoading(comics[i] as int);
+                              }else{
+                                return HiComicTile(comics[i] as HitomiComicBrief);
+                              }
                             default:
                               throw UnimplementedError();
                           }
