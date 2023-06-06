@@ -393,7 +393,7 @@ class JmNetwork {
           //跳过
         }
       });
-      return Res(comics, subData: (int.parse(res.data["total"]) / comics.length).ceil());
+      return Res(comics, subData: comics.isEmpty?0:(int.parse(res.data["total"]) / comics.length).ceil());
     } catch (e) {
       Future.delayed(
           const Duration(microseconds: 500), () => Get.find<PreSearchController>().update());

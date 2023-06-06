@@ -34,10 +34,10 @@ class ScrollManager{
 
   ///当滑动时调用此函数进行处理
   void addOffset(double value){
-    if(value > 30){
-      value = 30;
-    }else if(value < -30){
-      value = -30;
+    if(value > 50){
+      value = 50;
+    }else if(value < -50){
+      value = -50;
     }
     if(value*offset < 0){
       offset = 0;
@@ -105,14 +105,14 @@ class ScrollManager{
           offset = 0;
           break;
         }
-        if(offset < 2 &&offset > -2){
+        if(offset < 3 &&offset > -3){
           offset = 0;
           break;
         }
         var p = offset / 200;
-        if(p > 4){
+        if(p > 3.5){
           p = 4;
-        }else if(p < -4){
+        }else if(p < -3.5){
           p = -4;
         }
         double value = log(offset>0?offset:0-offset) * p;
@@ -124,7 +124,7 @@ class ScrollManager{
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
       }
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 8));
     }
     runningRelease = false;
   }
@@ -137,7 +137,7 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
     left: 0,
     right: 0,
     child: GestureDetector(
-      onVerticalDragStart: (details){},
+      onVerticalDragStart: appdata.settings[9]=="4"?(details){}:null,
       onTapUp: (detail) {
         bool flag = false;
         bool flag2 = false;

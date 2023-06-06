@@ -133,7 +133,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
         init: ComicsPageLogic<T>(),
         tag: tag,
         builder: (logic){
-          if(logic.dividedComics?[logic.current] == null && logic.message!=null){
+          if(logic.dividedComics?[logic.current] == null && logic.message==null && appdata.settings[25] != "0"){
             logic.loading = true;
           }
           if(logic.loading){

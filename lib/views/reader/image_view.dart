@@ -66,7 +66,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         frameBuilder: (context, widget, i, b) {
           return Padding(
             padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
-            child: ConstrainedBox(constraints: BoxConstraints(minHeight: 300), child: Align(
+            child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 250), child: Align(
               alignment: Alignment.topCenter,
               child: widget,
               ),),
@@ -77,7 +77,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             return widget;
           } else {
             return SizedBox(
-              height: 300,
+              height: 250,
               child: Center(
                   child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
                       ? CircularProgressIndicator(
@@ -90,7 +90,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         },
         errorBuilder: (context, s, d){
           return SizedBox(
-            height: 300,
+            height: 250,
             child: Center(
               child: SizedBox(
                 height: 100,

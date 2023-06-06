@@ -94,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: () => setExplorePages(context),
                     ),
                     ListTile(
-                      leading: Icon(Icons.article_outlined,
+                      leading: Icon(Icons.list,
                           color: Theme.of(context).colorScheme.secondary),
                       title: Text("漫画列表显示方式".tr),
                       subtitle: Text("适用于非探索页面".tr),

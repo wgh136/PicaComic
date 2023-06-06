@@ -206,7 +206,7 @@ class RegisterPage extends StatelessWidget {
                               padding: const EdgeInsets.fromLTRB(100, 10, 100, 0),
                               child: ElevatedButton(
                                 child: Text("注册".tr),
-                                onPressed: (){
+                                onPressed: () async{
                                   if(logic.password.text!=logic.password2.text){
                                     showMessage(context, "两次输入的密码不一致".tr);
                                   }else if(logic.password.text.length<8){
@@ -227,7 +227,7 @@ class RegisterPage extends StatelessWidget {
                                   } else {
                                     logic.isRegistering = true;
                                     logic.update();
-                                    network.register(
+                                    var res = await network.register(
                                         logic.ans1.text,
                                         logic.ans2.text,
                                         logic.ans3.text,
@@ -238,33 +238,27 @@ class RegisterPage extends StatelessWidget {
                                         logic.problem1.text,
                                         logic.problem2.text,
                                         logic.problem3.text
-                                    ).then((s){
-                                      logic.isRegistering = false;
-                                      logic.update();
-                                      if(s == "注册成功".tr){
-                                        network.login(logic.account.text, logic.password.text).then((i){
-                                          if(i){
-                                            appdata.token = network.token;
-                                            network.getProfile().then((t){
-                                              if(t == null){
-                                                showMessage(context, "注册成功,但在登录时发生网络错误".tr);
-                                                Get.off(()=>const LoginPage());
-                                              }
-                                              else{
-                                                appdata.user = t;
-                                                appdata.writeData();
-                                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                                Get.offAll(()=>const MainPage());
-                                              }
-                                            });
-                                          }else{
-                                            showMessage(context, "注册成功,但在登录时发生网络错误".tr);
-                                          }
-                                        });
+                                    );
+                                    logic.isRegistering = false;
+                                    logic.update();
+                                    if(res.error){
+                                      showMessage(Get.context, res.errorMessage??"未知错误");
+                                    }else{
+                                      var res = await network.login(logic.account.text, logic.password.text);
+                                      if(res){
+                                        var profile = await network.getProfile();
+                                        if(profile != null){
+                                          appdata.user = profile;
+                                          appdata.token = network.token;
+                                          appdata.writeData();
+                                          Get.offAll(()=>const MainPage());
+                                        }else{
+                                          showMessage(Get.context, "登录时发生错误: ${network.status?network.message:"未知错误"}");
+                                        }
                                       }else{
-                                        showMessage(context, s);
+                                        showMessage(Get.context, "登录时发生错误: ${network.status?network.message:"未知错误"}");
                                       }
-                                    });
+                                    }
                                   }
                                 },
                               ),
