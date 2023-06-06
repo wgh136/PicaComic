@@ -15,16 +15,12 @@
 Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 地址: [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
 
-Picacg的注册存在问题, 懒得修了, 可以去[官网](https://manhuabika.com/)注册
-
 欢迎提出问题和功能建议
 
 请尽量使用官方App
 
 ## 已实现的功能
 ### Picacg
-
-没有相关推荐和本子母推荐不是App的问题, 哔咔官方告知缺乏资金, 如有能力请支持哔咔官方
 
 - 账号
   - 登录
