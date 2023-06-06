@@ -107,7 +107,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         frameBuilder: (context, widget, i, b) {
           return Padding(
             padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
-            child: ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
+            child: ConstrainedBox(constraints: BoxConstraints(minHeight: 300), child: Align(
               alignment: Alignment.topCenter,
               child: widget,
               ),),
@@ -118,7 +118,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             return widget;
           } else {
             return SizedBox(
-              height: MediaQuery.of(context).size.width/400*200,
+              height: 300,
               child: Center(
                   child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
                       ? CircularProgressIndicator(
@@ -259,23 +259,18 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
       },
     );
   } else {
-    body =  RawGestureDetector(
-        gestures: {
-
-        },
-      child: InteractiveViewer(
-          transformationController: comicReadingPageLogic.transformationController,
-          scaleEnabled: GetPlatform.isWindows?false:true,
-          maxScale: 2.5,
-          minScale: 1,
-          child: AbsorbPointer(
-            absorbing: true, //使用控制器控制滚动
-            child: SizedBox(
-                width: MediaQuery.of(Get.context!).size.width,
-                height: MediaQuery.of(Get.context!).size.height,
-                child: buildGallery(comicReadingPageLogic, type, target)),
-          )),
-    );
+    body = InteractiveViewer(
+        transformationController: comicReadingPageLogic.transformationController,
+        scaleEnabled: GetPlatform.isWindows?false:true,
+        maxScale: 2.5,
+        minScale: 1,
+        child: AbsorbPointer(
+          absorbing: true, //使用控制器控制滚动
+          child: SizedBox(
+              width: MediaQuery.of(Get.context!).size.width,
+              height: MediaQuery.of(Get.context!).size.height,
+              child: buildGallery(comicReadingPageLogic, type, target)),
+        ));
   }
 
   return Positioned(
