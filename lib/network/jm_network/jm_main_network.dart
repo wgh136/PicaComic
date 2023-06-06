@@ -567,7 +567,7 @@ class JmNetwork {
               comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
         }
       }
-      return Res(comics, subData: (int.parse(res.data["total"]) / comics.length).ceil());
+      return Res(comics, subData: comics.isEmpty?0:(int.parse(res.data["total"])));
     } catch (e) {
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
