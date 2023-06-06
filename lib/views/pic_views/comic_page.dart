@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,7 +11,6 @@ import 'package:pica_comic/views/pic_views/comments_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
-import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
@@ -285,7 +285,7 @@ class ComicPage extends StatelessWidget{
       width: width,
       height: height,
     ):GestureDetector(
-      child: CfCachedNetworkImage(
+      child: CachedNetworkImage(
         width: width,
         height: height,
         imageUrl: getImageUrl(comic.path),

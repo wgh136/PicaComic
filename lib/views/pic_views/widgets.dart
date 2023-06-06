@@ -1,10 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
-import 'package:pica_comic/views/widgets/cf_image_widgets.dart';
 import '../widgets/comic_tile.dart';
 import 'comic_page.dart';
 
@@ -23,13 +23,13 @@ class PicComicTile extends ComicTile {
   String get description => time==null?(!downloaded?'${comic.likes} likes':"${size??"未知"} MB"):time!;
 
   @override
-  Widget get image => !downloaded?(cached?CfCachedNetworkImage(
+  Widget get image => !downloaded?(cached?CachedNetworkImage(
     imageUrl: getImageUrl(comic.path),
     fit: BoxFit.cover,
     errorWidget: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
     progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-  ):CfImageNetwork(
+  ):Image.network(
     getImageUrl(comic.path),
     fit: BoxFit.cover,
     errorBuilder: (context, url, error) => const Icon(Icons.error),
@@ -94,7 +94,7 @@ class CategoryTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16)
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: CfCachedNetworkImage(
+                  child: CachedNetworkImage(
                     imageUrl: getImageUrl(categoryItem.path),
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                     progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),

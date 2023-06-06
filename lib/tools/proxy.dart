@@ -27,7 +27,7 @@ Future<String?> getProxy() async{
     for (String proxy in proxies) {
       proxy = proxy.removeAllWhitespace;
       if (proxy.startsWith('https=')) {
-        return proxy.substring(5);
+        return proxy.substring(6);
       }
     }
   }
@@ -40,20 +40,34 @@ ProxyHttpOverrides? proxyHttpOverrides;
 Future<void> setNetworkProxy() async{
   //Image加载使用的是Image.network()和CachedNetworkImage(), 均使用flutter内置http进行网络请求
   var proxy = await getProxy();
-  if(proxy != null){
-    if(!proxy.contains(":")){
-      proxy = null;
-    }else {
-      var lr = proxy.split(":");
-      if (lr.length != 2) {
-        proxy = null;
-      }else{
-        if(lr[0].split(".").length != 4 || !lr[1].isNum){
-          proxy = null;
-        }
+  String? checkProxy(String? proxy){
+    if(proxy == null){
+      return null;
+    }
+    for(int i=0;i<proxy.length;i++){
+      var char = proxy[i];
+      if(!char.isNum&&char!=':'&&char!='.'){
+        return null;
       }
     }
+
+    if(!proxy.contains(":")){
+      proxy = null;
+      return null;
+    }
+
+    var lr = proxy.split(":");
+    if (lr.length != 2) {
+      proxy = null;
+    }else{
+      if(lr[0].split(".").length != 4 || !lr[1].isNum){
+        proxy = null;
+      }
+    }
+    return proxy;
   }
+  proxy = checkProxy(proxy);
+
   if(kDebugMode){
     print("Set Proxy $proxy");
   }

@@ -10,7 +10,6 @@ import '../../network/eh_network/get_gallery_id.dart';
 import '../../network/picacg_network/methods.dart';
 import '../eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
 import '../jm_views/jm_image_provider/jm_cached_image.dart';
-import '../widgets/cf_image_widgets.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
@@ -46,47 +45,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
       }else if(type == ReadingType.hitomi && !comicReadingPageLogic.downloaded){
         image = HitomiCachedImageProvider(comicReadingPageLogic.images[index], target);
       }else if(type == ReadingType.picacg && !comicReadingPageLogic.downloaded){
-        return CfCachedNetworkImage(
-          filterQuality: FilterQuality.medium,
-          imageUrl: getImageUrl(comicReadingPageLogic.urls[index]),
-          width: MediaQuery.of(context).size.width,
-          fit: BoxFit.fill,
-          frameworkBuilder: (child, context){
-            return Padding(
-              padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
-              child: ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
-                alignment: Alignment.topCenter,
-                child: child,
-              ),),
-            );
-          },
-          progressIndicatorBuilder: (context, s, progress) => SizedBox(
-            height: 300,
-            child: Center(
-                child: CircularProgressIndicator(
-                  value: progress.progress,
-                  backgroundColor: Colors.white12,
-                )),
-          ),
-          errorWidget: (context, s, d){
-            return SizedBox(
-              height: 300,
-              child: Center(
-                child: SizedBox(
-                  height: 100,
-                  width: 300,
-                  child: Column(
-                    children: [
-                      const Icon(Icons.error, color: Colors.white,size: 30,),
-                      const SizedBox(height: 10,),
-                      Text(d.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+        image = CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
       }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
         image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
       }else{
@@ -107,7 +66,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         frameBuilder: (context, widget, i, b) {
           return Padding(
             padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
-            child: ConstrainedBox(constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.width/400*200), child: Align(
+            child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 250), child: Align(
               alignment: Alignment.topCenter,
               child: widget,
               ),),
@@ -118,7 +77,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
             return widget;
           } else {
             return SizedBox(
-              height: MediaQuery.of(context).size.width/400*200,
+              height: 250,
               child: Center(
                   child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
                       ? CircularProgressIndicator(
@@ -131,7 +90,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         },
         errorBuilder: (context, s, d){
           return SizedBox(
-            height: 300,
+            height: 250,
             child: Center(
               child: SizedBox(
                 height: 100,
@@ -259,23 +218,18 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
       },
     );
   } else {
-    body =  RawGestureDetector(
-        gestures: {
-
-        },
-      child: InteractiveViewer(
-          transformationController: comicReadingPageLogic.transformationController,
-          scaleEnabled: GetPlatform.isWindows?false:true,
-          maxScale: 2.5,
-          minScale: 1,
-          child: AbsorbPointer(
-            absorbing: true, //使用控制器控制滚动
-            child: SizedBox(
-                width: MediaQuery.of(Get.context!).size.width,
-                height: MediaQuery.of(Get.context!).size.height,
-                child: buildGallery(comicReadingPageLogic, type, target)),
-          )),
-    );
+    body = InteractiveViewer(
+        transformationController: comicReadingPageLogic.transformationController,
+        scaleEnabled: GetPlatform.isWindows?false:true,
+        maxScale: 2.5,
+        minScale: 1,
+        child: AbsorbPointer(
+          absorbing: true, //使用控制器控制滚动
+          child: SizedBox(
+              width: MediaQuery.of(Get.context!).size.width,
+              height: MediaQuery.of(Get.context!).size.height,
+              child: buildGallery(comicReadingPageLogic, type, target)),
+        ));
   }
 
   return Positioned(

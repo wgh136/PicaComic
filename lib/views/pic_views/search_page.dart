@@ -25,7 +25,7 @@ class SearchPageComicsList extends ComicsPage<ComicItemBrief>{
 
   @override
   Future<Res<List<ComicItemBrief>>> getComics(int i) {
-    return network.search(keyword, appdata.settings[1], i);
+    return network.search(keyword, appdata.settings[1], i, addToHistory: true);
   }
 
   @override

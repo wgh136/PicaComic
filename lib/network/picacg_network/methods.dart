@@ -34,30 +34,18 @@ class PicacgNetwork{
   bool useCf = false;
 
   Future<void> updateApi() async{
-    if(appdata.settings[3]=="1"||GetPlatform.isWeb){
+    if(appdata.settings[3]=="1"){
       useCf = false;
       apiUrl = "https://api.kokoiro.xyz/picaapi";
-    }else if(appdata.settings[15]=="1"){
-      var ip = await init();
-      if(ip!=null){
-        useCf = true;
-        apiUrl = "http://$ip";
-      }else{
-        useCf = false;
-        apiUrl = "https://picaapi.picacomic.com";
-      }
-    }else if(appdata.settings[15]=="0"){
-      useCf = false;
-      apiUrl = "https://picaapi.picacomic.com";
     }else{
-      apiUrl = "http://${appdata.settings[15]}";
+      apiUrl = "https://picaapi.picacomic.com";
     }
   }
 
   Future<Map<String, dynamic>?> get(String url,
       {CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
     status = false;
-    if(appdata.token == ""){
+    if(token == ""){
       await Future.delayed(const Duration(milliseconds: 500));
       status = true;
       message = "未登录";
@@ -106,7 +94,7 @@ class PicacgNetwork{
   Future<Map<String, dynamic>?> post(String url,Map<String,String>? data) async{
     status = false;
     var api = appdata.settings[3] == "1"?"https://api.kokoiro.xyz/picaapi":"https://picaapi.picacomic.com";
-    if(appdata.token == "" && url!='$api/auth/sign-in'){
+    if(token == "" && url!='$api/auth/sign-in' && url!="https://picaapi.picacomic.com/auth/register"){
       await Future.delayed(const Duration(milliseconds: 500));
       status = true;
       message = "未登录";
@@ -149,7 +137,6 @@ class PicacgNetwork{
       return null;
     }
     catch(e){
-      print(e);
       return null;
     }
   }
@@ -170,7 +157,7 @@ class PicacgNetwork{
           status = true;
           message = "未能获取到token";
           //既然没能拿到token, 那么应该不存在敏感信息, 实在是不清楚为什么没有token, 因此将数据上报
-          sendNetworkLog("login", res["data"]??"无数据");
+          sendNetworkLog("login", res.toString());
           return false;
         }
         if(kDebugMode){
@@ -182,7 +169,7 @@ class PicacgNetwork{
       }
     }else if(status){
       return false;
-    } else{
+    } else {
       return false;
     }
   }
@@ -265,7 +252,7 @@ class PicacgNetwork{
     if(page == 1 && addToHistory && keyWord!=""){
       appdata.searchHistory.remove(keyWord);
       appdata.searchHistory.add(keyWord);
-      appdata.writeData();
+      appdata.writeHistory();
     }
     if(res!=null) {
       try {
@@ -300,7 +287,7 @@ class PicacgNetwork{
 
           var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"] ?? "未知",
               res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-              res["data"]["comics"]["docs"][i]["likesCount"] ?? 0,
+              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"]
@@ -490,7 +477,7 @@ class PicacgNetwork{
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
           var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"] ?? "未知",
               res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-              res["data"]["comics"]["docs"][i]["likesCount"] ?? 0,
+              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"]
@@ -514,7 +501,7 @@ class PicacgNetwork{
       for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
         var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
             res["data"]["comics"]["docs"][i]["author"]??"未知",
-            res["data"]["comics"]["docs"][i]["likesCount"]??0,
+            int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
             res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                 res["data"]["comics"]["docs"][i]["thumb"]["path"],
             res["data"]["comics"]["docs"][i]["_id"]
@@ -646,16 +633,16 @@ class PicacgNetwork{
     return comics;
   }
 
-  Future<String> register(String ans1,String ans2, String ans3,String birthday, String account, String gender, String name, String password, String que1, String que2, String que3) async{
+  Future<Res<String>> register(String ans1,String ans2, String ans3,String birthday, String account, String gender, String name, String password, String que1, String que2, String que3) async{
     //gender:m,f,bot
     var res = await post("https://picaapi.picacomic.com/auth/register",{"answer1":ans1,"answer2":ans2,"answer3":ans3,"birthday":birthday,"email":account,"gender":gender,"name":name,"password":password,"question1":que1,"question2":que2,"question3":que3});
     if(res == null){
-      return "网络错误";
+      return Res(null, errorMessage: status?message:"网络错误");
     }
     else if(res["message"]=="failure"){
-      return "注册失败, 用户名或账号可能已存在";
+      return Res(null, errorMessage: "注册失败, 用户名或账号可能已存在");
     }else{
-      return "注册成功";
+      return Res("注册成功");
     }
   }
 
@@ -780,7 +767,7 @@ class PicacgNetwork{
           var si = ComicItemBrief(
               res["data"]["comics"][i]["title"]??"未知",
               res["data"]["comics"][i]["author"]??"未知",
-              res["data"]["comics"][i]["likesCount"]??0,
+              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
               res["data"]["comics"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"][i]["thumb"]["path"],
               res["data"]["comics"][i]["_id"]
@@ -954,7 +941,7 @@ class PicacgNetwork{
 
         var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"]??"未知",
             res["data"]["comics"]["docs"][i]["author"]??"未知",
-            res["data"]["comics"]["docs"][i]["likesCount"]??0,
+            int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
             res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                 res["data"]["comics"]["docs"][i]["thumb"]["path"],
             res["data"]["comics"]["docs"][i]["_id"]
@@ -1004,7 +991,7 @@ class PicacgNetwork{
 
           var si = ComicItemBrief(res["data"]["comics"]["docs"][i]["title"] ?? "未知",
               res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-              res["data"]["comics"]["docs"][i]["likesCount"] ?? 0,
+              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] + "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"]

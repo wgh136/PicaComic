@@ -34,10 +34,10 @@ class ScrollManager{
 
   ///当滑动时调用此函数进行处理
   void addOffset(double value){
-    if(value > 30){
-      value = 30;
-    }else if(value < -30){
-      value = -30;
+    if(value > 50){
+      value = 50;
+    }else if(value < -50){
+      value = -50;
     }
     if(value*offset < 0){
       offset = 0;
@@ -105,14 +105,14 @@ class ScrollManager{
           offset = 0;
           break;
         }
-        if(offset < 2 &&offset > -2){
+        if(offset < 3 &&offset > -3){
           offset = 0;
           break;
         }
         var p = offset / 200;
-        if(p > 4){
+        if(p > 3.5){
           p = 4;
-        }else if(p < -4){
+        }else if(p < -3.5){
           p = -4;
         }
         double value = log(offset>0?offset:0-offset) * p;
@@ -124,7 +124,7 @@ class ScrollManager{
         scrollController.jumpTo(scrollController.position.pixels - value);
         offset -= value;
       }
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 8));
     }
     runningRelease = false;
   }
@@ -137,30 +137,11 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
     left: 0,
     right: 0,
     child: GestureDetector(
-      onDoubleTap: (){
-        if(appdata.settings[9] == "4"){
-          if (logic.showSettings) {
-            logic.showSettings = false;
-            logic.update();
-            return;
-          }
-          if (!logic.tools) {
-            logic.tools = true;
-            logic.update();
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-            return;
-          }else{
-            logic.tools = false;
-            logic.update();
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-          }
-        }
-      },
+      onVerticalDragStart: appdata.settings[9]=="4"?(details){}:null,
       onTapUp: (detail) {
         bool flag = false;
         bool flag2 = false;
         if (appdata.settings[0] == "1" &&
-            appdata.settings[9] != "4" &&
             !logic.tools) {
           switch (appdata.settings[9]) {
             case "1":
@@ -193,14 +174,21 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
                   ? logic.jumpToLastPage()
                   : flag2 = true;
               break;
+            case "4":
+              detail.globalPosition.dy >
+                  MediaQuery.of(context).size.height * 0.75
+                  ? logic.jumpToNextPage()
+                  : flag = true;
+              detail.globalPosition.dy <
+                  MediaQuery.of(context).size.height * 0.25
+                  ? logic.jumpToLastPage()
+                  : flag2 = true;
+              break;
           }
         } else {
           flag = flag2 = true;
         }
         if (flag && flag2) {
-          if(!logic.tools && appdata.settings[9] == "4"){
-            return;
-          }
           if (logic.showSettings) {
             logic.showSettings = false;
             logic.update();

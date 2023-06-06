@@ -428,7 +428,7 @@ class PreSearchPage extends StatelessWidget {
                             borderRadius: const BorderRadius.all(Radius.circular(10),),
                             onTap: (){
                               appdata.searchHistory.clear();
-                              appdata.writeData();
+                              appdata.writeHistory();
                               controller.update();
                             },
                             child: Container(
