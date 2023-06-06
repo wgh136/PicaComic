@@ -2,9 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/widgets/show_user_info.dart';
-
 import '../../base.dart';
-import 'cf_image_widgets.dart';
+
 
 class Avatar extends StatelessWidget {
   const Avatar({Key? key,
@@ -58,7 +57,7 @@ class Avatar extends StatelessWidget {
             ),
             if(frame!=null&&appdata.settings[5]=="1")
               Positioned(
-                child: CfCachedNetworkImage(
+                child: CachedNetworkImage(
                   imageUrl: getImageUrl(frame!),
                   errorWidget: (context,s,d){return const SizedBox();},
                 ),

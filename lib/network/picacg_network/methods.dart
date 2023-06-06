@@ -34,23 +34,11 @@ class PicacgNetwork{
   bool useCf = false;
 
   Future<void> updateApi() async{
-    if(appdata.settings[3]=="1"||GetPlatform.isWeb){
+    if(appdata.settings[3]=="1"){
       useCf = false;
       apiUrl = "https://api.kokoiro.xyz/picaapi";
-    }else if(appdata.settings[15]=="1"){
-      var ip = await init();
-      if(ip!=null){
-        useCf = true;
-        apiUrl = "http://$ip";
-      }else{
-        useCf = false;
-        apiUrl = "https://picaapi.picacomic.com";
-      }
-    }else if(appdata.settings[15]=="0"){
-      useCf = false;
-      apiUrl = "https://picaapi.picacomic.com";
     }else{
-      apiUrl = "http://${appdata.settings[15]}";
+      apiUrl = "https://picaapi.picacomic.com";
     }
   }
 
