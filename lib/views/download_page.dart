@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
-import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/ui_mode.dart';
@@ -13,13 +12,14 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../network/eh_network/eh_download_model.dart';
 import '../network/jm_network/jm_download.dart';
 import '../network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'dart:io';
 
 class DownloadPageLogic extends GetxController {
   ///是否正在加载
@@ -269,7 +269,15 @@ class DownloadPage extends StatelessWidget {
       logic.comics.clear();
       await getComics(logic);
     }
-    logic.comics.sort((a, b)=>a.subTitle.compareTo(b.subTitle));
+    logic.comics.sort((a, b){
+      switch(appdata.settings[26]){
+        case "0": return (a.time??DateTime.now()).compareTo(b.time??DateTime.now());
+        case "1": return a.name.compareTo(b.name);
+        case "2": return a.subTitle.compareTo(b.subTitle);
+        case "3": return (a.comicSize??0).compareTo(b.comicSize??0);
+        default: throw UnimplementedError();
+      }
+    });
   }
 
   Future<void> export(DownloadPageLogic logic) async {
@@ -278,7 +286,7 @@ class DownloadPage extends StatelessWidget {
         var res = await exportComic(logic.comics[i].id, logic.comics[i].name);
         Get.back();
         if(res){
-          showMessage(Get.context, "导出成功");
+          //忽视
         }else{
           showMessage(Get.context, "导出失败");
         }
@@ -288,8 +296,40 @@ class DownloadPage extends StatelessWidget {
 
   Widget buildItem(BuildContext context, DownloadPageLogic logic, int index) {
     bool selected = logic.selected[index];
-    return GestureDetector(
-        onSecondaryTapUp: (details) {
+    return Container(
+      decoration: BoxDecoration(
+          color: selected ? const Color.fromARGB(100, 121, 125, 127) : Colors.transparent),
+      child: DownloadedComicTile(
+        name: logic.comics[index].name,
+        author: logic.comics[index].subTitle,
+        imagePath: downloadManager.getCover(logic.comics[index].id),
+        onTap: () async {
+          if (logic.selecting) {
+            logic.selected[index] = !logic.selected[index];
+            logic.selected[index] ? logic.selectedNum++ : logic.selectedNum--;
+            if (logic.selectedNum == 0) {
+              logic.selecting = false;
+            }
+            logic.update();
+          } else {
+            showInfo(index, logic, context);
+          }
+        },
+        size: () {
+          if (logic.comics[index].comicSize != null) {
+            return logic.comics[index].comicSize!.toStringAsFixed(2);
+          } else {
+            return "未知大小".tr;
+          }
+        }.call(),
+        onLongTap: () {
+          if (logic.selecting) return;
+          logic.selected[index] = true;
+          logic.selectedNum++;
+          logic.selecting = true;
+          logic.update();
+        },
+        onSecondaryTap: (details) {
           showMenu(
               context: context,
               position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy,
@@ -309,7 +349,7 @@ class DownloadPage extends StatelessWidget {
                   onTap: () {
                     Future<void>.delayed(
                       const Duration(milliseconds: 200),
-                      () => showDialog(
+                          () => showDialog(
                         context: context,
                         barrierDismissible: false,
                         barrierColor: Colors.black26,
@@ -345,7 +385,7 @@ class DownloadPage extends StatelessWidget {
                       var res = await exportComic(logic.comics[index].id, logic.comics[index].name);
                       Get.back();
                       if(res){
-                        showMessage(Get.context, "导出成功");
+                        //忽视
                       }else{
                         showMessage(Get.context, "导出失败");
                       }
@@ -378,41 +418,8 @@ class DownloadPage extends StatelessWidget {
                 ),
               ]);
         },
-        child: Container(
-          decoration: BoxDecoration(
-              color: selected ? const Color.fromARGB(100, 121, 125, 127) : Colors.transparent),
-          child: PicComicTile(
-            ComicItemBrief(logic.comics[index].name, logic.comics[index].subTitle, 0, "",
-                logic.comics[index].id),
-            downloaded: true,
-            onTap: () async {
-              if (logic.selecting) {
-                logic.selected[index] = !logic.selected[index];
-                logic.selected[index] ? logic.selectedNum++ : logic.selectedNum--;
-                if (logic.selectedNum == 0) {
-                  logic.selecting = false;
-                }
-                logic.update();
-              } else {
-                showInfo(index, logic, context);
-              }
-            },
-            size: () {
-              if (logic.comics[index].comicSize != null) {
-                return logic.comics[index].comicSize!.toStringAsFixed(2);
-              } else {
-                return "未知大小".tr;
-              }
-            }.call(),
-            onLongTap: () {
-              if (logic.selecting) return;
-              logic.selected[index] = true;
-              logic.selectedNum++;
-              logic.selecting = true;
-              logic.update();
-            },
-          ),
-        ));
+      ),
+    );
   }
 
   void toComicInfoPage(DownloadPageLogic logic) {
@@ -604,4 +611,52 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
       readHitomiComic((comic as DownloadedHitomiComic).comic, (comic as DownloadedHitomiComic).cover);
     }
   }
+}
+
+class DownloadedComicTile extends ComicTile{
+  final String size;
+  final File imagePath;
+  final String author;
+  final String name;
+  final void Function() onTap;
+  final void Function() onLongTap;
+  final void Function(TapDownDetails details) onSecondaryTap;
+
+  @override
+  String get description => "${size}MB";
+
+  @override
+  void favorite() => throw UnimplementedError();
+
+  @override
+  Widget get image => Image.file(
+    imagePath,
+    fit: BoxFit.cover,
+    height: double.infinity,
+  );
+
+  @override
+  void onTap_() => onTap();
+
+  @override
+  String get subTitle => author;
+
+  @override
+  String get title => name;
+
+  @override
+  void onLongTap_() => onLongTap();
+
+  @override
+  void onSecondaryTap_(details) => onSecondaryTap(details);
+
+  const DownloadedComicTile({
+      required this.size,
+      required this.imagePath,
+      required this.author,
+      required this.name,
+      required this.onTap,
+      required this.onLongTap,
+      required this.onSecondaryTap,
+      super.key});
 }

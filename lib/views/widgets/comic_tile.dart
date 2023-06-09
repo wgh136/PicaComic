@@ -36,6 +36,20 @@ abstract class ComicTile extends StatelessWidget {
     ));
   }
   void onTap_();
+  void onSecondaryTap_(TapDownDetails details){
+    showMenu(
+        context: Get.context!,
+        position: RelativeRect.fromLTRB(
+            details.globalPosition.dx, details.globalPosition.dy,
+            details.globalPosition.dx, details.globalPosition.dy),
+        items: [
+          PopupMenuItem(
+            onTap: ()=>onTap_(),
+            child: const Text("查看")
+          )
+        ]
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +57,7 @@ abstract class ComicTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: onTap_,
         onLongPress: onLongTap_,
+        onSecondaryTapDown: onSecondaryTap_,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
           child: Row(

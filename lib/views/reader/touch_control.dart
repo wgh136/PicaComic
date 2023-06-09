@@ -32,6 +32,14 @@ class ScrollManager{
 
   ScrollManager(this.scrollController);
 
+  void tapDown(PointerDownEvent details){
+    fingers++;
+  }
+
+  void tapUp(PointerUpEvent details){
+    fingers--;
+  }
+
   ///当滑动时调用此函数进行处理
   void addOffset(double value){
     if(value > 50){
@@ -110,10 +118,10 @@ class ScrollManager{
           break;
         }
         var p = offset / 200;
-        if(p > 3.5){
-          p = 4;
-        }else if(p < -3.5){
-          p = -4;
+        if(p > 4.5){
+          p = 4.5;
+        }else if(p < -4.5){
+          p = -4.5;
         }
         double value = log(offset>0?offset:0-offset) * p;
         if(value > maxScrollOnce){
@@ -130,15 +138,25 @@ class ScrollManager{
   }
 }
 
-Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
+Offset? tapOffset;
+
+Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {Widget? child}){
   return Positioned(
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
     child: GestureDetector(
-      onVerticalDragStart: appdata.settings[9]=="4"?(details){}:null,
+      onTapDown: (details){
+        tapOffset = details.globalPosition;
+      },
       onTapUp: (detail) {
+        if(tapOffset != null){
+          var distance = detail.globalPosition.dy - tapOffset!.dy;
+          if(distance > 0.1 || distance < -0.1){
+            return;
+          }
+        }
         bool flag = false;
         bool flag2 = false;
         if (appdata.settings[0] == "1" &&
@@ -203,6 +221,7 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context){
           }
         }
       },
+      child: child,
     ),
   );
 }

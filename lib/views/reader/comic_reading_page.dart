@@ -253,14 +253,14 @@ class ComicReadingPage extends StatelessWidget {
                       }
                     },
                     onPointerUp: appdata.settings[9] == "4"
-                        ? (details) => data.scrollManager!.fingers--
+                        ? (details) => data.scrollManager!.tapUp(details)
                         : null,
                     onPointerDown: appdata.settings[9] == "4"
-                        ? (details) => data.scrollManager!.fingers++
+                        ? (details) => data.scrollManager!.tapDown(details)
                         : null,
                     child: Stack(
                       children: [
-                        buildComicView(logic, type, (logic.downloaded&&type==ReadingType.jm)?"jm$target":data.target, eps),
+                        buildComicView(logic, type, (logic.downloaded&&type==ReadingType.jm)?"jm$target":data.target, eps, context),
                         if (Get.isDarkMode && appdata.settings[18] == "1")
                           Positioned(
                             top: 0,

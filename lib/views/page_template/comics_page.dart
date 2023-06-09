@@ -66,7 +66,12 @@ class ComicsPageLogic<T> extends GetxController{
     if(res.error){
       showMessage(Get.context, res.errorMessage!);
     }else{
+      if(res.data.isEmpty){
+        maxPage = current;
+        update();
+      }
       comics!.addAll(res.data);
+      current++;
       update();
     }
   }

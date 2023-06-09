@@ -128,6 +128,11 @@ class MyCacheManager{
     res =
       await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
 
+    if(res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8"
+        || res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8"){
+      throw ImageExceedError();
+    }
+
     var stream = res.data!.stream;
     int? expectedBytes;
     try {
@@ -330,6 +335,17 @@ class MyCacheManager{
   Future<bool> find(String key) async{
     await readData();
     return _paths![key] != null;
+  }
+
+  Future<void> delete(String key) async{
+    await readData();
+    try{
+      var file = File(_paths![key]!);
+      file.deleteSync();
+    }
+    catch(e){
+      //忽视
+    }
   }
 }
 

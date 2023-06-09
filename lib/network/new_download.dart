@@ -326,7 +326,15 @@ class DownloadManager{
     try {
       var file = File("$path$pathSep$id${pathSep}info.json");
       var json = await file.readAsString();
-      return DownloadedComic.fromJson(jsonDecode(json));
+      var res =  DownloadedComic.fromJson(jsonDecode(json));
+      try {
+        var time = file.lastModifiedSync();
+        res.time = time;
+      }
+      catch(e){
+        //忽视
+      }
+      return res;
     }
     catch(e){
       downloaded.remove(id);
@@ -340,7 +348,15 @@ class DownloadManager{
     try {
       var file = File("$path$pathSep$id${pathSep}info.json");
       var json = await file.readAsString();
-      return DownloadedGallery.fromJson(jsonDecode(json));
+      var res =  DownloadedGallery.fromJson(jsonDecode(json));
+      try {
+        var time = file.lastModifiedSync();
+        res.time = time;
+      }
+      catch(e){
+        //忽视
+      }
+      return res;
     }
     catch(e){
       downloadedGalleries.remove(id);
@@ -354,7 +370,15 @@ class DownloadManager{
     try {
       var file = File("$path$pathSep$id${pathSep}info.json");
       var json = await file.readAsString();
-      return DownloadedJmComic.fromMap(jsonDecode(json));
+      var res =  DownloadedJmComic.fromMap(jsonDecode(json));
+      try {
+        var time = file.lastModifiedSync();
+        res.time = time;
+      }
+      catch(e){
+        //忽视
+      }
+      return res;
     }
     catch(e){
       downloadedJmComics.remove(id);
@@ -367,7 +391,15 @@ class DownloadManager{
     try {
       var file = File("$path$pathSep$id${pathSep}info.json");
       var json = await file.readAsString();
-      return DownloadedHitomiComic.fromMap(jsonDecode(json));
+      var res =  DownloadedHitomiComic.fromMap(jsonDecode(json));
+      try {
+        var time = file.lastModifiedSync();
+        res.time = time;
+      }
+      catch(e){
+        //忽视
+      }
+      return res;
     }
     catch(e){
       downloadedHitomiComics.remove(id);
