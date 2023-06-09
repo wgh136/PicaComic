@@ -108,6 +108,20 @@ class _SettingsPageState extends State<SettingsPage> {
                         inPopUpWidget: widget.popUp,
                       ),
                     ),
+                    ListTile(
+                      leading: Icon(Icons.file_download_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("已下载的漫画排序方式".tr),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[26]),
+                        whenChange: (i){
+                          appdata.settings[26] = i.toString();
+                          appdata.updateSettings();
+                        },
+                        values: const ["时间", "漫画名", "作者名", "大小"],
+                        inPopUpWidget: widget.popUp,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -329,7 +343,6 @@ class _SettingsPageState extends State<SettingsPage> {
                               appdata.writeData();
                             },
                           ),
-                          onTap: () => showMessage(context, "禁止涩涩"),
                         ),
                       ListTile(
                         leading:
@@ -343,8 +356,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             setState(() => needBiometrics = b);
                             appdata.writeData();
                           },
-                        ),
-                        onTap: () => showMessage(context, "禁止涩涩"),
+                        )
                       ),
                     ],
                   ),

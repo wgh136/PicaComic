@@ -11,13 +11,13 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 //App版本
-const appVersion = "1.6.13";
+const appVersion = "1.6.14";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
 
 //ComicTile的最大宽度
-const double comicTileMaxWidth = 665.0;
+const double comicTileMaxWidth = 630.0;
 //ComicTile的宽高比
 const double comicTileAspectRatio = 2.5;
 
@@ -68,6 +68,7 @@ class Appdata{
     "0", //23 初始页面,
     "111111111", //24 分类页面
     "0", //25 漫画列表显示模式
+    "0", //26 已下载页面排序模式: 时间, 漫画名, 作者名, 大小
   ];
 
   ///屏蔽的关键词

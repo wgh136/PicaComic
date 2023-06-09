@@ -374,28 +374,6 @@ class JmComicPage extends StatelessWidget {
               ),
             ]);
       },
-      onSecondaryTapUp: (details) {
-        showMenu(
-            context: context,
-            position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy,
-                details.globalPosition.dx, details.globalPosition.dy),
-            items: [
-              PopupMenuItem(
-                child: Text("复制".tr),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制");
-                },
-              ),
-              PopupMenuItem(
-                child: Text("添加到屏蔽词".tr),
-                onTap: () {
-                  appdata.blockingKeyword.add(title);
-                  appdata.writeData();
-                },
-              ),
-            ]);
-      },
       child: Card(
         margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
         elevation: 0,
@@ -405,6 +383,28 @@ class JmComicPage extends StatelessWidget {
           onTap: allowSearch
               ? () => Get.to(() => JmSearchPage(title), preventDuplicates: false)
               : () {},
+          onSecondaryTapUp: (details) {
+            showMenu(
+                context: context,
+                position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy,
+                    details.globalPosition.dx, details.globalPosition.dy),
+                items: [
+                  PopupMenuItem(
+                    child: Text("复制".tr),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: (title)));
+                      showMessage(context, "已复制");
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text("添加到屏蔽词".tr),
+                    onTap: () {
+                      appdata.blockingKeyword.add(title);
+                      appdata.writeData();
+                    },
+                  ),
+                ]);
+          },
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
             child: Text(title),

@@ -112,7 +112,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
 }
 
 ///构建漫画图片
-Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType type, String target, List<String> eps) {
+Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType type, String target, List<String> eps, BuildContext context) {
   Widget body;
 
   if (appdata.settings[9] != "4") {

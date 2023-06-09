@@ -24,7 +24,13 @@ class ImageLoader{
       chunkEvents,
       (bytes) async {
         final buffer = await ImmutableBuffer.fromUint8List(bytes);
-        return decode(buffer);
+        try {
+          return decode(buffer);
+        }
+        catch(e){
+          MyCacheManager().delete(url);
+          throw Exception("图片数据不正确, 当前IP可能超出E-Hentai的限制");
+        }
       },
       maxHeight,
       maxWidth,

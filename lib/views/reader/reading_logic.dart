@@ -76,8 +76,10 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToNextChapter(){
     var type = data.type;
     var eps = data.eps;
-    if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || (type==ReadingType.jm) && order == eps.length){
-      controller.jumpToPage(urls.length);
+    if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || ((type==ReadingType.jm) && order == eps.length)){
+      if(appdata.settings[9] != "4") {
+        controller.jumpToPage(urls.length);
+      }
       showMessage(Get.context, "已经是最后一章了".tr);
       return;
     }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
@@ -98,11 +100,15 @@ class ComicReadingPageLogic extends GetxController{
     var type = data.type;
     var eps = data.eps;
     if(order == 1 && type == ReadingType.picacg){
-      controller.jumpToPage(1);
+      if(appdata.settings[9] != "4") {
+        controller.jumpToPage(1);
+      }
       showMessage(Get.context, "已经是第一章了".tr);
       return;
     }else if(order == 1 && type == ReadingType.jm){
-      controller.jumpToPage(1);
+      if(appdata.settings[9] != "4") {
+        controller.jumpToPage(1);
+      }
       showMessage(Get.context, "已经是第一章了".tr);
       return;
     }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
