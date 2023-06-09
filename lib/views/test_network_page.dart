@@ -17,6 +17,7 @@ class TestNetworkPage extends StatefulWidget {
 class _TestNetworkPageState extends State<TestNetworkPage> {
   bool isLoading = true;
   String? message;
+  String status = "正在获取用户信息".tr;
 
   @override
   void initState() {
@@ -58,7 +59,23 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 top: MediaQuery.of(context).size.height/2-40,
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: Text("正在获取用户信息".tr),
+                  child: Text(status),
+                ),
+              ),
+            if(isLoading)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: MediaQuery.of(context).size.height/2-10,
+                child: SizedBox(
+                  width: 80,
+                  height: 40,
+                  child: Center(
+                    child: FilledButton(
+                      child: const Text("跳过"),
+                      onPressed: ()=>Get.offAll(const MainPage()),
+                    ),
+                  ),
                 ),
               ),
             if(!isLoading)
@@ -145,6 +162,14 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
         appdata.user = res;
         appdata.writeData();
       }
+    }
+    try {
+      setState(() {
+        status = "正在登录禁漫";
+      });
+    }
+    catch(e){
+      //忽视
     }
     var res2 = await jmNetwork.loginFromAppdata();
     if(res2.error){
