@@ -124,6 +124,8 @@ abstract class ComicsPage<T> extends StatelessWidget{
 
   Widget? get head => null;
 
+  bool get showBackWhenError => true;
+
   ///加载时显示返回按钮
   bool get showBackWhenLoading => showTitle;
 
@@ -349,7 +351,7 @@ abstract class ComicsPage<T> extends StatelessWidget{
               );
             }
           }else{
-            return showNetworkError(logic.message??"网络错误", logic.refresh_, context, showBack: true);
+            return showNetworkError(logic.message??"网络错误", logic.refresh_, context, showBack: showBackWhenError);
           }
     });
     if(head != null){

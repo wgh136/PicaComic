@@ -29,4 +29,6 @@ class FavoritesPage extends ComicsPage<ComicItemBrief>{
   @override
   bool get showTitle => false;
 
+  @override
+  bool get showBackWhenError => false;
 }

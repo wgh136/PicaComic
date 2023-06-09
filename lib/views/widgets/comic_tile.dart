@@ -44,7 +44,7 @@ abstract class ComicTile extends StatelessWidget {
             details.globalPosition.dx, details.globalPosition.dy),
         items: [
           PopupMenuItem(
-            onTap: ()=>onTap_(),
+            onTap: ()=>Future.delayed(const Duration(milliseconds: 200), ()=>onTap_()),
             child: const Text("查看")
           )
         ]
