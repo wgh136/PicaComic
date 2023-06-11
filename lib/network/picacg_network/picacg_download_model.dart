@@ -221,7 +221,10 @@ class PicDownloadingItem extends DownloadingItem {
         if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
         try {
-          var res = await DefaultCacheManager().getSingleFile(getImageUrl(_urls[_index]));
+          for(int i=0;i<5&&_index+i<_urls.length;i++){
+            PicacgDownloads.addDownload(_urls[_index+i]);
+          }
+          var res = await PicacgDownloads.getFile(_urls[_index]);
           var file = File("$path$pathSep$id$pathSep$_downloadingEps$pathSep$_index.jpg");
           if (!await file.exists()) await file.create();
           await file.writeAsBytes(Uint8List.fromList(res.readAsBytesSync()));
@@ -278,4 +281,51 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   String get title => comic.title;
+}
+
+///用于实现同时下载多张Picacg图片
+class PicacgDownloads{
+  static Map<String, DownloadingStatus> downloading = {};
+
+  static Future<void> addDownload(String path) async{
+    if(downloading[path] != null){
+      if(downloading[path]!.message != null){
+        downloading.remove(path);
+      }else {
+        return;
+      }
+    }
+    downloading[path] = DownloadingStatus(null, null, false);
+    try {
+      var res = await DefaultCacheManager().getSingleFile(getImageUrl(path));
+      downloading[path]!.file = res;
+      downloading[path]!.finish = true;
+    }
+    catch(e){
+      downloading[path]!.message = e.toString();
+    }
+  }
+
+  static Future<File> getFile(String path) async{
+    if(downloading[path] == null){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    while(!downloading[path]!.finish){
+      await Future.delayed(const Duration(milliseconds: 100));
+      if(downloading[path]!.message != null){
+        throw Exception(downloading[path]!.message);
+      }
+    }
+    var res = downloading[path]!.file!;
+    downloading.remove(path);
+    return res;
+  }
+}
+
+class DownloadingStatus{
+  File? file;
+  String? message;
+  bool finish;
+
+  DownloadingStatus(this.file, this.message, this.finish);
 }
