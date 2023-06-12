@@ -303,6 +303,7 @@ class DownloadPage extends StatelessWidget {
         name: logic.comics[index].name,
         author: logic.comics[index].subTitle,
         imagePath: downloadManager.getCover(logic.comics[index].id),
+        type: logic.comics[index].type.name,
         onTap: () async {
           if (logic.selecting) {
             logic.selected[index] = !logic.selected[index];
@@ -618,6 +619,7 @@ class DownloadedComicTile extends ComicTile{
   final File imagePath;
   final String author;
   final String name;
+  final String type;
   final void Function() onTap;
   final void Function() onLongTap;
   final void Function(TapDownDetails details) onSecondaryTap;
@@ -650,6 +652,9 @@ class DownloadedComicTile extends ComicTile{
   @override
   void onSecondaryTap_(details) => onSecondaryTap(details);
 
+  @override
+  String? get badge => type;
+
   const DownloadedComicTile({
       required this.size,
       required this.imagePath,
@@ -658,5 +663,6 @@ class DownloadedComicTile extends ComicTile{
       required this.onTap,
       required this.onLongTap,
       required this.onSecondaryTap,
+      required this.type,
       super.key});
 }

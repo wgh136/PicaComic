@@ -70,6 +70,7 @@ class _SelectState extends State<Select> {
         width: widget.width,
         height: 38,
         child: Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
           margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           child: Row(

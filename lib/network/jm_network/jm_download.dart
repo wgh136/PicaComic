@@ -184,23 +184,24 @@ class JmDownloadingItem extends DownloadingItem {
           chapId = comic.series.values.elementAt(_index);
         }
         var url = urls[_index][_currentPage];
-        var bookId = "";
-        for(int i = url.length-1;i>=0;i--){
-          if(url[i] == '/'){
-            bookId = url.substring(i+1,url.length-5);
-            break;
+        for(int j=0;j<5&&_currentPage+j<urls[_index].length;j++){
+          var url = urls[_index][_currentPage+j];
+          var bookId = "";
+          for(int i = url.length-1;i>=0;i--){
+            if(url[i] == '/'){
+              bookId = url.substring(i+1,url.length-5);
+              break;
+            }
           }
+          JmDownloads.addDownload(url, chapId, bookId);
         }
         var bytes = <int>[];
         var file = File("$path$pathSep$id$pathSep${_index+1}$pathSep$_currentPage.jpg");
         if(! file.existsSync()){
           file.createSync(recursive: true);
         }
-        await for(var progress in MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId, )){
-          if(progress.currentBytes == progress.expectedBytes){
-            bytes = progress.getFile().readAsBytesSync();
-          }
-        }
+
+        bytes = (await JmDownloads.getFile(url)).readAsBytesSync();
         if(bytes.isEmpty){
           throw(StateError("下载图片失败"));
         }
@@ -228,6 +229,7 @@ class JmDownloadingItem extends DownloadingItem {
         return;
       }
     }
+    await MyCacheManager().saveData();
     if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     saveInfo();
     super.whenFinish?.call();
@@ -305,4 +307,58 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   int get totalPages => _totalPages;
+}
+
+///用于实现同时下载多张禁漫图片
+class JmDownloads{
+  static Map<String, DownloadingStatus> downloading = {};
+
+  static Future<void> addDownload(String path, String chapId, String bookId) async{
+    if(downloading[path] != null){
+      if(downloading[path]!.message != null){
+        downloading.remove(path);
+      }else {
+        return;
+      }
+    }
+    downloading[path] = DownloadingStatus(null, null, false);
+    try {
+      await for(var progress in MyCacheManager().getJmImage(path, {}, epsId: chapId, scrambleId: "220980", bookId: bookId, )){
+        if(progress.currentBytes == progress.expectedBytes){
+          var res = progress.getFile();
+          downloading[path]!.file = res;
+          downloading[path]!.finish = true;
+        }
+      }
+      if(downloading[path]!.file == null) {
+        throw Error();
+      }
+    }
+    catch(e){
+      downloading[path]!.message = e.toString();
+    }
+  }
+
+  static Future<File> getFile(String path) async{
+    if(downloading[path] == null){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    while(!downloading[path]!.finish){
+      await Future.delayed(const Duration(milliseconds: 100));
+      if(downloading[path]!.message != null){
+        throw Exception(downloading[path]!.message);
+      }
+    }
+    var res = downloading[path]!.file!;
+    downloading.remove(path);
+    return res;
+  }
+}
+
+class DownloadingStatus{
+  File? file;
+  String? message;
+  bool finish;
+
+  DownloadingStatus(this.file, this.message, this.finish);
 }

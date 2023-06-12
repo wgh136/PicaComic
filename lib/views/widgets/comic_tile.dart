@@ -10,6 +10,7 @@ abstract class ComicTile extends StatelessWidget {
   String get title;
   String get subTitle;
   String get description;
+  String? get badge => null;
 
   void favorite();
 
@@ -80,6 +81,7 @@ abstract class ComicTile extends StatelessWidget {
                   user: subTitle,
                   description: description,
                   subDescription: buildSubDescription(context),
+                  badge: badge,
                 ),
               ),
               //const Center(
@@ -97,13 +99,15 @@ class ComicDescription extends StatelessWidget {
     required this.title,
     required this.user,
     required this.description,
-    this.subDescription
+    this.subDescription,
+    this.badge
   });
 
   final String title;
   final String user;
   final String description;
   final Widget? subDescription;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -135,12 +139,27 @@ class ComicDescription extends StatelessWidget {
               children: <Widget>[
                 if(subDescription != null)
                   subDescription!,
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 12.0,
-                  ),
-                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 12.0,
+                      ),
+                    ),
+                    const Spacer(),
+                    if(badge!=null)
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(5, 1, 5, 3),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondaryContainer,
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        ),
+                        child: Text(badge!),
+                      )
+                  ],
+                )
               ],
             ),
           ),

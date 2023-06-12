@@ -316,7 +316,23 @@ class _SettingsPageState extends State<SettingsPage> {
                                 },
                               );
                             }
-                          })
+                          }),
+                    ListTile(
+                      leading: Icon(Icons.color_lens,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("主题选择".tr),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[27]),
+                        values: const ["动态", "Blue", "Light Blue", "Indigo", "Purple", "Pink", "Cyan", "Teal", "Yellow", "Brown"],
+                        whenChange: (i){
+                          appdata.settings[27] = i.toString();
+                          appdata.updateSettings();
+                          Get.forceAppUpdate();
+                        },
+                        inPopUpWidget: widget.popUp,
+                        width: 140,
+                      ),
+                    )
                   ],
                 ),
               ),

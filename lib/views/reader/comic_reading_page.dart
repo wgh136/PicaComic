@@ -522,7 +522,7 @@ class ComicReadingPage extends StatelessWidget {
     }
     info.current.value++;
     await for (var i in EhNetwork().loadGalleryPages(gallery!)){
-      if(i == 1){
+      if(i == -1){
         logic.urls = gallery!.urls;
         logic.change();
         return;
@@ -531,7 +531,7 @@ class ComicReadingPage extends StatelessWidget {
         logic.change();
         return;
       }else{
-        info.current.value++;
+        info.current.value = i;
       }
     }
   }

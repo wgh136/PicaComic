@@ -484,10 +484,12 @@ class ComicPage extends StatelessWidget{
         delegate: SliverChildBuilderDelegate(
             childCount: logic.epsStr.length-1,
                 (context, i){
-              return Padding(padding: const EdgeInsets.all(1),child: GestureDetector(
+              return Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),child: InkWell(
+                borderRadius: const BorderRadius.all(Radius.circular(16)),
                 child: Card(
                   elevation: 1,
                   color: Theme.of(context).colorScheme.secondaryContainer,
+                  margin: EdgeInsets.zero,
                   child: Center(child: Text(logic.epsStr[i+1]),),
                 ),
                 onTap: () {
