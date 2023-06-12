@@ -45,6 +45,9 @@ class ComicsPageLogic<T> extends GetxController{
         if (res.subData is int) {
           maxPage = res.subData;
         }
+        if(res.data.isEmpty){
+          maxPage = 1;
+        }
       }
       loading = false;
       update();
