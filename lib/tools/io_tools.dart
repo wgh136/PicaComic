@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart';
@@ -117,6 +118,7 @@ Future<void> copyDirectory(Directory source, Directory destination) async{
 }
 
 String sanitizeFileName(String fileName) {
+  const maxLength = 255;
   // 定义不允许出现的特殊字符
   final invalidChars = RegExp(r'[<>:"/\\|?*]');
 
@@ -131,9 +133,14 @@ String sanitizeFileName(String fileName) {
     throw Exception('文件名无效');
   }
 
-  if(trimmedFileName.length > 50){
-    trimmedFileName = "${trimmedFileName.substring(0, 47)}...";
+  //确保长度适当
+  while(true){
+    final bytes = utf8.encode(trimmedFileName);
+    if (bytes.length > maxLength) {
+      trimmedFileName = trimmedFileName.substring(0, trimmedFileName.length-1);
+    }else{
+      break;
+    }
   }
-
   return trimmedFileName;
 }
