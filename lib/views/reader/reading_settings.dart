@@ -18,7 +18,7 @@ Widget buildSettingWindow(ComicReadingPageLogic comicReadingPageLogic, BuildCont
                   ? 600
                   : MediaQuery.of(context).size.width - 20,
               decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.95),
                   borderRadius: const BorderRadius.all(Radius.circular(16))),
               child: const ReadingSettings(),
             )

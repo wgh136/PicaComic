@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/notification.dart';
@@ -10,8 +11,14 @@ import 'network/picacg_network/models.dart';
 const changePoint = 600;
 const changePoint2 = 1300;
 
+const List<int> colors = [0X42A5F5, 0X29B6F6, 0X5C6BC0, 0XAB47BC,
+  0XEC407A, 0X26C6DA, 0X26A69A, 0XFFEE58, 0X8D6E63];
+
+ColorScheme? lightColorScheme;
+ColorScheme? dartColorScheme;
+
 //App版本
-const appVersion = "1.6.14";
+const appVersion = "1.6.15";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -69,6 +76,7 @@ class Appdata{
     "111111111", //24 分类页面
     "0", //25 漫画列表显示模式
     "0", //26 已下载页面排序模式: 时间, 漫画名, 作者名, 大小
+    "0", //27 颜色
   ];
 
   ///屏蔽的关键词

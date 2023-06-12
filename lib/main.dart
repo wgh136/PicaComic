@@ -78,19 +78,30 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }
-    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+    return DynamicColorBuilder(builder: (light, dark) {
+      lightColorScheme = light;
+      dartColorScheme = dark;
+      ColorScheme? lightColor;
+      ColorScheme? darkColor;
+      if(int.parse(appdata.settings[27]) != 0) {
+        lightColor = ColorScheme.fromSeed(seedColor: Color(colors[int.parse(appdata.settings[27])-1]), brightness: Brightness.light);
+        darkColor = ColorScheme.fromSeed(seedColor: Color(colors[int.parse(appdata.settings[27])-1]), brightness: Brightness.dark);
+      }else{
+        lightColor = light;
+        darkColor = dark;
+      }
       return GetMaterialApp(
         title: 'Pica Comic',
         scrollBehavior: const MaterialScrollBehavior()
             .copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            colorScheme: lightColorScheme ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+            colorScheme: lightColor ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
             useMaterial3: true,
             fontFamily: "font"
         ),
         darkTheme: ThemeData(
-            colorScheme: darkColorScheme ??
+            colorScheme: darkColor ??
                 ColorScheme.fromSeed(seedColor: Colors.pinkAccent, brightness: Brightness.dark),
             useMaterial3: true,
             fontFamily: "font"

@@ -493,10 +493,12 @@ class JmComicPage extends StatelessWidget {
       SliverGrid(
         delegate: SliverChildBuilderDelegate(childCount: logic.comic!.series.length, (context, i) {
           return Padding(
-            padding: const EdgeInsets.all(1),
-            child: GestureDetector(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+            child: InkWell(
+              borderRadius: const BorderRadius.all(Radius.circular(16)),
               child: Card(
                 elevation: 1,
+                margin: EdgeInsets.zero,
                 color: Theme.of(context).colorScheme.secondaryContainer,
                 child: Center(
                   child: Text("第 @c 章".trParams({"c": (i+1).toString()})),

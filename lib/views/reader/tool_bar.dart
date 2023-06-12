@@ -18,8 +18,8 @@ Widget buildTopToolBar(
       child: comicReadingPageLogic.tools
           ? Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                //borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10),bottomLeft: Radius.circular(10))
+                color: Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.95),
+                borderRadius: const BorderRadius.only(bottomRight: Radius.circular(8),bottomLeft: Radius.circular(8))
               ),
               width: MediaQuery.of(context).size.width + MediaQuery.of(context).padding.top,
               child: Padding(
@@ -152,8 +152,9 @@ Widget buildBottomToolBar(
               height: 105 + MediaQuery.of(context).padding.bottom,
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-                  color: Theme.of(context).colorScheme.surface),
+                      topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                  color: Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.95),
+              ),
               child: Column(
                 children: [
                   const SizedBox(
