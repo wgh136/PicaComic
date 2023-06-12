@@ -144,12 +144,10 @@ class HitomiDownloadingItem extends DownloadingItem {
       while (_downloadedPages < _totalPages) {
         if (_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
-        var bytes = <int>[];
-        await for(var progress in MyCacheManager().getHitomiImage(comic.files[_downloadedPages], id.substring(6))){
-          if(progress.expectedBytes == progress.currentBytes){
-            bytes = progress.getFile().readAsBytesSync();
-          }
+        for(int i=0; i<5&&_downloadedPages+i < _totalPages; i++){
+          HitomiDownloads.addDownload(comic.files[_downloadedPages+i], id.substring(6));
         }
+        var bytes = (await HitomiDownloads.getFile(comic.files[_downloadedPages].hash)).readAsBytesSync();
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(bytes));
@@ -167,6 +165,7 @@ class HitomiDownloadingItem extends DownloadingItem {
       _retry();
       return;
     }
+    await MyCacheManager().saveData();
     if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     await _saveInfo();
     if(currentKey == _runtimeKey) {
@@ -221,4 +220,59 @@ class HitomiDownloadingItem extends DownloadingItem {
 
   @override
   int get totalPages => _totalPages;
+}
+
+///用于实现同时下载多张Hitomi图片
+class HitomiDownloads{
+  static Map<String, DownloadingStatus> downloading = {};
+
+  static Future<void> addDownload(HitomiFile image, String galleryId) async{
+    var path = image.hash;
+    if(downloading[path] != null){
+      if(downloading[path]!.message != null){
+        downloading.remove(path);
+      }else {
+        return;
+      }
+    }
+    downloading[path] = DownloadingStatus(null, null, false);
+    try {
+      await for (var progress in MyCacheManager().getHitomiImage(image, galleryId)){
+        if(progress.expectedBytes == progress.currentBytes) {
+          var res = progress.getFile();
+          downloading[path]!.file = res;
+          downloading[path]!.finish = true;
+        }
+      }
+      if(downloading[path]!.file == null){
+        throw Error();
+      }
+    }
+    catch(e){
+      downloading[path]!.message = e.toString();
+    }
+  }
+
+  static Future<File> getFile(String path) async{
+    if(downloading[path] == null){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    while(!downloading[path]!.finish){
+      await Future.delayed(const Duration(milliseconds: 100));
+      if(downloading[path]!.message != null){
+        throw Exception(downloading[path]!.message);
+      }
+    }
+    var res = downloading[path]!.file!;
+    downloading.remove(path);
+    return res;
+  }
+}
+
+class DownloadingStatus{
+  File? file;
+  String? message;
+  bool finish;
+
+  DownloadingStatus(this.file, this.message, this.finish);
 }
