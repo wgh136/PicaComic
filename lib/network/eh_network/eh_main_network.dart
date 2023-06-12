@@ -462,31 +462,64 @@ class EhNetwork{
 
   ///获取图片链接
   ///
-  /// 返回2表示成功加载了一页
-  /// 返回1表示加载完成
+  /// 返回值表示成功加载的页数
+  /// 返回-1表示加载完成
   /// 返回0表示失败
   Stream<int> loadGalleryPages(Gallery gallery) async*{
-    for (int i = 1; i < int.parse(gallery.maxPage); i++) {
+    Map<int, List<String>> urls = {};
+    int loadingItems = 0;
+    int loaded = 0;
+    Future<void> loadPage(int p) async{
+      loadingItems++;
       try {
-        var temp = parse((await request("${gallery.link}?p=$i")).data);
+        var urls_ = <String>[];
+        var temp = parse((await request("${gallery.link}?p=$p")).data);
         var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
         for (var link in links) {
-          gallery.urls.add(link.attributes["href"]!);
+          urls_.add(link.attributes["href"]!);
         }
         links = temp.querySelectorAll("div#gdt > div.gdtl > a");
         for (var link in links) {
-          gallery.urls.add(link.attributes["href"]!);
+          urls_.add(link.attributes["href"]!);
         }
-        yield 2;
         await Future.delayed(const Duration(milliseconds: 100));
-      } catch (e) {
-        //获取图片链接失败
-        print(e);
-        yield 0;
-        break;
+        urls[p] = urls_;
+        loaded++;
+      }
+      catch(e){
+        rethrow;
+      }
+      finally{
+        loadingItems--;
       }
     }
-    yield 1;
+    int loaded_ = 0;
+    bool error = false;
+    for (int i = 1; i < int.parse(gallery.maxPage); i++) {
+      while(loadingItems > 5){
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+      if(loaded_ != loaded){
+        yield loaded;
+        loaded_ = loaded;
+      }
+      loadPage(i).onError((e, stackTrace) => error = true);
+      if(error){
+        yield 0;
+        return;
+      }
+    }
+    while(loadingItems != 0){
+      await Future.delayed(const Duration(milliseconds: 200));
+      if(error){
+        yield 0;
+        return;
+      }
+    }
+    for (int i = 1; i < int.parse(gallery.maxPage); i++){
+      gallery.urls.addAll(urls[i]!);
+    }
+    yield -1;
   }
 
   ///搜索e-hentai
