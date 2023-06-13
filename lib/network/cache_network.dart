@@ -4,6 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/tools/proxy.dart';
@@ -37,6 +38,9 @@ class CachedNetwork{
     }
     options.responseType = ResponseType.plain;
     var dio = Dio(options);
+    if(kDebugMode) {
+      dio.interceptors.add(LogInterceptor());
+    }
     if(cookieJar != null){
       dio.interceptors.add(CookieManager(cookieJar));
     }
@@ -73,6 +77,9 @@ class CachedNetwork{
     }
     options.responseType = ResponseType.plain;
     var dio = Dio(options);
+    if(kDebugMode) {
+      dio.interceptors.add(LogInterceptor());
+    }
     if(cookieJar != null){
       dio.interceptors.add(CookieManager(cookieJar));
     }

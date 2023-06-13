@@ -341,12 +341,12 @@ class JmNetwork {
     Res res;
     if(page != 1) {
       res = await get(
-        "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}&page=$page",
+        "$baseUrl/search?&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}&page=$page",
         expiredTime: CacheExpiredTime.no
       );
     }else{
       res = await get(
-          "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}",
+          "$baseUrl/search?&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}",
           expiredTime: CacheExpiredTime.no
       );
     }

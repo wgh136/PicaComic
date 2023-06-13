@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
-const String jmAppVersion = "1.5.2";
+const String jmAppVersion = "1.5.5";
 
 BaseOptions getHeader(int time, {bool post=false, Map<String, String>? headers, bool byte=true}){
 
-  var token = md5.convert(const Utf8Encoder().convert("${time}18comicAPPContent"));
+  var token = md5.convert(const Utf8Encoder().convert("${time}18comicAPP"));
 
   return BaseOptions(
     receiveDataWhenStatusError: true,
