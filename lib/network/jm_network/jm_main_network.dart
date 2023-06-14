@@ -47,7 +47,8 @@ class JmNetwork {
       "https://www.jmapinode1.cc",
       "https://www.jmapinode.cc",
       "https://www.jmapibranch1.cc",
-      "https://www.jmapibranch2.cc"
+      "https://www.jmapibranch2.cc",
+      "https://api.kokoiro.xyz/jmComic"
     ];
     baseUrl = urls[int.parse(appdata.settings[17])];
   }
