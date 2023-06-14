@@ -1,3 +1,5 @@
+import "package:pica_comic/base.dart";
+
 class Profile {
   String id;
   String title;
@@ -61,7 +63,16 @@ class ComicItemBrief {
   int likes;
   String path;
   String id;
-  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id);
+  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, List tagsOrCategories, {bool ignoreExamination = false}){
+    if(ignoreExamination) return;
+    bool block = false;
+    for(var key in appdata.blockingKeyword){
+      block = block || title.contains(key) || author==key || tagsOrCategories.contains(key);
+    }
+    if(block){
+      throw Error();
+    }
+  }
 }
 
 class ComicItem {
@@ -100,7 +111,7 @@ class ComicItem {
       this.time
       );
   ComicItemBrief toBrief(){
-    return ComicItemBrief(title, author, likes, thumbUrl, id);
+    return ComicItemBrief(title, author, likes, thumbUrl, id, [], ignoreExamination: true);
   }
 
   Map<String,dynamic> toJson()=>{

@@ -139,6 +139,16 @@ abstract class ComicsPage<T> extends StatelessWidget{
 
   @override
   Widget build(context){
+    if(appdata.blockingKeyword.contains(tag) || (tag != null && appdata.blockingKeyword.contains(tag!.split(" ").last))){
+      var body = showNetworkError("已屏蔽的关键词", (){}, context, showBack: showBackWhenError);
+      if(withScaffold){
+        return Scaffold(
+          body: body,
+        );
+      }else{
+        return body;
+      }
+    }
     Widget body =  GetBuilder<ComicsPageLogic<T>>(
         init: ComicsPageLogic<T>(),
         tag: tag,
