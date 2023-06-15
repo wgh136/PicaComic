@@ -8,7 +8,7 @@ import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import '../widgets/comic_tile.dart';
 import 'comic_page.dart';
 
-///哔咔漫画块, 同时也是下载页面的漫画块
+///哔咔漫画块
 class PicComicTile extends ComicTile {
   final ComicItemBrief comic;
   final void Function()? onTap;
@@ -28,12 +28,14 @@ class PicComicTile extends ComicTile {
     fit: BoxFit.cover,
     errorWidget: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
+    filterQuality: FilterQuality.medium,
     progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
   ):Image.network(
     getImageUrl(comic.path),
     fit: BoxFit.cover,
     errorBuilder: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
+    filterQuality: FilterQuality.medium,
   )):Image.file(
     downloadManager.getCover(comic.id),
     fit: BoxFit.cover,

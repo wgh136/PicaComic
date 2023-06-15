@@ -54,42 +54,44 @@ abstract class ComicTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap_,
-        onLongPress: onLongTap_,
-        onSecondaryTapDown: onSecondaryTap_,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
-          child: Row(
-            children: [
-              Expanded(
-                  flex: 3,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16)
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: image
-                  )
-              ),
-              SizedBox.fromSize(size: const Size(16,5),),
-              Expanded(
-                flex: 8,
-                child: ComicDescription(
-                  title: title,
-                  user: subTitle,
-                  description: description,
-                  subDescription: buildSubDescription(context),
-                  badge: badge,
+    return Material(
+      child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap_,
+          onLongPress: onLongTap_,
+          onSecondaryTapDown: onSecondaryTap_,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
+            child: Row(
+              children: [
+                Expanded(
+                    flex: 3,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16)
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: image
+                    )
                 ),
-              ),
-              //const Center(
-              //  child: Icon(Icons.arrow_right),
-              //)
-            ],
-          ),
-        )
+                SizedBox.fromSize(size: const Size(16,5),),
+                Expanded(
+                  flex: 8,
+                  child: ComicDescription(
+                    title: title,
+                    user: subTitle,
+                    description: description,
+                    subDescription: buildSubDescription(context),
+                    badge: badge,
+                  ),
+                ),
+                //const Center(
+                //  child: Icon(Icons.arrow_right),
+                //)
+              ],
+            ),
+          )
+      ),
     );
   }
 }
