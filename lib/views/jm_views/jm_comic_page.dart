@@ -121,6 +121,7 @@ class JmComicPage extends StatelessWidget {
                       child: SelectableTextCN(
                         text: logic.comic!.name,
                         style: const TextStyle(fontSize: 28),
+                        withAddToBlockKeywordButton: true,
                       ),
                     ),
                   ),
