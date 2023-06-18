@@ -753,7 +753,7 @@ class PicacgNetwork {
           var si = ComicItemBrief(
               res["data"]["comics"][i]["title"] ?? "未知",
               res["data"]["comics"][i]["author"] ?? "未知",
-              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
+              int.parse(res["data"]["comics"][i]["likesCount"].toString()),
               res["data"]["comics"][i]["thumb"]["fileServer"] +
                   "/static/" +
                   res["data"]["comics"][i]["thumb"]["path"],
@@ -762,7 +762,7 @@ class PicacgNetwork {
               ignoreExamination: true);
           comics.add(si);
         } catch (e) {
-          //出现错误跳过}
+          //出现错误跳过
         }
       }
     }
