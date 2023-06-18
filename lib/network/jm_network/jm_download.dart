@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
+import '../../tools/log.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
@@ -157,10 +158,8 @@ class JmDownloadingItem extends DownloadingItem {
         await file.writeAsBytes(Uint8List.fromList(res.data));
         _downloadedCover = true;
       }
-      catch(e){
-        if (kDebugMode) {
-          print(e);
-        }
+      catch(e, s){
+        LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
         if (_pauseFlag) return;
         //下载出错重试
         retry();
@@ -219,10 +218,8 @@ class JmDownloadingItem extends DownloadingItem {
               "共${downloadManager.downloading.length}项任务");
         }
       }
-      catch(e){
-        if (kDebugMode) {
-          print(e);
-        }
+      catch(e, s){
+        LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
         if (_pauseFlag) return;
         //下载出错重试
         retry();
@@ -334,7 +331,8 @@ class JmDownloads{
         throw Error();
       }
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       downloading[path]!.message = e.toString();
     }
   }

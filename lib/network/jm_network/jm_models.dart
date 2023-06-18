@@ -1,3 +1,5 @@
+import '../../base.dart';
+
 class HomePageData{
   List<HomePageItem> items;
 
@@ -20,7 +22,16 @@ class JmComicBrief{
   String description;
   List<ComicCategoryInfo> categories;
 
-  JmComicBrief(this.id, this.author, this.name, this.description, this.categories);
+  JmComicBrief(this.id, this.author, this.name, this.description, this.categories, List<String> tags, {bool ignoreExamination=false}){
+    if(ignoreExamination) return;
+    bool block = false;
+    for(var key in appdata.blockingKeyword){
+      block = block || name.contains(key) || author==key || tags.contains(key);
+    }
+    if(block){
+      throw Error();
+    }
+  }
 }
 
 class ComicCategoryInfo{

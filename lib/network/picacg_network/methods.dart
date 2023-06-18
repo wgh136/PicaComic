@@ -88,6 +88,10 @@ class PicacgNetwork {
       }
       return null;
     }
+    catch(e, stack){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$stack");
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>?> post(String url, Map<String, String>? data) async {
@@ -228,7 +232,8 @@ class PicacgNetwork {
           c.add(ca);
         }
         return c;
-      } catch (e) {
+      } catch (e, s) {
+        LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
         status = true;
         message = e.toString();
         return null;
@@ -245,7 +250,8 @@ class PicacgNetwork {
       var res = await dio.get("http://68.183.234.72/init");
       var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
       return jsonResponse["addresses"][0];
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return null;
     }
   }
@@ -292,7 +298,8 @@ class PicacgNetwork {
           });
         }
         return Res(comics, subData: pages);
-      } catch (e) {
+      } catch (e, s) {
+        LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
         return Res(null, errorMessage: e.toString());
       }
     } else {
@@ -479,7 +486,8 @@ class PicacgNetwork {
           comics.add(si);
         }
         return Res(comics, subData: pages);
-      } catch (e) {
+      } catch (e, s) {
+        LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
         return Res(null, errorMessage: e.toString());
       }
     } else {
@@ -887,7 +895,8 @@ class PicacgNetwork {
       } else {
         return false;
       }
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return false;
     }
   }

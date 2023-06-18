@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
+import 'package:pica_comic/tools/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/tools/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
@@ -14,32 +16,31 @@ import 'package:pica_comic/views/language.dart';
 import 'package:pica_comic/views/test_network_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'network/picacg_network/methods.dart';
 
 bool isLogged = false;
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  startClearCache();
-  appdata.readData().then((b) async {
-    isLogged = b;
-    if (b) {
-      network = PicacgNetwork(appdata.token);
-    }
-    setNetworkProxy(); //设置代理
-    if(kDebugMode){
-      runApp(MyApp());
-    }else{
-      await SentryFlutter.init(
-              (options){
-            options.dsn = 'https://37a9cc4e58ab48d28cdca4dc40394ac6@report.kokoiro.xyz/1';
-            options.tracesSampleRate = 1.0;
-          },
-          appRunner: ()=>runApp(MyApp())
-      );
-    }
-  });
+  runZonedGuarded(
+          (){
+        WidgetsFlutterBinding.ensureInitialized();
+        startClearCache();
+        FlutterError.onError = (details){
+          LogManager.addLog(LogLevel.error, "Unhandled Exception", "${details.exception}\n${details.stack}");
+        };
+        appdata.readData().then((b) async {
+          isLogged = b;
+          if (b) {
+            network = PicacgNetwork(appdata.token);
+          }
+          setNetworkProxy(); //设置代理
+          runApp(MyApp());
+        });
+      },
+          (error, stack){
+        LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
+      }
+  );
 }
 
 class MyApp extends StatelessWidget with WidgetsBindingObserver {
@@ -92,8 +93,6 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
       }
       return GetMaterialApp(
         title: 'Pica Comic',
-        scrollBehavior: const MaterialScrollBehavior()
-            .copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             colorScheme: lightColor ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
@@ -110,15 +109,20 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,
         fallbackLocale: const Locale('zh','CN'),
+        logWriterCallback: (String s, {bool? isError}){
+          LogManager.addLog((isError??false)?LogLevel.warning:LogLevel.info, "App Status", s);
+        },
+        builder: (context, widget){
+          ErrorWidget.builder = (details){
+            LogManager.addLog(LogLevel.error, "Unhandled Exception", "${details.exception}\n${details.stack}");
+            return Center(
+              child: Text(details.exception.toString()),
+            );
+          };
+          if (widget != null) return widget;
+          throw ('widget is null');
+        },
       );
     });
   }
 }
-
-const Set<PointerDeviceKind> _kTouchLikeDeviceTypes = <PointerDeviceKind>{
-  PointerDeviceKind.touch,
-  PointerDeviceKind.mouse,
-  PointerDeviceKind.stylus,
-  PointerDeviceKind.invertedStylus,
-  PointerDeviceKind.unknown
-};

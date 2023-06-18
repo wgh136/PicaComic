@@ -157,7 +157,11 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
       var res = await network.getProfile();
       if (res == null) {
         message = network.status ? network.message : "网络错误".tr;
-        message = "登录哔咔时发生错误\n".tr+message.toString();
+        setState(() {
+          isLoading = false;
+          message = "登录哔咔时发生错误\n".tr+message.toString();
+        });
+        return;
       } else {
         appdata.user = res;
         appdata.writeData();

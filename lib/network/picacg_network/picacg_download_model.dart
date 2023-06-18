@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/tools/log.dart';
 import '../../base.dart';
 import '../new_download.dart';
 import 'methods.dart';
@@ -190,7 +191,8 @@ class PicDownloadingItem extends DownloadingItem {
         var file = File("$path$pathSep$id${pathSep}cover.jpg");
         if (!await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(res.data));
-      } catch (e) {
+      } catch (e, s) {
+        LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
         if (kDebugMode) {
           print(e);
         }
@@ -236,7 +238,8 @@ class PicDownloadingItem extends DownloadingItem {
             notifications.sendProgressNotification(_downloadPages, comic.pagesCount, "下载中",
                 "共${downloadManager.downloading.length}项任务");
           }
-        } catch (e) {
+        } catch (e, s) {
+          LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
           if (kDebugMode) {
             print(e);
           }
@@ -301,7 +304,8 @@ class PicacgDownloads{
       downloading[path]!.file = res;
       downloading[path]!.finish = true;
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       downloading[path]!.message = e.toString();
     }
   }

@@ -4,10 +4,10 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/tools/proxy.dart';
+import 'log_dio.dart';
 
 ///缓存网络请求, 仅提供get方法, 其它的没有意义
 class CachedNetwork{
@@ -37,10 +37,7 @@ class CachedNetwork{
       }
     }
     options.responseType = ResponseType.plain;
-    var dio = Dio(options);
-    if(kDebugMode) {
-      dio.interceptors.add(LogInterceptor());
-    }
+    var dio = logDio(options);
     if(cookieJar != null){
       dio.interceptors.add(CookieManager(cookieJar));
     }
@@ -76,14 +73,14 @@ class CachedNetwork{
       }
     }
     options.responseType = ResponseType.plain;
-    var dio = Dio(options);
-    if(kDebugMode) {
-      dio.interceptors.add(LogInterceptor());
-    }
+    var dio = logDio(options);
     if(cookieJar != null){
       dio.interceptors.add(CookieManager(cookieJar));
     }
     var res = await dio.get(url);
+    if(res.statusCode != 200){
+      return CachedNetworkRes(res.data.toString(), res.statusCode);
+    }
     var json = const JsonDecoder().convert(res.data);
     var data = json["data"];
     if(data is List && data.isEmpty){

@@ -7,6 +7,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
+import '../../tools/log.dart';
 import '../new_download.dart';
 import 'eh_main_network.dart';
 import 'get_gallery_id.dart';
@@ -182,7 +183,8 @@ class EhDownloadingItem extends DownloadingItem{
         }
       }
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       _retry();
       return;
     }
@@ -270,7 +272,8 @@ class EhDownloads{
         throw Error();
       }
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       downloading[path]!.message = e.toString();
     }
   }

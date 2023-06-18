@@ -5,6 +5,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
+import '../../tools/log.dart';
 import '../new_download.dart';
 import 'hitomi_models.dart';
 import 'dart:io';
@@ -161,7 +162,8 @@ class HitomiDownloadingItem extends DownloadingItem {
           notifications.endProgress();
         }
       }
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       _retry();
       return;
     }
@@ -248,7 +250,8 @@ class HitomiDownloads{
         throw Error();
       }
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       downloading[path]!.message = e.toString();
     }
   }

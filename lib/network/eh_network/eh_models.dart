@@ -1,3 +1,5 @@
+import 'package:pica_comic/base.dart';
+
 class EhGalleryBrief{
   String title;
   String type;
@@ -8,7 +10,16 @@ class EhGalleryBrief{
   String link;
   List<String> tags;
 
-  EhGalleryBrief(this.title,this.type,this.time,this.uploader,this.coverPath,this.stars,this.link,this.tags);
+  EhGalleryBrief(this.title,this.type,this.time,this.uploader,this.coverPath,this.stars,this.link,this.tags, {bool ignoreExamination=false}){
+    if(ignoreExamination) return;
+    bool block = false;
+    for(var key in appdata.blockingKeyword){
+      block = block || title.contains(key) || uploader==key || type==key || tags.contains(key);
+    }
+    if(block){
+      throw Error();
+    }
+  }
 }
 
 class Galleries{
