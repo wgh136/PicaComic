@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/error_report.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/log.dart';
@@ -26,6 +27,7 @@ void main() {
         WidgetsFlutterBinding.ensureInitialized();
         startClearCache();
         FlutterError.onError = (details){
+          sendLog(details.exceptionAsString(), details.stack.toString());
           LogManager.addLog(LogLevel.error, "Unhandled Exception", "${details.exception}\n${details.stack}");
         };
         appdata.readData().then((b) async {
@@ -38,6 +40,7 @@ void main() {
         });
       },
           (error, stack){
+            sendLog(error.toString(), stack.toString());
         LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
       }
   );
