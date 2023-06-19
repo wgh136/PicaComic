@@ -97,6 +97,7 @@ class JmFavoritePage extends StatelessWidget {
           child: Column(
             children: [
               buildFolderSelector(context, logic, false),
+              const Divider(),
               Expanded(child: CustomScrollView(
                 slivers: [
                   SliverGrid(
@@ -129,11 +130,11 @@ class JmFavoritePage extends StatelessWidget {
 
   Widget buildFolderSelector(BuildContext context, JmFavoritePageLogic logic, bool loading){
     return SizedBox(
-      height: 80,
+      height: 72,
       child: Row(
         children: [
           Container(
-            margin: const EdgeInsets.all(10),
+            margin: const EdgeInsets.fromLTRB(16, 14, 16, 5),
             padding: const EdgeInsets.all(5),
             width: MediaQuery.of(context).size.width - 120 > 400 ? 400 : MediaQuery.of(context).size.width - 120,
             height: 50,
@@ -187,43 +188,49 @@ class JmFavoritePage extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.add_box_outlined),
-            onPressed: (){
-              showDialog(context: context, builder: (context){
-                return const CreateFolderDialog();
-              });
-            },
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: IconButton(
+              icon: const Icon(Icons.add_box_outlined),
+              onPressed: (){
+                showDialog(context: context, builder: (context){
+                  return const CreateFolderDialog();
+                });
+              },
+            ),
           ),
           const SizedBox(width: 5,),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: (){
-              if(logic.folderId == "0"){
-                showMessage(context, "不可删除全部收藏".tr);
-                return;
-              }
-              showDialog(context: context, builder: (context){
-                return AlertDialog(
-                  title: Text("确认删除".tr),
-                  content: Text("要删除这个收藏夹吗(删除操作存在延迟, 暂时不知道原因)".tr),
-                  actions: [
-                    TextButton(onPressed: () => Get.back(), child: const Text("取消")),
-                    TextButton(onPressed: () async{
-                      Get.back();
-                      showMessage(context, "正在删除收藏夹".tr);
-                      var res = await jmNetwork.deleteFolder(logic.folderId);
-                      showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tr);
-                      if(! res.error){
-                        logic.folderId = "0";
-                        logic.folderName = "全部".tr;
-                        logic.refresh_();
-                      }
-                    }, child: Text("确认".tr)),
-                  ],
-                );
-              });
-            },
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: (){
+                if(logic.folderId == "0"){
+                  showMessage(context, "不可删除全部收藏".tr);
+                  return;
+                }
+                showDialog(context: context, builder: (context){
+                  return AlertDialog(
+                    title: Text("确认删除".tr),
+                    content: Text("要删除这个收藏夹吗(删除操作存在延迟, 暂时不知道原因)".tr),
+                    actions: [
+                      TextButton(onPressed: () => Get.back(), child: const Text("取消")),
+                      TextButton(onPressed: () async{
+                        Get.back();
+                        showMessage(context, "正在删除收藏夹".tr);
+                        var res = await jmNetwork.deleteFolder(logic.folderId);
+                        showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tr);
+                        if(! res.error){
+                          logic.folderId = "0";
+                          logic.folderName = "全部".tr;
+                          logic.refresh_();
+                        }
+                      }, child: Text("确认".tr)),
+                    ],
+                  );
+                });
+              },
+            ),
           ),
         ],
       ),

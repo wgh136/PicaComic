@@ -9,7 +9,6 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
-import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import '../base.dart';
 import '../network/jm_network/jm_image.dart';
@@ -80,7 +79,9 @@ class _HistoryPageState extends State<HistoryPage> {
                         comics[i].subtitle,
                         0,
                         comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
-                        comics[i].target
+                        comics[i].target,
+                        [],
+                        ignoreExamination: true
                     );
                     return NormalComicTile(
                       key: Key(comics[i].target),

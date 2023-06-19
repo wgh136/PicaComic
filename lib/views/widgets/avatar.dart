@@ -46,7 +46,7 @@ class Avatar extends StatelessWidget {
                 height: size*0.75,
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(size)),
-                child: avatarUrl==null?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CachedNetworkImage(
+                child: (avatarUrl==null || avatarUrl=="DEFAULT AVATAR URL")?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CachedNetworkImage(
                   imageUrl: getImageUrl(avatarUrl!),
                   fit: BoxFit.cover,
                   errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error),),

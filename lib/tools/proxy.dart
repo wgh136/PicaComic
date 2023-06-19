@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/log.dart';
 import '../base.dart';
 
 ///获取系统设置中的代理, 仅windows,安卓有效
@@ -67,10 +67,7 @@ Future<void> setNetworkProxy() async{
     return proxy;
   }
   proxy = checkProxy(proxy);
-
-  if(kDebugMode){
-    print("Set Proxy $proxy");
-  }
+  LogManager.addLog(LogLevel.info, "Network", "Set Proxy $proxy");
   if(proxyHttpOverrides==null){
     proxyHttpOverrides = ProxyHttpOverrides(proxy);
     HttpOverrides.global = proxyHttpOverrides;

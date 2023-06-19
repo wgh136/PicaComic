@@ -79,7 +79,7 @@ class HomePage extends StatelessWidget {
                               }
                             });
                           }
-                          return PicComicTile(homePageLogic.comics[i],cached: false,);
+                          return PicComicTile(homePageLogic.comics[i],);
                         }
                     ),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

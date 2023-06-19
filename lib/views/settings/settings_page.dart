@@ -7,6 +7,7 @@ import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import '../logs_page.dart';
 import '../widgets/select.dart';
 import 'eh_settings.dart';
 import 'jm_settings.dart';
@@ -279,11 +280,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         onTap: () {},
                       ),
-                    if(GetPlatform.isWindows)
+                    if(GetPlatform.isWindows || GetPlatform.isAndroid)
                       ListTile(
                         leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
                         title: Text("设置下载目录".tr),
-                        onTap: () => setDownloadFolder(context),
+                        onTap: () => setDownloadFolder(),
                       ),
                     if (!GetPlatform.isWeb)
                       GetBuilder<CalculateCacheLogic>(
@@ -332,6 +333,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         inPopUpWidget: widget.popUp,
                         width: 140,
                       ),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.bug_report, color: Theme.of(context).colorScheme.secondary),
+                      title: const Text("日志"),
+                      onTap: ()=>Get.to(()=>const LogsPage()),
                     )
                   ],
                 ),

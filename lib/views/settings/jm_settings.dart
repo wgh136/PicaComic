@@ -167,11 +167,13 @@ class _JmSettingsState extends State<JmSettings> {
               trailing: Select(
                 initialValue: int.parse(appdata.settings[17]),
                 values: [
-                  "分流1".tr,"分流2".tr,"分流3".tr,"分流4".tr
+                  "分流1".tr,"分流2".tr,"分流3".tr,"分流4".tr, "转发服务器".tr
                 ],
                 whenChange: (i){
                   appdata.settings[17] = i.toString();
                   appdata.updateSettings();
+                  JmNetwork().updateApi();
+                  JmNetwork().loginFromAppdata();
                 },
                 inPopUpWidget: widget.popUp,
               ),

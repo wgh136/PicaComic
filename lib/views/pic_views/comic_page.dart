@@ -118,6 +118,7 @@ class ComicPage extends StatelessWidget{
                     child: SelectableTextCN(
                       text: "${comic.title}(${logic.comicItem!.pagesCount}P)",
                       style: const TextStyle(fontSize: 28),
+                      withAddToBlockKeywordButton: true,
                     ),
                   ),
                 ),

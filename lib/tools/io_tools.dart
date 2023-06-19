@@ -144,3 +144,15 @@ String sanitizeFileName(String fileName) {
   }
   return trimmedFileName;
 }
+
+///检查下载目录是否可用, 不可用则重置
+Future<void> checkDownloadPath() async{
+  var path = appdata.settings[22];
+  if(path != ""){
+    var directory = Directory(path);
+    if(! directory.existsSync()){
+      appdata.settings[22] = "";
+      appdata.updateSettings();
+    }
+  }
+}

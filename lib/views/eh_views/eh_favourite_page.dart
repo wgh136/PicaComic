@@ -76,6 +76,7 @@ class EhFavouritePage extends StatelessWidget {
           GetBuilder<EhFavouritePageLogic>(
             builder: (logic) => buildFolderSelector(context, logic),
           ),
+          const Divider(),
           Expanded(
             child: GetBuilder<EhFavouritePageLogic>(
               builder: (logic){
@@ -128,7 +129,7 @@ class EhFavouritePage extends StatelessWidget {
     var logic = Get.find<EhFavouritePageLogic>();
     final double width = MediaQuery.of(context).size.width > 400 ? 400 : MediaQuery.of(context).size.width;
     return Container(
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsets.fromLTRB(16, 14, 16, 5),
       padding: const EdgeInsets.all(5),
       width: width,
       height: 50,

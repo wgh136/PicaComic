@@ -1,10 +1,8 @@
 import 'dart:io';
-import 'dart:ui';
-import 'package:get/get.dart';
 
 ///用于测试函数
 void debug() async{
-  Get.updateLocale(const Locale('zh','TW'));
+  throw Error();
 }
 
 ///保存网络请求数据, 用于Debug

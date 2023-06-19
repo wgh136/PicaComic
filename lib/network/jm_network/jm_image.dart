@@ -4,6 +4,7 @@ const imageUrls = [
   "https://cdn-msp.jmapiproxy.cc",
   "https://cdn-msp.jmapiproxy1.cc",
   "https://cdn-msp.jmapiproxy2.cc",
+  "https://cdn-msp.jmapiproxy3.cc",
   "https://cdn-msp.jmapiproxy3.cc"
 ];
 

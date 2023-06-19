@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/tools/js.dart';
 import 'package:pica_comic/tools/log.dart';
 import '../../base.dart';
@@ -187,7 +188,7 @@ class EhNetwork{
         }
     );
 
-    var dio =  Dio(options)
+    var dio =  logDio(options)
       ..interceptors.add(LogInterceptor());
     dio.interceptors.add(CookieManager(cookieJar));
     try{
@@ -203,7 +204,8 @@ class EhNetwork{
       }
       return Res(null, errorMessage: message??"网络错误");
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       String? message;
       if(e.toString() != "null"){
         message = e.toString();
@@ -239,7 +241,8 @@ class EhNetwork{
       }
       return name != null;
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return false;
     }
   }
@@ -272,6 +275,7 @@ class EhNetwork{
   Future<Res<Galleries>> getGalleries(String url,{bool leaderboard = false, bool favoritePage=false}) async{
     //从一个链接中获取所有画廊, 同时获得下一页的链接
     //leaderboard比正常的表格多了第一列
+    bool ignoreExamination = url.contains("favorites");
     int t = 0;
     if(leaderboard){
       t++;
@@ -310,18 +314,6 @@ class EhNetwork{
           for (var node in items[i].children[2 + t].children[0].children[1].children) {
             tags.add(node.attributes["title"]!);
           }
-          //检查屏蔽词
-          for (var word in appdata.blockingKeyword) {
-            if (title.contains(word)) {
-              continue;
-            }
-            if (type == word) {
-              continue;
-            }
-            if (tags.contains(word)) {
-              continue;
-            }
-          }
           galleries.add(EhGalleryBrief(
               title,
               type,
@@ -330,10 +322,12 @@ class EhNetwork{
               cover!,
               stars,
               link!,
-              tags));
+              tags,
+              ignoreExamination: ignoreExamination
+          ));
         }
         catch (e) {
-          //表格中存在空行, 我也不知道为什么这样设计
+          //表格中存在空行或者被屏蔽
           continue;
         }
       }
@@ -369,7 +363,8 @@ class EhNetwork{
 
       return Res(g);
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: $e");
     }
   }
@@ -455,7 +450,8 @@ class EhNetwork{
       gallery.auth = getVariablesFromJsCode(res.data);
       return Res(gallery);
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
     }
   }

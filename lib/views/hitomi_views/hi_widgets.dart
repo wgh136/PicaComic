@@ -36,6 +36,7 @@ class HiComicTile extends ComicTile {
     fit: BoxFit.cover,
     errorWidget: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
+    filterQuality: FilterQuality.medium,
   );
 
   @override

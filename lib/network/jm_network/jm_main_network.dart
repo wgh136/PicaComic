@@ -5,11 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/tools/proxy.dart';
+import '../../tools/log.dart';
+import '../log_dio.dart';
 import 'headers.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import '../res.dart';
-import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pointycastle/export.dart';
 import 'package:get/get.dart';
@@ -47,7 +48,8 @@ class JmNetwork {
       "https://www.jmapinode1.cc",
       "https://www.jmapinode.cc",
       "https://www.jmapibranch1.cc",
-      "https://www.jmapibranch2.cc"
+      "https://www.jmapibranch2.cc",
+      "https://api.kokoiro.xyz/jmComic"
     ];
     baseUrl = urls[int.parse(appdata.settings[17])];
   }
@@ -103,10 +105,11 @@ class JmNetwork {
       }else{
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return Res<String>(null, errorMessage: "网络错误");
     }
 
@@ -117,7 +120,7 @@ class JmNetwork {
     try {
       await setNetworkProxy();
       int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      var dio = Dio(getHeader(time, post: true))..interceptors.add(LogInterceptor());
+      var dio = logDio(getHeader(time, post: true));
       dio.interceptors.add(CookieManager(cookieJar));
       var res = await dio.post(url,
           options: Options(validateStatus: (i) => i == 200 || i == 401), data: data);
@@ -129,9 +132,6 @@ class JmNetwork {
       }
       var resData = convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
-      if (kDebugMode) {
-        saveDebugData(resData);
-      }
       return Res<dynamic>(const JsonDecoder().convert(resData));
     } on DioError catch (e) {
       if (kDebugMode) {
@@ -142,10 +142,11 @@ class JmNetwork {
       }else{
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return Res<String>(null, errorMessage: "网络错误");
     }
   }
@@ -161,35 +162,28 @@ class JmNetwork {
       for (var item in res.data) {
         var comics = <JmComicBrief>[];
         for (var comic in item["content"]) {
-          var categories = <ComicCategoryInfo>[];
-          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-          }
-          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-            categories
-                .add(
-                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-          }
-          //检查屏蔽词
-          bool status = true;
-          for (var s in appdata.blockingKeyword) {
-            if (comic["author"] == appdata.blockingKeyword ||
-                (comic["name"] as String).contains(s)) {
-              status = false;
+          try {
+            var categories = <ComicCategoryInfo>[];
+            if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+              categories.add(
+                  ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
             }
-            for (var c in categories) {
-              if (c.name == s) {
-                status = false;
-              }
+            if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+              categories
+                  .add(
+                  ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
             }
-            if (!status) {
-              break;
-            }
-          }
-          if (status) {
             comics.add(JmComicBrief(
-                comic["id"], comic["author"], comic["name"], comic["description"] ?? "",
-                categories));
+                comic["id"],
+                comic["author"],
+                comic["name"],
+                comic["description"] ?? "",
+                categories,
+                []
+            ));
+          }
+          catch(e){
+            continue;
           }
         }
         String type = item["type"];
@@ -201,10 +195,11 @@ class JmNetwork {
       }
       return Res(data);
     }
-    catch(e){
+    catch(e, s){
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -226,16 +221,28 @@ class JmNetwork {
           categories
               .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
-        list.comics.add(JmComicBrief(
-            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+        try{
+          list.comics.add(JmComicBrief(
+              comic["id"],
+              comic["author"],
+              comic["name"],
+              comic["description"] ?? "",
+              categories,
+              []
+          ));
+        }
+        catch(e){
+          //忽略
+        }
         list.loaded++;
       }
       list.page++;
       return Res(list);
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -258,16 +265,22 @@ class JmNetwork {
           categories
               .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
-        list.comics.add(JmComicBrief(
-            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+        try{
+          list.comics.add(JmComicBrief(
+              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories, []));
+        }
+        catch(e){
+          //忽视
+        }
         list.loaded++;
       }
       list.page++;
       return;
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return;
     }
   }
@@ -280,39 +293,30 @@ class JmNetwork {
     try {
       var comics = <JmComicBrief>[];
       for (var comic in (res.data)) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+        try {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
-              status = false;
-            }
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
-          if (!status) {
-            break;
-          }
-        }
-        if (status) {
           comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories,
+              []));
+        }
+        catch(e){
+          continue;
         }
       }
       return Res(comics);
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -341,12 +345,12 @@ class JmNetwork {
     Res res;
     if(page != 1) {
       res = await get(
-        "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}&page=$page",
+        "$baseUrl/search?&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}&page=$page",
         expiredTime: CacheExpiredTime.no
       );
     }else{
       res = await get(
-          "$baseUrl/search?$baseData&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}",
+          "$baseUrl/search?&search_query=${Uri.encodeComponent(keyword)}&o=${ComicsOrder.values[int.parse(appdata.settings[19])]}",
           expiredTime: CacheExpiredTime.no
       );
     }
@@ -356,32 +360,22 @@ class JmNetwork {
     try {
       var comics = <JmComicBrief>[];
       for (var comic in (res.data["content"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+        try {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
-              status = false;
-            }
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
-          if (!status) {
-            break;
-          }
-        }
-        if (status) {
           comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories,
+              []));
+        }
+        catch(e){
+          continue;
         }
       }
       Future.delayed(
@@ -393,8 +387,9 @@ class JmNetwork {
           //跳过
         }
       });
-      return Res(comics, subData: comics.isEmpty?0:(int.parse(res.data["total"]) / comics.length).ceil());
-    } catch (e) {
+      return Res(comics, subData: comics.isEmpty?0:(int.parse(res.data["total"]) / res.data["content"].length).ceil());
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       Future.delayed(
           const Duration(microseconds: 500), () => Get.find<PreSearchController>().update());
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
@@ -441,7 +436,7 @@ class JmNetwork {
         }
         if (status) {
           comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories, [], ignoreExamination: true));
         }
       }
       Future.delayed(
@@ -456,7 +451,8 @@ class JmNetwork {
       return Res(
         SearchRes(keyword, comics.length, int.parse(res.data["total"]), comics),
       );
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       Future.delayed(
           const Duration(microseconds: 500), () => Get.find<PreSearchController>().update());
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
@@ -475,37 +471,33 @@ class JmNetwork {
     }
     try {
       for (var comic in (res.data["content"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+        try {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
-              status = false;
-            }
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
-          if (!status) {
-            break;
-          }
-        }
-        if (status) {
           search.comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"],
+              comic["author"],
+              comic["name"],
+              comic["description"] ?? "",
+              categories,
+              []
+          ));
+        }
+        catch(e){
+          continue;
         }
       }
       search.loaded = search.comics.length;
       search.loadedPage++;
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return;
     }
   }
@@ -526,7 +518,8 @@ class JmNetwork {
         categories.add(Category(c["name"], c["slug"], subCategories));
       }
       return Res(categories);
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -539,36 +532,32 @@ class JmNetwork {
     try {
       var comics = <JmComicBrief>[];
       for (var comic in (res.data["content"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+        try {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
-              status = false;
-            }
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
-          if (!status) {
-            break;
-          }
-        }
-        if (status) {
           comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"],
+              comic["author"],
+              comic["name"],
+              comic["description"] ?? "",
+              categories,
+              []
+          ));
+        }
+        catch(e){
+          continue;
         }
       }
-      return Res(comics, subData: comics.isEmpty?0:(int.parse(res.data["total"])));
-    } catch (e) {
+      return Res(comics, subData: (int.parse(res.data["total"]) / res.data["content"].length).ceil());
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -587,37 +576,33 @@ class JmNetwork {
     try {
       var comics = <JmComicBrief>[];
       for (var comic in (res.data["content"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+        try {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
-              status = false;
-            }
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
-          if (!status) {
-            break;
-          }
-        }
-        if (status) {
           comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"],
+              comic["author"],
+              comic["name"],
+              comic["description"] ?? "",
+              categories,
+              [])
+          );
+        }
+        catch(e){
+          continue;
         }
       }
       return Res(CategoryComicsRes(
-          category, order.toString(), comics.length, int.parse(res.data["total"]), 1, comics));
-    } catch (e) {
+          category, order.toString(), res.data["content"].length, int.parse(res.data["total"]), 1, comics));
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -633,37 +618,33 @@ class JmNetwork {
     }
     try {
       for (var comic in (res.data["content"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
-          categories
-              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        //检查屏蔽词
-        bool status = true;
-        for (var s in appdata.blockingKeyword) {
-          if (comic["author"] == appdata.blockingKeyword || (comic["name"] as String).contains(s)) {
-            status = false;
+        try {
+          var categories = <ComicCategoryInfo>[];
+          if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+            categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
           }
-          for (var c in categories) {
-            if (c.name == s) {
-              status = false;
-            }
+          if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+            categories
+                .add(
+                ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
-          if (!status) {
-            break;
-          }
-        }
-        if (status) {
           comics.comics.add(JmComicBrief(
-              comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+              comic["id"],
+              comic["author"],
+              comic["name"],
+              comic["description"] ?? "",
+              categories,
+              [])
+          );
         }
+        catch(e){
+          //
+        }
+        comics.loaded++;
       }
       comics.loadedPage++;
-      comics.loaded = comics.comics.length;
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return;
     }
   }
@@ -689,7 +670,7 @@ class JmNetwork {
       var related = <JmComicBrief>[];
       for (var c in res.data["related_list"] ?? []) {
         related.add(JmComicBrief(
-            c["id"], c["author"] ?? "未知", c["name"] ?? "未知", c["description"] ?? "无", []));
+            c["id"], c["author"] ?? "未知", c["name"] ?? "未知", c["description"] ?? "无", [], [], ignoreExamination: true));
       }
       return Res(JmComicInfo(
           res.data["name"] ?? "未知",
@@ -704,7 +685,8 @@ class JmNetwork {
           res.data["liked"] ?? false,
           res.data["is_favorite"] ?? false,
           int.parse(res.data["comment_total"] ?? "0")));
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -779,13 +761,14 @@ class JmNetwork {
               .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         comics.add(JmComicBrief(
-            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories, [], ignoreExamination: true));
       }
       return Res(FavoriteFolder(id, comics, 1, int.parse(res.data["total"]), comics.length));
-    } catch (e) {
+    } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -808,7 +791,7 @@ class JmNetwork {
               .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         folder.comics.add(JmComicBrief(
-            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories, [], ignoreExamination: true));
       }
       folder.loadedPage++;
       folder.loadedComics = folder.comics.length;
@@ -830,7 +813,8 @@ class JmNetwork {
       }
       return Res(folders);
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -870,7 +854,8 @@ class JmNetwork {
         images.add(getJmImageUrl(s, id));
       }
       return Res(images);
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -905,7 +890,8 @@ class JmNetwork {
             c["content"], reply));
       }
       return Res(comments, subData: int.parse(res.data["total"]));
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -937,7 +923,8 @@ class JmNetwork {
       }
       return Res(categories);
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -962,11 +949,12 @@ class JmNetwork {
               .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         comics.add(JmComicBrief(
-            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories));
+            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories, [], ignoreExamination: true));
       }
       return Res(comics);
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }

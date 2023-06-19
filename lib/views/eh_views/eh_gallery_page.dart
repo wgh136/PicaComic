@@ -140,6 +140,7 @@ class EhGalleryPage extends StatelessWidget {
                       child: SelectableTextCN(
                         text: logic.gallery!.title,
                         style: const TextStyle(fontSize: 28),
+                        withAddToBlockKeywordButton: true,
                       ),
                     ),
                   ),

@@ -5,6 +5,7 @@ import 'package:html/parser.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/hitomi_network/search.dart';
 import '../../base.dart';
+import '../../tools/log.dart';
 import '../../tools/proxy.dart';
 import '../res.dart';
 import 'fetch_data.dart';
@@ -137,7 +138,8 @@ class HiNetwork{
       }
       return Res(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -153,7 +155,8 @@ class HiNetwork{
       var res = await searchEngine.search();
       return Res(res.data);
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return Res(null, errorMessage: "$e");
     }
   }

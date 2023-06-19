@@ -28,6 +28,7 @@ class JmComicTile extends ComicTile {
     placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
     errorWidget: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
+    filterQuality: FilterQuality.medium,
   );
 
   @override
