@@ -18,6 +18,7 @@ Widget buildTopToolBar(
       child: comicReadingPageLogic.tools
           ? Container(
               decoration: BoxDecoration(
+
                 color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.95),
                 borderRadius: const BorderRadius.only(bottomRight: Radius.circular(8),bottomLeft: Radius.circular(8))
               ),

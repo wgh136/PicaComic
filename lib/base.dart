@@ -18,7 +18,7 @@ ColorScheme? lightColorScheme;
 ColorScheme? dartColorScheme;
 
 //App版本
-const appVersion = "1.6.15";
+const appVersion = "1.6.16";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
