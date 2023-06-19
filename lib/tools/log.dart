@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 void sendNetworkLog(String url, String error) async{
   try {
@@ -23,6 +24,9 @@ class LogManager{
   static void addLog(LogLevel lever, String title, String content){
     if(content.length > maxLogLength){
       content = "${content.substring(0, maxLogLength)}...";
+    }
+    if(kDebugMode){
+      print("$title: $content");
     }
     _logs.add(Log(lever, title, content));
     if(_logs.length > maxLogNumber){

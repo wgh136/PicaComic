@@ -280,11 +280,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         onTap: () {},
                       ),
-                    if(GetPlatform.isWindows)
+                    if(GetPlatform.isWindows || GetPlatform.isAndroid)
                       ListTile(
                         leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
                         title: Text("设置下载目录".tr),
-                        onTap: () => setDownloadFolder(context),
+                        onTap: () => setDownloadFolder(),
                       ),
                     if (!GetPlatform.isWeb)
                       GetBuilder<CalculateCacheLogic>(

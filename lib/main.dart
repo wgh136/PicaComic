@@ -9,6 +9,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/error_report.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/tools/proxy.dart';
@@ -31,6 +32,7 @@ void main() {
           LogManager.addLog(LogLevel.error, "Unhandled Exception", "${details.exception}\n${details.stack}");
         };
         appdata.readData().then((b) async {
+          await checkDownloadPath();
           isLogged = b;
           if (b) {
             network = PicacgNetwork(appdata.token);
