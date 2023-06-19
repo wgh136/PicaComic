@@ -37,7 +37,7 @@ class _LogsPageState extends State<LogsPage> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
+                          color: Theme.of(context).colorScheme.surfaceVariant,
                           borderRadius: const BorderRadius.all(Radius.circular(16)),
                         ),
                         child: Padding(

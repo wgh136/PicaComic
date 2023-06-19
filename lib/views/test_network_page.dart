@@ -97,7 +97,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                 child: Align(
                     alignment: Alignment.topCenter,
                     child: SizedBox(
-                      width: 220,
+                      width: 180,
                       height: 50,
                       child: Row(
                         children: [
@@ -113,7 +113,7 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
                           const Spacer(),
                           FilledButton.tonal(
                             onPressed: () => goToMainPage(),
-                            child: Text("直接进入".tr),
+                            child: Text("跳过".tr),
                           )
                         ],
                       ),
@@ -154,17 +154,18 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     message = null;
     jmNetwork.updateApi();
     if(appdata.token != "") {
-      var res = await network.getProfile();
-      if (res == null) {
-        message = network.status ? network.message : "网络错误".tr;
-        setState(() {
-          isLoading = false;
-          message = "登录哔咔时发生错误\n".tr+message.toString();
-        });
-        return;
-      } else {
-        appdata.user = res;
-        appdata.writeData();
+      try {
+        var res = await network.getProfile();
+        if (res == null) {
+          message = network.status ? network.message : "网络错误".tr;
+          message = "登录哔咔时发生错误\n".tr + message.toString();
+        } else {
+          appdata.user = res;
+          await appdata.writeData();
+        }
+      }
+      catch(e){
+        message = "登录哔咔时发生错误\n".tr + e.toString();
       }
     }
     try {
