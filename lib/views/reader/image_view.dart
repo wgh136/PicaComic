@@ -25,6 +25,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
     itemCount: comicReadingPageLogic.urls.length,
     addSemanticIndexes: false,
     scrollController: comicReadingPageLogic.cont,
+    physics: (comicReadingPageLogic.noScroll || comicReadingPageLogic.currentScale >1.05)?const NeverScrollableScrollPhysics():const ScrollPhysics(),
     itemBuilder: (context, index) {
 
       double width =  MediaQuery.of(context).size.width;
@@ -223,13 +224,14 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         scaleEnabled: GetPlatform.isWindows?false:true,
         maxScale: 2.5,
         minScale: 1,
-        child: AbsorbPointer(
-          absorbing: true, //使用控制器控制滚动
-          child: SizedBox(
-              width: MediaQuery.of(Get.context!).size.width,
-              height: MediaQuery.of(Get.context!).size.height,
-              child: buildGallery(comicReadingPageLogic, type, target)),
-        ));
+        onInteractionEnd: (details){
+          comicReadingPageLogic.currentScale =
+              comicReadingPageLogic.transformationController.value.getMaxScaleOnAxis();
+        },
+        child: SizedBox(
+            width: MediaQuery.of(Get.context!).size.width,
+            height: MediaQuery.of(Get.context!).size.height,
+            child: buildGallery(comicReadingPageLogic, type, target)));
   }
 
   return Positioned(

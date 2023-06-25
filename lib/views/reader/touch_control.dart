@@ -34,10 +34,27 @@ class ScrollManager{
 
   void tapDown(PointerDownEvent details){
     fingers++;
+    print(fingers);
+    var logic = Get.find<ComicReadingPageLogic>();
+    var temp = logic.noScroll;
+    logic.noScroll = fingers >= 2;
+    if(temp != logic.noScroll){
+      logic.update();
+    }
   }
 
   void tapUp(PointerUpEvent details){
     fingers--;
+    if(fingers < 0){
+      fingers = 0;
+    }
+    var logic = Get.find<ComicReadingPageLogic>();
+    var temp = logic.noScroll;
+    logic.noScroll = fingers >= 2;
+    if(temp != logic.noScroll){
+      print("update");
+      logic.update();
+    }
   }
 
   ///当滑动时调用此函数进行处理

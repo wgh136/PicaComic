@@ -16,10 +16,14 @@ class ComicReadingPageLogic extends GetxController{
   final scrollController = ItemScrollController();
   ///用于从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
   var scrollListener = ItemPositionsListener.create();
-  ///用于非从上至下(连续)阅读方式, 控制滚动
-  var cont = ScrollController(keepScrollOffset: false);
+  ///用于从上至下(连续)阅读方式, 控制滚动
+  var cont = ScrollController(keepScrollOffset: true);
   ///用于从上至下(连续)阅读方式, 获取放缩大小
   var transformationController = TransformationController();
+
+  bool noScroll = false;
+
+  double currentScale = 1.0;
 
   ComicReadingPageLogic(this.order, this.data);
 
