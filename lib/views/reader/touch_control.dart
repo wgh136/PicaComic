@@ -34,7 +34,6 @@ class ScrollManager{
 
   void tapDown(PointerDownEvent details){
     fingers++;
-    print(fingers);
     var logic = Get.find<ComicReadingPageLogic>();
     var temp = logic.noScroll;
     logic.noScroll = fingers >= 2;
@@ -52,7 +51,6 @@ class ScrollManager{
     var temp = logic.noScroll;
     logic.noScroll = fingers >= 2;
     if(temp != logic.noScroll){
-      print("update");
       logic.update();
     }
   }
@@ -90,8 +88,13 @@ class ScrollManager{
   ///异步函数, 释放缓存的滑动偏移值
   void releaseOffset() async{
     runningRelease = true;
+    var logic = Get.find<ComicReadingPageLogic>();
     while(offset!=0){
       //当手指离开时进行滚动
+      if(logic.currentScale < 1.05){
+        offset = 0;
+        break;
+      }
       if(!scrollController.hasClients){
         offset = 0;
         runningRelease = false;
