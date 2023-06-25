@@ -62,8 +62,13 @@ class ComicReadingPage extends StatelessWidget {
   final ReadingType type;
 
   ///一些会发生变更的信息, 全放logic里面会很乱
-  late final ReadingPageData data =
-      ReadingPageData(0, (type==ReadingType.jm&&eps.isNotEmpty)?eps.elementAtOrNull(order-1)??eps[0]:target, type, eps);
+  late final ReadingPageData data = ReadingPageData(
+      0,
+      (type == ReadingType.jm && eps.isNotEmpty)
+          ? eps.elementAtOrNull(order - 1) ?? eps[0]
+          : target,
+      type,
+      eps);
 
   ///阅读Hitomi画廊时使用的图片数据
   ///
@@ -74,7 +79,7 @@ class ComicReadingPage extends StatelessWidget {
       {super.key, int initialPage = 0})
       : gallery = null,
         type = ReadingType.picacg,
-        images = null{
+        images = null {
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
@@ -84,7 +89,7 @@ class ComicReadingPage extends StatelessWidget {
         title = gallery!.title,
         order = 0,
         type = ReadingType.ehentai,
-        images = null{
+        images = null {
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
@@ -93,262 +98,304 @@ class ComicReadingPage extends StatelessWidget {
       {super.key, int initialPage = 0})
       : type = ReadingType.jm,
         gallery = null,
-        images = null{
+        images = null {
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
 
-  ComicReadingPage.hitomi(this.target, this.title, this.images, {super.key, int initialPage=0})
+  ComicReadingPage.hitomi(this.target, this.title, this.images, {super.key, int initialPage = 0})
       : eps = [],
         order = 0,
         type = ReadingType.hitomi,
-        gallery = null{
+        gallery = null {
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      endDrawerEnableOpenDragGesture: false,
-      key: _scaffoldKey,
-      endDrawer: Drawer(
-        child: buildEpsView(),
-      ),
-      body: GetBuilder<ComicReadingPageLogic>(
-          initState: (logic) {
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-            if (appdata.settings[14] == "1") {
-              setKeepScreenOn();
-            }
-            //进入阅读器时清除内存中的缓存, 并且增大限制
-            PaintingBinding.instance.imageCache.clear();
-            PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
-          },
-          dispose: (logic) {
-            listen = false;
-            //清除缓存并减小最大缓存
-            PaintingBinding.instance.imageCache.clear();
-            PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
-            //保存历史记录
-            if(type != ReadingType.ehentai && type != ReadingType.hitomi) {
-              if (logic.controller!.order == 1 && logic.controller!.index == 1) {
-                appdata.history.saveReadHistory(target, 0, 0);
-              } else {
-                if (logic.controller!.order == data.epsWidgets.length - 1 &&
-                    logic.controller!.index == logic.controller!.length) {
-                  appdata.history.saveReadHistory(target, 0, 0);
-                } else {
-                  appdata.history.saveReadHistory(
-                      target, logic.controller!.order, logic.controller!.index);
-                }
-              }
-            }else{
-              if(logic.controller!.index == 1 || logic.controller!.index == logic.controller!.length){
-                appdata.history.saveReadHistory(target, 0, 0);
-              }else{
-                appdata.history.saveReadHistory(
-                    target, 1, logic.controller!.index);
-              }
-            }
-
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-            if (data.listenVolume != null) {
-              data.listenVolume!.stop();
-            }
-            if (appdata.settings[14] == "1") {
-              cancelKeepScreenOn();
-            }
-            MyCacheManager().saveData();
-          },
-          builder: (logic) {
-            if (logic.isLoading) {
-              //加载信息
-              if (type == ReadingType.ehentai) {
-                var ehLoadingInfo = EhLoadingInfo();
-                ehLoadingInfo.total = int.parse(gallery!.maxPage);
-                loadGalleryInfo(logic, ehLoadingInfo);
-                return DecoratedBox(
-                  decoration: const BoxDecoration(color: Colors.black),
-                  child: Center(
-                    child: SizedBox(
-                      height: 100,
-                      child: Column(
-                        children: [
-                          const CircularProgressIndicator(),
-                          const SizedBox(height: 5,),
-                          ValueListenableBuilder<int>(
-                            valueListenable: ehLoadingInfo.current,
-                            builder: (context,current,widget){
-                              return Text("$current/${ehLoadingInfo.total}", style: const TextStyle(color: Colors.white),);
-                            }
-                          ),
-                          const SizedBox(height: 5,),
-                          FilledButton(onPressed: ()=>Get.back(), child: Text("退出".tr))
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              } else if (type == ReadingType.picacg) {
-                loadComicInfo(logic);
-              } else if(type == ReadingType.jm){
-                loadJmComicInfo(logic);
-              } else {
-                loadHitomiData(logic);
-              }
-              return const DecoratedBox(
-                decoration: BoxDecoration(color: Colors.black),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else if (logic.urls.isNotEmpty) {
-              //检查传入的初始页面值, 并进行跳转
-              if (data.initialPage != 0) {
-                int i = data.initialPage;
-                Future.delayed(const Duration(milliseconds: 300), () => logic.jumpToPage(i));
-                //重置为0, 避免切换章节时再次跳转
-                data.initialPage = 0;
-              }
-
-              //监听音量键
-              if (appdata.settings[7] == "1") {
-                if (appdata.settings[9] != "4") {
-                  data.listenVolume = ListenVolumeController(
-                      () => logic.jumpToLastPage(),
-                      () => logic.jumpToNextPage());
-                } else {
-                  data.listenVolume = ListenVolumeController(
-                      () => logic.cont.jumpTo(logic.cont.position.pixels - 400),
-                      () => logic.cont.jumpTo(logic.cont.position.pixels + 400));
-                }
-                data.listenVolume!.listenVolumeChange();
-              } else if (data.listenVolume != null) {
-                data.listenVolume!.stop();
-                data.listenVolume = null;
-              }
-
-              //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
-              if (appdata.settings[9] == "4") {
-                //logic.cont = ScrollController();
-                data.scrollManager ??= ScrollManager(logic.cont);
-              }
-              return WillPopScope(
-                  onWillPop: () async {
-                    if (logic.tools) {
-                      return true;
-                    } else {
-                      logic.tools = true;
-                      logic.update();
-                      return false;
-                    }
-                  },
-                  child: Listener(
-                    onPointerMove: (details) {
-                      if(logic.currentScale < 1.05) return;
-                      if (appdata.settings[9] == "4" && data.scrollManager!.fingers != 2) {
-                        data.scrollManager!.addOffset(details.delta.dy /
-                            logic.transformationController.value.getMaxScaleOnAxis());
-                      }
-                    },
-                    onPointerUp: appdata.settings[9] == "4"
-                        ? (details) => data.scrollManager!.tapUp(details)
-                        : null,
-                    onPointerDown: appdata.settings[9] == "4"
-                        ? (details) => data.scrollManager!.tapDown(details)
-                        : null,
-                    child: Stack(
-                      children: [
-                        buildComicView(logic, type, (logic.downloaded&&type==ReadingType.jm)?"jm$target":data.target, eps, context),
-                        if (Get.isDarkMode && appdata.settings[18] == "1")
-                          Positioned(
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: IgnorePointer(
-                              child: ColoredBox(
-                                color: Colors.black.withOpacity(0.2),
-                              ),
-                            ),
-                          ),
-                        buildTapDownListener(logic, context),
-                        //底部工具栏
-                        buildBottomToolBar(logic, context, type != ReadingType.ehentai && type != ReadingType.hitomi, () {
-                          if (MediaQuery.of(context).size.width > 600) {
-                            showSideBar(context, buildEpsView(), title: null, useSurfaceTintColor: true, width: 400);
-                          } else {
-                            showModalBottomSheet(
-                                context: context,
-                                useSafeArea: false,
-                                builder: (context) {
-                                  return buildEpsView();
-                                });
-                          }
-                        }, () async {
-                          if (logic.downloaded) {
-                            var id = data.target;
-                            if (type == ReadingType.ehentai) {
-                              id = getGalleryId(data.target);
-                            }
-                            if(type == ReadingType.jm){
-                              id = "jm$target";
-                            }else if(type == ReadingType.hitomi){
-                              id = "hitomi$target";
-                            }
-                            shareImageFromDisk(
-                                downloadManager.getImage(id, logic.order, logic.index - 1).path);
-                          } else {
-                            shareImageFromCache(
-                                type==ReadingType.hitomi?logic.images[logic.index-1].hash:logic.urls[logic.index - 1],
-                                data.target,
-                                eh: type == ReadingType.ehentai,
-                                jmOrHitomi: type == ReadingType.jm || type==ReadingType.hitomi
-                            );
-                          }
-                        }, () async {
-                          if (logic.downloaded) {
-                            var id = data.target;
-                            if (type == ReadingType.ehentai) {
-                              id = getGalleryId(data.target);
-                            }
-                            if(type == ReadingType.jm){
-                              id = "jm$target";
-                            }else if(type == ReadingType.hitomi){
-                              id = "hitomi$target";
-                            }
-                            saveImageFromDisk(
-                                downloadManager.getImage(id, logic.order, logic.index - 1).path);
-                          } else {
-                            saveImage(
-                                type==ReadingType.hitomi?logic.images[logic.index-1].hash:logic.urls[logic.index - 1],
-                                data.target,
-                                eh: type == ReadingType.ehentai,
-                                jmOrHitomi: type == ReadingType.jm || type == ReadingType.hitomi
-                            );
-                          }
-                        }),
-
-                        ...buildButtons(logic, context),
-
-                        //顶部工具栏
-                        buildTopToolBar(logic, context, title),
-
-                        buildPageInfoText(logic, type != ReadingType.ehentai && type != ReadingType.hitomi, eps, context,
-                            jm: type == ReadingType.jm),
-
-                        //设置
-                        buildSettingWindow(logic, context),
-                      ],
-                    ),
-                  ));
+    return GetBuilder<ComicReadingPageLogic>(
+        initState: (logic) {
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+          if (appdata.settings[14] == "1") {
+            setKeepScreenOn();
+          }
+          //进入阅读器时清除内存中的缓存, 并且增大限制
+          PaintingBinding.instance.imageCache.clear();
+          PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+        },
+        dispose: (logic) {
+          listen = false;
+          //清除缓存并减小最大缓存
+          PaintingBinding.instance.imageCache.clear();
+          PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
+          //保存历史记录
+          if (type != ReadingType.ehentai && type != ReadingType.hitomi) {
+            if (logic.controller!.order == 1 && logic.controller!.index == 1) {
+              appdata.history.saveReadHistory(target, 0, 0);
             } else {
-              return buildErrorView(logic, context);
+              if (logic.controller!.order == data.epsWidgets.length - 1 &&
+                  logic.controller!.index == logic.controller!.length) {
+                appdata.history.saveReadHistory(target, 0, 0);
+              } else {
+                appdata.history
+                    .saveReadHistory(target, logic.controller!.order, logic.controller!.index);
+              }
             }
-          }),
-    );
+          } else {
+            if (logic.controller!.index == 1 ||
+                logic.controller!.index == logic.controller!.length) {
+              appdata.history.saveReadHistory(target, 0, 0);
+            } else {
+              appdata.history.saveReadHistory(target, 1, logic.controller!.index);
+            }
+          }
+
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+          if (data.listenVolume != null) {
+            data.listenVolume!.stop();
+          }
+          if (appdata.settings[14] == "1") {
+            cancelKeepScreenOn();
+          }
+          MyCacheManager().saveData();
+        },
+        builder: (logic) {
+          return Scaffold(
+              backgroundColor: Colors.black,
+              endDrawerEnableOpenDragGesture: false,
+              key: _scaffoldKey,
+              endDrawer: Drawer(
+                child: buildEpsView(),
+              ),
+              floatingActionButton: () {
+                switch (logic.showFloatingButtonValue) {
+                  case -1:
+                    return FloatingActionButton(
+                      onPressed: () => logic.jumpToLastChapter(),
+                      child: const Icon(Icons.arrow_back_ios_outlined),
+                    );
+                  case 0:
+                    return null;
+                  case 1:
+                    return FloatingActionButton(
+                      onPressed: () => logic.jumpToLastChapter(),
+                      child: const Icon(Icons.arrow_forward_ios_outlined),
+                    );
+                }
+              }.call(),
+              body: GetBuilder<ComicReadingPageLogic>(builder: (logic) {
+                if (logic.isLoading) {
+                  //加载信息
+                  if (type == ReadingType.ehentai) {
+                    var ehLoadingInfo = EhLoadingInfo();
+                    ehLoadingInfo.total = int.parse(gallery!.maxPage);
+                    loadGalleryInfo(logic, ehLoadingInfo);
+                    return DecoratedBox(
+                      decoration: const BoxDecoration(color: Colors.black),
+                      child: Center(
+                        child: SizedBox(
+                          height: 100,
+                          child: Column(
+                            children: [
+                              const CircularProgressIndicator(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              ValueListenableBuilder<int>(
+                                  valueListenable: ehLoadingInfo.current,
+                                  builder: (context, current, widget) {
+                                    return Text(
+                                      "$current/${ehLoadingInfo.total}",
+                                      style: const TextStyle(color: Colors.white),
+                                    );
+                                  }),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              FilledButton(onPressed: () => Get.back(), child: Text("退出".tr))
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (type == ReadingType.picacg) {
+                    loadComicInfo(logic);
+                  } else if (type == ReadingType.jm) {
+                    loadJmComicInfo(logic);
+                  } else {
+                    loadHitomiData(logic);
+                  }
+                  return const DecoratedBox(
+                    decoration: BoxDecoration(color: Colors.black),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (logic.urls.isNotEmpty) {
+                  //检查传入的初始页面值, 并进行跳转
+                  if (data.initialPage != 0) {
+                    int i = data.initialPage;
+                    Future.delayed(const Duration(milliseconds: 300), () => logic.jumpToPage(i));
+                    //重置为0, 避免切换章节时再次跳转
+                    data.initialPage = 0;
+                  }
+
+                  //监听音量键
+                  if (appdata.settings[7] == "1") {
+                    if (appdata.settings[9] != "4") {
+                      data.listenVolume = ListenVolumeController(
+                          () => logic.jumpToLastPage(), () => logic.jumpToNextPage());
+                    } else {
+                      data.listenVolume = ListenVolumeController(
+                          () => logic.cont.jumpTo(logic.cont.position.pixels - 400),
+                          () => logic.cont.jumpTo(logic.cont.position.pixels + 400));
+                    }
+                    data.listenVolume!.listenVolumeChange();
+                  } else if (data.listenVolume != null) {
+                    data.listenVolume!.stop();
+                    data.listenVolume = null;
+                  }
+
+                  //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
+                  if (appdata.settings[9] == "4") {
+                    //logic.cont = ScrollController();
+                    data.scrollManager = ScrollManager(logic.cont);
+                  }
+                  return WillPopScope(
+                      onWillPop: () async {
+                        if (logic.tools) {
+                          return true;
+                        } else {
+                          logic.tools = true;
+                          logic.update();
+                          return false;
+                        }
+                      },
+                      child: Listener(
+                        onPointerMove: (details) {
+                          if (logic.currentScale < 1.05) return;
+                          if (appdata.settings[9] == "4" && data.scrollManager!.fingers != 2) {
+                            data.scrollManager!.addOffset(details.delta.dy /
+                                logic.transformationController.value.getMaxScaleOnAxis());
+                          }
+                        },
+                        onPointerUp: appdata.settings[9] == "4"
+                            ? (details) => data.scrollManager!.tapUp(details)
+                            : null,
+                        onPointerDown: appdata.settings[9] == "4"
+                            ? (details) => data.scrollManager!.tapDown(details)
+                            : null,
+                        child: Stack(
+                          children: [
+                            buildComicView(
+                                logic,
+                                type,
+                                (logic.downloaded && type == ReadingType.jm)
+                                    ? "jm$target"
+                                    : data.target,
+                                eps,
+                                context),
+                            if (Get.isDarkMode && appdata.settings[18] == "1")
+                              Positioned(
+                                top: 0,
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: IgnorePointer(
+                                  child: ColoredBox(
+                                    color: Colors.black.withOpacity(0.2),
+                                  ),
+                                ),
+                              ),
+                            buildTapDownListener(logic, context),
+                            //底部工具栏
+                            buildBottomToolBar(logic, context,
+                                type != ReadingType.ehentai && type != ReadingType.hitomi, () {
+                              if (MediaQuery.of(context).size.width > 600) {
+                                showSideBar(context, buildEpsView(),
+                                    title: null, useSurfaceTintColor: true, width: 400);
+                              } else {
+                                showModalBottomSheet(
+                                    context: context,
+                                    useSafeArea: false,
+                                    builder: (context) {
+                                      return buildEpsView();
+                                    });
+                              }
+                            }, () async {
+                              if (logic.downloaded) {
+                                var id = data.target;
+                                if (type == ReadingType.ehentai) {
+                                  id = getGalleryId(data.target);
+                                }
+                                if (type == ReadingType.jm) {
+                                  id = "jm$target";
+                                } else if (type == ReadingType.hitomi) {
+                                  id = "hitomi$target";
+                                }
+                                shareImageFromDisk(downloadManager
+                                    .getImage(id, logic.order, logic.index - 1)
+                                    .path);
+                              } else {
+                                shareImageFromCache(
+                                    type == ReadingType.hitomi
+                                        ? logic.images[logic.index - 1].hash
+                                        : logic.urls[logic.index - 1],
+                                    data.target,
+                                    eh: type == ReadingType.ehentai,
+                                    jmOrHitomi:
+                                        type == ReadingType.jm || type == ReadingType.hitomi);
+                              }
+                            }, () async {
+                              if (logic.downloaded) {
+                                var id = data.target;
+                                if (type == ReadingType.ehentai) {
+                                  id = getGalleryId(data.target);
+                                }
+                                if (type == ReadingType.jm) {
+                                  id = "jm$target";
+                                } else if (type == ReadingType.hitomi) {
+                                  id = "hitomi$target";
+                                }
+                                saveImageFromDisk(downloadManager
+                                    .getImage(id, logic.order, logic.index - 1)
+                                    .path);
+                              } else {
+                                saveImage(
+                                    type == ReadingType.hitomi
+                                        ? logic.images[logic.index - 1].hash
+                                        : logic.urls[logic.index - 1],
+                                    data.target,
+                                    eh: type == ReadingType.ehentai,
+                                    jmOrHitomi:
+                                        type == ReadingType.jm || type == ReadingType.hitomi);
+                              }
+                            }),
+
+                            ...buildButtons(logic, context),
+
+                            //顶部工具栏
+                            buildTopToolBar(logic, context, title),
+
+                            buildPageInfoText(
+                                logic,
+                                type != ReadingType.ehentai && type != ReadingType.hitomi,
+                                eps,
+                                context,
+                                jm: type == ReadingType.jm),
+
+                            //设置
+                            buildSettingWindow(logic, context),
+                          ],
+                        ),
+                      ));
+                } else {
+                  return buildErrorView(logic, context);
+                }
+              }),
+            );
+        });
   }
 
   Widget buildErrorView(ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
@@ -406,22 +453,28 @@ class ComicReadingPage extends StatelessWidget {
                     height: 40,
                     child: Row(
                       children: [
-                        Expanded(child: FilledButton(
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () {
+                              data.epsWidgets.clear();
+                              comicReadingPageLogic.change();
+                            },
+                            child: Text("重试".tr),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Expanded(
+                            child: FilledButton(
                           onPressed: () {
-                            data.epsWidgets.clear();
-                            comicReadingPageLogic.change();
-                          },
-                          child: Text("重试".tr),
-                        ),),
-                        const SizedBox(width: 8,),
-                        Expanded(child: FilledButton(
-                          onPressed: () {
-                            if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+                            if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
                               showMessage(context, "没有其它章节".tr);
                               return;
                             }
                             if (MediaQuery.of(context).size.width > 600) {
-                              showSideBar(context, buildEpsView(), title: null, useSurfaceTintColor: true, width: 400);
+                              showSideBar(context, buildEpsView(),
+                                  title: null, useSurfaceTintColor: true, width: 400);
                             } else {
                               showModalBottomSheet(
                                   context: context,
@@ -441,7 +494,7 @@ class ComicReadingPage extends StatelessWidget {
         )));
   }
 
-  void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) async{
+  void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
     int? epLength;
     try {
       if (downloadManager.downloaded.contains(data.target)) {
@@ -456,8 +509,7 @@ class ComicReadingPage extends StatelessWidget {
       } else {
         comicReadingPageLogic.downloaded = false;
       }
-    }
-    catch(e){
+    } catch (e) {
       showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       comicReadingPageLogic.downloaded = false;
     }
@@ -509,29 +561,29 @@ class ComicReadingPage extends StatelessWidget {
     try {
       if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
         logic.downloaded = true;
-        for (int i = 0; i <
-            await downloadManager.getEhOrHitomiPages(getGalleryId(gallery!.link)); i++) {
+        for (int i = 0;
+            i < await downloadManager.getEhOrHitomiPages(getGalleryId(gallery!.link));
+            i++) {
           logic.urls.add("");
         }
         logic.change();
         return;
       }
-    }
-    catch(e){
+    } catch (e) {
       showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       logic.downloaded = false;
     }
     info.current.value++;
-    await for (var i in EhNetwork().loadGalleryPages(gallery!)){
-      if(i == -1){
+    await for (var i in EhNetwork().loadGalleryPages(gallery!)) {
+      if (i == -1) {
         logic.urls = gallery!.urls;
         logic.change();
         return;
-      }else if(i == 0){
+      } else if (i == 0) {
         data.message = "网络错误".tr;
         logic.change();
         return;
-      }else{
+      } else {
         info.current.value = i;
       }
     }
@@ -552,8 +604,7 @@ class ComicReadingPage extends StatelessWidget {
       } else {
         comicReadingPageLogic.downloaded = false;
       }
-    }
-    catch(e){
+    } catch (e) {
       showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       comicReadingPageLogic.downloaded = false;
     }
@@ -566,17 +617,22 @@ class ComicReadingPage extends StatelessWidget {
             Icons.library_books,
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
-          title: Text("章节".tr, style: const TextStyle(fontSize: 18),),
+          title: Text(
+            "章节".tr,
+            style: const TextStyle(fontSize: 18),
+          ),
         ),
       );
     }
     if (data.epsWidgets.length == 1) {
       for (int i = 0; i < eps.length; i++) {
         data.epsWidgets.add(ListTile(
-          title: Text("${"第 @c 章".trParams({"c": (i+1).toString()})}${(comicReadingPageLogic.order == i+1) ? "(当前)".tr : ""}"),
+          title: Text("${"第 @c 章".trParams({
+                "c": (i + 1).toString()
+              })}${(comicReadingPageLogic.order == i + 1) ? "(当前)".tr : ""}"),
           onTap: () {
-            if (comicReadingPageLogic.order != i+1) {
-              comicReadingPageLogic.order = i+1;
+            if (comicReadingPageLogic.order != i + 1) {
+              comicReadingPageLogic.order = i + 1;
               data.target = eps[i];
               data.epsWidgets.clear();
               comicReadingPageLogic.urls.clear();
@@ -587,7 +643,7 @@ class ComicReadingPage extends StatelessWidget {
         ));
       }
     }
-    if (comicReadingPageLogic.downloaded && epLength!=null) {
+    if (comicReadingPageLogic.downloaded && epLength != null) {
       for (int p = 0; p < epLength; p++) {
         comicReadingPageLogic.urls.add("");
       }
@@ -604,10 +660,10 @@ class ComicReadingPage extends StatelessWidget {
     comicReadingPageLogic.update();
   }
 
-  void loadHitomiData(ComicReadingPageLogic logic)async{
+  void loadHitomiData(ComicReadingPageLogic logic) async {
     logic.images = images!;
     logic.urls = images!.map<String>((e) => "").toList();
-    if(downloadManager.downloadedHitomiComics.contains("hitomi$target")){
+    if (downloadManager.downloadedHitomiComics.contains("hitomi$target")) {
       logic.downloaded = true;
     }
     await Future.delayed(const Duration(milliseconds: 200));
@@ -615,12 +671,12 @@ class ComicReadingPage extends StatelessWidget {
     logic.update();
   }
 
-  Widget buildEpsView(){
+  Widget buildEpsView() {
     return EpsView(type, eps, data);
   }
 }
 
-class EhLoadingInfo{
+class EhLoadingInfo {
   int total = 1;
   var current = ValueNotifier<int>(0);
 }

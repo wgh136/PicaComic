@@ -25,7 +25,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
     itemCount: comicReadingPageLogic.urls.length,
     addSemanticIndexes: false,
     scrollController: comicReadingPageLogic.cont,
-    physics: (comicReadingPageLogic.noScroll || comicReadingPageLogic.currentScale >1.05)?const NeverScrollableScrollPhysics():const ScrollPhysics(),
+    physics: (comicReadingPageLogic.noScroll || comicReadingPageLogic.currentScale >1.05)?const NeverScrollableScrollPhysics():const BouncingScrollPhysics(),
     itemBuilder: (context, index) {
 
       double width =  MediaQuery.of(context).size.width;
@@ -263,11 +263,27 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             );
             controller.updateMultiple(position: updatedOffset, scale: controller.scale! - pointerSignal.scrollDelta.dy/4000);
           }else{
-            comicReadingPageLogic.cont.jumpTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy);
+            comicReadingPageLogic.cont.animateTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy,
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.bounceIn);
           }
         }
       },
-      child: body,
+      child: NotificationListener<ScrollUpdateNotification>(
+        child: body,
+        onNotification: (notification){
+          var length = comicReadingPageLogic.data.eps.length;
+          if(type == ReadingType.picacg)  length--;
+          if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.minScrollExtent < 0 && comicReadingPageLogic.order != 0){
+            comicReadingPageLogic.showFloatingButton(-1);
+          }else if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.maxScrollExtent > 0 && comicReadingPageLogic.order<length){
+            comicReadingPageLogic.showFloatingButton(1);
+          }else{
+            comicReadingPageLogic.showFloatingButton(0);
+          }
+          return false;
+        },
+      ),
     ),
   );
 }
