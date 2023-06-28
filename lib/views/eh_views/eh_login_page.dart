@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
@@ -112,21 +113,25 @@ class _EhLoginPageState extends State<EhLoginPage> {
                                     "https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
                               }else{
                                 if(await FlutterWindowsWebview.isAvailable()){
-                                  FlutterWindowsWebview.launchWebview(
+                                  var webview = FlutterWindowsWebview();
+                                  webview.launchWebview(
                                     "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
                                     WebviewOptions(
                                       onTitleChange: (s) async{
                                         if(s == "E-Hentai Forums"){
-                                          var cookies = await FlutterWindowsWebview.getCookies(".e-hentai.org");
+                                          var cookies = await webview.getCookies("https://e-hentai.org");
+                                          print(cookies);
                                           var id = cookies["ipb_member_id"];
                                           var hash = cookies["ipb_pass_hash"];
-                                          cookies = await FlutterWindowsWebview.getCookies(".exhentai.org");
+                                          cookies = await webview.getCookies("https://exhentai.org");
                                           var igneous = cookies["igneous"];
+                                          webview.close();
                                           try {
                                             login(id!, hash!,
                                                 igneous ?? "");
                                           }
                                           catch (e) {
+                                            LogManager.addLog(LogLevel.error, "Network", e.toString());
                                             showMessage(Get.context, "登录失败".tr);
                                           }
                                         }
