@@ -120,7 +120,6 @@ class _EhLoginPageState extends State<EhLoginPage> {
                                       onTitleChange: (s) async{
                                         if(s == "E-Hentai Forums"){
                                           var cookies = await webview.getCookies("https://e-hentai.org");
-                                          print(cookies);
                                           var id = cookies["ipb_member_id"];
                                           var hash = cookies["ipb_pass_hash"];
                                           cookies = await webview.getCookies("https://exhentai.org");
