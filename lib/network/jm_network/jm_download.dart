@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
-import '../../tools/log.dart';
+import '../../foundation/log.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';

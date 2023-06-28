@@ -11,7 +11,7 @@ import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../base.dart';
-import '../../tools/ui_mode.dart';
+import '../../foundation/ui_mode.dart';
 import '../show_image_page.dart';
 import '../widgets/selectable_text.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';

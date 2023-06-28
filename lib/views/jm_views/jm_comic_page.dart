@@ -13,7 +13,7 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
-import '../../tools/ui_mode.dart';
+import '../../foundation/ui_mode.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';

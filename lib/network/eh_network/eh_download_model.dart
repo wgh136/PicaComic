@@ -7,7 +7,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
-import '../../tools/log.dart';
+import '../../foundation/log.dart';
 import '../new_download.dart';
 import 'eh_main_network.dart';
 import 'get_gallery_id.dart';

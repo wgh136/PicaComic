@@ -19,7 +19,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/update.dart';
-import '../tools/ui_mode.dart';
+import '../foundation/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
 import 'models/tab_listener.dart';
 import 'pic_views/home_page.dart';

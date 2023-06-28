@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 
 class LogsPage extends StatefulWidget {
   const LogsPage({super.key});

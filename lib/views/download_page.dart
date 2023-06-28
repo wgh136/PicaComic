@@ -4,7 +4,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'package:pica_comic/tools/ui_mode.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
-import 'package:pica_comic/tools/ui_mode.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';

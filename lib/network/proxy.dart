@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 import '../base.dart';
 
 ///获取系统设置中的代理, 仅windows,安卓有效

@@ -5,7 +5,7 @@ import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
-import '../../tools/log.dart';
+import '../../foundation/log.dart';
 import '../new_download.dart';
 import 'hitomi_models.dart';
 import 'dart:io';

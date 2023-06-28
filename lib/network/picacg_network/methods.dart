@@ -5,12 +5,12 @@ import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
-import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
-import '../../tools/log.dart';
+import '../../foundation/log.dart';
 import '../res.dart';
 import 'models.dart';
 

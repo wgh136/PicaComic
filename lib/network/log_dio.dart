@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 
 class MyLogInterceptor implements Interceptor{
   @override

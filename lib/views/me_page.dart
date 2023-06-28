@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/debug.dart';
-import 'package:pica_comic/tools/ui_mode.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/jm_views/jm_login_page.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';

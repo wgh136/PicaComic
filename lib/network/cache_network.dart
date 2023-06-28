@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
-import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/network/proxy.dart';
 import 'log_dio.dart';
 
 ///缓存网络请求, 仅提供get方法, 其它的没有意义

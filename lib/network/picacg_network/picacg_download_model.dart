@@ -5,7 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
 import '../new_download.dart';
 import 'methods.dart';
