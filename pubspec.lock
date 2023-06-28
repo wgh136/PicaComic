@@ -333,7 +333,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "4c0e3b46dad26e16d80f7a934fe06446fda3f2fb"
+      resolved-ref: b8dae53a70f55178751bc87fe2c238f18698afca
       url: "https://github.com/wgh136/flutter_windows_webview"
     source: git
     version: "0.0.1"
