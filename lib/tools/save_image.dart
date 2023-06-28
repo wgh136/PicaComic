@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'package:pica_comic/tools/cache_manager.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';

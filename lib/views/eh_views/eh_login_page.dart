@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -83,26 +84,59 @@ class _EhLoginPageState extends State<EhLoginPage> {
                       ),
                     ),
                     const SizedBox(height: 10,),
-                    if(GetPlatform.isAndroid)
+                    if(GetPlatform.isAndroid || GetPlatform.isWindows)
                       Center(
                         child: SizedBox(
-                          width: 150,
+                          width: 155,
                           height: 40,
                           child: TextButton(
                             onPressed: ()async{
-                              var browser = LoginInBrowser(() async{
-                                CookieManager cookieManager = CookieManager.instance();
-                                var id = await cookieManager.getCookie(url: Uri.parse(".e-hentai.org"), name: "ipb_member_id");
-                                var hash = await cookieManager.getCookie(url: Uri.parse(".e-hentai.org"), name: "ipb_pass_hash");
-                                var igneous = await cookieManager.getCookie(url: Uri.parse(".exhentai.org"), name: "igneous");
-                                try {
-                                  login(id!.value, hash!.value, igneous==null?"":igneous.value);
+                              if(GetPlatform.isAndroid) {
+                                var browser = LoginInBrowser(() async {
+                                  CookieManager cookieManager = CookieManager.instance();
+                                  var id = await cookieManager.getCookie(
+                                      url: Uri.parse(".e-hentai.org"), name: "ipb_member_id");
+                                  var hash = await cookieManager.getCookie(
+                                      url: Uri.parse(".e-hentai.org"), name: "ipb_pass_hash");
+                                  var igneous = await cookieManager.getCookie(
+                                      url: Uri.parse(".exhentai.org"), name: "igneous");
+                                  try {
+                                    login(id!.value, hash!.value,
+                                        igneous == null ? "" : igneous.value);
+                                  }
+                                  catch (e) {
+                                    showMessage(Get.context, "登录失败".tr);
+                                  }
+                                });
+                                await browser.openUrlRequest(urlRequest: URLRequest(url: Uri.parse(
+                                    "https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
+                              }else{
+                                if(await FlutterWindowsWebview.isAvailable()){
+                                  FlutterWindowsWebview.launchWebview(
+                                    "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
+                                    WebviewOptions(
+                                      onTitleChange: (s) async{
+                                        if(s == "E-Hentai Forums"){
+                                          var cookies = await FlutterWindowsWebview.getCookies(".e-hentai.org");
+                                          var id = cookies["ipb_member_id"];
+                                          var hash = cookies["ipb_pass_hash"];
+                                          cookies = await FlutterWindowsWebview.getCookies(".exhentai.org");
+                                          var igneous = cookies["igneous"];
+                                          try {
+                                            login(id!, hash!,
+                                                igneous ?? "");
+                                          }
+                                          catch (e) {
+                                            showMessage(Get.context, "登录失败".tr);
+                                          }
+                                        }
+                                      }
+                                    )
+                                  );
+                                }else{
+                                  showMessage(Get.context, "Webview不可用");
                                 }
-                                catch(e){
-                                  showMessage(Get.context, "登录失败".tr);
-                                }
-                              });
-                              await browser.openUrlRequest(urlRequest: URLRequest(url: Uri.parse("https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
+                              }
                             },
                             child: Row(
                               children: [

@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
-import 'package:pica_comic/tools/cache_manager.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
 import '../../tools/log.dart';

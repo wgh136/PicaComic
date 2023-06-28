@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/new_download_model.dart';
-import 'package:pica_comic/tools/cache_manager.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
 import '../../tools/log.dart';

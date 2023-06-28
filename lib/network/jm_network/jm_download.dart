@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/new_download.dart';
-import 'package:pica_comic/tools/cache_manager.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../tools/log.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';

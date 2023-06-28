@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
-import 'package:pica_comic/tools/cache_manager.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 
 var _loadingItem = 0;
 

@@ -1,8 +1,9 @@
 import 'dart:io';
+import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 
 ///用于测试函数
 void debug() async{
-  throw Error();
+  FlutterWindowsWebview.launchWebview("https://www.google.com");
 }
 
 ///保存网络请求数据, 用于Debug
