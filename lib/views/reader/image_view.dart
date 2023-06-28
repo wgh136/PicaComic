@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -6,6 +6,7 @@ import 'package:pica_comic/views/hitomi_views/image_loader/hitomi_cached_image_p
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:flutter/material.dart';
 import '../../base.dart';
+import '../../foundation/image_loader/cached_image.dart';
 import '../../network/eh_network/get_gallery_id.dart';
 import '../../network/picacg_network/methods.dart';
 import '../eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
@@ -46,7 +47,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
       }else if(type == ReadingType.hitomi && !comicReadingPageLogic.downloaded){
         image = HitomiCachedImageProvider(comicReadingPageLogic.images[index], target);
       }else if(type == ReadingType.picacg && !comicReadingPageLogic.downloaded){
-        image = CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
+        image = CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
       }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
         image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
       }else{
@@ -136,7 +137,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             imageProvider = FileImage(downloadManager.getImage(
                 id, comicReadingPageLogic.order, index - 1));
           }else if(type == ReadingType.picacg){
-            imageProvider = CachedNetworkImageProvider(
+            imageProvider = CachedImageProvider(
                 getImageUrl(comicReadingPageLogic.urls[index - 1]));
           }else if(type == ReadingType.jm){
             imageProvider = JmCachedImageProvider(comicReadingPageLogic.urls[index - 1], target);
@@ -296,7 +297,7 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
   } else if (index < comicReadingPageLogic.urls.length && type == ReadingType.picacg &&
       !comicReadingPageLogic.downloaded) {
     precacheImage(
-        CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])),
+        CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index])),
         context);
   } else if(index < comicReadingPageLogic.urls.length && type == ReadingType.jm &&
       !comicReadingPageLogic.downloaded){
@@ -328,7 +329,7 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
   } else if (index < comicReadingPageLogic.urls.length && type == ReadingType.picacg &&
       !comicReadingPageLogic.downloaded) {
     precacheImage(
-        CachedNetworkImageProvider(getImageUrl(comicReadingPageLogic.urls[index])),
+        CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index])),
         context);
   } else if(index < comicReadingPageLogic.urls.length && type == ReadingType.jm &&
       !comicReadingPageLogic.downloaded){

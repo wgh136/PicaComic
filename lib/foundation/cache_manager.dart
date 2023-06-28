@@ -11,12 +11,7 @@ import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
 
-///提供一个简单的图片缓存管理
-///
-/// 此缓存管理用于eh和禁漫阅读器,
-/// 前者在加载时需要爬取url, 后者需要对图片拆分重组
-///
-/// 看个本子真不容易 ε(┬┬﹏┬┬)3
+///用于阅读器的图片缓存管理
 class MyCacheManager{
   static MyCacheManager? cache;
 
@@ -69,6 +64,63 @@ class MyCacheManager{
       await file.writeAsString(const JsonEncoder().convert(_paths),mode: FileMode.writeOnly);
       _paths = null;
     }
+  }
+
+  /// 获取图片, 适用于没有任何限制的图片链接
+  Stream<DownloadProgress> getImage(String url) async*{
+    await readData();
+    //检查缓存
+    if(_paths![url] != null){
+      if(File(_paths![url]!).existsSync()) {
+        yield DownloadProgress(1, 1, url, _paths![url]!);
+        return;
+      }else{
+        _paths!.remove(url);
+      }
+    }
+    var options = BaseOptions(
+        connectTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+        followRedirects: true,
+        headers: {
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "cookie": EhNetwork().cookiesStr
+        }
+    );
+    //生成文件名
+    var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
+    if(fileName.length>10){
+      fileName = fileName.substring(0,10);
+    }
+    fileName = "$fileName.jpg";
+    final savePath = "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
+    yield DownloadProgress(0, 100, url, savePath);
+    var dio = Dio(options);
+    var dioRes = await dio.get<ResponseBody>(url, options: Options(responseType: ResponseType.stream));
+    if(dioRes.data == null){
+      throw Exception("无数据");
+    }
+    List<int> imageData = [];
+    int? expectedBytes;
+    try {
+      expectedBytes = int.parse(dioRes.data!.headers["Content-Length"]![0]) + 1;
+    }
+    catch(e){
+      //忽略
+    }
+    var file = File(savePath);
+    if(file.existsSync()){
+      file.deleteSync();
+    }
+    file.createSync();
+    await for(var res in dioRes.data!.stream){
+      imageData.addAll(res);
+      file.writeAsBytesSync(res, mode: FileMode.append);
+      yield DownloadProgress(imageData.length, expectedBytes??(imageData.length+1), url, savePath);
+    }
+    await saveInfo(url, savePath);
+    yield DownloadProgress(1, 1, url, savePath);
   }
 
   ///获取eh图片, 传入的为阅读器地址
