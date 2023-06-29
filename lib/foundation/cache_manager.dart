@@ -16,7 +16,7 @@ class MyCacheManager{
   static MyCacheManager? cache;
 
   ///用于标记正在加载的项目, 避免出现多个异步函数加载同一张图片
-  static Map<String, bool> loadingItems = {};
+  static Map<String, DownloadProgress> loadingItems = {};
 
   factory MyCacheManager() {
     createFolder();
@@ -73,15 +73,19 @@ class MyCacheManager{
   /// 获取图片, 适用于没有任何限制的图片链接
   Stream<DownloadProgress> getImage(String url) async*{
     while(loadingItems[url] != null){
+      var progress = loadingItems[url]!;
+      yield progress;
+      if(progress.finished)  return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    loadingItems[url] = true;
+    loadingItems[url] = DownloadProgress(0, 1, url, "");
     try {
       await readData();
       //检查缓存
       if (_paths![url] != null) {
         if (File(_paths![url]!).existsSync()) {
           yield DownloadProgress(1, 1, url, _paths![url]!);
+          loadingItems.remove(url);
           return;
         } else {
           _paths!.remove(url);
@@ -128,8 +132,10 @@ class MyCacheManager{
       await for (var res in dioRes.data!.stream) {
         imageData.addAll(res);
         file.writeAsBytesSync(res, mode: FileMode.append);
-        yield DownloadProgress(
+        var progress =  DownloadProgress(
             imageData.length, expectedBytes ?? (imageData.length + 1), url, savePath);
+        yield progress;
+        loadingItems[url] = progress;
       }
       await saveInfo(url, savePath);
       yield DownloadProgress(1, 1, url, savePath);
@@ -145,15 +151,19 @@ class MyCacheManager{
   ///获取eh图片, 传入的为阅读器地址
   Stream<DownloadProgress> getEhImage(String url) async*{
     while(loadingItems[url] != null){
+      var progress = loadingItems[url]!;
+      yield progress;
+      if(progress.finished)  return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    loadingItems[url] = true;
+    loadingItems[url] = DownloadProgress(0, 1, url, "");
     try {
       await readData();
       //检查缓存
       if (_paths![url] != null) {
         if (File(_paths![url]!).existsSync()) {
           yield DownloadProgress(1, 1, url, _paths![url]!);
+          loadingItems.remove(url);
           return;
         } else {
           _paths!.remove(url);
@@ -236,7 +246,9 @@ class MyCacheManager{
       await for (var b in stream) {
         file.writeAsBytesSync(b, mode: FileMode.append);
         currentBytes += b.length;
-        yield DownloadProgress(currentBytes, (expectedBytes ?? currentBytes) + 1, url, savePath);
+        var progress =  DownloadProgress(currentBytes, (expectedBytes ?? currentBytes) + 1, url, savePath);
+        yield progress;
+        loadingItems[url] = progress;
       }
       await saveInfo(url, savePath);
       yield DownloadProgress(1, 1, url, savePath);
@@ -254,15 +266,19 @@ class MyCacheManager{
   /// 使用hash标识图片
   Stream<DownloadProgress> getHitomiImage(HitomiFile image, String galleryId) async*{
     while(loadingItems[image.hash] != null){
+      var progress = loadingItems[image.hash]!;
+      yield progress;
+      if(progress.finished)  return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    loadingItems[image.hash] = true;
+    loadingItems[image.hash] = DownloadProgress(0, 1, image.hash, "");
     try {
       await readData();
       //检查缓存
       if (_paths![image.hash] != null) {
         if (File(_paths![image.hash]!).existsSync()) {
           yield DownloadProgress(1, 1, image.hash, _paths![image.hash]!);
+          loadingItems.remove(image.hash);
           return;
         } else {
           _paths!.remove(image.hash);
@@ -312,7 +328,9 @@ class MyCacheManager{
         await for (var b in stream) {
           file.writeAsBytesSync(b.toList(), mode: FileMode.append);
           currentBytes += b.length;
-          yield DownloadProgress(currentBytes, expectedBytes ?? (currentBytes + 1), url, savePath);
+          var progress = DownloadProgress(currentBytes, expectedBytes ?? (currentBytes + 1), url, savePath);
+          yield progress;
+          loadingItems[image.hash] = progress;
         }
         yield DownloadProgress(currentBytes, currentBytes, url, savePath);
       }
@@ -336,12 +354,15 @@ class MyCacheManager{
   Stream<DownloadProgress> getJmImage(
       String url,
       Map<String, String>? headers,
-      {bool jm=true, required String epsId, required String scrambleId, required String bookId}
+      {required String epsId, required String scrambleId, required String bookId}
       ) async*{
     while(loadingItems[url] != null){
+      var progress = loadingItems[url]!;
+      yield progress;
+      if(progress.finished)  return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    loadingItems[url] = true;
+    loadingItems[url] = DownloadProgress(0, 1, url, "");
     try {
       await readData();
       var directory = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
@@ -352,6 +373,7 @@ class MyCacheManager{
       if (_paths![url] != null) {
         if (File(_paths![url]!).existsSync()) {
           yield DownloadProgress(1, 1, url, _paths![url]!);
+          loadingItems.remove(url);
           return;
         } else {
           _paths!.remove(url);
@@ -390,13 +412,17 @@ class MyCacheManager{
           if (i > 750) {
             i = 750;
           }
-          yield DownloadProgress(i, 1000, url, savePath);
+          var progress = DownloadProgress(i, 1000, url, savePath);
+          yield progress;
+          loadingItems[url] = progress;
         }
       }
       catch (e) {
         rethrow;
       }
-      yield DownloadProgress(750, 1000, url, savePath);
+      var progress = DownloadProgress(750, 1000, url, savePath);
+      yield progress;
+      loadingItems[url] = progress;
       var file = File(savePath);
       if (!file.existsSync()) {
         file.create();
@@ -406,7 +432,9 @@ class MyCacheManager{
       await startWriteFile(WriteInfo(savePath, newBytes));
       //告知完成
       await saveInfo(url, savePath);
-      yield DownloadProgress(1, 1, url, savePath);
+      progress = DownloadProgress(1, 1, url, savePath);
+      yield progress;
+      loadingItems[url] = progress;
     }
     catch(e){
       rethrow;
@@ -469,8 +497,9 @@ class DownloadProgress{
   final String url;
   final String savePath;
 
-  get currentBytes => _currentBytes;
-  get expectedBytes => _expectedBytes;
+  int get currentBytes => _currentBytes;
+  int get expectedBytes => _expectedBytes;
+  bool get finished => _currentBytes==_expectedBytes;
 
   const DownloadProgress(this._currentBytes, this._expectedBytes, this.url, this.savePath);
 
