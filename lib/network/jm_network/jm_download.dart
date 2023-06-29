@@ -234,8 +234,19 @@ class JmDownloadingItem extends DownloadingItem {
 
   void saveInfo() async{
     var file = File("$path/$id/info.json");
+    var previous = <int>[];
+    if(DownloadManager().downloadedJmComics.contains(id)){
+      var comic = await DownloadManager().getJmComicFormId(id);
+      previous = comic.downloadedEps;
+    }
+    if(file.existsSync()){
+      file.deleteSync();
+    }
+    file.createSync();
+    var downloadEps = (_downloadEps + previous).toSet().toList();
+    downloadEps.sort();
     var downloadedItem = DownloadedJmComic(comic, await getFolderSize(Directory("$path$pathSep$id")),
-      _downloadEps
+      downloadEps
     );
     var json = jsonEncode(downloadedItem.toMap());
     await file.writeAsString(json);

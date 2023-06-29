@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SelectDownloadChapter extends StatefulWidget {
-  const SelectDownloadChapter(this.eps, this.finishSelect, {Key? key}) : super(key: key);
+  const SelectDownloadChapter(this.eps, this.finishSelect, this.downloadedEps, {Key? key}) : super(key: key);
   final List<String> eps;
   final void Function(List<int>) finishSelect;
+  final List<int> downloadedEps;
 
   @override
   State<SelectDownloadChapter> createState() => _SelectDownloadChapterState();
@@ -32,10 +33,19 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
             itemBuilder: (BuildContext context, int i) {
               return Padding(padding: const EdgeInsets.all(4),child: InkWell(
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
+                onTap: widget.downloadedEps.contains(i)?null:(){
+                  setState(() {
+                    if(selected.contains(i)){
+                      selected.remove(i);
+                    } else {
+                      selected.add(i);
+                    }
+                  });
+                },
                 child: AnimatedContainer(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    color: selected.contains(i)?Theme.of(context).colorScheme.primaryContainer:Theme.of(context).colorScheme.surfaceVariant,
+                    color: (selected.contains(i) || widget.downloadedEps.contains(i))?Theme.of(context).colorScheme.primaryContainer:Theme.of(context).colorScheme.surfaceVariant,
                   ),
                   duration: const Duration(milliseconds: 200),
 
@@ -46,19 +56,12 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
                       const Spacer(),
                       if(selected.contains(i))
                         const Icon(Icons.done),
+                      if(widget.downloadedEps.contains(i))
+                        const Icon(Icons.download_done),
                       const SizedBox(width: 16,),
                     ],
                   ),
                 ),
-                onTap: (){
-                  setState(() {
-                    if(selected.contains(i)){
-                      selected.remove(i);
-                    } else {
-                      selected.add(i);
-                    }
-                  });
-                },
               ),);
             },
             itemCount: widget.eps.length,
@@ -69,7 +72,13 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
               children: [
                 const SizedBox(width: 16,),
                 Expanded(child: FilledButton.tonal(onPressed: (){
-                  widget.finishSelect(List<int>.generate(widget.eps.length, (index) => index));
+                  var res = <int>[];
+                  for(int i = 0; i<widget.eps.length; i++){
+                    if(!widget.downloadedEps.contains(i)){
+                      res.add(i);
+                    }
+                  }
+                  widget.finishSelect(res);
                 }, child: Text("下载全部".tr)),),
                 const SizedBox(width: 16,),
                 Expanded(child: FilledButton.tonal(onPressed: (){

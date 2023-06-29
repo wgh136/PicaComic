@@ -268,7 +268,18 @@ class PicDownloadingItem extends DownloadingItem {
   ///储存漫画信息
   Future<void> saveInfo() async{
     var file = File("$path/$id/info.json");
-    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")),_downloadEps);
+    var previous = <int>[];
+    if(DownloadManager().downloaded.contains(id)){
+      var comic = await DownloadManager().getComicFromId(id);
+      previous = comic.downloadedEps;
+    }
+    if(file.existsSync()){
+      file.deleteSync();
+    }
+    file.createSync();
+    var downloaded = (_downloadEps+previous).toSet().toList();
+    downloaded.sort();
+    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")),downloaded);
     var json = jsonEncode(downloadedItem.toJson());
     await file.writeAsString(json);
   }
