@@ -179,7 +179,7 @@ class ComicReadingPage extends StatelessWidget {
                     return null;
                   case 1:
                     return FloatingActionButton(
-                      onPressed: () => logic.jumpToLastChapter(),
+                      onPressed: () => logic.jumpToNextChapter(),
                       child: const Icon(Icons.arrow_forward_ios_outlined),
                     );
                 }
