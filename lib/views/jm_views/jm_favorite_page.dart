@@ -107,7 +107,8 @@ class JmFavoritePage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              const Icon(Icons.arrow_right)
+                              const Icon(Icons.arrow_right),
+                              const SizedBox(width: 5,)
                             ],
                           ),
                         ),
@@ -147,6 +148,8 @@ class JmFolderTile extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Row(
             children: [
+              if(id != "0")
+                const SizedBox(width: 2.5,),
               Expanded(
                 flex: 1,
                 child: Icon(
@@ -158,6 +161,8 @@ class JmFolderTile extends StatelessWidget {
               const SizedBox(
                 width: 16,
               ),
+              if(id != "0")
+                const SizedBox(width: 2.5,),
               Expanded(
                 flex: 4,
                 child: Align(
@@ -195,7 +200,9 @@ class JmFolderTile extends StatelessWidget {
                 },
               )
               else
-                const Icon(Icons.arrow_right)
+                const Icon(Icons.arrow_right),
+              if(id == "0")
+                const SizedBox(width: 5,)
             ],
           ),
         ),
