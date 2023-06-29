@@ -91,6 +91,10 @@ class Appdata{
     "0",//是否进入过app
   ];
 
+  //哔咔
+  String picacgAccount = "";
+  String picacgPassword = "";
+
   //eh相关信息
   String ehId = "";
   String ehPassHash = "";
@@ -187,6 +191,8 @@ class Appdata{
     await s.setString("jmEmail", jmEmail);
     await s.setString("jmPwd", jmPwd);
     await s.setString("ehIgneous", igneous);
+    await s.setString("picacgAccount", picacgAccount);
+    await s.setString("picacgPassword", picacgPassword);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -222,6 +228,8 @@ class Appdata{
       jmName = s.getString("jmName")??"";
       jmEmail = s.getString("jmEmail")??"";
       jmPwd = s.getString("jmPwd")??"";
+      picacgAccount = s.getString("picacgAccount")??"";
+      picacgPassword = s.getString("picacgPassword")??"";
       return firstUse[3]=="1"||token!="";
     }
     catch(e){
