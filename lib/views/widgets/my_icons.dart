@@ -23,4 +23,6 @@ class MyIcons {
 
   static const IconData eh = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData jm = IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData ehFolder = IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData jmFolder = IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

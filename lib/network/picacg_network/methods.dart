@@ -5,12 +5,12 @@ import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
-import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
-import '../../tools/log.dart';
+import '../../foundation/log.dart';
 import '../res.dart';
 import 'models.dart';
 
@@ -75,11 +75,11 @@ class PicacgNetwork {
       } else {
         return null;
       }
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.connectionTimeout) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
         status = true;
         message = "连接超时";
-      } else if (e.type != DioErrorType.unknown) {
+      } else if (e.type != DioExceptionType.unknown) {
         status = true;
         message = e.message!;
       } else {
@@ -131,11 +131,11 @@ class PicacgNetwork {
       } else {
         return null;
       }
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.connectionTimeout) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
         status = true;
         message = "连接超时";
-      } else if (e.type != DioErrorType.unknown) {
+      } else if (e.type != DioExceptionType.unknown) {
         status = true;
         message = e.message!;
       } else {
@@ -888,7 +888,7 @@ class PicacgNetwork {
       var res =
           await dio.put(url, data: {"new_password": newPassword, "old_password": oldPassword});
       return res.statusCode == 200;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.message == "Http status error [400]") {
         status = true;
         return false;

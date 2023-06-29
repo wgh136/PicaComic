@@ -252,13 +252,13 @@ class DownloadManager{
 
   ///当一个下载任务完成时, 调用此函数
   void _whenFinish() async{
-    if(downloading.first.type == DownloadType.picacg) {
+    if(downloading.first.type == DownloadType.picacg && !downloaded.contains(downloading.first.id)) {
       downloaded.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.ehentai){
+    }else if(downloading.first.type == DownloadType.ehentai && !downloadedGalleries.contains(downloading.first.id)){
       downloadedGalleries.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.jm){
+    }else if(downloading.first.type == DownloadType.jm && !downloadedJmComics.contains(downloading.first.id)){
       downloadedJmComics.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.hitomi){
+    }else if(downloading.first.type == DownloadType.hitomi && !downloadedHitomiComics.contains(downloading.first.id)){
       downloadedHitomiComics.add(downloading.first.id);
     }
     downloading.removeFirst();

@@ -1,14 +1,14 @@
 # Pica Comic
 
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![flutter](https://img.shields.io/badge/flutter-3.10.3-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.10.5-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
 
 使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi
 
-目前支持Android, Windows
+目前支持Android, Windows; 由于缺乏测试条件,  IOS可用性未知
 
 本App目标为中文漫画, 因此App界面语言仅支持中文, 漫画源仅限于有中文漫画的漫画源
 

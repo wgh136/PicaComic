@@ -19,12 +19,11 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/update.dart';
-import '../tools/ui_mode.dart';
+import '../foundation/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
 import 'models/tab_listener.dart';
 import 'pic_views/home_page.dart';
 import 'me_page.dart';
-import 'widgets/my_icons_icons.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
@@ -434,11 +433,6 @@ class NavigatorItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double? size;
-    if(icon == MyIcons.eh){
-      size = 20;
-    }else if(icon == MyIcons.jm){
-      size = 18;
-    }
     final theme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),

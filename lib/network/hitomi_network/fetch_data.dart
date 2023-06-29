@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:pica_comic/network/res.dart';
 import 'package:dio/dio.dart';
 
-import '../../tools/proxy.dart';
+import '../proxy.dart';
 
 ///改写自 hitomi.la 网站上的js脚本
 ///

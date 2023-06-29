@@ -16,16 +16,43 @@ class ComicReadingPageLogic extends GetxController{
   final scrollController = ItemScrollController();
   ///用于从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
   var scrollListener = ItemPositionsListener.create();
-  ///用于非从上至下(连续)阅读方式, 控制滚动
-  var cont = ScrollController(keepScrollOffset: false);
+  ///用于从上至下(连续)阅读方式, 控制滚动
+  var cont = ScrollController(keepScrollOffset: true);
   ///用于从上至下(连续)阅读方式, 获取放缩大小
   var transformationController = TransformationController();
+
+  bool noScroll = false;
+
+  double currentScale = 1.0;
 
   ComicReadingPageLogic(this.order, this.data);
 
   ReadingPageData data;
 
   bool isLoading = true;
+
+  ///是否应该显示悬浮按钮, 为-1表示显示上一章, 为0表示不显示, 为1表示显示下一章
+  int showFloatingButtonValue = 0;
+
+  void showFloatingButton(int value){
+    var length = data.eps.length;
+    if(data.type == ReadingType.picacg){
+      length--;
+    }
+    if(value == 0) {
+      if(showFloatingButtonValue != 0){
+        showFloatingButtonValue = 0;
+        update();
+      }
+    };
+    if(value == 1 && showFloatingButtonValue == 0 && order < length){
+      showFloatingButtonValue = 1;
+      update();
+    }else if(value == -1 && showFloatingButtonValue == 0 && order!=1){
+      showFloatingButtonValue = -1;
+      update();
+    }
+  }
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
   int index = 1;

@@ -2,7 +2,7 @@ import 'dart:io';
 
 ///用于测试函数
 void debug() async{
-  throw Error();
+
 }
 
 ///保存网络请求数据, 用于Debug

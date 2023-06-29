@@ -6,7 +6,7 @@ import 'package:pica_comic/views/explore_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../network/update.dart';
 import '../../tools/io_tools.dart';
-import '../../tools/proxy.dart';
+import '../../network/proxy.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -398,7 +398,8 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                         var res =
                             await downloadManager.updatePath(controller.text, transform: transform);
                         if (res == "ok") {
-                          Get.back();
+                          Get.closeAllSnackbars();
+                          Navigator.of(Get.context!).pop();
                           showMessage(Get.context, "更新成功".tr);
                           appdata.updateSettings();
                         } else {

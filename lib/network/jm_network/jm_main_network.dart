@@ -4,8 +4,8 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pica_comic/network/cache_network.dart';
-import 'package:pica_comic/tools/proxy.dart';
-import '../../tools/log.dart';
+import 'package:pica_comic/network/proxy.dart';
+import '../../foundation/log.dart';
 import '../log_dio.dart';
 import 'headers.dart';
 import 'jm_image.dart';
@@ -96,11 +96,11 @@ class JmNetwork {
                     "未知错误".toString());
       }
       return Res<dynamic>(const JsonDecoder().convert(res.data));
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (kDebugMode) {
         print(e);
       }
-      if (e.type != DioErrorType.unknown) {
+      if (e.type != DioExceptionType.unknown) {
         return Res<String>(null, errorMessage: e.message ?? "网络错误");
       }else{
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
@@ -133,11 +133,11 @@ class JmNetwork {
       var resData = convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
       return Res<dynamic>(const JsonDecoder().convert(resData));
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (kDebugMode) {
         print(e);
       }
-      if (e.type != DioErrorType.unknown) {
+      if (e.type != DioExceptionType.unknown) {
         return Res<String>(null, errorMessage: e.message ?? "网络错误");
       }else{
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
@@ -736,6 +736,41 @@ class JmNetwork {
       return Res(null, errorMessage: res.errorMessage);
     } else {
       return Res(true);
+    }
+  }
+
+  Future<Res<List<JmComicBrief>>> getFolderComicsPage(String id, int page) async{
+    var res = await get("$baseUrl/favorite?$baseData&page=$page&folder_id=$id&o=${ComicsOrder.latest}", expiredTime: CacheExpiredTime.no);
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try {
+      var comics = <JmComicBrief>[];
+      for (var comic in (res.data["list"])) {
+        var categories = <ComicCategoryInfo>[];
+        if (comic["category"]["id"] != null && comic["category"]["title"] != null) {
+          categories.add(ComicCategoryInfo(comic["category"]["id"], comic["category"]["title"]));
+        }
+        if (comic["category_sub"]["id"] != null && comic["category_sub"]["title"] != null) {
+          categories
+              .add(ComicCategoryInfo(comic["category_sub"]["id"], comic["category_sub"]["title"]));
+        }
+        comics.add(JmComicBrief(
+            comic["id"], comic["author"], comic["name"], comic["description"] ?? "", categories, [], ignoreExamination: true));
+      }
+      int pages;
+      if(comics.isNotEmpty){
+        pages = (int.parse(res.data["total"]) / comics.length).ceil();
+      }else{
+        pages = 0;
+      }
+      return Res(comics, subData: pages);
+    } catch (e, s) {
+      if (kDebugMode) {
+        print(e);
+      }
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
+      return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
 

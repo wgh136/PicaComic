@@ -5,7 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pica_comic/network/new_download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
 import '../new_download.dart';
 import 'methods.dart';
@@ -268,7 +268,18 @@ class PicDownloadingItem extends DownloadingItem {
   ///储存漫画信息
   Future<void> saveInfo() async{
     var file = File("$path/$id/info.json");
-    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")),_downloadEps);
+    var previous = <int>[];
+    if(DownloadManager().downloaded.contains(id)){
+      var comic = await DownloadManager().getComicFromId(id);
+      previous = comic.downloadedEps;
+    }
+    if(file.existsSync()){
+      file.deleteSync();
+    }
+    file.createSync();
+    var downloaded = (_downloadEps+previous).toSet().toList();
+    downloaded.sort();
+    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")),downloaded);
     var json = jsonEncode(downloadedItem.toJson());
     await file.writeAsString(json);
   }

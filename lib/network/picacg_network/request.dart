@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/log_dio.dart';
-import '../../tools/proxy.dart';
+import '../proxy.dart';
 
 Future<Dio> request() async{
   /*

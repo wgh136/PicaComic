@@ -18,7 +18,7 @@ ColorScheme? lightColorScheme;
 ColorScheme? dartColorScheme;
 
 //App版本
-const appVersion = "1.6.16";
+const appVersion = "1.6.17";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -77,6 +77,7 @@ class Appdata{
     "0", //25 漫画列表显示模式
     "0", //26 已下载页面排序模式: 时间, 漫画名, 作者名, 大小
     "0", //27 颜色
+    "2", //28 预加载页数
   ];
 
   ///屏蔽的关键词
@@ -89,6 +90,10 @@ class Appdata{
     "1",//漫画详情页
     "0",//是否进入过app
   ];
+
+  //哔咔
+  String picacgAccount = "";
+  String picacgPassword = "";
 
   //eh相关信息
   String ehId = "";
@@ -186,6 +191,8 @@ class Appdata{
     await s.setString("jmEmail", jmEmail);
     await s.setString("jmPwd", jmPwd);
     await s.setString("ehIgneous", igneous);
+    await s.setString("picacgAccount", picacgAccount);
+    await s.setString("picacgPassword", picacgPassword);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -221,6 +228,8 @@ class Appdata{
       jmName = s.getString("jmName")??"";
       jmEmail = s.getString("jmEmail")??"";
       jmPwd = s.getString("jmPwd")??"";
+      picacgAccount = s.getString("picacgAccount")??"";
+      picacgPassword = s.getString("picacgPassword")??"";
       return firstUse[3]=="1"||token!="";
     }
     catch(e){

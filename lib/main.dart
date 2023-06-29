@@ -10,9 +10,9 @@ import 'package:pica_comic/network/error_report.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
-import 'package:pica_comic/tools/proxy.dart';
+import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/language.dart';
 import 'package:pica_comic/views/test_network_page.dart';
@@ -20,7 +20,7 @@ import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'network/picacg_network/methods.dart';
 
-bool isLogged = false;
+bool firstUse = false;
 
 void main() {
   runZonedGuarded(
@@ -33,7 +33,7 @@ void main() {
         };
         appdata.readData().then((b) async {
           await checkDownloadPath();
-          isLogged = b;
+          firstUse = b;
           if (b) {
             network = PicacgNetwork(appdata.token);
           }
@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
             useMaterial3: true,
             fontFamily: "font"
         ),
-        home: isLogged ? const TestNetworkPage() : const WelcomePage(),
+        home: firstUse ? const TestNetworkPage() : const WelcomePage(),
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,
         fallbackLocale: const Locale('zh','CN'),

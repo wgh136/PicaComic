@@ -244,7 +244,22 @@ class _SettingsPageState extends State<SettingsPage> {
                         inPopUpWidget: widget.popUp,
                         width: 140,
                       ),
-                    )
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.image_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("图片预加载".tr),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[28]),
+                        values: const ["0","1","2","3","4","5"],
+                        whenChange: (i){
+                          appdata.settings[28] = i.toString();
+                          appdata.updateSettings();
+                        },
+                        inPopUpWidget: widget.popUp,
+                        width: 140,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 
 class MyLogInterceptor implements Interceptor{
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     LogManager.addLog(LogLevel.error, "Network", "${err.requestOptions.method} ${err.requestOptions.path}\n$err");
     handler.next(err);
   }

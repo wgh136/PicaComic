@@ -1,186 +1,138 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
-import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
-import 'package:pica_comic/views/widgets/list_loading.dart';
-import 'package:pica_comic/views/widgets/show_error.dart';
-import '../../base.dart';
+import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 import '../../network/eh_network/eh_main_network.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
+import '../widgets/my_icons.dart';
 
-class EhFavouritePageLogic extends GetxController{
-  bool loading = true;
-  Galleries? galleries;
-  ///收藏夹编号, 为-1表示加载全部
-  int folder = -1;
-  String? message;
-  var folderNames = List.generate(10, (index) => "Favorite $index");
 
-  Future<void> getGallery() async{
-    if(folder == -1) {
-      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
-      if(res.error){
-        message = res.errorMessage;
-      } else {
-        galleries = res.data;
-        folderNames = res.subData??folderNames;
-        EhNetwork().folderNames = folderNames;
-      }
-    }else{
-      var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder", favoritePage: true);
-      if(res.error){
-        message = res.errorMessage;
-      } else {
-        galleries = res.data;
-      }
-    }
-    loading = false;
-    try {
-      update();
-    }
-    catch(e){
-      //网络请求返回时页面已退出
-    }
-  }
-
-  void retry(){
-    loading = true;
-    update();
-  }
-
-  void change(){
-    loading = !loading;
-    update();
-  }
-
-  void refresh_(){
-    message = null;
-    galleries = null;
-    loading = true;
-    update();
-  }
-}
-
-class EhFavouritePage extends StatelessWidget {
-  const EhFavouritePage({Key? key}) : super(key: key);
+class EhFavoritePage extends StatelessWidget{
+  const EhFavoritePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async{
-        Get.find<EhFavouritePageLogic>().refresh_();
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GetBuilder<EhFavouritePageLogic>(
-            builder: (logic) => buildFolderSelector(context, logic),
-          ),
-          const Divider(),
-          Expanded(
-            child: GetBuilder<EhFavouritePageLogic>(
-              builder: (logic){
-                if(logic.loading){
-                  if(appdata.settings[11]=="0") {
-                    logic.getGallery();
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }else if(logic.galleries!=null){
-                  return buildNormalView(logic, context);
-                }else{
-                  return showNetworkError(logic.message??"网络错误", logic.retry, context, showBack:false);
-                }
-              },
-            ),
-          )
-        ],
-    ));
-  }
-
-  Widget buildNormalView(EhFavouritePageLogic logic, BuildContext context){
     return CustomScrollView(
       slivers: [
         SliverGrid(
           delegate: SliverChildBuilderDelegate(
-              childCount: logic.galleries!.length,
+              childCount: 11,
                   (context, i){
-                if(i==logic.galleries!.length-1){
-                  EhNetwork().getNextPageGalleries(logic.galleries!).then((v)=>logic.update());
+                if(i == 0) {
+                  return EhFolderTile(name: "全部", onTap: ()=>Get.to(()=>EhFavoritePageFolder(name: "全部", folderId: -1)));
+                }else{
+                  i--;
                 }
-                return EhGalleryTile(logic.galleries![i]);
+                return EhFolderTile(name: EhNetwork().folderNames[i], onTap: ()=>Get.to(() => EhFavoritePageFolder(name: EhNetwork().folderNames[i], folderId: i)),);
+
               }
           ),
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: comicTileMaxWidth,
-            childAspectRatio: comicTileAspectRatio,
+            maxCrossAxisExtent: 550,
+            childAspectRatio: 4,
           ),
         ),
-        if(logic.galleries!.next!=null)
-          const SliverToBoxAdapter(
-            child: ListLoadingIndicator(),
-          ),
       ],
     );
   }
+}
 
-  Widget buildFolderSelector(BuildContext context, EhFavouritePageLogic logic){
-    var logic = Get.find<EhFavouritePageLogic>();
-    final double width = MediaQuery.of(context).size.width > 400 ? 400 : MediaQuery.of(context).size.width;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 14, 16, 5),
-      padding: const EdgeInsets.all(5),
-      width: width,
-      height: 50,
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant,
-          borderRadius: const BorderRadius.all(Radius.circular(16))
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text("  收藏夹:  ".tr),
-          logic.folder==-1 ? Text("全部".tr) : Text(logic.folderNames[logic.folder]),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.arrow_drop_down_sharp),
-            onPressed: (){
-              if(logic.loading){
-                showMessage(context, "加载中".tr);
-                return;
-              }
-              showMenu(
-                  context: context,
-                  position: RelativeRect.fromLTRB(width, 150, MediaQuery.of(context).size.width-width, MediaQuery.of(context).size.height-150),
-                  items: [
-                    PopupMenuItem(
-                      height: 40,
-                      child: Text("全部".tr),
-                      onTap: (){
-                        if(logic.folder != -1){
-                          logic.folder = -1;
-                          logic.refresh_();
-                        }
-                      },
-                    ),
-                    for(int i=0;i<=9;i++)
-                      PopupMenuItem(
-                        height: 40,
-                        child: Text(logic.folderNames[i]),
-                        onTap: (){
-                          if(logic.folder != i){
-                            logic.folder = i;
-                            logic.refresh_();
-                          }
-                        },
-                      )
-                  ]
-              );
-            },
-          )
-        ],
+class PageData{
+  Galleries? galleries;
+  int page = 1;
+  Map<int, List<EhGalleryBrief>> comics = {};
+}
+
+class EhFavoritePageFolder extends ComicsPage{
+  EhFavoritePageFolder({required this.name, required this.folderId, super.key});
+
+  final String name;
+
+  final int folderId;
+
+  final data = PageData();
+
+  @override
+  Future<Res<List>> getComics(int i) async{
+    if(data.galleries == null){
+      Res<Galleries> res;
+      if(folderId == -1){
+        res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
+      }else{
+        res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folderId", favoritePage: true);
+      }
+      if(res.error){
+        return Res(null, errorMessage: res.errorMessage);
+      }else{
+        data.galleries = res.data;
+        data.comics[1] = [];
+        data.comics[1]!.addAll(data.galleries!.galleries);
+        data.galleries!.galleries.clear();
+      }
+    }
+    if(data.comics[i] != null){
+      return Res(data.comics[i]!);
+    }else{
+      while(data.comics[i] == null){
+        data.page++;
+        if(! await EhNetwork().getNextPageGalleries(data.galleries!)){
+          return Res(null, errorMessage: "网络错误");
+        }
+        data.comics[data.page] = [];
+        data.comics[data.page]!.addAll(data.galleries!.galleries);
+        data.galleries!.galleries.clear();
+      }
+      return Res(data.comics[i]);
+    }
+  }
+
+  @override
+  String? get tag => "EhFavoritePageFolder $folderId";
+
+  @override
+  String get title => name;
+
+  @override
+  ComicType get type => ComicType.ehentai;
+
+  @override
+  bool get withScaffold => true;
+
+}
+
+class EhFolderTile extends StatelessWidget {
+  const EhFolderTile({required this.name, required this.onTap, super.key});
+
+  final String name;
+
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Icon(MyIcons.ehFolder, size: 45, color: Theme.of(context).colorScheme.secondary,),
+              ),
+              const SizedBox(width: 16,),
+              Expanded(
+                flex: 4,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
+                ),
+              ),
+              Icon(Icons.arrow_right, color: Theme.of(context).colorScheme.secondary)
+            ],
+          ),
+        ),
       ),
     );
   }

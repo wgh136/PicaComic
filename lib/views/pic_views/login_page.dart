@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
+import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
@@ -14,8 +15,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var nameController = TextEditingController();
-  var passwordController = TextEditingController();
+  var nameController = TextEditingController(text: appdata.picacgAccount);
+  var passwordController = TextEditingController(text: appdata.picacgPassword);
   var isLogging = false;
   bool useMyServer = appdata.settings[3]=="1";
   @override
@@ -96,6 +97,8 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               else{
                                 appdata.user = t;
+                                appdata.picacgAccount = nameController.text;
+                                appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                 Get.offAll(const MainPage());
@@ -131,22 +134,12 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox.fromSize(size: const Size(5,10),),
                 if(!GetPlatform.isWeb)
                   ListTile(
-                    leading: Icon(Icons.change_circle, color: Theme.of(context).colorScheme.primary,),
-                    title: const Text("使用转发服务器"),
-                    subtitle: Text("同时使用网络代理工具会减慢速度".tr),
-                    trailing: Switch(
-                      value: useMyServer,
-                      onChanged: (b){
-                        b?appdata.settings[3] = "1":appdata.settings[3]="0";
-                        setState(() {
-                          useMyServer = b;
-                        });
-                        network.updateApi();
-                        appdata.writeData();
-                      },
-                    ),
-                    onTap: (){},
+                    leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.secondary,),
+                    title: const Text("设置"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: () => Get.to(() => const SettingsPage()),
                   ),
+                SizedBox.fromSize(size: const Size(5,10),),
                 if(!isLogging)
                   SizedBox(
                     width: 90,
@@ -171,6 +164,8 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               else{
                                 appdata.user = t;
+                                appdata.picacgAccount = nameController.text;
+                                appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
                                 Get.closeAllSnackbars();
                                 Get.offAll(() => const MainPage());

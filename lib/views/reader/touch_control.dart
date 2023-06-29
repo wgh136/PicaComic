@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:math';
 import '../../base.dart';
 
@@ -21,7 +20,7 @@ class ScrollManager{
 
   final height = Get.height;
 
-  final maxScrollOnce = Get.height/7;
+  final maxScrollOnce = Get.height/8;
 
   ///是否正在进行释放缓存的偏移值
   bool runningRelease = false;
@@ -34,18 +33,33 @@ class ScrollManager{
 
   void tapDown(PointerDownEvent details){
     fingers++;
+    var logic = Get.find<ComicReadingPageLogic>();
+    var temp = logic.noScroll;
+    logic.noScroll = fingers >= 2;
+    if(temp != logic.noScroll){
+      logic.update();
+    }
   }
 
   void tapUp(PointerUpEvent details){
     fingers--;
+    if(fingers < 0){
+      fingers = 0;
+    }
+    var logic = Get.find<ComicReadingPageLogic>();
+    var temp = logic.noScroll;
+    logic.noScroll = fingers >= 2;
+    if(temp != logic.noScroll){
+      logic.update();
+    }
   }
 
   ///当滑动时调用此函数进行处理
   void addOffset(double value){
-    if(value > 50){
-      value = 50;
-    }else if(value < -50){
-      value = -50;
+    if(value > 40){
+      value = 40;
+    }else if(value < -40){
+      value = -40;
     }
     if(value*offset < 0){
       offset = 0;
@@ -60,7 +74,7 @@ class ScrollManager{
     scrollController.jumpTo(scrollController.position.pixels-value);
     if(value*height/400>slowMove||value*height/400<0-slowMove){
       if(offset < 2000) {
-        offset += value*( (value > 1 || value < -1) ? log(value>0?value:0-value) : value>0?value:0-value)*height/150;
+        offset += value*( (value > 1 || value < -1) ? log(value>0?value:0-value) : value>0?value:0-value)*height/200;
       }
       if (!runningRelease) {
         releaseOffset();
@@ -73,39 +87,17 @@ class ScrollManager{
   ///异步函数, 释放缓存的滑动偏移值
   void releaseOffset() async{
     runningRelease = true;
+    var logic = Get.find<ComicReadingPageLogic>();
     while(offset!=0){
       //当手指离开时进行滚动
+      if(logic.currentScale < 1.05){
+        offset = 0;
+        break;
+      }
       if(!scrollController.hasClients){
         offset = 0;
         runningRelease = false;
         return;
-      }
-      if(touching && fingers==0){
-        if(scrollController.position.pixels-scrollController.position.maxScrollExtent > 300){
-          showMessage(
-              Get.context,
-              "要切换下一章节吗",
-              action: TextButton(
-                  onPressed: (){
-                    Get.closeCurrentSnackbar();
-                    Get.find<ComicReadingPageLogic>().jumpToNextChapter();
-                  },
-                  child: Text("切换".tr)
-              )
-          );
-        }else if(scrollController.position.pixels-scrollController.position.minScrollExtent < -300){
-          showMessage(
-              Get.context,
-              "要切换上一章节吗",
-              action: TextButton(
-                  onPressed: (){
-                    Get.closeCurrentSnackbar();
-                    Get.find<ComicReadingPageLogic>().jumpToLastChapter();
-                  },
-                  child: Text("切换".tr)
-              )
-          );
-        }
       }
       touching = fingers != 0;
       if(fingers==0){
@@ -117,11 +109,11 @@ class ScrollManager{
           offset = 0;
           break;
         }
-        var p = offset / 200;
-        if(p > 4.5){
-          p = 4.5;
-        }else if(p < -4.5){
-          p = -4.5;
+        var p = offset / 400;
+        if(p > 4){
+          p = 4;
+        }else if(p < -4){
+          p = -4;
         }
         double value = log(offset>0?offset:0-offset) * p;
         if(value > maxScrollOnce){

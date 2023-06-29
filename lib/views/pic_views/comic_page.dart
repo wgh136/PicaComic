@@ -2,9 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/new_download.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
-import 'package:pica_comic/tools/ui_mode.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
@@ -345,7 +346,7 @@ class ComicPage extends StatelessWidget{
             onPressed: (){
               downloadComic(logic.comicItem!, context, logic.epsStr);
             },
-            child: (downloadManager.downloaded.contains(comic.id))?Text("已下载".tr):Text("下载".tr),
+            child: (downloadManager.downloaded.contains(comic.id))?Text("修改".tr):Text("下载".tr),
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
@@ -615,13 +616,9 @@ class ComicPage extends StatelessWidget{
   }
 }
 
-void downloadComic(ComicItem comic, BuildContext context, List<String> eps){
+void downloadComic(ComicItem comic, BuildContext context, List<String> eps) async{
   if(GetPlatform.isWeb){
     showMessage(context, "Web端不支持下载".tr);
-    return;
-  }
-  if(downloadManager.downloaded.contains(comic.id)){
-    showMessage(context, "已下载".tr);
     return;
   }
   for(var i in downloadManager.downloading){
@@ -630,20 +627,25 @@ void downloadComic(ComicItem comic, BuildContext context, List<String> eps){
       return;
     }
   }
-  if(UiMode.m1(context)) {
-    showModalBottomSheet(context: context, builder: (context){
+  var downloaded = <int>[];
+  if(DownloadManager().downloaded.contains(comic.id)){
+    var downloadedComic = await DownloadManager().getComicFromId(comic.id);
+    downloaded.addAll(downloadedComic.downloadedEps);
+  }
+  if(UiMode.m1(Get.context!)) {
+    showModalBottomSheet(context: Get.context!, builder: (context){
       return SelectDownloadChapter(eps.sublist(1), (selectedEps){
         downloadManager.addPicDownload(comic, selectedEps);
         showMessage(context, "已加入下载".tr);
-      });
+      }, downloaded);
     });
   }else{
     showSideBar(
-      context,
+        Get.context!,
       SelectDownloadChapter(eps.sublist(1), (selectedEps){
         downloadManager.addPicDownload(comic, selectedEps);
         showMessage(context, "已加入下载".tr);
-      }),
+      }, downloaded),
       useSurfaceTintColor: true
     );
   }

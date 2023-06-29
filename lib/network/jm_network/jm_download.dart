@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/new_download.dart';
-import 'package:pica_comic/tools/cache_manager.dart';
-import '../../tools/log.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
+import '../../foundation/log.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/new_download_model.dart';
@@ -234,8 +234,19 @@ class JmDownloadingItem extends DownloadingItem {
 
   void saveInfo() async{
     var file = File("$path/$id/info.json");
+    var previous = <int>[];
+    if(DownloadManager().downloadedJmComics.contains(id)){
+      var comic = await DownloadManager().getJmComicFormId(id);
+      previous = comic.downloadedEps;
+    }
+    if(file.existsSync()){
+      file.deleteSync();
+    }
+    file.createSync();
+    var downloadEps = (_downloadEps + previous).toSet().toList();
+    downloadEps.sort();
     var downloadedItem = DownloadedJmComic(comic, await getFolderSize(Directory("$path$pathSep$id")),
-      _downloadEps
+      downloadEps
     );
     var json = jsonEncode(downloadedItem.toMap());
     await file.writeAsString(json);

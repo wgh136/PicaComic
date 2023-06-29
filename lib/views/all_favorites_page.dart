@@ -21,14 +21,12 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   @override
   void initState() {
     controller = TabController(length: pages, vsync: this);
-    Get.put(EhFavouritePageLogic());
     Get.put(JmFavoritePageLogic());
     super.initState();
   }
 
   @override
   void dispose() {
-    Get.find<EhFavouritePageLogic>().dispose();
     Get.find<JmFavoritePageLogic>().dispose();
     super.dispose();
   }
@@ -57,7 +55,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
               children: [
                 const FavoritesPage(),
                 if(appdata.settings[21][1] == "1")
-                  const EhFavouritePage(),
+                  const EhFavoritePage(),
                 if(appdata.settings[21][2] == "1")
                   const JmFavoritePage()
               ],

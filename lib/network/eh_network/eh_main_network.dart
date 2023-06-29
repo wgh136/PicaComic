@@ -3,9 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/tools/js.dart';
-import 'package:pica_comic/tools/log.dart';
+import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
-import '../../tools/proxy.dart';
+import '../proxy.dart';
 import 'package:html/parser.dart';
 import 'package:get/get.dart';
 import '../../views/pre_search_page.dart';
@@ -109,10 +109,10 @@ class EhNetwork{
       }
       return Res(data.data);
     }
-    on DioError catch(e){
+    on DioException catch(e){
       String? message;
       sendNetworkLog(url, e.toString());
-      if(e.type!=DioErrorType.unknown){
+      if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tr;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
@@ -149,9 +149,9 @@ class EhNetwork{
       var res = await dio.post<String>(ehApiUrl, data: data);
       return Res(res.data);
     }
-    on DioError catch(e){
+    on DioException catch(e){
       String? message;
-      if(e.type!=DioErrorType.unknown){
+      if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tr;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
@@ -195,9 +195,9 @@ class EhNetwork{
       var res = await dio.post<String>(url, data: data);
       return Res(res.data);
     }
-    on DioError catch(e){
+    on DioException catch(e){
       String? message;
-      if(e.type!=DioErrorType.unknown){
+      if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tr;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);

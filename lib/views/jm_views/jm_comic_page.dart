@@ -13,7 +13,8 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
-import '../../tools/ui_mode.dart';
+import '../../foundation/ui_mode.dart';
+import '../../network/new_download.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';
@@ -692,11 +693,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
   }
 }
 
-void downloadComic(JmComicInfo comic, BuildContext context){
-  if(downloadManager.downloadedJmComics.contains("jm${comic.id}")){
-    showMessage(context, "已下载".tr);
-    return;
-  }
+void downloadComic(JmComicInfo comic, BuildContext context) async{
   for(var i in downloadManager.downloading){
     if(i.id == comic.id){
       showMessage(context, "下载中".tr);
@@ -711,20 +708,26 @@ void downloadComic(JmComicInfo comic, BuildContext context){
     eps = List<String>.generate(comic.series.length, (index) => "第 @c 章".trParams({"c": (index+1).toString()}));
   }
 
-  if(UiMode.m1(context)) {
-    showModalBottomSheet(context: context, builder: (context){
+  var downloaded = <int>[];
+  if(DownloadManager().downloadedJmComics.contains("jm${comic.id}")){
+    var downloadedComic = await DownloadManager().getJmComicFormId("jm${comic.id}");
+    downloaded.addAll(downloadedComic.downloadedEps);
+  }
+
+  if(UiMode.m1(Get.context!)) {
+    showModalBottomSheet(context: Get.context!, builder: (context){
       return SelectDownloadChapter(eps, (selectedEps){
         downloadManager.addJmDownload(comic, selectedEps);
         showMessage(context, "已加入下载".tr);
-      });
+      },downloaded);
     });
   }else{
     showSideBar(
-        context,
+        Get.context!,
         SelectDownloadChapter(eps, (selectedEps){
           downloadManager.addJmDownload(comic, selectedEps);
           showMessage(context, "已加入下载".tr);
-        }),
+        },downloaded),
         useSurfaceTintColor: true
     );
   }
