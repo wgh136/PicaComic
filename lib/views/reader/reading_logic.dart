@@ -39,21 +39,18 @@ class ComicReadingPageLogic extends GetxController{
     if(data.type == ReadingType.picacg){
       length--;
     }
-    if(value == 0)  return;
+    if(value == 0) {
+      if(showFloatingButtonValue != 0){
+        showFloatingButtonValue = 0;
+        update();
+      }
+    };
     if(value == 1 && showFloatingButtonValue == 0 && order < length){
       showFloatingButtonValue = 1;
       update();
-      Future.delayed(const Duration(seconds: 2), (){
-        showFloatingButtonValue = 0;
-        update();
-      });
     }else if(value == -1 && showFloatingButtonValue == 0 && order!=1){
       showFloatingButtonValue = -1;
       update();
-      Future.delayed(const Duration(seconds: 2), (){
-        showFloatingButtonValue = 0;
-        update();
-      });
     }
   }
 

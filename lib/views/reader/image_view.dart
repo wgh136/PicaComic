@@ -274,9 +274,9 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         onNotification: (notification){
           var length = comicReadingPageLogic.data.eps.length;
           if(type == ReadingType.picacg)  length--;
-          if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.minScrollExtent < 0 && comicReadingPageLogic.order != 0){
+          if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.minScrollExtent <= 0 && comicReadingPageLogic.order != 0){
             comicReadingPageLogic.showFloatingButton(-1);
-          }else if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.maxScrollExtent > 0 && comicReadingPageLogic.order<length){
+          }else if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.maxScrollExtent >= 0 && comicReadingPageLogic.order<length){
             comicReadingPageLogic.showFloatingButton(1);
           }else{
             comicReadingPageLogic.showFloatingButton(0);
