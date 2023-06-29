@@ -96,11 +96,11 @@ class JmNetwork {
                     "未知错误".toString());
       }
       return Res<dynamic>(const JsonDecoder().convert(res.data));
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (kDebugMode) {
         print(e);
       }
-      if (e.type != DioErrorType.unknown) {
+      if (e.type != DioExceptionType.unknown) {
         return Res<String>(null, errorMessage: e.message ?? "网络错误");
       }else{
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
@@ -133,11 +133,11 @@ class JmNetwork {
       var resData = convertData(
           (const JsonDecoder().convert(const Utf8Decoder().convert(res.data)))["data"], time);
       return Res<dynamic>(const JsonDecoder().convert(resData));
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (kDebugMode) {
         print(e);
       }
-      if (e.type != DioErrorType.unknown) {
+      if (e.type != DioExceptionType.unknown) {
         return Res<String>(null, errorMessage: e.message ?? "网络错误");
       }else{
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);

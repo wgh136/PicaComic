@@ -109,10 +109,10 @@ class EhNetwork{
       }
       return Res(data.data);
     }
-    on DioError catch(e){
+    on DioException catch(e){
       String? message;
       sendNetworkLog(url, e.toString());
-      if(e.type!=DioErrorType.unknown){
+      if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tr;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
@@ -149,9 +149,9 @@ class EhNetwork{
       var res = await dio.post<String>(ehApiUrl, data: data);
       return Res(res.data);
     }
-    on DioError catch(e){
+    on DioException catch(e){
       String? message;
-      if(e.type!=DioErrorType.unknown){
+      if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tr;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
@@ -195,9 +195,9 @@ class EhNetwork{
       var res = await dio.post<String>(url, data: data);
       return Res(res.data);
     }
-    on DioError catch(e){
+    on DioException catch(e){
       String? message;
-      if(e.type!=DioErrorType.unknown){
+      if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tr;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);

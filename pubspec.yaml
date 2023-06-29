@@ -33,7 +33,7 @@ dependencies:
 
 
   # The following adds the Cupertino Icons font to your application.
-  dio: ^5.1.2
+  dio: ^5.2.1
   get: ^4.6.5
   shared_preferences: ^2.0.16
   dynamic_color: ^1.6.5
