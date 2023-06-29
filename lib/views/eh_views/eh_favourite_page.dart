@@ -3,9 +3,8 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
-import 'package:pica_comic/views/widgets/folder_tile.dart';
-import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
+import '../widgets/my_icons.dart';
 
 
 class EhFavoritePage extends StatelessWidget{
@@ -20,17 +19,17 @@ class EhFavoritePage extends StatelessWidget{
               childCount: 11,
                   (context, i){
                 if(i == 0) {
-                  return FolderTile(name: "全部", onTap: ()=>Get.to(()=>EhFavoritePageFolder(name: "全部", folderId: -1)));
+                  return EhFolderTile(name: "全部", onTap: ()=>Get.to(()=>EhFavoritePageFolder(name: "全部", folderId: -1)));
                 }else{
                   i--;
                 }
-                return FolderTile(name: EhNetwork().folderNames[i], onTap: ()=>Get.to(() => EhFavoritePageFolder(name: EhNetwork().folderNames[i], folderId: i)),);
+                return EhFolderTile(name: EhNetwork().folderNames[i], onTap: ()=>Get.to(() => EhFavoritePageFolder(name: EhNetwork().folderNames[i], folderId: i)),);
 
               }
           ),
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: comicTileMaxWidth,
-            childAspectRatio: comicTileAspectRatio,
+            maxCrossAxisExtent: 550,
+            childAspectRatio: 3.2,
           ),
         ),
       ],
@@ -99,4 +98,42 @@ class EhFavoritePageFolder extends ComicsPage{
   @override
   bool get withScaffold => true;
 
+}
+
+class EhFolderTile extends StatelessWidget {
+  const EhFolderTile({required this.name, required this.onTap, super.key});
+
+  final String name;
+
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Icon(MyIcons.ehFolder, size: 45, color: Theme.of(context).colorScheme.secondary,),
+              ),
+              const SizedBox(width: 16,),
+              Expanded(
+                flex: 4,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),),
+                ),
+              ),
+              Icon(Icons.arrow_right, color: Theme.of(context).colorScheme.secondary)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
