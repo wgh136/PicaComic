@@ -5,6 +5,7 @@ import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
+import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
@@ -72,6 +73,7 @@ class _MainPageState extends State<MainPage> {
     Get.put(HitomiHomePageLogic(), tag: HitomiDataUrls.homePageJp);
     Get.put(ExplorePageLogic());
     Get.put(CategoryPageLogic());
+    Get.put(HtHomePageLogic());
     super.initState();
   }
 
@@ -255,6 +257,8 @@ class _MainPageState extends State<MainPage> {
                 () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageCn).refresh_(),
               if(appdata.settings[24][8] == "1")
                 () => Get.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageJp).refresh_(),
+              if(appdata.settings[24][9] == "1")
+                () => Get.find<HtHomePageLogic>().refresh_(),
             ];
             logics[page]();
           } else if (i == 2) {

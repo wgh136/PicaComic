@@ -522,13 +522,14 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "禁漫最新".tr,
       "Hitomi主页".tr,
       "Hitomi中文".tr,
-      "Hitomi日文".tr
+      "Hitomi日文".tr,
+      "绅士漫画"
     ];
     return SizedBox(
       width: 400,
       child: Column(
         children: [
-          for (int i = 0; i < 9; i++)
+          for (int i = 0; i < 10; i++)
             CheckboxListTile(
               value: appdata.settings[24][i] == "1",
               onChanged: (b) {

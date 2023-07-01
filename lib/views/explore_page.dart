@@ -5,6 +5,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
+import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
@@ -52,6 +53,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
               Tab(text: "Hitomi中文".tr, key: const Key("Hitomi中文")),
             if(appdata.settings[24][8] == "1")
               Tab(text: "Hitomi日文".tr, key: const Key("Hitomi日文")),
+            if(appdata.settings[24][9] == "1")
+              const Tab(text: "绅士漫画", key: Key("绅士漫画")),
           ],
           controller: controller,
         ),
@@ -77,6 +80,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                 HitomiHomePage(HitomiDataUrls.homePageCn),
               if(appdata.settings[24][8] == "1")
                 HitomiHomePage(HitomiDataUrls.homePageJp),
+              if(appdata.settings[24][9] == "1")
+                const HtHomePage()
             ],
           ),
         )
