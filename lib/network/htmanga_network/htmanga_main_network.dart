@@ -94,4 +94,54 @@ class HtmangaNetwork{
       return Res(null, errorMessage: "解析失败: $e");
     }
   }
+
+  /// 获取给定漫画列表页面的漫画
+  Future<Res<List<HtComicBrief>>> getComicList(String url, int page) async{
+    if(page != 1){
+      if(! url.contains("-")){
+        url = url.replaceAll(".html", "-.html");
+      }
+      var lr = url.split("albums-");
+      lr[1] = "index-page-$page${lr[1]}";
+      url = "${lr[0]}albums-${lr[1]}";
+    }
+    var res = await get(url);
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var comics = <HtComicBrief>[];
+      for(var comic in document.querySelectorAll("div.grid > div.gallary_wrap > ul.cc > li")){
+        try {
+          var link = comic.querySelector("div.pic_box > a")!.attributes["href"]!;
+          var image = comic.querySelector("div.pic_box > a > img")!.attributes["src"]!;
+          image = "https:$image";
+          var name = comic.querySelector("div.info > div.title > a")!.text;
+          var infoCol = comic.querySelector("div.info > div.info_col")!.text;
+          var lr = infoCol.split("，");
+          var time = lr[1];
+          time = time.replaceAll("\n", "");
+          var pagesStr = "";
+          for (int i = 0; i < lr[0].length; i++) {
+            if (lr[1][i].isNum) {
+              pagesStr += lr[1][i];
+            }
+          }
+          var pages = int.parse(pagesStr);
+          comics.add(HtComicBrief(name, time, image, link, pages));
+        }
+        catch(e){
+          continue;
+        }
+      }
+      var pagesLink = document.querySelectorAll("div.f_left.paginator > a");
+      var pages = int.parse(pagesLink.last.text);
+      return Res(comics, subData: pages);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
 }

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
+import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -202,6 +204,8 @@ abstract class ComicsPage<T> extends StatelessWidget{
                               }else{
                                 return HiComicTile(comics[i] as HitomiComicBrief);
                               }
+                            case 4:
+                              return HtComicTile(comic: comics[i] as HtComicBrief);
                             default:
                               throw UnimplementedError();
                           }
@@ -257,6 +261,8 @@ abstract class ComicsPage<T> extends StatelessWidget{
                               }else{
                                 return HiComicTile(comics?[logic.current]![i] as HitomiComicBrief);
                               }
+                            case 4:
+                              return HtComicTile(comic: comics?[logic.current]![i] as HtComicBrief);
                             default:
                               throw UnimplementedError();
                           }
@@ -386,4 +392,4 @@ abstract class ComicsPage<T> extends StatelessWidget{
   }
 }
 
-enum ComicType{picacg, ehentai, jm, hitomi}
+enum ComicType{picacg, ehentai, jm, hitomi, htManga}

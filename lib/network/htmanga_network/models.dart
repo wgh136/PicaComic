@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../base.dart';
+
 @immutable
 class HtHomePageData{
   final List<List<HtComicBrief>> comics;
@@ -18,5 +20,12 @@ class HtComicBrief{
   final String link;
 
   /// 漫画简略信息
-  const HtComicBrief(this.name, this.time, this.image, this.link, this.pages);
+  HtComicBrief(this.name, this.time, this.image, this.link, this.pages, {bool ignoreExamination=false}){
+    if(ignoreExamination) return;
+    for(var key in appdata.blockingKeyword){
+      if(name.contains(key)){
+        throw Exception();
+      }
+    }
+  }
 }
