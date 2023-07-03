@@ -14,7 +14,7 @@ class HtmangaNetwork{
 
   HtmangaNetwork._create();
 
-  static const String baseUrl = "https://www.wnacg.com/";
+  static const String baseUrl = "https://www.wnacg.com";
 
   ///基本的Get请求
   Future<Res<String>> get(String url) async{
@@ -101,6 +101,7 @@ class HtmangaNetwork{
       if(! url.contains("-")){
         url = url.replaceAll(".html", "-.html");
       }
+      url = url.replaceAll("index", "");
       var lr = url.split("albums-");
       lr[1] = "index-page-$page${lr[1]}";
       url = "${lr[0]}albums-${lr[1]}";
