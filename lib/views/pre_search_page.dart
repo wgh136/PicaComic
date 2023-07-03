@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
+import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
@@ -52,6 +53,7 @@ class PreSearchPage extends StatelessWidget {
             case 1: Get.to(()=>EhSearchPage(controller.text));break;
             case 2: Get.to(()=>JmSearchPage(controller.text));break;
             case 3: Get.to(()=>HitomiSearchPage(controller.text));break;
+            case 4: Get.to(()=>HtSearchPage(controller.text));break;
           }
         },
       ),
@@ -71,6 +73,7 @@ class PreSearchPage extends StatelessWidget {
                     case 1: Get.to(()=>EhSearchPage(controller.text));break;
                     case 2: Get.to(()=>JmSearchPage(controller.text));break;
                     case 3: Get.to(()=>HitomiSearchPage(controller.text));break;
+                    case 4: Get.to(()=>HtSearchPage(controller.text));break;
                   }
                 },
                   controller: controller,
@@ -136,6 +139,17 @@ class PreSearchPage extends StatelessWidget {
                                 },
                               ),
                             ),
+                            if(appdata.settings[21][4] == "1")
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: FilterChip(
+                                  label: const Text("绅士漫画"),
+                                  selected: logic.target==4,
+                                  onSelected: (b){
+                                    logic.updateTarget(4);
+                                  },
+                                ),
+                              ),
                             if(appdata.settings[21][2] == "1")
                             Padding(
                               padding: const EdgeInsets.all(5),
