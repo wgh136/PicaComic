@@ -8,7 +8,6 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
-import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../network/eh_network/get_gallery_id.dart';
@@ -60,27 +59,6 @@ class EhGalleryPage extends StatelessWidget {
       body: GetBuilder<GalleryPageLogic>(
         init: GalleryPageLogic(),
         tag: brief.link,
-        initState: (logic){
-          //添加历史记录
-          Future.delayed(const Duration(milliseconds: 300),(){
-            try{
-              var history = NewHistory(
-                  HistoryType.ehentai,
-                  DateTime.now(),
-                  brief.title,
-                  brief.uploader,
-                  brief.coverPath,
-                  0,
-                  0,
-                  brief.link
-              );
-              appdata.history.addHistory(history);
-            }
-            catch(e){
-              //Get会在初始化logic前调用此函数, 延迟300ms可能仍然没有初始化完成
-            }
-          });
-        },
         builder: (logic){
           if(downloaded){
             logic.loading = false;
