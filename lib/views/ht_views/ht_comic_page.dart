@@ -6,7 +6,6 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../base.dart';
 import '../../foundation/ui_mode.dart';
 import '../show_image_page.dart';
 import '../widgets/avatar.dart';
@@ -406,13 +405,6 @@ class HtComicPage extends StatelessWidget {
                   showMessage(context, "已复制".tr);
                 },
               ),
-              PopupMenuItem(
-                child: Text("添加到屏蔽词".tr),
-                onTap: () {
-                  appdata.blockingKeyword.add(title);
-                  appdata.writeData();
-                },
-              ),
             ]);
       },
       child: Card(
@@ -435,13 +427,6 @@ class HtComicPage extends StatelessWidget {
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: (title)));
                       showMessage(context, "已复制");
-                    },
-                  ),
-                  PopupMenuItem(
-                    child: Text("添加到屏蔽词".tr),
-                    onTap: () {
-                      appdata.blockingKeyword.add(title);
-                      appdata.writeData();
                     },
                   ),
                 ]);
