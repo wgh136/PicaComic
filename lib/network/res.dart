@@ -18,6 +18,9 @@ class Res<T>{
   /// 当出现错误时调用此方法会产生错误
   T get data => _data!;
 
+  /// 获取数据, 如果存在错误, 返回null
+  T? get dataOrNull => _data;
+
   final dynamic subData;
 
   @override

@@ -67,6 +67,7 @@ class HtmangaNetwork {
         var comics = <HtComicBrief>[];
         for (var c in cs) {
           var link = c.querySelector("div.pic_box > a")!.attributes["href"]!;
+          var id = RegExp(r"(?<=-aid-)[0-9]+").firstMatch(link)![0]!;
           var image = c.querySelector("div.pic_box > a > img")!.attributes["src"]!;
           image = "https:$image";
           var name = c.querySelector("div.info > div.title > a")!.text;
@@ -80,7 +81,7 @@ class HtmangaNetwork {
             }
           }
           var pages = int.parse(pagesStr);
-          comics.add(HtComicBrief(name, time, image, link, pages));
+          comics.add(HtComicBrief(name, time, image, id, pages));
         }
         comicsRes.add(comics);
       }
@@ -119,6 +120,7 @@ class HtmangaNetwork {
       for (var comic in document.querySelectorAll("div.grid div.gallary_wrap > ul.cc > li")) {
         try {
           var link = comic.querySelector("div.pic_box > a")!.attributes["href"]!;
+          var id = RegExp(r"(?<=-aid-)[0-9]+").firstMatch(link)![0]!;
           var image = comic.querySelector("div.pic_box > a > img")!.attributes["src"]!;
           image = "https:$image";
           var name = comic.querySelector("div.info > div.title > a")!.text;
@@ -133,9 +135,8 @@ class HtmangaNetwork {
             }
           }
           var pages = int.parse(pagesStr);
-          comics.add(HtComicBrief(name, time, image, link, pages));
+          comics.add(HtComicBrief(name, time, image, id, pages));
         } catch (e) {
-          print(e);
           continue;
         }
       }
@@ -154,15 +155,75 @@ class HtmangaNetwork {
   }
 
   Future<Res<List<HtComicBrief>>> search(String keyword, int page) {
-    if(keyword!=""){
+    if (keyword != "") {
       appdata.searchHistory.remove(keyword);
       appdata.searchHistory.add(keyword);
       appdata.writeHistory();
     }
-    Future.delayed(const Duration(milliseconds: 300),
-            ()=>Get.find<PreSearchController>().update()).onError((error, stackTrace) => null);
+    Future.delayed(
+            const Duration(milliseconds: 300), () => Get.find<PreSearchController>().update())
+        .onError((error, stackTrace) => null);
     return getComicList(
         "$baseUrl/search/?q=${Uri.encodeComponent(keyword)}&f=_all&s=create_time_DESC&syn=yes",
         page);
+  }
+
+  /// 获取漫画详情, subData为第一页的缩略图
+  Future<Res<HtComicInfo>> getComicInfo(String id) async {
+    var res = await get("$baseUrl/photos-index-page-1-aid-$id.html");
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try {
+      var document = parse(res.data);
+      var name = document.querySelector("div.userwrap > h2")!.text;
+      var coverPath = document
+          .querySelector("div.userwrap > div.asTB > div.asTBcell.uwthumb > img")!
+          .attributes["src"]!;
+      coverPath = "https:$coverPath";
+      coverPath = coverPath.replaceRange(6, 8, "");
+      var labels = document.querySelectorAll("div.asTBcell.uwconn > label");
+      var category = labels[0].text.split("：")[1];
+      var pages = int.parse(RegExp(r"\d+").firstMatch(labels[1].text.split("：")[1])![0]!);
+      var tagsDom = document.querySelectorAll("a.tagshow");
+      var tags = <String, String>{};
+      for (var tag in tagsDom) {
+        var link = tag.attributes["href"]!;
+        tags[tag.text] = link;
+      }
+      var description = document.querySelector("div.asTBcell.uwconn > p")!.text;
+      var uploader = document.querySelector("div.asTBcell.uwuinfo > a > p")!.text;
+      var avatar = document.querySelector("div.asTBcell.uwuinfo > a > img")!.attributes["src"]!;
+      avatar = "$baseUrl/$avatar";
+      var uploadNum = int.parse(document.querySelector("div.asTBcell.uwuinfo > p > font")!.text);
+      var photosDom = document.querySelectorAll("div.pic_box.tb > a > img");
+      var photos = List<String>.generate(
+          photosDom.length, (index) => "http:${photosDom[index].attributes["src"]!}");
+      return Res(
+          HtComicInfo(
+              id, coverPath, name, category, pages, tags, description, uploader, avatar, uploadNum),
+          subData: photos);
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<Res<List<String>>> getThumbnails(String id, int page) async{
+    var res = await get("$baseUrl/photos-index-page-$page-aid-$id.html");
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var photosDom = document.querySelectorAll("div.pic_box.tb > a > img");
+      var photos = List<String>.generate(
+          photosDom.length, (index) => "http:${photosDom[index].attributes["src"]!}");
+      return Res(photos);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
   }
 }
