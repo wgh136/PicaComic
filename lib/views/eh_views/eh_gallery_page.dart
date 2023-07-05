@@ -59,6 +59,7 @@ class EhGalleryPage extends StatelessWidget {
     return Scaffold(
       body: GetBuilder<GalleryPageLogic>(
         init: GalleryPageLogic(),
+        tag: brief.link,
         initState: (logic){
           //添加历史记录
           Future.delayed(const Duration(milliseconds: 300),(){
