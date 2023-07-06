@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/models/history.dart';
 import '../../base.dart';
@@ -65,6 +66,20 @@ Future<void> addHitomiHistory(HitomiComic comic, String cover) async{
   await appdata.history.addHistory(history);
 }
 
+Future<void> addHtmangaHistory(HtComicInfo comic) async{
+  var history = NewHistory(
+      HistoryType.htmanga,
+      DateTime.now(),
+      comic.name,
+      comic.uploader,
+      comic.coverPath,
+      0,
+      0,
+      comic.id
+  );
+  await appdata.history.addHistory(history);
+}
+
 void readPicacgComic(ComicItem comic, List<String> epsStr) async{
   await addPicacgHistory(comic);
   var history = await appdata.history.find(comic.id);
@@ -107,8 +122,7 @@ void readEhGallery(Gallery gallery) async{
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
         title: Text("继续阅读".tr),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
-          "ep": history.ep.toString(),
+        content: Text("上次阅读到第 @page 页, 是否继续阅读?".trParams({
           "page": history.page.toString()
         })),
         actions: [
@@ -191,5 +205,34 @@ void readHitomiComic(HitomiComic comic, String cover) async{
   } else {
     HistoryManager().addHistory(NewHistory.fromHitomiComic(comic, cover, DateTime.now(), 0, 1));
     Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files,), preventDuplicates: false);
+  }
+}
+
+void readHtmangaComic(HtComicInfo comic) async{
+  await addHtmangaHistory(comic);
+  var history = await appdata.history.find(comic.id);
+  if(history!=null){
+    if(history.ep!=0){
+      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
+        title: Text("继续阅读".tr),
+        content: Text("上次阅读到第 @page 页, 是否继续阅读?".trParams({
+          "page": history.page.toString()
+        })),
+        actions: [
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name), preventDuplicates: false);
+          }, child: Text("从头开始".tr)),
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name, initialPage: history.page), preventDuplicates: false);
+          }, child: Text("继续阅读".tr)),
+        ],
+      ));
+    }else{
+      Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name), preventDuplicates: false);
+    }
+  }else {
+    Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name), preventDuplicates: false);
   }
 }

@@ -226,4 +226,23 @@ class HtmangaNetwork {
       return Res(null, errorMessage: e.toString());
     }
   }
+
+  Future<Res<List<String>>> getImages(String id) async{
+    var res = await get("$baseUrl/photos-gallery-aid-$id.html");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var urls = RegExp(r"(?<=//)[\w./]+").allMatches(res.data);
+      var images = <String>[];
+      for(var url in urls){
+        images.add("https://${url[0]!}");
+      }
+      return Res(images);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
 }

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../foundation/ui_mode.dart';
 import '../show_image_page.dart';
@@ -379,9 +380,7 @@ class HtComicPage extends StatelessWidget {
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(
-            onPressed: (){
-              //TODO
-            },
+            onPressed: () => readHtmangaComic(comic),
             child: Text("阅读".tr),
           ),),
         ],

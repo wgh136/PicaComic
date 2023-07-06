@@ -44,7 +44,7 @@ class ComicReadingPageLogic extends GetxController{
         showFloatingButtonValue = 0;
         update();
       }
-    };
+    }
     if(value == 1 && showFloatingButtonValue == 0 && order < length){
       showFloatingButtonValue = 1;
       update();
@@ -109,7 +109,7 @@ class ComicReadingPageLogic extends GetxController{
       }
       showMessage(Get.context, "已经是最后一章了".tr);
       return;
-    }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+    }else if(!type.hasEps){
       showMessage(Get.context, "已经是最后一章了".tr);
       return;
     }
@@ -138,7 +138,7 @@ class ComicReadingPageLogic extends GetxController{
       }
       showMessage(Get.context, "已经是第一章了".tr);
       return;
-    }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+    }else if(!type.hasEps){
       showMessage(Get.context, "已经是第一章了".tr);
       return;
     }

@@ -966,6 +966,8 @@ class PicacgNetwork {
 }
 
 String getImageUrl(String url) {
+  if(url.contains("kokoiro")) return url;
+  if(!url.contains("pica")) return url;
   return appdata.settings[3] == "1" || GetPlatform.isWeb
       ? "https://api.kokoiro.xyz/storage/$url"
       : url;

@@ -49,6 +49,8 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         image = CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
       }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
         image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
+      }else if(type == ReadingType.htmanga){
+        image = CachedImageProvider(comicReadingPageLogic.urls[index]);
       }else{
         var id = target;
         if(type == ReadingType.ehentai){
@@ -136,12 +138,13 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
             imageProvider = FileImage(downloadManager.getImage(
                 id, comicReadingPageLogic.order, index - 1));
           }else if(type == ReadingType.picacg){
-            imageProvider = CachedImageProvider(
-                getImageUrl(comicReadingPageLogic.urls[index - 1]));
+            imageProvider = CachedImageProvider(comicReadingPageLogic.urls[index - 1]);
           }else if(type == ReadingType.jm){
             imageProvider = JmCachedImageProvider(comicReadingPageLogic.urls[index - 1], target);
-          }else{
+          }else if(type == ReadingType.hitomi){
             imageProvider = HitomiCachedImageProvider(comicReadingPageLogic.images[index-1], target);
+          }else{
+            imageProvider = CachedImageProvider(comicReadingPageLogic.urls[index - 1]);
           }
         } else {
           _controllers[index] = PhotoViewController();
@@ -274,6 +277,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         onNotification: (notification){
           var length = comicReadingPageLogic.data.eps.length;
           if(type == ReadingType.picacg)  length--;
+          if(!comicReadingPageLogic.cont.hasClients)  return false;
           if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.minScrollExtent <= 0 && comicReadingPageLogic.order != 0){
             comicReadingPageLogic.showFloatingButton(-1);
           }else if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.maxScrollExtent >= 0 && comicReadingPageLogic.order<length){

@@ -1,9 +1,7 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
-
 import '../../base.dart';
 
 ///构建顶部工具栏

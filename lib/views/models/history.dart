@@ -46,7 +46,8 @@ enum HistoryType{
   picacg(0),
   ehentai(1),
   jmComic(2),
-  hitomi(3);
+  hitomi(3),
+  htmanga(4);
 
   final int value;
   const HistoryType(this.value);
