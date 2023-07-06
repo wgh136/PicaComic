@@ -15,7 +15,7 @@ import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/language.dart';
-import 'package:pica_comic/views/test_network_page.dart';
+import 'package:pica_comic/views/login_all_account_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'network/picacg_network/methods.dart';

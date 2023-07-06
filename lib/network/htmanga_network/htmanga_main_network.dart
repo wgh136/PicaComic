@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/network/res.dart';
@@ -19,17 +24,15 @@ class HtmangaNetwork {
 
   static const String baseUrl = "https://www.wnacg.com";
 
+  var cookieJar = CookieJar();
+
   ///基本的Get请求
   Future<Res<String>> get(String url) async {
-    var dio = logDio(BaseOptions(headers: {
-      "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-    }, connectTimeout: const Duration(seconds: 8), responseType: ResponseType.plain));
+    var dio = CachedNetwork();
     try {
-      var res = await dio.get<String>(url);
-      if (res.data == null) {
-        return const Res(null, errorMessage: "无数据");
-      }
+      var res = await dio.get(url, BaseOptions(headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+      }), cookieJar: cookieJar);
       return Res(res.data);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
@@ -42,6 +45,41 @@ class HtmangaNetwork {
     } catch (e) {
       return Res(null, errorMessage: e.toString());
     }
+  }
+
+  ///登录
+  Future<Res<String>> login(String account, String pwd) async{
+    var dio = logDio(BaseOptions(headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }));
+    try{
+      dio.interceptors.add(CookieManager(cookieJar));
+      var res = await dio.post<String>("$baseUrl/users-check_login.html", data: "login_name=$account&login_pass=$pwd");
+      var json = const JsonDecoder().convert(res.data!);
+      if(json["html"].contains("登錄成功")){
+        appdata.htName = account;
+        appdata.htPwd = pwd;
+        appdata.writeData();
+        return const Res("ok");
+      }
+      return Res(null, errorMessage: json["html"]);
+    }on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        return const Res(null, errorMessage: "连接超时");
+      } else {
+        return Res(null, errorMessage: e.message);
+      }
+    } catch (e) {
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<Res<String>> loginFromAppdata() async{
+    if(appdata.htName == "")  return const Res("ok");
+    return login(appdata.htName, appdata.htPwd);
   }
 
   Future<Res<HtHomePageData>> getHomePage() async {

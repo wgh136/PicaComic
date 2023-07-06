@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
@@ -180,6 +181,19 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     if(res2.error){
       message = res2.errorMessage;
       message = "登录禁漫时发生错误\n".tr + message.toString();
+    }
+    try {
+      setState(() {
+        status = "正在登录绅士漫画";
+      });
+    }
+    catch(e){
+      //忽视
+    }
+    var res3 = await HtmangaNetwork().loginFromAppdata();
+    if(res3.error){
+      message = res3.errorMessage;
+      message = "登录绅士漫画时发生错误\n".tr + message.toString();
     }
     if(message == null){
       goToMainPage();

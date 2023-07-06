@@ -106,6 +106,10 @@ class Appdata{
   String jmEmail = "";
   String jmPwd = "";
 
+  //绅士漫画
+  String htName = "";
+  String htPwd = "";
+
   Appdata(){
     token = "";
     var temp = Profile("", defaultAvatarUrl, "", 0, 0, "", "",null,null,null);
@@ -193,6 +197,8 @@ class Appdata{
     await s.setString("ehIgneous", igneous);
     await s.setString("picacgAccount", picacgAccount);
     await s.setString("picacgPassword", picacgPassword);
+    await s.setString("htName", htName);
+    await s.setString("htPwd", htPwd);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -233,6 +239,8 @@ class Appdata{
       jmPwd = s.getString("jmPwd")??"";
       picacgAccount = s.getString("picacgAccount")??"";
       picacgPassword = s.getString("picacgPassword")??"";
+      htName = s.getString("htName")??"";
+      htPwd = s.getString("htPwd")??"";
       return firstUse[3]=="1"||token!="";
     }
     catch(e){
