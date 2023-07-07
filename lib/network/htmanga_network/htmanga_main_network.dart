@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:math';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -11,7 +11,6 @@ import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:html/parser.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
-
 import '../../base.dart';
 
 class HtmangaNetwork {
@@ -40,7 +39,30 @@ class HtmangaNetwork {
           e.type == DioExceptionType.receiveTimeout) {
         return const Res(null, errorMessage: "连接超时");
       } else {
-        return Res(null, errorMessage: e.message);
+        return Res(null, errorMessage: e.toString());
+      }
+    } catch (e) {
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  ///基本的Post请求
+  Future<Res<String>> post(String url, String data) async{
+    var dio = logDio(BaseOptions(headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+    }));
+    dio.interceptors.add(CookieManager(cookieJar));
+    try{
+      var res = await dio.post(url, data: data);
+      return Res(res.data);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        return const Res(null, errorMessage: "连接超时");
+      } else {
+        return Res(null, errorMessage: e.toString());
       }
     } catch (e) {
       return Res(null, errorMessage: e.toString());
@@ -49,14 +71,12 @@ class HtmangaNetwork {
 
   ///登录
   Future<Res<String>> login(String account, String pwd) async{
-    var dio = logDio(BaseOptions(headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-    }));
+    var res = await post("$baseUrl/users-check_login.html", "login_name=$account&login_pass=$pwd");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
     try{
-      dio.interceptors.add(CookieManager(cookieJar));
-      var res = await dio.post<String>("$baseUrl/users-check_login.html", data: "login_name=$account&login_pass=$pwd");
-      var json = const JsonDecoder().convert(res.data!);
+      var json = const JsonDecoder().convert(res.data);
       if(json["html"].contains("登錄成功")){
         appdata.htName = account;
         appdata.htPwd = pwd;
@@ -64,15 +84,7 @@ class HtmangaNetwork {
         return const Res("ok");
       }
       return Res(null, errorMessage: json["html"]);
-    }on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.sendTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        return const Res(null, errorMessage: "连接超时");
-      } else {
-        return Res(null, errorMessage: e.message);
-      }
-    } catch (e) {
+    }catch (e) {
       return Res(null, errorMessage: e.toString());
     }
   }
@@ -282,5 +294,45 @@ class HtmangaNetwork {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
       return Res(null, errorMessage: e.toString());
     }
+  }
+
+  /// 获取收藏夹
+  ///
+  /// 返回Map, 值为收藏夹名，键为ID
+  Future<Res<Map<String, String>>> getFolders() async{
+    var res = await get("$baseUrl/users-addfav-id-210814.html"
+        "?ajax=true&_t=${Random.secure().nextDouble()}");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var data = <String, String>{};
+      for(var option in document.querySelectorAll("option")){
+        if(option.attributes["value"] == "")  continue;
+        data[option.attributes["value"]!] = option.text;
+      }
+      return Res(data);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<bool> createFolder(String name) async =>
+      !(await post("$baseUrl/users-favc_save-id.html", "favc_name=$name")).error;
+
+  Future<bool> deleteFolder(String id) async =>
+      !(await get("$baseUrl/users-favclass_del-id-$id.html"
+          "?ajax=true&_t=${Random.secure().nextDouble()}")).error;
+
+  Future<Res<bool>> addFavorite(String comicId, String folderId) async{
+    var res =  await post(
+        "$baseUrl/users-save_fav-id-$comicId.html", "favc_id=$folderId");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    return const Res(true);
   }
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
-import '../widgets/my_icons.dart';
 import '../widgets/show_message.dart';
 
-class JmFavoritePageLogic extends GetxController {
+class HtFavoritePageLogic extends GetxController {
   bool loading = true;
 
   Map<String, String> folders = {};
@@ -16,7 +16,7 @@ class JmFavoritePageLogic extends GetxController {
   String? message;
 
   void get() async {
-    var r = await jmNetwork.getFolders();
+    var r = await HtmangaNetwork().getFolders();
     if (r.error) {
       message = r.errorMessage;
     } else {
@@ -31,17 +31,16 @@ class JmFavoritePageLogic extends GetxController {
     message = null;
     folders.clear();
     update();
-    get();
   }
 }
 
-class JmFavoritePage extends StatelessWidget {
-  const JmFavoritePage({super.key});
+class HtFavoritePage extends StatelessWidget {
+  const HtFavoritePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<JmFavoritePageLogic>(
-      init: JmFavoritePageLogic(),
+    return GetBuilder<HtFavoritePageLogic>(
+      init: HtFavoritePageLogic(),
       builder: (logic) {
         if (logic.loading) {
           logic.get();
@@ -55,21 +54,21 @@ class JmFavoritePage extends StatelessWidget {
             slivers: [
               SliverGrid(
                 delegate:
-                    SliverChildBuilderDelegate(childCount: logic.folders.length + 2, (context, i) {
+                SliverChildBuilderDelegate(childCount: logic.folders.length + 2, (context, i) {
                   if (i == 0) {
-                    return JmFolderTile(
+                    return HtFolderTile(
                         name: "全部",
                         id: "0",
                         onTap: () =>
-                            Get.to(() => const JmFavoriteFolder(folderId: "0", name: "全部")));
+                            Get.to(() => const HtFavoriteFolder(folderId: "0", name: "全部")));
                   } else {
                     i--;
                   }
                   if (i != logic.folders.length) {
-                    return JmFolderTile(
+                    return HtFolderTile(
                         name: logic.folders.values.elementAt(i),
                         id: logic.folders.keys.elementAt(i),
-                        onTap: () => Get.to(() => JmFavoriteFolder(
+                        onTap: () => Get.to(() => HtFavoriteFolder(
                             folderId: logic.folders.keys.elementAt(i),
                             name: logic.folders.values.elementAt(i))));
                   } else {
@@ -128,8 +127,8 @@ class JmFavoritePage extends StatelessWidget {
   }
 }
 
-class JmFolderTile extends StatelessWidget {
-  const JmFolderTile({required this.name, required this.onTap, required this.id, super.key});
+class HtFolderTile extends StatelessWidget {
+  const HtFolderTile({required this.name, required this.onTap, required this.id, super.key});
 
   final String name;
 
@@ -152,7 +151,7 @@ class JmFolderTile extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: Icon(
-                  MyIcons.jmFolder,
+                  Icons.folder,
                   size: 35,
                   color: Theme.of(context).colorScheme.secondary,
                 ),
@@ -173,31 +172,30 @@ class JmFolderTile extends StatelessWidget {
                 ),
               ),
               if(id != "0")
-              IconButton(
-                icon: const Icon(Icons.delete_forever_outlined),
-                onPressed: (){
-                  showDialog(context: context, builder: (context){
-                    return AlertDialog(
-                      title: Text("确认删除".tr),
-                      content: Text("要删除这个收藏夹吗".tr),
-                      actions: [
-                        TextButton(onPressed: () => Get.back(), child: const Text("取消")),
-                        TextButton(onPressed: () async{
-                          Get.back();
-                          showMessage(context, "正在删除收藏夹".tr);
-                          var res = await jmNetwork.deleteFolder(id);
-                          showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tr);
-                          if(! res.error){
-                            Get.find<JmFavoritePageLogic>().refresh_();
-                          }else{
-                            showMessage(Get.context, res.error?res.errorMessage!:"删除失败".tr);
-                          }
-                        }, child: Text("确认".tr)),
-                      ],
-                    );
-                  });
-                },
-              )
+                IconButton(
+                  icon: const Icon(Icons.delete_forever_outlined),
+                  onPressed: (){
+                    showDialog(context: context, builder: (context){
+                      return AlertDialog(
+                        title: Text("确认删除".tr),
+                        content: Text("要删除这个收藏夹吗".tr),
+                        actions: [
+                          TextButton(onPressed: () => Get.back(), child: const Text("取消")),
+                          TextButton(onPressed: () async{
+                            Get.back();
+                            showMessage(context, "正在删除收藏夹".tr);
+                            var res = await HtmangaNetwork().deleteFolder(id);
+                            if(res){
+                              Get.find<HtFavoritePageLogic>().refresh_();
+                            }else{
+                              showMessage(Get.context, "删除失败".tr);
+                            }
+                          }, child: Text("确认".tr)),
+                        ],
+                      );
+                    });
+                  },
+                )
               else
                 const Icon(Icons.arrow_right),
               if(id == "0")
@@ -210,8 +208,8 @@ class JmFolderTile extends StatelessWidget {
   }
 }
 
-class JmFavoriteFolder extends ComicsPage<JmComicBrief> {
-  const JmFavoriteFolder({required this.folderId, required this.name, super.key});
+class HtFavoriteFolder extends ComicsPage<JmComicBrief> {
+  const HtFavoriteFolder({required this.folderId, required this.name, super.key});
 
   final String folderId;
 
@@ -279,16 +277,16 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                   setState(() {
                     loading = true;
                   });
-                  jmNetwork.createFolder(controller.text).then((b){
-                    if(b.error){
-                      showMessage(context, b.errorMessage!);
+                  HtmangaNetwork().createFolder(controller.text).then((b){
+                    if(!b){
+                      showMessage(context, "网络错误");
                       setState(() {
                         loading = false;
                       });
                     }else{
                       Get.back();
                       showMessage(context, "成功创建".tr);
-                      Get.find<JmFavoritePageLogic>().refresh_();
+                      Get.find<HtFavoritePageLogic>().refresh_();
                     }
                   });
                 }, child: Text("提交".tr)),

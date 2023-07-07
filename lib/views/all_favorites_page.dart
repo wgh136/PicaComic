@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
+import 'package:pica_comic/views/ht_views/ht_favorites_page.dart';
 import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
 import 'package:pica_comic/views/pic_views/favorites_page.dart';
 import '../base.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 
 class AllFavoritesPage extends StatefulWidget {
   const AllFavoritesPage({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class AllFavoritesPage extends StatefulWidget {
 class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerProviderStateMixin{
   late TabController controller;
   int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1]) +
-      int.parse(appdata.settings[21][2]);
+      int.parse(appdata.settings[21][2]) + int.parse(appdata.settings[21][4]);
 
   @override
   void initState() {
@@ -46,7 +46,9 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
               if(appdata.settings[21][1] == "1")
                 const Tab(text: "EHentai",),
               if(appdata.settings[21][2] == "1")
-                const Tab(text: "JmComic",)
+                const Tab(text: "JmComic",),
+              if(appdata.settings[21][4] == "1")
+                Tab(text: "绅士漫画".tr,),
             ],
             controller: controller,),
           Expanded(
@@ -57,20 +59,14 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
                 if(appdata.settings[21][1] == "1")
                   const EhFavoritePage(),
                 if(appdata.settings[21][2] == "1")
-                  const JmFavoritePage()
+                  const JmFavoritePage(),
+                if(appdata.settings[21][4] == "1")
+                  const HtFavoritePage()
               ],
             ),
           )
         ],
       ),
     );
-  }
-
-  Future<void> changeEhPage() async{
-    showMessage(context, "暂不支持".tr);
-  }
-
-  Future<void> changeJmPage() async{
-    showMessage(context, "暂不支持".tr);
   }
 }
