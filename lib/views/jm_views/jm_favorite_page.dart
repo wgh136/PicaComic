@@ -19,7 +19,6 @@ class JmFavoritePageLogic extends GetxController {
     var r = await jmNetwork.getFolders();
     if (r.error) {
       message = r.errorMessage;
-      return;
     } else {
       folders = r.data;
     }
@@ -50,7 +49,7 @@ class JmFavoritePage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else if (logic.message != null) {
-          return showNetworkError(logic.message!, () => logic.refresh_, context);
+          return showNetworkError(logic.message!, () => logic.refresh_, context, showBack: false);
         } else {
           return CustomScrollView(
             slivers: [
@@ -83,14 +82,14 @@ class JmFavoritePage extends StatelessWidget {
                         },
                         borderRadius: const BorderRadius.all(Radius.circular(16)),
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
                           child: Row(
                             children: [
                               Expanded(
                                 flex: 1,
                                 child: Icon(
                                   Icons.add_box_outlined,
-                                  size: 45,
+                                  size: 35,
                                   color: Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
@@ -145,7 +144,7 @@ class JmFolderTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
           child: Row(
             children: [
               if(id != "0")
@@ -154,7 +153,7 @@ class JmFolderTile extends StatelessWidget {
                 flex: 1,
                 child: Icon(
                   MyIcons.jmFolder,
-                  size: 45,
+                  size: 35,
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
@@ -180,7 +179,7 @@ class JmFolderTile extends StatelessWidget {
                   showDialog(context: context, builder: (context){
                     return AlertDialog(
                       title: Text("确认删除".tr),
-                      content: Text("要删除这个收藏夹吗(删除操作存在延迟, 暂时不知道原因)".tr),
+                      content: Text("要删除这个收藏夹吗".tr),
                       actions: [
                         TextButton(onPressed: () => Get.back(), child: const Text("取消")),
                         TextButton(onPressed: () async{

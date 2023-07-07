@@ -97,7 +97,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                     ),
                   ),
                 SizedBox(
-                  width: 60,
+                  width: 70,
                   height: 40,
                   child: TextButton(
                     onPressed: ()=>launchUrlString("https://18comic.vip/signup",mode: LaunchMode.externalApplication),
