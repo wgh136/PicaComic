@@ -35,6 +35,9 @@ class ComicsPageLogic<T> extends GetxController{
   ///当前的页面序号
   int current = 1;
 
+  ///是否正在获取数据， 用于在顺序浏览模式下， 避免同时进行多个网络请求
+  bool loadingData = false;
+
   void get(Future<Res<List<T>>> Function(int) getComics) async{
     if(comics == null) {
       var res = await getComics(1);
@@ -67,6 +70,8 @@ class ComicsPageLogic<T> extends GetxController{
 
   void loadNextPage(Future<Res<List<T>>> Function(int) getComics) async{
     if(maxPage!=null&&current>=maxPage!)  return;
+    if(loadingData) return;
+    loadingData = true;
     var res = await getComics(current+1);
     if(res.error){
       showMessage(Get.context, res.errorMessage!);
@@ -74,11 +79,13 @@ class ComicsPageLogic<T> extends GetxController{
       if(res.data.isEmpty){
         maxPage = current;
         update();
+      } else {
+        comics!.addAll(res.data);
+        current++;
+        update();
       }
-      comics!.addAll(res.data);
-      current++;
-      update();
     }
+    loadingData = false;
   }
 
   void refresh_(){

@@ -39,7 +39,8 @@ class SearchPageComicsList extends ComicsPage<EhGalleryBrief>{
       while(data.comics[i] == null){
         data.page++;
         if(! await EhNetwork().getNextPageGalleries(data.galleries!)){
-          return Res(null, errorMessage: "网络错误");
+          data.page--;
+          return const Res(null, errorMessage: "网络错误");
         }
         data.comics[data.page] = [];
         data.comics[data.page]!.addAll(data.galleries!.galleries);
@@ -103,13 +104,14 @@ class _SearchPageState extends State<EhSearchPage> {
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           final ScrollDirection direction = notification.direction;
-          setState(() {
-            if (direction == ScrollDirection.reverse) {
-              _showFab = false;
-            } else if (direction == ScrollDirection.forward) {
-              _showFab = true;
-            }
-          });
+          var showFab = _showFab;
+          if (direction == ScrollDirection.reverse) {
+            _showFab = false;
+          } else if (direction == ScrollDirection.forward) {
+            _showFab = true;
+          }
+          if(_showFab == showFab) return true;
+          setState(() {});
           return true;
         },
         child: SearchPageComicsList(

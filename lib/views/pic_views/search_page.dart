@@ -80,13 +80,14 @@ class _SearchPageState extends State<SearchPage> {
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           final ScrollDirection direction = notification.direction;
-          setState(() {
-            if (direction == ScrollDirection.reverse) {
-              _showFab = false;
-            } else if (direction == ScrollDirection.forward) {
-              _showFab = true;
-            }
-          });
+          var showFab = _showFab;
+          if (direction == ScrollDirection.reverse) {
+            _showFab = false;
+          } else if (direction == ScrollDirection.forward) {
+            _showFab = true;
+          }
+          if(_showFab == showFab) return true;
+          setState(() {});
           return true;
         },
         child: SearchPageComicsList(
