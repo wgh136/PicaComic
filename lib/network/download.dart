@@ -9,9 +9,11 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
+import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
-import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'picacg_network/models.dart';
@@ -49,6 +51,9 @@ class DownloadManager{
 
   ///已下载的Hitomi漫画
   List<String> downloadedHitomiComics = [];
+
+  ///已下载的绅士漫画
+  List<String> downloadedHtComics = [];
 
   ///下载队列
   var downloading = Queue<DownloadingItem>();
@@ -113,6 +118,8 @@ class DownloadManager{
   }
 
   ///读取数据, 获取未完成的下载和已下载的漫画ID
+  ///
+  /// 读取数据时将会检查漫画信息文件是否存在
   Future<void> _getInfo() async{
     //读取数据
     var file = File("$path${pathSep}newDownload.json");
@@ -141,8 +148,13 @@ class DownloadManager{
         if (!file.existsSync()) continue;
         downloadedHitomiComics.add(s);
       }
+      for (var s in json["downloadedHtComics"] ?? []) {
+        var file = File("$path$pathSep$s${pathSep}info.json");
+        if (!file.existsSync()) continue;
+        downloadedHtComics.add(s);
+      }
       for (var item in json["downloading"]) {
-        downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo)!);
+        downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
       }
     }
     catch(e){
@@ -180,6 +192,7 @@ class DownloadManager{
     data["downloadedGalleries"] = downloadedGalleries;
     data["downloadedJmComics"] = downloadedJmComics;
     data["downloadedHitomiComics"] = downloadedHitomiComics;
+    data["downloadedHtComics"] = downloadedHtComics;
     data["downloading"] = <Map<String, dynamic>>[];
     for(var item in downloading){
       data["downloading"].add(item.toMap());
@@ -238,11 +251,25 @@ class DownloadManager{
     }
   }
 
+  ///添加Hitomi下载
   void addHitomiDownload(HitomiComic comic, String cover, String link){
     final id = "hitomi${comic.id}";
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
     downloading.addLast(HitomiDownloadingItem(comic, path!, cover, link, _whenFinish, _whenError, _saveInfo, id));
+    _saveInfo();
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  ///添加绅士漫画下载
+  void addHtDownload(HtComicInfo comic){
+    final id = "Ht${comic.id}";
+    var downloadPath = Directory("$path$pathSep$id");
+    downloadPath.create(recursive: true);
+    downloading.addLast(DownloadingHtComic(comic, path!, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -260,6 +287,8 @@ class DownloadManager{
       downloadedJmComics.add(downloading.first.id);
     }else if(downloading.first.type == DownloadType.hitomi && !downloadedHitomiComics.contains(downloading.first.id)){
       downloadedHitomiComics.add(downloading.first.id);
+    }else if(downloading.first.type == DownloadType.htmanga && !downloadedHtComics.contains(downloading.first.id)){
+      downloadedHtComics.add(downloading.first.id);
     }
     downloading.removeFirst();
     await _saveInfo();
@@ -387,6 +416,7 @@ class DownloadManager{
     }
   }
 
+  ///获取Hitomi漫画信息
   Future<DownloadedHitomiComic> getHitomiComicFromId(String id) async{
     try {
       var file = File("$path$pathSep$id${pathSep}info.json");
@@ -408,6 +438,28 @@ class DownloadManager{
     }
   }
 
+  ///获取绅士漫画信息
+  Future<DownloadedHtComic> getHtComicFromId(String id) async{
+    try {
+      var file = File("$path$pathSep$id${pathSep}info.json");
+      var json = await file.readAsString();
+      var res =  DownloadedHtComic.fromJson(jsonDecode(json));
+      try {
+        var time = file.lastModifiedSync();
+        res.time = time;
+      }
+      catch(e){
+        //忽视
+      }
+      return res;
+    }
+    catch(e){
+      downloadedHtComics.remove(id);
+      _saveInfo();
+      rethrow;
+    }
+  }
+
   ///删除已下载的漫画
   Future<void> delete(List<String> ids) async{
     for (var id in ids) {
@@ -415,6 +467,7 @@ class DownloadManager{
       downloadedGalleries.remove(id);
       downloadedJmComics.remove(id);
       downloadedHitomiComics.remove(id);
+      downloadedHtComics.remove(id);
       var comic = Directory("$path$pathSep$id");
       try {
         comic.delete(recursive: true);
@@ -437,14 +490,14 @@ class DownloadManager{
     return files.length;
   }
 
-  ///获取eh或hitomi画廊长度
-  Future<int> getEhOrHitomiPages(String id) async{
+  ///获取eh或hitomi或绅士漫画长度
+  Future<int> getComicLength(String id) async{
     var directory = Directory("$path$pathSep$id");
     var files = directory.list();
     return await files.length - 2;
   }
 
-  ///获取图片, 对于 eh 和 hitomi , ep参数为0
+  ///获取图片, 对于 eh 和 hitomi 和 绅士漫画, ep参数为0
   File getImage(String id, int ep, int index){
     if(ep == 0){
       return File("$path$pathSep$id$pathSep$index.jpg");
@@ -458,7 +511,7 @@ class DownloadManager{
   }
 }
 
-DownloadingItem? downloadingItemFromMap(
+DownloadingItem downloadingItemFromMap(
     Map<String, dynamic> map,
     void Function() whenFinish,
     void Function() whenError,
@@ -468,6 +521,7 @@ DownloadingItem? downloadingItemFromMap(
     case 1: return EhDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 2: return JmDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 3: return HitomiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    default: return null;
+    case 4: return DownloadingHtComic.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    default: throw UnimplementedError();
   }
 }

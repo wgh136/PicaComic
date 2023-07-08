@@ -14,7 +14,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
-import '../../network/new_download.dart';
+import '../../network/download.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';

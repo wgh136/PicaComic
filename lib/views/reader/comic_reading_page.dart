@@ -574,7 +574,7 @@ class ComicReadingPage extends StatelessWidget {
       if (downloadManager.downloadedGalleries.contains(getGalleryId(gallery!.link))) {
         logic.downloaded = true;
         for (int i = 0;
-            i < await downloadManager.getEhOrHitomiPages(getGalleryId(gallery!.link));
+            i < await downloadManager.getComicLength(getGalleryId(gallery!.link));
             i++) {
           logic.urls.add("");
         }
@@ -684,6 +684,21 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadHtmangaData(ComicReadingPageLogic logic) async {
+    try {
+      if (downloadManager.downloadedHtComics.contains("Ht$target")) {
+        logic.downloaded = true;
+        for (int i = 0;
+        i < await downloadManager.getComicLength("Ht$target");
+        i++) {
+          logic.urls.add("");
+        }
+        logic.change();
+        return;
+      }
+    } catch (e) {
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+      logic.downloaded = false;
+    }
     var res = await HtmangaNetwork().getImages(target);
     if(res.error){
       data.message = res.errorMessage;

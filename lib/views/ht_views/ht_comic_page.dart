@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
@@ -397,9 +398,21 @@ class HtComicPage extends StatelessWidget {
         children: [
           Expanded(child: FilledButton(
             onPressed: (){
-              //TODO
+              final id = "Ht${comic.id}";
+              if(DownloadManager().downloadedHtComics.contains(id)){
+                showMessage(context, "已下载".tr);
+                return;
+              }
+              for(var i in DownloadManager().downloading){
+                if(i.id == id){
+                  showMessage(context, "下载中".tr);
+                  return;
+                }
+              }
+              DownloadManager().addHtDownload(comic);
+              showMessage(context, "已加入下载队列".tr);
             },
-            child: Text("下载".tr),
+            child: DownloadManager().downloadedHtComics.contains("Ht${comic.id}")?Text("已下载".tr):Text("下载".tr),
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: FilledButton(

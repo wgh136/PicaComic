@@ -47,4 +47,31 @@ class HtComicInfo {
 
   const HtComicInfo(this.id, this.coverPath, this.name, this.category, this.pages, this.tags,
       this.description, this.uploader, this.avatar, this.uploadNum);
+
+  HtComicBrief toBrief() => HtComicBrief(name, "", coverPath, id, pages);
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "coverPath": coverPath,
+    "name": name,
+    "category": category,
+    "pages": pages,
+    "tags": tags,
+    "description": description,
+    "uploader": uploader,
+    "avatar": avatar,
+    "uploadNum": uploadNum
+  };
+
+  HtComicInfo.fromJson(Map<String, dynamic> json):
+      id = json["id"],
+      coverPath = json["coverPath"],
+      name = json["name"],
+      category = json["category"],
+      pages = json["pages"],
+      tags = Map<String, String>.from(json["tags"]),
+      description = json["description"],
+      uploader = json["uploader"],
+      avatar = json["avatar"],
+      uploadNum = json["uploadNum"];
 }

@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/network/download_model.dart';
 
 class DownloadingProgressController extends GetxController{
   double value = 0.0;

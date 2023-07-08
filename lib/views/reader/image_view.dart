@@ -49,7 +49,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         image = CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
       }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
         image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
-      }else if(type == ReadingType.htmanga){
+      }else if(type == ReadingType.htmanga && !comicReadingPageLogic.downloaded){
         image = CachedImageProvider(comicReadingPageLogic.urls[index]);
       }else{
         var id = target;
@@ -57,6 +57,8 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
           id = getGalleryId(target);
         }else if(type == ReadingType.hitomi){
           id = "hitomi$target";
+        }else if(type == ReadingType.htmanga){
+          id = "Ht$target";
         }
         image = FileImage(downloadManager.getImage(id, comicReadingPageLogic.order, index));
       }
@@ -134,6 +136,8 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
               id = getGalleryId(target);
             }else if(type == ReadingType.hitomi){
               id = "hitomi$target";
+            }else if(type == ReadingType.htmanga){
+              id = "Ht$target";
             }
             imageProvider = FileImage(downloadManager.getImage(
                 id, comicReadingPageLogic.order, index - 1));
