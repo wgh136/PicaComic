@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/network/cache_network.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -94,6 +95,7 @@ Future<void> eraseCache() async{
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
     await MyCacheManager().clear();
+    await CachedNetwork.clearCache();
   }
 }
 

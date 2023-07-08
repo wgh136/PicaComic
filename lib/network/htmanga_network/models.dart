@@ -18,10 +18,11 @@ class HtComicBrief {
   final String image;
   final int pages;
   final String id;
+  final String? favoriteId;
 
   /// 漫画简略信息
   HtComicBrief(this.name, this.time, this.image, this.id, this.pages,
-      {bool ignoreExamination = false}) {
+      {bool ignoreExamination = false, this.favoriteId}) {
     if (ignoreExamination) return;
     for (var key in appdata.blockingKeyword) {
       if (name.contains(key)) {

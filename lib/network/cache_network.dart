@@ -20,6 +20,14 @@ class CachedNetwork{
     }
   }
 
+  static Future<void> clearCache() async{
+    var path = "${(await getTemporaryDirectory()).path}${Platform.pathSeparator}cachedNetwork";
+    if(Directory(path).existsSync()){
+      Directory(path).deleteSync(recursive: true);
+      Directory(path).createSync();
+    }
+  }
+
   Future<CachedNetworkRes<String>> get(String url, BaseOptions options,
       {CacheExpiredTime expiredTime=CacheExpiredTime.short, CookieJar? cookieJar}) async{
     await setNetworkProxy();

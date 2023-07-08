@@ -26,12 +26,14 @@ class HtmangaNetwork {
   var cookieJar = CookieJar();
 
   ///基本的Get请求
-  Future<Res<String>> get(String url) async {
+  Future<Res<String>> get(String url, {bool cache=true, Map<String, String>? headers}) async {
     var dio = CachedNetwork();
     try {
       var res = await dio.get(url, BaseOptions(headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-      }), cookieJar: cookieJar);
+        if(headers!=null)
+          ...headers
+      }), cookieJar: cookieJar, expiredTime: cache?CacheExpiredTime.short:CacheExpiredTime.no);
       return Res(res.data);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
@@ -301,7 +303,7 @@ class HtmangaNetwork {
   /// 返回Map, 值为收藏夹名，键为ID
   Future<Res<Map<String, String>>> getFolders() async{
     var res = await get("$baseUrl/users-addfav-id-210814.html"
-        "?ajax=true&_t=${Random.secure().nextDouble()}");
+        "?ajax=true&_t=${Random.secure().nextDouble()}", cache: false);
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -325,7 +327,7 @@ class HtmangaNetwork {
 
   Future<bool> deleteFolder(String id) async =>
       !(await get("$baseUrl/users-favclass_del-id-$id.html"
-          "?ajax=true&_t=${Random.secure().nextDouble()}")).error;
+          "?ajax=true&_t=${Random.secure().nextDouble()}", cache: false)).error;
 
   Future<Res<bool>> addFavorite(String comicId, String folderId) async{
     var res =  await post(
@@ -334,5 +336,62 @@ class HtmangaNetwork {
       return Res(null, errorMessage: res.errorMessage);
     }
     return const Res(true);
+  }
+
+  Future<Res<bool>> delFavorite(String favoriteId) async{
+    var res =  await get(
+        "$baseUrl/users-fav_del-id-$favoriteId.html?"
+            "ajax=true&_t=${Random.secure().nextDouble()}",
+        cache: false,
+    );
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    return const Res(true);
+  }
+
+  ///获取收藏夹中的漫画
+  Future<Res<List<HtComicBrief>>> getFavoriteFolderComics(String folderId, int page) async{
+    var res = await get(
+      "$baseUrl/users-users_fav-page-$page-c-$folderId.html",
+      cache: false,
+    );
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var comics = <HtComicBrief>[];
+      for(var comic in document.querySelectorAll("div.asTB")){
+        var cover = comic.querySelector("div.asTBcell.thumb > div > img")!
+            .attributes["src"]!;
+        cover = "https:$cover";
+        var time = comic.querySelector("div.box_cel.u_listcon > p.l_catg > span")!
+            .text.replaceAll("創建時間：", "");
+        var name = comic.querySelector("div.box_cel.u_listcon > p.l_title > a")!
+            .text;
+        var link = comic.querySelector("div.box_cel.u_listcon > p.l_title > a")!
+            .attributes["href"]!;
+        var id = RegExp(r"(?<=-aid-)[0-9]+").firstMatch(link)![0]!;
+        var info = comic.querySelector("div.box_cel.u_listcon > p.l_detla")!.text;
+        var pages = int.parse(RegExp(r"(?<=頁數：)[0-9]+").firstMatch(info)![0]!);
+        var delUrl = comic.querySelector("div.box_cel.u_listcon > p.alopt > a")!
+            .attributes["onclick"]!;
+        var favoriteId = RegExp(r"(?<=del-id-)[0-9]+").firstMatch(delUrl)![0];
+        comics.add(HtComicBrief(name, time, cover, id, pages, favoriteId: favoriteId));
+      }
+      int pages;
+      try {
+        var pagesLink = document.querySelectorAll("div.f_left.paginator > a");
+        pages = int.parse(pagesLink.last.text);
+      } catch (e) {
+        pages = page;
+      }
+      return Res(comics, subData: pages);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
   }
 }
