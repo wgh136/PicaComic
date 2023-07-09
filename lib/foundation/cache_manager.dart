@@ -194,8 +194,8 @@ class MyCacheManager{
       var dio = Dio(options);
       var html = await dio.get(url);
       var document = parse(html.data);
-      var image = document.querySelector("img#img")!.attributes["src"]!;
-      var nl = document.getElementById("loadfail")!.attributes["onclick"]!;
+      var image = document.querySelector("img#img")?.attributes["src"];
+      var nl = document.getElementById("loadfail")?.attributes["onclick"];
       if (image == "https://ehgt.org/g/509.gif") {
         throw ImageExceedError();
       }
@@ -203,16 +203,27 @@ class MyCacheManager{
           .querySelector("div#i7 > a")
           ?.attributes["href"];
 
+      if(appdata.settings[29] == "0"){
+        originImage = null;
+      }
+
+      if(nl == null){
+        throw Exception("Fail to get image url");
+      }
+
       Response<ResponseBody> res;
       if (originImage == null) {
         html = await dio.get("$url?nl=${nl.substring(11, nl.length - 2)}");
         document = parse(html.data);
-        image = document.querySelector("img#img")!.attributes["src"]!;
+        image = document.querySelector("img#img")?.attributes["src"];
         if (image == "https://ehgt.org/g/509.gif") {
           throw ImageExceedError();
         }
       } else {
         image = originImage;
+      }
+      if(image == null){
+        throw Exception("Fail to get image url");
       }
       res =
       await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));

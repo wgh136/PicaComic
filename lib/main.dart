@@ -85,8 +85,6 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
       blockScreenshot();
     }
     return DynamicColorBuilder(builder: (light, dark) {
-      lightColorScheme = light;
-      dartColorScheme = dark;
       ColorScheme? lightColor;
       ColorScheme? darkColor;
       if(int.parse(appdata.settings[27]) != 0) {
