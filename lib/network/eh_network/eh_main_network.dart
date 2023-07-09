@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/log_dio.dart';
@@ -76,14 +75,18 @@ class EhNetwork{
   ///从url获取数据, 在请求时设置了cookie
   Future<Res<String>> request(String url,
       {Map<String,String>? headers, CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
-    if(appdata.ehId != "") {
-      await cookieJar.saveFromResponse(Uri.parse(url), [
-        Cookie("nw", "1"),
-        Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
-        Cookie("ipb_pass_hash", appdata.ehPassHash),
-        if(appdata.igneous != "")
-          Cookie("igneous", appdata.igneous),
-    ]);
+    try{
+      if (appdata.ehId != "") {
+        await cookieJar.saveFromResponse(Uri.parse(url), [
+          Cookie("nw", "1"),
+          Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
+          Cookie("ipb_pass_hash", appdata.ehPassHash),
+          if (appdata.igneous != "") Cookie("igneous", appdata.igneous),
+        ]);
+      }
+    }
+    catch(e){
+      return const Res(null, errorMessage: "Cookies is invalid");
     }
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -105,7 +108,7 @@ class EhNetwork{
         );
       await getCookies();//确保cookie处于最新状态
       if((data.data).substring(0,4) == "Your"){
-        return Res(null, errorMessage: "Your IP address has been temporarily banned");
+        return const Res(null, errorMessage: "Your IP address has been temporarily banned");
       }
       return Res(data.data);
     }
@@ -621,6 +624,6 @@ class EhNetwork{
     if(document.querySelector("p.br") != null){
       return Res(null,errorMessage: document.querySelector("p.br")!.text);
     }
-    return Res(true);
+    return const Res(true);
   }
 }
