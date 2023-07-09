@@ -138,7 +138,6 @@ class ComicReadingPage extends StatelessWidget {
           PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
         },
         dispose: (logic) {
-          listen = false;
           //清除缓存并减小最大缓存
           PaintingBinding.instance.imageCache.clear();
           PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
@@ -349,6 +348,8 @@ class ComicReadingPage extends StatelessWidget {
                                   id = "jm$target";
                                 } else if (type == ReadingType.hitomi) {
                                   id = "hitomi$target";
+                                } else if(type == ReadingType.htmanga){
+                                  id = "Ht$target";
                                 }
                                 shareImageFromDisk(downloadManager
                                     .getImage(id, logic.order, logic.index - 1)
@@ -362,7 +363,6 @@ class ComicReadingPage extends StatelessWidget {
                                     true);
                               }
                             }, () async {
-                              // TODO save image
                               if (logic.downloaded) {
                                 var id = data.target;
                                 if (type == ReadingType.ehentai) {
@@ -372,6 +372,8 @@ class ComicReadingPage extends StatelessWidget {
                                   id = "jm$target";
                                 } else if (type == ReadingType.hitomi) {
                                   id = "hitomi$target";
+                                } else if(type == ReadingType.htmanga){
+                                  id = "Ht$target";
                                 }
                                 saveImageFromDisk(downloadManager
                                     .getImage(id, logic.order, logic.index - 1)
@@ -719,4 +721,3 @@ class EhLoadingInfo {
   var current = ValueNotifier<int>(0);
 }
 
-bool listen = false;

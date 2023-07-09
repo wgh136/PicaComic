@@ -323,6 +323,8 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
         id = getGalleryId(target);
       } else if (type == ReadingType.hitomi) {
         id = "hitomi$target";
+      } else if(type == ReadingType.htmanga){
+        id = "Ht$target";
       }
       precacheImage(
           FileImage(
