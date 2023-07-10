@@ -355,6 +355,22 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     ListTile(
+                      leading: Icon(Icons.dark_mode,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("深色模式".tr),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[32]),
+                        values: ["跟随系统".tr, "禁用".tr, "启用".tr],
+                        whenChange: (i){
+                          appdata.settings[32] = i.toString();
+                          appdata.updateSettings();
+                          Get.forceAppUpdate();
+                        },
+                        inPopUpWidget: widget.popUp,
+                        width: 140,
+                      ),
+                    ),
+                    ListTile(
                       leading: Icon(Icons.bug_report, color: Theme.of(context).colorScheme.secondary),
                       title: const Text("日志"),
                       onTap: ()=>Get.to(()=>const LogsPage()),

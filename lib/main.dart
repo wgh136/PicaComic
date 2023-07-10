@@ -23,29 +23,27 @@ import 'network/picacg_network/methods.dart';
 bool firstUse = false;
 
 void main() {
-  runZonedGuarded(
-          (){
-        WidgetsFlutterBinding.ensureInitialized();
-        startClearCache();
-        FlutterError.onError = (details){
-          sendLog(details.exceptionAsString(), details.stack.toString());
-          LogManager.addLog(LogLevel.error, "Unhandled Exception", "${details.exception}\n${details.stack}");
-        };
-        appdata.readData().then((b) async {
-          await checkDownloadPath();
-          firstUse = b;
-          if (b) {
-            network = PicacgNetwork(appdata.token);
-          }
-          setNetworkProxy(); //设置代理
-          runApp(MyApp());
-        });
-      },
-          (error, stack){
-            sendLog(error.toString(), stack.toString());
-        LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
+  runZonedGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
+    startClearCache();
+    FlutterError.onError = (details) {
+      sendLog(details.exceptionAsString(), details.stack.toString());
+      LogManager.addLog(LogLevel.error, "Unhandled Exception",
+          "${details.exception}\n${details.stack}");
+    };
+    appdata.readData().then((b) async {
+      await checkDownloadPath();
+      firstUse = b;
+      if (b) {
+        network = PicacgNetwork(appdata.token);
       }
-  );
+      setNetworkProxy(); //设置代理
+      runApp(MyApp());
+    });
+  }, (error, stack) {
+    sendLog(error.toString(), stack.toString());
+    LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
+  });
 }
 
 class MyApp extends StatelessWidget with WidgetsBindingObserver {
@@ -72,12 +70,10 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarContrastEnforced: false
-        ));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarContrastEnforced: false));
     WidgetsBinding.instance.addObserver(this);
     downloadManager.init(); //初始化下载管理器
     notifications.init(); //初始化通知管理器
@@ -87,37 +83,56 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
     return DynamicColorBuilder(builder: (light, dark) {
       ColorScheme? lightColor;
       ColorScheme? darkColor;
-      if(int.parse(appdata.settings[27]) != 0) {
-        lightColor = ColorScheme.fromSeed(seedColor: Color(colors[int.parse(appdata.settings[27])-1]), brightness: Brightness.light);
-        darkColor = ColorScheme.fromSeed(seedColor: Color(colors[int.parse(appdata.settings[27])-1]), brightness: Brightness.dark);
-      }else{
+      if (int.parse(appdata.settings[27]) != 0) {
+        lightColor = ColorScheme.fromSeed(
+            seedColor: Color(colors[int.parse(appdata.settings[27]) - 1]),
+            brightness: Brightness.light);
+        darkColor = ColorScheme.fromSeed(
+            seedColor: Color(colors[int.parse(appdata.settings[27]) - 1]),
+            brightness: Brightness.dark);
+      } else {
         lightColor = light;
         darkColor = dark;
+      }
+      ColorScheme? colorScheme;
+      if(appdata.settings[32] == "1"){
+        colorScheme = lightColor ??
+            ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
+      }else if(appdata.settings[32] == "2"){
+        colorScheme = darkColor ??
+            ColorScheme.fromSeed(
+                seedColor: Colors.pinkAccent, brightness: Brightness.dark);
       }
       return GetMaterialApp(
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            colorScheme: lightColor ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+            colorScheme: colorScheme ?? lightColor ??
+                ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
             useMaterial3: true,
-            fontFamily: "font"
-        ),
+            fontFamily: "font",
+            ),
         darkTheme: ThemeData(
-            colorScheme: darkColor ??
-                ColorScheme.fromSeed(seedColor: Colors.pinkAccent, brightness: Brightness.dark),
+            colorScheme: colorScheme ?? darkColor ??
+                ColorScheme.fromSeed(
+                    seedColor: Colors.pinkAccent, brightness: Brightness.dark),
             useMaterial3: true,
-            fontFamily: "font"
-        ),
+            fontFamily: "font"),
         home: firstUse ? const TestNetworkPage() : const WelcomePage(),
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,
-        fallbackLocale: const Locale('zh','CN'),
-        logWriterCallback: (String s, {bool? isError}){
-          LogManager.addLog((isError??false)?LogLevel.warning:LogLevel.info, "App Status", s);
+        fallbackLocale: const Locale('zh', 'CN'),
+        logWriterCallback: (String s, {bool? isError}) {
+          LogManager.addLog(
+              (isError ?? false) ? LogLevel.warning : LogLevel.info,
+              "App Status",
+              s
+          );
         },
-        builder: (context, widget){
-          ErrorWidget.builder = (details){
-            LogManager.addLog(LogLevel.error, "Unhandled Exception", "${details.exception}\n${details.stack}");
+        builder: (context, widget) {
+          ErrorWidget.builder = (details) {
+            LogManager.addLog(LogLevel.error, "Unhandled Exception",
+                "${details.exception}\n${details.stack}");
             return Center(
               child: Text(details.exception.toString()),
             );
