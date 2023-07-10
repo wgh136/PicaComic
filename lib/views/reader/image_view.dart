@@ -264,11 +264,16 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
                   0 - offset.dy
               );
             }
-            final updatedOffset = Offset(
+            var updatedOffset = Offset(
               controller!.position.dx > offset.dx ? controller.position.dx - 20 : controller.position.dx + 20,
               controller.position.dy > offset.dy ? controller.position.dy - 20 : controller.position.dy + 20
             );
-            controller.updateMultiple(position: updatedOffset, scale: controller.scale! - pointerSignal.scrollDelta.dy/4000);
+            double abs(double a) => a>0?a:0-a;
+            updatedOffset = Offset(
+              abs(controller.position.dx - offset.dx) < 20 ? offset.dx : updatedOffset.dx,
+              abs(controller.position.dy - offset.dy) < 20 ? offset.dy : updatedOffset.dy,
+            );
+            controller.updateMultiple(position: updatedOffset, scale: controller.scale! - pointerSignal.scrollDelta.dy/3000);
           }else{
             comicReadingPageLogic.cont.animateTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy,
                 duration: const Duration(milliseconds: 100),
