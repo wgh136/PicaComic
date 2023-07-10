@@ -64,11 +64,11 @@ class HitomiHomePage extends StatelessWidget {
             slivers: [
               SliverGrid(
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  if(index == logic.comics!.comics.length-1){
+                  if(index == logic.comics!.comicIds.length-1){
                     logic.loadNextPage(url);
                   }
-                  return HiComicTile(logic.comics!.comics[index]);
-                }, childCount: logic.comics!.comics.length),
+                  return HitomiComicTileDynamicLoading(logic.comics!.comicIds[index]);
+                }, childCount: logic.comics!.comicIds.length),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: comicTileMaxWidth,
                   childAspectRatio: comicTileAspectRatio,

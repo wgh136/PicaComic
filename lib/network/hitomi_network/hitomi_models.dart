@@ -29,7 +29,7 @@ class ComicList {
   ///总共的byte数量
   int total = 100;
 
-  var comics = <HitomiComicBrief>[];
+  List<int> comicIds = [];
 
   ComicList(this.url);
 }

@@ -53,40 +53,15 @@ class HiNetwork{
   }
 
   Future<Res<bool>> loadNextPage(ComicList comicList) async{
-    if(comicList.toLoad >= comicList.total) return Res(false);
+    if(comicList.toLoad >= comicList.total) return const Res(false);
     var comicIds = await fetchComicData(comicList.url, comicList.toLoad, maxLength: comicList.total);
     if(comicIds.error){
       return Res(false, errorMessage: comicIds.errorMessage!);
     }
     comicList.total = int.parse(comicIds.subData);
-    int loadingItem = 0;
-    for(var id in comicIds.data){
-      if(loadingItem > 5){
-        //同时加载过多会导致卡顿
-        await Future.delayed(const Duration(milliseconds: 500));
-      }
-      loadingItem++;
-      getComicInfoBrief(id.toString()).then((comic){
-        if(! comic.error){
-          comicList.comics.add(comic.data);
-          loadingItem--;
-        }else{
-          //不管了
-          loadingItem--;
-        }
-      });
-    }
-    //设置一个计时器, 限制等待时间, 避免一些特殊情况导致卡住
-    int timer = 0;
-    while(loadingItem != 0){
-      timer++;
-      await Future.delayed(const Duration(milliseconds: 500));
-      if(timer > 17){
-        return Res(null, errorMessage: "请求超时");
-      }
-    }
     comicList.toLoad += 100;
-    return Res(true);
+    comicList.comicIds.addAll(comicIds.data);
+    return const Res(true);
   }
 
   ///获取一个漫画的简略信息
@@ -101,14 +76,20 @@ class HiNetwork{
       var link = comicDiv.querySelector("h1.lillie > a")!.attributes["href"]!;
       link = baseUrl + link;
       var artist = comicDiv.querySelector("div.artist-list")!.text;
-      var cover = comicDiv.querySelector("div.dj-img1 > picture > source")!.attributes["data-srcset"]!;
-      cover = cover.substring(2);
-      cover = "https://a$cover";
-      cover = cover.replaceAll(RegExp(r"2x.*"), "");
-      cover = cover.removeAllWhitespace;
-      cover = cover.replaceFirst("avifbigtn", "webpbigtn");
-      cover = cover.replaceFirst(".avif", ".webp");
-      print(cover);
+      String cover;
+      try {
+        cover = comicDiv.querySelector("div.dj-img1 > picture > source")!
+            .attributes["data-srcset"]!;
+        cover = cover.substring(2);
+        cover = "https://a$cover";
+        cover = cover.replaceAll(RegExp(r"2x.*"), "");
+        cover = cover.removeAllWhitespace;
+        cover = cover.replaceFirst("avifbigtn", "webpbigtn");
+        cover = cover.replaceFirst(".avif", ".webp");
+      }
+      catch(e){
+        cover = "";
+      }
       var table = comicDiv.querySelectorAll("div.dj-content > table.dj-desc > tbody");
       String type = "", lang = "";
       var tags = <Tag>[];
