@@ -465,9 +465,9 @@ class PicacgNetwork {
     return t;
   }
 
-  Future<Res<List<ComicItemBrief>>> getFavorites(int page) async {
+  Future<Res<List<ComicItemBrief>>> getFavorites(int page, bool newToOld) async {
     var res =
-        await get("$apiUrl/users/favourite?s=dd&page=$page", expiredTime: CacheExpiredTime.no);
+        await get("$apiUrl/users/favourite?s=${newToOld?"dd":"da"}&page=$page", expiredTime: CacheExpiredTime.no);
     if (res != null) {
       try {
         var pages = res["data"]["comics"]["pages"];
@@ -493,27 +493,6 @@ class PicacgNetwork {
     } else {
       return Res(null, errorMessage: status ? message : "网络错误");
     }
-  }
-
-  Future<int> getSelectedPageFavorites(int page, List<ComicItemBrief> comics) async {
-    var res = await get("$apiUrl/users/favourite?s=dd&page=$page");
-    comics.clear();
-    if (res != null) {
-      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-        var si = ComicItemBrief(
-            res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-            res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-            int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
-            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
-                "/static/" +
-                res["data"]["comics"]["docs"][i]["thumb"]["path"],
-            res["data"]["comics"]["docs"][i]["_id"],
-            [],
-            ignoreExamination: true);
-        comics.add(si);
-      }
-    }
-    return res == null ? 0 : res["data"]["comics"]["pages"];
   }
 
   Future<List<ComicItemBrief>> getRandomComics() async {
@@ -553,7 +532,7 @@ class PicacgNetwork {
     }
   }
 
-  Future<bool> favouriteOrUnfavoriteComic(String id) async {
+  Future<bool> favouriteOrUnfavouriteComic(String id) async {
     var res = await post('$apiUrl/comics/$id/favourite', {});
     if (res == null) {
       showMessage(Get.context, "网络错误".tr);

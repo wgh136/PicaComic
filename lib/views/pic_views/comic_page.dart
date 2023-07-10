@@ -320,7 +320,7 @@ class ComicPage extends StatelessWidget{
               label: Text("收藏".tr),
               avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
               onPressed: (){
-                network.favouriteOrUnfavoriteComic(comic.id);
+                network.favouriteOrUnfavouriteComic(comic.id);
                 logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
                 logic.update();
               },

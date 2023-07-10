@@ -44,7 +44,7 @@ class PicComicTile extends ComicTile {
 
   @override
   void favorite() {
-    network.favouriteOrUnfavoriteComic(comic.id);
+    network.favouriteOrUnfavouriteComic(comic.id);
   }
 
   @override

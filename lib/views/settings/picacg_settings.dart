@@ -137,6 +137,21 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                 },
               ),
             ),
+            ListTile(
+              leading: Icon(Icons.collections_bookmark_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[30]),
+                values: [
+                  "旧到新".tr, "新到书".tr
+                ],
+                whenChange: (i){
+                  appdata.settings[30] = i.toString();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+              title: Text("收藏夹漫画排序模式".tr),
+            ),
           ],
         ));
   }

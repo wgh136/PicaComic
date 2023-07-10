@@ -2,6 +2,7 @@ import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import '../../base.dart';
 
 class FavoritesPage extends ComicsPage<ComicItemBrief>{
   const FavoritesPage({super.key});
@@ -11,7 +12,7 @@ class FavoritesPage extends ComicsPage<ComicItemBrief>{
 
   @override
   Future<Res<List<ComicItemBrief>>> getComics(int i) {
-    return network.getFavorites(i);
+    return network.getFavorites(i, appdata.settings[30]=="1");
   }
 
   @override
