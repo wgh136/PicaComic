@@ -106,6 +106,9 @@ class HiNetwork{
       cover = "https://a$cover";
       cover = cover.replaceAll(RegExp(r"2x.*"), "");
       cover = cover.removeAllWhitespace;
+      cover = cover.replaceFirst("avifbigtn", "webpbigtn");
+      cover = cover.replaceFirst(".avif", ".webp");
+      print(cover);
       var table = comicDiv.querySelectorAll("div.dj-content > table.dj-desc > tbody");
       String type = "", lang = "";
       var tags = <Tag>[];
