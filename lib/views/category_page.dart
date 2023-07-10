@@ -34,7 +34,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
               Tab(text: "禁漫分类".tr, key: const Key("禁漫分类"),),
             if(appdata.settings[21][2] == "1")
               Tab(text: "禁漫详细分类".tr, key: const Key("禁漫详细分类"),),
-            if(appdata.settings[21][3] == "1")
+            if(appdata.settings[21][4] == "1")
               Tab(text: "绅士漫画".tr, key: const Key("绅士漫画"),),
           ],
           controller: controller,
@@ -49,7 +49,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
                 const JmCategoriesPage(),
               if(appdata.settings[21][2] == "1")
                 const JmDetailedCategoriesPage(),
-              if(appdata.settings[21][3] == "1")
+              if(appdata.settings[21][4] == "1")
                 const HtCategoriesPage(),
             ],
           ),
@@ -69,7 +69,7 @@ class CategoryPageWithGetControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<CategoryPageLogic>(builder: (logic){
       int pages = int.parse(appdata.settings[21][0])*1 + int.parse(appdata.settings[21][2])*2
-          + int.parse(appdata.settings[21][3])*1;
+          + int.parse(appdata.settings[21][4])*1;
       return AllCategoryPage(listener, pages);
     });
   }

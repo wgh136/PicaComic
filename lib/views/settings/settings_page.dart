@@ -85,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: Icon(Icons.source, color: Theme.of(context).colorScheme.secondary),
-                      title:  Text("启用的收藏夹, 搜索目标和分类".tr),
+                      title:  Text("漫画源(非探索页面)".tr),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => setComicSource(context),
                     ),

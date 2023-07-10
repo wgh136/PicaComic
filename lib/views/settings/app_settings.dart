@@ -299,11 +299,11 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
 
   @override
   Widget build(BuildContext context) {
-    var titles = ["Picacg(不能禁用)".tr, "E-hentai", "禁漫天堂".tr, "Hitomi.la"];
+    var titles = ["Picacg(不能禁用)".tr, "E-hentai", "禁漫天堂".tr, "Hitomi.la", "绅士漫画".tr];
     return SizedBox(
       child: Column(
         children: [
-          for (int i = 0; i < 4; i++)
+          for (int i = 0; i < 5; i++)
             CheckboxListTile(
               value: appdata.settings[21][i] == "1",
               onChanged: (b) {
