@@ -147,6 +147,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                 ],
                 whenChange: (i){
                   appdata.settings[30] = i.toString();
+                  appdata.updateSettings();
                 },
                 inPopUpWidget: widget.popUp,
               ),

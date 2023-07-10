@@ -21,7 +21,7 @@ class HtmangaNetwork {
 
   HtmangaNetwork._create();
 
-  static const String baseUrl = "https://www.wnacg.com";
+  static String get baseUrl => appdata.settings[31];
 
   var cookieJar = CookieJar();
 

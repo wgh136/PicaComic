@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
+import 'package:pica_comic/views/settings/ht_settings.dart';
 import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -138,6 +139,10 @@ class _SettingsPageState extends State<SettingsPage> {
               const Divider(),
 
               JmSettings(widget.popUp),
+
+              const Divider(),
+
+              HtSettings(widget.popUp),
 
               const Divider(),
               Card(
