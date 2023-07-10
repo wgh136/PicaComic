@@ -5,6 +5,7 @@ import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
+import '../../base.dart';
 import '../widgets/show_message.dart';
 
 class HtFavoritePageLogic extends GetxController {
@@ -41,6 +42,9 @@ class HtFavoritePage extends StatelessWidget {
     return GetBuilder<HtFavoritePageLogic>(
       init: HtFavoritePageLogic(),
       builder: (logic) {
+        if(appdata.htName == ""){
+          return showNetworkError("未登录".tr, logic.refresh_, context);
+        }
         if (logic.loading) {
           logic.get();
           return const Center(
