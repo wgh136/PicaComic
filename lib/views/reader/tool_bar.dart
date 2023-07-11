@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
 import '../../base.dart';
@@ -204,6 +205,42 @@ Widget buildBottomToolBar(
                             },
                           ),
                         ),
+                      if(GetPlatform.isAndroid)
+                      Tooltip(
+                        message: "屏幕方向".tr,
+                        child: IconButton(
+                          icon: (){
+                            if(comicReadingPageLogic.rotation == null){
+                              return const Icon(Icons.screen_rotation);
+                            }else if(comicReadingPageLogic.rotation == false){
+                              return const Icon(Icons.screen_lock_portrait);
+                            }else{
+                              return const Icon(Icons.screen_lock_landscape);
+                            }
+                          }.call(),
+                          onPressed: () {
+                            if(comicReadingPageLogic.rotation == null){
+                              comicReadingPageLogic.rotation = false;
+                              comicReadingPageLogic.update();
+                              SystemChrome.setPreferredOrientations([
+                                DeviceOrientation.portraitUp,
+                                DeviceOrientation.portraitDown,
+                              ]);
+                            }else if(comicReadingPageLogic.rotation == false){
+                              comicReadingPageLogic.rotation = true;
+                              comicReadingPageLogic.update();
+                              SystemChrome.setPreferredOrientations([
+                                DeviceOrientation.landscapeLeft,
+                                DeviceOrientation.landscapeRight
+                              ]);
+                            }else{
+                              comicReadingPageLogic.rotation = null;
+                              comicReadingPageLogic.update();
+                              SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+                            }
+                          },
+                        ),
+                      ),
                       Tooltip(
                         message: "刷新".tr,
                         child: IconButton(

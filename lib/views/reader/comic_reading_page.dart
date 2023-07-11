@@ -164,6 +164,7 @@ class ComicReadingPage extends StatelessWidget {
           }
 
           SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+          SystemChrome.setPreferredOrientations(DeviceOrientation.values);
           if (data.listenVolume != null) {
             data.listenVolume!.stop();
           }
