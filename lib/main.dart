@@ -33,7 +33,7 @@ void main() {
     };
     appdata.readData().then((b) async {
       await checkDownloadPath();
-      firstUse = b;
+      firstUse = appdata.firstUse[3] == "1";
       if (b) {
         network = PicacgNetwork(appdata.token);
       }
