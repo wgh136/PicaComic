@@ -11,6 +11,7 @@ abstract class ComicTile extends StatelessWidget {
   String get subTitle;
   String get description;
   String? get badge => null;
+  List<String>? get tags => null;
 
   void favorite();
 
@@ -93,6 +94,7 @@ abstract class ComicTile extends StatelessWidget {
                     description: description,
                     subDescription: buildSubDescription(context),
                     badge: badge,
+                    tags: tags,
                   ),
                 ),
                 //const Center(
@@ -112,13 +114,15 @@ class ComicDescription extends StatelessWidget {
       required this.user,
       required this.description,
       this.subDescription,
-      this.badge});
+      this.badge,
+      this.tags});
 
   final String title;
   final String user;
   final String description;
   final Widget? subDescription;
   final String? badge;
+  final List<String>? tags;
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +152,29 @@ class ComicDescription extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
+                const SizedBox(height: 5,),
+                if(tags != null)
+                  Expanded(
+                    child: Wrap(
+                      clipBehavior: Clip.antiAlias,
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      children: [
+                        for(var s in tags!)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 4, 3),
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(3, 1, 3, 3),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondaryContainer,
+                                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                              ),
+                              child: Text(s, style: const TextStyle(fontSize: 12),),
+                            ),
+                          )
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 2,),
                 if (subDescription != null) subDescription!,
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

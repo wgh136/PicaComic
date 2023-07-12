@@ -110,15 +110,16 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
             colorScheme: colorScheme ?? lightColor ??
                 ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
             useMaterial3: true,
-
+            fontFamily: "font"
             ),
         darkTheme: ThemeData(
             colorScheme: colorScheme ?? darkColor ??
                 ColorScheme.fromSeed(
                     seedColor: Colors.pinkAccent, brightness: Brightness.dark),
             useMaterial3: true,
-),
-        home: firstUse ? const TestNetworkPage() : const WelcomePage(),
+            fontFamily: "font"
+          ),
+        home: firstUse ? const LoginAccountsPage() : const WelcomePage(),
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,
         fallbackLocale: const Locale('zh', 'CN'),

@@ -271,9 +271,9 @@ class PicacgNetwork {
         var comics = <ComicItemBrief>[];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
           try {
-            var tags = [];
-            tags.addAll(res["data"]["comics"]["docs"][i]["tags"] ?? []);
-            tags.addAll(res["data"]["comics"]["docs"][i]["categories"] ?? []);
+            var tags = <String>[];
+            tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+            tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
             var si = ComicItemBrief(
                 res["data"]["comics"]["docs"][i]["title"] ?? "未知",
                 res["data"]["comics"]["docs"][i]["author"] ?? "未知",
@@ -501,9 +501,9 @@ class PicacgNetwork {
     if (res != null) {
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
-          var tags = [];
-          tags.addAll(res["data"]["comics"][i]["tags"] ?? []);
-          tags.addAll(res["data"]["comics"][i]["categories"] ?? []);
+          var tags = <String>[];
+          tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
             res["data"]["comics"][i]["title"] ?? "未知",
             res["data"]["comics"][i]["author"] ?? "未知",
@@ -555,9 +555,9 @@ class PicacgNetwork {
     if (res != null) {
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
-          var tags = [];
-          tags.addAll(res["data"]["comics"][i]["tags"] ?? []);
-          tags.addAll(res["data"]["comics"][i]["categories"] ?? []);
+          var tags = <String>[];
+          tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
               res["data"]["comics"][i]["title"] ?? "未知",
               res["data"]["comics"][i]["author"] ?? "未知",
@@ -605,9 +605,9 @@ class PicacgNetwork {
     if (res == null) {
       return Res(null, errorMessage: status ? message : "网络错误");
     } else if (res["message"] == "failure") {
-      return Res(null, errorMessage: "注册失败, 用户名或账号可能已存在");
+      return const Res(null, errorMessage: "注册失败, 用户名或账号可能已存在");
     } else {
-      return Res("注册成功");
+      return const Res("注册成功");
     }
   }
 
@@ -729,6 +729,9 @@ class PicacgNetwork {
     if (res != null) {
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
+          var tags = <String>[];
+          tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
               res["data"]["comics"][i]["title"] ?? "未知",
               res["data"]["comics"][i]["author"] ?? "未知",
@@ -737,7 +740,7 @@ class PicacgNetwork {
                   "/static/" +
                   res["data"]["comics"][i]["thumb"]["path"],
               res["data"]["comics"][i]["_id"],
-              [],
+              tags,
               ignoreExamination: true);
           comics.add(si);
         } catch (e) {
@@ -888,9 +891,9 @@ class PicacgNetwork {
       var comics = <ComicItemBrief>[];
       for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
         try {
-          var tags = [];
-          tags.addAll(res["data"]["comics"]["docs"][i]["tags"] ?? []);
-          tags.addAll(res["data"]["comics"]["docs"][i]["categories"] ?? []);
+          var tags = <String>[];
+          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
           var si = ComicItemBrief(
               res["data"]["comics"]["docs"][i]["title"] ?? "未知",
               res["data"]["comics"]["docs"][i]["author"] ?? "未知",
@@ -901,7 +904,8 @@ class PicacgNetwork {
               res["data"]["comics"]["docs"][i]["_id"],
               tags);
           comics.add(si);
-        } catch (e) {
+        } catch (e, s) {
+          print(s);
           continue;
         }
       }
@@ -920,9 +924,9 @@ class PicacgNetwork {
       var comics = <ComicItemBrief>[];
       for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
         try {
-          var tags = [];
-          tags.addAll(res["data"]["comics"]["docs"][i]["tags"] ?? []);
-          tags.addAll(res["data"]["comics"]["docs"][i]["categories"] ?? []);
+          var tags = <String>[];
+          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
 
           var si = ComicItemBrief(
             res["data"]["comics"]["docs"][i]["title"] ?? "未知",

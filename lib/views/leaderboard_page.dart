@@ -9,6 +9,8 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
+class LeaderboardPageLogic extends GetxController{}
+
 
 
 class LeaderBoardPage extends StatefulWidget {
@@ -24,6 +26,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   final logic3 = Get.put(LeaderBoardD30Logic());
   final logic4 = Get.put(LeaderBoardH24Logic());
   final logic5 = Get.put(HitomiLeaderboardPageLogic());
+  final logic6 = Get.put(LeaderboardPageLogic());
 
 
   final List<Tab> tabs = <Tab>[
@@ -39,50 +42,42 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   }
 
   @override
-  void dispose(){
-    logic.dispose();
-    logic2.dispose();
-    logic3.dispose();
-    logic4.dispose();
-    logic5.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1]) +
         int.parse(appdata.settings[21][2]) + int.parse(appdata.settings[21][3]);
-    return DefaultTabController(length: pages, child: Scaffold(
+    return GetBuilder<LeaderboardPageLogic>(builder: (logic) => DefaultTabController(length: pages, child: Scaffold(
       appBar: AppBar(title:
-        TabBar(
-          splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-          isScrollable: (MediaQuery.of(context).size.width<450?true:false) && pages>3,
-          tabs: [
+      TabBar(
+        splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+        isScrollable: (MediaQuery.of(context).size.width<450?true:false) && pages>3,
+        tabs: [
+          if(appdata.settings[21][0] == "1")
             const Tab(text: "Picacg",),
-            if(appdata.settings[21][1] == "1")
-              const Tab(text: "E-Hentai",),
-            if(appdata.settings[21][2] == "1")
-              const Tab(text: "JmComic",),
-            if(appdata.settings[21][3] == "1")
-              const Tab(text: "Hitomi",),
-          ],
+          if(appdata.settings[21][1] == "1")
+            const Tab(text: "E-Hentai",),
+          if(appdata.settings[21][2] == "1")
+            const Tab(text: "JmComic",),
+          if(appdata.settings[21][3] == "1")
+            const Tab(text: "Hitomi",),
+        ],
       ),),
       body: TabBarView(children: [
-        DefaultTabController(
-          length: tabs.length,
-          child: Column(
-            children: [
-              TabBar(tabs: tabs, splashBorderRadius: const BorderRadius.all(Radius.circular(10)),),
-              const Expanded(child: TabBarView(
-                  children: [
-                    LeaderBoardH24(),
-                    LeaderBoardD7(),
-                    LeaderBoardD30()
-                  ]
-              ))
-            ],
+        if(appdata.settings[21][0] == "1")
+          DefaultTabController(
+            length: tabs.length,
+            child: Column(
+              children: [
+                TabBar(tabs: tabs, splashBorderRadius: const BorderRadius.all(Radius.circular(10)),),
+                const Expanded(child: TabBarView(
+                    children: [
+                      LeaderBoardH24(),
+                      LeaderBoardD7(),
+                      LeaderBoardD30()
+                    ]
+                ))
+              ],
+            ),
           ),
-        ),
         if(appdata.settings[21][1] == "1")
           const EhLeaderboardPage(),
         if(appdata.settings[21][2] == "1")
@@ -90,7 +85,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
         if(appdata.settings[21][3] == "1")
           const HitomiLeaderboardPage()
       ],),
-    ));
+    )));
   }
 }
 

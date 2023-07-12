@@ -23,6 +23,9 @@ class PicComicTile extends ComicTile {
   String get description => time==null?(!downloaded?'${comic.likes} likes':"${size??"未知"} MB"):time!;
 
   @override
+  List<String>? get tags => comic.tags;
+
+  @override
   Widget get image => !downloaded?(cached?CachedNetworkImage(
     imageUrl: getImageUrl(comic.path),
     fit: BoxFit.cover,

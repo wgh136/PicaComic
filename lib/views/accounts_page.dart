@@ -17,7 +17,6 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import '../network/jm_network/jm_main_network.dart';
 import '../network/picacg_network/methods.dart';
 import '../network/picacg_network/models.dart';
-import 'me_page.dart';
 
 class AccountsPageLogic extends GetxController{
 
@@ -124,7 +123,7 @@ class AccountsPage extends StatelessWidget {
                 if(appdata.token == "")
                   ListTile(
                     title: Text("登录".tr),
-                    onTap: () => Get.to(() => const LoginPage()),
+                    onTap: () => Get.to(() => const LoginPage())?.then((value) => logic.update()),
                   ),
                 const Divider(),
                 const Padding(
@@ -399,7 +398,6 @@ class AccountsPage extends StatelessWidget {
                                   if(t!=null) {
                                     appdata.user = t;
                                     accountsPageLogic.update();
-                                    Get.find<InfoController>().update();
                                     Get.back();
                                     showMessage(context, "上传成功".tr);
                                   }else{

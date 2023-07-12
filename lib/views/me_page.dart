@@ -1,22 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
-import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
 import 'history.dart';
 
-class InfoController extends GetxController {}
-
 class MePage extends StatelessWidget {
-  MePage({super.key});
-  final infoController = Get.put(InfoController());
+  const MePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,37 +25,8 @@ class MePage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox.fromSize(
-                  size: const Size(400, 220),
-                  child: GetBuilder<InfoController>(
-                    builder: (logic) {
-                      return Card(
-                          elevation: 0,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Center(
-                                child: Avatar(
-                                  size: 150,
-                                  avatarUrl: appdata.user.avatarUrl == defaultAvatarUrl
-                                      ? null
-                                      : appdata.user.avatarUrl,
-                                  frame: appdata.user.frameUrl,
-                                ),
-                              ),
-                              Center(
-                                child: Text(appdata.token==""?"未登录".tr:appdata.user.name,
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.w600, fontSize: 20)),
-                              ),
-                              Center(
-                                child: Text("Lv${appdata.user.level} ${appdata.user.title}",
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.w300, fontSize: 15)),
-                              ),
-                            ],
-                          ));
-                    },
-                  ),
+                  size: const Size(400, 120),
+                  child: const Center(child: Text("Pica Comic", style: TextStyle(fontSize: 35, fontWeight: FontWeight.w600),),),
                 ),
                 Wrap(
                   children: [

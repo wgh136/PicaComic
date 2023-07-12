@@ -63,11 +63,12 @@ class ComicItemBrief {
   int likes;
   String path;
   String id;
-  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, List tagsOrCategories, {bool ignoreExamination = false}){
+  List<String> tags;
+  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, this.tags, {bool ignoreExamination = false}){
     if(ignoreExamination) return;
     bool block = false;
     for(var key in appdata.blockingKeyword){
-      block = block || title.contains(key) || author==key || tagsOrCategories.contains(key);
+      block = block || title.contains(key) || author==key || tags.contains(key);
     }
     if(block){
       throw Error();

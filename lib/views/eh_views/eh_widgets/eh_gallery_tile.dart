@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
@@ -15,6 +17,9 @@ class EhGalleryTile extends ComicTile{
   final String? size;
   final String? time;
   const EhGalleryTile(this.gallery,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
+
+  @override
+  List<String>? get tags => gallery.tags.sublist(0,min(gallery.tags.length, 20)).map<String>((e){var value = e.contains(":")?e.split(":")[1]:e;return value.length>10?"${value.substring(0,10)}...":value;}).toList();
 
   @override
   void favorite() {

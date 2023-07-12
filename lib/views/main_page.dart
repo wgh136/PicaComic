@@ -52,9 +52,10 @@ class _MainPageState extends State<MainPage> {
   TabListener categoriesListener = TabListener();
 
   late var pages = [
-    MePage(),
+    const MePage(),
     ExplorePageWithGetControl(exploreListener),
     CategoryPageWithGetControl(categoriesListener),
+    const LeaderBoardPage(),
   ];
 
   @override
@@ -176,34 +177,15 @@ class _MainPageState extends State<MainPage> {
     }
     downloadManagerFlag = false;
 
-    //检查是否第一次使用
-    if(appdata.settings[10]=="0"){
-      appdata.settings[10] = "1";
-      appdata.writeData();
-      Future.delayed(const Duration(microseconds: 600),()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-        title: Text("欢迎".tr),
-        content: RichText(
-          text: TextSpan(children: [
-            TextSpan(text: "感谢使用本软件, 请注意:\n\n".tr,style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tr,style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            TextSpan(text: "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系".tr,style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-          ]),
-        ),
-        actions: [
-          TextButton(onPressed: ()=>Get.back(), child: Text("了解".tr))
-        ],
-      )));
-    }
-
     var titles = [
       "我".tr,
       "探索".tr,
       "分类".tr,
+      "排行榜".tr
     ];
 
     return Scaffold(
       appBar: UiMode.m1(context)?AppBar(
-        scrolledUnderElevation: 0,
         title: Text(titles[i]),
         actions: [
           Tooltip(
@@ -212,15 +194,6 @@ class _MainPageState extends State<MainPage> {
               icon: const Icon(Icons.search),
               onPressed: (){
                 Get.to(()=>PreSearchPage());
-              },
-            ),
-          ),
-          Tooltip(
-            message: "排行榜".tr,
-            child: IconButton(
-              icon: const Icon(Icons.leaderboard),
-              onPressed: (){
-                Get.to(()=>const LeaderBoardPage());
               },
             ),
           ),
@@ -235,7 +208,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ):null,
-      floatingActionButton: i!=0?FloatingActionButton(
+      floatingActionButton: (i!=0 && i!=3)?FloatingActionButton(
         onPressed: () {
           if(i==1){
             int page = exploreListener.getIndex();
@@ -295,6 +268,10 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.account_tree, size: 20,),
             label: '分类'.tr,
           ),
+          NavigationDestination(
+            icon: const Icon(Icons.account_tree, size: 20,),
+            label: '排行榜'.tr,
+          ),
         ],
       ),
       body: WillPopScope(
@@ -341,10 +318,10 @@ class _MainPageState extends State<MainPage> {
                         NavigatorItem(Icons.person_outlined,Icons.person, "我".tr,i==0,()=>setState(()=>i=0)),
                         NavigatorItem(Icons.explore_outlined,Icons.explore, "探索".tr,i==1,()=>setState(()=>i=1)),
                         NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类".tr,i==2,()=>setState(()=>i=2)),
+                        NavigatorItem(Icons.leaderboard_outlined,Icons.leaderboard, "排行榜".tr,i==3,()=>setState(()=>i=3)),
                         const Divider(),
                         const Spacer(),
                         NavigatorItem(Icons.search,Icons.games, "搜索".tr,false,()=>Get.to(()=>PreSearchPage())),
-                        NavigatorItem(Icons.leaderboard,Icons.games, "排行榜".tr,false,()=>Get.to(()=>const LeaderBoardPage())),
                         NavigatorItem(Icons.settings,Icons.games, "设置".tr,false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
                       ],
                     ),
@@ -361,10 +338,6 @@ class _MainPageState extends State<MainPage> {
                           Flexible(child: IconButton(
                             icon: const Icon(Icons.search),
                             onPressed: ()=>Get.to(()=>PreSearchPage()),
-                          ),),
-                          Flexible(child: IconButton(
-                            icon: const Icon(Icons.leaderboard),
-                            onPressed: ()=>Get.to(()=>const LeaderBoardPage()),
                           ),),
                           Flexible(child: IconButton(
                             icon: const Icon(Icons.settings),
@@ -395,6 +368,11 @@ class _MainPageState extends State<MainPage> {
                         icon: const Icon(Icons.account_tree_outlined),
                         selectedIcon: const Icon(Icons.account_tree),
                         label: Text('分类'.tr),
+                      ),
+                      NavigationRailDestination(
+                        icon: const Icon(Icons.leaderboard_outlined),
+                        selectedIcon: const Icon(Icons.leaderboard),
+                        label: Text('排行榜'.tr),
                       ),
                     ],
                   ),

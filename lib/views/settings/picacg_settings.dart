@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../base.dart';
-import '../me_page.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -110,13 +109,6 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                   setState(() {
                     showFrame = b;
                   });
-                  try {
-                    var t = Get.find<InfoController>();
-                    t.update();
-                  }
-                  catch(e){
-                    //忽视
-                  }
                   appdata.writeData();
                 },
               ),
