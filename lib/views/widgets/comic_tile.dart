@@ -27,7 +27,7 @@ abstract class ComicTile extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(title, style: const TextStyle(fontSize: 22),),
+                      child: Text(title.replaceAll("\n", ""), style: const TextStyle(fontSize: 22),),
                     ),
                     const Divider(),
                     ListTile(
@@ -89,7 +89,8 @@ abstract class ComicTile extends StatelessWidget {
                 Expanded(
                   flex: 8,
                   child: ComicDescription(
-                    title: title,
+                    //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
+                    title: title.replaceAll("\n", ""),
                     user: subTitle,
                     description: description,
                     subDescription: buildSubDescription(context),

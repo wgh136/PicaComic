@@ -29,11 +29,11 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
           splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
           tabs: [
             if(appdata.settings[21][0] == "1")
-              Tab(text: "Picacg分类".tr, key: const Key("Picacg分类"),),
+              Tab(text: "Picacg".tr, key: const Key("Picacg分类"),),
             if(appdata.settings[21][2] == "1")
-              Tab(text: "禁漫分类".tr, key: const Key("禁漫分类"),),
+              Tab(text: "禁漫天堂".tr, key: const Key("禁漫分类"),),
             if(appdata.settings[21][2] == "1")
-              Tab(text: "禁漫详细分类".tr, key: const Key("禁漫详细分类"),),
+              Tab(text: "${"禁漫天堂".tr}2", key: const Key("禁漫详细分类"),),
             if(appdata.settings[21][4] == "1")
               Tab(text: "绅士漫画".tr, key: const Key("绅士漫画"),),
           ],

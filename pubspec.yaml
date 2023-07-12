@@ -117,6 +117,10 @@ flutter:
     - images/10.jpg
     - images/11.jpg
     - images/12.jpg
+    - images/account.png
+    - images/favorites.png
+    - images/download.png
+    - images/history.png
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
@@ -141,9 +145,12 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-    - family: font
+    # 这是在windows端使用的字体, 由于系统字体(微软雅黑)在Flutter App上显示效果极差, 因此使用此字体; 打包Android时删去
+
+    # 这是一个英文字体, 文件很小, 无需担心体积, 用于显示Pica Comic
+    - family: font2
       fonts:
-        - asset: fonts/NotoSansSC-Regular.otf
+        - asset: fonts/Poppins-Regular.ttf
     - family:  MyIcons
       fonts:
        - asset: fonts/MyIcons.ttf

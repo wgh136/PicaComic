@@ -49,7 +49,6 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
       appBar: AppBar(title:
       TabBar(
         splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-        isScrollable: (MediaQuery.of(context).size.width<450?true:false) && pages>3,
         tabs: [
           if(appdata.settings[21][0] == "1")
             const Tab(text: "Picacg",),

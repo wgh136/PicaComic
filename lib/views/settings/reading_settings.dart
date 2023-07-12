@@ -22,6 +22,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
           title: Text("阅读".tr),

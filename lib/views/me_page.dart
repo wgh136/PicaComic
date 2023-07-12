@@ -17,7 +17,8 @@ class MePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        if (!UiMode.m1(context)) const SliverPadding(padding: EdgeInsets.all(30)),
+        if (!UiMode.m1(context))
+          const SliverPadding(padding: EdgeInsets.all(30)),
         SliverToBoxAdapter(
           child: SizedBox(
             width: 400,
@@ -26,20 +27,69 @@ class MePage extends StatelessWidget {
               children: [
                 SizedBox.fromSize(
                   size: const Size(400, 120),
-                  child: const Center(child: Text("Pica Comic", style: TextStyle(fontSize: 35, fontWeight: FontWeight.w600),),),
+                  child: const Center(
+                    child: Text(
+                      "Pica Comic",
+                      style: TextStyle(
+                          fontFamily: "font2",
+                          fontSize: 40,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
                 ),
                 Wrap(
                   children: [
                     mePageItem(
-                        context, Icons.badge, () => showAdaptiveWidget(context, AccountsPage()), "账号管理".tr, "查看或修改账号信息".tr),
-                    mePageItem(context, Icons.bookmarks,
-                        () => Get.to(() => const AllFavoritesPage()), "收藏夹".tr, "查看已收藏的漫画".tr),
-                    mePageItem(context, Icons.download_for_offline,
-                        () => Get.to(() => const DownloadPage()), "已下载".tr, "管理已下载的漫画".tr),
-                    mePageItem(context, Icons.history, () => Get.to(() => const HistoryPage()),
-                        "历史记录".tr, "查看历史记录".tr),
+                        context,
+                        Image.asset(
+                          "images/account.png",
+                          width: 70,
+                          height: 70,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                        () => showAdaptiveWidget(context, AccountsPage()),
+                        "账号管理".tr,
+                        "查看或修改账号信息".tr),
+                    mePageItem(
+                        context,
+                        Image.asset(
+                          "images/favorites.png",
+                          width: 70,
+                          height: 70,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                        () => Get.to(() => const AllFavoritesPage()),
+                        "收藏夹".tr,
+                        "查看已收藏的漫画".tr),
+                    mePageItem(
+                        context,
+                        Image.asset(
+                          "images/download.png",
+                          width: 70,
+                          height: 70,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                        () => Get.to(() => const DownloadPage()),
+                        "已下载".tr,
+                        "管理已下载的漫画".tr),
+                    mePageItem(
+                        context,
+                        Image.asset(
+                          "images/history.png",
+                          width: 70,
+                          height: 70,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                        () => Get.to(() => const HistoryPage()),
+                        "历史记录".tr,
+                        "查看历史记录".tr),
                     if (kDebugMode)
-                      mePageItem(context, Icons.bug_report, () async {
+                      mePageItem(
+                          context,
+                          const Icon(
+                            Icons.bug_report,
+                            size: 60,
+                          ), () async {
                         debug();
                       }, "Debug", ""),
                   ],
@@ -53,8 +103,8 @@ class MePage extends StatelessWidget {
   }
 }
 
-Widget mePageItem(
-    BuildContext context, IconData icon, void Function() page, String title, String subTitle) {
+Widget mePageItem(BuildContext context, Widget icon, void Function() page,
+    String title, String subTitle) {
   double width;
   double screenWidth = MediaQuery.of(context).size.width;
   double padding = 10.0;
@@ -98,7 +148,8 @@ Widget mePageItem(
                     padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
                     child: Text(
                       title,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.w600),
                     ),
                   ),
                   Padding(
@@ -111,14 +162,10 @@ Widget mePageItem(
             const SizedBox(
               width: 5,
             ),
-            Expanded(
-                flex: 1,
-                child: Center(
-                    child: Icon(
-                  icon,
-                  size: 55,
-                  color: Theme.of(context).colorScheme.secondary,
-                ))),
+            Expanded(flex: 1, child: Center(child: icon)),
+            const SizedBox(
+              width: 16,
+            ),
           ],
         ),
       ),

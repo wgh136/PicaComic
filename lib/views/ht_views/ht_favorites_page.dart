@@ -42,8 +42,9 @@ class HtFavoritePage extends StatelessWidget {
     return GetBuilder<HtFavoritePageLogic>(
       init: HtFavoritePageLogic(),
       builder: (logic) {
-        if(appdata.htName == ""){
-          return showNetworkError("未登录".tr, logic.refresh_, context);
+        if (appdata.htName == "") {
+          return showNetworkError("未登录".tr, logic.refresh_, context,
+              showBack: false);
         }
         if (logic.loading) {
           logic.get();

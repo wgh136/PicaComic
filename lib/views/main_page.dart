@@ -269,7 +269,7 @@ class _MainPageState extends State<MainPage> {
             label: '分类'.tr,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.account_tree, size: 20,),
+            icon: const Icon(Icons.leaderboard, size: 20,),
             label: '排行榜'.tr,
           ),
         ],
