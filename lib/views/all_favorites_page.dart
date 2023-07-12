@@ -42,7 +42,8 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
           TabBar(
             splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
             tabs: [
-              const Tab(text: "Picacg",),
+              if(appdata.settings[21][0] == "1")
+                const Tab(text: "Picacg",),
               if(appdata.settings[21][1] == "1")
                 const Tab(text: "EHentai",),
               if(appdata.settings[21][2] == "1")
@@ -55,7 +56,8 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
             child: TabBarView(
               controller: controller,
               children: [
-                const FavoritesPage(),
+                if(appdata.settings[21][0] == "1")
+                  const FavoritesPage(),
                 if(appdata.settings[21][1] == "1")
                   const EhFavoritePage(),
                 if(appdata.settings[21][2] == "1")

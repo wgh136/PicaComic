@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 
+import '../leaderboard_page.dart';
+
 void findUpdate(BuildContext context) {
   showMessage(context, "正在检查更新".tr, time: 2);
   checkUpdate().then((b) {
@@ -290,6 +292,7 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
       try {
         Get.find<CategoryPageLogic>().update();
         Get.find<ExplorePageLogic>().update();
+        Get.find<LeaderboardPageLogic>().update();
       } catch (e) {
         //如果在test_network_page进行此操作将产生错误
       }
@@ -299,7 +302,7 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
 
   @override
   Widget build(BuildContext context) {
-    var titles = ["Picacg(不能禁用)".tr, "E-hentai", "禁漫天堂".tr, "Hitomi.la", "绅士漫画".tr];
+    var titles = ["Picacg", "E-hentai", "禁漫天堂".tr, "Hitomi.la", "绅士漫画".tr];
     return SizedBox(
       child: Column(
         children: [
@@ -315,7 +318,6 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
                   }
                 });
               },
-              enabled: i != 0,
               title: Text(titles[i]),
             ),
         ],
@@ -541,7 +543,6 @@ class _SetExplorePagesState extends State<SetExplorePages> {
                   }
                 });
               },
-              enabled: i != 0,
               title: Text(titles[i]),
             ),
         ],

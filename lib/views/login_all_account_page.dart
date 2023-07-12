@@ -8,14 +8,14 @@ import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
-class TestNetworkPage extends StatefulWidget {
-  const TestNetworkPage({Key? key}) : super(key: key);
+class LoginAccountsPage extends StatefulWidget {
+  const LoginAccountsPage({Key? key}) : super(key: key);
 
   @override
-  State<TestNetworkPage> createState() => _TestNetworkPageState();
+  State<LoginAccountsPage> createState() => _LoginAccountsPageState();
 }
 
-class _TestNetworkPageState extends State<TestNetworkPage> {
+class _LoginAccountsPageState extends State<LoginAccountsPage> {
   bool isLoading = true;
   String? message;
   String status = "正在获取用户信息".tr;

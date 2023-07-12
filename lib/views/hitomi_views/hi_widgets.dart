@@ -19,6 +19,9 @@ class HiComicTile extends ComicTile {
   }
 
   @override
+  List<String>? get tags => List<String>.generate(comic.tags.length, (index) => comic.tags[index].name);
+
+  @override
   String get description => (){
     var description = "${comic.type}    ";
     description += comic.lang;

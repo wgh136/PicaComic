@@ -24,11 +24,16 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin{
   late TabController controller;
+
+  @override
+  void initState() {
+    controller = TabController(length: widget.pages, vsync: this);
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
     widget.tabListener.controller = null;
-    controller = TabController(length: widget.pages, vsync: this);
     widget.tabListener.controller = controller;
     return Column(
       children: [

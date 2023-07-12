@@ -5,7 +5,6 @@ import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
-import '../main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -101,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                Get.offAll(const MainPage());
+                                Get.back(closeOverlays: true);
                               }
                             });
                           }
@@ -168,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
                                 Get.closeAllSnackbars();
-                                Get.offAll(() => const MainPage());
+                                Get.back(closeOverlays: true);
                               }
                             });
                           }

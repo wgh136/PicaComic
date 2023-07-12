@@ -75,7 +75,7 @@ class HiNetwork{
       var name = comicDiv.querySelector("h1.lillie > a")!.text;
       var link = comicDiv.querySelector("h1.lillie > a")!.attributes["href"]!;
       link = baseUrl + link;
-      var artist = comicDiv.querySelector("div.artist-list")!.text;
+      var artist = comicDiv.querySelector("div.artist-list a")?.text??"N/A";
       String cover;
       try {
         cover = comicDiv.querySelector("div.dj-img1 > picture > source")!
