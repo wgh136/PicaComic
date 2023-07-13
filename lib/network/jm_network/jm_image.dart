@@ -17,7 +17,7 @@ String getJmCoverUrl(String id) {
 }
 
 String getJmImageUrl(String imageName, String id) {
-  return "${getBaseUrl()}/media/photos/$id/$imageName";
+  return "${getBaseUrl()}/media/photos/$id/$imageName?v=${DateTime.now().millisecondsSinceEpoch ~/ 1000}";
 }
 
 String getJmAvatarUrl(String imageName) {

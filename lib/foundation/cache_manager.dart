@@ -367,6 +367,7 @@ class MyCacheManager{
       Map<String, String>? headers,
       {required String epsId, required String scrambleId, required String bookId}
       ) async*{
+    bookId = bookId.replaceAll(RegExp(r"\..+"), "");
     while(loadingItems[url] != null){
       var progress = loadingItems[url]!;
       yield progress;
@@ -402,6 +403,7 @@ class MyCacheManager{
         }
       }
       fileName += url.substring(l);
+      fileName = fileName.replaceAll(RegExp(r"\?.+"), "");
       final savePath = "${(await getTemporaryDirectory())
           .path}${pathSep}imageCache$pathSep$fileName";
 
