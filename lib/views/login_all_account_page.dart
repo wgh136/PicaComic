@@ -40,7 +40,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
                 right: 0,
                 child: const Align(
                   alignment: Alignment.topCenter,
-                  child: CircularProgressIndicator(),
+                  child: SizedBox(width: 200,child: LinearProgressIndicator(),),
                 ),
               ),
             if(!isLoading)

@@ -542,13 +542,12 @@ class PicacgNetwork {
     return true;
   }
 
-  Future<List<ComicItemBrief>> getLeaderboard(String time) async {
-    /*
-    Time:
-      H24 过去24小时
-      D7 过去7天
-      D30 过去30天
-     */
+
+  /// 获取收藏夹, 传入参数为时间
+  /// - H24: 过去24小时
+  /// - D7: 过去7天
+  /// - D30: 过去30天
+  Future<Res<List<ComicItemBrief>>> getLeaderboard(String time) async {
     var res =
         await get("$apiUrl/comics/leaderboard?tt=$time&ct=VC", expiredTime: CacheExpiredTime.no);
     var comics = <ComicItemBrief>[];
@@ -569,11 +568,13 @@ class PicacgNetwork {
               tags);
           comics.add(si);
         } catch (e) {
-          //出现错误跳过}
+          //出现错误跳过
         }
       }
+    }else{
+      return Res(null, errorMessage: status?message:"网络错误");
     }
-    return comics;
+    return Res(comics);
   }
 
   Future<Res<String>> register(
