@@ -42,8 +42,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           onTap: () {},
         ),
         ListTile(
-          leading:
-          Icon(Icons.volume_mute, color: Theme.of(context).colorScheme.secondary),
+          leading: Icon(Icons.volume_mute,
+              color: Theme.of(context).colorScheme.secondary),
           title: Text("使用音量键翻页".tr),
           subtitle: Text("仅安卓端有效".tr),
           trailing: Switch(
@@ -91,7 +91,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
         ListTile(
-          leading: Icon(Icons.brightness_4, color: Theme.of(context).colorScheme.secondary),
+          leading: Icon(Icons.brightness_4,
+              color: Theme.of(context).colorScheme.secondary),
           title: Text("夜间模式降低图片亮度".tr),
           onTap: () {},
           trailing: Switch(
@@ -110,15 +111,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               color: Theme.of(context).colorScheme.secondary),
           title: Text("选择阅读模式".tr),
           trailing: Select(
-            initialValue: int.parse(appdata.settings[9])-1,
-            values: [
-              "从左至右".tr,
-              "从右至左".tr,
-              "从上至下".tr,
-              "从上至下(连续)".tr
-            ],
-            whenChange: (i){
-              appdata.settings[9] = (i+1).toString();
+            initialValue: int.parse(appdata.settings[9]) - 1,
+            values: ["从左至右".tr, "从右至左".tr, "从上至下".tr, "从上至下(连续)".tr],
+            whenChange: (i) {
+              appdata.settings[9] = (i + 1).toString();
               appdata.updateSettings();
             },
             inPopUpWidget: widget.popUp,
@@ -131,14 +127,52 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           title: Text("图片预加载".tr),
           trailing: Select(
             initialValue: int.parse(appdata.settings[28]),
-            values: const ["0","1","2","3","4","5"],
-            whenChange: (i){
+            values: const ["0", "1", "2", "3", "4", "5"],
+            whenChange: (i) {
               appdata.settings[28] = i.toString();
               appdata.updateSettings();
             },
             inPopUpWidget: widget.popUp,
             width: 140,
           ),
+        ),
+        ListTile(
+          leading: Icon(Icons.timer_sharp,
+              color: Theme.of(context).colorScheme.secondary),
+          subtitle: SizedBox(
+            height: 25,
+            child: Stack(
+              children: [
+                Positioned(
+                    top: 0,
+                    bottom: 0,
+                    left: -20,
+                    right: 0,
+                    child: Slider(
+                      max: 20,
+                      min: 0,
+                      divisions: 20,
+                      value: int.parse(appdata.settings[33]).toDouble(),
+                      overlayColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.transparent),
+                      onChanged: (v) {
+                        if(v == 0)  return;
+                        appdata.settings[33] = v.toInt().toString();
+                        appdata.updateSettings();
+                        setState(() {});
+                      },
+                    ))
+              ],
+            ),
+          ),
+          trailing: SizedBox(
+            width: 40,
+            child: Text(
+              "${appdata.settings[33]}秒",
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+          title: Text("自动翻页时间间隔".tr),
         ),
       ],
     );

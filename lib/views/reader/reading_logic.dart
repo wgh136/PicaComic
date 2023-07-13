@@ -106,6 +106,7 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToNextChapter(){
     var type = data.type;
     var eps = data.eps;
+    showFloatingButtonValue = 0;
     if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || ((type==ReadingType.jm) && order == eps.length)){
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(urls.length);
@@ -129,6 +130,7 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToLastChapter(){
     var type = data.type;
     var eps = data.eps;
+    showFloatingButtonValue = 0;
     if(order == 1 && type == ReadingType.picacg){
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(1);
@@ -158,4 +160,22 @@ class ComicReadingPageLogic extends GetxController{
 
   ///当前章节的长度
   int get length => urls.length;
+
+  /// 是否处于自动翻页状态
+  bool runningAutoPageTurning = false;
+
+  /// 自动翻页
+  void autoPageTurning() async{
+    if(index == urls.length-1){
+      runningAutoPageTurning = false;
+      update();
+      return;
+    }
+    await Future.delayed(Duration(seconds: int.parse(appdata.settings[33])));
+    if(! runningAutoPageTurning){
+      return;
+    }
+    jumpToNextPage();
+    autoPageTurning();
+  }
 }

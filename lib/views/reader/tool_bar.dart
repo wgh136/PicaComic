@@ -248,6 +248,19 @@ Widget buildBottomToolBar(
                           onPressed: () => Get.forceAppUpdate(),
                         ),
                       ),
+                      Tooltip(
+                        message: "自动翻页".tr,
+                        child: IconButton(
+                          icon: comicReadingPageLogic.runningAutoPageTurning?
+                            const Icon(Icons.timer):
+                            const Icon(Icons.timer_sharp),
+                          onPressed: () {
+                            comicReadingPageLogic.runningAutoPageTurning = !comicReadingPageLogic.runningAutoPageTurning;
+                            comicReadingPageLogic.update();
+                            comicReadingPageLogic.autoPageTurning();
+                          },
+                        ),
+                      ),
                       if (showEps)
                         Tooltip(
                           message: "章节".tr,
