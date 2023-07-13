@@ -473,6 +473,9 @@ class PicacgNetwork {
         var pages = res["data"]["comics"]["pages"];
         var comics = <ComicItemBrief>[];
         for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+          var tags = <String>[];
+          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
           var si = ComicItemBrief(
               res["data"]["comics"]["docs"][i]["title"] ?? "未知",
               res["data"]["comics"]["docs"][i]["author"] ?? "未知",
@@ -481,7 +484,7 @@ class PicacgNetwork {
                   "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"],
-              [],
+              tags,
               ignoreExamination: true);
           comics.add(si);
         }
@@ -543,7 +546,7 @@ class PicacgNetwork {
   }
 
 
-  /// 获取收藏夹, 传入参数为时间
+  /// 获取排行榜, 传入参数为时间
   /// - H24: 过去24小时
   /// - D7: 过去7天
   /// - D30: 过去30天

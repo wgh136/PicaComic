@@ -55,7 +55,7 @@ class JmFavoritePage extends StatelessWidget {
             slivers: [
               SliverGrid(
                 delegate:
-                    SliverChildBuilderDelegate(childCount: logic.folders.length + 2, (context, i) {
+                    SliverChildBuilderDelegate(childCount: logic.folders.length + 1, (context, i) {
                   if (i == 0) {
                     return JmFolderTile(
                         name: "全部",
@@ -65,61 +65,40 @@ class JmFavoritePage extends StatelessWidget {
                   } else {
                     i--;
                   }
-                  if (i != logic.folders.length) {
-                    return JmFolderTile(
-                        name: logic.folders.values.elementAt(i),
-                        id: logic.folders.keys.elementAt(i),
-                        onTap: () => Get.to(() => JmFavoriteFolder(
-                            folderId: logic.folders.keys.elementAt(i),
-                            name: logic.folders.values.elementAt(i))));
-                  } else {
-                    return Material(
-                      child: InkWell(
-                        onTap: (){
-                          showDialog(context: context, builder: (context){
-                            return const CreateFolderDialog();
-                          });
-                        },
-                        borderRadius: const BorderRadius.all(Radius.circular(16)),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Icon(
-                                  Icons.add_box_outlined,
-                                  size: 35,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 16,
-                              ),
-                              const Expanded(
-                                flex: 4,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "创建收藏夹",
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                              const Icon(Icons.arrow_right),
-                              const SizedBox(width: 5,)
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }
+                  return JmFolderTile(
+                      name: logic.folders.values.elementAt(i),
+                      id: logic.folders.keys.elementAt(i),
+                      onTap: () => Get.to(() => JmFavoriteFolder(
+                          folderId: logic.folders.keys.elementAt(i),
+                          name: logic.folders.values.elementAt(i))));
                 }),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 550,
-                  childAspectRatio: 4,
+                  childAspectRatio: 5,
                 ),
               ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 60,
+                  width: double.infinity,
+                  child: Center(
+                    child: TextButton(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("创建收藏夹".tr),
+                          const Icon(Icons.add, size: 18,),
+                        ],
+                      ),
+                      onPressed: (){
+                        showDialog(context: context, builder: (context){
+                          return const CreateFolderDialog();
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              )
             ],
           );
         }

@@ -28,8 +28,8 @@ class EhFavoritePage extends StatelessWidget{
               }
           ),
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 550,
-            childAspectRatio: 4,
+            maxCrossAxisExtent: 500,
+            childAspectRatio: 5,
           ),
         ),
       ],
