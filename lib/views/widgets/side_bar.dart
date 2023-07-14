@@ -61,7 +61,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
             child: Container(
               padding: EdgeInsets.fromLTRB(
                   0,
-                  addTopPadding ? MediaQuery.of(context).padding.top : 0,
+                  0,
                   MediaQuery.of(context).padding.right,
                   addBottomPadding ? MediaQuery.of(context).padding.bottom + MediaQuery.of(context).viewInsets.bottom : 0
               ),
@@ -115,8 +115,9 @@ class _SidebarBodyState extends State<SidebarBody> {
       children: [
         if (widget.title != null)
           Container(
-            height: 60,
+            height: 60 + MediaQuery.of(context).padding.top,
             color: top?null:Theme.of(context).colorScheme.surfaceTint.withAlpha(20),
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
             child: Row(
               children: [
                 const SizedBox(
@@ -175,12 +176,11 @@ void showSideBar(BuildContext context, Widget widget,
       bool showBarrier = true,
       bool useSurfaceTintColor = false,
       double width = 550,
-      bool addTopPadding = true,
-      bool addBottomPadding = true}) {
+      bool addTopPadding = true}) {
   Navigator.of(context).push(SideBarRoute(title, widget,
       showBarrier: showBarrier,
       useSurfaceTintColor: useSurfaceTintColor,
       width: width,
       addTopPadding: addTopPadding,
-      addBottomPadding: addBottomPadding));
+      addBottomPadding: true));
 }

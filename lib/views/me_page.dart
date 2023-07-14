@@ -42,7 +42,7 @@ class MePage extends StatelessWidget {
         SliverGrid(
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 650,
-            childAspectRatio: 3.2
+            childAspectRatio: 3
           ),
           delegate: SliverChildListDelegate(
               [
@@ -200,7 +200,7 @@ class _MePageButtonState extends State<MePageButton> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(widget.subTitle, style: const TextStyle(fontSize: 16),),
+                            child: Text(widget.subTitle, style: const TextStyle(fontSize: 15),),
                           ),
                         ),
                       ],
