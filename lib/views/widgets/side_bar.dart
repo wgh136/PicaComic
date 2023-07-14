@@ -44,7 +44,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
   @override
   Widget buildPage(
       BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    bool showSideBar = MediaQuery.of(context).size.width > 600;
+    bool showSideBar = MediaQuery.of(context).size.width > width;
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
@@ -68,52 +68,9 @@ class SideBarRoute<T> extends PopupRoute<T> {
               color: useSurfaceTintColor
                   ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
                   : null,
-              child: Column(
-                children: [
-                  /*
-                  不能使用Appbar, 它会自动在左侧加上padding以回避屏幕左侧的阻碍
-                  if (title != null)
-                    AppBar(
-                      title: Text(title!),
-                      backgroundColor: showSideBar
-                          ? Theme.of(context).colorScheme.surfaceTint.withAlpha(1)
-                          : null,
-                      leading: Tooltip(
-                        message: "返回",
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ),
-                   */
-                  if (title != null)
-                    SizedBox(
-                      child: Row(
-                        children: [
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Tooltip(
-                            message: "返回",
-                            child: IconButton(
-                              iconSize: 25,
-                              icon: const Icon(Icons.arrow_back),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            title!,
-                            style: const TextStyle(fontSize: 22),
-                          )
-                        ],
-                      ),
-                    ),
-                  Expanded(child: widget)
-                ],
+              child: SidebarBody(
+                title: title,
+                widget: widget,
               ),
             ),
           ),
@@ -139,6 +96,71 @@ class SideBarRoute<T> extends PopupRoute<T> {
   }
 }
 
+class SidebarBody extends StatefulWidget {
+  const SidebarBody({required this.title, required this.widget, super.key});
+
+  final String? title;
+  final Widget widget;
+
+  @override
+  State<SidebarBody> createState() => _SidebarBodyState();
+}
+
+class _SidebarBodyState extends State<SidebarBody> {
+  bool top = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (widget.title != null)
+          Container(
+            height: 60,
+            color: top?null:Theme.of(context).colorScheme.surfaceTint.withAlpha(20),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 8,
+                ),
+                Tooltip(
+                  message: "返回",
+                  child: IconButton(
+                    iconSize: 25,
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  widget.title!,
+                  style: const TextStyle(fontSize: 22),
+                )
+              ],
+            ),
+          ),
+        NotificationListener<ScrollNotification>(
+          onNotification: (notifications) {
+            if(notifications.metrics.pixels == notifications.metrics.minScrollExtent && !top){
+              setState(() {
+                top = true;
+              });
+            } else if(notifications.metrics.pixels != notifications.metrics.minScrollExtent && top){
+              setState(() {
+                top = false;
+              });
+            }
+            return false;
+          },
+          child: Expanded(child: widget.widget),
+        )
+      ],
+    );
+  }
+}
+
+
 ///显示侧边栏
 ///
 /// 此组件会自动适应窗口大小:
@@ -152,7 +174,7 @@ void showSideBar(BuildContext context, Widget widget,
     { String? title,
       bool showBarrier = true,
       bool useSurfaceTintColor = false,
-      double width = 450,
+      double width = 550,
       bool addTopPadding = true,
       bool addBottomPadding = true}) {
   Navigator.of(context).push(SideBarRoute(title, widget,

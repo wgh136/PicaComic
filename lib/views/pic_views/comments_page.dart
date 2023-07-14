@@ -166,5 +166,5 @@ class CommentsPage extends StatelessWidget {
 }
 
 void showComments(BuildContext context, String id){
-  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论".tr,);
+  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论".tr);
 }
