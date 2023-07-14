@@ -205,6 +205,7 @@ class JmDownloadingItem extends DownloadingItem {
           throw(StateError("下载图片失败"));
         }
         await file.writeAsBytes(bytes);
+        await MyCacheManager().delete(url);
         _currentPage++;
         if(_currentPage >= urls[_index].length){
           _currentPage = 0;

@@ -152,6 +152,7 @@ class HitomiDownloadingItem extends DownloadingItem {
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(bytes));
+        await MyCacheManager().delete(comic.files[_downloadedPages].hash);
         _downloadedPages++;
         super.updateUi?.call();
         await super.updateInfo?.call();

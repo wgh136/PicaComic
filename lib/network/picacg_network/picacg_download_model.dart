@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -230,6 +231,7 @@ class PicDownloadingItem extends DownloadingItem {
           var file = File("$path$pathSep$id$pathSep$_downloadingEps$pathSep$_index.jpg");
           if (!await file.exists()) await file.create();
           await file.writeAsBytes(Uint8List.fromList(res.readAsBytesSync()));
+          await MyCacheManager().delete(_urls[_index]);
           _index++;
           _downloadPages++;
           super.updateUi?.call();

@@ -496,6 +496,7 @@ class MyCacheManager{
     try{
       var file = File(_paths![key]!);
       file.deleteSync();
+      _paths!.remove(key);
     }
     catch(e){
       //忽视

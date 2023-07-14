@@ -464,7 +464,7 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
         value: comicReadingPageLogic.index.toDouble(),
         min: 1,
         max: comicReadingPageLogic.urls.length.toDouble(),
-        divisions: comicReadingPageLogic.urls.length,
+        divisions: comicReadingPageLogic.urls.length - 1,
         onChanged: (i) {
           comicReadingPageLogic.index = i.toInt();
           comicReadingPageLogic.jumpToPage(i.toInt());
@@ -485,7 +485,7 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
               value: comicReadingPageLogic.index.toDouble(),
               min: 1,
               max: comicReadingPageLogic.urls.length.toDouble(),
-              divisions: comicReadingPageLogic.urls.length,
+              divisions: comicReadingPageLogic.urls.length - 1,
               onChanged: (i) {
                 comicReadingPageLogic.index = i.toInt();
                 comicReadingPageLogic.jumpToPage(i.toInt());
@@ -501,13 +501,13 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
               1,
           min: 1,
           max: comicReadingPageLogic.urls.length.toDouble(),
-          divisions: comicReadingPageLogic.urls.length,
+          divisions: comicReadingPageLogic.urls.length - 1,
           activeColor: Theme.of(Get.context!).colorScheme.surfaceVariant,
           inactiveColor: Theme.of(Get.context!).colorScheme.primary,
           thumbColor: Theme.of(Get.context!).colorScheme.secondary,
           onChanged: (i) {
             comicReadingPageLogic.controller
-                .jumpToPage(comicReadingPageLogic.urls.length - (i.toInt() - 1));
+                .jumpToPage(comicReadingPageLogic.urls.length - (i.round() - 1));
           },
         );
       }

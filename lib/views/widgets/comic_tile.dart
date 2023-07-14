@@ -68,6 +68,7 @@ abstract class ComicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap_,
