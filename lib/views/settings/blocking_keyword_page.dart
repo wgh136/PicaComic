@@ -5,6 +5,7 @@ import '../../base.dart';
 
 class BlockingKeywordPageLogic extends GetxController{
   var keywords = appdata.blockingKeyword;
+  bool down = true;
   final controller = TextEditingController();
 }
 
@@ -16,7 +17,7 @@ class BlockingKeywordPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var tailing = Tooltip(
+    var addButton = Tooltip(
       message: "添加".tr,
       child: IconButton(
         icon: const Icon(Icons.add),
@@ -34,6 +35,13 @@ class BlockingKeywordPage extends StatelessWidget {
                       border: const OutlineInputBorder(),
                       hintText: "添加关键词".tr
                     ),
+                    onEditingComplete: (){
+                      appdata.blockingKeyword.add(logic.controller.text);
+                      logic.update();
+                      Get.back();
+                      logic.controller.text = "";
+                      appdata.writeData();
+                    },
                   ),
                 ),
                 Center(
@@ -54,10 +62,26 @@ class BlockingKeywordPage extends StatelessWidget {
       ),
     );
 
+    var orderButton = GetBuilder<BlockingKeywordPageLogic>(
+      builder: (logic) {
+        return Tooltip(
+          message: "显示顺序",
+          child: IconButton(
+            icon: logic.down?const Icon(Icons.arrow_downward):const Icon(Icons.arrow_upward),
+            onPressed: (){
+              logic.down = !logic.down;
+              logic.update();
+            },
+          ),
+        );
+      },
+    );
+
     var widget = GetBuilder<BlockingKeywordPageLogic>(
       builder: (logic){
+        var keywords = logic.down?appdata.blockingKeyword:appdata.blockingKeyword.reversed.toList();
         return ListView.builder(
-          itemCount: logic.keywords.length+1,
+          itemCount: keywords.length+1,
           itemBuilder: (context,index){
             if(index==0){
               return appdata.firstUse[0]=="1"?MaterialBanner(
@@ -73,11 +97,11 @@ class BlockingKeywordPage extends StatelessWidget {
               ]):const SizedBox(height: 0,);
             }else{
               return ListTile(
-                title: Text(logic.keywords[index-1]),
+                title: Text(keywords[index-1]),
                 trailing: IconButton(
                   icon: Icon(Icons.close,color: Theme.of(context).colorScheme.secondary,),
                   onPressed: (){
-                    logic.keywords.removeAt(index-1);
+                    logic.keywords.remove(keywords[index-1]);
                     logic.update();
                     appdata.writeData();
                   },
@@ -90,9 +114,9 @@ class BlockingKeywordPage extends StatelessWidget {
     );
 
     return popUp?
-      PopUpWidgetScaffold(title: "关键词屏蔽".tr, body: widget,tailing: tailing,)
+      PopUpWidgetScaffold(title: "关键词屏蔽".tr, body: widget,tailing: [addButton, orderButton],)
         :Scaffold(
-          appBar: AppBar(title: Text("关键词屏蔽".tr),actions: [tailing],),
+          appBar: AppBar(title: Text("关键词屏蔽".tr),actions: [addButton, orderButton],),
           body: widget,
     );
   }
