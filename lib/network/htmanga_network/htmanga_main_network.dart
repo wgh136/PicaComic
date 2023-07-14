@@ -97,7 +97,7 @@ class HtmangaNetwork {
   }
 
   Future<Res<HtHomePageData>> getHomePage() async {
-    var res = await get(baseUrl);
+    var res = await get(baseUrl, cache: false);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
