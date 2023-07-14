@@ -37,7 +37,7 @@ class ReplyPage extends StatelessWidget {
           });
           return const Center(child: CircularProgressIndicator(),);
         }else if(commentsPageLogic.comments.loaded==0){
-          return showNetworkError(network.status?network.message:"网络错误".tr,
+          return showNetworkError("网络错误".tr,
                   ()=>commentsPageLogic.change(), context, showBack: false);
         } else{
           return Column(
@@ -138,11 +138,7 @@ class ReplyPage extends StatelessWidget {
                               commentsPageLogic.comments = res;
                               commentsPageLogic.update();
                             }else{
-                              if(network.status){
-                                showMessage(Get.context, network.message);
-                              }else{
-                                showMessage(Get.context, "网络错误".tr);
-                              }
+                              showMessage(Get.context, "网络错误".tr);
                               commentsPageLogic.sending = false;
                               commentsPageLogic.update();
                             }

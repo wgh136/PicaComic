@@ -157,11 +157,10 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
     if(appdata.token != "") {
       try {
         var res = await network.getProfile();
-        if (res == null) {
-          message = network.status ? network.message : "网络错误".tr;
-          message = "登录哔咔时发生错误\n".tr + message.toString();
+        if (res.error) {
+          message = res.errorMessage;
         } else {
-          appdata.user = res;
+          appdata.user = res.data;
           await appdata.writeData();
         }
       }

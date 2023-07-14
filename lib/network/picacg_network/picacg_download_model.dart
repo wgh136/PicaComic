@@ -144,11 +144,23 @@ class PicDownloadingItem extends DownloadingItem {
   List<String> get eps => _eps;
 
   Future<void> getEps() async {
-    _eps = await network.getEps(id);
+    if(_eps.isNotEmpty) return;
+    var res = await network.getEps(id);
+    if(res.error){
+      throw Exception();
+    }else{
+      _eps = res.data;
+    }
   }
 
   Future<void> getUrls() async {
-    _urls = await network.getComicContent(id, _downloadingEps);
+    if(_urls.isNotEmpty)  return;
+    var res = await network.getComicContent(id, _downloadingEps);
+    if(res.error){
+      throw Exception();
+    }else{
+      _urls = res.data;
+    }
   }
 
   void retry() {
@@ -177,13 +189,15 @@ class PicDownloadingItem extends DownloadingItem {
         _downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
     _pauseFlag = false;
     if (_eps.isEmpty) {
-      await getEps();
+      try {
+        await getEps();
+      }
+      catch(e){
+        retry();
+        return;
+      }
     }
     if (_pauseFlag) return;
-    if (_eps.isEmpty) {
-      retry();
-      return;
-    }
     if (_downloadingEps == 0) {
       try {
         var dio = await request();
@@ -213,8 +227,10 @@ class PicDownloadingItem extends DownloadingItem {
         _index = 0;
       }
       if (_pauseFlag) return;
-      await getUrls();
-      if (_urls.isEmpty) {
+      try {
+        await getUrls();
+      }
+      catch(e){
         retry();
         return;
       }

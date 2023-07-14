@@ -5,6 +5,8 @@ class Res<T>{
   ///错误信息
   final String? errorMessage;
 
+  String get errorMessageWithoutNull => errorMessage??"Unknown Error";
+
   ///数据
   final T? _data;
 

@@ -40,7 +40,7 @@ class CommentsPage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }else if(logic.comments.loaded==0){
-          return showNetworkError(network.status?network.message:"网络错误".tr,
+          return showNetworkError("网络错误".tr,
                   ()=>logic.change(), context, showBack: false);
         }else{
           return Column(
@@ -132,11 +132,7 @@ class CommentsPage extends StatelessWidget {
                               logic.comments = res;
                               logic.update();
                             }else{
-                              if(network.status){
-                                showMessage(Get.context, network.message);
-                              }else{
-                                showMessage(Get.context, "网络错误".tr);
-                              }
+                              showMessage(Get.context, "网络错误".tr);
                               logic.sending = false;
                               logic.update();
                             }

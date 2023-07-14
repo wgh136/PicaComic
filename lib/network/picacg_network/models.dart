@@ -40,10 +40,6 @@ class Profile {
     slogan = json["slogan"];
 }
 
-class KeyWords {
-  var keyWords = <String>[];
-}
-
 class CategoryItem {
   String title;
   String path;

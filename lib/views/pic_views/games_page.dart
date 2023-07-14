@@ -71,7 +71,7 @@ class GamesPage extends StatelessWidget {
               ),
             );
           }else{
-            return showNetworkError(network.status?network.message:"网络错误".tr,
+            return showNetworkError("网络错误".tr,
                     ()=>logic.change(), context, showBack: false);
           }
         });

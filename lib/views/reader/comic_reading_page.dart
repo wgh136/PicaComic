@@ -563,9 +563,10 @@ class ComicReadingPage extends StatelessWidget {
       comicReadingPageLogic.change();
     } else {
       network.getComicContent(data.target, comicReadingPageLogic.order).then((l) {
-        comicReadingPageLogic.urls = List.generate(l.length, (index) => getImageUrl(l[index]));
-        if (l.isEmpty) {
-          data.message = network.status ? network.message : "网络错误".tr;
+        if (l.error) {
+          data.message = l.errorMessageWithoutNull;
+        } else {
+          comicReadingPageLogic.urls = List.generate(l.data.length, (index) => getImageUrl(l.data[index]));
         }
         comicReadingPageLogic.change();
       });

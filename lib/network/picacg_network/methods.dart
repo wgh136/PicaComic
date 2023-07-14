@@ -6,7 +6,6 @@ import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/network/proxy.dart';
-import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
@@ -30,27 +29,20 @@ class PicacgNetwork {
       : "https://picaapi.picacomic.com";
   InitData? initData;
   String token;
-  bool status = false; //用于判断请求出错时的情况, true意味着捕获了已知的错误
-  String message = ""; //提供错误信息
-  bool useCf = false;
 
   Future<void> updateApi() async {
     if (appdata.settings[3] == "1") {
-      useCf = false;
       apiUrl = "https://api.kokoiro.xyz/picaapi";
     } else {
       apiUrl = "https://picaapi.picacomic.com";
     }
   }
 
-  Future<Map<String, dynamic>?> get(String url,
+  Future<Res<Map<String, dynamic>>> get(String url,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short}) async {
-    status = false;
     if (token == "") {
       await Future.delayed(const Duration(milliseconds: 500));
-      status = true;
-      message = "未登录";
-      return null;
+      return const Res(null, errorMessage: "未登录");
     }
     var dio = CachedNetwork();
     var options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
@@ -60,42 +52,38 @@ class PicacgNetwork {
       var res = await dio.get(url, options, expiredTime: expiredTime);
       if (res.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
-        return jsonResponse;
+        return Res(jsonResponse);
       } else if (res.statusCode == 400) {
-        status = true;
         var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
-        message = jsonResponse["message"];
-        return null;
+        return Res(null, errorMessage: jsonResponse["message"]);
       } else if (res.statusCode == 401) {
-        appdata.settings[13] = "0";
-        appdata.writeData();
-        Get.offAll(const LoginPage());
-        showMessage(Get.context, "登录失效".tr);
-        return null;
+        var reLogin = await loginFromAppdata();
+        if(reLogin.error){
+          return const Res(null, errorMessage: "登录失效且重新登录失败");
+        }else{
+          return get(url, expiredTime: expiredTime);
+        }
       } else {
-        return null;
+        return Res(null, errorMessage: "Invalid Status Code ${res.statusCode}");
       }
     } on DioException catch (e) {
+      String message;
       if (e.type == DioExceptionType.connectionTimeout) {
-        status = true;
         message = "连接超时";
       } else if (e.type != DioExceptionType.unknown) {
-        status = true;
         message = e.message!;
       } else {
-        status = true;
         message = e.toString().split("\n")[1];
       }
-      return null;
-    }
-    catch(e, stack){
+      return Res(null, errorMessage: message);
+    } catch (e, stack) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$stack");
-      return null;
+      return Res(null, errorMessage: e.toString());
     }
   }
 
-  Future<Map<String, dynamic>?> post(String url, Map<String, String>? data) async {
-    status = false;
+  Future<Res<Map<String, dynamic>>> post(
+      String url, Map<String, String>? data) async {
     var api = appdata.settings[3] == "1"
         ? "https://api.kokoiro.xyz/picaapi"
         : "https://picaapi.picacomic.com";
@@ -103,152 +91,164 @@ class PicacgNetwork {
         url != '$api/auth/sign-in' &&
         url != "https://picaapi.picacomic.com/auth/register") {
       await Future.delayed(const Duration(milliseconds: 500));
-      status = true;
-      message = "未登录";
-      return null;
+      return const Res(null, errorMessage: "未登录");
     }
     var dio = await request();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     try {
       await setNetworkProxy();
-      var res = await dio.post(url, data: data, options: Options(validateStatus: (i) {
+      var res =
+          await dio.post(url, data: data, options: Options(validateStatus: (i) {
         return i == 200 || i == 400 || i == 401;
       }));
       if (res.statusCode == 200) {
-        var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
-        return jsonResponse;
+        var jsonResponse =
+            convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+        return Res(jsonResponse);
       } else if (res.statusCode == 400) {
-        status = true;
-        var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
-        message = jsonResponse["message"];
-        return null;
+        var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
+        return Res(null, errorMessage: jsonResponse["message"]);
       } else if (res.statusCode == 401) {
-        appdata.settings[13] = "0";
-        appdata.writeData();
-        Get.offAll(const LoginPage());
-        showMessage(Get.context, "登录失效".tr);
-        return null;
+        var reLogin = await loginFromAppdata();
+        if(reLogin.error){
+          return const Res(null, errorMessage: "登录失效且重新登录失败");
+        }else{
+          return post(url, data);
+        }
       } else {
-        return null;
+        return Res(null, errorMessage: "Invalid Status Code ${res.statusCode}");
       }
     } on DioException catch (e) {
+      String message;
       if (e.type == DioExceptionType.connectionTimeout) {
-        status = true;
         message = "连接超时";
       } else if (e.type != DioExceptionType.unknown) {
-        status = true;
         message = e.message!;
       } else {
-        status = true;
         message = e.toString().split("\n")[1];
       }
-      return null;
+      return Res(null, errorMessage: message);
     } catch (e) {
-      return null;
+      return Res(null, errorMessage: e.toString());
     }
   }
 
   ///登录
-  Future<bool> login(String email, String password) async {
+  Future<Res<bool>> login(String email, String password) async {
     var api = appdata.settings[3] == "1"
         ? "https://api.kokoiro.xyz/picaapi"
         : "https://picaapi.picacomic.com";
-    var res = await post('$api/auth/sign-in', {
+    var response = await post('$api/auth/sign-in', {
       "email": email,
       "password": password,
     });
-    if (res != null) {
-      if (res["message"] == "success") {
-        try {
-          token = res["data"]["token"];
-        } catch (e) {
-          status = true;
-          message = "未能获取到token";
-          //既然没能拿到token, 那么应该不存在敏感信息, 实在是不清楚为什么没有token, 因此将数据上报
-          sendNetworkLog("login", res.toString());
-          return false;
-        }
-        if (kDebugMode) {
-          print("Logging successfully");
-        }
-        return true;
-      } else {
-        return false;
-      }
-    } else if (status) {
-      return false;
-    } else {
-      return false;
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
     }
+    var res = response.data;
+    if (res["message"] == "success") {
+      try {
+        token = res["data"]["token"];
+      } catch (e) {
+        return const Res(null, errorMessage: "Failed to get token");
+      }
+      if (kDebugMode) {
+        print("Logging successfully");
+      }
+      return const Res(true);
+    } else {
+      return Res(null, errorMessage: res["message"]);
+    }
+  }
+
+  Future<Res<bool>> loginFromAppdata() async{
+    if(appdata.picacgAccount == ""){
+      return const Res(null, errorMessage: "No account data");
+    }
+    return login(appdata.picacgAccount, appdata.picacgPassword);
   }
 
   ///获取用户信息
-  Future<Profile?> getProfile() async {
-    var res = await get("$apiUrl/users/profile", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
-      res = res["data"]["user"];
-      String url = "";
-      if (res!["avatar"] == null) {
-        url = defaultAvatarUrl;
-      } else {
-        url = res["avatar"]["fileServer"] + "/static/" + res["avatar"]["path"];
-      }
-      var p = Profile(res["_id"], url, res["email"], res["exp"], res["level"], res["name"],
-          res["title"], res["isPunched"], res["slogan"], res["character"]);
-      return p;
-    } else {
-      return null;
+  Future<Res<Profile>> getProfile() async {
+    var response =
+        await get("$apiUrl/users/profile", expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
     }
+    var res = response.data;
+    res = res["data"]["user"];
+    String url = "";
+    if (res["avatar"] == null) {
+      url = defaultAvatarUrl;
+    } else {
+      url = res["avatar"]["fileServer"] + "/static/" + res["avatar"]["path"];
+    }
+    var p = Profile(
+        res["_id"],
+        url,
+        res["email"],
+        res["exp"],
+        res["level"],
+        res["name"],
+        res["title"],
+        res["isPunched"],
+        res["slogan"],
+        res["character"]);
+    return Res(p);
   }
 
   ///获取热搜词
-  Future<KeyWords?> getKeyWords() async {
-    var res = await get("$apiUrl/keywords", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
-      var k = KeyWords();
-      for (int i = 0; i < (res["data"]["keywords"] ?? []).length; i++) {
-        k.keyWords.add(res["data"]["keywords"][i]);
-      }
-      return k;
-    } else {
-      return null;
+  Future<Res<List<String>>> getKeyWords() async {
+    var response =
+        await get("$apiUrl/keywords", expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessageWithoutNull);
     }
+    var res = response.data;
+    var k = <String>[];
+    for (int i = 0; i < (res["data"]["keywords"] ?? []).length; i++) {
+      k.add(res["data"]["keywords"][i]);
+    }
+    return Res(k);
   }
 
   ///获取分类
-  Future<List<CategoryItem>?> getCategories() async {
-    var res = await get("$apiUrl/categories");
-    if (res != null) {
-      try {
-        var c = <CategoryItem>[];
-        for (int i = 0; i < res["data"]["categories"].length; i++) {
-          if (res["data"]["categories"][i]["isWeb"] == true) continue;
-          String url = res["data"]["categories"][i]["thumb"]["fileServer"];
-          if (url[url.length - 1] != '/') {
-            url = '$url/static/';
-          }
-          url = url + res["data"]["categories"][i]["thumb"]["path"];
-          var ca = CategoryItem(res["data"]["categories"][i]["title"], url);
-          c.add(ca);
+  Future<Res<List<CategoryItem>>> getCategories() async {
+    var response = await get("$apiUrl/categories");
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
+    }
+    var res = response.data;
+    try {
+      var c = <CategoryItem>[];
+      for (int i = 0; i < res["data"]["categories"].length; i++) {
+        if (res["data"]["categories"][i]["isWeb"] == true) continue;
+        String url = res["data"]["categories"][i]["thumb"]["fileServer"];
+        if (url[url.length - 1] != '/') {
+          url = '$url/static/';
         }
-        return c;
-      } catch (e, s) {
-        LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-        status = true;
-        message = e.toString();
-        return null;
+        url = url + res["data"]["categories"][i]["thumb"]["path"];
+        var ca = CategoryItem(res["data"]["categories"][i]["title"], url);
+        c.add(ca);
       }
-    } else {
-      return null;
+      return Res(c);
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
   ///获取分流ip
+  ///
+  /// 已被废弃, 要在Flutter中使用IP访问只有两种方式, 直接http连接或者忽略证书校验
+  ///
+  /// 由于存在安全问题, 因此放弃
   Future<String?> init() async {
     try {
       var dio = Dio();
       var res = await dio.get("http://68.183.234.72/init");
-      var jsonResponse = convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+      var jsonResponse =
+          convert.jsonDecode(res.toString()) as Map<String, dynamic>;
       return jsonResponse["addresses"][0];
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
@@ -256,61 +256,71 @@ class PicacgNetwork {
     }
   }
 
-  Future<Res<List<ComicItemBrief>>> search(String keyWord, String sort, int page,
+  ///搜索
+  Future<Res<List<ComicItemBrief>>> search(
+      String keyWord, String sort, int page,
       {bool addToHistory = false}) async {
-    var res =
-        await post('$apiUrl/comics/advanced-search?page=$page', {"keyword": keyWord, "sort": sort});
+    var response = await post('$apiUrl/comics/advanced-search?page=$page',
+        {"keyword": keyWord, "sort": sort});
     if (page == 1 && addToHistory && keyWord != "") {
       appdata.searchHistory.remove(keyWord);
       appdata.searchHistory.add(keyWord);
       appdata.writeHistory();
     }
-    if (res != null) {
-      try {
-        var pages = res["data"]["comics"]["pages"];
-        var comics = <ComicItemBrief>[];
-        for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-          try {
-            var tags = <String>[];
-            tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
-            tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
-            var si = ComicItemBrief(
-                res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-                res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-                int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
-                res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
-                    "/static/" +
-                    res["data"]["comics"]["docs"][i]["thumb"]["path"],
-                res["data"]["comics"]["docs"][i]["_id"],
-                tags);
-            comics.add(si);
-          } catch (e) {
-            continue;
-          }
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
+    }
+    var res = response.data;
+    try {
+      var pages = res["data"]["comics"]["pages"];
+      var comics = <ComicItemBrief>[];
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        try {
+          var tags = <String>[];
+          tags.addAll(List<String>.from(
+              res["data"]["comics"]["docs"][i]["tags"] ?? []));
+          tags.addAll(List<String>.from(
+              res["data"]["comics"]["docs"][i]["categories"] ?? []));
+          var si = ComicItemBrief(
+              res["data"]["comics"]["docs"][i]["title"] ?? "未知",
+              res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+              int.parse(
+                  res["data"]["comics"]["docs"][i]["likesCount"].toString()),
+              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
+                  "/static/" +
+                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
+              res["data"]["comics"]["docs"][i]["_id"],
+              tags);
+          comics.add(si);
+        } catch (e) {
+          continue;
         }
-        if (addToHistory) {
-          Future.delayed(const Duration(microseconds: 500), () {
-            try {
-              Get.find<PreSearchController>().update();
-            } catch (e) {
-              //忽视
-            }
-          });
-        }
-        return Res(comics, subData: pages);
-      } catch (e, s) {
-        LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-        return Res(null, errorMessage: e.toString());
       }
-    } else {
-      return Res(null, errorMessage: status ? message : "网络错误");
+      if (addToHistory) {
+        Future.delayed(const Duration(microseconds: 500), () {
+          try {
+            Get.find<PreSearchController>().update();
+          } catch (e) {
+            //忽视
+          }
+        });
+      }
+      return Res(comics, subData: pages);
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
   ///获取漫画信息
-  Future<ComicItem?> getComicInfo(String id) async {
-    var res = await get("$apiUrl/comics/$id", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
+  Future<Res<ComicItem>> getComicInfo(String id) async {
+    var response =
+        await get("$apiUrl/comics/$id", expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
+    }
+    var res = response.data;
+    try {
       String url;
       if (res["data"]["comic"]["_creator"]["avatar"] == null) {
         url = defaultAvatarUrl;
@@ -358,105 +368,112 @@ class PicacgNetwork {
           id,
           res["data"]["comic"]["pagesCount"],
           res["data"]["comic"]["updated_at"]);
-      return ci;
-    } else {
-      return null;
+      return Res(ci);
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
-  Future<List<String>> getEps(String id) async {
-    //获取漫画章节信息
+  ///获取漫画的章节信息
+  Future<Res<List<String>>> getEps(String id) async {
     var eps = <String>[];
     int i = 0;
     bool flag = true;
     while (flag) {
       i++;
       var res = await get("$apiUrl/comics/$id/eps?page=$i");
-      if (res == null) {
-        return eps;
-      } else if (res["data"]["eps"]["pages"] == i) {
+      if (res.error) {
+        return Res(null, errorMessage: res.errorMessage);
+      } else if (res.data["data"]["eps"]["pages"] == i) {
         flag = false;
       }
-      for (int j = 0; j < res["data"]["eps"]["docs"].length; j++) {
-        eps.add(res["data"]["eps"]["docs"][j]["title"]);
+      for (int j = 0; j < res.data["data"]["eps"]["docs"].length; j++) {
+        eps.add(res.data["data"]["eps"]["docs"][j]["title"]);
       }
     }
-    eps.add("");
-    return eps.reversed.toList();
+    return Res(eps.reversed.toList());
   }
 
-  Future<List<String>> getComicContent(String id, int order) async {
-    //获取漫画内容
+  /// 获取漫画章节的图片链接
+  Future<Res<List<String>>> getComicContent(String id, int order) async {
     var imageUrls = <String>[];
     int i = 0;
     bool flag = true;
     while (flag) {
       i++;
       var res = await get("$apiUrl/comics/$id/order/$order/pages?page=$i");
-      if (res == null) {
-        return imageUrls;
-      } else if (res["data"]["pages"]["pages"] == i) {
+      if (res.error) {
+        Res(null, errorMessage: res.errorMessage);
+      } else if (res.data["data"]["pages"]["pages"] == i) {
         flag = false;
       }
-      for (int j = 0; j < res["data"]["pages"]["docs"].length; j++) {
-        imageUrls.add(res["data"]["pages"]["docs"][j]["media"]["fileServer"] +
+      for (int j = 0; j < res.data["data"]["pages"]["docs"].length; j++) {
+        imageUrls.add(res.data["data"]["pages"]["docs"][j]["media"]
+                ["fileServer"] +
             "/static/" +
-            res["data"]["pages"]["docs"][j]["media"]["path"]);
+            res.data["data"]["pages"]["docs"][j]["media"]["path"]);
       }
     }
-    return imageUrls;
+    return Res(imageUrls);
   }
 
-  Future<void> loadMoreCommends(Comments c, {String type = "comics"}) async {
+  Future<Res<bool>> loadMoreCommends(Comments c,
+      {String type = "comics"}) async {
     if (c.loaded != c.pages) {
-      var res = await get("$apiUrl/$type/${c.id}/comments?page=${c.loaded + 1}",
+      var response = await get(
+          "$apiUrl/$type/${c.id}/comments?page=${c.loaded + 1}",
           expiredTime: CacheExpiredTime.no);
-      if (res != null) {
-        c.pages = res["data"]["comments"]["pages"];
-        for (int i = 0; i < res["data"]["comments"]["docs"].length; i++) {
-          String url = "";
-          try {
-            url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]["fileServer"] +
-                "/static/" +
-                res["data"]["comments"]["docs"][i]["_user"]["avatar"]["path"];
-          } catch (e) {
-            url = defaultAvatarUrl;
-          }
-          var t = Comment("", "", "", 1, "", 0, "", false, 0, null, null, "");
-          if (res["data"]["comments"]["docs"][i]["_user"] != null) {
-            t = Comment(
-                res["data"]["comments"]["docs"][i]["_user"]["name"],
-                url,
-                res["data"]["comments"]["docs"][i]["_user"]["_id"],
-                res["data"]["comments"]["docs"][i]["_user"]["level"],
-                res["data"]["comments"]["docs"][i]["content"],
-                res["data"]["comments"]["docs"][i]["commentsCount"],
-                res["data"]["comments"]["docs"][i]["_id"],
-                res["data"]["comments"]["docs"][i]["isLiked"],
-                res["data"]["comments"]["docs"][i]["likesCount"],
-                res["data"]["comments"]["docs"][i]["_user"]["character"],
-                res["data"]["comments"]["docs"][i]["_user"]["slogan"],
-                res["data"]["comments"]["docs"][i]["created_at"]);
-          } else {
-            t = Comment(
-                "未知",
-                url,
-                "",
-                1,
-                res["data"]["comments"]["docs"][i]["content"],
-                res["data"]["comments"]["docs"][i]["commentsCount"],
-                res["data"]["comments"]["docs"][i]["_id"],
-                res["data"]["comments"]["docs"][i]["isLiked"],
-                res["data"]["comments"]["docs"][i]["likesCount"],
-                null,
-                null,
-                res["data"]["comments"]["docs"][i]["created_at"]);
-          }
-          c.comments.add(t);
-        }
-        c.loaded++;
+      if (response.error) {
+        return Res(null, errorMessage: response.errorMessage);
       }
+      var res = response.data;
+      c.pages = res["data"]["comments"]["pages"];
+      for (int i = 0; i < res["data"]["comments"]["docs"].length; i++) {
+        String url = "";
+        try {
+          url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]
+                  ["fileServer"] +
+              "/static/" +
+              res["data"]["comments"]["docs"][i]["_user"]["avatar"]["path"];
+        } catch (e) {
+          url = defaultAvatarUrl;
+        }
+        var t = Comment("", "", "", 1, "", 0, "", false, 0, null, null, "");
+        if (res["data"]["comments"]["docs"][i]["_user"] != null) {
+          t = Comment(
+              res["data"]["comments"]["docs"][i]["_user"]["name"],
+              url,
+              res["data"]["comments"]["docs"][i]["_user"]["_id"],
+              res["data"]["comments"]["docs"][i]["_user"]["level"],
+              res["data"]["comments"]["docs"][i]["content"],
+              res["data"]["comments"]["docs"][i]["commentsCount"],
+              res["data"]["comments"]["docs"][i]["_id"],
+              res["data"]["comments"]["docs"][i]["isLiked"],
+              res["data"]["comments"]["docs"][i]["likesCount"],
+              res["data"]["comments"]["docs"][i]["_user"]["character"],
+              res["data"]["comments"]["docs"][i]["_user"]["slogan"],
+              res["data"]["comments"]["docs"][i]["created_at"]);
+        } else {
+          t = Comment(
+              "未知",
+              url,
+              "",
+              1,
+              res["data"]["comments"]["docs"][i]["content"],
+              res["data"]["comments"]["docs"][i]["commentsCount"],
+              res["data"]["comments"]["docs"][i]["_id"],
+              res["data"]["comments"]["docs"][i]["isLiked"],
+              res["data"]["comments"]["docs"][i]["likesCount"],
+              null,
+              null,
+              res["data"]["comments"]["docs"][i]["created_at"]);
+        }
+        c.comments.add(t);
+      }
+      c.loaded++;
     }
+    return const Res(true);
   }
 
   Future<Comments> getCommends(String id, {String type = "comics"}) async {
@@ -465,48 +482,58 @@ class PicacgNetwork {
     return t;
   }
 
-  Future<Res<List<ComicItemBrief>>> getFavorites(int page, bool newToOld) async {
-    var res =
-        await get("$apiUrl/users/favourite?s=${newToOld?"dd":"da"}&page=$page", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
-      try {
-        var pages = res["data"]["comics"]["pages"];
-        var comics = <ComicItemBrief>[];
-        for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-          var tags = <String>[];
-          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
-          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
-          var si = ComicItemBrief(
-              res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-              res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
-              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
-                  "/static/" +
-                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
-              res["data"]["comics"]["docs"][i]["_id"],
-              tags,
-              ignoreExamination: true);
-          comics.add(si);
-        }
-        return Res(comics, subData: pages);
-      } catch (e, s) {
-        LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-        return Res(null, errorMessage: e.toString());
+  /// 获取收藏夹
+  Future<Res<List<ComicItemBrief>>> getFavorites(
+      int page, bool newToOld) async {
+    var response = await get(
+        "$apiUrl/users/favourite?s=${newToOld ? "dd" : "da"}&page=$page",
+        expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
+    }
+    var res = response.data;
+    try {
+      var pages = res["data"]["comics"]["pages"];
+      var comics = <ComicItemBrief>[];
+      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+        var tags = <String>[];
+        tags.addAll(
+            List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+        tags.addAll(List<String>.from(
+            res["data"]["comics"]["docs"][i]["categories"] ?? []));
+        var si = ComicItemBrief(
+            res["data"]["comics"]["docs"][i]["title"] ?? "未知",
+            res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+            int.parse(
+                res["data"]["comics"]["docs"][i]["likesCount"].toString()),
+            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
+                "/static/" +
+                res["data"]["comics"]["docs"][i]["thumb"]["path"],
+            res["data"]["comics"]["docs"][i]["_id"],
+            tags,
+            ignoreExamination: true);
+        comics.add(si);
       }
-    } else {
-      return Res(null, errorMessage: status ? message : "网络错误");
+      return Res(comics, subData: pages);
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
   Future<List<ComicItemBrief>> getRandomComics() async {
     var comics = <ComicItemBrief>[];
-    var res = await get("$apiUrl/comics/random", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
+    var response =
+        await get("$apiUrl/comics/random", expiredTime: CacheExpiredTime.no);
+    if (response.success) {
+      var res = response.data;
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
           var tags = <String>[];
-          tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
-          tags.addAll(List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
+          tags.addAll(
+              List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
+          tags.addAll(
+              List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
             res["data"]["comics"][i]["title"] ?? "未知",
             res["data"]["comics"][i]["author"] ?? "未知",
@@ -528,7 +555,7 @@ class PicacgNetwork {
 
   Future<bool> likeOrUnlikeComic(String id) async {
     var res = await post('$apiUrl/comics/$id/like', {});
-    if (res != null) {
+    if (res.success) {
       return true;
     } else {
       return false;
@@ -537,45 +564,49 @@ class PicacgNetwork {
 
   Future<bool> favouriteOrUnfavouriteComic(String id) async {
     var res = await post('$apiUrl/comics/$id/favourite', {});
-    if (res == null) {
+    if (res.error) {
       showMessage(Get.context, "网络错误".tr);
       return false;
     }
-    showMessage(Get.context, (res["data"]["action"] == "favourite") ? "添加收藏成功".tr : "取消收藏成功".tr);
+    showMessage(
+        Get.context,
+        (res.data["data"]["action"] == "favourite")
+            ? "添加收藏成功".tr
+            : "取消收藏成功".tr);
     return true;
   }
-
 
   /// 获取排行榜, 传入参数为时间
   /// - H24: 过去24小时
   /// - D7: 过去7天
   /// - D30: 过去30天
   Future<Res<List<ComicItemBrief>>> getLeaderboard(String time) async {
-    var res =
-        await get("$apiUrl/comics/leaderboard?tt=$time&ct=VC", expiredTime: CacheExpiredTime.no);
+    var response = await get("$apiUrl/comics/leaderboard?tt=$time&ct=VC",
+        expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
+    }
+    var res = response.data;
     var comics = <ComicItemBrief>[];
-    if (res != null) {
-      for (int i = 0; i < res["data"]["comics"].length; i++) {
-        try {
-          var tags = <String>[];
-          tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
-          tags.addAll(List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
-          var si = ComicItemBrief(
-              res["data"]["comics"][i]["title"] ?? "未知",
-              res["data"]["comics"][i]["author"] ?? "未知",
-              res["data"]["comics"][i]["totalLikes"] ?? 0,
-              res["data"]["comics"][i]["thumb"]["fileServer"] +
-                  "/static/" +
-                  res["data"]["comics"][i]["thumb"]["path"],
-              res["data"]["comics"][i]["_id"],
-              tags);
-          comics.add(si);
-        } catch (e) {
-          //出现错误跳过
-        }
+    for (int i = 0; i < res["data"]["comics"].length; i++) {
+      try {
+        var tags = <String>[];
+        tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
+        tags.addAll(
+            List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
+        var si = ComicItemBrief(
+            res["data"]["comics"][i]["title"] ?? "未知",
+            res["data"]["comics"][i]["author"] ?? "未知",
+            res["data"]["comics"][i]["totalLikes"] ?? 0,
+            res["data"]["comics"][i]["thumb"]["fileServer"] +
+                "/static/" +
+                res["data"]["comics"][i]["thumb"]["path"],
+            res["data"]["comics"][i]["_id"],
+            tags);
+        comics.add(si);
+      } catch (e) {
+        //出现错误跳过
       }
-    }else{
-      return Res(null, errorMessage: status?message:"网络错误");
     }
     return Res(comics);
   }
@@ -606,27 +637,27 @@ class PicacgNetwork {
       "question2": que2,
       "question3": que3
     });
-    if (res == null) {
-      return Res(null, errorMessage: status ? message : "网络错误");
-    } else if (res["message"] == "failure") {
+    if (res.error) {
+      return Res(null, errorMessage: res.errorMessageWithoutNull);
+    } else if (res.data["message"] == "failure") {
       return const Res(null, errorMessage: "注册失败, 用户名或账号可能已存在");
     } else {
       return const Res("注册成功");
     }
   }
 
+  ///打卡
   Future<bool> punchIn() async {
-    //打卡
     var res = await post("$apiUrl/users/punch-in", null);
-    if (res != null) {
+    if (res.success) {
       return true;
     } else {
       return false;
     }
   }
 
+  /// 上传头像
   Future<bool> uploadAvatar(String imageData) async {
-    //上传头像
     //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
     var url = "$apiUrl/users/avatar";
     var dio = await request();
@@ -657,14 +688,17 @@ class PicacgNetwork {
 
   Future<void> getMoreReply(Reply reply) async {
     if (reply.loaded == reply.total) return;
-    var res = await get("$apiUrl/comments/${reply.id}/childrens?page=${reply.loaded + 1}",
+    var response = await get(
+        "$apiUrl/comments/${reply.id}/childrens?page=${reply.loaded + 1}",
         expiredTime: CacheExpiredTime.no); //哔咔的英语水平有点烂
-    if (res != null) {
+    if (response.success) {
+      var res = response.data;
       reply.total = res["data"]["comments"]["pages"];
       for (int i = 0; i < res["data"]["comments"]["docs"].length; i++) {
         String url = "";
         try {
-          url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]["fileServer"] +
+          url = res["data"]["comments"]["docs"][i]["_user"]["avatar"]
+                  ["fileServer"] +
               "/static/" +
               res["data"]["comments"]["docs"][i]["_user"]["avatar"]["path"];
         } catch (e) {
@@ -714,28 +748,33 @@ class PicacgNetwork {
 
   Future<bool> likeOrUnlikeComment(String id) async {
     var res = await post("$apiUrl/comments/$id/like", {});
-    return res != null;
+    return res.success;
   }
 
-  Future<bool> comment(String id, String text, bool isReply, {String type = "comics"}) async {
-    Map<String, dynamic>? res;
+  Future<bool> comment(String id, String text, bool isReply,
+      {String type = "comics"}) async {
+    Res<Map<String, dynamic>?> res;
     if (!isReply) {
       res = await post("$apiUrl/$type/$id/comments", {"content": text});
     } else {
       res = await post("$apiUrl/comments/$id", {"content": text});
     }
-    return res != null;
+    return res.success;
   }
 
+  /// 获取相关推荐
   Future<List<ComicItemBrief>> getRecommendation(String id) async {
     var comics = <ComicItemBrief>[];
-    var res = await get("$apiUrl/comics/$id/recommendation");
-    if (res != null) {
+    var response = await get("$apiUrl/comics/$id/recommendation");
+    if (response.success) {
+      var res = response.data;
       for (int i = 0; i < res["data"]["comics"].length; i++) {
         try {
           var tags = <String>[];
-          tags.addAll(List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
-          tags.addAll(List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
+          tags.addAll(
+              List<String>.from(res["data"]["comics"][i]["tags"] ?? []));
+          tags.addAll(
+              List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
               res["data"]["comics"][i]["title"] ?? "未知",
               res["data"]["comics"][i]["author"] ?? "未知",
@@ -755,62 +794,68 @@ class PicacgNetwork {
     return comics;
   }
 
-  Future<List<List<ComicItemBrief>>?> getCollection() async {
+  /// 获取本子母/本子妹推荐
+  Future<Res<List<List<ComicItemBrief>>>> getCollection() async {
     var comics = <List<ComicItemBrief>>[[], []];
-    var res = await get("$apiUrl/collections", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
-      try {
-        for (int i = 0; i < res["data"]["collections"][0]["comics"].length; i++) {
-          try {
-            var si = ComicItemBrief(
-                res["data"]["collections"][0]["comics"][i]["title"] ?? "未知",
-                res["data"]["collections"][0]["comics"][i]["author"] ?? "未知",
-                res["data"]["collections"][0]["comics"][i]["totalLikes"] ?? 0,
-                res["data"]["collections"][0]["comics"][i]["thumb"]["fileServer"] +
-                    "/static/" +
-                    res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
-                res["data"]["collections"][0]["comics"][i]["_id"],
-                [],
-                ignoreExamination: true);
-            comics[0].add(si);
-          } catch (e) {
-            //出现错误跳过
-          }
-        }
-      } catch (e) {
-        //跳过
-      }
-      try {
-        for (int i = 0; i < res["data"]["collections"][1]["comics"].length; i++) {
-          try {
-            var si = ComicItemBrief(
-                res["data"]["collections"][1]["comics"][i]["title"] ?? "未知",
-                res["data"]["collections"][1]["comics"][i]["author"] ?? "未知",
-                res["data"]["collections"][1]["comics"][i]["totalLikes"] ?? 0,
-                res["data"]["collections"][1]["comics"][i]["thumb"]["fileServer"] +
-                    "/static/" +
-                    res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
-                res["data"]["collections"][1]["comics"][i]["_id"],
-                [],
-                ignoreExamination: true);
-            comics[1].add(si);
-          } catch (e) {
-            //出现错误跳过}
-          }
-        }
-      } catch (e) {
-        //跳过
-      }
-    } else {
-      return null;
+    var response =
+        await get("$apiUrl/collections", expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
     }
-    return comics;
+    var res = response.data;
+    try {
+      for (int i = 0; i < res["data"]["collections"][0]["comics"].length; i++) {
+        try {
+          var si = ComicItemBrief(
+              res["data"]["collections"][0]["comics"][i]["title"] ?? "未知",
+              res["data"]["collections"][0]["comics"][i]["author"] ?? "未知",
+              res["data"]["collections"][0]["comics"][i]["totalLikes"] ?? 0,
+              res["data"]["collections"][0]["comics"][i]["thumb"]
+                      ["fileServer"] +
+                  "/static/" +
+                  res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
+              res["data"]["collections"][0]["comics"][i]["_id"],
+              [],
+              ignoreExamination: true);
+          comics[0].add(si);
+        } catch (e) {
+          //出现错误跳过
+        }
+      }
+    } catch (e) {
+      //跳过
+    }
+    try {
+      for (int i = 0; i < res["data"]["collections"][1]["comics"].length; i++) {
+        try {
+          var si = ComicItemBrief(
+              res["data"]["collections"][1]["comics"][i]["title"] ?? "未知",
+              res["data"]["collections"][1]["comics"][i]["author"] ?? "未知",
+              res["data"]["collections"][1]["comics"][i]["totalLikes"] ?? 0,
+              res["data"]["collections"][1]["comics"][i]["thumb"]
+                      ["fileServer"] +
+                  "/static/" +
+                  res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
+              res["data"]["collections"][1]["comics"][i]["_id"],
+              [],
+              ignoreExamination: true);
+          comics[1].add(si);
+        } catch (e) {
+          //出现错误跳过}
+        }
+      }
+    } catch (e) {
+      //跳过
+    }
+    return Res(comics);
   }
 
   Future<void> getMoreGames(Games games) async {
     if (games.total == games.loaded) return;
-    var res = await get("$apiUrl/games?page=${games.loaded + 1}", expiredTime: CacheExpiredTime.no);
-    if (res != null) {
+    var response = await get("$apiUrl/games?page=${games.loaded + 1}",
+        expiredTime: CacheExpiredTime.no);
+    if (response.success) {
+      var res = response.data;
       games.total = res["data"]["games"]["pages"];
       for (int i = 0; i < res["data"]["games"]["docs"].length; i++) {
         var game = GameItemBrief(
@@ -833,128 +878,137 @@ class PicacgNetwork {
     return games;
   }
 
-  Future<GameInfo?> getGameInfo(String id) async {
-    var res = await get("$apiUrl/games/$id");
-    if (res != null) {
-      var gameInfo = GameInfo(
-          id,
-          res["data"]["game"]["title"] ?? "未知",
-          res["data"]["game"]["description"],
-          res["data"]["game"]["icon"]["fileServer"] +
-              "/static/" +
-              res["data"]["game"]["icon"]["path"],
-          res["data"]["game"]["publisher"],
-          [],
-          res["data"]["game"]["androidLinks"][0],
-          res["data"]["game"]["isLiked"],
-          res["data"]["game"]["likesCount"],
-          res["data"]["game"]["commentsCount"]);
-      for (int i = 0; i < res["data"]["game"]["screenshots"].length; i++) {
-        gameInfo.screenshots.add(res["data"]["game"]["screenshots"][i]["fileServer"] +
-            "/static/" +
-            res["data"]["game"]["screenshots"][i]["path"]);
-      }
-      return gameInfo;
-    } else {
-      return null;
+  Future<Res<GameInfo>> getGameInfo(String id) async {
+    var response = await get("$apiUrl/games/$id");
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
     }
+    var res = response.data;
+    var gameInfo = GameInfo(
+        id,
+        res["data"]["game"]["title"] ?? "未知",
+        res["data"]["game"]["description"],
+        res["data"]["game"]["icon"]["fileServer"] +
+            "/static/" +
+            res["data"]["game"]["icon"]["path"],
+        res["data"]["game"]["publisher"],
+        [],
+        res["data"]["game"]["androidLinks"][0],
+        res["data"]["game"]["isLiked"],
+        res["data"]["game"]["likesCount"],
+        res["data"]["game"]["commentsCount"]);
+    for (int i = 0; i < res["data"]["game"]["screenshots"].length; i++) {
+      gameInfo.screenshots.add(res["data"]["game"]["screenshots"][i]
+              ["fileServer"] +
+          "/static/" +
+          res["data"]["game"]["screenshots"][i]["path"]);
+    }
+    return Res(gameInfo);
   }
 
   Future<bool> likeGame(String id) async {
     var res = await post("$apiUrl/games/$id/like", {});
-    return res != null;
+    return res.success;
   }
 
-  Future<bool> changePassword(String oldPassword, String newPassword) async {
-    status = false;
+  Future<Res<bool>> changePassword(
+      String oldPassword, String newPassword) async {
     var url = "$apiUrl/users/password";
     var dio = await request();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
-      var res =
-          await dio.put(url, data: {"new_password": newPassword, "old_password": oldPassword});
-      return res.statusCode == 200;
-    } on DioException catch (e) {
-      if (e.message == "Http status error [400]") {
-        status = true;
-        return false;
+      var res = await dio.put(url,
+          data: {"new_password": newPassword, "old_password": oldPassword},
+          options: Options(validateStatus: (i) => i == 200 || i == 400));
+      if (res.statusCode == 200) {
+        return const Res(true);
       } else {
-        return false;
+        return const Res(false);
       }
+    } on DioException catch (e) {
+      return Res(null, errorMessage: e.toString());
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-      return false;
+      return Res(null, errorMessage: e.toString());
     }
   }
 
-  Future<Res<List<ComicItemBrief>>> getCategoryComics(String keyWord, int page, String sort) async {
-    var res = await get('$apiUrl/comics?page=$page&c=${Uri.encodeComponent(keyWord)}&s=$sort',
+  /// 获取分类中的漫画
+  Future<Res<List<ComicItemBrief>>> getCategoryComics(
+      String keyWord, int page, String sort) async {
+    var response = await get(
+        '$apiUrl/comics?page=$page&c=${Uri.encodeComponent(keyWord)}&s=$sort',
         expiredTime: CacheExpiredTime.no);
-    if (res != null) {
-      var pages = res["data"]["comics"]["pages"];
-      var comics = <ComicItemBrief>[];
-      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-        try {
-          var tags = <String>[];
-          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
-          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
-          var si = ComicItemBrief(
-              res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-              res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-              int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
-              res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
-                  "/static/" +
-                  res["data"]["comics"]["docs"][i]["thumb"]["path"],
-              res["data"]["comics"]["docs"][i]["_id"],
-              tags);
-          comics.add(si);
-        } catch (e, s) {
-          print(s);
-          continue;
-        }
-      }
-      return Res(comics, subData: pages);
-    } else {
-      return Res(null, errorMessage: status ? message : "网络错误");
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
     }
-  }
-
-  ///获取最新漫画
-  Future<Res<List<ComicItemBrief>>> getLatest(int page) async {
-    var res = await get("$apiUrl/comics?page=$page&s=dd", expiredTime: CacheExpiredTime.no);
-    if (res == null) {
-      return Res(null, errorMessage: status ? message : "网络错误");
-    } else {
-      var comics = <ComicItemBrief>[];
-      for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
-        try {
-          var tags = <String>[];
-          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
-          tags.addAll(List<String>.from(res["data"]["comics"]["docs"][i]["categories"] ?? []));
-
-          var si = ComicItemBrief(
+    var res = response.data;
+    var pages = res["data"]["comics"]["pages"];
+    var comics = <ComicItemBrief>[];
+    for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+      try {
+        var tags = <String>[];
+        tags.addAll(
+            List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+        tags.addAll(List<String>.from(
+            res["data"]["comics"]["docs"][i]["categories"] ?? []));
+        var si = ComicItemBrief(
             res["data"]["comics"]["docs"][i]["title"] ?? "未知",
             res["data"]["comics"]["docs"][i]["author"] ?? "未知",
-            int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
+            int.parse(
+                res["data"]["comics"]["docs"][i]["likesCount"].toString()),
             res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
                 "/static/" +
                 res["data"]["comics"]["docs"][i]["thumb"]["path"],
             res["data"]["comics"]["docs"][i]["_id"],
-            tags,
-          );
-          comics.add(si);
-        } catch (e) {
-          continue;
-        }
+            tags);
+        comics.add(si);
+      } catch (e) {
+        continue;
       }
-      return Res(comics);
     }
+    return Res(comics, subData: pages);
+  }
+
+  ///获取最新漫画
+  Future<Res<List<ComicItemBrief>>> getLatest(int page) async {
+    var response = await get("$apiUrl/comics?page=$page&s=dd",
+        expiredTime: CacheExpiredTime.no);
+    if (response.error) {
+      return Res(null, errorMessage: response.errorMessage);
+    }
+    var res = response.data;
+    var comics = <ComicItemBrief>[];
+    for (int i = 0; i < res["data"]["comics"]["docs"].length; i++) {
+      try {
+        var tags = <String>[];
+        tags.addAll(
+            List<String>.from(res["data"]["comics"]["docs"][i]["tags"] ?? []));
+        tags.addAll(List<String>.from(
+            res["data"]["comics"]["docs"][i]["categories"] ?? []));
+
+        var si = ComicItemBrief(
+          res["data"]["comics"]["docs"][i]["title"] ?? "未知",
+          res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+          int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
+          res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
+              "/static/" +
+              res["data"]["comics"]["docs"][i]["thumb"]["path"],
+          res["data"]["comics"]["docs"][i]["_id"],
+          tags,
+        );
+        comics.add(si);
+      } catch (e) {
+        continue;
+      }
+    }
+    return Res(comics);
   }
 }
 
 String getImageUrl(String url) {
-  if(url.contains("kokoiro")) return url;
-  if(!url.contains("pica")) return url;
+  if (url.contains("kokoiro")) return url;
+  if (!url.contains("pica")) return url;
   return appdata.settings[3] == "1" || GetPlatform.isWeb
       ? "https://api.kokoiro.xyz/storage/$url"
       : url;

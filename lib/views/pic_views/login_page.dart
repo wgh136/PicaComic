@@ -79,11 +79,11 @@ class _LoginPageState extends State<LoginPage> {
                           content: Text("登录中".tr),
                         ));
                         fur.then((b){
-                          if(b){
+                          if(b.success){
                             appdata.token = network.token;
                             var i = network.getProfile();
                             i.then((t){
-                              if(t == null){
+                              if(t.error){
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   behavior: SnackBarBehavior.floating,
@@ -95,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                                 });
                               }
                               else{
-                                appdata.user = t;
+                                appdata.user = t.data;
                                 appdata.picacgAccount = nameController.text;
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
@@ -103,23 +103,12 @@ class _LoginPageState extends State<LoginPage> {
                                 Get.back(closeOverlays: true);
                               }
                             });
-                          }
-                          else if(network.status){
+                          } else {
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               behavior: SnackBarBehavior.floating,
                               width: 400,
-                              content: network.message=="invalid email or password"?const Text("账号或密码错误"):Text(network.message),
-                            ));
-                            setState(() {
-                              isLogging = false;
-                            });
-                          }else{
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              behavior: SnackBarBehavior.floating,
-                              width: 400,
-                              content: Text("网络错误".tr),
+                              content: Text(b.errorMessageWithoutNull),
                             ));
                             setState(() {
                               isLogging = false;
@@ -151,18 +140,18 @@ class _LoginPageState extends State<LoginPage> {
                         var fur = network.login(nameController.text, passwordController.text);
                         showMessage(context, "登录中".tr);
                         fur.then((b){
-                          if(b){
+                          if(b.success){
                             appdata.token = network.token;
                             var i = network.getProfile();
                             i.then((t){
-                              if(t == null){
-                                showMessage(context, "登录失败".tr);
+                              if(t.error){
+                                showMessage(context, t.errorMessage??"未知错误".tr);
                                 setState(() {
                                   isLogging = false;
                                 });
                               }
                               else{
-                                appdata.user = t;
+                                appdata.user = t.data;
                                 appdata.picacgAccount = nameController.text;
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
@@ -170,19 +159,8 @@ class _LoginPageState extends State<LoginPage> {
                                 Get.back(closeOverlays: true);
                               }
                             });
-                          }
-                          else if(network.status){
-                            showMessage(context, network.message=="invalid email or password"?"账号或密码错误":network.message);
-                            try {
-                              setState(() {
-                                isLogging = false;
-                              });
-                            }
-                            catch(e){
-                              //忽视
-                            }
-                          }else{
-                            showMessage(context, "网络错误".tr);
+                          } else{
+                            showMessage(context, b.errorMessageWithoutNull);
                             setState(() {
                               isLogging = false;
                             });

@@ -111,8 +111,8 @@ class _MainPageState extends State<MainPage> {
       }
       if(hotSearch.isEmpty) {
         network.getKeyWords().then((s) {
-          if (s != null) {
-            hotSearch = s.keyWords;
+          if (s.success) {
+            hotSearch = s.data;
             try {
               Get.find<PreSearchController>().update();
             }

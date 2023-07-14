@@ -11,7 +11,8 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 class GamePageLogic extends GetxController{
   bool isLoading = true;
-  var gameInfo = GameInfo("", "", "", "", "", [], "", false,0,0);
+  GameInfo? gameInfo;
+
   var controller = ScrollController();
   void change(){
     isLoading = !isLoading;
@@ -46,15 +47,15 @@ class GamePage extends StatelessWidget {
         builder: (logic){
           if(logic.isLoading){
             network.getGameInfo(id).then((gi){
-              if(gi!=null) {
-                logic.gameInfo = gi;
+              if(gi.success) {
+                logic.gameInfo = gi.data;
               }
               logic.change();
             });
             return showLoading(context,withScaffold: true);
-          }else if(logic.gameInfo.name!=""){
+          }else if(logic.gameInfo != null){
             return Scaffold(
-              appBar: AppBar(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
+              appBar: AppBar(title: Text(logic.gameInfo!.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
               body: CustomScrollView(
                 slivers: [
                   //SliverAppBar.large(title: Text(logic.gameInfo.name,maxLines: 1,overflow: TextOverflow.ellipsis,),),
@@ -69,13 +70,13 @@ class GamePage extends StatelessWidget {
                           children: [
                             GestureDetector(
                               child: CachedNetworkImage(
-                                imageUrl: getImageUrl(logic.gameInfo.icon),
+                                imageUrl: getImageUrl(logic.gameInfo!.icon),
                                 fit: BoxFit.contain,
                                 width: MediaQuery.of(context).size.width-10,
                                 height: 300,
                               ),
                               onTap: (){
-                                Get.to(()=>ShowImagePage(logic.gameInfo.icon));
+                                Get.to(()=>ShowImagePage(logic.gameInfo!.icon));
                               },
                             ),
                             const SizedBox(height: 10,),
@@ -87,26 +88,26 @@ class GamePage extends StatelessWidget {
                                   SizedBox(
                                     child: ActionChip(
                                       avatar: const Icon(Icons.apartment_outlined),
-                                      label: Text(logic.gameInfo.publisher),
+                                      label: Text(logic.gameInfo!.publisher),
                                       onPressed: (){},
                                     ),
                                   ),
                                   const SizedBox(width: 5,),
                                   ActionChip(
-                                    avatar: logic.gameInfo.isLiked?const Icon(Icons.favorite):const Icon(Icons.favorite_border),
-                                    label: Text(logic.gameInfo.likes.toString()),
+                                    avatar: logic.gameInfo!.isLiked?const Icon(Icons.favorite):const Icon(Icons.favorite_border),
+                                    label: Text(logic.gameInfo!.likes.toString()),
                                     onPressed: (){
-                                      network.likeGame(logic.gameInfo.id);
-                                      logic.gameInfo.isLiked = !logic.gameInfo.isLiked;
+                                      network.likeGame(logic.gameInfo!.id);
+                                      logic.gameInfo!.isLiked = !logic.gameInfo!.isLiked;
                                       logic.update();
                                     },
                                   ),
                                   const SizedBox(width: 5,),
                                   ActionChip(
                                     avatar: const Icon(Icons.comment_outlined),
-                                    label: Text(logic.gameInfo.comments.toString()),
+                                    label: Text(logic.gameInfo!.comments.toString()),
                                     onPressed: (){
-                                      Get.to(()=>CommentsPage(logic.gameInfo.id,type: "games",));
+                                      Get.to(()=>CommentsPage(logic.gameInfo!.id,type: "games",));
                                     },
                                   ),
                                   const Spacer(),
@@ -117,7 +118,7 @@ class GamePage extends StatelessWidget {
                               width: MediaQuery.of(context).size.width-80,
                               child: FilledButton(
                                 onPressed: (){
-                                  gameDownload(context, logic.gameInfo.link);
+                                  gameDownload(context, logic.gameInfo!.link);
                                 },
                                 child: Text("下载".tr),
                               ),
@@ -138,7 +139,7 @@ class GamePage extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.all(5),
                                   child: CachedNetworkImage(
-                                    imageUrl: getImageUrl(logic.gameInfo.icon),
+                                    imageUrl: getImageUrl(logic.gameInfo!.icon),
                                     fit: BoxFit.contain,
                                     width: MediaQuery.of(context).size.width/2-40,
                                     height: 390,
@@ -149,8 +150,8 @@ class GamePage extends StatelessWidget {
                               flex: 1,
                               child: Column(
                                 children: [
-                                  Text(logic.gameInfo.name,style: const TextStyle(fontSize: 25),),
-                                  Text(logic.gameInfo.publisher,style: const TextStyle(fontSize: 16,color: Colors.blue),),
+                                  Text(logic.gameInfo!.name,style: const TextStyle(fontSize: 25),),
+                                  Text(logic.gameInfo!.publisher,style: const TextStyle(fontSize: 16,color: Colors.blue),),
                                   SizedBox(
                                     height: 80,
                                     child: Row(
@@ -159,11 +160,11 @@ class GamePage extends StatelessWidget {
                                         Expanded(
                                           flex: 4,
                                           child: ActionChip(
-                                            avatar: logic.gameInfo.isLiked?const Icon(Icons.favorite):const Icon(Icons.favorite_border),
-                                            label: Text(logic.gameInfo.likes.toString()),
+                                            avatar: logic.gameInfo!.isLiked?const Icon(Icons.favorite):const Icon(Icons.favorite_border),
+                                            label: Text(logic.gameInfo!.likes.toString()),
                                             onPressed: (){
-                                              network.likeGame(logic.gameInfo.id);
-                                              logic.gameInfo.isLiked = !logic.gameInfo.isLiked;
+                                              network.likeGame(logic.gameInfo!.id);
+                                              logic.gameInfo!.isLiked = !logic.gameInfo!.isLiked;
                                               logic.update();
                                             },
                                           ),
@@ -172,9 +173,9 @@ class GamePage extends StatelessWidget {
                                           flex: 4,
                                           child: ActionChip(
                                             avatar: const Icon(Icons.comment_outlined),
-                                            label: Text(logic.gameInfo.comments.toString()),
+                                            label: Text(logic.gameInfo!.comments.toString()),
                                             onPressed: (){
-                                              Get.to(()=>CommentsPage(logic.gameInfo.id,type: "games",));
+                                              Get.to(()=>CommentsPage(logic.gameInfo!.id,type: "games",));
                                             },
                                           ),
                                         ),
@@ -186,7 +187,7 @@ class GamePage extends StatelessWidget {
                                     width: MediaQuery.of(context).size.width/2-80,
                                     child: FilledButton(
                                       onPressed: (){
-                                        gameDownload(context, logic.gameInfo.link);
+                                        gameDownload(context, logic.gameInfo!.link);
                                       },
                                       child: Text("下载".tr),
                                     ),
@@ -213,7 +214,7 @@ class GamePage extends StatelessWidget {
                       margin: const EdgeInsets.all(5),
                       child: Padding(
                         padding: const EdgeInsets.all(5),
-                        child: Text(logic.gameInfo.description),
+                        child: Text(logic.gameInfo!.description),
                       ),
                     ),
                   ),
@@ -235,7 +236,7 @@ class GamePage extends StatelessWidget {
                               controller: logic.controller,
                               scrollDirection: Axis.horizontal,
                               children: [
-                                for(var s in logic.gameInfo.screenshots)
+                                for(var s in logic.gameInfo!.screenshots)
                                   GestureDetector(
                                     child: Card(
                                       child: CachedNetworkImage(

@@ -4,7 +4,6 @@ import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
-
 import '../../base.dart';
 
 class CollectionPageLogic extends GetxController{
@@ -12,9 +11,24 @@ class CollectionPageLogic extends GetxController{
   var c1 = <ComicItemBrief>[];
   var c2 = <ComicItemBrief>[];
   bool status = true;
+  String? message;
+
   void change(){
     isLoading = !isLoading;
     update();
+  }
+
+  void get() async{
+    var collections = await network.getCollection();
+    if(collections.success){
+      c1 = collections.data[0];
+      c2 = collections.data[1];
+      change();
+    } else {
+      status = false;
+      message = collections.errorMessageWithoutNull;
+      change();
+    }
   }
 }
 
@@ -32,9 +46,9 @@ class CollectionsPage extends StatelessWidget {
         builder: (logic){
           if(logic.isLoading){
             network.getCollection().then((collections){
-              if(collections!=null){
-                logic.c1 = collections[0];
-                logic.c2 = collections[1];
+              if(collections.success){
+                logic.c1 = collections.data[0];
+                logic.c2 = collections.data[1];
                 logic.change();
               }else{
                 logic.status = false;
@@ -131,7 +145,7 @@ class CollectionsPage extends StatelessWidget {
               ],
             );
           }else{
-            return showNetworkError(network.status?network.message:"网络错误".tr,
+            return showNetworkError(logic.message??"网络错误".tr,
                     () {
                   logic.status = true;
                   logic.change();
