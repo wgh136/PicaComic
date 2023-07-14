@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
@@ -37,67 +35,45 @@ class MePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                Wrap(
-                  children: [
-                    mePageItem(
-                        context,
-                        Image.asset(
-                          "images/account.png",
-                          width: 70,
-                          height: 70,
-                          filterQuality: FilterQuality.medium,
-                        ),
-                        () => showAdaptiveWidget(context, AccountsPage()),
-                        "账号管理".tr,
-                        "查看或修改账号信息".tr),
-                    mePageItem(
-                        context,
-                        Image.asset(
-                          "images/favorites.png",
-                          width: 70,
-                          height: 70,
-                          filterQuality: FilterQuality.medium,
-                        ),
-                        () => Get.to(() => const AllFavoritesPage()),
-                        "收藏夹".tr,
-                        "查看已收藏的漫画".tr),
-                    mePageItem(
-                        context,
-                        Image.asset(
-                          "images/download.png",
-                          width: 70,
-                          height: 70,
-                          filterQuality: FilterQuality.medium,
-                        ),
-                        () => Get.to(() => const DownloadPage()),
-                        "已下载".tr,
-                        "管理已下载的漫画".tr),
-                    mePageItem(
-                        context,
-                        Image.asset(
-                          "images/history.png",
-                          width: 70,
-                          height: 70,
-                          filterQuality: FilterQuality.medium,
-                        ),
-                        () => Get.to(() => const HistoryPage()),
-                        "历史记录".tr,
-                        "查看历史记录".tr),
-                    if (kDebugMode)
-                      mePageItem(
-                          context,
-                          const Icon(
-                            Icons.bug_report,
-                            size: 60,
-                          ), () async {
-                        debug();
-                      }, "Debug", ""),
-                  ],
-                )
               ],
             ),
           ),
         ),
+        SliverGrid(
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 650,
+            childAspectRatio: 3.2
+          ),
+          delegate: SliverChildListDelegate(
+              [
+                MePageButton(
+                  title: "账号管理".tr,
+                  subTitle: "查看或修改账号信息".tr,
+                  icon: Icons.switch_account,
+                  onTap: () => showAdaptiveWidget(context, AccountsPage()),
+                ),
+                MePageButton(
+                  title: "收藏夹".tr,
+                  subTitle: "查看已收藏的漫画".tr,
+                  icon: Icons.bookmarks,
+                  onTap: () => Get.to(() => const AllFavoritesPage()),
+                ),
+                MePageButton(
+                  title: "已下载".tr,
+                  subTitle: "管理已下载的漫画".tr,
+                  icon: Icons.download_for_offline,
+                  onTap: () => Get.to(() => const DownloadPage()),
+                ),
+                MePageButton(
+                  title: "历史记录".tr,
+                  subTitle: "查看历史记录".tr,
+                  icon: Icons.history,
+                  onTap: () => Get.to(() => const HistoryPage()),
+                ),
+
+              ]
+          ),
+        )
       ],
     );
   }
@@ -171,4 +147,162 @@ Widget mePageItem(BuildContext context, Widget icon, void Function() page,
       ),
     ),
   );
+}
+
+class MePageButton extends StatefulWidget {
+  const MePageButton({required this.title, required this.subTitle, required this.icon, required this.onTap, super.key});
+
+  final String title;
+  final String subTitle;
+  final IconData icon;
+  final void Function() onTap;
+
+  @override
+  State<MePageButton> createState() => _MePageButtonState();
+}
+
+class _MePageButtonState extends State<MePageButton> {
+  bool hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: UiMode.m1(context)?const EdgeInsets.fromLTRB(16, 8, 16, 8):const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: MouseRegion(
+        onEnter: (event) => setState(() => hovering = true),
+        onExit: (event) => setState(() => hovering = false),
+        cursor: SystemMouseCursors.click,
+        child: InkWell(
+          onTapUp: (event) => setState(() => hovering = false),
+          onTapDown: (event) => setState(() => hovering = true),
+          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(24)),
+                color: hovering?Theme.of(context).colorScheme.inversePrimary.withAlpha(150):Theme.of(context).colorScheme.inversePrimary.withAlpha(40)
+            ),
+            duration: const Duration(milliseconds: 300),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),),
+                          ),
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(widget.subTitle, style: const TextStyle(fontSize: 16),),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: ClipPath(
+                      clipper: MePageIconClipper(),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 100),
+                        decoration: BoxDecoration(
+                          color: hovering?Theme.of(context).colorScheme.primary:Colors.transparent,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Icon(widget.icon, color: hovering?Theme.of(context).colorScheme.onPrimary:Theme.of(context).colorScheme.onSurface,),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MePageIconClipper extends CustomClipper<Path>{
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    final r = size.width * 0.3; // 控制弧线的大小
+
+    // 起始点
+    path.moveTo(r, 0);
+
+    // 上边弧线
+    path.arcToPoint(
+      Offset(size.width - r, 0),
+      radius: Radius.circular(r * 2),
+      clockwise: false,
+    );
+
+    // 右上角圆弧
+    path.arcToPoint(
+      Offset(size.width, r),
+      radius: Radius.circular(r),
+      clockwise: true,
+    );
+
+    // 右边弧线
+    path.arcToPoint(
+      Offset(size.width, size.height - r),
+      radius: Radius.circular(r*2),
+      clockwise: false,
+    );
+
+    // 右下角圆弧
+    path.arcToPoint(
+      Offset(size.width - r, size.height),
+      radius: Radius.circular(r),
+      clockwise: true,
+    );
+
+    // 下边弧线
+    path.arcToPoint(
+      Offset(r, size.height),
+      radius: Radius.circular(r*2),
+      clockwise: false,
+    );
+
+    // 左下角圆弧
+    path.arcToPoint(
+      Offset(0, size.height - r),
+      radius: Radius.circular(r),
+      clockwise: true,
+    );
+
+    // 左边弧线
+    path.arcToPoint(
+      Offset(0, r),
+      radius: Radius.circular(r*2),
+      clockwise: false,
+    );
+
+    // 左上角圆弧
+    path.arcToPoint(
+      Offset(r, 0),
+      radius: Radius.circular(r),
+      clockwise: true,
+    );
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return false;
+  }
+
 }
