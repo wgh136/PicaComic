@@ -172,57 +172,59 @@ class _MePageButtonState extends State<MePageButton> {
         onEnter: (event) => setState(() => hovering = true),
         onExit: (event) => setState(() => hovering = false),
         cursor: SystemMouseCursors.click,
-        child: InkWell(
-          onTapUp: (event) => setState(() => hovering = false),
-          onTapDown: (event) => setState(() => hovering = true),
-          borderRadius: const BorderRadius.all(Radius.circular(24)),
-          onTap: widget.onTap,
-          child: AnimatedContainer(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(24)),
-                color: hovering?Theme.of(context).colorScheme.inversePrimary.withAlpha(150):Theme.of(context).colorScheme.inversePrimary.withAlpha(40)
-            ),
-            duration: const Duration(milliseconds: 300),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),),
+        child: Listener(
+          onPointerUp: (event) => setState(() => hovering = false),
+          onPointerDown: (event) => setState(() => hovering = true),
+          child: InkWell(
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(24)),
+                  color: hovering?Theme.of(context).colorScheme.inversePrimary.withAlpha(150):Theme.of(context).colorScheme.inversePrimary.withAlpha(40)
+              ),
+              duration: const Duration(milliseconds: 300),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(widget.subTitle, style: const TextStyle(fontSize: 15),),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(widget.subTitle, style: const TextStyle(fontSize: 15),),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: ClipPath(
-                      clipper: MePageIconClipper(),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 100),
-                        decoration: BoxDecoration(
-                          color: hovering?Theme.of(context).colorScheme.primary:Colors.transparent,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Icon(widget.icon, color: hovering?Theme.of(context).colorScheme.onPrimary:Theme.of(context).colorScheme.onSurface,),
-                        ),
+                        ],
                       ),
                     ),
-                  )
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: ClipPath(
+                        clipper: MePageIconClipper(),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 100),
+                          decoration: BoxDecoration(
+                            color: hovering?Theme.of(context).colorScheme.primary:Theme.of(context).colorScheme.surface,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(widget.icon, color: hovering?Theme.of(context).colorScheme.onPrimary:Theme.of(context).colorScheme.onSurface,),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
