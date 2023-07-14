@@ -35,7 +35,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
           children: [
             if(isLoading)
               Positioned(
-                top: MediaQuery.of(context).size.height/2-100,
+                top: MediaQuery.of(context).size.height/2-80,
                 left: 0,
                 right: 0,
                 child: const Align(
