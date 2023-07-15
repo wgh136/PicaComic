@@ -44,9 +44,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  var updateFlag = true;
-  var downloadManagerFlag = true;
-
   int i = int.parse(appdata.settings[23]);//页面
   TabListener exploreListener = TabListener();
   TabListener categoriesListener = TabListener();
@@ -75,16 +72,10 @@ class _MainPageState extends State<MainPage> {
     Get.put(ExplorePageLogic());
     Get.put(CategoryPageLogic());
     Get.put(HtHomePageLogic());
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     if(appdata.firstUse[3] == "0") {
       appdata.firstUse[3] = "1";
       appdata.writeFirstUse();
     }
-
     //清除未正常退出时的下载通知
     try {
       notifications.endProgress();
@@ -92,7 +83,6 @@ class _MainPageState extends State<MainPage> {
     catch(e){
       //不清楚清除一个不存在的通知会不会引发错误
     }
-
     //检查是否打卡
     if(appdata.user.isPunched==false&&appdata.settings[6]=="1"){
       appdata.user.isPunched = true;
@@ -103,7 +93,6 @@ class _MainPageState extends State<MainPage> {
         }
       });
     }
-
     //获取热搜
     if(hotSearch.isEmpty || jmNetwork.hotTags.isEmpty) {
       if(jmNetwork.hotTags.isEmpty) {
@@ -123,42 +112,38 @@ class _MainPageState extends State<MainPage> {
         });
       }
     }
-
-    //检查更新
-    if(appdata.settings[2]=="1"&&updateFlag&&!GetPlatform.isWeb) {
+    if(appdata.settings[2]=="1"&&!GetPlatform.isWeb) {
       checkUpdate().then((b){
-      if(b!=null){
-        if(b){
-          getUpdatesInfo().then((s){
-            if(s!=null){
-              showDialog(context: context, builder: (context){
-                return AlertDialog(
-                  title: Text("有可用更新".tr),
-                  content: Text(s),
-                  actions: [
-                    TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
-                    TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
-                    if(!GetPlatform.isWeb)
-                    TextButton(
-                        onPressed: (){
-                          getDownloadUrl().then((s){
-                            launchUrlString(s,mode: LaunchMode.externalApplication);
-                          });
-                        },
-                        child: Text("下载".tr))
-                  ],
-                );
-              });
-            }
-          });
+        if(b!=null){
+          if(b){
+            getUpdatesInfo().then((s){
+              if(s!=null){
+                showDialog(context: context, builder: (context){
+                  return AlertDialog(
+                    title: Text("有可用更新".tr),
+                    content: Text(s),
+                    actions: [
+                      TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
+                      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
+                      if(!GetPlatform.isWeb)
+                        TextButton(
+                            onPressed: (){
+                              getDownloadUrl().then((s){
+                                launchUrlString(s,mode: LaunchMode.externalApplication);
+                              });
+                            },
+                            child: Text("下载".tr))
+                    ],
+                  );
+                });
+              }
+            });
+          }
         }
-      }
-    });
+      });
     }
-    updateFlag = false;
-
     //检查是否有未完成的下载
-    if(downloadManager.downloading.isNotEmpty&&downloadManagerFlag){
+    if(downloadManager.downloading.isNotEmpty){
       Future.delayed(const Duration(microseconds: 500),(){
         showDialog(context: context, builder: (dialogContext){
           return AlertDialog(
@@ -175,8 +160,11 @@ class _MainPageState extends State<MainPage> {
         });
       });
     }
-    downloadManagerFlag = false;
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     var titles = [
       "我".tr,
       "探索".tr,
@@ -297,106 +285,108 @@ class _MainPageState extends State<MainPage> {
           }
           return exit;
         },
-        child: Column(
+        child: Row(
           children: [
-            if(!UiMode.m1(context))
-            SizedBox(
-              height: Get.statusBarHeight / context.mediaQuery.devicePixelRatio,
-            ),
-            Expanded(child: Row(
-              children: [
-                if(UiMode.m3(context))
-                  SafeArea(child: Container(
-                    width: 340,
-                    height: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.fromLTRB(28, 20, 28, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("      Pica Comic"),
-                        const SizedBox(height: 10,),
-                        NavigatorItem(Icons.person_outlined,Icons.person, "我".tr,i==0,()=>setState(()=>i=0)),
-                        NavigatorItem(Icons.explore_outlined,Icons.explore, "探索".tr,i==1,()=>setState(()=>i=1)),
-                        NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类".tr,i==2,()=>setState(()=>i=2)),
-                        NavigatorItem(Icons.leaderboard_outlined,Icons.leaderboard, "排行榜".tr,i==3,()=>setState(()=>i=3)),
-                        const Divider(),
-                        const Spacer(),
-                        NavigatorItem(Icons.search,Icons.games, "搜索".tr,false,()=>Get.to(()=>PreSearchPage())),
-                        NavigatorItem(Icons.settings,Icons.games, "设置".tr,false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
-                      ],
-                    ),
-                  ))
-                else if(UiMode.m2(context))
-                  NavigationRail(
-                    leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
-                    selectedIndex: i,
-                    trailing: Expanded(child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Flexible(child: IconButton(
-                            icon: const Icon(Icons.search),
-                            onPressed: ()=>Get.to(()=>PreSearchPage()),
-                          ),),
-                          Flexible(child: IconButton(
-                            icon: const Icon(Icons.settings),
-                            onPressed: ()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600)),
-                          ),),
-                        ],
-                      ),
-                    ),),
-                    groupAlignment: -1,
-                    onDestinationSelected: (int index) {
-                      setState(() {
-                        i = index;
-                      });
-                    },
-                    labelType: NavigationRailLabelType.all,
-                    destinations: <NavigationRailDestination>[
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.person_outlined),
-                        selectedIcon: const Icon(Icons.person),
-                        label: Text('我'.tr),
-                      ),
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.explore_outlined),
-                        selectedIcon: const Icon(Icons.explore),
-                        label: Text('探索'.tr),
-                      ),
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.account_tree_outlined),
-                        selectedIcon: const Icon(Icons.account_tree),
-                        label: Text('分类'.tr),
-                      ),
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.leaderboard_outlined),
-                        selectedIcon: const Icon(Icons.leaderboard),
-                        label: Text('排行榜'.tr),
-                      ),
+            if(UiMode.m3(context))
+              SafeArea(child: Container(
+                width: 340,
+                height: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.fromLTRB(28, 20, 28, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("      Pica Comic"),
+                    const SizedBox(height: 10,),
+                    NavigatorItem(Icons.person_outlined,Icons.person, "我".tr,i==0,()=>setState(()=>i=0)),
+                    NavigatorItem(Icons.explore_outlined,Icons.explore, "探索".tr,i==1,()=>setState(()=>i=1)),
+                    NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类".tr,i==2,()=>setState(()=>i=2)),
+                    NavigatorItem(Icons.leaderboard_outlined,Icons.leaderboard, "排行榜".tr,i==3,()=>setState(()=>i=3)),
+                    const Divider(),
+                    const Spacer(),
+                    NavigatorItem(Icons.search,Icons.games, "搜索".tr,false,()=>Get.to(()=>PreSearchPage())),
+                    NavigatorItem(Icons.settings,Icons.games, "设置".tr,false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
+                  ],
+                ),
+              ))
+            else if(UiMode.m2(context))
+              NavigationRail(
+                leading: const Padding(padding: EdgeInsets.only(bottom: 20),child: CircleAvatar(backgroundImage: AssetImage("images/app_icon.png"),),),
+                selectedIndex: i,
+                trailing: Expanded(child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Flexible(child: IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: ()=>Get.to(()=>PreSearchPage()),
+                      ),),
+                      Flexible(child: IconButton(
+                        icon: const Icon(Icons.settings),
+                        onPressed: ()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600)),
+                      ),),
                     ],
                   ),
-                //if(MediaQuery.of(context).size.width>changePoint)
-                //  const VerticalDivider(),
-                Expanded(
-                  child: ClipRect(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      reverseDuration: const Duration(milliseconds: 0),
-                      switchInCurve: Curves.ease,
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        var tween = Tween<Offset>(begin: const Offset(0, 0.05), end: const Offset(0, 0));
-                        return SlideTransition(
-                          position: tween.animate(animation),
-                          child: child,
-                        );
-                      },
-                      child: pages[i],
-                    ),
+                ),),
+                groupAlignment: -1,
+                onDestinationSelected: (int index) {
+                  setState(() {
+                    i = index;
+                  });
+                },
+                labelType: NavigationRailLabelType.all,
+                destinations: <NavigationRailDestination>[
+                  NavigationRailDestination(
+                    icon: const Icon(Icons.person_outlined),
+                    selectedIcon: const Icon(Icons.person),
+                    label: Text('我'.tr),
                   ),
-                ),
-              ],
-            ))
+                  NavigationRailDestination(
+                    icon: const Icon(Icons.explore_outlined),
+                    selectedIcon: const Icon(Icons.explore),
+                    label: Text('探索'.tr),
+                  ),
+                  NavigationRailDestination(
+                    icon: const Icon(Icons.account_tree_outlined),
+                    selectedIcon: const Icon(Icons.account_tree),
+                    label: Text('分类'.tr),
+                  ),
+                  NavigationRailDestination(
+                    icon: const Icon(Icons.leaderboard_outlined),
+                    selectedIcon: const Icon(Icons.leaderboard),
+                    label: Text('排行榜'.tr),
+                  ),
+                ],
+              ),
+            //if(MediaQuery.of(context).size.width>changePoint)
+            //  const VerticalDivider(),
+            Expanded(
+              child: Column(
+                children: [
+                  if(!UiMode.m1(context))
+                    SizedBox(
+                      height: MediaQuery.of(context).padding.top,
+                    ),
+                  Expanded(
+                    child: ClipRect(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        reverseDuration: const Duration(milliseconds: 0),
+                        switchInCurve: Curves.ease,
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          var tween = Tween<Offset>(begin: const Offset(0, 0.05), end: const Offset(0, 0));
+                          return SlideTransition(
+                            position: tween.animate(animation),
+                            child: child,
+                          );
+                        },
+                        child: pages[i],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),

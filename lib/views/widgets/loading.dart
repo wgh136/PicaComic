@@ -13,7 +13,7 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
     return Center(
       child: SizedBox(
         width: 250,
-        height: 80,
+        height: 100,
         child: Column(
           children: [
             const LinearProgressIndicator(),

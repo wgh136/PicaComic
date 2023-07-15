@@ -13,6 +13,7 @@ import 'package:pica_comic/views/ht_views/ht_login_page.dart';
 import 'package:pica_comic/views/jm_views/jm_login_page.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../network/jm_network/jm_main_network.dart';
 import '../network/picacg_network/methods.dart';
@@ -43,237 +44,239 @@ class PasswordLogic extends GetxController {
 }
 
 class AccountsPage extends StatelessWidget {
-  AccountsPage({super.key}) {
+  AccountsPage({required this.popUp, super.key}) {
     Get.put(AccountsPageLogic());
   }
 
+  final bool popUp;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GetBuilder<AccountsPageLogic>(
-        builder: (logic) {
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar.large(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_outlined),
-                  onPressed: () => Get.back(),
-                ),
-                title: Text("账号管理".tr),
-              ),
-              SliverList(
-                  delegate: SliverChildListDelegate([
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Text(
-                    "Picacg",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("头像".tr),
-                    subtitle: Text("更换头像".tr),
-                    trailing: Avatar(
-                      size: 50,
-                      avatarUrl: appdata.user.avatarUrl,
+    var body = GetBuilder<AccountsPageLogic>(
+      builder: (logic) {
+        return CustomScrollView(
+          slivers: [
+            SliverList(
+                delegate: SliverChildListDelegate([
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Picacg",
+                      style: TextStyle(fontSize: 20),
                     ),
-                    onTap: () => changeAvatar(context, logic),
                   ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("账号".tr),
-                    subtitle: Text(appdata.user.email),
-                    onTap: () => Clipboard.setData(
-                        ClipboardData(text: appdata.user.email)),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("头像".tr),
+                      subtitle: Text("更换头像".tr),
+                      trailing: Avatar(
+                        size: 50,
+                        avatarUrl: appdata.user.avatarUrl,
+                      ),
+                      onTap: () => changeAvatar(context, logic),
+                    ),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("账号".tr),
+                      subtitle: Text(appdata.user.email),
+                      onTap: () => Clipboard.setData(
+                          ClipboardData(text: appdata.user.email)),
+                    ),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("用户名".tr),
+                      subtitle: Text(appdata.user.name),
+                      onTap: () => Clipboard.setData(
+                          ClipboardData(text: appdata.user.name)),
+                    ),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("等级".tr),
+                      subtitle: Text(
+                          "Lv${appdata.user.level}    ${appdata.user.title}    Exp${appdata.user.exp.toString()}"),
+                      onTap: () {},
+                    ),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("自我介绍".tr),
+                      subtitle: Text(appdata.user.slogan ?? "无"),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => changeSlogan(context, logic),
+                    ),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("修改密码".tr),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => changePassword(context),
+                    ),
+                  if (appdata.token != "")
+                    ListTile(
+                      title: Text("退出登录".tr),
+                      onTap: () => logoutPicacg(context, logic),
+                      trailing: const Icon(Icons.logout),
+                    ),
+                  if (appdata.token == "")
+                    ListTile(
+                      title: Text("登录".tr),
+                      onTap: () => Get.to(() => const LoginPage())
+                          ?.then((value) => logic.update()),
+                    ),
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Ehentai",
+                      style: TextStyle(fontSize: 20),
+                    ),
                   ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("用户名".tr),
-                    subtitle: Text(appdata.user.name),
-                    onTap: () => Clipboard.setData(
-                        ClipboardData(text: appdata.user.name)),
+                  if (appdata.ehAccount == "")
+                    ListTile(
+                      title: const Text("登录"),
+                      onTap: () => Get.to(() => const EhLoginPage())
+                          ?.then((v) => logic.update()),
+                    ),
+                  if (appdata.ehAccount != "")
+                    ListTile(
+                      title: Text("用户名".tr),
+                      subtitle: Text(appdata.ehAccount),
+                      onTap: () => Clipboard.setData(
+                          ClipboardData(text: appdata.ehAccount)),
+                    ),
+                  if (appdata.ehAccount != "")
+                    ListTile(
+                      title: const Text("ipb_member_id"),
+                      subtitle: Text(appdata.ehId),
+                      onTap: () =>
+                          Clipboard.setData(ClipboardData(text: appdata.ehId)),
+                    ),
+                  if (appdata.ehAccount != "")
+                    ListTile(
+                      title: const Text("ipb_pass_hash"),
+                      subtitle: Text(appdata.ehPassHash),
+                      onTap: () => Clipboard.setData(
+                          ClipboardData(text: appdata.ehPassHash)),
+                    ),
+                  if (appdata.ehAccount != "")
+                    ListTile(
+                      title: const Text("igneous"),
+                      subtitle: Text(appdata.igneous),
+                      onTap: () =>
+                          Clipboard.setData(ClipboardData(text: appdata.igneous)),
+                    ),
+                  if (appdata.ehAccount != "")
+                    ListTile(
+                      title: Text("退出登录".tr),
+                      onTap: () {
+                        appdata.ehPassHash = "";
+                        appdata.ehId = "";
+                        appdata.ehAccount = "";
+                        appdata.igneous = "";
+                        appdata.writeData();
+                        EhNetwork().cookieJar.deleteAll();
+                        logic.update();
+                      },
+                      trailing: const Icon(Icons.logout),
+                    ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "禁漫天堂".tr,
+                      style: const TextStyle(fontSize: 20),
+                    ),
                   ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("等级".tr),
-                    subtitle: Text(
-                        "Lv${appdata.user.level}    ${appdata.user.title}    Exp${appdata.user.exp.toString()}"),
-                    onTap: () {},
+                  if (appdata.jmEmail != "")
+                    ListTile(
+                      title: Text("用户名".tr),
+                      subtitle: Text(appdata.jmName),
+                      onTap: () =>
+                          Clipboard.setData(ClipboardData(text: appdata.jmName)),
+                    ),
+                  if (appdata.jmEmail != "")
+                    ListTile(
+                      title: const Text("Email"),
+                      subtitle: Text(appdata.jmEmail),
+                      onTap: () =>
+                          Clipboard.setData(ClipboardData(text: appdata.jmEmail)),
+                    ),
+                  if (appdata.jmEmail == "")
+                    ListTile(
+                      title: Text("登录".tr),
+                      onTap: () => Get.to(() => const JmLoginPage())
+                          ?.then((v) => logic.update()),
+                    ),
+                  if (appdata.jmEmail != "")
+                    ListTile(
+                      title: Text("重新登录".tr),
+                      subtitle: const Text("如果登录失效点击此处"),
+                      onTap: () async {
+                        showMessage(Get.context, "正在重新登录".tr, time: 8);
+                        var res = await jmNetwork.loginFromAppdata();
+                        if (res.error) {
+                          showMessage(Get.context, res.errorMessage!);
+                        } else {
+                          showMessage(Get.context, "重新登录成功".tr);
+                        }
+                      },
+                      trailing: const Icon(Icons.refresh),
+                    ),
+                  if (appdata.jmEmail != "")
+                    ListTile(
+                      title: Text("退出登录".tr),
+                      onTap: () {
+                        jmNetwork.logout();
+                        logic.update();
+                      },
+                      trailing: const Icon(Icons.logout),
+                    ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "绅士漫画".tr,
+                      style: const TextStyle(fontSize: 20),
+                    ),
                   ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("自我介绍".tr),
-                    subtitle: Text(appdata.user.slogan ?? "无"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () => changeSlogan(context, logic),
-                  ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("修改密码".tr),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () => changePassword(context),
-                  ),
-                if (appdata.token != "")
-                  ListTile(
-                    title: Text("退出登录".tr),
-                    onTap: () => logoutPicacg(context, logic),
-                    trailing: const Icon(Icons.logout),
-                  ),
-                if (appdata.token == "")
-                  ListTile(
-                    title: Text("登录".tr),
-                    onTap: () => Get.to(() => const LoginPage())
-                        ?.then((value) => logic.update()),
-                  ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Text(
-                    "Ehentai",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                if (appdata.ehAccount == "")
-                  ListTile(
-                    title: const Text("登录"),
-                    onTap: () => Get.to(() => const EhLoginPage())
-                        ?.then((v) => logic.update()),
-                  ),
-                if (appdata.ehAccount != "")
-                  ListTile(
-                    title: Text("用户名".tr),
-                    subtitle: Text(appdata.ehAccount),
-                    onTap: () => Clipboard.setData(
-                        ClipboardData(text: appdata.ehAccount)),
-                  ),
-                if (appdata.ehAccount != "")
-                  ListTile(
-                    title: const Text("ipb_member_id"),
-                    subtitle: Text(appdata.ehId),
-                    onTap: () =>
-                        Clipboard.setData(ClipboardData(text: appdata.ehId)),
-                  ),
-                if (appdata.ehAccount != "")
-                  ListTile(
-                    title: const Text("ipb_pass_hash"),
-                    subtitle: Text(appdata.ehPassHash),
-                    onTap: () => Clipboard.setData(
-                        ClipboardData(text: appdata.ehPassHash)),
-                  ),
-                if (appdata.ehAccount != "")
-                  ListTile(
-                    title: const Text("igneous"),
-                    subtitle: Text(appdata.igneous),
-                    onTap: () =>
-                        Clipboard.setData(ClipboardData(text: appdata.igneous)),
-                  ),
-                if (appdata.ehAccount != "")
-                  ListTile(
-                    title: Text("退出登录".tr),
-                    onTap: () {
-                      appdata.ehPassHash = "";
-                      appdata.ehId = "";
-                      appdata.ehAccount = "";
-                      appdata.igneous = "";
-                      appdata.writeData();
-                      EhNetwork().cookieJar.deleteAll();
-                      logic.update();
-                    },
-                    trailing: const Icon(Icons.logout),
-                  ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Text(
-                    "禁漫天堂".tr,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-                if (appdata.jmEmail != "")
-                  ListTile(
-                    title: Text("用户名".tr),
-                    subtitle: Text(appdata.jmName),
-                    onTap: () =>
-                        Clipboard.setData(ClipboardData(text: appdata.jmName)),
-                  ),
-                if (appdata.jmEmail != "")
-                  ListTile(
-                    title: const Text("Email"),
-                    subtitle: Text(appdata.jmEmail),
-                    onTap: () =>
-                        Clipboard.setData(ClipboardData(text: appdata.jmEmail)),
-                  ),
-                if (appdata.jmEmail == "")
-                  ListTile(
-                    title: Text("登录".tr),
-                    onTap: () => Get.to(() => const JmLoginPage())
-                        ?.then((v) => logic.update()),
-                  ),
-                if (appdata.jmEmail != "")
-                  ListTile(
-                    title: Text("重新登录".tr),
-                    subtitle: const Text("如果登录失效点击此处"),
-                    onTap: () async {
-                      showMessage(Get.context, "正在重新登录".tr, time: 8);
-                      var res = await jmNetwork.loginFromAppdata();
-                      if (res.error) {
-                        showMessage(Get.context, res.errorMessage!);
-                      } else {
-                        showMessage(Get.context, "重新登录成功".tr);
-                      }
-                    },
-                    trailing: const Icon(Icons.refresh),
-                  ),
-                if (appdata.jmEmail != "")
-                  ListTile(
-                    title: Text("退出登录".tr),
-                    onTap: () {
-                      jmNetwork.logout();
-                      logic.update();
-                    },
-                    trailing: const Icon(Icons.logout),
-                  ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Text(
-                    "绅士漫画".tr,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-                if (appdata.htName != "")
-                  ListTile(
-                    title: Text("用户名".tr),
-                    subtitle: Text(appdata.htName),
-                    onTap: () =>
-                        Clipboard.setData(ClipboardData(text: appdata.htName)),
-                  ),
-                if (appdata.htName != "")
-                  ListTile(
-                    title: Text("退出登录".tr),
-                    onTap: () {
-                      appdata.htName = "";
-                      appdata.htPwd = "";
-                      HtmangaNetwork().cookieJar.deleteAll();
-                      appdata.writeData();
-                      logic.update();
-                    },
-                    trailing: const Icon(Icons.logout),
-                  ),
-                if (appdata.htName == "")
-                  ListTile(
-                    title: Text("登录".tr),
-                    onTap: () => Get.to(() => const HtLoginPage())
-                        ?.then((v) => logic.update()),
-                  )
-              ])),
-              const SliverPadding(padding: EdgeInsets.only(bottom: 50))
-            ],
-          );
-        },
-      ),
+                  if (appdata.htName != "")
+                    ListTile(
+                      title: Text("用户名".tr),
+                      subtitle: Text(appdata.htName),
+                      onTap: () =>
+                          Clipboard.setData(ClipboardData(text: appdata.htName)),
+                    ),
+                  if (appdata.htName != "")
+                    ListTile(
+                      title: Text("退出登录".tr),
+                      onTap: () {
+                        appdata.htName = "";
+                        appdata.htPwd = "";
+                        HtmangaNetwork().cookieJar.deleteAll();
+                        appdata.writeData();
+                        logic.update();
+                      },
+                      trailing: const Icon(Icons.logout),
+                    ),
+                  if (appdata.htName == "")
+                    ListTile(
+                      title: Text("登录".tr),
+                      onTap: () => Get.to(() => const HtLoginPage())
+                          ?.then((v) => logic.update()),
+                    )
+                ])),
+            const SliverPadding(padding: EdgeInsets.only(bottom: 50))
+          ],
+        );
+      },
     );
+
+    if(popUp){
+      return PopUpWidgetScaffold(title: "账号管理".tr, body: body);
+    }else{
+      return Scaffold(
+        appBar: AppBar(title: Text("账号管理".tr),),
+        body: body,
+      );
+    }
   }
 
   ///更改哔咔账号简介

@@ -106,8 +106,7 @@ class PicacgNetwork {
             convert.jsonDecode(res.toString()) as Map<String, dynamic>;
         return Res(jsonResponse);
       } else if (res.statusCode == 400) {
-        var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
-        return Res(null, errorMessage: jsonResponse["message"]);
+        return Res(null, errorMessage: res.data["message"]);
       } else if (res.statusCode == 401) {
         var reLogin = await loginFromAppdata();
         if(reLogin.error){
@@ -128,7 +127,8 @@ class PicacgNetwork {
         message = e.toString().split("\n")[1];
       }
       return Res(null, errorMessage: message);
-    } catch (e) {
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return Res(null, errorMessage: e.toString());
     }
   }

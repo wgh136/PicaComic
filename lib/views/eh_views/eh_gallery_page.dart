@@ -104,9 +104,17 @@ class EhGalleryPage extends StatelessWidget {
                       child: IconButton(
                         icon: const Icon(Icons.share,),
                         onPressed: () {
-                          Share.share(logic.gallery!.title);
+                          Share.share("${logic.gallery!.title}: ${brief.link}");
                         },
-                      ),)
+                      ),),
+                    Tooltip(
+                      message: "复制".tr,
+                      child: IconButton(
+                        icon: const Icon(Icons.copy,),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: "${logic.gallery!.title}: ${brief.link}"));
+                        },
+                      ),),
                   ],
                 ),
 

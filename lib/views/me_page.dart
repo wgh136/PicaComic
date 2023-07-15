@@ -35,118 +35,42 @@ class MePage extends StatelessWidget {
                     ),
                   ),
                 ),
+                Wrap(
+                  children: [
+                    MePageButton(
+                      title: "账号管理".tr,
+                      subTitle: "查看或修改账号信息".tr,
+                      icon: Icons.switch_account,
+                      onTap: () => showAdaptiveWidget(context,
+                          AccountsPage(popUp: MediaQuery.of(context).size.width>600,)),
+                    ),
+                    MePageButton(
+                      title: "收藏夹".tr,
+                      subTitle: "查看已收藏的漫画".tr,
+                      icon: Icons.bookmarks,
+                      onTap: () => Get.to(() => const AllFavoritesPage()),
+                    ),
+                    MePageButton(
+                      title: "已下载".tr,
+                      subTitle: "管理已下载的漫画".tr,
+                      icon: Icons.download_for_offline,
+                      onTap: () => Get.to(() => const DownloadPage()),
+                    ),
+                    MePageButton(
+                      title: "历史记录".tr,
+                      subTitle: "查看历史记录".tr,
+                      icon: Icons.history,
+                      onTap: () => Get.to(() => const HistoryPage()),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
         ),
-        SliverGrid(
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 650,
-            childAspectRatio: 3
-          ),
-          delegate: SliverChildListDelegate(
-              [
-                MePageButton(
-                  title: "账号管理".tr,
-                  subTitle: "查看或修改账号信息".tr,
-                  icon: Icons.switch_account,
-                  onTap: () => showAdaptiveWidget(context, AccountsPage()),
-                ),
-                MePageButton(
-                  title: "收藏夹".tr,
-                  subTitle: "查看已收藏的漫画".tr,
-                  icon: Icons.bookmarks,
-                  onTap: () => Get.to(() => const AllFavoritesPage()),
-                ),
-                MePageButton(
-                  title: "已下载".tr,
-                  subTitle: "管理已下载的漫画".tr,
-                  icon: Icons.download_for_offline,
-                  onTap: () => Get.to(() => const DownloadPage()),
-                ),
-                MePageButton(
-                  title: "历史记录".tr,
-                  subTitle: "查看历史记录".tr,
-                  icon: Icons.history,
-                  onTap: () => Get.to(() => const HistoryPage()),
-                ),
-
-              ]
-          ),
-        )
       ],
     );
   }
-}
-
-Widget mePageItem(BuildContext context, Widget icon, void Function() page,
-    String title, String subTitle) {
-  double width;
-  double screenWidth = MediaQuery.of(context).size.width;
-  double padding = 10.0;
-  if (screenWidth > changePoint2) {
-    screenWidth -= 450;
-    width = screenWidth / 2 - padding * 2;
-  } else if (screenWidth > changePoint) {
-    screenWidth -= 100;
-    width = screenWidth / 2 - padding * 2;
-  } else {
-    width = screenWidth - padding * 4;
-  }
-
-  if (width > 400) {
-    width = 400;
-  }
-
-  return Padding(
-    padding: EdgeInsets.fromLTRB(padding, 5, padding, 5),
-    child: InkWell(
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-      onTap: page,
-      child: Container(
-        width: width,
-        height: 140,
-        decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).colorScheme.outline),
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(
-              width: 20,
-            ),
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-                    child: Text(subTitle),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              width: 5,
-            ),
-            Expanded(flex: 1, child: Center(child: icon)),
-            const SizedBox(
-              width: 16,
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
 }
 
 class MePageButton extends StatefulWidget {
@@ -166,8 +90,28 @@ class _MePageButtonState extends State<MePageButton> {
 
   @override
   Widget build(BuildContext context) {
+    double width;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double padding = 10.0;
+    if (screenWidth > changePoint2) {
+      screenWidth -= 400;
+      width = screenWidth / 2 - padding * 2;
+    } else if (screenWidth > changePoint) {
+      screenWidth -= 80;
+      width = screenWidth / 2 - padding * 2;
+    } else {
+      width = screenWidth - padding * 2;
+    }
+
+    if (width > 500) {
+      width = 500;
+    }
+    var height = width / 3;
+    if(height < 100){
+      height = 100;
+    }
     return Padding(
-      padding: UiMode.m1(context)?const EdgeInsets.fromLTRB(16, 8, 16, 8):const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: EdgeInsets.fromLTRB(padding, 8, padding, 8),
       child: MouseRegion(
         onEnter: (event) => setState(() => hovering = true),
         onExit: (event) => setState(() => hovering = false),
@@ -178,52 +122,55 @@ class _MePageButtonState extends State<MePageButton> {
           child: InkWell(
             borderRadius: const BorderRadius.all(Radius.circular(24)),
             onTap: widget.onTap,
-            child: AnimatedContainer(
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                  color: hovering?Theme.of(context).colorScheme.inversePrimary.withAlpha(150):Theme.of(context).colorScheme.inversePrimary.withAlpha(40)
-              ),
-              duration: const Duration(milliseconds: 300),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),),
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: AnimatedContainer(
+                decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(24)),
+                    color: hovering?Theme.of(context).colorScheme.inversePrimary.withAlpha(150):Theme.of(context).colorScheme.inversePrimary.withAlpha(40)
+                ),
+                duration: const Duration(milliseconds: 300),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(widget.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(widget.subTitle, style: const TextStyle(fontSize: 15),),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(widget.subTitle, style: const TextStyle(fontSize: 15),),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: ClipPath(
-                        clipper: MePageIconClipper(),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 100),
-                          decoration: BoxDecoration(
-                            color: hovering?Theme.of(context).colorScheme.primary:Theme.of(context).colorScheme.surface,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Icon(widget.icon, color: hovering?Theme.of(context).colorScheme.onPrimary:Theme.of(context).colorScheme.onSurface,),
-                          ),
+                          ],
                         ),
                       ),
-                    )
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: ClipPath(
+                          clipper: MePageIconClipper(),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: hovering?Theme.of(context).colorScheme.primary:Theme.of(context).colorScheme.surface,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Icon(widget.icon, color: hovering?Theme.of(context).colorScheme.onPrimary:Theme.of(context).colorScheme.onSurface,),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
