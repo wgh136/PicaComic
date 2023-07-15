@@ -2,7 +2,7 @@ name: Build IOS
 run-name: Build IOS
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Build_IOS:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
