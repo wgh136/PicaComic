@@ -171,13 +171,18 @@ class EhNetwork{
   }
 
   Future<Res<String>> post(String url, dynamic data, {Map<String,String>? headers,}) async{
-    await cookieJar.saveFromResponse(Uri.parse(url), [
-      Cookie("nw", "1"),
-      Cookie("ipb_member_id", appdata.ehId),
-      Cookie("ipb_pass_hash", appdata.ehPassHash),
-      if(appdata.igneous != "")
-        Cookie("igneous", appdata.igneous),
-    ]);
+    try {
+      await cookieJar.saveFromResponse(Uri.parse(url), [
+        Cookie("nw", "1"),
+        Cookie("ipb_member_id", appdata.ehId),
+        Cookie("ipb_pass_hash", appdata.ehPassHash),
+        if(appdata.igneous != "")
+          Cookie("igneous", appdata.igneous),
+      ]);
+    }
+    catch(e){
+      return Res(null, errorMessage: e.toString());
+    }
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -196,7 +201,7 @@ class EhNetwork{
     dio.interceptors.add(CookieManager(cookieJar));
     try{
       var res = await dio.post<String>(url, data: data);
-      return Res(res.data);
+      return Res(res.data ?? "");
     }
     on DioException catch(e){
       String? message;
@@ -385,7 +390,7 @@ class EhNetwork{
   ///从漫画详情页链接中获取漫画详细信息
   Future<Res<Gallery>> getGalleryInfo(EhGalleryBrief brief) async{
     try{
-      var res = await request("${brief.link}?/hc=1", expiredTime: CacheExpiredTime.no);
+      var res = await request("${brief.link}?inline_set=ts_l", expiredTime: CacheExpiredTime.no);
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
@@ -451,7 +456,38 @@ class EhNetwork{
       gallery.time = time;
       //身份认证数据
       gallery.auth = getVariablesFromJsCode(res.data);
+      var imgUrls = <String>[];
+      var imgDom = document.querySelectorAll("div.gdtl > a > img");
+      for(var i in imgDom){
+        if(i.attributes["src"] != null) {
+          imgUrls.add(i.attributes["src"]!);
+        }
+      }
+      gallery.imgUrls = imgUrls;
       return Res(gallery);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<Res<List<Comment>>> getComments(String url) async{
+    var res = await request("$url?hc=1", expiredTime: CacheExpiredTime.no);
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var resComments = <Comment>[];
+      var comments = document.getElementsByClassName("c1");
+      for(var c in comments){
+        var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a").elementAtOrNull(0)?.text??"未知";
+        var time = c.getElementsByClassName("c3")[0].text.substring(11,32);
+        var content = c.getElementsByClassName("c6")[0].text;
+        resComments.add(Comment(name, content, time));
+      }
+      return Res(resComments);
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
@@ -617,6 +653,7 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
+
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }

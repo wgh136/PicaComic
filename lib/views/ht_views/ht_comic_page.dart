@@ -191,6 +191,7 @@ class HtComicPage extends StatelessWidget {
                         ],
                       )),
                 ),
+                const SliverPadding(padding: EdgeInsets.all(5)),
                 SliverGrid(
                   delegate: SliverChildBuilderDelegate(
                     childCount: logic.images.length,
