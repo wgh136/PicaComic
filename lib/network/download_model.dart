@@ -17,7 +17,7 @@ abstract class DownloadedItem{
   DateTime? time;
 }
 
-enum DownloadType{picacg, ehentai, jm, hitomi}
+enum DownloadType{picacg, ehentai, jm, hitomi, htmanga}
 
 abstract class DownloadingItem{
   ///完成时调用

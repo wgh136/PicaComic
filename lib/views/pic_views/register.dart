@@ -245,18 +245,18 @@ class RegisterPage extends StatelessWidget {
                                       showMessage(Get.context, res.errorMessage??"未知错误");
                                     }else{
                                       var res = await network.login(logic.account.text, logic.password.text);
-                                      if(res){
+                                      if(res.success){
                                         var profile = await network.getProfile();
-                                        if(profile != null){
-                                          appdata.user = profile;
+                                        if(profile.success){
+                                          appdata.user = profile.data;
                                           appdata.token = network.token;
                                           appdata.writeData();
                                           Get.offAll(()=>const MainPage());
                                         }else{
-                                          showMessage(Get.context, "登录时发生错误: ${network.status?network.message:"未知错误"}");
+                                          showMessage(Get.context, "登录时发生错误: ${profile.errorMessage??"未知错误".tr}");
                                         }
                                       }else{
-                                        showMessage(Get.context, "登录时发生错误: ${network.status?network.message:"未知错误"}");
+                                        showMessage(Get.context, "登录时发生错误: ${res.errorMessageWithoutNull}");
                                       }
                                     }
                                   }

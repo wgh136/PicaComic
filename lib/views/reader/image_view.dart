@@ -49,12 +49,16 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         image = CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
       }else if(type == ReadingType.jm && !comicReadingPageLogic.downloaded){
         image = JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
+      }else if(type == ReadingType.htmanga && !comicReadingPageLogic.downloaded){
+        image = CachedImageProvider(comicReadingPageLogic.urls[index]);
       }else{
         var id = target;
         if(type == ReadingType.ehentai){
           id = getGalleryId(target);
         }else if(type == ReadingType.hitomi){
           id = "hitomi$target";
+        }else if(type == ReadingType.htmanga){
+          id = "Ht$target";
         }
         image = FileImage(downloadManager.getImage(id, comicReadingPageLogic.order, index));
       }
@@ -132,16 +136,19 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
               id = getGalleryId(target);
             }else if(type == ReadingType.hitomi){
               id = "hitomi$target";
+            }else if(type == ReadingType.htmanga){
+              id = "Ht$target";
             }
             imageProvider = FileImage(downloadManager.getImage(
                 id, comicReadingPageLogic.order, index - 1));
           }else if(type == ReadingType.picacg){
-            imageProvider = CachedImageProvider(
-                getImageUrl(comicReadingPageLogic.urls[index - 1]));
+            imageProvider = CachedImageProvider(comicReadingPageLogic.urls[index - 1]);
           }else if(type == ReadingType.jm){
             imageProvider = JmCachedImageProvider(comicReadingPageLogic.urls[index - 1], target);
-          }else{
+          }else if(type == ReadingType.hitomi){
             imageProvider = HitomiCachedImageProvider(comicReadingPageLogic.images[index-1], target);
+          }else{
+            imageProvider = CachedImageProvider(comicReadingPageLogic.urls[index - 1]);
           }
         } else {
           _controllers[index] = PhotoViewController();
@@ -257,11 +264,16 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
                   0 - offset.dy
               );
             }
-            final updatedOffset = Offset(
+            var updatedOffset = Offset(
               controller!.position.dx > offset.dx ? controller.position.dx - 20 : controller.position.dx + 20,
               controller.position.dy > offset.dy ? controller.position.dy - 20 : controller.position.dy + 20
             );
-            controller.updateMultiple(position: updatedOffset, scale: controller.scale! - pointerSignal.scrollDelta.dy/4000);
+            double abs(double a) => a>0?a:0-a;
+            updatedOffset = Offset(
+              abs(controller.position.dx - offset.dx) < 20 ? offset.dx : updatedOffset.dx,
+              abs(controller.position.dy - offset.dy) < 20 ? offset.dy : updatedOffset.dy,
+            );
+            controller.updateMultiple(position: updatedOffset, scale: controller.scale! - pointerSignal.scrollDelta.dy/3000);
           }else{
             comicReadingPageLogic.cont.animateTo(comicReadingPageLogic.cont.position.pixels+pointerSignal.scrollDelta.dy,
                 duration: const Duration(milliseconds: 100),
@@ -274,6 +286,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic, ReadingType t
         onNotification: (notification){
           var length = comicReadingPageLogic.data.eps.length;
           if(type == ReadingType.picacg)  length--;
+          if(!comicReadingPageLogic.cont.hasClients)  return false;
           if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.minScrollExtent <= 0 && comicReadingPageLogic.order != 0){
             comicReadingPageLogic.showFloatingButton(-1);
           }else if(comicReadingPageLogic.cont.position.pixels - comicReadingPageLogic.cont.position.maxScrollExtent >= 0 && comicReadingPageLogic.order<length){
@@ -315,6 +328,8 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
         id = getGalleryId(target);
       } else if (type == ReadingType.hitomi) {
         id = "hitomi$target";
+      } else if(type == ReadingType.htmanga){
+        id = "Ht$target";
       }
       precacheImage(
           FileImage(

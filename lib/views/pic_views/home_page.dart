@@ -99,7 +99,7 @@ class HomePage extends StatelessWidget {
           ),
         );
       }else{
-        return showNetworkError(network.status?network.message:"网络错误".tr,
+        return showNetworkError("网络错误".tr,
                 ()=>homePageLogic.change(), context, showBack: false);
       }
     });

@@ -14,7 +14,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
-import '../../network/new_download.dart';
+import '../../network/download.dart';
 import '../show_image_page.dart';
 import '../widgets/loading.dart';
 import '../widgets/select_download_eps.dart';
@@ -109,7 +109,15 @@ class JmComicPage extends StatelessWidget {
                           Share.share("Jm$id: ${logic.comic!.name}");
                         },
                       ),
-                    )
+                    ),
+                    Tooltip(
+                      message: "复制".tr,
+                      child: IconButton(
+                        icon: const Icon(Icons.copy,),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: logic.comic!.name));
+                        },
+                      ),),
                   ],
                 ),
 

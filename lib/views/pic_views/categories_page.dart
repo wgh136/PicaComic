@@ -11,6 +11,7 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 class CategoriesPageLogic extends GetxController{
   var categories = <CategoryItem>[];
   bool isLoading = true;
+  String? message;
   void change(){
     isLoading = !isLoading;
     update();
@@ -18,7 +19,20 @@ class CategoriesPageLogic extends GetxController{
 
   void refresh_(){
     categories.clear();
+    isLoading = true;
+    message = null;
     change();
+  }
+
+  void get() async{
+    var res = await network.getCategories();
+    if(res.success){
+      categories = res.data;
+    }else{
+      message = res.errorMessageWithoutNull;
+    }
+    isLoading = false;
+    update();
   }
 }
 
@@ -30,12 +44,7 @@ class CategoriesPage extends StatelessWidget {
     return GetBuilder<CategoriesPageLogic>(
         builder: (categoriesPageLogic){
       if(categoriesPageLogic.isLoading){
-        network.getCategories().then((c){
-          if(c!=null){
-            categoriesPageLogic.categories = c;
-          }
-          categoriesPageLogic.change();
-        });
+        categoriesPageLogic.get();
         return const Center(
           child: CircularProgressIndicator(),
         );
@@ -174,7 +183,7 @@ class CategoriesPage extends StatelessWidget {
           onRefresh: ()async => categoriesPageLogic.refresh_(),
         );
       }else{
-        return showNetworkError(network.status?network.message:"网络错误".tr,
+        return showNetworkError(categoriesPageLogic.message,
                 ()=>categoriesPageLogic.change(), context, showBack: false);
       }
     });

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
 import '../../foundation/log.dart';
-import '../new_download.dart';
+import '../download.dart';
 import 'hitomi_models.dart';
 import 'dart:io';
 
@@ -152,6 +152,7 @@ class HitomiDownloadingItem extends DownloadingItem {
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
         await file.writeAsBytes(Uint8List.fromList(bytes));
+        await MyCacheManager().delete(comic.files[_downloadedPages].hash);
         _downloadedPages++;
         super.updateUi?.call();
         await super.updateInfo?.call();

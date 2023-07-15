@@ -6,9 +6,9 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/views/eh_views/eh_comments_page.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
-import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../network/eh_network/get_gallery_id.dart';
@@ -23,7 +23,6 @@ class GalleryPageLogic extends GetxController{
   Gallery? gallery;
   var controller = ScrollController();
   bool showAppbarTitle = false;
-  bool noNetwork = false;
   String cookies = "";
   String? message;
 
@@ -59,27 +58,7 @@ class EhGalleryPage extends StatelessWidget {
     return Scaffold(
       body: GetBuilder<GalleryPageLogic>(
         init: GalleryPageLogic(),
-        initState: (logic){
-          //添加历史记录
-          Future.delayed(const Duration(milliseconds: 300),(){
-            try{
-              var history = NewHistory(
-                  HistoryType.ehentai,
-                  DateTime.now(),
-                  brief.title,
-                  brief.uploader,
-                  brief.coverPath,
-                  0,
-                  0,
-                  brief.link
-              );
-              appdata.history.addHistory(history);
-            }
-            catch(e){
-              //Get会在初始化logic前调用此函数, 延迟300ms可能仍然没有初始化完成
-            }
-          });
-        },
+        tag: brief.link,
         builder: (logic){
           if(downloaded){
             logic.loading = false;
@@ -125,9 +104,17 @@ class EhGalleryPage extends StatelessWidget {
                       child: IconButton(
                         icon: const Icon(Icons.share,),
                         onPressed: () {
-                          Share.share(logic.gallery!.title);
+                          Share.share("${logic.gallery!.title}: ${brief.link}");
                         },
-                      ),)
+                      ),),
+                    Tooltip(
+                      message: "复制".tr,
+                      child: IconButton(
+                        icon: const Icon(Icons.copy,),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: "${logic.gallery!.title}: ${brief.link}"));
+                        },
+                      ),),
                   ],
                 ),
 
@@ -148,13 +135,57 @@ class EhGalleryPage extends StatelessWidget {
 
                 buildGalleryInfo(context,logic),
 
-                if(! logic.noNetwork)
+                const SliverPadding(padding: EdgeInsets.all(5)),
                 const SliverToBoxAdapter(
                   child: Divider(),
                 ),
-
-                if(! logic.noNetwork)
-                buildComments(logic, context),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                      width: 100,
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Icon(Icons.remove_red_eye,
+                              color: Theme.of(context).colorScheme.secondary),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          const Text(
+                            "预览",
+                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                          )
+                        ],
+                      )),
+                ),
+                const SliverPadding(padding: EdgeInsets.all(5)),
+                SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                        childCount: logic.gallery!.imgUrls.length,
+                            (context, index){
+                          return Padding(
+                            padding: UiMode.m1(context)?const EdgeInsets.all(3):const EdgeInsets.all(16),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(16)),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: CachedNetworkImage(
+                                imageUrl: logic.gallery!.imgUrls[index],
+                                fit: BoxFit.fill,
+                                placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
+                                errorWidget: (context, s, d) => const Icon(Icons.error),
+                              ),
+                            ),
+                          );
+                        }
+                    ),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 400,
+                      childAspectRatio: 0.75,
+                    )
+                ),
 
                 SliverPadding(padding: MediaQuery.of(context).padding),
               ],
@@ -180,9 +211,8 @@ class EhGalleryPage extends StatelessWidget {
                 //封面
                 buildCover(context, 350, MediaQuery.of(context).size.width, logic),
 
-                if(! logic.noNetwork)
                 const SizedBox(height: 20,),
-                if(! logic.noNetwork)
+
                 ...buildInfoCards(logic, context),
                 SizedBox(
                   child: Column(
@@ -232,9 +262,7 @@ class EhGalleryPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if(! logic.noNetwork)
                     Text("评分".tr),
-                  if(! logic.noNetwork)
                   SizedBox(
                     height: 30,
                     child: Row(
@@ -263,15 +291,10 @@ class EhGalleryPage extends StatelessWidget {
 
   Widget buildCover(BuildContext context, double height, double width, GalleryPageLogic logic){
     return GestureDetector(
-      onTap: logic.noNetwork?null:()=>Get.to(()=>ShowImagePage(logic.gallery!.coverPath,eh: true,)),
+      onTap: ()=>Get.to(()=>ShowImagePage(logic.gallery!.coverPath,eh: true,)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-        child: logic.noNetwork?Image.file(
-          downloadManager.getCover(getGalleryId(brief.link)),
-          width: width-50,
-          height: height,
-          fit: BoxFit.contain,
-        ):CachedNetworkImage(
+        child: CachedNetworkImage(
           useOldImageOnUrlChange: true,
           width: width-50,
           height: height,
@@ -281,7 +304,7 @@ class EhGalleryPage extends StatelessWidget {
             "Cookie": logic.cookies
           },
           errorWidget: (context, url, error) => const Icon(Icons.error),
-        ),
+        )
       ),
     );
   }
@@ -319,13 +342,7 @@ class EhGalleryPage extends StatelessWidget {
           Expanded(child: ActionChip(
             label: Text("评分".tr),
             avatar: const Icon(Icons.star),
-            onPressed: (){
-              if(logic.noNetwork){
-                showMessage(context, "无网络");
-              }else{
-                starRating(context, logic.gallery!.auth!);
-              }
-            },
+            onPressed: () => starRating(context, logic.gallery!.auth!),
           ),),
           SizedBox.fromSize(size: const Size(10,1),),
           Expanded(child: ActionChip(
@@ -352,9 +369,7 @@ class EhGalleryPage extends StatelessWidget {
           Expanded(child: ActionChip(
             label: const Text("评论"),
             avatar: const Icon(Icons.comment_outlined),
-            onPressed: (){
-              comment(context, logic.gallery!.link);
-            }
+            onPressed: () => showComments(context, brief.link, logic.gallery!.uploader)
           ),),
         ],
       ),
@@ -454,47 +469,6 @@ class EhGalleryPage extends StatelessWidget {
     return textPainter.size;
   }
 
-  Widget buildComments(GalleryPageLogic logic, BuildContext context){
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-        child: SizedBox(
-          child: Column(
-            children: [
-              const SizedBox(
-                width: 800,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 5),
-                  child: Text("评论",style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
-                ),
-              ),
-              for(var comment in logic.gallery!.comments)
-                SizedBox(
-                  width: 800,
-                  child: Card(
-                    margin: const EdgeInsets.all(5),
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("${logic.gallery!.uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
-                          const SizedBox(height: 2,),
-                          SelectableTextCN(text: comment.content)
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-            ],
-          ),
-        ),
-      )
-    );
-  }
-
   void starRating(BuildContext context, Map<String, String> auth){
     if(appdata.ehId==""){
       showMessage(context, "未登录".tr);
@@ -549,67 +523,6 @@ class EhGalleryPage extends StatelessWidget {
       )
     ));
   }
-
-  void comment(BuildContext context, String link){
-    if(appdata.ehId==""){
-      showMessage(context, "未登录".tr);
-      return;
-    }
-    showDialog(context: context, builder: (dialogContext)=>GetBuilder<CommentLogic>(
-      init: CommentLogic(),
-        builder: (logic)=>SimpleDialog(
-          title: Text("发布评论".tr),
-          children: [
-            SizedBox(
-              width: 400,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(5, 10, 5, 5),
-                    child: TextField(
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder()
-                      ),
-                      controller: logic.controller,
-                    ),
-                  ),
-                  if(!logic.sending)
-                    FilledButton(onPressed: (){
-                      logic.sending = true;
-                      logic.update();
-                      EhNetwork().comment(logic.controller.text,link).then((b){
-                        if(!b.error){
-                          Get.back();
-                          showMessage(context, "评论成功".tr);
-                          var pageLogic = Get.find<GalleryPageLogic>();
-                          pageLogic.gallery!.comments.add(Comment(appdata.ehAccount, logic.controller.text, "now"));
-                          pageLogic.update();
-                        }else{
-                          logic.sending = false;
-                          logic.update();
-                          showMessage(context, b.errorMessage??"网络错误.tr");
-                        }
-                      });
-                    }, child: Text("提交".tr))
-                  else
-                    const CircularProgressIndicator()
-                ],
-              ),
-            )
-          ],
-    )));
-  }
-
-  void loadGalleryInfoFromFile(GalleryPageLogic logic) async{
-    logic.gallery = (await downloadManager.getGalleryFormId(getGalleryId(brief.link))).gallery;
-    //避免加载完成后页面还没有渲染完成
-    await Future.delayed(const Duration(milliseconds: 100));
-    logic.noNetwork = true;
-    logic.update();
-  }
-
-
 }
 
 class RatingLogic extends GetxController{

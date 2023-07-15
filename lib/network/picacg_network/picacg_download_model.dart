@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
-import '../new_download.dart';
+import '../download.dart';
 import 'methods.dart';
 import 'models.dart';
 import 'dart:io';
@@ -26,7 +28,7 @@ class DownloadedComic extends DownloadedItem{
   };
   DownloadedComic.fromJson(Map<String,dynamic> json):
         comicItem = ComicItem.fromJson(json["comicItem"]),
-        chapters = json["chapters"].cast<String>(),
+        chapters = List<String>.from(json["chapters"]),
         size = json["size"],
         downloadedChapters = []{
     if(json["downloadedChapters"] == null){
@@ -46,7 +48,7 @@ class DownloadedComic extends DownloadedItem{
   List<int> get downloadedEps => downloadedChapters;
 
   @override
-  List<String> get eps => chapters.sublist(1);
+  List<String> get eps => chapters.getNoBlankList();
 
   @override
   String get name => comicItem.title;
@@ -143,11 +145,23 @@ class PicDownloadingItem extends DownloadingItem {
   List<String> get eps => _eps;
 
   Future<void> getEps() async {
-    _eps = await network.getEps(id);
+    if(_eps.isNotEmpty) return;
+    var res = await network.getEps(id);
+    if(res.error){
+      throw Exception();
+    }else{
+      _eps = res.data;
+    }
   }
 
   Future<void> getUrls() async {
-    _urls = await network.getComicContent(id, _downloadingEps);
+    if(_urls.isNotEmpty)  return;
+    var res = await network.getComicContent(id, _downloadingEps);
+    if(res.error){
+      throw Exception();
+    }else{
+      _urls = res.data;
+    }
   }
 
   void retry() {
@@ -176,13 +190,15 @@ class PicDownloadingItem extends DownloadingItem {
         _downloadPages, comic.pagesCount, "下载中", "共${downloadManager.downloading.length}项任务");
     _pauseFlag = false;
     if (_eps.isEmpty) {
-      await getEps();
+      try {
+        await getEps();
+      }
+      catch(e){
+        retry();
+        return;
+      }
     }
     if (_pauseFlag) return;
-    if (_eps.isEmpty) {
-      retry();
-      return;
-    }
     if (_downloadingEps == 0) {
       try {
         var dio = await request();
@@ -212,8 +228,10 @@ class PicDownloadingItem extends DownloadingItem {
         _index = 0;
       }
       if (_pauseFlag) return;
-      await getUrls();
-      if (_urls.isEmpty) {
+      try {
+        await getUrls();
+      }
+      catch(e){
         retry();
         return;
       }
@@ -230,6 +248,7 @@ class PicDownloadingItem extends DownloadingItem {
           var file = File("$path$pathSep$id$pathSep$_downloadingEps$pathSep$_index.jpg");
           if (!await file.exists()) await file.create();
           await file.writeAsBytes(Uint8List.fromList(res.readAsBytesSync()));
+          await MyCacheManager().delete(_urls[_index]);
           _index++;
           _downloadPages++;
           super.updateUi?.call();

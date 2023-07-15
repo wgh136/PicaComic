@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
-import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/network/download_model.dart';
+import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
+import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
@@ -264,6 +266,10 @@ class DownloadPage extends StatelessWidget {
       for(var comic in downloadManager.downloadedHitomiComics){
         logic.comics.add(await downloadManager.getHitomiComicFromId(comic));
       }
+
+      for(var comic in downloadManager.downloadedHtComics){
+        logic.comics.add(await downloadManager.getHtComicFromId(comic));
+      }
     }
     catch(e){
       logic.comics.clear();
@@ -495,7 +501,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 250,
+                maxCrossAxisExtent: 300,
                 childAspectRatio: 4,
               ),
               itemBuilder: (BuildContext context, int i) {
@@ -555,6 +561,8 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             Get.to(() => JmComicPage((widget.item as DownloadedJmComic).comic.id));
                           } else if (widget.item is DownloadedHitomiComic) {
                             Get.to(() => HitomiComicPage((widget.item as DownloadedHitomiComic).toBrief()));
+                          } else if (widget.item is DownloadedHtComic){
+                            Get.to(() => HtComicPage((widget.item as DownloadedHtComic).comic.toBrief()));
                           }
                         },
                         child: Text("查看详情".tr)),
@@ -591,6 +599,8 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
           (comic as DownloadedJmComic).comic.series.values.toList());
     } else if (comic.type == DownloadType.hitomi) {
       readHitomiComic((comic as DownloadedHitomiComic).comic, (comic as DownloadedHitomiComic).cover);
+    } else if(comic.type == DownloadType.htmanga){
+      readHtmangaComic((comic as DownloadedHtComic).comic);
     }
   }
 
@@ -610,6 +620,8 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
       readEhGallery((comic as DownloadedGallery).gallery);
     } else if (comic.type == DownloadType.hitomi) {
       readHitomiComic((comic as DownloadedHitomiComic).comic, (comic as DownloadedHitomiComic).cover);
+    } else if(comic.type == DownloadType.htmanga){
+      readHtmangaComic((comic as DownloadedHtComic).comic);
     }
   }
 }

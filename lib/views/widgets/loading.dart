@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
   if(withScaffold){
@@ -9,19 +10,22 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
       ),
     );
   }else{
-    return Stack(
-      children: [
-        Positioned(child: CustomScrollView(
-          slivers: [
-            SliverAppBar.large(
-              title: const Text(""),
+    return Center(
+      child: SizedBox(
+        width: 250,
+        height: 100,
+        child: Column(
+          children: [
+            const LinearProgressIndicator(),
+            const SizedBox(height: 16,),
+            Center(
+              child: Text("加载中".tr),
             ),
+            const SizedBox(height: 4,),
+            TextButton(onPressed: () => Get.back(), child: Text("取消".tr))
           ],
-        )),
-        const Center(
-          child: CircularProgressIndicator(),
-        )
-      ],
+        ),
+      ),
     );
   }
 }

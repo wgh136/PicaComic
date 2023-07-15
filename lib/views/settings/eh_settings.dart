@@ -41,6 +41,19 @@ class _EhSettingsState extends State<EhSettings> {
               ),
               //onTap: () => setEhDomain(context),
             ),
+            ListTile(
+              leading: const Icon(Icons.image),
+              title: Text("优先加载原图".tr),
+              trailing: Switch(
+                value: appdata.settings[29] == "1",
+                onChanged: (b){
+                  setState(() {
+                    appdata.settings[29] = b?"1":"0";
+                  });
+                  appdata.updateSettings();
+                },
+              ),
+            ),
           ],
         ));
   }

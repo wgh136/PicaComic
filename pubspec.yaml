@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.6.17+62
+version: 2.0.0-beta+100
 
 environment:
   sdk: '>=3.0.0'
@@ -52,13 +52,13 @@ dependencies:
     git:
       url: https://github.com/wgh136/image_gallery_saver
       ref: master
-  flutter_file_dialog: any
+  flutter_file_dialog: ^3.0.1
   archive: any
   flutter_local_notifications: ^14.1.0
   share_plus: ^7.0.0
   local_auth: ^2.1.6
   html: any
-  flutter_inappwebview: any
+  flutter_inappwebview: ^6.0.0-beta.24+1
   dio_cookie_manager: any
   image: ^3.0.2
   shimmer_animation: ^2.1.0
@@ -141,9 +141,14 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
+    # 这是在windows端使用的字体, 由于系统字体(微软雅黑)在Flutter App上显示效果极差, 因此使用此字体; 打包Android时删去
     - family: font
       fonts:
         - asset: fonts/NotoSansSC-Regular.otf
+    # 这是一个英文字体, 文件很小, 无需担心体积, 用于显示Pica Comic
+    - family: font2
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
     - family:  MyIcons
       fonts:
        - asset: fonts/MyIcons.ttf

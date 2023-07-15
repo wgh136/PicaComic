@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../base.dart';
-import '../me_page.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -110,13 +109,6 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                   setState(() {
                     showFrame = b;
                   });
-                  try {
-                    var t = Get.find<InfoController>();
-                    t.update();
-                  }
-                  catch(e){
-                    //忽视
-                  }
                   appdata.writeData();
                 },
               ),
@@ -136,6 +128,22 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                   appdata.writeData();
                 },
               ),
+            ),
+            ListTile(
+              leading: Icon(Icons.collections_bookmark_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[30]),
+                values: [
+                  "旧到新".tr, "新到书".tr
+                ],
+                whenChange: (i){
+                  appdata.settings[30] = i.toString();
+                  appdata.updateSettings();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+              title: Text("收藏夹漫画排序模式".tr),
             ),
           ],
         ));

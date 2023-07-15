@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/new_download.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../foundation/log.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
-import 'package:pica_comic/network/new_download_model.dart';
+import 'package:pica_comic/network/download_model.dart';
 import 'dart:io';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'jm_main_network.dart';
@@ -205,6 +205,7 @@ class JmDownloadingItem extends DownloadingItem {
           throw(StateError("下载图片失败"));
         }
         await file.writeAsBytes(bytes);
+        await MyCacheManager().delete(url);
         _currentPage++;
         if(_currentPage >= urls[_index].length){
           _currentPage = 0;

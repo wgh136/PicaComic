@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:get/get.dart';
@@ -25,18 +26,15 @@ class _EpsViewState extends State<EpsView> {
   @override
   Widget build(BuildContext context) {
     var type = widget.type;
-    var eps = widget.eps;
+    var eps = widget.eps.getNoBlankList();
     var data = widget.data;
     var epsWidgets = <Widget>[];
     for(int index = 0;index<eps.length;index++){
-      if(index == eps.length -1 && type == ReadingType.picacg){
-        break;
-      }
       String title = "";
       if(type == ReadingType.jm){
         title = "第 @c 章".trParams({"c": (index+1).toString()});
-      }else if(type == ReadingType.picacg){
-        title = eps[index+1];
+      }else{
+        title = eps[index];
       }
       epsWidgets.add(
           InkWell(
@@ -110,7 +108,7 @@ class _EpsViewState extends State<EpsView> {
                 IconButton(
                   icon: Icon(Icons.my_location_outlined, color: Theme.of(context).colorScheme.secondary,size: 23,),
                   onPressed: (){
-                    var length = type==ReadingType.picacg?eps.length-1:eps.length;
+                    var length = eps.getNoBlankList().length;
                     if(!value) {
                       controller.jumpTo(index: logic.order-1);
                     } else {
@@ -133,7 +131,7 @@ class _EpsViewState extends State<EpsView> {
           ),
           Expanded(child: ScrollablePositionedList.builder(
             initialScrollIndex: logic.order-1,
-            itemCount: type==ReadingType.picacg?eps.length-1:eps.length,
+            itemCount: eps.getNoBlankList().length,
             itemBuilder: (context, index){
               if(value){
                 return epsWidgets[epsWidgets.length - index -1];

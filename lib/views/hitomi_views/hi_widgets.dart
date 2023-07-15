@@ -19,6 +19,9 @@ class HiComicTile extends ComicTile {
   }
 
   @override
+  List<String>? get tags => List<String>.generate(comic.tags.length, (index) => comic.tags[index].name);
+
+  @override
   String get description => (){
     var description = "${comic.type}    ";
     description += comic.lang;
@@ -166,7 +169,7 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
           children: [
             const SizedBox(width: 16,),
             Expanded(
-                flex: 2,
+                flex: 3,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
@@ -177,7 +180,7 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
             ),
             SizedBox.fromSize(size: const Size(16,5),),
             Expanded(
-              flex: 7,
+              flex: 8,
               child: Column(
                 children: [
                   const SizedBox(height: 3,),

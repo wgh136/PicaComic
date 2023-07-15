@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/network/new_download.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -11,6 +11,8 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+
+import '../leaderboard_page.dart';
 
 void findUpdate(BuildContext context) {
   showMessage(context, "正在检查更新".tr, time: 2);
@@ -290,6 +292,7 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
       try {
         Get.find<CategoryPageLogic>().update();
         Get.find<ExplorePageLogic>().update();
+        Get.find<LeaderboardPageLogic>().update();
       } catch (e) {
         //如果在test_network_page进行此操作将产生错误
       }
@@ -299,11 +302,11 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
 
   @override
   Widget build(BuildContext context) {
-    var titles = ["Picacg(不能禁用)".tr, "E-hentai", "禁漫天堂".tr, "Hitomi.la"];
+    var titles = ["Picacg", "E-hentai", "禁漫天堂".tr, "Hitomi.la", "绅士漫画".tr];
     return SizedBox(
       child: Column(
         children: [
-          for (int i = 0; i < 4; i++)
+          for (int i = 0; i < 5; i++)
             CheckboxListTile(
               value: appdata.settings[21][i] == "1",
               onChanged: (b) {
@@ -315,7 +318,6 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
                   }
                 });
               },
-              enabled: i != 0,
               title: Text(titles[i]),
             ),
         ],
@@ -522,13 +524,14 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "禁漫最新".tr,
       "Hitomi主页".tr,
       "Hitomi中文".tr,
-      "Hitomi日文".tr
+      "Hitomi日文".tr,
+      "绅士漫画"
     ];
     return SizedBox(
       width: 400,
       child: Column(
         children: [
-          for (int i = 0; i < 9; i++)
+          for (int i = 0; i < 10; i++)
             CheckboxListTile(
               value: appdata.settings[24][i] == "1",
               onChanged: (b) {
@@ -540,7 +543,6 @@ class _SetExplorePagesState extends State<SetExplorePages> {
                   }
                 });
               },
-              enabled: i != 0,
               title: Text(titles[i]),
             ),
         ],

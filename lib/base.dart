@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'package:pica_comic/network/new_download.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,11 +13,8 @@ const changePoint2 = 1300;
 const List<int> colors = [0X42A5F5, 0X29B6F6, 0X5C6BC0, 0XAB47BC,
   0XEC407A, 0X26C6DA, 0X26A69A, 0XFFEE58, 0X8D6E63];
 
-ColorScheme? lightColorScheme;
-ColorScheme? dartColorScheme;
-
 //App版本
-const appVersion = "1.6.17";
+const appVersion = "2.0.0";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -73,11 +69,16 @@ class Appdata{
     "111111", //21 启用的漫画源
     "", //22 下载目录, 仅Windows端, 为空表示使用App数据目录
     "0", //23 初始页面,
-    "111111111", //24 分类页面
+    "1111111111", //24 分类页面
     "0", //25 漫画列表显示模式
     "0", //26 已下载页面排序模式: 时间, 漫画名, 作者名, 大小
     "0", //27 颜色
     "2", //28 预加载页数
+    "0", //29 eh优先加载原图
+    "1", //30 picacg收藏夹新到旧
+    "https://www.wnacg.com", //31 绅士漫画域名
+    "0", //32  深色模式: 0-跟随系统, 1-禁用, 2-启用
+    "5", //33 自动翻页时间
   ];
 
   ///屏蔽的关键词
@@ -105,6 +106,10 @@ class Appdata{
   String jmName = "";
   String jmEmail = "";
   String jmPwd = "";
+
+  //绅士漫画
+  String htName = "";
+  String htPwd = "";
 
   Appdata(){
     token = "";
@@ -193,6 +198,8 @@ class Appdata{
     await s.setString("ehIgneous", igneous);
     await s.setString("picacgAccount", picacgAccount);
     await s.setString("picacgPassword", picacgPassword);
+    await s.setString("htName", htName);
+    await s.setString("htPwd", htPwd);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -210,6 +217,9 @@ class Appdata{
         for(int i=0;i<st.length;i++){
           settings[i] = st[i];
         }
+      }
+      while(settings[24].length < 10){
+        settings[24] += "1";
       }
       appChannel = s.getString("appChannel")!;
       searchHistory = s.getStringList("search")??[];
@@ -230,6 +240,8 @@ class Appdata{
       jmPwd = s.getString("jmPwd")??"";
       picacgAccount = s.getString("picacgAccount")??"";
       picacgPassword = s.getString("picacgPassword")??"";
+      htName = s.getString("htName")??"";
+      htPwd = s.getString("htPwd")??"";
       return firstUse[3]=="1"||token!="";
     }
     catch(e){

@@ -25,7 +25,9 @@ class _EhLoginPageState extends State<EhLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("登录E-Hentai账户".tr),),
+      appBar: AppBar(
+        title: Text("登录E-Hentai账户".tr),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -37,16 +39,20 @@ class _EhLoginPageState extends State<EhLoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("  使用cookie登录".tr,style: const TextStyle(fontSize: 18),),
-                    const SizedBox(height: 3,),
+                    Text(
+                      "  使用cookie登录".tr,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(
+                      height: 3,
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(5),
                       child: TextField(
                         controller: c1,
                         decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            labelText: "ipb_member_id"
-                        ),
+                            labelText: "ipb_member_id"),
                       ),
                     ),
                     Padding(
@@ -55,8 +61,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                         controller: c2,
                         decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            labelText: "ipb_pass_hash"
-                        ),
+                            labelText: "ipb_pass_hash"),
                       ),
                     ),
                     Padding(
@@ -65,79 +70,87 @@ class _EhLoginPageState extends State<EhLoginPage> {
                         controller: c3,
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
-                            labelText: "igneous(非必要)".tr
-                        ),
+                            labelText: "igneous(非必要)".tr),
                       ),
                     ),
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                        child: !logging?FilledButton(
-                          child: Text("登录".tr),
-                          onPressed: (){
-                            if(c1.text=="" || c2.text==""){
-                              showMessage(context, "请填写完整".tr);
-                            }else{
-                              login(c1.text, c2.text, c3.text);
-                            }
-                          },
-                        ):const CircularProgressIndicator(),
+                        child: !logging
+                            ? FilledButton(
+                                child: Text("登录".tr),
+                                onPressed: () {
+                                  if (c1.text == "" || c2.text == "") {
+                                    showMessage(context, "请填写完整".tr);
+                                  } else {
+                                    login(c1.text, c2.text, c3.text);
+                                  }
+                                },
+                              )
+                            : const CircularProgressIndicator(),
                       ),
                     ),
-                    const SizedBox(height: 10,),
-                    if(GetPlatform.isAndroid || GetPlatform.isWindows)
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    if (GetPlatform.isAndroid ||
+                        GetPlatform.isWindows ||
+                        GetPlatform.isIOS)
                       Center(
                         child: SizedBox(
                           width: 155,
                           height: 40,
                           child: TextButton(
-                            onPressed: ()async{
-                              if(GetPlatform.isAndroid) {
+                            onPressed: () async {
+                              if (GetPlatform.isAndroid || GetPlatform.isIOS) {
                                 var browser = LoginInBrowser(() async {
-                                  CookieManager cookieManager = CookieManager.instance();
+                                  CookieManager cookieManager =
+                                      CookieManager.instance();
                                   var id = await cookieManager.getCookie(
-                                      url: Uri.parse(".e-hentai.org"), name: "ipb_member_id");
+                                      url: WebUri("https://e-hentai.org"),
+                                      name: "ipb_member_id");
                                   var hash = await cookieManager.getCookie(
-                                      url: Uri.parse(".e-hentai.org"), name: "ipb_pass_hash");
+                                      url: WebUri("https://e-hentai.org"),
+                                      name: "ipb_pass_hash");
                                   var igneous = await cookieManager.getCookie(
-                                      url: Uri.parse(".exhentai.org"), name: "igneous");
+                                      url: WebUri("https://exhentai.org"),
+                                      name: "igneous");
                                   try {
                                     login(id!.value, hash!.value,
                                         igneous == null ? "" : igneous.value);
-                                  }
-                                  catch (e) {
+                                  } catch (e) {
                                     showMessage(Get.context, "登录失败".tr);
                                   }
                                 });
-                                await browser.openUrlRequest(urlRequest: URLRequest(url: Uri.parse(
-                                    "https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
-                              }else{
-                                if(await FlutterWindowsWebview.isAvailable()){
+                                await browser.openUrlRequest(
+                                    urlRequest: URLRequest(
+                                        url: WebUri(
+                                            "https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
+                              } else {
+                                if (await FlutterWindowsWebview.isAvailable()) {
                                   var webview = FlutterWindowsWebview();
                                   webview.launchWebview(
-                                    "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
-                                    WebviewOptions(
-                                      onTitleChange: (s) async{
-                                        if(s == "E-Hentai Forums"){
-                                          var cookies = await webview.getCookies("https://e-hentai.org");
-                                          var id = cookies["ipb_member_id"];
-                                          var hash = cookies["ipb_pass_hash"];
-                                          cookies = await webview.getCookies("https://exhentai.org");
-                                          var igneous = cookies["igneous"];
-                                          webview.close();
-                                          try {
-                                            login(id!, hash!,
-                                                igneous ?? "");
-                                          }
-                                          catch (e) {
-                                            LogManager.addLog(LogLevel.error, "Network", e.toString());
-                                            showMessage(Get.context, "登录失败".tr);
-                                          }
-                                        }
+                                      "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
+                                      WebviewOptions(onTitleChange: (s) async {
+                                    if (s == "E-Hentai Forums") {
+                                      var cookies = await webview
+                                          .getCookies("https://e-hentai.org");
+                                      var id = cookies["ipb_member_id"];
+                                      var hash = cookies["ipb_pass_hash"];
+                                      cookies = await webview
+                                          .getCookies("https://exhentai.org");
+                                      var igneous = cookies["igneous"];
+                                      webview.close();
+                                      try {
+                                        login(id!, hash!, igneous ?? "");
+                                      } catch (e) {
+                                        LogManager.addLog(LogLevel.error,
+                                            "Network", e.toString());
+                                        showMessage(Get.context, "登录失败".tr);
                                       }
-                                    )
-                                  );
-                                }else{
+                                    }
+                                  }));
+                                } else {
                                   showMessage(Get.context, "Webview不可用");
                                 }
                               }
@@ -145,35 +158,53 @@ class _EhLoginPageState extends State<EhLoginPage> {
                             child: Row(
                               children: [
                                 Text("在Webview中登录".tr),
-                                const Icon(Icons.arrow_outward,size: 15,)
+                                const Icon(
+                                  Icons.arrow_outward,
+                                  size: 15,
+                                )
                               ],
                             ),
                           ),
                         ),
                       ),
-                    if(GetPlatform.isAndroid)
-                      const SizedBox(height: 5,),
-                    Center(child: SizedBox(
-                      width: 68,
-                      height: 40,
-                      child: TextButton(
-                        onPressed: ()=>launchUrlString("https://forums.e-hentai.org/index.php?act=Reg&CODE=00",mode: LaunchMode.externalApplication),
-                        child: Row(
-                          children: [
-                            Text("注册".tr),
-                            const Icon(Icons.arrow_outward,size: 15,)
-                          ],
+                    if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                      const SizedBox(
+                        height: 5,
+                      ),
+                    Center(
+                      child: SizedBox(
+                        width: 68,
+                        height: 40,
+                        child: TextButton(
+                          onPressed: () => launchUrlString(
+                              "https://forums.e-hentai.org/index.php?act=Reg&CODE=00",
+                              mode: LaunchMode.externalApplication),
+                          child: Row(
+                            children: [
+                              Text("注册".tr),
+                              const Icon(
+                                Icons.arrow_outward,
+                                size: 15,
+                              )
+                            ],
+                          ),
                         ),
                       ),
-                    ),),
+                    ),
                     SizedBox(
                       width: 400,
                       height: 40,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.info_outline,size: 20,),
-                          Text("由于需要captcha响应, 暂不支持直接密码登录".tr,maxLines: 2,)
+                          const Icon(
+                            Icons.info_outline,
+                            size: 20,
+                          ),
+                          Text(
+                            "由于需要captcha响应, 暂不支持直接密码登录".tr,
+                            maxLines: 2,
+                          )
                         ],
                       ),
                     )
@@ -187,17 +218,17 @@ class _EhLoginPageState extends State<EhLoginPage> {
     );
   }
 
-  void login(String id, String hash, String igneous){
+  void login(String id, String hash, String igneous) {
     setState(() {
       logging = true;
       appdata.ehId = id;
       appdata.ehPassHash = hash;
       appdata.igneous = igneous;
-      EhNetwork().getUserName().then((b){
-        if(b){
+      EhNetwork().getUserName().then((b) {
+        if (b) {
           Get.back();
           showMessage(context, "登录成功".tr);
-        }else{
+        } else {
           showMessage(context, "登录失败".tr);
           setState(() {
             logging = false;
@@ -208,7 +239,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
   }
 }
 
-class LoginInBrowser extends InAppBrowser{
+class LoginInBrowser extends InAppBrowser {
   LoginInBrowser(this.exit);
   final void Function() exit;
   @override
@@ -216,9 +247,10 @@ class LoginInBrowser extends InAppBrowser{
     exit();
     super.onExit();
   }
+
   @override
   void onTitleChanged(String? title) {
-    if(title == "E-Hentai Forums"){
+    if (title == "E-Hentai Forums") {
       super.close();
     }
     super.onTitleChanged(title);

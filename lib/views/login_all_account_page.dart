@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
@@ -7,14 +8,14 @@ import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
-class TestNetworkPage extends StatefulWidget {
-  const TestNetworkPage({Key? key}) : super(key: key);
+class LoginAccountsPage extends StatefulWidget {
+  const LoginAccountsPage({Key? key}) : super(key: key);
 
   @override
-  State<TestNetworkPage> createState() => _TestNetworkPageState();
+  State<LoginAccountsPage> createState() => _LoginAccountsPageState();
 }
 
-class _TestNetworkPageState extends State<TestNetworkPage> {
+class _LoginAccountsPageState extends State<LoginAccountsPage> {
   bool isLoading = true;
   String? message;
   String status = "正在获取用户信息".tr;
@@ -34,12 +35,12 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
           children: [
             if(isLoading)
               Positioned(
-                top: MediaQuery.of(context).size.height/2-100,
+                top: MediaQuery.of(context).size.height/2-80,
                 left: 0,
                 right: 0,
                 child: const Align(
                   alignment: Alignment.topCenter,
-                  child: CircularProgressIndicator(),
+                  child: SizedBox(width: 200,child: LinearProgressIndicator(),),
                 ),
               ),
             if(!isLoading)
@@ -156,11 +157,10 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     if(appdata.token != "") {
       try {
         var res = await network.getProfile();
-        if (res == null) {
-          message = network.status ? network.message : "网络错误".tr;
-          message = "登录哔咔时发生错误\n".tr + message.toString();
+        if (res.error) {
+          message = res.errorMessage;
         } else {
-          appdata.user = res;
+          appdata.user = res.data;
           await appdata.writeData();
         }
       }
@@ -180,6 +180,19 @@ class _TestNetworkPageState extends State<TestNetworkPage> {
     if(res2.error){
       message = res2.errorMessage;
       message = "登录禁漫时发生错误\n".tr + message.toString();
+    }
+    try {
+      setState(() {
+        status = "正在登录绅士漫画";
+      });
+    }
+    catch(e){
+      //忽视
+    }
+    var res3 = await HtmangaNetwork().loginFromAppdata();
+    if(res3.error){
+      message = res3.errorMessage;
+      message = "登录绅士漫画时发生错误\n".tr + message.toString();
     }
     if(message == null){
       goToMainPage();

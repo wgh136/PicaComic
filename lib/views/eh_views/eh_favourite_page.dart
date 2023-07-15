@@ -28,8 +28,8 @@ class EhFavoritePage extends StatelessWidget{
               }
           ),
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 550,
-            childAspectRatio: 4,
+            maxCrossAxisExtent: 500,
+            childAspectRatio: 5,
           ),
         ),
       ],
@@ -76,7 +76,7 @@ class EhFavoritePageFolder extends ComicsPage{
       while(data.comics[i] == null){
         data.page++;
         if(! await EhNetwork().getNextPageGalleries(data.galleries!)){
-          return Res(null, errorMessage: "网络错误");
+          return const Res(null, errorMessage: "网络错误");
         }
         data.comics[data.page] = [];
         data.comics[data.page]!.addAll(data.galleries!.galleries);
@@ -114,12 +114,12 @@ class EhFolderTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
           child: Row(
             children: [
               Expanded(
                 flex: 1,
-                child: Icon(MyIcons.ehFolder, size: 45, color: Theme.of(context).colorScheme.secondary,),
+                child: Icon(MyIcons.ehFolder, size: 35, color: Theme.of(context).colorScheme.secondary,),
               ),
               const SizedBox(width: 16,),
               Expanded(

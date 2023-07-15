@@ -147,6 +147,45 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
           ListTile(
+            leading: Icon(Icons.timer_sharp,
+                color: Theme.of(context).colorScheme.secondary),
+            subtitle: SizedBox(
+              height: 25,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                      top: 0,
+                      bottom: 0,
+                      left: -20,
+                      right: 0,
+                      child: Slider(
+                        max: 20,
+                        min: 0,
+                        divisions: 20,
+                        value: int.parse(appdata.settings[33]).toDouble(),
+                        overlayColor: MaterialStateColor.resolveWith(
+                                (states) => Colors.transparent),
+                        onChanged: (v) {
+                          if(v == 0)  return;
+                          appdata.settings[33] = v.toInt().toString();
+                          appdata.updateSettings();
+                          setState(() {});
+                        },
+                      ))
+                ],
+              ),
+            ),
+            trailing: SizedBox(
+              width: 40,
+              child: Text(
+                "${appdata.settings[33]}秒",
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+            title: Text("自动翻页时间间隔".tr),
+          ),
+          ListTile(
             leading: Icon(Icons.chrome_reader_mode, color: Theme.of(context).colorScheme.secondary),
             title: Text("选择阅读模式".tr),
             trailing: const Icon(Icons.arrow_right),

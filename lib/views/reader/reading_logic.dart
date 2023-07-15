@@ -31,6 +31,9 @@ class ComicReadingPageLogic extends GetxController{
 
   bool isLoading = true;
 
+  ///旋转方向: null-跟随系统, false-竖向, true-横向
+  bool? rotation;
+
   ///是否应该显示悬浮按钮, 为-1表示显示上一章, 为0表示不显示, 为1表示显示下一章
   int showFloatingButtonValue = 0;
 
@@ -44,7 +47,7 @@ class ComicReadingPageLogic extends GetxController{
         showFloatingButtonValue = 0;
         update();
       }
-    };
+    }
     if(value == 1 && showFloatingButtonValue == 0 && order < length){
       showFloatingButtonValue = 1;
       update();
@@ -103,13 +106,14 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToNextChapter(){
     var type = data.type;
     var eps = data.eps;
+    showFloatingButtonValue = 0;
     if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || ((type==ReadingType.jm) && order == eps.length)){
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(urls.length);
       }
       showMessage(Get.context, "已经是最后一章了".tr);
       return;
-    }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+    }else if(!type.hasEps){
       showMessage(Get.context, "已经是最后一章了".tr);
       return;
     }
@@ -126,6 +130,7 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToLastChapter(){
     var type = data.type;
     var eps = data.eps;
+    showFloatingButtonValue = 0;
     if(order == 1 && type == ReadingType.picacg){
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(1);
@@ -138,7 +143,7 @@ class ComicReadingPageLogic extends GetxController{
       }
       showMessage(Get.context, "已经是第一章了".tr);
       return;
-    }else if(type == ReadingType.ehentai || type == ReadingType.hitomi){
+    }else if(!type.hasEps){
       showMessage(Get.context, "已经是第一章了".tr);
       return;
     }
@@ -155,4 +160,22 @@ class ComicReadingPageLogic extends GetxController{
 
   ///当前章节的长度
   int get length => urls.length;
+
+  /// 是否处于自动翻页状态
+  bool runningAutoPageTurning = false;
+
+  /// 自动翻页
+  void autoPageTurning() async{
+    if(index == urls.length-1){
+      runningAutoPageTurning = false;
+      update();
+      return;
+    }
+    await Future.delayed(Duration(seconds: int.parse(appdata.settings[33])));
+    if(! runningAutoPageTurning){
+      return;
+    }
+    jumpToNextPage();
+    autoPageTurning();
+  }
 }

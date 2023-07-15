@@ -57,29 +57,33 @@ class _DownloadingPageState extends State<DownloadingPage> {
         };
         return ListView.builder(
             itemCount: downloadManager.downloading.length+1,
+            padding: EdgeInsets.zero,
             itemBuilder: (context,index){
               if(index == 0){
-                return MaterialBanner(
-                    leading: downloadManager.isDownloading?
+                return SizedBox(
+                  height: 60,
+                  child: MaterialBanner(
+                      leading: downloadManager.isDownloading?
                       const Icon(Icons.downloading,color: Colors.blue,):
                       const Icon(Icons.pause_circle_outline_outlined,color: Colors.red,),
-                    content: downloadManager.error?
+                      content: downloadManager.error?
                       Text("下载出错".tr):
                       Text("${"@length 项下载任务".trParams({"length":downloadManager.downloading.length.toString()})}${downloadManager.isDownloading?" 下载中".tr:(downloadManager.downloading.isNotEmpty?" 已暂停".tr:"")}"),
-                    actions: [
-                      if(downloadManager.downloading.isNotEmpty)
-                        TextButton(
-                          onPressed: (){
-                            downloadManager.isDownloading?downloadManager.pause():downloadManager.start();
-                            logic.update();
-                          },
-                          child: downloadManager.isDownloading?
+                      actions: [
+                        if(downloadManager.downloading.isNotEmpty)
+                          TextButton(
+                            onPressed: (){
+                              downloadManager.isDownloading?downloadManager.pause():downloadManager.start();
+                              logic.update();
+                            },
+                            child: downloadManager.isDownloading?
                             Text("暂停".tr):
                             (downloadManager.error?Text("重试".tr):Text("继续".tr)),
-                        )
-                      else
-                        const Text(""),
-                    ]
+                          )
+                        else
+                          const Text(""),
+                      ]
+                  ),
                 );
               }else {
                 return logic.items[index-1];

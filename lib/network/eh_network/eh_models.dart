@@ -52,8 +52,10 @@ class Gallery{
   bool favorite;
   late String link;
   String maxPage;
+  List<String> imgUrls;
 
-  Gallery(EhGalleryBrief brief,this.tags,this.urls,this.favorite,this.maxPage){
+  Gallery(EhGalleryBrief brief,this.tags,this.urls,this.favorite,this.maxPage,
+      {this.imgUrls=const <String>[]}){
     title = brief.title;
     type = brief.type;
     time = brief.time;
@@ -104,6 +106,7 @@ class Gallery{
     link = json["link"],
     maxPage = json["maxPage"],
     comments = [],
+    imgUrls = [],
     urls = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);

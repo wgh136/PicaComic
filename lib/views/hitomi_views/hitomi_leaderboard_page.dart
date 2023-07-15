@@ -36,7 +36,7 @@ class HitomiLeaderboardPageLogic extends GetxController{
   void refresh_(int index){
     comics[index].total = 100;
     comics[index].toLoad = 0;
-    comics[index].comics.clear();
+    comics[index].comicIds.clear();
     message[index] = null;
     loading[index] = true;
     update();
@@ -93,11 +93,11 @@ class OneLeaderboardPage extends StatelessWidget {
           slivers: [
             SliverGrid(
               delegate: SliverChildBuilderDelegate((context, i) {
-                if(i == logic.comics[index].comics.length-1){
+                if(i == logic.comics[index].comicIds.length-1){
                   logic.load(index);
                 }
-                return HiComicTile(logic.comics[index].comics[i]);
-              }, childCount: logic.comics[index].comics.length),
+                return HitomiComicTileDynamicLoading(logic.comics[index].comicIds[i]);
+              }, childCount: logic.comics[index].comicIds.length),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: comicTileMaxWidth,
                 childAspectRatio: comicTileAspectRatio,

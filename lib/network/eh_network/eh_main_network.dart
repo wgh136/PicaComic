@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/log_dio.dart';
@@ -76,14 +75,18 @@ class EhNetwork{
   ///从url获取数据, 在请求时设置了cookie
   Future<Res<String>> request(String url,
       {Map<String,String>? headers, CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
-    if(appdata.ehId != "") {
-      await cookieJar.saveFromResponse(Uri.parse(url), [
-        Cookie("nw", "1"),
-        Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
-        Cookie("ipb_pass_hash", appdata.ehPassHash),
-        if(appdata.igneous != "")
-          Cookie("igneous", appdata.igneous),
-    ]);
+    try{
+      if (appdata.ehId != "") {
+        await cookieJar.saveFromResponse(Uri.parse(url), [
+          Cookie("nw", "1"),
+          Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
+          Cookie("ipb_pass_hash", appdata.ehPassHash),
+          if (appdata.igneous != "") Cookie("igneous", appdata.igneous),
+        ]);
+      }
+    }
+    catch(e){
+      return const Res(null, errorMessage: "Cookies is invalid");
     }
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -105,7 +108,7 @@ class EhNetwork{
         );
       await getCookies();//确保cookie处于最新状态
       if((data.data).substring(0,4) == "Your"){
-        return Res(null, errorMessage: "Your IP address has been temporarily banned");
+        return const Res(null, errorMessage: "Your IP address has been temporarily banned");
       }
       return Res(data.data);
     }
@@ -168,13 +171,18 @@ class EhNetwork{
   }
 
   Future<Res<String>> post(String url, dynamic data, {Map<String,String>? headers,}) async{
-    await cookieJar.saveFromResponse(Uri.parse(url), [
-      Cookie("nw", "1"),
-      Cookie("ipb_member_id", appdata.ehId),
-      Cookie("ipb_pass_hash", appdata.ehPassHash),
-      if(appdata.igneous != "")
-        Cookie("igneous", appdata.igneous),
-    ]);
+    try {
+      await cookieJar.saveFromResponse(Uri.parse(url), [
+        Cookie("nw", "1"),
+        Cookie("ipb_member_id", appdata.ehId),
+        Cookie("ipb_pass_hash", appdata.ehPassHash),
+        if(appdata.igneous != "")
+          Cookie("igneous", appdata.igneous),
+      ]);
+    }
+    catch(e){
+      return Res(null, errorMessage: e.toString());
+    }
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -193,7 +201,7 @@ class EhNetwork{
     dio.interceptors.add(CookieManager(cookieJar));
     try{
       var res = await dio.post<String>(url, data: data);
-      return Res(res.data);
+      return Res(res.data ?? "");
     }
     on DioException catch(e){
       String? message;
@@ -382,7 +390,7 @@ class EhNetwork{
   ///从漫画详情页链接中获取漫画详细信息
   Future<Res<Gallery>> getGalleryInfo(EhGalleryBrief brief) async{
     try{
-      var res = await request("${brief.link}?/hc=1", expiredTime: CacheExpiredTime.no);
+      var res = await request("${brief.link}?inline_set=ts_l", expiredTime: CacheExpiredTime.no);
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
@@ -448,7 +456,38 @@ class EhNetwork{
       gallery.time = time;
       //身份认证数据
       gallery.auth = getVariablesFromJsCode(res.data);
+      var imgUrls = <String>[];
+      var imgDom = document.querySelectorAll("div.gdtl > a > img");
+      for(var i in imgDom){
+        if(i.attributes["src"] != null) {
+          imgUrls.add(i.attributes["src"]!);
+        }
+      }
+      gallery.imgUrls = imgUrls;
       return Res(gallery);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<Res<List<Comment>>> getComments(String url) async{
+    var res = await request("$url?hc=1", expiredTime: CacheExpiredTime.no);
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var resComments = <Comment>[];
+      var comments = document.getElementsByClassName("c1");
+      for(var c in comments){
+        var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a").elementAtOrNull(0)?.text??"未知";
+        var time = c.getElementsByClassName("c3")[0].text.substring(11,32);
+        var content = c.getElementsByClassName("c6")[0].text;
+        resComments.add(Comment(name, content, time));
+      }
+      return Res(resComments);
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
@@ -614,6 +653,7 @@ class EhNetwork{
         "Content-Type": "application/x-www-form-urlencoded"
       }
     );
+
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -621,6 +661,6 @@ class EhNetwork{
     if(document.querySelector("p.br") != null){
       return Res(null,errorMessage: document.querySelector("p.br")!.text);
     }
-    return Res(true);
+    return const Res(true);
   }
 }

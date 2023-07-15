@@ -194,8 +194,8 @@ class MyCacheManager{
       var dio = Dio(options);
       var html = await dio.get(url);
       var document = parse(html.data);
-      var image = document.querySelector("img#img")!.attributes["src"]!;
-      var nl = document.getElementById("loadfail")!.attributes["onclick"]!;
+      var image = document.querySelector("img#img")?.attributes["src"];
+      var nl = document.getElementById("loadfail")?.attributes["onclick"];
       if (image == "https://ehgt.org/g/509.gif") {
         throw ImageExceedError();
       }
@@ -203,16 +203,27 @@ class MyCacheManager{
           .querySelector("div#i7 > a")
           ?.attributes["href"];
 
+      if(appdata.settings[29] == "0"){
+        originImage = null;
+      }
+
+      if(nl == null){
+        throw Exception("Fail to get image url");
+      }
+
       Response<ResponseBody> res;
       if (originImage == null) {
         html = await dio.get("$url?nl=${nl.substring(11, nl.length - 2)}");
         document = parse(html.data);
-        image = document.querySelector("img#img")!.attributes["src"]!;
+        image = document.querySelector("img#img")?.attributes["src"];
         if (image == "https://ehgt.org/g/509.gif") {
           throw ImageExceedError();
         }
       } else {
         image = originImage;
+      }
+      if(image == null){
+        throw Exception("Fail to get image url");
       }
       res =
       await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
@@ -356,6 +367,7 @@ class MyCacheManager{
       Map<String, String>? headers,
       {required String epsId, required String scrambleId, required String bookId}
       ) async*{
+    bookId = bookId.replaceAll(RegExp(r"\..+"), "");
     while(loadingItems[url] != null){
       var progress = loadingItems[url]!;
       yield progress;
@@ -391,6 +403,7 @@ class MyCacheManager{
         }
       }
       fileName += url.substring(l);
+      fileName = fileName.replaceAll(RegExp(r"\?.+"), "");
       final savePath = "${(await getTemporaryDirectory())
           .path}${pathSep}imageCache$pathSep$fileName";
 
@@ -483,6 +496,7 @@ class MyCacheManager{
     try{
       var file = File(_paths![key]!);
       file.deleteSync();
+      _paths!.remove(key);
     }
     catch(e){
       //忽视

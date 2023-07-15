@@ -1,9 +1,8 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
-
 import '../../base.dart';
 
 ///构建顶部工具栏
@@ -206,6 +205,62 @@ Widget buildBottomToolBar(
                             },
                           ),
                         ),
+                      if(GetPlatform.isAndroid)
+                      Tooltip(
+                        message: "屏幕方向".tr,
+                        child: IconButton(
+                          icon: (){
+                            if(comicReadingPageLogic.rotation == null){
+                              return const Icon(Icons.screen_rotation);
+                            }else if(comicReadingPageLogic.rotation == false){
+                              return const Icon(Icons.screen_lock_portrait);
+                            }else{
+                              return const Icon(Icons.screen_lock_landscape);
+                            }
+                          }.call(),
+                          onPressed: () {
+                            if(comicReadingPageLogic.rotation == null){
+                              comicReadingPageLogic.rotation = false;
+                              comicReadingPageLogic.update();
+                              SystemChrome.setPreferredOrientations([
+                                DeviceOrientation.portraitUp,
+                                DeviceOrientation.portraitDown,
+                              ]);
+                            }else if(comicReadingPageLogic.rotation == false){
+                              comicReadingPageLogic.rotation = true;
+                              comicReadingPageLogic.update();
+                              SystemChrome.setPreferredOrientations([
+                                DeviceOrientation.landscapeLeft,
+                                DeviceOrientation.landscapeRight
+                              ]);
+                            }else{
+                              comicReadingPageLogic.rotation = null;
+                              comicReadingPageLogic.update();
+                              SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+                            }
+                          },
+                        ),
+                      ),
+                      Tooltip(
+                        message: "刷新".tr,
+                        child: IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: () => Get.forceAppUpdate(),
+                        ),
+                      ),
+                      Tooltip(
+                        message: "自动翻页".tr,
+                        child: IconButton(
+                          icon: comicReadingPageLogic.runningAutoPageTurning?
+                            const Icon(Icons.timer):
+                            const Icon(Icons.timer_sharp),
+                          onPressed: () {
+                            comicReadingPageLogic.runningAutoPageTurning = !comicReadingPageLogic.runningAutoPageTurning;
+                            comicReadingPageLogic.update();
+                            comicReadingPageLogic.autoPageTurning();
+                          },
+                        ),
+                      ),
                       if (showEps)
                         Tooltip(
                           message: "章节".tr,
@@ -409,7 +464,7 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
         value: comicReadingPageLogic.index.toDouble(),
         min: 1,
         max: comicReadingPageLogic.urls.length.toDouble(),
-        divisions: comicReadingPageLogic.urls.length,
+        divisions: comicReadingPageLogic.urls.length - 1,
         onChanged: (i) {
           comicReadingPageLogic.index = i.toInt();
           comicReadingPageLogic.jumpToPage(i.toInt());
@@ -430,7 +485,7 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
               value: comicReadingPageLogic.index.toDouble(),
               min: 1,
               max: comicReadingPageLogic.urls.length.toDouble(),
-              divisions: comicReadingPageLogic.urls.length,
+              divisions: comicReadingPageLogic.urls.length - 1,
               onChanged: (i) {
                 comicReadingPageLogic.index = i.toInt();
                 comicReadingPageLogic.jumpToPage(i.toInt());
@@ -446,13 +501,13 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
               1,
           min: 1,
           max: comicReadingPageLogic.urls.length.toDouble(),
-          divisions: comicReadingPageLogic.urls.length,
+          divisions: comicReadingPageLogic.urls.length - 1,
           activeColor: Theme.of(Get.context!).colorScheme.surfaceVariant,
           inactiveColor: Theme.of(Get.context!).colorScheme.primary,
           thumbColor: Theme.of(Get.context!).colorScheme.secondary,
           onChanged: (i) {
             comicReadingPageLogic.controller
-                .jumpToPage(comicReadingPageLogic.urls.length - (i.toInt() - 1));
+                .jumpToPage(comicReadingPageLogic.urls.length - (i.round() - 1));
           },
         );
       }
