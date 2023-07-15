@@ -12,3 +12,7 @@ jobs:
         architecture: x64
     - run: flutter pub get
     - run: flutter build ios --release --no-codesign
+    - uses: actions/upload-artifact@v3
+      with:
+        name: my-artifact
+        path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/Runner.app
