@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
@@ -107,38 +108,38 @@ class PreSearchPage extends StatelessWidget {
                               ),
                             ),
                             if(appdata.settings[21][1] == "1")
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: FilterChip(
-                                label: const Text("E-Hentai"),
-                                selected: logic.target==1,
-                                onSelected: (b){
-                                  logic.updateTarget(1);
-                                },
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: FilterChip(
+                                  label: const Text("E-Hentai"),
+                                  selected: logic.target==1,
+                                  onSelected: (b){
+                                    logic.updateTarget(1);
+                                  },
+                                ),
                               ),
-                            ),
                             if(appdata.settings[21][2] == "1")
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: FilterChip(
-                                label: const Text("JmComic"),
-                                selected: logic.target==2,
-                                onSelected: (b){
-                                  logic.updateTarget(2);
-                                },
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: FilterChip(
+                                  label: const Text("JmComic"),
+                                  selected: logic.target==2,
+                                  onSelected: (b){
+                                    logic.updateTarget(2);
+                                  },
+                                ),
                               ),
-                            ),
                             if(appdata.settings[21][3] == "1")
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: FilterChip(
-                                label: const Text("Hitomi"),
-                                selected: logic.target==3,
-                                onSelected: (b){
-                                  logic.updateTarget(3);
-                                },
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: FilterChip(
+                                  label: const Text("Hitomi"),
+                                  selected: logic.target==3,
+                                  onSelected: (b){
+                                    logic.updateTarget(3);
+                                  },
+                                ),
                               ),
-                            ),
                             if(appdata.settings[21][4] == "1")
                               Padding(
                                 padding: const EdgeInsets.all(5),
@@ -151,45 +152,53 @@ class PreSearchPage extends StatelessWidget {
                                 ),
                               ),
                             if(appdata.settings[21][2] == "1")
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: ActionChip(
-                                label: Text("禁漫漫画ID".tr),
-                                onPressed: (){
-                                  var controller = TextEditingController();
-                                  showDialog(context: context, builder: (context){
-                                    return AlertDialog(
-                                      title: Text("输入禁漫漫画ID".tr),
-                                      content: Padding(
-                                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                        child: TextField(
-                                          keyboardType: TextInputType.number,
-                                          controller: controller,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-                                          ],
-                                          decoration: const InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              labelText: "ID",
-                                              prefix: Text("JM")
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: ActionChip(
+                                  label: Text("禁漫漫画ID".tr),
+                                  onPressed: (){
+                                    var controller = TextEditingController();
+                                    showDialog(context: context, builder: (context){
+                                      return AlertDialog(
+                                        title: Text("输入禁漫漫画ID".tr),
+                                        content: Padding(
+                                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                          child: TextField(
+                                            keyboardType: TextInputType.number,
+                                            controller: controller,
+                                            onEditingComplete: () {
+                                              Get.back();
+                                              if(controller.text.isNum){
+                                                Get.to(()=>JmComicPage(controller.text));
+                                              }else{
+                                                showMessage(Get.context, "输入的ID不是数字".tr);
+                                              }
+                                            },
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                                            ],
+                                            decoration: const InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                labelText: "ID",
+                                                prefix: Text("JM")
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      actions: [
-                                        TextButton(onPressed: (){
-                                          Get.back();
-                                          if(controller.text.isNum){
-                                            Get.to(()=>JmComicPage(controller.text));
-                                          }else{
-                                            showMessage(Get.context, "输入的ID不是数字".tr);
-                                          }
-                                        }, child: Text("提交".tr))
-                                      ],
-                                    );
-                                  });
-                                },
+                                        actions: [
+                                          TextButton(onPressed: (){
+                                            Get.back();
+                                            if(controller.text.isNum){
+                                              Get.to(()=>JmComicPage(controller.text));
+                                            }else{
+                                              showMessage(Get.context, "输入的ID不是数字".tr);
+                                            }
+                                          }, child: Text("提交".tr))
+                                        ],
+                                      );
+                                    });
+                                  },
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -344,16 +353,16 @@ class PreSearchPage extends StatelessWidget {
                     Text("  哔咔热搜".tr),
                     Wrap(
                       children: [
-                        for(var s in hotSearch)
+                        for(var s in hotSearch.getNoBlankList())
                           Card(
                             margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                             elevation: 0,
-                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            color: Theme.of(context).colorScheme.surfaceTint.withAlpha(40),
                             child: InkWell(
                               borderRadius: const BorderRadius.all(Radius.circular(16)),
                               onTap: ()=>Get.to(()=>SearchPage(s)),
                               child: Padding(
-                                padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
+                                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text(s),),
                             ),
                           )
                       ],
@@ -363,34 +372,34 @@ class PreSearchPage extends StatelessWidget {
               ),
             ),
             if(appdata.settings[21][2] == "1")
-            SliverToBoxAdapter(
-              child: Card(
-                margin: const EdgeInsets.all(10),
-                elevation: 0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("  禁漫热搜".tr),
-                    Wrap(
-                      children: [
-                        for(var s in jmNetwork.hotTags)
-                          Card(
-                            margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                            elevation: 0,
-                            color: Theme.of(context).colorScheme.surfaceVariant,
-                            child: InkWell(
-                              borderRadius: const BorderRadius.all(Radius.circular(16)),
-                              onTap: ()=>Get.to(()=>JmSearchPage(s)),
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
-                            ),
-                          )
-                      ],
-                    )
-                  ],
+              SliverToBoxAdapter(
+                child: Card(
+                  margin: const EdgeInsets.all(10),
+                  elevation: 0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("  禁漫热搜".tr),
+                      Wrap(
+                        children: [
+                          for(var s in jmNetwork.hotTags.getNoBlankList())
+                            Card(
+                              margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                              elevation: 0,
+                              color: Theme.of(context).colorScheme.surfaceTint.withAlpha(40),
+                              child: InkWell(
+                                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                                onTap: ()=>Get.to(()=>JmSearchPage(s)),
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text(s),),
+                              ),
+                            )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
             GetBuilder<PreSearchController>(
               builder: (controller){
                 return SliverToBoxAdapter(
@@ -419,7 +428,7 @@ class PreSearchPage extends StatelessWidget {
                                     }
                                   },
                                   child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(s),),
+                                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text(s),),
                                 ),
                               ),
                           ],
@@ -434,37 +443,37 @@ class PreSearchPage extends StatelessWidget {
               builder: (controller){
                 if(appdata.searchHistory.isNotEmpty) {
                   return SliverToBoxAdapter(
-                  child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 13),
-                          child: InkWell(
-                            borderRadius: const BorderRadius.all(Radius.circular(10),),
-                            onTap: (){
-                              appdata.searchHistory.clear();
-                              appdata.writeHistory();
-                              controller.update();
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                  color: Theme.of(context).colorScheme.secondaryContainer
-                              ),
-                              width: 125,
-                              height: 26,
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 5,),
-                                  const Icon(Icons.clear_all,color: Colors.indigo,),
-                                  Text("清除历史记录".tr)
-                                ],
+                    child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 13),
+                            child: InkWell(
+                              borderRadius: const BorderRadius.all(Radius.circular(10),),
+                              onTap: (){
+                                appdata.searchHistory.clear();
+                                appdata.writeHistory();
+                                controller.update();
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                    color: Theme.of(context).colorScheme.secondaryContainer
+                                ),
+                                width: 125,
+                                height: 26,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 5,),
+                                    const Icon(Icons.clear_all,color: Colors.indigo,),
+                                    Text("清除历史记录".tr)
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      ]
-                  ),
-                );
+                          )
+                        ]
+                    ),
+                  );
                 }else{
                   return const SliverPadding(padding: EdgeInsets.all(0));
                 }

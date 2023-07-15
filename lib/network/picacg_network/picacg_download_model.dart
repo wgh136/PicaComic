@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
@@ -27,7 +28,7 @@ class DownloadedComic extends DownloadedItem{
   };
   DownloadedComic.fromJson(Map<String,dynamic> json):
         comicItem = ComicItem.fromJson(json["comicItem"]),
-        chapters = json["chapters"].cast<String>(),
+        chapters = List<String>.from(json["chapters"]),
         size = json["size"],
         downloadedChapters = []{
     if(json["downloadedChapters"] == null){
@@ -47,7 +48,7 @@ class DownloadedComic extends DownloadedItem{
   List<int> get downloadedEps => downloadedChapters;
 
   @override
-  List<String> get eps => chapters.sublist(1);
+  List<String> get eps => chapters.getNoBlankList();
 
   @override
   String get name => comicItem.title;

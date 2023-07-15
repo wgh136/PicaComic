@@ -98,7 +98,15 @@ class HitomiComicPage extends StatelessWidget {
                         onPressed: () {
                           Share.share(comic.name);
                         },
-                      ),)
+                      ),),
+                    Tooltip(
+                      message: "复制".tr,
+                      child: IconButton(
+                        icon: const Icon(Icons.copy,),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: logic.comic!.name));
+                        },
+                      ),),
                   ],
                 ),
 

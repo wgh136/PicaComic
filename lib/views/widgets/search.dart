@@ -27,9 +27,9 @@ class FloatingSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-
+    var padding = 10.0;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      padding: EdgeInsets.fromLTRB(padding, 4, padding, 0),
       child: Container(
         constraints: const BoxConstraints(minWidth: 360, maxWidth: 720),
         padding: const EdgeInsets.only(top: 5),
@@ -37,7 +37,7 @@ class FloatingSearchBar extends StatelessWidget {
         height: effectiveHeight,
         child: Material(
           elevation: 0,
-          color: colorScheme.surfaceVariant,
+          color: colorScheme.tertiaryContainer,
           borderRadius: BorderRadius.circular(effectiveHeight / 2),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),

@@ -52,8 +52,9 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
                   child: Row(
                     children: [
                       const SizedBox(width: 16,),
-                      Text(widget.eps[i]),
-                      const Spacer(),
+                      Expanded(
+                        child: Text(widget.eps[i], overflow: TextOverflow.ellipsis,),
+                      ),
                       if(selected.contains(i))
                         const Icon(Icons.done),
                       if(widget.downloadedEps.contains(i))

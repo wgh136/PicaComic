@@ -22,12 +22,14 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   void initState() {
     controller = TabController(length: pages, vsync: this);
     Get.put(JmFavoritePageLogic());
+    Get.put(HtFavoritePageLogic());
     super.initState();
   }
 
   @override
   void dispose() {
     Get.find<JmFavoritePageLogic>().dispose();
+    Get.find<HtFavoritePageLogic>().dispose();
     super.dispose();
   }
 
