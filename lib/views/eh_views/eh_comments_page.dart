@@ -60,7 +60,7 @@ class CommentsPage extends StatelessWidget {
                               (context,index){
                                 var comment = logic.comments[index];
                                 return Card(
-                                  margin: const EdgeInsets.all(5),
+                                  margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                                   elevation: 0,
                                   color: Theme.of(context).colorScheme.surfaceVariant,
                                   child: Padding(
