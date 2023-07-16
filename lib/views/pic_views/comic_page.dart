@@ -342,22 +342,6 @@ class ComicPage extends StatelessWidget{
       ),
     ));
 
-    if(appdata.firstUse[2]=="1") {
-      res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-        child: MaterialBanner(
-            elevation: 1,
-            content: Text("要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键".tr),
-            actions: [
-              TextButton(onPressed: (){
-                appdata.firstUse[2] = "0";
-                logic.update();
-                appdata.writeData();
-              }, child: Text("关闭".tr))
-            ]),
-      ));
-    }
-
     if(logic.comicItem!.author!=""){
       res.add(const SizedBox(
         height: 20,

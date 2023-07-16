@@ -11,7 +11,7 @@ class Translation extends Translations{
       "欢迎": "欢迎",
       "感谢使用本软件, 请注意:\n\n": "感谢使用本软件, 请注意:\n\n",
       "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n": "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n",
-      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系": "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系",
+      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系": "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫无任何关系",
       "需要身份验证": "需要身份验证",
       //操作
       "否": "否",
@@ -362,8 +362,6 @@ class Translation extends Translations{
       "分流3":"分流3",
       "分流4":"分流4",
       "清除登录状态": "清除登录状态",
-      "使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置":
-        "使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置",
       "不使用": "不使用",
       "使用哔咔官方提供的IP": "使用哔咔官方提供的IP",
       "自定义": "自定义",
@@ -402,6 +400,7 @@ class Translation extends Translations{
       "在设置中更改更多选项": "在设置中更改更多选项",
       "祝使用愉快": "祝使用愉快",
       "完成": "完成",
+      "选择图像": "选择图像",
     },
     "zh_TW": {
       '有可用更新': '有可用更新',
@@ -410,7 +409,7 @@ class Translation extends Translations{
       "欢迎": "歡迎",
       "感谢使用本软件, 请注意:\n\n": "感謝使用本軟件, 請注意:\n\n",
       "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n": "本App的開發目的僅為學習交流與個人興趣, 無任何獲利\n\n",
-      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系": "此項目與Picacg, e-hentai.org, JmComic, hitomi.la無任何關係",
+      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系": "此項目與Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫無任何關係",
       "需要身份验证": "需要身份驗證",
       "否": "否",
       "是": "是",
@@ -746,8 +745,6 @@ class Translation extends Translations{
       "分流3":"分流3",
       "分流4":"分流4",
       "清除登录状态": "清除登錄狀態",
-      "使用Cloudflare IP访问无法进行https请求, 可能存在风险. 为确保密码安全, 登录时将无视此设置":
-      "使用Cloudflare IP訪問無法進行https請求, 可能存在風險. 為確保密碼安全, 登錄時將無視此設定",
       "不使用": "不使用",
       "使用哔咔官方提供的IP": "使用哔咔官方提供的IP",
       "自定义": "自定義",

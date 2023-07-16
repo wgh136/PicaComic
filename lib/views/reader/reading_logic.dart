@@ -171,9 +171,12 @@ class ComicReadingPageLogic extends GetxController{
       update();
       return;
     }
-    await Future.delayed(Duration(seconds: int.parse(appdata.settings[33])));
-    if(! runningAutoPageTurning){
-      return;
+    int sec = int.parse(appdata.settings[33]);
+    for(int i = 0; i<sec*10; i++){
+      await Future.delayed(const Duration(milliseconds: 100));
+      if(! runningAutoPageTurning){
+        return;
+      }
     }
     jumpToNextPage();
     autoPageTurning();

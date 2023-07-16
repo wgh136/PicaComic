@@ -82,6 +82,7 @@ class BlockingKeywordPage extends StatelessWidget {
         var keywords = logic.down?appdata.blockingKeyword:appdata.blockingKeyword.reversed.toList();
         return ListView.builder(
           itemCount: keywords.length+1,
+          padding: EdgeInsets.zero,
           itemBuilder: (context,index){
             if(index==0){
               return appdata.firstUse[0]=="1"?MaterialBanner(

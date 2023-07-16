@@ -46,16 +46,21 @@ class Gallery{
   String? rating;
   late String coverPath;
   Map<String,List<String>> tags;
-  List<String> urls;  //图片链接
+  /// 图片链接, 在进入漫画详情页时获取第一页, 进入阅读器时获取完成
+  List<String> urls;
   List<Comment> comments = [];
-  Map<String,String>? auth;//api身份验证信息
+  /// api身份验证信息
+  Map<String,String>? auth;
   bool favorite;
   late String link;
   String maxPage;
-  List<String> imgUrls;
+  ///缩略图链接
+  List<String> thumbnailUrls;
+  ///已加载的缩略图页数
+  int loadedThumbnailPage = 1;
 
   Gallery(EhGalleryBrief brief,this.tags,this.urls,this.favorite,this.maxPage,
-      {this.imgUrls=const <String>[]}){
+      {this.thumbnailUrls=const <String>[]}){
     title = brief.title;
     type = brief.type;
     time = brief.time;
@@ -106,7 +111,7 @@ class Gallery{
     link = json["link"],
     maxPage = json["maxPage"],
     comments = [],
-    imgUrls = [],
+    thumbnailUrls = [],
     urls = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);

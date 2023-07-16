@@ -7,6 +7,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../foundation/ui_mode.dart';
 import '../show_image_page.dart';
@@ -16,7 +17,7 @@ import '../widgets/selectable_text.dart';
 import '../widgets/show_error.dart';
 import '../widgets/show_message.dart';
 
-class HtComicPageLogic extends GetxController{
+class HtComicPageLogic extends GetxController {
   bool loading = true;
   HtComicInfo? comic;
   String? message;
@@ -24,28 +25,28 @@ class HtComicPageLogic extends GetxController{
   bool showAppbarTitle = false;
   List<String> images = [];
 
-  void get(String id) async{
+  void get(String id) async {
     var res = await HtmangaNetwork().getComicInfo(id);
     message = res.errorMessage;
     comic = res.dataOrNull;
-    if(res.subData != null){
+    if (res.subData != null) {
       images.addAll(res.subData);
     }
     loading = false;
     update();
   }
 
-  void refresh_(){
+  void refresh_() {
     comic = null;
     message = null;
     loading = true;
     update();
   }
 
-  void getImages() async{
+  void getImages() async {
     var nextPage = images.length ~/ 12 + 1;
     var res = await HtmangaNetwork().getThumbnails(comic!.id, nextPage);
-    if(!res.error){
+    if (!res.error) {
       images.addAll(res.data);
       update();
     }
@@ -63,27 +64,28 @@ class HtComicPage extends StatelessWidget {
       body: GetBuilder<HtComicPageLogic>(
         init: HtComicPageLogic(),
         tag: comic.id,
-        builder: (logic){
-          if(logic.loading){
+        builder: (logic) {
+          if (logic.loading) {
             logic.get(comic.id);
             return showLoading(context);
-          }else if(logic.comic == null){
-            return showNetworkError(logic.message??"网络错误", logic.refresh_, context);
-          }else{
+          } else if (logic.comic == null) {
+            return showNetworkError(
+                logic.message ?? "网络错误", logic.refresh_, context);
+          } else {
             logic.controller = ScrollController();
             logic.controller.addListener(() {
               //检测当前滚动位置, 决定是否显示Appbar的标题
               bool temp = logic.showAppbarTitle;
-              if(!logic.controller.hasClients){
+              if (!logic.controller.hasClients) {
                 return;
               }
-              logic.showAppbarTitle = logic.controller.position.pixels>
+              logic.showAppbarTitle = logic.controller.position.pixels >
                   boundingTextSize(
-                      logic.comic!.name,
-                      const TextStyle(fontSize: 22),
-                      maxWidth: width
-                  ).height+50;
-              if(temp!=logic.showAppbarTitle) {
+                              logic.comic!.name, const TextStyle(fontSize: 22),
+                              maxWidth: width)
+                          .height +
+                      50;
+              if (temp != logic.showAppbarTitle) {
                 logic.update();
               }
             });
@@ -91,10 +93,11 @@ class HtComicPage extends StatelessWidget {
               controller: logic.controller,
               slivers: [
                 SliverAppBar(
-                  surfaceTintColor: logic.showAppbarTitle?null:Colors.transparent,
+                  surfaceTintColor:
+                      logic.showAppbarTitle ? null : Colors.transparent,
                   shadowColor: Colors.transparent,
                   title: AnimatedOpacity(
-                    opacity: logic.showAppbarTitle?1.0:0.0,
+                    opacity: logic.showAppbarTitle ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 200),
                     child: Text(logic.comic!.name),
                   ),
@@ -103,19 +106,26 @@ class HtComicPage extends StatelessWidget {
                     Tooltip(
                       message: "分享".tr,
                       child: IconButton(
-                        icon: const Icon(Icons.share,),
+                        icon: const Icon(
+                          Icons.share,
+                        ),
                         onPressed: () {
                           Share.share(logic.comic!.name);
                         },
-                      ),),
+                      ),
+                    ),
                     Tooltip(
                       message: "复制".tr,
                       child: IconButton(
-                        icon: const Icon(Icons.copy,),
+                        icon: const Icon(
+                          Icons.copy,
+                        ),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: logic.comic!.name));
+                          Clipboard.setData(
+                              ClipboardData(text: logic.comic!.name));
                         },
-                      ),),
+                      ),
+                    ),
                   ],
                 ),
 
@@ -155,7 +165,8 @@ class HtComicPage extends StatelessWidget {
                           ),
                           const Text(
                             "简介",
-                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 16),
                           )
                         ],
                       )),
@@ -167,60 +178,7 @@ class HtComicPage extends StatelessWidget {
                   ),
                 ),
 
-                const SliverPadding(padding: EdgeInsets.all(5)),
-                const SliverToBoxAdapter(
-                  child: Divider(),
-                ),
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                      width: 100,
-                      child: Row(
-                        children: [
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Icon(Icons.remove_red_eye,
-                              color: Theme.of(context).colorScheme.secondary),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          const Text(
-                            "预览",
-                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-                          )
-                        ],
-                      )),
-                ),
-                const SliverPadding(padding: EdgeInsets.all(5)),
-                SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    childCount: logic.images.length,
-                      (context, index){
-                      if(index == logic.images.length-1 && logic.images.length < logic.comic!.pages){
-                        logic.getImages();
-                      }
-                        return Padding(
-                          padding: UiMode.m1(context)?const EdgeInsets.all(3):const EdgeInsets.all(16),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: CachedNetworkImage(
-                              imageUrl: logic.images[index],
-                              fit: BoxFit.fill,
-                              placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-                              errorWidget: (context, s, d) => const Icon(Icons.error),
-                            ),
-                          ),
-                        );
-                      }
-                  ),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400,
-                    childAspectRatio: 0.75,
-                  )
-                ),
+                ...buildThumbnails(context, logic),
                 const SliverPadding(padding: EdgeInsets.only(bottom: 50))
               ],
             );
@@ -230,18 +188,20 @@ class HtComicPage extends StatelessWidget {
     );
   }
 
-  Size boundingTextSize(String text, TextStyle style,  {int maxLines = 2^31, double maxWidth = double.infinity}) {
+  Size boundingTextSize(String text, TextStyle style,
+      {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
     if (text.isEmpty) {
       return Size.zero;
     }
     final TextPainter textPainter = TextPainter(
         textDirection: TextDirection.ltr,
-        text: TextSpan(text: text, style: style), maxLines: maxLines)
+        text: TextSpan(text: text, style: style),
+        maxLines: maxLines)
       ..layout(maxWidth: maxWidth);
     return textPainter.size;
   }
 
-  Widget buildComicInfo(HtComicInfo comic, BuildContext context){
+  Widget buildComicInfo(HtComicInfo comic, BuildContext context) {
     if (UiMode.m1(context)) {
       return SliverToBoxAdapter(
         child: Padding(
@@ -252,7 +212,8 @@ class HtComicPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 //封面
-                buildCover(context, 350, MediaQuery.of(context).size.width, comic.coverPath),
+                buildCover(context, 350, MediaQuery.of(context).size.width,
+                    comic.coverPath),
                 const SizedBox(
                   height: 20,
                 ),
@@ -272,7 +233,8 @@ class HtComicPage extends StatelessWidget {
               SizedBox(
                 child: Column(
                   children: [
-                    buildCover(context, 450, MediaQuery.of(context).size.width / 2, comic.coverPath),
+                    buildCover(context, 450,
+                        MediaQuery.of(context).size.width / 2, comic.coverPath),
                   ],
                 ),
               ),
@@ -292,11 +254,12 @@ class HtComicPage extends StatelessWidget {
     }
   }
 
-  Widget buildCover(BuildContext context, double height, double width, String image){
+  Widget buildCover(
+      BuildContext context, double height, double width, String image) {
     return GestureDetector(
       onTap: () => Get.to(() => ShowImagePage(
-        image,
-      )),
+            image,
+          )),
       child: Padding(
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: CachedNetworkImage(
@@ -309,29 +272,31 @@ class HtComicPage extends StatelessWidget {
     );
   }
 
-  List<Widget> buildInfoCards(HtComicInfo comic, BuildContext context){
+  List<Widget> buildInfoCards(HtComicInfo comic, BuildContext context) {
     var res = <Widget>[];
     res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Text("分类".tr),
     ));
     res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+        padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
         child: Wrap(
           children: [buildInfoCard(comic.category, context)],
         )));
     res.add(const Padding(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
       child: Text("tags"),
     ));
     res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-      child: Wrap(
-        children: List.generate(
-            comic.tags.length, (index) => buildInfoCard(comic.tags.keys.elementAt(index), context)),
-    )));
+        padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+        child: Wrap(
+          children: List.generate(
+              comic.tags.length,
+              (index) =>
+                  buildInfoCard(comic.tags.keys.elementAt(index), context)),
+        )));
     res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(10, 5, 20, 5),
+      padding: const EdgeInsets.fromLTRB(0, 5, 20, 5),
       child: Card(
         elevation: 0,
         color: Theme.of(context).colorScheme.inversePrimary,
@@ -346,7 +311,8 @@ class HtComicPage extends StatelessWidget {
                   avatarUrl: comic.avatar,
                   couldBeShown: false,
                   name: comic.uploader,
-                ),),
+                ),
+              ),
               Expanded(
                 flex: 3,
                 child: Padding(
@@ -356,7 +322,8 @@ class HtComicPage extends StatelessWidget {
                     children: [
                       Text(
                         comic.uploader,
-                        style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600),
                       ),
                       Text("投稿作品${comic.uploadNum}部")
                     ],
@@ -370,7 +337,7 @@ class HtComicPage extends StatelessWidget {
     ));
     List<Widget> res2 = [];
     res2.add(Padding(
-      padding: const EdgeInsets.fromLTRB(10, 15, 20, 5),
+      padding: const EdgeInsets.fromLTRB(0, 15, 20, 5),
       child: Row(
         children: [
           SizedBox.fromSize(
@@ -384,9 +351,11 @@ class HtComicPage extends StatelessWidget {
                 ),
                 avatar: const Icon(Icons.bookmark_outline),
                 onPressed: () {
-                  showDialog(context: context, builder: (context){
-                    return FavoriteComicDialog(comic.id);
-                  });
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return FavoriteComicDialog(comic.id);
+                      });
                 }),
           ),
           SizedBox.fromSize(
@@ -396,8 +365,9 @@ class HtComicPage extends StatelessWidget {
             child: ActionChip(
               label: Text("页数: ${comic.pages}"),
               avatar: const Icon(Icons.pages),
-              onPressed: (){},
-            ),)
+              onPressed: () {},
+            ),
+          )
         ],
       ),
     ));
@@ -405,42 +375,55 @@ class HtComicPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Row(
         children: [
-          Expanded(child: FilledButton(
-            onPressed: (){
-              final id = "Ht${comic.id}";
-              if(DownloadManager().downloadedHtComics.contains(id)){
-                showMessage(context, "已下载".tr);
-                return;
-              }
-              for(var i in DownloadManager().downloading){
-                if(i.id == id){
-                  showMessage(context, "下载中".tr);
+          Expanded(
+            child: FilledButton(
+              onPressed: () {
+                final id = "Ht${comic.id}";
+                if (DownloadManager().downloadedHtComics.contains(id)) {
+                  showMessage(context, "已下载".tr);
                   return;
                 }
-              }
-              DownloadManager().addHtDownload(comic);
-              showMessage(context, "已加入下载队列".tr);
-            },
-            child: DownloadManager().downloadedHtComics.contains("Ht${comic.id}")?Text("已下载".tr):Text("下载".tr),
-          ),),
-          SizedBox.fromSize(size: const Size(10,1),),
-          Expanded(child: FilledButton(
-            onPressed: () => readHtmangaComic(comic),
-            child: Text("阅读".tr),
-          ),),
+                for (var i in DownloadManager().downloading) {
+                  if (i.id == id) {
+                    showMessage(context, "下载中".tr);
+                    return;
+                  }
+                }
+                DownloadManager().addHtDownload(comic);
+                showMessage(context, "已加入下载队列".tr);
+              },
+              child:
+                  DownloadManager().downloadedHtComics.contains("Ht${comic.id}")
+                      ? Text("已下载".tr)
+                      : Text("下载".tr),
+            ),
+          ),
+          SizedBox.fromSize(
+            size: const Size(10, 1),
+          ),
+          Expanded(
+            child: FilledButton(
+              onPressed: () => readHtmangaComic(comic),
+              child: Text("阅读".tr),
+            ),
+          ),
         ],
       ),
     ));
-    return !UiMode.m1(context)?res+res2:res2+res;
+    return !UiMode.m1(context) ? res + res2 : res2 + res;
   }
 
-  Widget buildInfoCard(String title, BuildContext context, {bool allowSearch = true}) {
+  Widget buildInfoCard(String title, BuildContext context,
+      {bool allowSearch = true}) {
     return GestureDetector(
       onLongPressStart: (details) {
         showMenu(
             context: context,
-            position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy,
-                details.globalPosition.dx, details.globalPosition.dy),
+            position: RelativeRect.fromLTRB(
+                details.globalPosition.dx,
+                details.globalPosition.dy,
+                details.globalPosition.dx,
+                details.globalPosition.dy),
             items: [
               PopupMenuItem(
                 child: Text("复制".tr),
@@ -458,13 +441,17 @@ class HtComicPage extends StatelessWidget {
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           onTap: allowSearch
-              ? () => Get.to(() => HtSearchPage(title), preventDuplicates: false)
+              ? () =>
+                  Get.to(() => HtSearchPage(title), preventDuplicates: false)
               : () {},
           onSecondaryTapUp: (details) {
             showMenu(
                 context: context,
-                position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy,
-                    details.globalPosition.dx, details.globalPosition.dy),
+                position: RelativeRect.fromLTRB(
+                    details.globalPosition.dx,
+                    details.globalPosition.dy,
+                    details.globalPosition.dx,
+                    details.globalPosition.dy),
                 items: [
                   PopupMenuItem(
                     child: Text("复制".tr),
@@ -482,6 +469,80 @@ class HtComicPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> buildThumbnails(BuildContext context, HtComicPageLogic logic){
+    return [
+      const SliverPadding(padding: EdgeInsets.all(5)),
+      const SliverToBoxAdapter(
+        child: Divider(),
+      ),
+      SliverToBoxAdapter(
+        child: SizedBox(
+            width: 100,
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 20,
+                ),
+                Icon(Icons.remove_red_eye,
+                    color: Theme.of(context).colorScheme.secondary),
+                const SizedBox(
+                  width: 20,
+                ),
+                const Text(
+                  "预览",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 16),
+                )
+              ],
+            )),
+      ),
+      const SliverPadding(padding: EdgeInsets.all(5)),
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+                childCount: logic.images.length, (context, index) {
+              if (index == logic.images.length - 1 &&
+                  logic.images.length < logic.comic!.pages) {
+                logic.getImages();
+              }
+              return Padding(
+                padding: UiMode.m1(context)
+                    ? const EdgeInsets.all(3)
+                    : const EdgeInsets.all(16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    child: CachedNetworkImage(
+                      imageUrl: logic.images[index],
+                      fit: BoxFit.fill,
+                      placeholder: (context, s) => ColoredBox(
+                          color: Theme.of(context).colorScheme.surfaceVariant),
+                      errorWidget: (context, s, d) => const Icon(Icons.error),
+                    ),
+                  ),
+                ),
+              );
+            }),
+            gridDelegate:
+            const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200,
+              childAspectRatio: 0.75,
+            )),
+      ),
+      if(logic.images.length < logic.comic!.pages)
+        const SliverToBoxAdapter(
+          child: ListLoadingIndicator(),
+        )
+    ];
   }
 }
 
@@ -504,13 +565,13 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if(loading){
+    if (loading) {
       get();
     }
     return SimpleDialog(
       title: Text("收藏漫画".tr),
       children: [
-        if(loading)
+        if (loading)
           const SizedBox(
             key: Key("0"),
             width: 300,
@@ -519,7 +580,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
               child: CircularProgressIndicator(),
             ),
           )
-        else if(message != null)
+        else if (message != null)
           const SizedBox(
             key: Key("1"),
             width: 300,
@@ -542,8 +603,8 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                   height: 50,
                   decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius: const BorderRadius.all(Radius.circular(16))
-                  ),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(16))),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -553,56 +614,60 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.arrow_drop_down_sharp),
-                        onPressed: (){
-                          if(loading){
+                        onPressed: () {
+                          if (loading) {
                             showMessage(context, "加载中".tr);
                             return;
                           }
                           showMenu(
                               context: context,
                               position: RelativeRect.fromLTRB(
-                                  MediaQuery.of(context).size.width/2+150,
-                                  MediaQuery.of(context).size.height/2,
-                                  MediaQuery.of(context).size.width/2-150,
-                                  MediaQuery.of(context).size.height/2),
+                                  MediaQuery.of(context).size.width / 2 + 150,
+                                  MediaQuery.of(context).size.height / 2,
+                                  MediaQuery.of(context).size.width / 2 - 150,
+                                  MediaQuery.of(context).size.height / 2),
                               items: [
-                                for(var folder in folders.entries)
+                                for (var folder in folders.entries)
                                   PopupMenuItem(
                                     child: Text(folder.value),
-                                    onTap: (){
+                                    onTap: () {
                                       setState(() {
                                         folderName = folder.value;
                                       });
                                       folderId = folder.key;
                                     },
                                   )
-                              ]
-                          );
+                              ]);
                         },
                       )
                     ],
                   ),
                 ),
-                const SizedBox(height: 20,),
-                if(!loading2)
-                  FilledButton(onPressed: () async{
-                    if(folderId == ""){
-                      return;
-                    }
-                    setState(() {
-                      loading2 = true;
-                    });
-                    var res = await HtmangaNetwork().addFavorite(widget.id, folderId);
-                    if(res.error){
-                      showMessage(Get.context, res.errorMessage!);
-                      setState(() {
-                        loading2 = false;
-                      });
-                    } else {
-                      Get.back();
-                      showMessage(Get.context, "添加成功".tr);
-                    }
-                  }, child: Text("提交".tr))
+                const SizedBox(
+                  height: 20,
+                ),
+                if (!loading2)
+                  FilledButton(
+                      onPressed: () async {
+                        if (folderId == "") {
+                          return;
+                        }
+                        setState(() {
+                          loading2 = true;
+                        });
+                        var res = await HtmangaNetwork()
+                            .addFavorite(widget.id, folderId);
+                        if (res.error) {
+                          showMessage(Get.context, res.errorMessage!);
+                          setState(() {
+                            loading2 = false;
+                          });
+                        } else {
+                          Get.back();
+                          showMessage(Get.context, "添加成功".tr);
+                        }
+                      },
+                      child: Text("提交".tr))
                 else
                   const Center(
                     child: CircularProgressIndicator(),
@@ -614,19 +679,18 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
     );
   }
 
-  void get() async{
+  void get() async {
     var r = await HtmangaNetwork().getFolders();
-    if(r.error){
+    if (r.error) {
       message = r.errorMessage;
-    }else{
+    } else {
       folders = r.data;
     }
     try {
       setState(() {
         loading = false;
       });
-    }
-    catch(e){
+    } catch (e) {
       //可能退出了弹窗后网络请求返回
     }
   }

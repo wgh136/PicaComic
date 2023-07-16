@@ -10,6 +10,7 @@ import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:html/parser.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import '../../base.dart';
 
@@ -73,7 +74,7 @@ class HtmangaNetwork {
 
   ///登录
   Future<Res<String>> login(String account, String pwd) async{
-    var res = await post("$baseUrl/users-check_login.html", "login_name=$account&login_pass=$pwd");
+    var res = await post("$baseUrl/users-check_login.html", "login_name=${Uri.encodeComponent(account)}&login_pass=${Uri.encodeComponent(pwd)}");
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -108,7 +109,7 @@ class HtmangaNetwork {
       Map<String, String> titleRes = {};
       for (var title in titles) {
         var text = title.querySelector("div.title_h2")!.text;
-        text = text.replaceAll("\n", "");
+        text = text.replaceAll("\n", "").removeAllBlank;
         var link = title.querySelector("div.r > a")!.attributes["href"]!;
         link = baseUrl + link;
         titleRes[text] = link;
@@ -162,7 +163,7 @@ class HtmangaNetwork {
         url = "${lr[0]}albums-${lr[1]}";
       }
     }
-    var res = await get(url);
+    var res = await get(url, cache: false);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -175,18 +176,19 @@ class HtmangaNetwork {
           var id = RegExp(r"(?<=-aid-)[0-9]+").firstMatch(link)![0]!;
           var image = comic.querySelector("div.pic_box > a > img")!.attributes["src"]!;
           image = "https:$image";
-          var name = comic.querySelector("div.info > div.title > a")!.text;
+          var name = comic.querySelector("div.info > div.title > a")!.attributes["title"];
+          name = name??comic.querySelector("div.info > div.title > a")!.text;
           var infoCol = comic.querySelector("div.info > div.info_col")!.text;
           var lr = infoCol.split("，");
-          var time = lr[1];
+          var time = lr[1].removeAllBlank;
           time = time.replaceAll("\n", "");
           var pagesStr = "";
           for (int i = 0; i < lr[0].length; i++) {
-            if (lr[1][i].isNum) {
-              pagesStr += lr[1][i];
+            if (lr[0][i].isNum) {
+              pagesStr += lr[0][i];
             }
           }
-          var pages = int.parse(pagesStr);
+          var pages = pagesStr==""?0:int.parse(pagesStr);
           comics.add(HtComicBrief(name, time, image, id, pages));
         } catch (e) {
           continue;
@@ -222,7 +224,7 @@ class HtmangaNetwork {
 
   /// 获取漫画详情, subData为第一页的缩略图
   Future<Res<HtComicInfo>> getComicInfo(String id) async {
-    var res = await get("$baseUrl/photos-index-page-1-aid-$id.html");
+    var res = await get("$baseUrl/photos-index-page-1-aid-$id.html", cache: false);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -323,7 +325,7 @@ class HtmangaNetwork {
   }
 
   Future<bool> createFolder(String name) async =>
-      !(await post("$baseUrl/users-favc_save-id.html", "favc_name=$name")).error;
+      !(await post("$baseUrl/users-favc_save-id.html", "favc_name=${Uri.encodeComponent(name)}")).error;
 
   Future<bool> deleteFolder(String id) async =>
       !(await get("$baseUrl/users-favclass_del-id-$id.html"

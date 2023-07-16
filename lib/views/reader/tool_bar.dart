@@ -242,13 +242,6 @@ Widget buildBottomToolBar(
                         ),
                       ),
                       Tooltip(
-                        message: "刷新".tr,
-                        child: IconButton(
-                          icon: const Icon(Icons.refresh),
-                          onPressed: () => Get.forceAppUpdate(),
-                        ),
-                      ),
-                      Tooltip(
                         message: "自动翻页".tr,
                         child: IconButton(
                           icon: comicReadingPageLogic.runningAutoPageTurning?

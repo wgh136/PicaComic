@@ -13,7 +13,7 @@ class HtComicList extends ComicsPage<HtComicBrief>{
 
   @override
   Future<Res<List<HtComicBrief>>> getComics(int i) {
-    return HtmangaNetwork().getComicList(url, i);
+    return HtmangaNetwork().getComicList("${HtmangaNetwork.baseUrl}$url", i);
   }
 
   @override

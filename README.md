@@ -1,12 +1,11 @@
 # Pica Comic
 
-[![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![flutter](https://img.shields.io/badge/flutter-3.10.5-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.10.6-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
 
-使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi
+使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi, 绅士漫画
 
 目前支持Android, Windows; 由于缺乏测试条件,  IOS可用性未知
 
@@ -74,6 +73,17 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 - 搜索
 - 漫画详情
 - 漫画阅读
+- 下载漫画
+
+### 绅士漫画
+在v2.0.0版本中添加
+- 主页
+- 分类
+- 搜索
+- 漫画详情
+- 漫画阅读
+- 登录
+- 收藏夹
 - 下载漫画
 
 ## Thanks

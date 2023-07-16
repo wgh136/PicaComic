@@ -10,51 +10,58 @@ import 'package:pica_comic/network/proxy.dart';
 import 'log_dio.dart';
 
 ///缓存网络请求, 仅提供get方法, 其它的没有意义
-class CachedNetwork{
+class CachedNetwork {
   String? _path;
 
-  Future<void> init() async{
-    _path = "${(await getTemporaryDirectory()).path}${Platform.pathSeparator}cachedNetwork";
-    if(!Directory(_path!).existsSync()){
+  Future<void> init() async {
+    _path =
+        "${(await getTemporaryDirectory()).path}${Platform.pathSeparator}cachedNetwork";
+    if (!Directory(_path!).existsSync()) {
       Directory(_path!).createSync(recursive: true);
     }
   }
 
-  static Future<void> clearCache() async{
-    var path = "${(await getTemporaryDirectory()).path}${Platform.pathSeparator}cachedNetwork";
-    if(Directory(path).existsSync()){
+  static Future<void> clearCache() async {
+    var path =
+        "${(await getTemporaryDirectory()).path}${Platform.pathSeparator}cachedNetwork";
+    if (Directory(path).existsSync()) {
       Directory(path).deleteSync(recursive: true);
       Directory(path).createSync();
     }
   }
 
   Future<CachedNetworkRes<String>> get(String url, BaseOptions options,
-      {CacheExpiredTime expiredTime=CacheExpiredTime.short, CookieJar? cookieJar}) async{
+      {CacheExpiredTime expiredTime = CacheExpiredTime.short,
+      CookieJar? cookieJar}) async {
     await setNetworkProxy();
     await init();
-    var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-    if(fileName.length > 20){
+    var fileName = md5
+        .convert(const Utf8Encoder()
+            .convert(url.replaceFirst("inline_set=ts_l&", "")))
+        .toString();
+    if (fileName.length > 20) {
       fileName = fileName.substring(0, 21);
     }
     var file = File(_path! + Platform.pathSeparator + fileName);
-    if(file.existsSync()){
+    if (file.existsSync()) {
       var time = file.lastModifiedSync();
-      if(expiredTime==CacheExpiredTime.persistent
-          || DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch < expiredTime.time){
+      if (expiredTime == CacheExpiredTime.persistent ||
+          DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch <
+              expiredTime.time) {
         return CachedNetworkRes(file.readAsStringSync(), 200);
       }
     }
     options.responseType = ResponseType.plain;
     var dio = logDio(options);
-    if(cookieJar != null){
+    if (cookieJar != null) {
       dio.interceptors.add(CookieManager(cookieJar));
     }
 
     var res = await dio.get(url);
-    if(res.data == null){
+    if (res.data == null) {
       throw Exception("无数据");
     }
-    if(expiredTime != CacheExpiredTime.no) {
+    if (expiredTime != CacheExpiredTime.no) {
       if (file.existsSync()) {
         file.deleteSync();
       }
@@ -64,40 +71,43 @@ class CachedNetwork{
     return CachedNetworkRes(res.data, res.statusCode);
   }
 
-  Future<CachedNetworkRes<String>> getJm(String url, BaseOptions options, int time,
-      {CacheExpiredTime expiredTime=CacheExpiredTime.short, CookieJar? cookieJar}) async{
+  Future<CachedNetworkRes<String>> getJm(
+      String url, BaseOptions options, int time,
+      {CacheExpiredTime expiredTime = CacheExpiredTime.short,
+      CookieJar? cookieJar}) async {
     await setNetworkProxy();
     await init();
     var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-    if(fileName.length > 20){
+    if (fileName.length > 20) {
       fileName = fileName.substring(0, 21);
     }
     var file = File(_path! + Platform.pathSeparator + fileName);
-    if(file.existsSync()){
+    if (file.existsSync()) {
       var time = file.lastModifiedSync();
-      if(expiredTime==CacheExpiredTime.persistent
-          || DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch < expiredTime.time){
+      if (expiredTime == CacheExpiredTime.persistent ||
+          DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch <
+              expiredTime.time) {
         return CachedNetworkRes(file.readAsStringSync(), 200);
       }
     }
     options.responseType = ResponseType.plain;
     var dio = logDio(options);
-    if(cookieJar != null){
+    if (cookieJar != null) {
       dio.interceptors.add(CookieManager(cookieJar));
     }
     var res = await dio.get(url);
-    if(res.statusCode != 200){
+    if (res.statusCode != 200) {
       return CachedNetworkRes(res.data.toString(), res.statusCode);
     }
     var json = const JsonDecoder().convert(res.data);
     var data = json["data"];
-    if(data is List && data.isEmpty){
+    if (data is List && data.isEmpty) {
       throw Exception("无数据");
-    }else if(data is List){
+    } else if (data is List) {
       throw Exception("解析出错");
     }
     var decodedData = JmNetwork.convertData(data, time);
-    if(expiredTime != CacheExpiredTime.no) {
+    if (expiredTime != CacheExpiredTime.no) {
       if (file.existsSync()) {
         file.deleteSync();
       }
@@ -108,7 +118,7 @@ class CachedNetwork{
   }
 }
 
-enum CacheExpiredTime{
+enum CacheExpiredTime {
   no(-1),
   short(86400000),
   long(604800000),
@@ -120,7 +130,7 @@ enum CacheExpiredTime{
   const CacheExpiredTime(this.time);
 }
 
-class CachedNetworkRes<T>{
+class CachedNetworkRes<T> {
   T data;
   int? statusCode;
 

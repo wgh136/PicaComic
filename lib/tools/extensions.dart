@@ -10,3 +10,8 @@ extension ListExtension<T> on List<T>{
     return newList;
   }
 }
+
+extension StringExtension on String{
+  ///Remove all value that would display blank on the screen.
+  String get removeAllBlank => replaceAll("\n", "").replaceAll(" ", "").replaceAll("\t", "");
+}

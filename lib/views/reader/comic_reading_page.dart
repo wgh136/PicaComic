@@ -172,6 +172,7 @@ class ComicReadingPage extends StatelessWidget {
             cancelKeepScreenOn();
           }
           MyCacheManager().saveData();
+          logic.controller?.runningAutoPageTurning = false;
         },
         builder: (logic) {
           return Scaffold(

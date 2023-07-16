@@ -415,10 +415,12 @@ class AccountsPage extends StatelessWidget {
                                       File(logic.url),
                                       fit: BoxFit.cover,
                                     )
-                                  : const Image(
-                                      image: AssetImage("images/select.png"),
-                                      fit: BoxFit.cover,
+                                  : Container(
+                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                    child: Center(
+                                      child: Text("选择图像".tr, style: const TextStyle(fontSize: 22),),
                                     ),
+                              ),
                             ),
                             onTap: () async {
                               if (GetPlatform.isWindows) {

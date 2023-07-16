@@ -463,7 +463,7 @@ class EhNetwork{
           imgUrls.add(i.attributes["src"]!);
         }
       }
-      gallery.imgUrls = imgUrls;
+      gallery.thumbnailUrls = imgUrls;
       return Res(gallery);
     }
     catch(e, s){
@@ -488,6 +488,28 @@ class EhNetwork{
         resComments.add(Comment(name, content, time));
       }
       return Res(resComments);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<Res<List<String>>> getThumbnailUrls(String link, int page) async{
+    var res = await request("$link?inline_set=ts_l&p=${page-1}");
+    if(res.error){
+      return Res(null, errorMessage: res.errorMessage);
+    }
+    try{
+      var document = parse(res.data);
+      var imgUrls = <String>[];
+      var imgDom = document.querySelectorAll("div.gdtl > a > img");
+      for(var i in imgDom){
+        if(i.attributes["src"] != null) {
+          imgUrls.add(i.attributes["src"]!);
+        }
+      }
+      return Res(imgUrls);
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");

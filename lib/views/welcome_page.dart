@@ -73,7 +73,7 @@ class _GuidePageState extends State<GuidePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       floatingActionButton: !showFinish
           ? FloatingActionButton.extended(
               onPressed: () {
@@ -97,6 +97,10 @@ class _GuidePageState extends State<GuidePage> {
               setState(() {
                 showFinish = true;
               });
+            } else {
+              setState(() {
+                showFinish = false;
+              });
             }
           },
           children: [
@@ -115,12 +119,24 @@ class _GuidePageState extends State<GuidePage> {
                   child: Padding(
                     padding:
                         const EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                    child: Text(
-                      "感谢使用本软件, 请注意:\n\n".tr +
-                          "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tr +
-                          "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系"
-                              .tr,
-                      style: const TextStyle(fontSize: 16),
+                    child: SizedBox(
+                      width: 400,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "感谢使用本软件, 请注意:\n".tr,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tr +
+                                "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫无任何关系"
+                                    .tr,
+                            style: const TextStyle(fontSize: 16),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ))
