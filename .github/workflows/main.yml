@@ -1,6 +1,7 @@
 name: Build IOS
 run-name: Build IOS
-on: [push]
+on:
+  workflow_dispatch: {}
 jobs:
   Build_IOS:
     runs-on: macos-latest
@@ -12,7 +13,8 @@ jobs:
         architecture: x64
     - run: flutter pub get
     - run: flutter build ios --release --no-codesign
+    - run: bash /Users/runner/work/PicaComic/PicaComic/.github/generate_ipa.sh
     - uses: actions/upload-artifact@v3
       with:
-        name: my-artifact
-        path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/Runner.app
+        name: app-ios.ipa
+        path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/app-ios.ipa
