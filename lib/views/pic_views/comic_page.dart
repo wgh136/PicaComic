@@ -25,8 +25,6 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
   ComicItem? comicItem;
-  bool underReview = false;
-  bool noNetwork = false;
   bool showAppbarTitle = false;
   String? message;
   var tags = <Widget>[];
@@ -189,7 +187,7 @@ class ComicPage extends StatelessWidget{
   void loadComicInfo(ComicPageLogic logic, BuildContext context){
     network.getComicInfo(comic.id).then((c) {
       if(c.error){
-        logic.underReview = true;
+        logic.message = c.errorMessageWithoutNull;
         logic.change();
         return;
       }
@@ -475,36 +473,6 @@ class ComicPage extends StatelessWidget{
         ),
       ),
     ];
-  }
-
-  void loadComicInfoFormFile(ComicPageLogic logic, BuildContext context){
-    //加载已下载的漫画
-    downloadManager.getComicFromId(comic.id).then((downloadComic){
-      logic.isLoading = false;
-      logic.comicItem = downloadComic.comicItem;
-      for (String s in logic.comicItem!.tags) {
-        logic.tags.add(buildInfoCard(s, context));
-      }
-      for (String s in logic.comicItem!.categories) {
-        logic.categories.add(buildInfoCard(s, context));
-      }
-
-      for (int i = 1; i < downloadComic.chapters.length; i++) {
-        logic.epsStr.add(downloadComic.chapters[i]);
-        logic.eps.add(ListTile(
-          title: Text(downloadComic.chapters[i]),
-          onTap: () {
-            Get.to(() =>
-                ComicReadingPage.picacg(comic.id, i, logic.epsStr, comic.title));
-          },
-        ));
-      }
-
-      logic.comicItem!.likes = 0;
-      logic.comicItem!.comments = 0;
-      logic.noNetwork = true;
-      logic.update();
-    });
   }
 
   Widget buildInfoCard(String title, BuildContext context){

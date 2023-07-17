@@ -4,16 +4,19 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 
 class HtComicList extends ComicsPage<HtComicBrief>{
-  const HtComicList({required this.name, required this.url, super.key});
+  const HtComicList(
+      {required this.name, required this.url, this.addDomain=true, super.key});
 
   final String name;
 
   final String url;
 
+  final bool addDomain;
+
 
   @override
   Future<Res<List<HtComicBrief>>> getComics(int i) {
-    return HtmangaNetwork().getComicList("${HtmangaNetwork.baseUrl}$url", i);
+    return HtmangaNetwork().getComicList("${addDomain?HtmangaNetwork.baseUrl:""}$url", i);
   }
 
   @override

@@ -15,7 +15,7 @@ class SearchPageComicsList extends ComicsPage<HtComicBrief>{
 
   @override
   Future<Res<List<HtComicBrief>>> getComics(int i) {
-    return HtmangaNetwork().search(keyword, i);
+    return HtmangaNetwork().search(keyword, i, );
   }
 
   @override

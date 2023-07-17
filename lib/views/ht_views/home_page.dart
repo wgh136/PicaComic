@@ -63,7 +63,8 @@ class HtHomePage extends StatelessWidget {
                       TextButton(
                           onPressed: () => Get.to(() => HtComicList(
                               name: logic.data!.links.keys.elementAt(i),
-                              url: logic.data!.links.values.elementAt(i))),
+                              url: logic.data!.links.values.elementAt(i),
+                              addDomain: false,)),
                           child: Text("查看更多".tr)),
                     ],
                   ),

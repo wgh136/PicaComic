@@ -425,6 +425,7 @@ class PreSearchPage extends StatelessWidget {
                                       case 1: Get.to(()=>EhSearchPage(s));break;
                                       case 2: Get.to(()=>JmSearchPage(s));break;
                                       case 3: Get.to(()=>HitomiSearchPage(s));break;
+                                      case 4: Get.to(()=>HtSearchPage(s));break;
                                     }
                                   },
                                   child: Padding(
