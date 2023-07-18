@@ -107,15 +107,15 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            colorScheme: colorScheme ?? lightColor ??
-                ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+            colorScheme: (colorScheme ?? lightColor ??
+                ColorScheme.fromSeed(seedColor: Colors.pinkAccent)),
             useMaterial3: true,
             fontFamily: GetPlatform.isWindows?"font":"",
             ),
         darkTheme: ThemeData(
-            colorScheme: colorScheme ?? darkColor ??
+            colorScheme: (colorScheme ?? darkColor ??
                 ColorScheme.fromSeed(
-                    seedColor: Colors.pinkAccent, brightness: Brightness.dark),
+                    seedColor: Colors.pinkAccent, brightness: Brightness.dark)),
             useMaterial3: true,
             fontFamily: GetPlatform.isWindows?"font":"",
           ),

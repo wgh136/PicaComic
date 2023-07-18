@@ -11,6 +11,7 @@ import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/tools/io_extensions.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -77,6 +78,14 @@ Future<double> calculateCacheSize() async{
   if(GetPlatform.isAndroid || GetPlatform.isIOS) {
     var path = await getTemporaryDirectory();
     return compute(getFolderSize, path);
+  }else if(GetPlatform.isWindows){
+    var path = "${(await getTemporaryDirectory()).path}${pathSep}imageCache";
+    var directory = Directory(path);
+    if(directory.existsSync()){
+      return directory.getMBSizeSync();
+    }else{
+      return 0;
+    }
   }else{
     return double.infinity;
   }

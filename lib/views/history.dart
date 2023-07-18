@@ -137,7 +137,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             comics[i].cover
                           )));
                         }else{
-                          Get.to(HtComicPage(HtComicBrief(
+                          Get.to(() => HtComicPage(HtComicBrief(
                             comics[i].title,
                             "",
                             comics[i].cover,

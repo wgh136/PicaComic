@@ -85,7 +85,7 @@ class _GuidePageState extends State<GuidePage> {
               icon: const Icon(Icons.navigate_next),
             )
           : FloatingActionButton.extended(
-              onPressed: () => Get.offAll(const MainPage()),
+              onPressed: () => Get.offAll(() => const MainPage()),
               label: Text("完成".tr),
               icon: const Icon(Icons.check),
             ),

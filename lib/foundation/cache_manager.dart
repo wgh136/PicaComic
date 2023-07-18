@@ -5,26 +5,29 @@ import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
 
-///用于阅读器的图片缓存管理
 class MyCacheManager{
   static MyCacheManager? cache;
 
   ///用于标记正在加载的项目, 避免出现多个异步函数加载同一张图片
   static Map<String, DownloadProgress> loadingItems = {};
 
+  /// Image cache manager for reader
   factory MyCacheManager() {
     createFolder();
     return cache??(cache = MyCacheManager._create());
   }
 
   static void createFolder() async{
-    var folder = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
+    var folder = Directory(
+        "${(await getTemporaryDirectory()).path}${pathSep}imageCache");
     if(!folder.existsSync()){
         folder.createSync(recursive: true);
     }
@@ -39,34 +42,65 @@ class MyCacheManager{
       var appDataPath = (await getApplicationSupportDirectory()).path;
       var file = File("$appDataPath${pathSep}cache.json");
       if(file.existsSync()){
-        _paths = Map<String, String>.from(const JsonDecoder().convert(await file.readAsString()));
+        _paths = Map<String, String>.from(const JsonDecoder()
+            .convert(await file.readAsString()));
       }else{
         _paths = {};
       }
     }
   }
 
-  ///保存数据同时清除内存中的数据
+  /// Clear image cache exceeding limit and save data into json file.
   Future<void> saveData() async{
+    LogManager.addLog(LogLevel.info, "Cache Manager",
+        "Performing clear cache and save Data");
+    var clearNum = 0;
+    final maxNumber = int.parse(appdata.settings[34]);
+    final maxSize = int.parse(appdata.settings[35]);
     if(_paths != null){
-      if(_paths!.length > 1000){
+      // check the limitation of number
+      if(_paths!.length > maxNumber){
         var keys = _paths!.keys.toList();
-        for(int i = 0;i<1000-_paths!.length;i++){
+        for(int i = 0;i<maxNumber-_paths!.length;i++){
           var file = File(_paths![keys[i]]!);
           if(file.existsSync()){
+            clearNum++;
             file.deleteSync();
           }
           _paths!.remove(keys[i]);
         }
       }
+      // check the information of size
+      var cachePath =
+          "${(await getTemporaryDirectory()).path}${pathSep}imageCache";
+      var size = Directory(cachePath).getMBSizeSync();
+      LogManager.addLog(LogLevel.info, "Cache Manager",
+          "Current cache number is ${_paths!.length}, size is ${size.toStringAsFixed(2)}MB");
+      if(size > maxSize){
+        while(size > maxSize){
+          var first = _paths!.keys.first;
+          var firstFile = File(_paths![first]!);
+          if(firstFile.existsSync()){
+            clearNum++;
+            size -= firstFile.getMBSizeSync();
+            firstFile.deleteSync();
+          }else{
+            _paths!.remove(first);
+          }
+        }
+      }
+      // save info
       var appDataPath = (await getApplicationSupportDirectory()).path;
       var file = File("$appDataPath${pathSep}cache.json");
       if(! file.existsSync()){
         await file.create();
       }
-      await file.writeAsString(const JsonEncoder().convert(_paths),mode: FileMode.writeOnly);
+      await file.writeAsString(const JsonEncoder().convert(_paths),
+          mode: FileMode.writeOnly);
       _paths = null;
     }
+    LogManager.addLog(LogLevel.info, "Cache Manager",
+        "Cleared $clearNum caches that exceeded the limit");
     loadingItems.clear();
   }
 

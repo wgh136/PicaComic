@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/views/category_page.dart';
@@ -11,8 +12,8 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-
 import '../leaderboard_page.dart';
+import '../widgets/value_listenable_widget.dart';
 
 void findUpdate(BuildContext context) {
   showMessage(context, "正在检查更新".tr, time: 2);
@@ -525,7 +526,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "Hitomi主页".tr,
       "Hitomi中文".tr,
       "Hitomi日文".tr,
-      "绅士漫画"
+      "绅士漫画".tr
     ];
     return SizedBox(
       width: 400,
@@ -548,5 +549,99 @@ class _SetExplorePagesState extends State<SetExplorePages> {
         ],
       ),
     );
+  }
+}
+
+void setCacheLimit(BuildContext context) async{
+  int? number;
+  int? size;
+  await showDialog(context: context, builder: (context)=>SimpleDialog(
+    title: const Text("阅读器缓存限制"),
+    children: [
+      SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text("缓存数量限制".tr),
+              ),
+              ValueListenableWidget<String>(
+                initialValue: appdata.settings[34],
+                builder: (value, update) => Row(
+                  children: [
+                    Expanded(child: Slider(
+                      value: int.parse(value).toDouble(),
+                      max: 2000,
+                      min: 200,
+                      divisions: 1799,
+                      onChanged: (newValue){
+                        number = newValue.toInt();
+                        update(newValue.toInt().toString());
+                      },
+                    )),
+                    SizedBox(
+                      width: 50,
+                      child: Center(
+                        child: Text(value),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Text("缓存大小限制"),
+              ),
+              ValueListenableWidget<String>(
+                initialValue: appdata.settings[35],
+                builder: (value, update) => Row(
+                  children: [
+                    Expanded(child: Slider(
+                      value: int.parse(value).toDouble(),
+                      max: 1024,
+                      min: 128,
+                      divisions: 897,
+                      onChanged: (newValue){
+                        size = newValue.toInt();
+                        update(newValue.toInt().toString());
+                      },
+                    )),
+                    SizedBox(
+                      width: 50,
+                      child: Text("$value MB"),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 20,
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.info_outline, size: 16,),
+                      Text("仅在退出阅读器时检查缓存是否超出限制".tr)
+                    ],
+                  ),
+                ),
+              )
+            ],
+          )
+        ),
+      )
+    ],
+  ));
+  if(number != null){
+    appdata.settings[34] = number!.toString();
+    appdata.updateSettings();
+  }
+  if(size != null){
+    appdata.settings[35] = size!.toString();
+    appdata.updateSettings();
   }
 }

@@ -197,10 +197,10 @@ packages:
     dependency: transitive
     description:
       name: file_selector_android
-      sha256: "59e694afad4609d689185a608958c85fbccb3e6feab12a6b8c95a2c0f90ad2f7"
+      sha256: "43e5c719f671b9181bef1bf2851135c3ad993a9a6c804a4ccb07579cfee84e34"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0+1"
+    version: "0.5.0+2"
   file_selector_ios:
     dependency: transitive
     description:

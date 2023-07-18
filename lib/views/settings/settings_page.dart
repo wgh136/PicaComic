@@ -202,17 +202,20 @@ class _SettingsPageState extends State<SettingsPage> {
                                 subtitle: Text(
                                     "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
                                 onTap: () {
-                                  if (GetPlatform.isAndroid) {
+                                  if (GetPlatform.isAndroid || GetPlatform.isIOS || GetPlatform.isWindows) {
                                     eraseCache();
                                     logic.size = 0;
                                     logic.update();
-                                  } else if (GetPlatform.isWindows) {
-                                    eraseCache();
                                   }
                                 },
                               );
                             }
                           }),
+                    ListTile(
+                      leading: Icon(Icons.chrome_reader_mode, color: Theme.of(context).colorScheme.secondary),
+                      title: Text("阅读器缓存限制".tr),
+                      onTap: () => setCacheLimit(context),
+                    ),
                     ListTile(
                       leading: Icon(Icons.color_lens,
                           color: Theme.of(context).colorScheme.secondary),

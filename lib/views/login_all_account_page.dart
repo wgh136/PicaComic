@@ -74,7 +74,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
                   child: Center(
                     child: FilledButton(
                       child: const Text("跳过"),
-                      onPressed: ()=>Get.offAll(const MainPage()),
+                      onPressed: ()=>Get.offAll(() => const MainPage()),
                     ),
                   ),
                 ),
