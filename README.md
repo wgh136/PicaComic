@@ -7,7 +7,9 @@
 
 使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi, 绅士漫画
 
-目前支持Android, Windows; 由于缺乏测试条件,  IOS可用性未知
+目前支持Android, Windows; 
+
+由于缺乏测试条件, IOS未经过测试, 欢迎提出issue
 
 本App目标为中文漫画, 因此App界面语言仅支持中文, 漫画源仅限于有中文漫画的漫画源
 
@@ -86,6 +88,36 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 - 收藏夹
 - 下载漫画
 
+## 从源代码构建
+首先, 必须安装**Stable频道最新版**[Flutter SDK](https://docs.flutter.dev/get-started/install)
+
+然后将本项目克隆至本地
+
+### 构建APK
+1. 安装Android Studio
+2. 创建签名证书: 可以通过Java的keytool创建, 或者使用Android Studio进行创建
+3. 在/PicaComic/android/下创建文件`key.properties`, 内容如下, 等号右边更改为创建签名时提供的数据, `storeFile`填写签名证书的位置
+```
+storePassword=
+keyPassword=
+keyAlias=
+storeFile=
+```
+4. 在终端运行`flutter pub get`
+5. 在终端运行`flutter build apk`
+
+### 构建Windows
+1. 安装Visual Studio, 并且勾选使用C++的桌面开发
+2. 打开/PicaComic/pubspec.yaml, 移至文件末尾, 找到注释`仅在打包windows时取消注释`, 将下面的字体使用取消注释. 你也可以将字体替换为其他字体
+3. 在终端运行`flutter pub get`
+4. 在终端运行`flutter build windows`
+
+### 构建IOS
+可以直接在[Action](https://github.com/wgh136/PicaComic/actions)页面查看构建结果
+
+### 其他平台?
+其它平台暂时不受支持, 你可以尝试构建, 并且遇到问题时可以提出issue, 但并不会在第一时间得到处理
+
 ## Thanks
 
 ### dependencies
@@ -116,6 +148,8 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 禁漫图片分割算法来自此项目, 并且使用chatgpt将python函数转换为了dart函数
 
 ## 屏幕截图
+
+本项目仍在持续开发中, 以下屏幕截图可能并非来自最新版本
 
 ### 大屏设备
 <img src="screenshots/9.png" style="width: 400px"><img src="screenshots/10.png" style="width: 400px">
