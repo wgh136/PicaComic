@@ -321,7 +321,11 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,ReadingType 
         !comicReadingPageLogic.downloaded) {
       precacheImage(
           HitomiCachedImageProvider(comicReadingPageLogic.images[index], target), context);
-    } else if (index < comicReadingPageLogic.urls.length &&
+    } else if(index < comicReadingPageLogic.urls.length && type == ReadingType.htmanga &&
+        !comicReadingPageLogic.downloaded){
+      precacheImage(
+          CachedImageProvider(comicReadingPageLogic.urls[index]), context);
+    }else if (index < comicReadingPageLogic.urls.length &&
         comicReadingPageLogic.downloaded) {
       var id = target;
       if (type == ReadingType.ehentai) {
