@@ -204,7 +204,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget{
         title: AnimatedOpacity(
           opacity: logic.showAppbarTitle?1.0:0.0,
           duration: const Duration(milliseconds: 200),
-          child: Text("$title${pages==null?"":"${pages}P"}"),
+          child: Text("$title${pages==null?"":"(${pages}P)"}"),
         ),
         pinned: true,
         actions: [

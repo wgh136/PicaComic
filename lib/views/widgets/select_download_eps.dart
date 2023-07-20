@@ -90,7 +90,7 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).padding.bottom,
+            height: MediaQuery.of(context).padding.bottom+4,
           )
         ],
       ),

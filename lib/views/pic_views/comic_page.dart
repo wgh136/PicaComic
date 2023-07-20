@@ -206,7 +206,7 @@ void downloadComic(ComicItem comic, BuildContext context, List<String> eps) asyn
   }
   if(UiMode.m1(Get.context!)) {
     showModalBottomSheet(context: Get.context!, builder: (context){
-      return SelectDownloadChapter(eps.sublist(1), (selectedEps){
+      return SelectDownloadChapter(eps, (selectedEps){
         downloadManager.addPicDownload(comic, selectedEps);
         showMessage(context, "已加入下载".tr);
       }, downloaded);
@@ -214,7 +214,7 @@ void downloadComic(ComicItem comic, BuildContext context, List<String> eps) asyn
   }else{
     showSideBar(
         Get.context!,
-      SelectDownloadChapter(eps.sublist(1), (selectedEps){
+      SelectDownloadChapter(eps, (selectedEps){
         downloadManager.addPicDownload(comic, selectedEps);
         showMessage(context, "已加入下载".tr);
       }, downloaded),
