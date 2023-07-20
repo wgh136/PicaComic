@@ -1,26 +1,169 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
-import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
-import 'package:pica_comic/views/widgets/selectable_text.dart';
-import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/base.dart';
-import 'package:share_plus/share_plus.dart';
 import '../widgets/select_download_eps.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+
+class PicacgComicPage extends ComicPage<ComicItem>{
+  final ComicItemBrief comic;
+  const PicacgComicPage(this.comic, {super.key});
+
+  @override
+  Row get actions => Row(
+    children: [
+      Expanded(child: ActionChip(
+        label: Text(data!.likes.toString()),
+        avatar: Icon((data!.isLiked)?Icons.favorite:Icons.favorite_border),
+        onPressed: (){
+          network.likeOrUnlikeComic(comic.id);
+          data!.isLiked = !data!.isLiked;
+          update();
+        },
+      ),),
+      SizedBox.fromSize(size: const Size(10,1),),
+      Expanded(child: ActionChip(
+        label: Text("收藏".tr),
+        avatar: Icon((data!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
+        onPressed: (){
+          network.favouriteOrUnfavouriteComic(comic.id);
+          data!.isFavourite = !data!.isFavourite;
+          update();
+        },
+      ),),
+      SizedBox.fromSize(size: const Size(10,1),),
+      Expanded(child: ActionChip(
+        label: Text(data!.comments.toString()),
+        avatar: const Icon(Icons.comment_outlined),
+        onPressed: (){
+          showComments(Get.context!, comic.id);
+        },
+      ),),
+    ],
+  );
+
+  @override
+  String get cover => comic.path;
+
+  @override
+  FilledButton get downloadButton => FilledButton(
+    onPressed: (){
+      downloadComic(data!, context, data!.eps);
+    },
+    child: (downloadManager.downloaded.contains(comic.id))?Text("修改".tr):Text("下载".tr),
+  );
+
+  @override
+  EpsData? get eps => EpsData(data!.eps, (i) {
+    addPicacgHistory(data!);
+    Get.to(() =>
+        ComicReadingPage.picacg(comic.id, i+1, data!.eps, comic.title));
+  });
+
+  @override
+  String? get introduction => data?.description;
+
+  @override
+  Future<Res<ComicItem>> loadData() => network.getComicInfo(comic.id);
+
+  @override
+  int? get pages => data?.pagesCount;
+
+  @override
+  FilledButton get readButton => FilledButton(
+    onPressed: () => readPicacgComic(data!, data!.eps),
+    child: Text("阅读".tr),
+  );
+
+  @override
+  SliverGrid recommendationBuilder(data) => SliverGrid(
+    delegate: SliverChildBuilderDelegate(
+        childCount: data.recommendation.length,
+            (context, i){
+          return PicComicTile(data.recommendation[i]);
+        }
+    ),
+    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent: comicTileMaxWidth,
+      childAspectRatio: comicTileAspectRatio,
+    ),
+  );
+
+  @override
+  String get tag => "Picacg Comic Page ${comic.id}";
+
+  @override
+  Map<String, List<String>>? get tags => {
+    "作者".tr: data!.author.toList(),
+    "汉化".tr: data!.chineseTeam.toList(),
+    "分类".tr: data!.categories,
+    "标签".tr: data!.tags
+  };
+
+  @override
+  void tapOnTags(String tag) =>
+      Get.to(() => CategoryComicPage(tag),preventDuplicates: false);
+
+  @override
+  ThumbnailsData? get thumbnailsCreator => null;
+
+  @override
+  String? get title => comic.title;
+
+  @override
+  Card? get uploaderInfo => Card(
+    elevation: 0,
+    color: Theme.of(context).colorScheme.inversePrimary,
+    child: SizedBox(
+      height: 60,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 0,
+            child: Avatar(
+              size: 50,
+              avatarUrl: data!.creator.avatarUrl,
+              frame: data!.creator.frameUrl,
+              couldBeShown: true,
+              name: data!.creator.name,
+              slogan: data!.creator.slogan,
+              level: data!.creator.level,
+            ),),
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data!.creator.name,
+                    style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),
+                  ),
+                  Text("${data!.time.substring(0,10)} ${data!.time.substring(11,19)}更新")
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 
 class ComicPageLogic extends GetxController{
   bool isLoading = true;
@@ -44,512 +187,6 @@ class ComicPageLogic extends GetxController{
   }
 }
 
-class ComicPage extends StatelessWidget{
-  final ComicItemBrief comic;
-  const ComicPage(this.comic,{super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: GetBuilder<ComicPageLogic>(
-        tag: comic.id,
-        init: ComicPageLogic(),
-        builder: (logic){
-        if(logic.isLoading){
-          //加载漫画信息
-          loadComicInfo(logic, context);
-          //返回加载页面
-          return showLoading(context);
-        }else if(logic.comicItem!=null){
-          //成功获取到了漫画信息
-          logic.controller = ScrollController();
-          logic.controller.addListener(() {
-            //检测当前滚动位置, 决定是否显示Appbar的标题
-            bool temp = logic.showAppbarTitle;
-            if(! logic.controller.hasClients) return;
-            logic.showAppbarTitle = logic.controller.position.pixels>
-                boundingTextSize(
-                    comic.title,
-                    const TextStyle(fontSize: 22),
-                    maxWidth: width
-                ).height+50;
-            if(temp!=logic.showAppbarTitle) {
-              logic.update();
-            }
-          });
-
-          return CustomScrollView(
-            controller: logic.controller,
-            slivers: [
-              SliverAppBar(
-                surfaceTintColor: logic.showAppbarTitle?null:Colors.transparent,
-                shadowColor: Colors.transparent,
-                title: AnimatedOpacity(
-                  opacity: logic.showAppbarTitle?1.0:0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Text("${comic.title}(${logic.comicItem!.pagesCount}P)"),
-                ),
-                pinned: true,
-                actions: [
-                  Tooltip(
-                    message: "分享".tr,
-                    child: IconButton(
-                      icon: const Icon(Icons.share,),
-                      onPressed: () {
-                        Share.share(comic.title);
-                      },
-                    ),),
-                  Tooltip(
-                    message: "复制".tr,
-                    child: IconButton(
-                      icon: const Icon(Icons.copy,),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: logic.comicItem!.title));
-                      },
-                    ),),
-                ],
-              ),
-
-              //标题
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 20, 10, 15),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: SelectableTextCN(
-                      text: "${comic.title}(${logic.comicItem!.pagesCount}P)",
-                      style: const TextStyle(fontSize: 28),
-                      withAddToBlockKeywordButton: true,
-                    ),
-                  ),
-                ),
-              ),
-
-              //漫画信息
-              buildComicInfo(logic, context),
-
-              const SliverPadding(padding: EdgeInsets.all(5)),
-
-              //章节显示
-              ...buildChapterDisplay(context, logic),
-
-              //简介
-              const SliverPadding(padding: EdgeInsets.all(5)),
-              const SliverToBoxAdapter(child: Divider(),),
-              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
-                const SizedBox(width: 20,),
-                Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(width: 20,),
-                Text("简介".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
-              ],)),),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                  child: SelectableTextCN(text:logic.comicItem!.description),
-                ),
-              ),
-              const SliverPadding(padding: EdgeInsets.all(5)),
-
-              //相关推荐
-              const SliverToBoxAdapter(child: Divider(),),
-              SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
-                const SizedBox(width: 20,),
-                Icon(Icons.recommend, color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(width: 20,),
-                Text("相关推荐".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
-              ],)),),
-              const SliverPadding(padding: EdgeInsets.all(5)),
-              SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                    childCount: logic.recommendation.length,
-                        (context, i){
-                      return PicComicTile(logic.recommendation[i]);
-                    }
-                ),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: comicTileMaxWidth,
-                  childAspectRatio: comicTileAspectRatio,
-                ),
-              ),
-              const SliverPadding(padding: EdgeInsets.all(10)),
-              SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
-            ],
-          );
-        }else{
-          return showNetworkError(logic.message??"网络错误".tr,
-                  ()=>logic.change(), context);
-        }
-      }),
-    );
-  }
-
-  void loadComicInfo(ComicPageLogic logic, BuildContext context){
-    network.getComicInfo(comic.id).then((c) {
-      if(c.error){
-        logic.message = c.errorMessageWithoutNull;
-        logic.change();
-        return;
-      }
-      logic.comicItem = c.data;
-      for (String s in c.data.tags) {
-        logic.tags.add(buildInfoCard(s, context));
-      }
-      for (String s in c.data.categories) {
-        logic.categories.add(buildInfoCard(s, context));
-      }
-      bool flag1 = false;
-      bool flag2 = false;
-      network.getRecommendation(comic.id).then((r){
-        logic.recommendation = r;
-        flag1 = true;
-        if(flag1&&flag2){
-          logic.change();
-        }
-      });
-      network.getEps(comic.id).then((e) {
-        if(e.error){
-          logic.message = e.errorMessageWithoutNull;
-        } else {
-          for (int i = 0; i < e.data.length; i++) {
-            logic.epsStr.add(e.data[i]);
-            logic.eps.add(ListTile(
-              title: Text(e.data[i]),
-              onTap: () {
-                Get.to(() =>
-                    ComicReadingPage.picacg(
-                        comic.id, i+1, logic.epsStr, comic.title));
-              },
-            ));
-          }
-        }
-        flag2 = true;
-        if(flag1&&flag2){
-          logic.change();
-        }
-      });
-    });
-  }
-
-  Widget buildComicInfo(ComicPageLogic logic, BuildContext context){
-    if(UiMode.m1(context)) {
-      return SliverToBoxAdapter(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width/2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //封面
-              buildCover(context, logic, 350, MediaQuery.of(context).size.width),
-
-              const SizedBox(height: 20,),
-
-              ...buildInfoCards(logic, context),
-            ],
-          ),
-        ),
-      );
-    }
-    else {
-      return SliverToBoxAdapter(child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          children: [
-            //封面
-            buildCover(context, logic, 550, MediaQuery.of(context).size.width/2),
-            SizedBox(
-              width: MediaQuery.of(context).size.width/2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: buildInfoCards(logic, context),
-              ),
-            ),
-          ],
-        ),
-      ),);
-    }
-  }
-
-  Widget buildCover(BuildContext context, ComicPageLogic logic, double height, double width){
-    return GestureDetector(
-      child: CachedNetworkImage(
-        width: width,
-        height: height,
-        imageUrl: getImageUrl(comic.path),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-      ),
-      onTap: ()=>Get.to(()=>ShowImagePage(comic.path)),
-    );
-  }
-
-  List<Widget> buildInfoCards(ComicPageLogic logic, BuildContext context){
-    var res = <Widget>[];
-    var res2 = <Widget>[];
-
-    res2.add(Padding(
-      padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-      child: Row(
-        children: [
-          Expanded(child: ActionChip(
-            label: Text(logic.comicItem!.likes.toString()),
-            avatar: Icon((logic.comicItem!.isLiked)?Icons.favorite:Icons.favorite_border),
-            onPressed: (){
-              network.likeOrUnlikeComic(comic.id);
-              logic.comicItem!.isLiked = !logic.comicItem!.isLiked;
-              logic.update();
-            },
-          ),),
-          SizedBox.fromSize(size: const Size(10,1),),
-          Expanded(child: ActionChip(
-            label: Text("收藏".tr),
-            avatar: Icon((logic.comicItem!.isFavourite)?Icons.bookmark:Icons.bookmark_outline),
-            onPressed: (){
-              network.favouriteOrUnfavouriteComic(comic.id);
-              logic.comicItem!.isFavourite = !logic.comicItem!.isFavourite;
-              logic.update();
-            },
-          ),),
-          SizedBox.fromSize(size: const Size(10,1),),
-          Expanded(child: ActionChip(
-            label: Text(logic.comicItem!.comments.toString()),
-            avatar: const Icon(Icons.comment_outlined),
-            onPressed: (){
-              showComments(context, comic.id);
-            },
-          ),),
-        ],
-      ),
-    ));
-
-    res2.add(Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: Row(
-        children: [
-          Expanded(child: FilledButton(
-            onPressed: (){
-              downloadComic(logic.comicItem!, context, logic.epsStr);
-            },
-            child: (downloadManager.downloaded.contains(comic.id))?Text("修改".tr):Text("下载".tr),
-          ),),
-          SizedBox.fromSize(size: const Size(10,1),),
-          Expanded(child: FilledButton(
-            onPressed: () => readPicacgComic(logic.comicItem!, logic.epsStr),
-            child: Text("阅读".tr),
-          ),),
-        ],
-      ),
-    ));
-
-    if(logic.comicItem!.author!=""){
-      res.add(const SizedBox(
-        height: 20,
-        child: Text("      作者"),
-      ));
-    }
-
-    if(logic.comicItem!.author!=""){
-      res.add(Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-          child: buildInfoCard(logic.comicItem!.author, context)
-      ));
-    }
-
-    if(logic.comicItem!.chineseTeam!=""){
-      res.add(SizedBox(
-        height: 20,
-        child: Text("      汉化组".tr),
-      ));
-    }
-
-    if(logic.comicItem!.chineseTeam!="") {
-      res.add(Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-          child: buildInfoCard(logic.comicItem!.chineseTeam, context)
-      ));
-    }
-
-    res.add(SizedBox(
-      height: 20,
-      child: Text("      分类".tr),
-    ));
-
-    res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-      child: Wrap(
-        children: logic.categories,
-      ),
-    ));
-
-    res.add(SizedBox(
-      height: 20,
-      child: Text("      标签".tr),
-    ));
-
-    res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-      child: Wrap(
-        children: logic.tags,
-      ),
-    ));
-
-    res.add(Padding(
-      padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-      child: Card(
-        elevation: 0,
-        color: Theme.of(context).colorScheme.inversePrimary,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            children: [
-              Expanded(
-                flex: 0,
-                child: Avatar(
-                  size: 50,
-                  avatarUrl: logic.comicItem!.creator.avatarUrl,
-                  frame: logic.comicItem!.creator.frameUrl,
-                  couldBeShown: true,
-                  name: logic.comicItem!.creator.name,
-                  slogan: logic.comicItem!.creator.slogan,
-                  level: logic.comicItem!.creator.level,
-                ),),
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        logic.comicItem!.creator.name,
-                        style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600),
-                      ),
-                      Text("${logic.comicItem!.time.substring(0,10)} ${logic.comicItem!.time.substring(11,19)}更新")
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ));
-
-    return !UiMode.m1(context)?res+res2:res2+res;
-  }
-
-  List<Widget> buildChapterDisplay(BuildContext context, ComicPageLogic logic){
-    return [
-      const SliverToBoxAdapter(child: Divider(),),
-      SliverToBoxAdapter(child: SizedBox(width: 100,child: Row(children: [
-        const SizedBox(width: 20,),
-        Icon(Icons.library_books, color: Theme.of(context).colorScheme.secondary),
-        const SizedBox(width: 20,),
-        Text("章节".tr,style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 16),)
-      ],)),),
-      const SliverPadding(padding: EdgeInsets.all(5)),
-      SliverGrid(
-        delegate: SliverChildBuilderDelegate(
-            childCount: logic.epsStr.length-1,
-                (context, i){
-              return Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),child: InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                child: Card(
-                  elevation: 1,
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  margin: EdgeInsets.zero,
-                  child: Center(child: Text(logic.epsStr[i+1]),),
-                ),
-                onTap: () {
-                  addPicacgHistory(logic.comicItem!);
-                  Get.to(() =>
-                      ComicReadingPage.picacg(comic.id, i+1, logic.epsStr, comic.title));
-                },
-              ),);
-            }
-        ),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 250,
-          childAspectRatio: 4,
-        ),
-      ),
-    ];
-  }
-
-  Widget buildInfoCard(String title, BuildContext context){
-    return GestureDetector(
-      onLongPressStart: (details){
-        showMenu(
-            context: context,
-            position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-            items: [
-              PopupMenuItem(
-                child: Text("复制".tr),
-                onTap: (){
-                  Clipboard.setData(ClipboardData(text: (title)));
-                  showMessage(context, "已复制".tr);
-                },
-              ),
-              PopupMenuItem(
-                child: Text("添加到屏蔽词".tr),
-                onTap: (){
-                  appdata.blockingKeyword.add(title);
-                  appdata.writeData();
-                },
-              ),
-            ]
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-        elevation: 0,
-        color: Theme
-            .of(context)
-            .colorScheme
-            .primaryContainer,
-        child: InkWell(
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          onTap: ()=>Get.to(() => CategoryComicPage(title),preventDuplicates: false),
-          onSecondaryTapDown: (details){
-            showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(details.globalPosition.dx, details.globalPosition.dy, details.globalPosition.dx, details.globalPosition.dy),
-                items: [
-                  PopupMenuItem(
-                    child: Text("复制".tr),
-                    onTap: (){
-                      Clipboard.setData(ClipboardData(text: (title)));
-                      showMessage(context, "已复制".tr);
-                    },
-                  ),
-                  PopupMenuItem(
-                    child: Text("添加到屏蔽词".tr),
-                    onTap: (){
-                      appdata.blockingKeyword.add(title);
-                      appdata.writeData();
-                    },
-                  ),
-                ]
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 5, 8, 5), child: Text(title),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Size boundingTextSize(String text, TextStyle style,  {int maxLines = 2^31, double maxWidth = double.infinity}) {
-    if (text.isEmpty) {
-      return Size.zero;
-    }
-    final TextPainter textPainter = TextPainter(
-        textDirection: TextDirection.ltr,
-        text: TextSpan(text: text, style: style), maxLines: maxLines)
-      ..layout(maxWidth: maxWidth);
-    return textPainter.size;
-  }
-}
 
 void downloadComic(ComicItem comic, BuildContext context, List<String> eps) async{
   if(GetPlatform.isWeb){

@@ -6,18 +6,32 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import '../widgets/show_message.dart';
 
 class HomePageLogic extends GetxController{
   bool isLoading = true;
-  bool isLoadingMore = false;
+  String? message;
   var comics = <ComicItemBrief>[];
-  void change(){
-    isLoading = !isLoading;
+
+  void get() async{
+    var res = await network.getRandomComics();
+    if(res.error){
+      if(comics.isEmpty) {
+        message = res.errorMessage;
+      }else{
+        showMessage(Get.context, res.errorMessageWithoutNull);
+      }
+    }else{
+      comics.addAll(res.data);
+    }
+    isLoading = false;
     update();
   }
+
   void refresh_() async{
     isLoading = true;
     comics.clear();
+    message = null;
     update();
   }
 }
@@ -28,58 +42,25 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomePageLogic>(
-        builder: (homePageLogic){
-      if(homePageLogic.isLoading){
-        bool flag1 = false,flag2 = false;
-        network.getRandomComics().then((c){
-          for(var i in c){
-            homePageLogic.comics.add(i);
-          }
-          flag1 = true;
-          if(flag1&&flag2)  homePageLogic.change();
-        });
-        network.getRandomComics().then((c){
-          for(var i in c){
-            homePageLogic.comics.add(i);
-          }
-          flag2 = true;
-          if(flag1&&flag2)  homePageLogic.change();
-        });
+        builder: (logic){
+      if(logic.isLoading){
+        logic.get();
         return const Center(
           child: CircularProgressIndicator(),
         );
-      }else if(homePageLogic.comics.isNotEmpty){
+      }else if(logic.message == null){
         return Material(
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
-                        childCount: homePageLogic.comics.length,
+                        childCount: logic.comics.length,
                             (context, i){
-                          if(i == homePageLogic.comics.length-1){
-                            bool flag1 = false,flag2 = false;
-                            network.getRandomComics().then((c){
-                              for(var i in c){
-                                homePageLogic.comics.add(i);
-                              }
-                              flag1 = true;
-                              if(flag1&&flag2) {
-                                homePageLogic.isLoadingMore = false;
-                                homePageLogic.update();
-                              }
-                            });
-                            network.getRandomComics().then((c){
-                              for(var i in c){
-                                homePageLogic.comics.add(i);
-                              }
-                              flag2 = true;
-                              if(flag1&&flag2) {
-                                homePageLogic.update();
-                              }
-                            });
+                          if(i == logic.comics.length-1) {
+                            logic.get();
                           }
-                          return PicComicTile(homePageLogic.comics[i],);
+                          return PicComicTile(logic.comics[i],);
                         }
                     ),
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -94,13 +75,13 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               onRefresh: () async {
-                homePageLogic.refresh_();
+                logic.refresh_();
               }
           ),
         );
       }else{
-        return showNetworkError("网络错误".tr,
-                ()=>homePageLogic.change(), context, showBack: false);
+        return showNetworkError(logic.message,
+                logic.refresh_, context, showBack: false);
       }
     });
   }

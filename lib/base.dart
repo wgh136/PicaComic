@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/models/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +18,7 @@ const List<int> colors = [0X42A5F5, 0X29B6F6, 0X5C6BC0, 0XAB47BC,
   0XEC407A, 0X26C6DA, 0X26A69A, 0XFFEE58, 0X8D6E63];
 
 //App版本
-const appVersion = "2.0.0";
+const appVersion = "2.0.1";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
@@ -159,13 +163,6 @@ class Appdata{
     await s.setStringList("settings", settings);
   }
 
-  void clear(){
-    token = "";
-    var temp = Profile("", "", "", 0, 0, "", "",null,null,null);
-    user = temp;
-    writeData();
-  }
-
   void writeFirstUse() async{
     var s = await SharedPreferences.getInstance();
     await s.setStringList("firstUse", firstUse);
@@ -216,7 +213,7 @@ class Appdata{
       user.exp = s.getInt("userExp")??0;
       if(s.getStringList("settings")!=null) {
         var st = s.getStringList("settings")!;
-        for(int i=0;i<st.length;i++){
+        for(int i=0;i<st.length&&i<settings.length;i++){
           settings[i] = st[i];
         }
       }
@@ -254,3 +251,18 @@ class Appdata{
 
 var appdata = Appdata();
 var notifications = Notifications();
+
+/// clear all data
+Future<void> clearAppdata() async{
+  var s = await SharedPreferences.getInstance();
+  await s.clear();
+  appdata.history.clearHistory();
+  appdata = Appdata();
+  await appdata.readData();
+  await eraseCache();
+  network.token = "";
+  await EhNetwork().cookieJar.deleteAll();
+  EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
+  await JmNetwork().cookieJar.deleteAll();
+  await HtmangaNetwork().cookieJar.deleteAll();
+}

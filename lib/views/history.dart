@@ -111,7 +111,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       subTitle_: comic.author,
                       onTap: (){
                         if(comics[i].type == HistoryType.picacg){
-                          Get.to(()=>ComicPage(comic));
+                          Get.to(()=>PicacgComicPage(comic));
                         }else if(comics[i].type == HistoryType.ehentai){
                           Get.to(()=>EhGalleryPage(EhGalleryBrief(
                             comics[i].title,

@@ -405,7 +405,7 @@ class DownloadPage extends StatelessWidget {
                     Future.delayed(const Duration(milliseconds: 300), () {
                       switch (logic.comics[index].type.index) {
                         case 0:
-                          Get.to(() => ComicPage(
+                          Get.to(() => PicacgComicPage(
                               (logic.comics[index] as DownloadedComic).comicItem.toBrief()));
                           break;
                         case 1:
@@ -437,7 +437,7 @@ class DownloadPage extends StatelessWidget {
         if (logic.selected[i]) {
           switch (logic.comics[i].type.index) {
             case 0:
-              Get.to(() => ComicPage((logic.comics[i] as DownloadedComic).comicItem.toBrief()));
+              Get.to(() => PicacgComicPage((logic.comics[i] as DownloadedComic).comicItem.toBrief()));
               break;
             case 1:
               Get.to(() => EhGalleryPage((logic.comics[i] as DownloadedGallery).gallery.toBrief()));
@@ -553,7 +553,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                         onPressed: () {
                           if (widget.item is DownloadedComic) {
                             Get.to(() =>
-                                ComicPage((widget.item as DownloadedComic).comicItem.toBrief()));
+                                PicacgComicPage((widget.item as DownloadedComic).comicItem.toBrief()));
                           } else if (widget.item is DownloadedGallery) {
                             Get.to(() => EhGalleryPage(
                                 (widget.item as DownloadedGallery).gallery.toBrief()));

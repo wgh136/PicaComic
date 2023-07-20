@@ -20,7 +20,7 @@ import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'network/picacg_network/methods.dart';
 
-bool firstUse = false;
+bool notFirstUse = false;
 
 void main() {
   runZonedGuarded(() {
@@ -33,7 +33,7 @@ void main() {
     };
     appdata.readData().then((b) async {
       await checkDownloadPath();
-      firstUse = appdata.firstUse[3] == "1";
+      notFirstUse = appdata.firstUse[3] == "1";
       if (b) {
         network = PicacgNetwork(appdata.token);
       }
@@ -119,7 +119,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
             useMaterial3: true,
             fontFamily: GetPlatform.isWindows?"font":"",
           ),
-        home: firstUse ? const LoginAccountsPage() : const WelcomePage(),
+        home: notFirstUse ? const LoginAccountsPage() : const WelcomePage(),
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,
         fallbackLocale: const Locale('zh', 'CN'),

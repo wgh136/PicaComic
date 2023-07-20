@@ -179,6 +179,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ListTile(
                         leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
                         title: Text("设置下载目录".tr),
+                        trailing: const Icon(Icons.arrow_right),
                         onTap: () => setDownloadFolder(),
                       ),
                     if (!GetPlatform.isWeb)
@@ -214,6 +215,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: Icon(Icons.chrome_reader_mode, color: Theme.of(context).colorScheme.secondary),
                       title: Text("阅读器缓存限制".tr),
+                      trailing: const Icon(Icons.arrow_right),
                       onTap: () => setCacheLimit(context),
                     ),
                     ListTile(
@@ -250,9 +252,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: Icon(Icons.bug_report, color: Theme.of(context).colorScheme.secondary),
-                      title: const Text("日志"),
+                      title: const Text("Logs"),
+                      trailing: const Icon(Icons.arrow_right),
                       onTap: ()=>Get.to(()=>const LogsPage()),
-                    )
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.delete, color: Theme.of(context).colorScheme.secondary),
+                      title: Text("清除所有数据".tr),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => clearUserData(context),
+                    ),
                   ],
                 ),
               ),

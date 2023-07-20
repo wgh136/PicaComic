@@ -288,8 +288,7 @@ class HtmangaNetwork {
           (index) => "http:${photosDom[index].attributes["src"]!}");
       return Res(
           HtComicInfo(id, coverPath, name, category, pages, tags, description,
-              uploader, avatar, uploadNum),
-          subData: photos);
+              uploader, avatar, uploadNum, photos));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
       return Res(null, errorMessage: e.toString());

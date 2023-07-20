@@ -74,7 +74,7 @@ class _MainPageState extends State<MainPage> {
     Get.put(HtHomePageLogic());
     if(appdata.firstUse[3] == "0") {
       appdata.firstUse[3] = "1";
-      appdata.writeFirstUse();
+      appdata.writeData();
     }
     //清除未正常退出时的下载通知
     try {
@@ -92,25 +92,6 @@ class _MainPageState extends State<MainPage> {
           appdata.user.exp+=10;
         }
       });
-    }
-    //获取热搜
-    if(hotSearch.isEmpty || jmNetwork.hotTags.isEmpty) {
-      if(jmNetwork.hotTags.isEmpty) {
-        jmNetwork.getHotTags();
-      }
-      if(hotSearch.isEmpty) {
-        network.getKeyWords().then((s) {
-          if (s.success) {
-            hotSearch = s.data;
-            try {
-              Get.find<PreSearchController>().update();
-            }
-            catch (e) {
-              //处于搜索页面时更新页面, 否则忽视
-            }
-          }
-        });
-      }
     }
     if(appdata.settings[2]=="1"&&!GetPlatform.isWeb) {
       checkUpdate().then((b){
@@ -165,6 +146,26 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    //获取热搜
+    if(hotSearch.isEmpty || jmNetwork.hotTags.isEmpty) {
+      if(jmNetwork.hotTags.isEmpty) {
+        jmNetwork.getHotTags();
+      }
+      if(hotSearch.isEmpty) {
+        network.getKeyWords().then((s) {
+          if (s.success) {
+            hotSearch = s.data;
+            try {
+              Get.find<PreSearchController>().update();
+            }
+            catch (e) {
+              //处于搜索页面时更新页面, 否则忽视
+            }
+          }
+        });
+      }
+    }
+
     var titles = [
       "我".tr,
       "探索".tr,

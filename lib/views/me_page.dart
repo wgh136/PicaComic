@@ -158,7 +158,8 @@ class _MePageButtonState extends State<MePageButton> {
                         padding: const EdgeInsets.only(top: 12),
                         child: ClipPath(
                           clipper: MePageIconClipper(),
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
                             decoration: BoxDecoration(
                               color: hovering?Theme.of(context).colorScheme.primary:Theme.of(context).colorScheme.surface,
                             ),

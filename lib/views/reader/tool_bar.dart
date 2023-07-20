@@ -298,7 +298,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
     {bool jm = false}) {
   var epsText = "";
   if (eps.isNotEmpty && !jm) {
-    epsText = eps.elementAtOrNull(comicReadingPageLogic.order) ?? "";
+    epsText = eps.elementAtOrNull(comicReadingPageLogic.order-1) ?? "";
   }
   if (jm) {
     epsText = "第 @c 章".trParams({"c": comicReadingPageLogic.order.toString()});

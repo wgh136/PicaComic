@@ -2,25 +2,26 @@ import 'package:flutter/cupertino.dart';
 
 @immutable
 class Res<T>{
-  ///错误信息
+  ///error info
   final String? errorMessage;
 
   String get errorMessageWithoutNull => errorMessage??"Unknown Error";
 
-  ///数据
+  /// data
   final T? _data;
 
-  ///是否出现错误
+  /// is there an error
   bool get error => errorMessage!=null || _data==null;
 
+  /// whether succeed
   bool get success => !error;
 
-  ///数据
+  /// data
   ///
-  /// 当出现错误时调用此方法会产生错误
+  /// must be called when no error happened
   T get data => _data!;
 
-  /// 获取数据, 如果存在错误, 返回null
+  /// get data, or null if there is an error
   T? get dataOrNull => _data;
 
   final dynamic subData;
@@ -28,6 +29,9 @@ class Res<T>{
   @override
   String toString() => _data.toString();
 
-  ///网络请求或者网络数据解析的返回结果
+  Res.fromErrorRes(Res another, {this.subData}):
+        _data=null,errorMessage=another.errorMessageWithoutNull;
+
+  /// network result
   const Res(this._data,{this.errorMessage, this.subData});
 }

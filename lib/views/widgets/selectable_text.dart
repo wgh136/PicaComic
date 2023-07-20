@@ -4,9 +4,9 @@ import 'package:get/get.dart';
 
 import '../../base.dart';
 
-///Flutter内置的SelectableText弹出菜单为英文, 这个对其作出修改
-class SelectableTextCN extends StatelessWidget {
-  const SelectableTextCN({required this.text, this.style, this.items, this.withAddToBlockKeywordButton=false, super.key});
+/// modified SelectableText
+class CustomSelectableText extends StatelessWidget {
+  const CustomSelectableText({required this.text, this.style, this.items, this.withAddToBlockKeywordButton=false, super.key});
   final String text;
   final TextStyle? style;
   final List<ContextMenuButtonItem>? items;

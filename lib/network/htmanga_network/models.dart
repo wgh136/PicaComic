@@ -44,9 +44,10 @@ class HtComicInfo {
   final String uploader;
   final String avatar;
   final int uploadNum;
+  final List<String> thumbnails;
 
   const HtComicInfo(this.id, this.coverPath, this.name, this.category, this.pages, this.tags,
-      this.description, this.uploader, this.avatar, this.uploadNum);
+      this.description, this.uploader, this.avatar, this.uploadNum, this.thumbnails);
 
   HtComicBrief toBrief() => HtComicBrief(name, "", coverPath, id, pages);
 
@@ -73,5 +74,6 @@ class HtComicInfo {
       description = json["description"],
       uploader = json["uploader"],
       avatar = json["avatar"],
-      uploadNum = json["uploadNum"];
+      uploadNum = json["uploadNum"],
+      thumbnails = [];
 }

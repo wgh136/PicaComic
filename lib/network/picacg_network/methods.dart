@@ -320,6 +320,14 @@ class PicacgNetwork {
       return Res(null, errorMessage: response.errorMessage);
     }
     var res = response.data;
+    var epsRes = await getEps(id);
+    if (epsRes.error) {
+      return Res(null, errorMessage: epsRes.errorMessage);
+    }
+    var recommendationRes = await getRecommendation(id);
+    if (recommendationRes.error) {
+      return Res(null, errorMessage: recommendationRes.errorMessage);
+    }
     try {
       String url;
       if (res["data"]["comic"]["_creator"]["avatar"] == null) {
@@ -367,7 +375,10 @@ class PicacgNetwork {
           res["data"]["comic"]["epsCount"] ?? 0,
           id,
           res["data"]["comic"]["pagesCount"],
-          res["data"]["comic"]["updated_at"]);
+          res["data"]["comic"]["updated_at"],
+          epsRes.data,
+          recommendationRes.data
+      );
       return Res(ci);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
@@ -521,7 +532,7 @@ class PicacgNetwork {
     }
   }
 
-  Future<List<ComicItemBrief>> getRandomComics() async {
+  Future<Res<List<ComicItemBrief>>> getRandomComics() async {
     var comics = <ComicItemBrief>[];
     var response =
         await get("$apiUrl/comics/random", expiredTime: CacheExpiredTime.no);
@@ -549,8 +560,10 @@ class PicacgNetwork {
           //出现错误跳过
         }
       }
+    }else{
+      return Res.fromErrorRes(response);
     }
-    return comics;
+    return Res(comics);
   }
 
   Future<bool> likeOrUnlikeComic(String id) async {
@@ -763,7 +776,7 @@ class PicacgNetwork {
   }
 
   /// 获取相关推荐
-  Future<List<ComicItemBrief>> getRecommendation(String id) async {
+  Future<Res<List<ComicItemBrief>>> getRecommendation(String id) async {
     var comics = <ComicItemBrief>[];
     var response = await get("$apiUrl/comics/$id/recommendation");
     if (response.success) {
@@ -790,8 +803,10 @@ class PicacgNetwork {
           //出现错误跳过
         }
       }
+    }else{
+      return Res.fromErrorRes(response);
     }
-    return comics;
+    return Res(comics);
   }
 
   /// 获取本子母/本子妹推荐

@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
+import 'package:pica_comic/views/welcome_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../network/update.dart';
 import '../../tools/io_tools.dart';
@@ -644,4 +644,19 @@ void setCacheLimit(BuildContext context) async{
     appdata.settings[35] = size!.toString();
     appdata.updateSettings();
   }
+}
+
+void clearUserData(BuildContext context){
+  showDialog(context: context, builder: (context)=>AlertDialog(
+    title: Text("警告".tr),
+    content: Text("此操作无法撤销, 是否继续".tr),
+    actions: [
+      TextButton(onPressed: ()  => Get.back(), child: Text("取消".tr)),
+      TextButton(onPressed: () async{
+        await clearAppdata();
+        Get.offAll(() => const WelcomePage());
+        Get.forceAppUpdate();
+      }, child: Text("继续".tr)),
+    ],
+  ));
 }

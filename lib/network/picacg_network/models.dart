@@ -89,6 +89,8 @@ class ComicItem {
   int epsCount;
   int pagesCount;
   String time;
+  List<String> eps;
+  List<ComicItemBrief> recommendation;
   ComicItem(
       this.creator,
       this.title,
@@ -105,7 +107,9 @@ class ComicItem {
       this.epsCount,
       this.id,
       this.pagesCount,
-      this.time
+      this.time,
+      this.eps,
+      this.recommendation
       );
   ComicItemBrief toBrief(){
     return ComicItemBrief(title, author, likes, thumbUrl, id, [], ignoreExamination: true);
@@ -146,7 +150,9 @@ class ComicItem {
     isFavourite = json["isFavourite"],
     epsCount = json["epsCount"],
     time = json["time"],
-    pagesCount = json["pagesCount"];
+    pagesCount = json["pagesCount"],
+    eps = [],
+    recommendation = [];
 }
 
 class Comment {

@@ -90,6 +90,15 @@ class DownloadManager{
     }
   }
 
+  /// delete all download
+  void clear() async{
+    await init();
+    var directory = Directory(path!);
+    directory.deleteSync(recursive: true);
+    _runInit = false;
+    await init();
+  }
+
   ///更换下载目录
   Future<String> updatePath(String newPath, {bool transform = true}) async{
     if(transform) {

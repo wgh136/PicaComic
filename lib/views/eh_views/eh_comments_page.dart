@@ -70,7 +70,7 @@ class CommentsPage extends StatelessWidget {
                                       children: [
                                         Text("${uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
                                         const SizedBox(height: 2,),
-                                        SelectableTextCN(text: comment.content)
+                                        CustomSelectableText(text: comment.content)
                                       ],
                                     ),
                                   ),
