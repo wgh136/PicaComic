@@ -2,7 +2,7 @@
 
 #include <dwmapi.h>
 #include <flutter_windows.h>
-
+#include <fstream>
 #include "resource.h"
 
 namespace {
@@ -120,6 +120,19 @@ Win32Window::~Win32Window() {
   Destroy();
 }
 
+void readPlacement(HWND hwnd) {
+    WINDOWPLACEMENT windowsPlacement{};
+    WCHAR szPath[MAX_PATH];
+    GetModuleFileName(NULL, szPath, MAX_PATH);
+    std::wstring path{szPath};
+    path = path.substr(0, path.find_last_of('\\') + 1) + L"location.data";
+    std::ifstream file{path, std::ios::binary};
+    if (file.good()) {
+        file.read(reinterpret_cast<char*>(&windowsPlacement), sizeof(WINDOWPLACEMENT));
+        SetWindowPlacement(hwnd, &windowsPlacement);
+    }
+}
+
 bool Win32Window::Create(const std::wstring& title,
                          const Point& origin,
                          const Size& size) {
@@ -150,7 +163,8 @@ bool Win32Window::Create(const std::wstring& title,
 }
 
 bool Win32Window::Show() {
-  return ShowWindow(window_handle_, SW_SHOWNORMAL);
+    readPlacement(window_handle_);
+    return ShowWindow(window_handle_, SW_SHOWNORMAL);
 }
 
 // static
@@ -173,6 +187,25 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
   return DefWindowProc(window, message, wparam, lparam);
 }
 
+void writePlacement(HWND hwnd) {
+    WINDOWPLACEMENT windowsPlacement{};
+    GetWindowPlacement(hwnd, &windowsPlacement);
+
+    WCHAR szPath[MAX_PATH];
+    if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0) {
+        // handle error: failed to get module file name
+        return;
+    }
+    std::wstring path{ szPath };
+    path = path.substr(0, path.find_last_of('\\') + 1) + L"location.data";
+    std::ofstream file(path, std::ios::binary);
+    if (!file.is_open()) {
+        // handle error: failed to open file
+        return;
+    }
+    file.write(reinterpret_cast<const char*>(&windowsPlacement), sizeof(WINDOWPLACEMENT));
+}
+
 LRESULT
 Win32Window::MessageHandler(HWND hwnd,
                             UINT const message,
@@ -181,6 +214,7 @@ Win32Window::MessageHandler(HWND hwnd,
   switch (message) {
     case WM_DESTROY:
       window_handle_ = nullptr;
+      writePlacement(hwnd);
       Destroy();
       if (quit_on_close_) {
         PostQuitMessage(0);
