@@ -10,6 +10,7 @@ import '../../network/eh_network/get_gallery_id.dart';
 import '../../network/picacg_network/methods.dart';
 import '../eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
 import '../jm_views/jm_image_provider/jm_cached_image.dart';
+import '../widgets/image.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
@@ -63,54 +64,11 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic, ReadingType typ
         image = FileImage(downloadManager.getImage(id, comicReadingPageLogic.order, index));
       }
 
-      return Image(
+      return ComicImage(
         filterQuality: FilterQuality.medium,
         image: image,
         width: imageWidth,
         fit: BoxFit.cover,
-        frameBuilder: (context, widget, i, b) {
-          return Padding(
-            padding: EdgeInsets.fromLTRB((width-imageWidth)/2, 0, (width-imageWidth)/2, 0),
-            child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 250), child: Align(
-              alignment: Alignment.topCenter,
-              child: widget,
-              ),),
-          );
-        },
-        loadingBuilder: (context, widget, event) {
-          if (event == null) {
-            return widget;
-          } else {
-            return SizedBox(
-              height: 250,
-              child: Center(
-                  child: event.expectedTotalBytes != null && event.expectedTotalBytes != null
-                      ? CircularProgressIndicator(
-                    value: event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-                    backgroundColor: Colors.white12,
-                  )
-                      : const CircularProgressIndicator()),
-            );
-          }
-        },
-        errorBuilder: (context, s, d){
-          return SizedBox(
-            height: 250,
-            child: Center(
-              child: SizedBox(
-                height: 100,
-                width: 300,
-                child: Column(
-                  children: [
-                    const Icon(Icons.error, color: Colors.white,size: 30,),
-                    const SizedBox(height: 10,),
-                    Text(s.toString(), style: const TextStyle(color: Colors.white),textAlign: TextAlign.center,)
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
       );
     },
   );

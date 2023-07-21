@@ -232,7 +232,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget{
           child: SizedBox(
             width: double.infinity,
             child: CustomSelectableText(
-              text: "$title${pages==null?"":"${pages}P"}",
+              text: "$title${pages==null?"":"(${pages}P)"}",
               style: const TextStyle(fontSize: 28),
               withAddToBlockKeywordButton: true,
             ),

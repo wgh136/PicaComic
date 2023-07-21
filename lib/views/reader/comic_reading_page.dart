@@ -16,6 +16,7 @@ import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
+import '../widgets/image.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';
@@ -44,7 +45,7 @@ class ComicReadingPage extends StatelessWidget {
   final String target;
 
   ///章节信息, picacg为各章节名称 ,ehentai, hitomi此数组为空, jm为各章节id
-  final List<String> eps; //注意: eps的第一个是标题, 不是章节
+  final List<String> eps;
 
   ///标题
   final String title;
@@ -173,6 +174,7 @@ class ComicReadingPage extends StatelessWidget {
           }
           MyCacheManager().saveData();
           logic.controller?.runningAutoPageTurning = false;
+          ComicImage.clear();
         },
         builder: (logic) {
           return Scaffold(
