@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
@@ -17,9 +20,31 @@ class HiComicTile extends ComicTile {
   void favorite() {
     showMessage(Get.context, "无法添加收藏");
   }
+  
+  List<String> _generateTags(List<Tag> tags){
+    var res = <String>[];
+    for(var tag in tags){
+      var name = tag.name;
+      if(PlatformDispatcher.instance.locale.languageCode == "zh") {
+        if (name.contains('♀')) {
+          name = "${name
+              .replaceFirst(" ♀", "")
+              .translateTagsToCN}♀";
+        } else if (name.contains('♂')) {
+          name = "${name
+              .replaceFirst(" ♂", "")
+              .translateTagsToCN}♂";
+        } else {
+          name = name.translateTagsToCN;
+        }
+      }
+      res.add(name);
+    }
+    return res;
+  }
 
   @override
-  List<String>? get tags => List<String>.generate(comic.tags.length, (index) => comic.tags[index].name);
+  List<String>? get tags => _generateTags(comic.tags);
 
   @override
   String get description => (){

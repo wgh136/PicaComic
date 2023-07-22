@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
@@ -127,6 +128,10 @@ class EhGalleryPage extends ComicPage<Gallery>{
     "时间".tr: data!.time.toList(),
     ...data!.tags
   };
+
+  @override
+  bool get enableTranslationToCN =>
+      PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
   void tapOnTags(String tag) =>

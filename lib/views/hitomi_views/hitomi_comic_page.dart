@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
@@ -68,6 +69,10 @@ class HitomiComicPage extends ComicPage<HitomiComic>{
     "语言".tr: data!.lang.toList(),
     "标签".tr: List.generate(data!.tags.length, (index) => data!.tags[index].name)
   };
+
+  @override
+  bool get enableTranslationToCN =>
+      PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
   void tapOnTags(String tag) =>

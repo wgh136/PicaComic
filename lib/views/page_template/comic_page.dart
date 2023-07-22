@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:share_plus/share_plus.dart';
@@ -140,6 +141,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget{
 
   /// interface for building more info widget
   Widget? get buildMoreInfo => null;
+
+  /// translation tags to CN
+  bool get enableTranslationToCN => false;
 
   @override
   Widget build(BuildContext context){
@@ -374,7 +378,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget{
           },
           child: Padding(
             padding: EdgeInsets.fromLTRB(8*size, 5*size, 8*size, 5*size),
-            child: Text(text),
+            child: enableTranslationToCN?(title?Text(text.translateTagsCategoryToCN):Text(text.translateTagsToCN)):Text(text),
           ),
         ),
       ),

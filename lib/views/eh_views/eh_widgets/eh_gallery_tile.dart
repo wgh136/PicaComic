@@ -1,10 +1,10 @@
-import 'dart:math';
-
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -18,8 +18,30 @@ class EhGalleryTile extends ComicTile{
   final String? time;
   const EhGalleryTile(this.gallery,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
 
+  List<String> _generateTags(List<String> tags){
+    if(PlatformDispatcher.instance.locale.languageCode != "zh") {
+      return tags;
+    }
+    List<String> res = [];
+    List<String> res2 = [];
+    for(var tag in tags){
+      if(tag.contains(":")){
+        var splits = tag.split(":");
+        var lowLevelKey = ["character", "artist", "cosplayer", "group"];
+        if(lowLevelKey.contains(splits[0])){
+          res2.add(splits[1].translateTagsToCN);
+        }else {
+          res.add(splits[1].translateTagsToCN);
+        }
+      }else{
+        res.add(tag.translateTagsToCN);
+      }
+    }
+    return res+res2;
+  }
+
   @override
-  List<String>? get tags => gallery.tags.sublist(0,min(gallery.tags.length, 20)).map<String>((e){var value = e.contains(":")?e.split(":")[1]:e;return value.length>10?"${value.substring(0,10)}...":value;}).toList();
+  List<String>? get tags => _generateTags(gallery.tags);
 
   @override
   void favorite() {
