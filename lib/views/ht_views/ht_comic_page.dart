@@ -7,6 +7,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import '../models/local_favorites.dart';
 import '../page_template/comic_page.dart';
 import '../widgets/avatar.dart';
 import '../widgets/show_message.dart';
@@ -19,34 +20,32 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   @override
   Row? get actions => Row(
     children: [
-      SizedBox.fromSize(
-        size: const Size(10, 1),
+      const Spacer(),
+      ActionChip(
+          label: Text("收藏".tr),
+          avatar: const Icon(Icons.bookmark_outline),
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return FavoriteComicDialog(data!.id);
+                });
+          }),
+      const Spacer(),
+      ActionChip(
+        label: Text("本地".tr),
+        avatar: const Icon(Icons.bookmark_add_outlined),
+        onPressed: () => showDialog(
+            context: context,
+            builder: (context) => LocalFavoriteComicDialog(comic)),
       ),
-      Expanded(
-        child: ActionChip(
-            label: Padding(
-              padding: const EdgeInsets.fromLTRB(11, 0, 11, 0),
-              child: Text("收藏".tr),
-            ),
-            avatar: const Icon(Icons.bookmark_outline),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return FavoriteComicDialog(data!.id);
-                  });
-            }),
+      const Spacer(),
+      ActionChip(
+        label: Text("页数: ${data!.pages}"),
+        avatar: const Icon(Icons.pages),
+        onPressed: () {},
       ),
-      SizedBox.fromSize(
-        size: const Size(10, 1),
-      ),
-      Expanded(
-        child: ActionChip(
-          label: Text("页数: ${data!.pages}"),
-          avatar: const Icon(Icons.pages),
-          onPressed: () {},
-        ),
-      )
+      const Spacer(),
     ],
   );
 
@@ -345,3 +344,100 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
     }
   }
 }
+
+class LocalFavoriteComicDialog extends StatefulWidget {
+  const LocalFavoriteComicDialog(this.comic, {Key? key}) : super(key: key);
+  final HtComicBrief comic;
+
+  @override
+  State<LocalFavoriteComicDialog> createState() =>
+      _LocalFavoriteComicDialogState();
+}
+
+class _LocalFavoriteComicDialogState extends State<LocalFavoriteComicDialog> {
+  String? message;
+  String folderName = "";
+  bool addedFavorite = false;
+
+  @override
+  Widget build(BuildContext context) {
+    var folders = LocalFavoritesManager().folderNames;
+    if (folders == null) {
+      LocalFavoritesManager().readData().then((value) => setState(() {}));
+      return const SizedBox(
+        width: 300,
+        height: 150,
+      );
+    }
+    return SimpleDialog(
+      title: Text("收藏漫画".tr),
+      children: [
+        SizedBox(
+          key: const Key("2"),
+          width: 300,
+          height: 150,
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(5),
+                width: 300,
+                height: 50,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: const BorderRadius.all(Radius.circular(16))),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text("  选择收藏夹:  ".tr),
+                    Text(folderName),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_drop_down_sharp),
+                      onPressed: () {
+                        showMenu(
+                            context: context,
+                            position: RelativeRect.fromLTRB(
+                                MediaQuery.of(context).size.width / 2 + 150,
+                                MediaQuery.of(context).size.height / 2,
+                                MediaQuery.of(context).size.width / 2 - 150,
+                                MediaQuery.of(context).size.height / 2),
+                            items: [
+                              for (var folder in folders)
+                                PopupMenuItem(
+                                  child: Text(folder),
+                                  onTap: () {
+                                    setState(() {
+                                      folderName = folder;
+                                    });
+                                  },
+                                )
+                            ]);
+                      },
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              FilledButton(
+                  onPressed: () async {
+                    if (folderName == "") {
+                      showMessage(Get.context, "请选择收藏夹");
+                      return;
+                    }
+                    LocalFavoritesManager().addComic(
+                        folderName, FavoriteItem.fromHtcomic(widget.comic));
+                    Get.back();
+                  },
+                  child: Text("提交".tr))
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+

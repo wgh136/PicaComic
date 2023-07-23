@@ -7,6 +7,7 @@ import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/views/models/history.dart';
+import 'package:pica_comic/views/models/local_favorites.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
 
@@ -265,4 +266,5 @@ Future<void> clearAppdata() async{
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
   await JmNetwork().cookieJar.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
+  await LocalFavoritesManager().clearAll();
 }
