@@ -37,6 +37,8 @@ class ComicReadingPageLogic extends GetxController{
   ///是否应该显示悬浮按钮, 为-1表示显示上一章, 为0表示不显示, 为1表示显示下一章
   int showFloatingButtonValue = 0;
 
+  bool ctrlPressed = false;
+
   void showFloatingButton(int value){
     var length = data.eps.length;
     if(data.type == ReadingType.picacg){
