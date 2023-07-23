@@ -43,8 +43,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
           child: Stack(
             children: [
               Positioned.fill(
-                left: 10,
-                right: 10,
+                left: 0,
+                right: 0,
                 child: Align(
                   alignment: Alignment.center,
                   child: Padding(

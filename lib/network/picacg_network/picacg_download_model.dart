@@ -251,7 +251,7 @@ class PicDownloadingItem extends DownloadingItem {
           super.updateUi?.call();
           await super.updateInfo?.call();
           if (!_pauseFlag) {
-            notifications.sendProgressNotification(_downloadPages, _urls.length, "下载中",
+            notifications.sendProgressNotification(_index, _urls.length, "下载中",
                 "共${downloadManager.downloading.length}项任务");
           }
         } catch (e, s) {
