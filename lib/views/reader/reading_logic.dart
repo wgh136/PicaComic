@@ -11,9 +11,9 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式
-  final controller = PageController(initialPage: 1);
+  var controller = PageController(initialPage: 1);
   ///用于从上至下(连续)阅读方式, 跳转至指定项目
-  final scrollController = ItemScrollController();
+  var scrollController = ItemScrollController();
   ///用于从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
   var scrollListener = ItemPositionsListener.create();
   ///用于从上至下(连续)阅读方式, 控制滚动
@@ -180,5 +180,22 @@ class ComicReadingPageLogic extends GetxController{
     }
     jumpToNextPage();
     autoPageTurning();
+  }
+
+  void refresh_(){
+    controller = PageController(initialPage: 1);
+    scrollController = ItemScrollController();
+    scrollListener = ItemPositionsListener.create();
+    cont = ScrollController(keepScrollOffset: true);
+    transformationController = TransformationController();
+    noScroll = false;
+    currentScale = 1.0;
+    showFloatingButtonValue = 0;
+    index = 1;
+    urls.clear();
+    isLoading = true;
+    tools = false;
+    showSettings = false;
+    update();
   }
 }

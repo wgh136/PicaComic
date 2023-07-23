@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/views/reader/reading_type.dart';
+import '../../network/jm_network/jm_main_network.dart';
+import '../../network/picacg_network/methods.dart';
 import '../../tools/keep_screen_on.dart';
+import '../widgets/select.dart';
+import '../widgets/show_message.dart';
 import 'reading_logic.dart';
 
-Widget buildSettingWindow(ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
+Widget buildSettingWindow(
+    ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
   return Positioned(
     right: 10,
     top: 60 + MediaQuery.of(context).viewPadding.top,
@@ -18,7 +24,10 @@ Widget buildSettingWindow(ComicReadingPageLogic comicReadingPageLogic, BuildCont
                   ? 600
                   : MediaQuery.of(context).size.width - 20,
               decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.98),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .secondaryContainer
+                      .withOpacity(0.98),
                   borderRadius: const BorderRadius.all(Radius.circular(16))),
               child: const ReadingSettings(),
             )
@@ -45,7 +54,6 @@ class ReadingSettings extends StatefulWidget {
 
 class _ReadingSettingsState extends State<ReadingSettings> {
   bool pageChangeValue = appdata.settings[0] == "1";
-  bool showThreeButton = appdata.settings[4] == "1";
   bool useVolumeKeyChangePage = appdata.settings[7] == "1";
   bool keepScreenOn = appdata.settings[14] == "1";
   bool lowBrightness = appdata.settings[18] == "1";
@@ -55,6 +63,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
 
   @override
   Widget build(BuildContext context) {
+    var logic = Get.find<ComicReadingPageLogic>();
     var pages = <Widget>[
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +76,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.touch_app_outlined, color: Theme.of(context).colorScheme.secondary),
+            leading: Icon(Icons.touch_app_outlined,
+                color: Theme.of(context).colorScheme.secondary),
             title: Text("点按翻页".tr),
             trailing: Switch(
               value: pageChangeValue,
@@ -82,7 +92,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             onTap: () {},
           ),
           ListTile(
-            leading: Icon(Icons.volume_mute, color: Theme.of(context).colorScheme.secondary),
+            leading: Icon(Icons.volume_mute,
+                color: Theme.of(context).colorScheme.secondary),
             title: Text("使用音量键翻页".tr),
             trailing: Switch(
               value: useVolumeKeyChangePage,
@@ -92,30 +103,15 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   useVolumeKeyChangePage = b;
                 });
                 appdata.writeData();
-                Get.find<ComicReadingPageLogic>().update();
+                logic.update();
               },
             ),
             onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.control_camera, color: Theme.of(context).colorScheme.secondary),
-            title: Text("宽屏时显示前进后退关闭按钮".tr),
-            onTap: () {},
-            trailing: Switch(
-              value: showThreeButton,
-              onChanged: (b) {
-                b ? appdata.settings[4] = "1" : appdata.settings[4] = "0";
-                setState(() {
-                  showThreeButton = b;
-                });
-                appdata.writeData();
-              },
-            ),
           ),
           if (!GetPlatform.isWeb && GetPlatform.isAndroid)
             ListTile(
-              leading:
-              Icon(Icons.screenshot_outlined, color: Theme.of(context).colorScheme.secondary),
+              leading: Icon(Icons.screenshot_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
               title: Text("保持屏幕常亮".tr),
               onTap: () {},
               trailing: Switch(
@@ -131,7 +127,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               ),
             ),
           ListTile(
-            leading: Icon(Icons.brightness_4, color: Theme.of(context).colorScheme.secondary),
+            leading: Icon(Icons.brightness_4,
+                color: Theme.of(context).colorScheme.secondary),
             title: Text("夜间模式降低图片亮度".tr),
             onTap: () {},
             trailing: Switch(
@@ -142,7 +139,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   lowBrightness = b;
                 });
                 appdata.writeData();
-                Get.find<ComicReadingPageLogic>().update();
+                logic.update();
               },
             ),
           ),
@@ -165,9 +162,9 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                         divisions: 20,
                         value: int.parse(appdata.settings[33]).toDouble(),
                         overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.transparent),
+                            (states) => Colors.transparent),
                         onChanged: (v) {
-                          if(v == 0)  return;
+                          if (v == 0) return;
                           appdata.settings[33] = v.toInt().toString();
                           appdata.updateSettings();
                           setState(() {});
@@ -186,13 +183,26 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             title: Text("自动翻页时间间隔".tr),
           ),
           ListTile(
-            leading: Icon(Icons.chrome_reader_mode, color: Theme.of(context).colorScheme.secondary),
+            leading: Icon(Icons.chrome_reader_mode,
+                color: Theme.of(context).colorScheme.secondary),
             title: Text("选择阅读模式".tr),
             trailing: const Icon(Icons.arrow_right),
             onTap: () => setState(() {
               i = 1;
             }),
-          )
+          ),
+          if (!logic.downloaded &&
+              (logic.data.type == ReadingType.picacg ||
+                  logic.data.type == ReadingType.jm))
+            ListTile(
+              leading: Icon(Icons.account_tree_sharp,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("设置分流".tr),
+              trailing: const Icon(Icons.arrow_right),
+              onTap: () => setState(() {
+                i = 2;
+              }),
+            ),
         ],
       ),
       Column(
@@ -205,14 +215,22 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             height: 60,
             child: Row(
               children: [
-                const SizedBox(width: 6,),
+                const SizedBox(
+                  width: 6,
+                ),
                 IconButton(
-                  icon: Icon(Icons.arrow_back_outlined, color: Theme.of(context).colorScheme.onSurface,),
+                  icon: Icon(
+                    Icons.arrow_back_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   onPressed: () => setState(() {
                     i = 0;
                   }),
                 ),
-                Text("选择阅读模式".tr, style: const TextStyle(fontSize: 18),),
+                Text(
+                  "选择阅读模式".tr,
+                  style: const TextStyle(fontSize: 18),
+                ),
               ],
             ),
           ),
@@ -269,7 +287,81 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             },
           ),
         ],
-      )
+      ),
+      SizedBox(
+        width: 400,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 60,
+              child: Row(
+                children: [
+                  const SizedBox(
+                    width: 6,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_outlined,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    onPressed: () => setState(() {
+                      i = 0;
+                    }),
+                  ),
+                  Text(
+                    "设置分流".tr,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            if (logic.data.type == ReadingType.picacg)
+              ListTile(
+                leading: Icon(Icons.hub_outlined,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: Text("设置分流".tr),
+                trailing: Select(
+                  initialValue: int.parse(appdata.appChannel) - 1,
+                  values: ["分流1".tr, "分流2".tr, "分流3".tr],
+                  whenChange: (i) {
+                    appdata.appChannel = (i + 1).toString();
+                    appdata.writeData();
+                    showMessage(Get.context, "正在获取分流IP".tr, time: 8);
+                    network.updateApi().then((v) => Get.closeAllSnackbars());
+                  },
+                ),
+              )
+            else
+              ListTile(
+                leading: Icon(Icons.account_tree_outlined,
+                    color: Theme.of(context).colorScheme.secondary),
+                title: Text("设置分流".tr),
+                trailing: Select(
+                  initialValue: int.parse(appdata.settings[17]),
+                  values: ["分流1".tr, "分流2".tr, "分流3".tr, "分流4".tr, "转发服务器".tr],
+                  whenChange: (i) {
+                    appdata.settings[17] = i.toString();
+                    appdata.updateSettings();
+                    JmNetwork().updateApi();
+                    JmNetwork().loginFromAppdata();
+                  },
+                ),
+              ),
+            const SizedBox(
+              height: 40,
+            ),
+            Center(
+              child: FilledButton(
+                child: const Text("重启阅读器"),
+                onPressed: () => logic.refresh_(),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
+      ),
     ];
 
     return ClipRect(
@@ -280,10 +372,12 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         switchInCurve: Curves.ease,
         transitionBuilder: (Widget child, Animation<double> animation) {
           Tween<Offset> tween;
-          if(i == 0) {
-            tween = Tween<Offset>(begin: const Offset(0.1, 0), end: const Offset(0, 0));
-          }else{
-            tween = Tween<Offset>(begin: const Offset(-0.1, 0), end: const Offset(0, 0));
+          if (i == 0) {
+            tween = Tween<Offset>(
+                begin: const Offset(0.1, 0), end: const Offset(0, 0));
+          } else {
+            tween = Tween<Offset>(
+                begin: const Offset(-0.1, 0), end: const Offset(0, 0));
           }
           return SlideTransition(
             position: tween.animate(animation),

@@ -413,7 +413,7 @@ class PicacgNetwork {
     bool flag = true;
     while (flag) {
       i++;
-      var res = await get("$apiUrl/comics/$id/order/$order/pages?page=$i");
+      var res = await get("$apiUrl/comics/$id/order/$order/pages?page=$i", expiredTime: CacheExpiredTime.no);
       if (res.error) {
         Res(null, errorMessage: res.errorMessage);
       } else if (res.data["data"]["pages"]["pages"] == i) {
