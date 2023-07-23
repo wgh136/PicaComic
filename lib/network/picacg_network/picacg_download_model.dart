@@ -224,9 +224,6 @@ class PicDownloadingItem extends DownloadingItem {
         _downloadingEps++;
         continue;
       }
-      if (_index == _urls.length) {
-        _index = 0;
-      }
       if (_pauseFlag) return;
       try {
         await getUrls();
@@ -254,7 +251,7 @@ class PicDownloadingItem extends DownloadingItem {
           super.updateUi?.call();
           await super.updateInfo?.call();
           if (!_pauseFlag) {
-            notifications.sendProgressNotification(_downloadPages, comic.pagesCount, "下载中",
+            notifications.sendProgressNotification(_downloadPages, _urls.length, "下载中",
                 "共${downloadManager.downloading.length}项任务");
           }
         } catch (e, s) {
@@ -269,6 +266,8 @@ class PicDownloadingItem extends DownloadingItem {
         }
       }
       _downloadingEps++;
+      _index = 0;
+      _urls.clear();
     }
     if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
     saveInfo();
@@ -304,10 +303,10 @@ class PicDownloadingItem extends DownloadingItem {
   }
 
   @override
-  get totalPages => comic.pagesCount;
+  get totalPages => _urls.length;
 
   @override
-  get downloadedPages => _downloadPages;
+  get downloadedPages => _index;
 
   @override
   get cover => comic.thumbUrl;
