@@ -58,6 +58,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
+    JmNetwork().updateAuth();
     Get.put(HomePageLogic());
     Get.put(CategoriesPageLogic());
     Get.put(GamesPageLogic());

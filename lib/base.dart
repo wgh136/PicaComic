@@ -118,6 +118,13 @@ class Appdata{
   String htName = "";
   String htPwd = "";
 
+  var jmAuth = <String>[
+    "1",
+    "1.5.7",
+    "18comicAPP",
+    "Mozilla/5.0 (Linux; Android 13; JM114514 Build/TQ1A.230205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36"
+  ];
+
   Appdata(){
     token = "";
     var temp = Profile("", defaultAvatarUrl, "", 0, 0, "", "",null,null,null);
@@ -200,6 +207,7 @@ class Appdata{
     await s.setString("picacgPassword", picacgPassword);
     await s.setString("htName", htName);
     await s.setString("htPwd", htPwd);
+    await s.setStringList("jmAuth", jmAuth);
   }
   Future<bool> readData() async{
     var s = await SharedPreferences.getInstance();
@@ -242,6 +250,9 @@ class Appdata{
       picacgPassword = s.getString("picacgPassword")??"";
       htName = s.getString("htName")??"";
       htPwd = s.getString("htPwd")??"";
+      if(s.getStringList("jmAuth") != null) {
+        jmAuth = s.getStringList("jmAuth")!;
+      }
       return firstUse[3]=="1"||token!="";
     }
     catch(e){

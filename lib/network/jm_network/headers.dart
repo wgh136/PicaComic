@@ -1,13 +1,11 @@
 import 'dart:convert';
-
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-
-const String jmAppVersion = "1.5.5";
+import '../../base.dart';
 
 BaseOptions getHeader(int time, {bool post=false, Map<String, String>? headers, bool byte=true}){
 
-  var token = md5.convert(const Utf8Encoder().convert("${time}18comicAPP"));
+  var token = md5.convert(const Utf8Encoder().convert("$time${appdata.jmAuth[2]}"));
 
   return BaseOptions(
     receiveDataWhenStatusError: true,
@@ -15,8 +13,8 @@ BaseOptions getHeader(int time, {bool post=false, Map<String, String>? headers, 
     responseType: byte?ResponseType.bytes:null,
     headers: {
       "token": token.toString(),
-      "tokenparam": "$time,$jmAppVersion",
-      "user-agent": "okhttp/3.12.1",
+      "tokenparam": "$time,${appdata.jmAuth[1]}",
+      "user-agent": appdata.jmAuth[3],
       "accept-encoding": "gzip",
       ...headers??{},
       if(post)
