@@ -19,7 +19,7 @@ const List<int> colors = [0X42A5F5, 0X29B6F6, 0X5C6BC0, 0XAB47BC,
   0XEC407A, 0X26C6DA, 0X26A69A, 0XFFEE58, 0X8D6E63];
 
 //App版本
-const appVersion = "2.0.3";
+const appVersion = "2.0.4";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
