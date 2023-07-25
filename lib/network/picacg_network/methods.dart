@@ -326,7 +326,7 @@ class PicacgNetwork {
     }
     var recommendationRes = await getRecommendation(id);
     if (recommendationRes.error) {
-      return Res(null, errorMessage: recommendationRes.errorMessage);
+      recommendationRes = const Res([]);
     }
     try {
       String url;
