@@ -12,16 +12,12 @@ class CategoriesPageLogic extends GetxController{
   var categories = <CategoryItem>[];
   bool isLoading = true;
   String? message;
-  void change(){
-    isLoading = !isLoading;
-    update();
-  }
 
   void refresh_(){
     categories.clear();
     isLoading = true;
     message = null;
-    change();
+    update();
   }
 
   void get() async{
@@ -184,7 +180,7 @@ class CategoriesPage extends StatelessWidget {
         );
       }else{
         return showNetworkError(categoriesPageLogic.message,
-                ()=>categoriesPageLogic.change(), context, showBack: false);
+                ()=>categoriesPageLogic.refresh_(), context, showBack: false);
       }
     });
   }

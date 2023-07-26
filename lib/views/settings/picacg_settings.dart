@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../base.dart';
+import '../../tools/background_service.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -116,12 +117,16 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ),
             ListTile(
               leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
-              title: Text("启动时打卡".tr),
+              title: Text("自动打卡".tr),
+              subtitle: GetPlatform.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tr):const Text("启动时执行"),
               onTap: () {},
               trailing: Switch(
                 value: punchIn,
                 onChanged: (b) {
                   b ? appdata.settings[6] = "1" : appdata.settings[6] = "0";
+                  if(GetPlatform.isMobile) {
+                    b ? runBackgroundService() : cancelBackgroundService();
+                  }
                   setState(() {
                     punchIn = b;
                   });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
@@ -57,6 +58,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
+    notifications.requestPermission();
     EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
     JmNetwork().updateAuth();
     Get.put(HomePageLogic());
@@ -86,13 +88,17 @@ class _MainPageState extends State<MainPage> {
     }
     //检查是否打卡
     if(appdata.user.isPunched==false&&appdata.settings[6]=="1"){
-      appdata.user.isPunched = true;
-      network.punchIn().then((b){
-        if(b){
-          showMessage(Get.context, "打卡成功", useGet: false);
-          appdata.user.exp+=10;
-        }
-      });
+      if(GetPlatform.isMobile){
+        runBackgroundService();
+      } else {
+        appdata.user.isPunched = true;
+        network.punchIn().then((b) {
+          if (b) {
+            showMessage(Get.context, "打卡成功", useGet: false);
+            appdata.user.exp += 10;
+          }
+        });
+      }
     }
     if(appdata.settings[2]=="1"&&!GetPlatform.isWeb) {
       checkUpdate().then((b){

@@ -96,10 +96,7 @@ Future<void> eraseCache() async{
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
     await MyCacheManager().clear();
-    var path = await getTemporaryDirectory();
-    for(var i in path.listSync()){
-      await i.delete(recursive: true);
-    }
+    await CachedNetwork.clearCache();
   }else if(GetPlatform.isWindows){
     imageCache.clear();
     await DefaultCacheManager().emptyCache();

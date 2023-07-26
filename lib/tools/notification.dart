@@ -8,10 +8,21 @@ class Notifications{
   final progressId = 72382;
 
   Future<bool?> requestPermission() async{
-    if(!GetPlatform.isAndroid)  return false;
     try {
-      return await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
+      if(GetPlatform.isAndroid) {
+        return await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
+      }else if(GetPlatform.isIOS) {
+        return await flutterLocalNotificationsPlugin
+            ?.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+            ?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+      return true;
     }
     catch(e){
       return false;
@@ -19,7 +30,7 @@ class Notifications{
   }
 
   Future<void> init() async{
-    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
+    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
     flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -39,7 +50,7 @@ class Notifications{
   }
 
   void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
-    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
+    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
     final String? payload = notificationResponse.payload;
     if (notificationResponse.payload != null) {
       debugPrint('notification payload: $payload');
@@ -53,8 +64,7 @@ class Notifications{
   }
 
   void sendProgressNotification(int progress, int total, String title, String content) async{
-    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
-    if (await requestPermission() != true)  return;
+    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
     AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails('download', '下载漫画',
       channelDescription: '显示下载进度',
@@ -75,19 +85,32 @@ class Notifications{
   }
 
   void endProgress() async{
-    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
-    await requestPermission();
+    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
     await flutterLocalNotificationsPlugin!.cancel(progressId);
   }
 
   void sendNotification(String title, String content) async{
-    if(GetPlatform.isWeb||!GetPlatform.isAndroid)  return;
-    await requestPermission();
+    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
     AndroidNotificationDetails androidNotificationDetails =
     const AndroidNotificationDetails('PicaComic', '通知',
         channelDescription: '通知',
         importance: Importance.max,
         priority: Priority.max,
+    );
+    NotificationDetails notificationDetails =
+    NotificationDetails(android: androidNotificationDetails);
+    await flutterLocalNotificationsPlugin!.show(
+        1145140, title, content, notificationDetails,
+        payload: 'item x');
+  }
+
+  void sendUnimportantNotification(String title, String content) async{
+    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    AndroidNotificationDetails androidNotificationDetails =
+    const AndroidNotificationDetails('PicaComic', '通知',
+      channelDescription: '通知',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
     );
     NotificationDetails notificationDetails =
     NotificationDetails(android: androidNotificationDetails);

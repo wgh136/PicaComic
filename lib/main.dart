@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/error_report.dart';
+import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -18,6 +19,7 @@ import 'package:pica_comic/views/language.dart';
 import 'package:pica_comic/views/login_all_account_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:workmanager/workmanager.dart';
 import 'network/picacg_network/methods.dart';
 
 bool notFirstUse = false;
@@ -32,13 +34,18 @@ void main() {
           "${details.exception}\n${details.stack}");
     };
     appdata.readData().then((b) async {
+      if (GetPlatform.isMobile) {
+        Workmanager().initialize(
+          onStart,
+        );
+      }
       await checkDownloadPath();
       notFirstUse = appdata.firstUse[3] == "1";
       if (b) {
         network = PicacgNetwork(appdata.token);
       }
       setNetworkProxy(); //设置代理
-      runApp(MyApp());
+      runApp(const MyApp());
     });
   }, (error, stack) {
     sendLog(error.toString(), stack.toString());
@@ -46,9 +53,14 @@ void main() {
   });
 }
 
-class MyApp extends StatelessWidget with WidgetsBindingObserver {
-  MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -67,7 +79,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -80,6 +92,11 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return DynamicColorBuilder(builder: (light, dark) {
       ColorScheme? lightColor;
       ColorScheme? darkColor;
@@ -95,10 +112,10 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         darkColor = dark;
       }
       ColorScheme? colorScheme;
-      if(appdata.settings[32] == "1"){
-        colorScheme = lightColor ??
-            ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
-      }else if(appdata.settings[32] == "2"){
+      if (appdata.settings[32] == "1") {
+        colorScheme =
+            lightColor ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
+      } else if (appdata.settings[32] == "2") {
         colorScheme = darkColor ??
             ColorScheme.fromSeed(
                 seedColor: Colors.pinkAccent, brightness: Brightness.dark);
@@ -107,18 +124,20 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            colorScheme: (colorScheme ?? lightColor ??
-                ColorScheme.fromSeed(seedColor: Colors.pinkAccent)),
-            useMaterial3: true,
-            fontFamily: GetPlatform.isWindows?"font":"",
-            ),
+          colorScheme: (colorScheme ??
+              lightColor ??
+              ColorScheme.fromSeed(seedColor: Colors.pinkAccent)),
+          useMaterial3: true,
+          fontFamily: GetPlatform.isWindows ? "font" : "",
+        ),
         darkTheme: ThemeData(
-            colorScheme: (colorScheme ?? darkColor ??
-                ColorScheme.fromSeed(
-                    seedColor: Colors.pinkAccent, brightness: Brightness.dark)),
-            useMaterial3: true,
-            fontFamily: GetPlatform.isWindows?"font":"",
-          ),
+          colorScheme: (colorScheme ??
+              darkColor ??
+              ColorScheme.fromSeed(
+                  seedColor: Colors.pinkAccent, brightness: Brightness.dark)),
+          useMaterial3: true,
+          fontFamily: GetPlatform.isWindows ? "font" : "",
+        ),
         home: notFirstUse ? const LoginAccountsPage() : const WelcomePage(),
         translations: Translation(),
         locale: PlatformDispatcher.instance.locale,
@@ -127,8 +146,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
           LogManager.addLog(
               (isError ?? false) ? LogLevel.warning : LogLevel.info,
               "App Status",
-              s
-          );
+              s);
         },
         builder: (context, widget) {
           ErrorWidget.builder = (details) {
