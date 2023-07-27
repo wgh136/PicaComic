@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class SelectDownloadChapter extends StatefulWidget {
   const SelectDownloadChapter(this.eps, this.finishSelect, this.downloadedEps, {Key? key}) : super(key: key);
@@ -23,7 +23,7 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            child: Text("下载漫画".tr, style: const TextStyle(fontSize: 22),),
+            child: Text("下载漫画".tl, style: const TextStyle(fontSize: 22),),
           ),
           Expanded(child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -80,11 +80,11 @@ class _SelectDownloadChapterState extends State<SelectDownloadChapter> {
                     }
                   }
                   widget.finishSelect(res);
-                }, child: Text("下载全部".tr)),),
+                }, child: Text("下载全部".tl)),),
                 const SizedBox(width: 16,),
                 Expanded(child: FilledButton.tonal(onPressed: (){
                   widget.finishSelect(selected);
-                }, child: Text("下载选择".tr)),),
+                }, child: Text("下载选择".tl)),),
                 const SizedBox(width: 16,),
               ],
             ),

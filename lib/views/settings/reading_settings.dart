@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../base.dart';
 import '../widgets/select.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class ReadingSettings extends StatefulWidget {
   const ReadingSettings(this.popUp, {super.key});
@@ -25,12 +26,12 @@ class _ReadingSettingsState extends State<ReadingSettings> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          title: Text("阅读".tr),
+          title: Text("阅读".tl),
         ),
         ListTile(
           leading: Icon(Icons.touch_app_outlined,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("点按翻页".tr),
+          title: Text("点按翻页".tl),
           trailing: Switch(
             value: pageChangeValue,
             onChanged: (b) {
@@ -44,8 +45,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.volume_mute,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("使用音量键翻页".tr),
-          subtitle: Text("仅安卓端有效".tr),
+          title: Text("使用音量键翻页".tl),
+          subtitle: Text("仅安卓端有效".tl),
           trailing: Switch(
             value: useVolumeKeyChangePage,
             onChanged: (b) {
@@ -59,8 +60,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.control_camera,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("宽屏时显示前进后退关闭按钮".tr),
-          subtitle: Text("优化鼠标阅读体验".tr),
+          title: Text("宽屏时显示前进后退关闭按钮".tl),
+          subtitle: Text("优化鼠标阅读体验".tl),
           onTap: () {},
           trailing: Switch(
             value: showThreeButton,
@@ -77,7 +78,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ListTile(
             leading: Icon(Icons.screenshot_outlined,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("保持屏幕常亮".tr),
+            title: Text("保持屏幕常亮".tl),
             onTap: () {},
             trailing: Switch(
               value: keepScreenOn,
@@ -93,7 +94,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.brightness_4,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("夜间模式降低图片亮度".tr),
+          title: Text("夜间模式降低图片亮度".tl),
           onTap: () {},
           trailing: Switch(
             value: lowBrightness,
@@ -109,10 +110,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.chrome_reader_mode,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("选择阅读模式".tr),
+          title: Text("选择阅读模式".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[9]) - 1,
-            values: ["从左至右".tr, "从右至左".tr, "从上至下".tr, "从上至下(连续)".tr],
+            values: ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl],
             whenChange: (i) {
               appdata.settings[9] = (i + 1).toString();
               appdata.updateSettings();
@@ -124,7 +125,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.image_outlined,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("图片预加载".tr),
+          title: Text("图片预加载".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[28]),
             values: const ["0", "1", "2", "3", "4", "5"],
@@ -172,7 +173,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               style: const TextStyle(fontSize: 14),
             ),
           ),
-          title: Text("自动翻页时间间隔".tr),
+          title: Text("自动翻页时间间隔".tl),
         ),
       ],
     );

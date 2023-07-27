@@ -3,6 +3,7 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmLoginPage extends StatefulWidget {
   const JmLoginPage({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("登录禁漫天堂".tr),),
+      appBar: AppBar(title: Text("登录禁漫天堂".tl),),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(5),
@@ -32,8 +33,8 @@ class _JmLoginPageState extends State<JmLoginPage> {
                   controller: nameController,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: "账号".tr,
-                      hintText: "账号".tr,
+                      labelText: "账号".tl,
+                      hintText: "账号".tl,
                       prefixIcon: const Icon(Icons.person)
                   ),
                 ),
@@ -42,8 +43,8 @@ class _JmLoginPageState extends State<JmLoginPage> {
                   controller: passwordController,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: "密码".tr,
-                      hintText: "您的登录密码".tr,
+                      labelText: "密码".tl,
+                      hintText: "您的登录密码".tl,
                       prefixIcon: const Icon(Icons.lock)
                   ),
                   obscureText: true,
@@ -67,7 +68,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                   SizedBox(
                     width: 90,
                     child: FilledButton(
-                      child: Text("登录".tr),
+                      child: Text("登录".tl),
                       onPressed: ()async{
                         setState(() {
                           logging = true;
@@ -103,7 +104,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                     onPressed: ()=>launchUrlString("https://18comic.vip/signup",mode: LaunchMode.externalApplication),
                     child: Row(
                       children: [
-                        Text("注册".tr),
+                        Text("注册".tl),
                         const Icon(Icons.arrow_outward,size: 15,)
                       ],
                     ),

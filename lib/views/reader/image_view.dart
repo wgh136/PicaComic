@@ -15,6 +15,7 @@ import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'reading_type.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 Map<int, PhotoViewController> _controllers = {};
 
@@ -196,14 +197,14 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
         if (i == 0) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(1);
-            showMessage(Get.context, "已经是第一页了".tr);
+            showMessage(Get.context, "已经是第一页了".tl);
             return;
           }
           comicReadingPageLogic.jumpToLastChapter();
         } else if (i == comicReadingPageLogic.urls.length + 1) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
             comicReadingPageLogic.controller.jumpToPage(i - 1);
-            showMessage(Get.context, "已经是最后一页了".tr);
+            showMessage(Get.context, "已经是最后一页了".tl);
             return;
           }
           comicReadingPageLogic.jumpToNextChapter();

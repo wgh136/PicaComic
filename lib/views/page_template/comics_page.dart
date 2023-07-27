@@ -16,6 +16,7 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 import '../../network/res.dart';
 import '../widgets/list_loading.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class ComicsPageLogic<T> extends GetxController {
   bool loading = true;
@@ -315,7 +316,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                     onPressed: () {
                                       if (logic.current == 1 ||
                                           logic.current == 0) {
-                                        showMessage(context, "已经是第一页了".tr);
+                                        showMessage(context, "已经是第一页了".tl);
                                       } else {
                                         logic.current--;
                                         logic.update();
@@ -347,9 +348,9 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                                   decoration: InputDecoration(
                                                     border:
                                                         const OutlineInputBorder(),
-                                                    labelText: "页码".tr,
+                                                    labelText: "页码".tl,
                                                     suffixText:
-                                                        "${"输入范围: ".tr}1-${logic.maxPage?.toString() ?? "?"}",
+                                                        "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
                                                   ),
                                                   controller: controller,
                                                   onSubmitted: (s) {
@@ -360,7 +361,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                               ),
                                               Center(
                                                 child: FilledButton(
-                                                  child: Text("提交".tr),
+                                                  child: Text("提交".tl),
                                                   onPressed: () {
                                                     res = controller.text;
                                                     Get.back();
@@ -391,13 +392,13 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                     onPressed: () {
                                       if (logic.current == logic.maxPage ||
                                           logic.current == 0) {
-                                        showMessage(context, "已经是最后一页了".tr);
+                                        showMessage(context, "已经是最后一页了".tl);
                                       } else {
                                         logic.current++;
                                         logic.update();
                                       }
                                     },
-                                    child: Text("下一页".tr)),
+                                    child: Text("下一页".tl)),
                                 const SizedBox(
                                   width: 10,
                                 ),

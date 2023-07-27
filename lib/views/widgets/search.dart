@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 import '../../base.dart';
 
@@ -43,7 +44,7 @@ class FloatingSearchBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(children: [
               Tooltip(
-                message: "返回".tr,
+                message: "返回".tl,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: (){

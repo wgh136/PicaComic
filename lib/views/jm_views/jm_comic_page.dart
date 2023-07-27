@@ -18,6 +18,7 @@ import '../models/local_favorites.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmComicPage extends ComicPage<JmComicInfo> {
   const JmComicPage(this.id, {super.key});
@@ -45,7 +46,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
           ),
           Expanded(
             child: ActionChip(
-              label: Text("收藏".tr),
+              label: Text("收藏".tl),
               avatar: const Icon(Icons.bookmark_add_outlined),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: appdata.jmEmail != "",
@@ -55,7 +56,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                   if(res.error){
                     return res;
                   }else{
-                    var resData = <String, String>{"-1":"全部收藏".tr};
+                    var resData = <String, String>{"-1":"全部收藏".tl};
                     resData.addAll(res.data);
                     return Res(resData);
                   }
@@ -63,7 +64,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                 favoriteOnPlatform: data!.favorite,
                 selectFolderCallback: (folder, page) async{
                   if(page == 0){
-                    showMessage(context, "正在添加收藏".tr);
+                    showMessage(context, "正在添加收藏".tl);
                     var res = await jmNetwork.favorite(id);
                     if(res.error){
                       showMessage(Get.context, res.errorMessageWithoutNull);
@@ -77,7 +78,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                       }
                     }
                     data!.favorite = true;
-                    showMessage(Get.context, "成功添加收藏".tr);
+                    showMessage(Get.context, "成功添加收藏".tl);
                   }else{
                     LocalFavoritesManager().addComic(folder, FavoriteItem.fromJmComic(JmComicBrief(
                       id,
@@ -88,13 +89,13 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                       [],
                       ignoreExamination: true
                     )));
-                    showMessage(Get.context, "成功添加收藏".tr);
+                    showMessage(Get.context, "成功添加收藏".tl);
                   }
                 },
                 cancelPlatformFavorite: ()async{
-                  showMessage(context, "正在取消收藏".tr);
+                  showMessage(context, "正在取消收藏".tl);
                   var res = await jmNetwork.favorite(id);
-                  showMessage(Get.context, !res.error?"成功取消收藏".tr:"网络错误".tr);
+                  showMessage(Get.context, !res.error?"成功取消收藏".tl:"网络错误".tl);
                   data!.favorite = false;
                 },
               )),
@@ -123,7 +124,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   @override
   EpsData? get eps => EpsData(
           List<String>.generate(data!.series.values.length,
-              (index) => "第 @c 章".trParams({"c": (index + 1).toString()})),
+              (index) => "第 @c 章".tlParams({"c": (index + 1).toString()})),
           (i) {
         addJmHistory(data!);
         Get.to(() => ComicReadingPage.jmComic(
@@ -142,7 +143,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   @override
   FilledButton get readButton => FilledButton(
         onPressed: () => readJmComic(data!, data!.series.values.toList()),
-        child: Text("阅读".tr),
+        child: Text("阅读".tl),
       );
 
   @override
@@ -162,10 +163,10 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "作者".tr: (data!.author.isEmpty) ? "未知".tr.toList() : data!.author,
+        "作者".tl: (data!.author.isEmpty) ? "未知".tl.toList() : data!.author,
         "ID": "JM${data!.id}".toList(),
-        "查看".tr: "${data!.views}".toList(),
-        "标签".tr: data!.tags
+        "查看".tl: "${data!.views}".toList(),
+        "标签".tl: data!.tags
       };
 
   @override
@@ -195,7 +196,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
   bool loading = true;
   Map<String, String> folders = {};
   String? message;
-  String folderName = "全部收藏".tr;
+  String folderName = "全部收藏".tl;
   String folderId = "0";
   bool loading2 = false;
   bool addedFavorite = false;
@@ -206,7 +207,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
       get();
     }
     return SimpleDialog(
-      title: Text("收藏漫画".tr),
+      title: Text("收藏漫画".tl),
       children: [
         if (loading)
           const SizedBox(
@@ -246,14 +247,14 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text("  选择收藏夹:  ".tr),
+                      Text("  选择收藏夹:  ".tl),
                       Text(folderName),
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.arrow_drop_down_sharp),
                         onPressed: () {
                           if (loading) {
-                            showMessage(context, "加载中".tr);
+                            showMessage(context, "加载中".tl);
                             return;
                           }
                           showMenu(
@@ -265,10 +266,10 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                                   MediaQuery.of(context).size.height / 2),
                               items: [
                                 PopupMenuItem(
-                                  child: Text("全部收藏".tr),
+                                  child: Text("全部收藏".tl),
                                   onTap: () {
                                     setState(() {
-                                      folderName = "全部收藏".tr;
+                                      folderName = "全部收藏".tl;
                                     });
                                     folderId = "0";
                                   },
@@ -325,9 +326,9 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                         Get.find<ComicPageLogic<JmComicInfo>>(
                                 tag: "Jm ComicPage ${widget.id}")
                             .update();
-                        showMessage(Get.context, "添加成功".tr);
+                        showMessage(Get.context, "添加成功".tl);
                       },
-                      child: Text("提交".tr))
+                      child: Text("提交".tl))
                 else
                   const Center(
                     child: CircularProgressIndicator(),
@@ -359,17 +360,17 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
 void downloadComic(JmComicInfo comic, BuildContext context) async {
   for (var i in downloadManager.downloading) {
     if (i.id == comic.id) {
-      showMessage(context, "下载中".tr);
+      showMessage(context, "下载中".tl);
       return;
     }
   }
 
   List<String> eps = [];
   if (comic.series.isEmpty) {
-    eps.add("第1章".tr);
+    eps.add("第1章".tl);
   } else {
     eps = List<String>.generate(comic.series.length,
-        (index) => "第 @c 章".trParams({"c": (index + 1).toString()}));
+        (index) => "第 @c 章".tlParams({"c": (index + 1).toString()}));
   }
 
   var downloaded = <int>[];
@@ -385,7 +386,7 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addJmDownload(comic, selectedEps);
-            showMessage(context, "已加入下载".tr);
+            showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
   } else {
@@ -393,7 +394,7 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
         Get.context!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addJmDownload(comic, selectedEps);
-          showMessage(context, "已加入下载".tr);
+          showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);
   }

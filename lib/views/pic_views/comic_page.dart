@@ -18,6 +18,7 @@ import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/base.dart';
 import '../widgets/select_download_eps.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class PicacgComicPage extends ComicPage<ComicItem> {
   final ComicItemBrief comic;
@@ -40,7 +41,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
           ),
           Expanded(
             child: ActionChip(
-              label: Text("收藏".tr),
+              label: Text("收藏".tl),
               avatar: const Icon(Icons.bookmark_add_outlined),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: appdata.token != "",
@@ -59,7 +60,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
                     data!.isFavourite = true;
                     update();
                   }else{
-                    showMessage(Get.context, "已添加至收藏夹:".tr + name);
+                    showMessage(Get.context, "已添加至收藏夹:".tl + name);
                     LocalFavoritesManager().addComic(
                         name, FavoriteItem.fromPicacg(comic));
                   }
@@ -88,8 +89,8 @@ class PicacgComicPage extends ComicPage<ComicItem> {
           downloadComic(data!, context, data!.eps);
         },
         child: (downloadManager.downloaded.contains(comic.id))
-            ? Text("修改".tr)
-            : Text("下载".tr),
+            ? Text("修改".tl)
+            : Text("下载".tl),
       );
 
   @override
@@ -111,7 +112,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   @override
   FilledButton get readButton => FilledButton(
         onPressed: () => readPicacgComic(data!, data!.eps),
-        child: Text("阅读".tr),
+        child: Text("阅读".tl),
       );
 
   @override
@@ -131,10 +132,10 @@ class PicacgComicPage extends ComicPage<ComicItem> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "作者".tr: data!.author.toList(),
-        "汉化".tr: data!.chineseTeam.toList(),
-        "分类".tr: data!.categories,
-        "标签".tr: data!.tags
+        "作者".tl: data!.author.toList(),
+        "汉化".tl: data!.chineseTeam.toList(),
+        "分类".tl: data!.categories,
+        "标签".tl: data!.tags
       };
 
   @override
@@ -203,7 +204,7 @@ class ComicPageLogic extends GetxController {
   var eps = <Widget>[
     ListTile(
       leading: const Icon(Icons.library_books),
-      title: Text("章节".tr),
+      title: Text("章节".tl),
     ),
   ];
   var epsStr = <String>[""];
@@ -216,12 +217,12 @@ class ComicPageLogic extends GetxController {
 void downloadComic(
     ComicItem comic, BuildContext context, List<String> eps) async {
   if (GetPlatform.isWeb) {
-    showMessage(context, "Web端不支持下载".tr);
+    showMessage(context, "Web端不支持下载".tl);
     return;
   }
   for (var i in downloadManager.downloading) {
     if (i.id == comic.id) {
-      showMessage(context, "下载中".tr);
+      showMessage(context, "下载中".tl);
       return;
     }
   }
@@ -236,7 +237,7 @@ void downloadComic(
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addPicDownload(comic, selectedEps);
-            showMessage(context, "已加入下载".tr);
+            showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
   } else {
@@ -244,7 +245,7 @@ void downloadComic(
         Get.context!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addPicDownload(comic, selectedEps);
-          showMessage(context, "已加入下载".tr);
+          showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'avatar.dart';
 
 void showUserInfo(BuildContext context, String? avatarUrl, String? frameUrl, String name, String? slogan, int level){
@@ -17,7 +17,7 @@ void showUserInfo(BuildContext context, String? avatarUrl, String? frameUrl, Str
               const SizedBox(height: 10,width: 0,),
               SizedBox(width: 400,child: Align(
                 alignment: Alignment.center,
-                child: Text(slogan??"无".tr),
+                child: Text(slogan??"无".tl),
               ),)
             ],
           ),

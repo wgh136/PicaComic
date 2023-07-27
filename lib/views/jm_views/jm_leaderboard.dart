@@ -6,6 +6,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/base.dart';
 import '../widgets/list_loading.dart';
 import 'jm_widgets.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class CategoryPageLogic extends GetxController{
   bool loading = true;
@@ -65,10 +66,10 @@ class JmLeaderboardPage extends StatelessWidget {
         TabBar(
             splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
             tabs: [
-              Tab(text: "总排行".tr),
-              Tab(text: "月排行".tr),
-              Tab(text: "周排行".tr),
-              Tab(text: "日排行".tr),
+              Tab(text: "总排行".tl),
+              Tab(text: "月排行".tl),
+              Tab(text: "周排行".tl),
+              Tab(text: "日排行".tl),
             ]),
         const Expanded(child: TabBarView(
             children: [

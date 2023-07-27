@@ -23,6 +23,7 @@ import 'touch_control.dart';
 import 'reading_logic.dart';
 import 'reading_settings.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class ReadingPageData {
   int initialPage;
@@ -230,7 +231,7 @@ class ComicReadingPage extends StatelessWidget {
                               const SizedBox(
                                 height: 5,
                               ),
-                              FilledButton(onPressed: () => Get.back(), child: Text("退出".tr))
+                              FilledButton(onPressed: () => Get.back(), child: Text("退出".tl))
                             ],
                           ),
                         ),
@@ -453,7 +454,7 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  data.message ?? "未知错误".tr,
+                  data.message ?? "未知错误".tl,
                   style: const TextStyle(
                     color: Colors.white,
                   ),
@@ -477,7 +478,7 @@ class ComicReadingPage extends StatelessWidget {
                               data.epsWidgets.clear();
                               comicReadingPageLogic.change();
                             },
-                            child: Text("重试".tr),
+                            child: Text("重试".tl),
                           ),
                         ),
                         const SizedBox(
@@ -487,7 +488,7 @@ class ComicReadingPage extends StatelessWidget {
                             child: FilledButton(
                           onPressed: () {
                             if (!type.hasEps) {
-                              showMessage(context, "没有其它章节".tr);
+                              showMessage(context, "没有其它章节".tl);
                               return;
                             }
                             if (MediaQuery.of(context).size.width > 600) {
@@ -502,7 +503,7 @@ class ComicReadingPage extends StatelessWidget {
                                   });
                             }
                           },
-                          child: Text("切换章节".tr),
+                          child: Text("切换章节".tl),
                         )),
                       ],
                     ),
@@ -540,7 +541,7 @@ class ComicReadingPage extends StatelessWidget {
             Icons.library_books,
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
-          title: Text("章节".tr),
+          title: Text("章节".tl),
         ),
       );
     }
@@ -599,7 +600,7 @@ class ComicReadingPage extends StatelessWidget {
         logic.change();
         return;
       } else if (i == 0) {
-        data.message = "网络错误".tr;
+        data.message = "网络错误".tl;
         logic.change();
         return;
       } else {
@@ -637,7 +638,7 @@ class ComicReadingPage extends StatelessWidget {
             color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
           ),
           title: Text(
-            "章节".tr,
+            "章节".tl,
             style: const TextStyle(fontSize: 18),
           ),
         ),
@@ -646,9 +647,9 @@ class ComicReadingPage extends StatelessWidget {
     if (data.epsWidgets.length == 1) {
       for (int i = 0; i < eps.length; i++) {
         data.epsWidgets.add(ListTile(
-          title: Text("${"第 @c 章".trParams({
+          title: Text("${"第 @c 章".tlParams({
                 "c": (i + 1).toString()
-              })}${(comicReadingPageLogic.order == i + 1) ? "(当前)".tr : ""}"),
+              })}${(comicReadingPageLogic.order == i + 1) ? "(当前)".tl : ""}"),
           onTap: () {
             if (comicReadingPageLogic.order != i + 1) {
               comicReadingPageLogic.order = i + 1;
@@ -671,7 +672,7 @@ class ComicReadingPage extends StatelessWidget {
     }
     var res = await jmNetwork.getChapter(data.target);
     if (res.error) {
-      data.message = res.errorMessage ?? "网络错误".tr;
+      data.message = res.errorMessage ?? "网络错误".tl;
     } else {
       comicReadingPageLogic.urls = res.data;
     }

@@ -7,6 +7,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class CategoriesPageLogic extends GetxController{
   var categories = <CategoryItem>[];
@@ -80,7 +81,7 @@ class CategoriesPage extends StatelessWidget {
                                       flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("本子妹/本子母推荐".tr,style: const TextStyle(fontWeight: FontWeight.w600),),
+                                        child: Text("本子妹/本子母推荐".tl,style: const TextStyle(fontWeight: FontWeight.w600),),
                                       )
                                   ),
                                 ],
@@ -91,14 +92,14 @@ class CategoriesPage extends StatelessWidget {
                         return InkWell(
                             borderRadius: BorderRadius.circular(18),
                             onTap: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                              title: Text("援助哔咔".tr),
-                              content: Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?".tr),
+                              title: Text("援助哔咔".tl),
+                              content: Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?".tl),
                               actions: [
-                                TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
+                                TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
                                 TextButton(onPressed: (){
                                   launchUrlString("https://donate.bidobido.xyz",mode: LaunchMode.externalApplication);
                                   Get.back();
-                                }, child: Text("继续".tr)),
+                                }, child: Text("继续".tl)),
                               ],
                             )),
                             child: Padding(
@@ -123,7 +124,7 @@ class CategoriesPage extends StatelessWidget {
                                       flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("援助哔咔".tr,style: const TextStyle(fontWeight: FontWeight.w600),),
+                                        child: Text("援助哔咔".tl,style: const TextStyle(fontWeight: FontWeight.w600),),
                                       )
                                   ),
                                 ],
@@ -156,7 +157,7 @@ class CategoriesPage extends StatelessWidget {
                                       flex: 11,
                                       child: Align(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("最新漫画".tr,style: const TextStyle(fontWeight: FontWeight.w600),),
+                                        child: Text("最新漫画".tl,style: const TextStyle(fontWeight: FontWeight.w600),),
                                       )
                                   ),
                                 ],

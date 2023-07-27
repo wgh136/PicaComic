@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
+import 'package:pica_comic/tools/translations.dart';
 import '../widgets/show_message.dart';
 
 class HtLoginPage extends StatefulWidget {
@@ -20,7 +20,7 @@ class _HtLoginPageState extends State<HtLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("登录绅士漫画".tr),
+        title: Text("登录绅士漫画".tl),
       ),
       body: Center(
         child: Padding(
@@ -35,8 +35,8 @@ class _HtLoginPageState extends State<HtLoginPage> {
                   controller: nameController,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: "账号".tr,
-                      hintText: "账号".tr,
+                      labelText: "账号".tl,
+                      hintText: "账号".tl,
                       prefixIcon: const Icon(Icons.person)),
                 ),
                 const Padding(
@@ -46,8 +46,8 @@ class _HtLoginPageState extends State<HtLoginPage> {
                   controller: passwordController,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: "密码".tr,
-                      hintText: "您的登录密码".tr,
+                      labelText: "密码".tl,
+                      hintText: "您的登录密码".tl,
                       prefixIcon: const Icon(Icons.lock)),
                   obscureText: true,
                   onSubmitted: (s) async {
@@ -73,7 +73,7 @@ class _HtLoginPageState extends State<HtLoginPage> {
                   SizedBox(
                     width: 90,
                     child: FilledButton(
-                      child: Text("登录".tr),
+                      child: Text("登录".tl),
                       onPressed: () async {
                         setState(() {
                           logging = true;
@@ -110,7 +110,7 @@ class _HtLoginPageState extends State<HtLoginPage> {
                         mode: LaunchMode.externalApplication),
                     child: Row(
                       children: [
-                        Text("注册".tr),
+                        Text("注册".tl),
                         const Icon(
                           Icons.arrow_outward,
                           size: 15,

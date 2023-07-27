@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/error_report.dart';
@@ -15,7 +14,6 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
-import 'package:pica_comic/views/language.dart';
 import 'package:pica_comic/views/login_all_account_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
@@ -139,9 +137,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           fontFamily: GetPlatform.isWindows ? "font" : "",
         ),
         home: notFirstUse ? const LoginAccountsPage() : const WelcomePage(),
-        translations: Translation(),
-        locale: PlatformDispatcher.instance.locale,
         fallbackLocale: const Locale('zh', 'CN'),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW')],
         logWriterCallback: (String s, {bool? isError}) {
           LogManager.addLog(
               (isError ?? false) ? LogLevel.warning : LogLevel.info,

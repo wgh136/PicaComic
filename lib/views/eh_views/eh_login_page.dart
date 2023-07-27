@@ -6,7 +6,7 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
-
+import 'package:pica_comic/tools/translations.dart';
 import '../../network/eh_network/eh_main_network.dart';
 
 class EhLoginPage extends StatefulWidget {
@@ -26,7 +26,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("登录E-Hentai账户".tr),
+        title: Text("登录E-Hentai账户".tl),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -40,7 +40,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "  使用cookie登录".tr,
+                      "  使用cookie登录".tl,
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(
@@ -70,7 +70,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                         controller: c3,
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
-                            labelText: "igneous(非必要)".tr),
+                            labelText: "igneous(非必要)".tl),
                       ),
                     ),
                     Center(
@@ -78,10 +78,10 @@ class _EhLoginPageState extends State<EhLoginPage> {
                         padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                         child: !logging
                             ? FilledButton(
-                                child: Text("登录".tr),
+                                child: Text("登录".tl),
                                 onPressed: () {
                                   if (c1.text == "" || c2.text == "") {
-                                    showMessage(context, "请填写完整".tr);
+                                    showMessage(context, "请填写完整".tl);
                                   } else {
                                     login(c1.text, c2.text, c3.text);
                                   }
@@ -119,7 +119,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                                     login(id!.value, hash!.value,
                                         igneous == null ? "" : igneous.value);
                                   } catch (e) {
-                                    showMessage(Get.context, "登录失败".tr);
+                                    showMessage(Get.context, "登录失败".tl);
                                   }
                                 });
                                 await browser.openUrlRequest(
@@ -146,7 +146,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                                       } catch (e) {
                                         LogManager.addLog(LogLevel.error,
                                             "Network", e.toString());
-                                        showMessage(Get.context, "登录失败".tr);
+                                        showMessage(Get.context, "登录失败".tl);
                                       }
                                     }
                                   }));
@@ -157,7 +157,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                             },
                             child: Row(
                               children: [
-                                Text("在Webview中登录".tr),
+                                Text("在Webview中登录".tl),
                                 const Icon(
                                   Icons.arrow_outward,
                                   size: 15,
@@ -181,7 +181,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                               mode: LaunchMode.externalApplication),
                           child: Row(
                             children: [
-                              Text("注册".tr),
+                              Text("注册".tl),
                               const Icon(
                                 Icons.arrow_outward,
                                 size: 15,
@@ -202,7 +202,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                             size: 20,
                           ),
                           Text(
-                            "由于需要captcha响应, 暂不支持直接密码登录".tr,
+                            "由于需要captcha响应, 暂不支持直接密码登录".tl,
                             maxLines: 2,
                           )
                         ],
@@ -227,9 +227,9 @@ class _EhLoginPageState extends State<EhLoginPage> {
       EhNetwork().getUserName().then((b) {
         if (b) {
           Get.back();
-          showMessage(context, "登录成功".tr);
+          showMessage(context, "登录成功".tl);
         } else {
-          showMessage(context, "登录失败".tr);
+          showMessage(context, "登录失败".tl);
           setState(() {
             logging = false;
           });

@@ -5,6 +5,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
 import 'jm_widgets.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JWRPLogic extends GetxController{
   bool loading = true;
@@ -45,7 +46,7 @@ class JmWeekRecommendationPage extends StatelessWidget {
     const titleLength = 190;
     return Scaffold(
       appBar: AppBar(
-        title: Text("每周必看".tr),
+        title: Text("每周必看".tl),
         actions: [
           GetBuilder<JWRPLogic>(builder: (logic)=>Container(
             key: key,
@@ -149,9 +150,9 @@ class WeekRecommendationList extends StatelessWidget {
     return DefaultTabController(length: 3, child: Column(
       children: [
         TabBar(tabs: [
-          Tab(text: "韩漫".tr,),
-          Tab(text: "日漫".tr,),
-          Tab(text: "其它".tr,)
+          Tab(text: "韩漫".tl,),
+          Tab(text: "日漫".tl,),
+          Tab(text: "其它".tl,)
         ]),
         Expanded(child: GetBuilder<WRLLogic>(
             init: WRLLogic(),
@@ -173,7 +174,7 @@ class WeekRecommendationList extends StatelessWidget {
         child: CircularProgressIndicator(),
       );
     }else if(logic.comics[index].isEmpty){
-      return showNetworkError(logic.messages[index]??"未知错误".tr, ()=>logic.retry(index, id), context);
+      return showNetworkError(logic.messages[index]??"未知错误".tl, ()=>logic.retry(index, id), context);
     }else{
       return CustomScrollView(
         slivers: [

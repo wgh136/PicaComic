@@ -6,6 +6,7 @@ import 'package:pica_comic/views/ht_views/ht_comic_list.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class HtHomePageLogic extends GetxController {
   bool loading = true;
@@ -65,7 +66,7 @@ class HtHomePage extends StatelessWidget {
                               name: logic.data!.links.keys.elementAt(i),
                               url: logic.data!.links.values.elementAt(i),
                               addDomain: false,)),
-                          child: Text("查看更多".tr)),
+                          child: Text("查看更多".tl)),
                     ],
                   ),
                 ),

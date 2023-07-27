@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/jm_network/jm_image.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmComicTile extends ComicTile {
   final JmComicBrief comic;
@@ -37,7 +38,7 @@ class JmComicTile extends ComicTile {
       if(res.error){
         showMessage(Get.context, res.errorMessage!);
       }else{
-        showMessage(Get.context, res.data?"添加收藏成功".tr:"取消收藏成功".tr);
+        showMessage(Get.context, res.data?"添加收藏成功".tl:"取消收藏成功".tl);
       }
     });
   }

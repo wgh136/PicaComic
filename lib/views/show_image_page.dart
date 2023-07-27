@@ -5,6 +5,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class ShowImagePage extends StatefulWidget {
   const ShowImagePage(this.url,{this.eh=false,Key? key}) : super(key: key);
@@ -64,7 +65,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                     child: Row(
                       children: [
                         Padding(padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),child: Tooltip(
-                          message: "返回".tr,
+                          message: "返回".tl,
                           child: IconButton(
                             iconSize: 25,
                             icon: const Icon(Icons.arrow_back_outlined,color: Colors.white70),
@@ -77,11 +78,11 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
                           child: Padding(
                             padding: const EdgeInsets.only(top: 10),
-                            child: Text("图片".tr,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20,color: Colors.white70),),
+                            child: Text("图片".tl,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20,color: Colors.white70),),
                           )
                           ,),
                         Tooltip(
-                          message: "保存图片".tr,
+                          message: "保存图片".tl,
                           child: IconButton(
                             icon: const Icon(Icons.download,color: Colors.white70,),
                             onPressed: () async{
@@ -90,7 +91,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           ),
                         ),
                         Tooltip(
-                          message: "分享".tr,
+                          message: "分享".tl,
                           child: IconButton(
                             icon: const Icon(Icons.share,color: Colors.white70),
                             onPressed: () async{

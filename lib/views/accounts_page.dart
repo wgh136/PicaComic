@@ -18,6 +18,7 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import '../network/jm_network/jm_main_network.dart';
 import '../network/picacg_network/methods.dart';
 import '../network/picacg_network/models.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class AccountsPageLogic extends GetxController {}
 
@@ -40,7 +41,7 @@ class PasswordLogic extends GetxController {
   var c2 = TextEditingController();
   var c3 = TextEditingController();
   int status = -1;
-  var errors = ["网络错误".tr, "旧密码错误".tr, "两次输入的密码不一致".tr, "密码至少8位".tr];
+  var errors = ["网络错误".tl, "旧密码错误".tl, "两次输入的密码不一致".tl, "密码至少8位".tl];
 }
 
 class AccountsPage extends StatelessWidget {
@@ -67,8 +68,8 @@ class AccountsPage extends StatelessWidget {
                   ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("头像".tr),
-                      subtitle: Text("更换头像".tr),
+                      title: Text("头像".tl),
+                      subtitle: Text("更换头像".tl),
                       trailing: Avatar(
                         size: 50,
                         avatarUrl: appdata.user.avatarUrl,
@@ -77,47 +78,47 @@ class AccountsPage extends StatelessWidget {
                     ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("账号".tr),
+                      title: Text("账号".tl),
                       subtitle: Text(appdata.user.email),
                       onTap: () => Clipboard.setData(
                           ClipboardData(text: appdata.user.email)),
                     ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("用户名".tr),
+                      title: Text("用户名".tl),
                       subtitle: Text(appdata.user.name),
                       onTap: () => Clipboard.setData(
                           ClipboardData(text: appdata.user.name)),
                     ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("等级".tr),
+                      title: Text("等级".tl),
                       subtitle: Text(
                           "Lv${appdata.user.level}    ${appdata.user.title}    Exp${appdata.user.exp.toString()}"),
                       onTap: () {},
                     ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("自我介绍".tr),
+                      title: Text("自我介绍".tl),
                       subtitle: Text(appdata.user.slogan ?? "无"),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => changeSlogan(context, logic),
                     ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("修改密码".tr),
+                      title: Text("修改密码".tl),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => changePassword(context),
                     ),
                   if (appdata.token != "")
                     ListTile(
-                      title: Text("退出登录".tr),
+                      title: Text("退出登录".tl),
                       onTap: () => logoutPicacg(context, logic),
                       trailing: const Icon(Icons.logout),
                     ),
                   if (appdata.token == "")
                     ListTile(
-                      title: Text("登录".tr),
+                      title: Text("登录".tl),
                       onTap: () => Get.to(() => const LoginPage())
                           ?.then((value) => logic.update()),
                     ),
@@ -137,7 +138,7 @@ class AccountsPage extends StatelessWidget {
                     ),
                   if (appdata.ehAccount != "")
                     ListTile(
-                      title: Text("用户名".tr),
+                      title: Text("用户名".tl),
                       subtitle: Text(appdata.ehAccount),
                       onTap: () => Clipboard.setData(
                           ClipboardData(text: appdata.ehAccount)),
@@ -165,7 +166,7 @@ class AccountsPage extends StatelessWidget {
                     ),
                   if (appdata.ehAccount != "")
                     ListTile(
-                      title: Text("退出登录".tr),
+                      title: Text("退出登录".tl),
                       onTap: () {
                         appdata.ehPassHash = "";
                         appdata.ehId = "";
@@ -181,13 +182,13 @@ class AccountsPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      "禁漫天堂".tr,
+                      "禁漫天堂".tl,
                       style: const TextStyle(fontSize: 20),
                     ),
                   ),
                   if (appdata.jmEmail != "")
                     ListTile(
-                      title: Text("用户名".tr),
+                      title: Text("用户名".tl),
                       subtitle: Text(appdata.jmName),
                       onTap: () =>
                           Clipboard.setData(ClipboardData(text: appdata.jmName)),
@@ -201,28 +202,28 @@ class AccountsPage extends StatelessWidget {
                     ),
                   if (appdata.jmEmail == "")
                     ListTile(
-                      title: Text("登录".tr),
+                      title: Text("登录".tl),
                       onTap: () => Get.to(() => const JmLoginPage())
                           ?.then((v) => logic.update()),
                     ),
                   if (appdata.jmEmail != "")
                     ListTile(
-                      title: Text("重新登录".tr),
+                      title: Text("重新登录".tl),
                       subtitle: const Text("如果登录失效点击此处"),
                       onTap: () async {
-                        showMessage(Get.context, "正在重新登录".tr, time: 8);
+                        showMessage(Get.context, "正在重新登录".tl, time: 8);
                         var res = await jmNetwork.loginFromAppdata();
                         if (res.error) {
                           showMessage(Get.context, res.errorMessage!);
                         } else {
-                          showMessage(Get.context, "重新登录成功".tr);
+                          showMessage(Get.context, "重新登录成功".tl);
                         }
                       },
                       trailing: const Icon(Icons.refresh),
                     ),
                   if (appdata.jmEmail != "")
                     ListTile(
-                      title: Text("退出登录".tr),
+                      title: Text("退出登录".tl),
                       onTap: () {
                         jmNetwork.logout();
                         logic.update();
@@ -233,20 +234,20 @@ class AccountsPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      "绅士漫画".tr,
+                      "绅士漫画".tl,
                       style: const TextStyle(fontSize: 20),
                     ),
                   ),
                   if (appdata.htName != "")
                     ListTile(
-                      title: Text("用户名".tr),
+                      title: Text("用户名".tl),
                       subtitle: Text(appdata.htName),
                       onTap: () =>
                           Clipboard.setData(ClipboardData(text: appdata.htName)),
                     ),
                   if (appdata.htName != "")
                     ListTile(
-                      title: Text("退出登录".tr),
+                      title: Text("退出登录".tl),
                       onTap: () {
                         appdata.htName = "";
                         appdata.htPwd = "";
@@ -258,7 +259,7 @@ class AccountsPage extends StatelessWidget {
                     ),
                   if (appdata.htName == "")
                     ListTile(
-                      title: Text("登录".tr),
+                      title: Text("登录".tl),
                       onTap: () => Get.to(() => const HtLoginPage())
                           ?.then((v) => logic.update()),
                     )
@@ -270,10 +271,10 @@ class AccountsPage extends StatelessWidget {
     );
 
     if(popUp){
-      return PopUpWidgetScaffold(title: "账号管理".tr, body: body);
+      return PopUpWidgetScaffold(title: "账号管理".tl, body: body);
     }else{
       return Scaffold(
-        appBar: AppBar(title: Text("账号管理".tr),),
+        appBar: AppBar(title: Text("账号管理".tl),),
         body: body,
       );
     }
@@ -288,7 +289,7 @@ class AccountsPage extends StatelessWidget {
             init: SloganLogic(),
             builder: (logic) {
               return SimpleDialog(
-                title: Text("更改自我介绍".tr),
+                title: Text("更改自我介绍".tl),
                 children: [
                   SizedBox(
                     width: 400,
@@ -332,7 +333,7 @@ class AccountsPage extends StatelessWidget {
                                   }
                                 });
                               },
-                              child: Text("提交".tr)),
+                              child: Text("提交".tl)),
                         if (logic.isUploading)
                           const CircularProgressIndicator(),
                         if (!logic.isUploading && logic.status)
@@ -347,7 +348,7 @@ class AccountsPage extends StatelessWidget {
                                   ),
                                   const Spacer(),
                                   Text(
-                                    "网络错误".tr,
+                                    "网络错误".tl,
                                     style: TextStyle(
                                       color:
                                           Theme.of(context).colorScheme.error,
@@ -367,7 +368,7 @@ class AccountsPage extends StatelessWidget {
                                   ),
                                   const Spacer(),
                                   Text(
-                                    "不能为空".tr,
+                                    "不能为空".tl,
                                     style: TextStyle(
                                       color:
                                           Theme.of(context).colorScheme.error,
@@ -394,7 +395,7 @@ class AccountsPage extends StatelessWidget {
               init: ChangeAvatarLogic(),
               builder: (logic) {
                 return SimpleDialog(
-                  title: Text("更换头像".tr),
+                  title: Text("更换头像".tl),
                   children: [
                     SizedBox(
                       width: 300,
@@ -418,7 +419,7 @@ class AccountsPage extends StatelessWidget {
                                   : Container(
                                     color: Theme.of(context).colorScheme.primaryContainer,
                                     child: Center(
-                                      child: Text("选择图像".tr, style: const TextStyle(fontSize: 22),),
+                                      child: Text("选择图像".tl, style: const TextStyle(fontSize: 22),),
                                     ),
                               ),
                             ),
@@ -454,7 +455,7 @@ class AccountsPage extends StatelessWidget {
                             FilledButton(
                                 onPressed: () async {
                                   if (logic.url == "") {
-                                    showMessage(context, "请先选择图像".tr);
+                                    showMessage(context, "请先选择图像".tl);
                                   } else {
                                     logic.isUploading = true;
                                     logic.update();
@@ -469,7 +470,7 @@ class AccountsPage extends StatelessWidget {
                                             appdata.user = t.data;
                                             accountsPageLogic.update();
                                             Get.back();
-                                            showMessage(context, "上传成功".tr);
+                                            showMessage(context, "上传成功".tl);
                                           } else {
                                             logic.success = false;
                                             logic.isUploading = false;
@@ -484,7 +485,7 @@ class AccountsPage extends StatelessWidget {
                                     });
                                   }
                                 },
-                                child: Text("上传".tr)),
+                                child: Text("上传".tl)),
                           if (logic.isUploading)
                             const CircularProgressIndicator(
                               strokeWidth: 4,
@@ -497,7 +498,7 @@ class AccountsPage extends StatelessWidget {
                                   children: [
                                     const Icon(Icons.error),
                                     const Spacer(),
-                                    Text("失败".tr)
+                                    Text("失败".tl)
                                   ],
                                 ))
                         ],
@@ -518,7 +519,7 @@ class AccountsPage extends StatelessWidget {
             init: PasswordLogic(),
             builder: (logic) {
               return SimpleDialog(
-                title: Text("修改密码".tr),
+                title: Text("修改密码".tl),
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -531,7 +532,7 @@ class AccountsPage extends StatelessWidget {
                           ),
                           TextField(
                             decoration: InputDecoration(
-                                labelText: "输入旧密码".tr,
+                                labelText: "输入旧密码".tl,
                                 border: const OutlineInputBorder()),
                             obscureText: true,
                             controller: logic.c1,
@@ -541,7 +542,7 @@ class AccountsPage extends StatelessWidget {
                           ),
                           TextField(
                             decoration: InputDecoration(
-                                labelText: "输入新密码".tr,
+                                labelText: "输入新密码".tl,
                                 border: const OutlineInputBorder()),
                             obscureText: true,
                             controller: logic.c2,
@@ -551,7 +552,7 @@ class AccountsPage extends StatelessWidget {
                           ),
                           TextField(
                             decoration: InputDecoration(
-                                labelText: "再输一次新密码".tr,
+                                labelText: "再输一次新密码".tl,
                                 border: const OutlineInputBorder()),
                             obscureText: true,
                             controller: logic.c3,
@@ -561,7 +562,7 @@ class AccountsPage extends StatelessWidget {
                           ),
                           if (!logic.isLoading)
                             FilledButton(
-                              child: Text("提交".tr),
+                              child: Text("提交".tl),
                               onPressed: () {
                                 if (logic.c2.text != logic.c3.text) {
                                   logic.status = 2;
@@ -582,7 +583,7 @@ class AccountsPage extends StatelessWidget {
                                         appdata.picacgPassword = logic.c2.text;
                                         appdata.writeData();
                                         Get.back();
-                                        showMessage(context, "密码修改成功".tr);
+                                        showMessage(context, "密码修改成功".tl);
                                       } else {
                                         logic.status = 1;
                                         logic.isLoading = !logic.isLoading;
@@ -632,14 +633,14 @@ class AccountsPage extends StatelessWidget {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("退出登录".tr),
-            content: Text("要退出登录吗".tr),
+            title: Text("退出登录".tl),
+            content: Text("要退出登录吗".tl),
             actionsAlignment: MainAxisAlignment.end,
             actions: [
               TextButton(
                   onPressed: () => Get.back(),
                   child: Text(
-                    "取消".tr,
+                    "取消".tl,
                     textAlign: TextAlign.end,
                   )),
               TextButton(
@@ -652,7 +653,7 @@ class AccountsPage extends StatelessWidget {
                     logic.update();
                     Get.back();
                   },
-                  child: Text("确定".tr, textAlign: TextAlign.end))
+                  child: Text("确定".tl, textAlign: TextAlign.end))
             ],
           );
         });

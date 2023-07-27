@@ -5,6 +5,7 @@ import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class RegisterPageLogic extends GetxController{
   var isRegistering = false;
@@ -33,12 +34,12 @@ class RegisterPage extends StatelessWidget {
         builder: (logic){
       return Scaffold(
         appBar: AppBar(
-          title: Text("注册哔咔账号".tr),
+          title: Text("注册哔咔账号".tl),
           actions: [
             Tooltip(
-              message: "转到登录".tr,
+              message: "转到登录".tl,
               child: TextButton(
-                child: Text("转到登录".tr),
+                child: Text("转到登录".tl),
                 onPressed: (){Get.off(()=>const LoginPage());},
               ),
             )
@@ -56,7 +57,7 @@ class RegisterPage extends StatelessWidget {
                       const SizedBox(width: 10,),
                       const Icon(Icons.info_outline),
                       const SizedBox(width: 5,),
-                      Text("为防止滥用, 不能使用中转服务器进行注册".tr)
+                      Text("为防止滥用, 不能使用中转服务器进行注册".tl)
                     ],
                   ),
                 ),
@@ -84,7 +85,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.nameController,
                           decoration: InputDecoration(
-                              labelText: "用户名".tr,
+                              labelText: "用户名".tl,
                               prefixIcon: const Icon(Icons.person),
                               border: const OutlineInputBorder()
                           ),
@@ -94,7 +95,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.account,
                           decoration: InputDecoration(
-                              labelText: "账号".tr,
+                              labelText: "账号".tl,
                               prefixIcon: const Icon(Icons.account_circle),
                               border: const OutlineInputBorder()
                           ),
@@ -105,7 +106,7 @@ class RegisterPage extends StatelessWidget {
                           controller: logic.password,
                           obscureText: true,
                           decoration: InputDecoration(
-                            labelText: "密码".tr,
+                            labelText: "密码".tl,
                             prefixIcon: const Icon(Icons.lock),
                               border: const OutlineInputBorder()
                           ),
@@ -116,7 +117,7 @@ class RegisterPage extends StatelessWidget {
                           controller: logic.password2,
                           obscureText: true,
                           decoration: InputDecoration(
-                            labelText: "再输一次密码".tr,
+                            labelText: "再输一次密码".tl,
                             prefixIcon: const Icon(Icons.lock),
                               border: const OutlineInputBorder()
                           ),
@@ -126,7 +127,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.problem1,
                           decoration: InputDecoration(
-                              labelText: "问题1".tr,
+                              labelText: "问题1".tl,
                               prefixIcon: const Icon(Icons.security),
                               border: const OutlineInputBorder()
                           ),
@@ -136,7 +137,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.ans1,
                           decoration: InputDecoration(
-                              labelText: "答案1".tr,
+                              labelText: "答案1".tl,
                               prefixIcon: const Icon(Icons.security),
                               border: const OutlineInputBorder()
                           ),
@@ -146,7 +147,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.problem2,
                           decoration: InputDecoration(
-                              labelText: "问题2".tr,
+                              labelText: "问题2".tl,
                               prefixIcon: const Icon(Icons.security),
                               border: const OutlineInputBorder()
                           ),
@@ -156,7 +157,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.ans2,
                           decoration: InputDecoration(
-                              labelText: "答案2".tr,
+                              labelText: "答案2".tl,
                               prefixIcon: const Icon(Icons.security),
                               border: const OutlineInputBorder()
                           ),
@@ -166,7 +167,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.problem3,
                           decoration: InputDecoration(
-                              labelText: "问题3".tr,
+                              labelText: "问题3".tl,
                               prefixIcon: const Icon(Icons.security),
                               border: const OutlineInputBorder()
                           ),
@@ -176,7 +177,7 @@ class RegisterPage extends StatelessWidget {
                           autofocus: false,
                           controller: logic.ans3,
                           decoration: InputDecoration(
-                              labelText: "答案3".tr,
+                              labelText: "答案3".tl,
                               prefixIcon: const Icon(Icons.security),
                               border: const OutlineInputBorder()
                           ),
@@ -184,7 +185,7 @@ class RegisterPage extends StatelessWidget {
                         const SizedBox(height: 10,),
                         ListTile(
                           leading: const Icon(Icons.date_range),
-                          title: Text("${"出生日期".tr}:${logic.date}"),
+                          title: Text("${"出生日期".tl}:${logic.date}"),
                           onTap: () async {
                             var result = await showDatePicker(
                                 context: context,
@@ -205,12 +206,12 @@ class RegisterPage extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(100, 10, 100, 0),
                               child: ElevatedButton(
-                                child: Text("注册".tr),
+                                child: Text("注册".tl),
                                 onPressed: () async{
                                   if(logic.password.text!=logic.password2.text){
-                                    showMessage(context, "两次输入的密码不一致".tr);
+                                    showMessage(context, "两次输入的密码不一致".tl);
                                   }else if(logic.password.text.length<8){
-                                    showMessage(context, "密码至少8位".tr);
+                                    showMessage(context, "密码至少8位".tl);
                                   }else if(logic.ans1.text==""||
                                       logic.ans2.text==""||
                                       logic.ans3.text==""||
@@ -221,9 +222,9 @@ class RegisterPage extends StatelessWidget {
                                       logic.problem2.text == ""||
                                       logic.problem3.text == ""
                                   ){
-                                    showMessage(context, "请输入完整信息".tr);
+                                    showMessage(context, "请输入完整信息".tl);
                                   }else if(logic.today.difference(logic.datetime).inDays<365*18){
-                                    showMessage(context, "未成年人禁止涩涩!".tr);
+                                    showMessage(context, "未成年人禁止涩涩!".tl);
                                   } else {
                                     logic.isRegistering = true;
                                     logic.update();
@@ -253,7 +254,7 @@ class RegisterPage extends StatelessWidget {
                                           appdata.writeData();
                                           Get.offAll(()=>const MainPage());
                                         }else{
-                                          showMessage(Get.context, "登录时发生错误: ${profile.errorMessage??"未知错误".tr}");
+                                          showMessage(Get.context, "登录时发生错误: ${profile.errorMessage??"未知错误".tl}");
                                         }
                                       }else{
                                         showMessage(Get.context, "登录时发生错误: ${res.errorMessageWithoutNull}");

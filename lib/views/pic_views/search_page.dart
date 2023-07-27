@@ -7,6 +7,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import '../../base.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
 class ModeRadioLogic extends GetxController{
@@ -99,16 +100,16 @@ class _SearchPageState extends State<SearchPage> {
               minHeight: 60,
               maxHeight: 0,
               child: FloatingSearchBar(
-                supportingText: '搜索'.tr,
+                supportingText: '搜索'.tl,
                 trailing: Tooltip(
-                  message: "选择搜索模式".tr,
+                  message: "选择搜索模式".tl,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_drop_down_rounded),
                     onPressed: (){
                       showDialog(context: context, builder: (context){
                         Get.put(ModeRadioLogic());
                         return SimpleDialog(
-                            title: Text("选择漫画排序模式".tr),
+                            title: Text("选择漫画排序模式".tl),
                             children: [GetBuilder<ModeRadioLogic>(builder: (radioLogic){
                               return Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -120,7 +121,7 @@ class _SearchPageState extends State<SearchPage> {
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
                                       Get.back();
                                     },),
-                                    title: Text("新到书".tr),
+                                    title: Text("新到书".tl),
                                     onTap: (){
                                       radioLogic.change(0);
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
@@ -133,7 +134,7 @@ class _SearchPageState extends State<SearchPage> {
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
                                       Get.back();
                                     },),
-                                    title: Text("旧到新".tr),
+                                    title: Text("旧到新".tl),
                                     onTap: (){
                                       radioLogic.change(1);
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
@@ -146,7 +147,7 @@ class _SearchPageState extends State<SearchPage> {
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
                                       Get.back();
                                     },),
-                                    title: Text("最多喜欢".tr),
+                                    title: Text("最多喜欢".tl),
                                     onTap: (){
                                       radioLogic.change(2);
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
@@ -159,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
                                       Get.back();
                                     },),
-                                    title: Text("最多指名".tr),
+                                    title: Text("最多指名".tl),
                                     onTap: (){
                                       radioLogic.change(3);
                                       Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();

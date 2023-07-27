@@ -12,6 +12,7 @@ import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import '../foundation/ui_mode.dart';
 import 'models/tab_listener.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage(this.tabListener, this.pages, {Key? key}) : super(key: key);
@@ -54,23 +55,23 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                       isScrollable: true,
                       tabs: [
                         if(appdata.settings[24][0] == "1")
-                          Tab(text: "Picacg".tr, key: const Key("Picacg"),),
+                          Tab(text: "Picacg".tl, key: const Key("Picacg"),),
                         if(appdata.settings[24][1] == "1")
-                          Tab(text: "Picacg游戏".tr, key: const Key("Picacg游戏"),),
+                          Tab(text: "Picacg游戏".tl, key: const Key("Picacg游戏"),),
                         if(appdata.settings[24][2] == "1")
-                          Tab(text: "Eh主页".tr, key: const Key("Eh主页"),),
+                          Tab(text: "Eh主页".tl, key: const Key("Eh主页"),),
                         if(appdata.settings[24][3] == "1")
-                          Tab(text: "Eh热门".tr, key: const Key("Eh热门"),),
+                          Tab(text: "Eh热门".tl, key: const Key("Eh热门"),),
                         if(appdata.settings[24][4] == "1")
-                          Tab(text: "禁漫主页".tr, key: const Key("禁漫主页")),
+                          Tab(text: "禁漫主页".tl, key: const Key("禁漫主页")),
                         if(appdata.settings[24][5] == "1")
-                          Tab(text: "禁漫最新".tr, key: const Key("禁漫最新")),
+                          Tab(text: "禁漫最新".tl, key: const Key("禁漫最新")),
                         if(appdata.settings[24][6] == "1")
-                          Tab(text: "Hitomi主页".tr, key: const Key("Hitomi主页")),
+                          Tab(text: "Hitomi主页".tl, key: const Key("Hitomi主页")),
                         if(appdata.settings[24][7] == "1")
-                          Tab(text: "Hitomi中文".tr, key: const Key("Hitomi中文")),
+                          Tab(text: "Hitomi中文".tl, key: const Key("Hitomi中文")),
                         if(appdata.settings[24][8] == "1")
-                          Tab(text: "Hitomi日文".tr, key: const Key("Hitomi日文")),
+                          Tab(text: "Hitomi日文".tl, key: const Key("Hitomi日文")),
                         if(appdata.settings[24][9] == "1")
                           const Tab(text: "绅士漫画", key: Key("绅士漫画")),
                       ],

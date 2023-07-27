@@ -7,7 +7,7 @@ import 'package:pica_comic/views/settings/reading_settings.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';
-
+import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -46,7 +46,7 @@ class WelcomePage extends StatelessWidget {
                 height: 40,
                 child: Center(
                   child: TextButton(
-                    child: Text("开始使用".tr),
+                    child: Text("开始使用".tl),
                     onPressed: () => Get.off(() => const GuidePage()),
                   ),
                 ),
@@ -81,12 +81,12 @@ class _GuidePageState extends State<GuidePage> {
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.ease);
               },
-              label: Text("继续".tr),
+              label: Text("继续".tl),
               icon: const Icon(Icons.navigate_next),
             )
           : FloatingActionButton.extended(
               onPressed: () => Get.offAll(() => const MainPage()),
-              label: Text("完成".tr),
+              label: Text("完成".tl),
               icon: const Icon(Icons.check),
             ),
       body: SafeArea(
@@ -126,13 +126,13 @@ class _GuidePageState extends State<GuidePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "感谢使用本软件, 请注意:\n".tr,
+                            "感谢使用本软件, 请注意:\n".tl,
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tr +
+                            "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tl +
                                 "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫无任何关系"
-                                    .tr,
+                                    .tl,
                             style: const TextStyle(fontSize: 16),
                           )
                         ],
@@ -158,7 +158,7 @@ class _GuidePageState extends State<GuidePage> {
                     padding:
                         const EdgeInsets.only(bottom: 60, left: 16, right: 16),
                     child: Text(
-                      "下面将进行一些基本设置, 所有的设置在之后均可进行更改".tr,
+                      "下面将进行一些基本设置, 所有的设置在之后均可进行更改".tl,
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -171,7 +171,7 @@ class _GuidePageState extends State<GuidePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
                   child: Text(
-                    "漫画列表显示方式".tr,
+                    "漫画列表显示方式".tl,
                     style: const TextStyle(fontSize: 28),
                   ),
                 ),
@@ -194,14 +194,14 @@ class _GuidePageState extends State<GuidePage> {
                                 height: 8,
                               ),
                               Text(
-                                "选择应当如何显示漫画".tr,
+                                "选择应当如何显示漫画".tl,
                                 style: const TextStyle(fontSize: 20),
                               ),
                               const SizedBox(
                                 height: 8,
                               ),
                               RadioListTile<String>(
-                                  title: Text("顺序显示".tr),
+                                  title: Text("顺序显示".tl),
                                   value: "0",
                                   groupValue: appdata.settings[25],
                                   onChanged: (s) {
@@ -211,7 +211,7 @@ class _GuidePageState extends State<GuidePage> {
                                     appdata.updateSettings();
                                   }),
                               RadioListTile<String>(
-                                  title: Text("分页显示".tr),
+                                  title: Text("分页显示".tl),
                                   value: "1",
                                   groupValue: appdata.settings[25],
                                   onChanged: (s) {
@@ -225,7 +225,7 @@ class _GuidePageState extends State<GuidePage> {
                               ),
                               Text("探索页面不受此设置影响\n顺序显示时, 当下滑至顶部将自动加载下一页, 并且添加至页面底部;\n"
                                       "分页显示时, 将会在页面底部显示当前页面的序号和切换页面的按钮, 可以手动输入页数"
-                                  .tr)
+                                  .tl)
                             ],
                           ),
                         ),
@@ -241,7 +241,7 @@ class _GuidePageState extends State<GuidePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
                   child: Text(
-                    "阅读设置".tr,
+                    "阅读设置".tl,
                     style: const TextStyle(fontSize: 28),
                   ),
                 ),
@@ -269,7 +269,7 @@ class _GuidePageState extends State<GuidePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
                   child: Text(
-                    "App外观".tr,
+                    "App外观".tl,
                     style: const TextStyle(fontSize: 28),
                   ),
                 ),
@@ -290,7 +290,7 @@ class _GuidePageState extends State<GuidePage> {
                               padding: const EdgeInsets.only(
                                   left: 16, top: 16, bottom: 8),
                               child: Text(
-                                "设置App外观".tr,
+                                "设置App外观".tl,
                                 style: const TextStyle(fontSize: 18),
                               ),
                             ),
@@ -298,7 +298,7 @@ class _GuidePageState extends State<GuidePage> {
                               leading: Icon(Icons.color_lens,
                                   color:
                                       Theme.of(context).colorScheme.secondary),
-                              title: Text("主题选择".tr),
+                              title: Text("主题选择".tl),
                               trailing: Select(
                                 initialValue: int.parse(appdata.settings[27]),
                                 values: const [
@@ -326,10 +326,10 @@ class _GuidePageState extends State<GuidePage> {
                               leading: Icon(Icons.dark_mode,
                                   color:
                                       Theme.of(context).colorScheme.secondary),
-                              title: Text("深色模式".tr),
+                              title: Text("深色模式".tl),
                               trailing: Select(
                                 initialValue: int.parse(appdata.settings[32]),
-                                values: ["跟随系统".tr, "禁用".tr, "启用".tr],
+                                values: ["跟随系统".tl, "禁用".tl, "启用".tl],
                                 whenChange: (i) {
                                   appdata.settings[32] = i.toString();
                                   appdata.updateSettings();
@@ -356,7 +356,7 @@ class _GuidePageState extends State<GuidePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
                   child: Text(
-                    "更多".tr,
+                    "更多".tl,
                     style: const TextStyle(fontSize: 28),
                   ),
                 ),
@@ -377,7 +377,7 @@ class _GuidePageState extends State<GuidePage> {
                               padding: const EdgeInsets.only(
                                   left: 16, top: 16, bottom: 8),
                               child: Text(
-                                "在设置中更改更多选项".tr,
+                                "在设置中更改更多选项".tl,
                                 style: const TextStyle(fontSize: 18),
                               ),
                             ),
@@ -412,7 +412,7 @@ class _GuidePageState extends State<GuidePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
                   child: Text(
-                    "登录".tr,
+                    "登录".tl,
                     style: const TextStyle(fontSize: 28),
                   ),
                 ),
@@ -433,7 +433,7 @@ class _GuidePageState extends State<GuidePage> {
                               padding: const EdgeInsets.only(
                                   left: 16, top: 16, bottom: 8),
                               child: Text(
-                                "在账号管理页面登录账号".tr,
+                                "在账号管理页面登录账号".tl,
                                 style: const TextStyle(fontSize: 18),
                               ),
                             ),
@@ -442,7 +442,7 @@ class _GuidePageState extends State<GuidePage> {
                                 Icons.settings,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
-                              title: Text("打开账号管理页面".tr),
+                              title: Text("打开账号管理页面".tl),
                               trailing: const Icon(Icons.arrow_right),
                               onTap: () => showAdaptiveWidget(
                                   context,
@@ -468,7 +468,7 @@ class _GuidePageState extends State<GuidePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
                   child: Text(
-                    "完成".tr,
+                    "完成".tl,
                     style: const TextStyle(fontSize: 30),
                   ),
                 ),
@@ -478,7 +478,7 @@ class _GuidePageState extends State<GuidePage> {
                     padding:
                         const EdgeInsets.only(bottom: 60, left: 16, right: 16),
                     child: Text(
-                      "祝使用愉快".tr,
+                      "祝使用愉快".tl,
                       style: const TextStyle(fontSize: 18),
                     ),
                   ),

@@ -14,12 +14,13 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import '../leaderboard_page.dart';
 import '../widgets/value_listenable_widget.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 void findUpdate(BuildContext context) {
-  showMessage(context, "正在检查更新".tr, time: 2);
+  showMessage(context, "正在检查更新".tl, time: 2);
   checkUpdate().then((b) {
     if (b == null) {
-      showMessage(context, "网络错误".tr);
+      showMessage(context, "网络错误".tl);
     } else if (b) {
       getUpdatesInfo().then((s) {
         if (s != null) {
@@ -27,7 +28,7 @@ void findUpdate(BuildContext context) {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: Text("有可用更新".tr),
+                  title: Text("有可用更新".tl),
                   content: Text(s),
                   actions: [
                     TextButton(
@@ -36,24 +37,24 @@ void findUpdate(BuildContext context) {
                           appdata.settings[2] = "0";
                           appdata.writeData();
                         },
-                        child: Text("关闭更新检查".tr)),
-                    TextButton(onPressed: () => Get.back(), child: Text("取消".tr)),
+                        child: Text("关闭更新检查".tl)),
+                    TextButton(onPressed: () => Get.back(), child: Text("取消".tl)),
                     TextButton(
                         onPressed: () {
                           getDownloadUrl().then((s) {
                             launchUrlString(s, mode: LaunchMode.externalApplication);
                           });
                         },
-                        child: Text("下载".tr))
+                        child: Text("下载".tl))
                   ],
                 );
               });
         } else {
-          showMessage(context, "网络错误".tr);
+          showMessage(context, "网络错误".tl);
         }
       });
     } else {
-      showMessage(context, "已是最新版本".tr);
+      showMessage(context, "已是最新版本".tl);
     }
   });
 }
@@ -63,7 +64,7 @@ void giveComments(BuildContext context) {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: Text("提出建议".tr),
+          title: Text("提出建议".tl),
           children: [
             ListTile(
               leading: const Image(
@@ -101,13 +102,13 @@ void setProxy(BuildContext context) {
             init: ProxyController(),
             builder: (controller) {
               return SimpleDialog(
-                title: Text("设置代理".tr),
+                title: Text("设置代理".tl),
                 children: [
                   const SizedBox(
                     width: 400,
                   ),
                   ListTile(
-                    title: Text("使用系统代理".tr),
+                    title: Text("使用系统代理".tl),
                     trailing: Switch(
                       value: controller.value,
                       onChanged: (value) {
@@ -127,7 +128,7 @@ void setProxy(BuildContext context) {
                       decoration: InputDecoration(
                           border: const OutlineInputBorder(),
                           hintText:
-                              controller.value ? "使用系统代理时无法手动设置".tr : "设置代理, 例如127.0.0.1:7890".tr),
+                              controller.value ? "使用系统代理时无法手动设置".tl : "设置代理, 例如127.0.0.1:7890".tl),
                     ),
                   ),
                   if (!controller.value)
@@ -158,7 +159,7 @@ void setProxy(BuildContext context) {
                             Get.back();
                           }
                         },
-                        child: Text("确认".tr)),
+                        child: Text("确认".tl)),
                   )
                 ],
               );
@@ -183,7 +184,7 @@ class CalculateCacheLogic extends GetxController {
 void setReadingMethod(BuildContext context) {
   showDialog(
       context: context,
-      builder: (BuildContext context) => SimpleDialog(title: Text("选择阅读模式".tr), children: [
+      builder: (BuildContext context) => SimpleDialog(title: Text("选择阅读模式".tl), children: [
             GetBuilder<ReadingMethodLogic>(
               init: ReadingMethodLogic(),
               builder: (radioLogic) {
@@ -201,7 +202,7 @@ void setReadingMethod(BuildContext context) {
                           radioLogic.setValue(i!);
                         },
                       ),
-                      title: Text("从左至右".tr),
+                      title: Text("从左至右".tl),
                       onTap: () {
                         radioLogic.setValue(1);
                       },
@@ -214,7 +215,7 @@ void setReadingMethod(BuildContext context) {
                           radioLogic.setValue(i!);
                         },
                       ),
-                      title: Text("从右至左".tr),
+                      title: Text("从右至左".tl),
                       onTap: () {
                         radioLogic.setValue(2);
                       },
@@ -227,7 +228,7 @@ void setReadingMethod(BuildContext context) {
                           radioLogic.setValue(i!);
                         },
                       ),
-                      title: Text("从上至下".tr),
+                      title: Text("从上至下".tl),
                       onTap: () {
                         radioLogic.setValue(3);
                       },
@@ -240,7 +241,7 @@ void setReadingMethod(BuildContext context) {
                           radioLogic.setValue(i!);
                         },
                       ),
-                      title: Text("从上至下(连续)".tr),
+                      title: Text("从上至下(连续)".tl),
                       onTap: () {
                         radioLogic.setValue(4);
                       },
@@ -267,7 +268,7 @@ void setComicSource(BuildContext context) {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: Text("设置漫画源".tr),
+          title: Text("设置漫画源".tl),
           children: const [
             SizedBox(
               width: 400,
@@ -303,7 +304,7 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
 
   @override
   Widget build(BuildContext context) {
-    var titles = ["Picacg", "E-hentai", "禁漫天堂".tr, "Hitomi.la", "绅士漫画".tr];
+    var titles = ["Picacg", "E-hentai", "禁漫天堂".tl, "Hitomi.la", "绅士漫画".tl];
     return SizedBox(
       child: Column(
         children: [
@@ -358,7 +359,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text("设置下载目录".tr),
+      title: Text("设置下载目录".tl),
       children: [
         if (GetPlatform.isWindows)
           SizedBox(
@@ -372,8 +373,8 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                     controller: controller,
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(),
-                        labelText: "路径".tr,
-                        hintText: "为空表示使用App数据目录".tr),
+                        labelText: "路径".tl,
+                        hintText: "为空表示使用App数据目录".tl),
                   ),
                 ),
                 Padding(
@@ -383,7 +384,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                     onChanged: (b) => setState(() {
                       transform = b!;
                     }),
-                    title: Text("转移数据".tr),
+                    title: Text("转移数据".tl),
                   ),
                 ),
                 Center(
@@ -395,7 +396,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                         var oldPath = appdata.settings[22];
                         appdata.settings[22] = controller.text;
                         if (transform) {
-                          showMessage(Get.context, "正在复制文件".tr);
+                          showMessage(Get.context, "正在复制文件".tl);
                           await Future.delayed(const Duration(milliseconds: 200));
                         }
                         var res =
@@ -403,17 +404,17 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                         if (res == "ok") {
                           Get.closeAllSnackbars();
                           Navigator.of(Get.context!).pop();
-                          showMessage(Get.context, "更新成功".tr);
+                          showMessage(Get.context, "更新成功".tl);
                           appdata.updateSettings();
                         } else {
                           appdata.settings[22] = oldPath;
                           showMessage(Get.context, res);
                         }
                       } else {
-                        showMessage(context, "目录不存在".tr);
+                        showMessage(context, "目录不存在".tl);
                       }
                     },
-                    child: Text("提交".tr),
+                    child: Text("提交".tl),
                   ),
                 ),
                 const SizedBox(
@@ -421,7 +422,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: Text("${"现在的路径为".tr}: ${DownloadManager().path}"),
+                  child: Text("${"现在的路径为".tl}: ${DownloadManager().path}"),
                 )
               ],
             ),
@@ -457,13 +458,13 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                           var oldPath = appdata.settings[22];
                           appdata.settings[22] = current;
                           if (transform) {
-                            showMessage(Get.context, "正在复制文件".tr);
+                            showMessage(Get.context, "正在复制文件".tl);
                             await Future.delayed(const Duration(milliseconds: 200));
                           }
                           var res = await downloadManager.updatePath(current, transform: transform);
                           if (res == "ok") {
                             Get.back();
-                            showMessage(Get.context, "更新成功".tr);
+                            showMessage(Get.context, "更新成功".tl);
                             appdata.updateSettings();
                           } else {
                             appdata.settings[22] = oldPath;
@@ -517,16 +518,16 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   @override
   Widget build(BuildContext context) {
     var titles = [
-      "Picacg".tr,
-      "Picacg游戏".tr,
-      "Eh主页".tr,
-      "Eh热门".tr,
-      "禁漫主页".tr,
-      "禁漫最新".tr,
-      "Hitomi主页".tr,
-      "Hitomi中文".tr,
-      "Hitomi日文".tr,
-      "绅士漫画".tr
+      "Picacg".tl,
+      "Picacg游戏".tl,
+      "Eh主页".tl,
+      "Eh热门".tl,
+      "禁漫主页".tl,
+      "禁漫最新".tl,
+      "Hitomi主页".tl,
+      "Hitomi中文".tl,
+      "Hitomi日文".tl,
+      "绅士漫画".tl
     ];
     return SizedBox(
       width: 400,
@@ -568,7 +569,7 @@ void setCacheLimit(BuildContext context) async{
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 12),
-                child: Text("缓存数量限制".tr),
+                child: Text("缓存数量限制".tl),
               ),
               ValueListenableWidget<String>(
                 initialValue: appdata.settings[34],
@@ -625,7 +626,7 @@ void setCacheLimit(BuildContext context) async{
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.info_outline, size: 16,),
-                      Text("仅在退出阅读器时检查缓存是否超出限制".tr)
+                      Text("仅在退出阅读器时检查缓存是否超出限制".tl)
                     ],
                   ),
                 ),
@@ -648,15 +649,15 @@ void setCacheLimit(BuildContext context) async{
 
 void clearUserData(BuildContext context){
   showDialog(context: context, builder: (context)=>AlertDialog(
-    title: Text("警告".tr),
-    content: Text("此操作无法撤销, 是否继续".tr),
+    title: Text("警告".tl),
+    content: Text("此操作无法撤销, 是否继续".tl),
     actions: [
-      TextButton(onPressed: ()  => Get.back(), child: Text("取消".tr)),
+      TextButton(onPressed: ()  => Get.back(), child: Text("取消".tl)),
       TextButton(onPressed: () async{
         await clearAppdata();
         Get.offAll(() => const WelcomePage());
         Get.forceAppUpdate();
-      }, child: Text("继续".tr)),
+      }, child: Text("继续".tl)),
     ],
   ));
 }

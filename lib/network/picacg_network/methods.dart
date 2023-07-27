@@ -12,6 +12,7 @@ import '../../base.dart';
 import '../../foundation/log.dart';
 import '../res.dart';
 import 'models.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 const defaultAvatarUrl = "DEFAULT AVATAR URL"; //历史遗留, 不改了
 
@@ -578,14 +579,14 @@ class PicacgNetwork {
   Future<bool> favouriteOrUnfavouriteComic(String id) async {
     var res = await post('$apiUrl/comics/$id/favourite', {});
     if (res.error) {
-      showMessage(Get.context, "网络错误".tr);
+      showMessage(Get.context, "网络错误".tl);
       return false;
     }
     showMessage(
         Get.context,
         (res.data["data"]["action"] == "favourite")
-            ? "添加收藏成功".tr
-            : "取消收藏成功".tr);
+            ? "添加收藏成功".tl
+            : "取消收藏成功".tl);
     return true;
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 ///显示错误提示
 Widget showNetworkError(String? message, void Function() retry, BuildContext context, {bool showBack=true}){
@@ -30,7 +31,7 @@ Widget showNetworkError(String? message, void Function() retry, BuildContext con
                 const SizedBox(height: 5,),
                 Text(message??"网络错误", textAlign: TextAlign.center,),
                 const SizedBox(height: 5,),
-                FilledButton(onPressed: retry, child: Text('重试'.tr))
+                FilledButton(onPressed: retry, child: Text('重试'.tl))
               ],
             ),
           ),

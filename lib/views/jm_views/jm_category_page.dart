@@ -6,6 +6,7 @@ import 'package:pica_comic/views/page_template/comics_page.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/settings/jm_settings.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmCategoryPage extends ComicsPage<JmComicBrief>{
   final Category category;
@@ -37,7 +38,7 @@ class JmCategoryPage extends ComicsPage<JmComicBrief>{
 
   @override
   Widget? get tailing => fromHomePage?null:Tooltip(
-    message: "选择漫画排序模式".tr,
+    message: "选择漫画排序模式".tl,
     child: IconButton(
       icon: const Icon(Icons.manage_search_outlined),
       onPressed: () async{

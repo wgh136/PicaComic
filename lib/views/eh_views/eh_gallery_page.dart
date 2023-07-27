@@ -6,6 +6,7 @@ import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_comments_page.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
@@ -24,14 +25,14 @@ class EhGalleryPage extends ComicPage<Gallery> {
         children: [
           Expanded(
             child: ActionChip(
-              label: Text("评分".tr),
+              label: Text("评分".tl),
               avatar: const Icon(Icons.star),
               onPressed: () => starRating(context, data!.auth!),
             ),
           ),
           Expanded(
             child: ActionChip(
-              label: Text("收藏".tr),
+              label: Text("收藏".tl),
               avatar: const Icon(Icons.bookmark_add_outlined),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: appdata.ehAccount != "",
@@ -40,16 +41,16 @@ class EhGalleryPage extends ComicPage<Gallery> {
                 favoriteOnPlatform: data!.favorite,
                 selectFolderCallback: (folder, page) async{
                   if(page == 0){
-                    showMessage(context, "正在添加收藏".tr);
+                    showMessage(context, "正在添加收藏".tl);
                     var res = await EhNetwork().favorite(
                         data!.auth!["gid"]!, data!.auth!["token"]!,
                         id: EhNetwork().folderNames.indexOf(folder).toString());
                     res?(data!.favorite=true):null;
-                    showMessage(Get.context, res?"成功添加收藏".tr:"网络错误".tr);
+                    showMessage(Get.context, res?"成功添加收藏".tl:"网络错误".tl);
                   }else{
                     LocalFavoritesManager().addComic(folder,
                         FavoriteItem.fromEhentai(brief));
-                    showMessage(Get.context, "成功添加收藏".tr);
+                    showMessage(Get.context, "成功添加收藏".tl);
                   }
                 },
                 cancelPlatformFavorite: (){
@@ -76,17 +77,17 @@ class EhGalleryPage extends ComicPage<Gallery> {
         onPressed: () {
           final id = getGalleryId(data!.link);
           if (downloadManager.downloadedGalleries.contains(id)) {
-            showMessage(context, "已下载".tr);
+            showMessage(context, "已下载".tl);
             return;
           }
           for (var i in downloadManager.downloading) {
             if (i.id == id) {
-              showMessage(context, "下载中".tr);
+              showMessage(context, "下载中".tl);
               return;
             }
           }
           downloadManager.addEhDownload(data!);
-          showMessage(context, "已加入下载队列".tr);
+          showMessage(context, "已加入下载队列".tl);
         },
         child: (downloadManager.downloadedGalleries
                 .contains(getGalleryId(data!.link)))
@@ -109,7 +110,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   @override
   FilledButton get readButton => FilledButton(
         onPressed: () => readEhGallery(data!),
-        child: Text("阅读".tr),
+        child: Text("阅读".tl),
       );
 
   @override
@@ -120,8 +121,8 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "类型".tr: data!.type.toList(),
-        "时间".tr: data!.time.toList(),
+        "类型".tl: data!.type.toList(),
+        "时间".tl: data!.time.toList(),
         ...data!.tags
       };
 
@@ -147,7 +148,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   void starRating(BuildContext context, Map<String, String> auth) {
     if (appdata.ehId == "") {
-      showMessage(context, "未登录".tr);
+      showMessage(context, "未登录".tl);
       return;
     }
     showDialog(
@@ -187,7 +188,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
                                           .then((b) {
                                         if (b) {
                                           Get.back();
-                                          showMessage(context, "评分成功".tr);
+                                          showMessage(context, "评分成功".tl);
                                         } else {
                                           logic.running = false;
                                           logic.update();
@@ -195,7 +196,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
                                         }
                                       });
                                     },
-                                    child: Text("提交".tr))
+                                    child: Text("提交".tl))
                               else
                                 const CircularProgressIndicator()
                             ],

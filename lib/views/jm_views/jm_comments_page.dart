@@ -5,7 +5,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
-
+import 'package:pica_comic/tools/translations.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
@@ -134,7 +134,7 @@ class JmCommentsPage extends StatelessWidget {
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     isCollapsed: true,
-                                    hintText: "评论".tr,
+                                    hintText: "评论".tl,
                                   ),
                                   minLines: 1,
                                   maxLines: 5,
@@ -142,7 +142,7 @@ class JmCommentsPage extends StatelessWidget {
                           )),
                           IconButton(
                               onPressed: () async {
-                                showMessage(context, "正在发送评论".tr);
+                                showMessage(context, "正在发送评论".tl);
                                 var res = await JmNetwork().comment(id, logic.controller.text);
                                 if(res.error){
                                   showMessage(Get.context, res.errorMessage!);
@@ -169,7 +169,7 @@ class JmCommentsPage extends StatelessWidget {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text("评论".tr),
+          title: Text("评论".tl),
         ),
         body: body,
       );
@@ -201,7 +201,7 @@ void showReply(BuildContext context, List<Comment> comments, Comment replyTo) {
           ],
         ),
       ),
-      title: "回复".tr,
+      title: "回复".tl,
       showBarrier: false);
 }
 
@@ -212,5 +212,5 @@ void showComments(BuildContext context, String id) {
         id,
         popUp: true,
       ),
-      title: "评论".tr);
+      title: "评论".tl);
 }

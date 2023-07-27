@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 import '../../base.dart';
 
@@ -28,12 +28,12 @@ class CustomSelectableText extends StatelessWidget {
                           state.currentTextEditingValue.selection.end)));
                   state.hideToolbar();
                 },
-                label: "复制".tr),
+                label: "复制".tl),
             ContextMenuButtonItem(
                 onPressed: () {
                   state.selectAll(SelectionChangedCause.toolbar);
                 },
-                label: "全选".tr),
+                label: "全选".tl),
             if(withAddToBlockKeywordButton)
             ContextMenuButtonItem(
                 onPressed: () {
@@ -48,7 +48,7 @@ class CustomSelectableText extends StatelessWidget {
                   appdata.writeData();
                   state.hideToolbar();
                 },
-                label: "添加至屏蔽词".tr),
+                label: "添加至屏蔽词".tl),
           ],
         );
       },

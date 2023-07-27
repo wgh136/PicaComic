@@ -15,6 +15,7 @@ import '../show_image_page.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/show_message.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 @immutable
 class EpsData {
@@ -215,7 +216,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         pinned: true,
         actions: [
           Tooltip(
-            message: "分享".tr,
+            message: "分享".tl,
             child: IconButton(
               icon: const Icon(
                 Icons.share,
@@ -226,7 +227,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             ),
           ),
           Tooltip(
-            message: "复制".tr,
+            message: "复制".tl,
             child: IconButton(
               icon: const Icon(
                 Icons.copy,
@@ -327,7 +328,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
 
     if (text == "") {
-      text = "未知".tr;
+      text = "未知".tl;
     }
 
     return GestureDetector(
@@ -341,15 +342,15 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 details.globalPosition.dy),
             items: [
               PopupMenuItem(
-                child: Text("复制".tr),
+                child: Text("复制".tl),
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: (text)));
-                  showMessage(context, "已复制".tr);
+                  showMessage(context, "已复制".tl);
                 },
               ),
               if (!title)
                 PopupMenuItem(
-                  child: Text("添加到屏蔽词".tr),
+                  child: Text("添加到屏蔽词".tl),
                   onTap: () {
                     appdata.blockingKeyword.add(text);
                     appdata.writeData();
@@ -377,15 +378,15 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     details.globalPosition.dy),
                 items: [
                   PopupMenuItem(
-                    child: Text("复制".tr),
+                    child: Text("复制".tl),
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: (text)));
-                      showMessage(context, "已复制".tr);
+                      showMessage(context, "已复制".tl);
                     },
                   ),
                   if (!title)
                     PopupMenuItem(
-                      child: Text("添加到屏蔽词".tr),
+                      child: Text("添加到屏蔽词".tl),
                       onTap: () {
                         appdata.blockingKeyword.add(text);
                         appdata.writeData();
@@ -485,7 +486,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                   width: 20,
                 ),
                 Text(
-                  "章节".tr,
+                  "章节".tl,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 16),
                 )
@@ -545,7 +546,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                   width: 20,
                 ),
                 Text(
-                  "简介".tr,
+                  "简介".tl,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 16),
                 )
@@ -669,7 +670,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                   width: 20,
                 ),
                 Text(
-                  "相关推荐".tr,
+                  "相关推荐".tl,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 16),
                 )
@@ -688,7 +689,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         builder: (context) => widget
       );
     }else{
-      showSideBar(context, widget, title: "收藏漫画".tr, useSurfaceTintColor: true);
+      showSideBar(context, widget, title: "收藏漫画".tl, useSurfaceTintColor: true);
     }
   }
 }
@@ -786,7 +787,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       height: 35,
       width: 120,
       child: FilledButton(
-        child: Text("收藏".tr),
+        child: Text("收藏".tl),
         onPressed: (){
           Get.closeAllSnackbars();
           if(selectID != null){
@@ -803,7 +804,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
     );
 
     if(widget.favoriteOnPlatform){
-      platform = Center(child: Text("已收藏".tr),);
+      platform = Center(child: Text("已收藏".tl),);
       if(page == 0) {
         button = SizedBox(
           height: 35,
@@ -870,10 +871,10 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
               tabs: [
                 if (widget.havePlatformFavorite)
                   Tab(
-                    text: "网络".tr,
+                    text: "网络".tl,
                   ),
                 Tab(
-                  text: "本地".tr,
+                  text: "本地".tl,
                 ),
 
             ]),

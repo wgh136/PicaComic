@@ -71,6 +71,9 @@ dependencies:
       url: https://github.com/wgh136/flutter_windows_webview
       ref: master
   workmanager: ^0.5.1
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:

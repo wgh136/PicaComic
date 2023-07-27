@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -38,7 +38,7 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
     if (LocalFavoritesManager().folderNames == null) {
       LocalFavoritesManager().readData().then((v) => setState(() => {}));
       return Center(
-        child: Text("加载中".tr),
+        child: Text("加载中".tl),
       );
     } else {
       var names = LocalFavoritesManager().folderNames!;
@@ -64,7 +64,7 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text("创建收藏夹".tr),
+                      Text("创建收藏夹".tl),
                       const Icon(
                         Icons.add,
                         size: 18,
@@ -141,8 +141,8 @@ class FolderTile extends StatelessWidget {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text("确认删除".tr),
-                          content: Text("要删除这个收藏夹吗".tr),
+                          title: Text("确认删除".tl),
+                          content: Text("要删除这个收藏夹吗".tl),
                           actions: [
                             TextButton(
                                 onPressed: () => Get.back(),
@@ -153,7 +153,7 @@ class FolderTile extends StatelessWidget {
                                   onDelete();
                                   Get.back();
                                 },
-                                child: Text("确认".tr)),
+                                child: Text("确认".tl)),
                           ],
                         );
                       });
@@ -182,7 +182,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text("创建收藏夹".tr),
+      title: Text("创建收藏夹".tl),
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -198,7 +198,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
             },
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              labelText: "名称".tr,
+              labelText: "名称".tl,
             ),
           ),
         ),
@@ -218,7 +218,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                       showMessage(context, "e");
                     }
                   },
-                  child: Text("提交".tr)),
+                  child: Text("提交".tl)),
             ))
       ],
     );
@@ -345,7 +345,7 @@ class LocalFavoriteTile extends ComicTile {
                   const Duration(milliseconds: 200), () => onTap_()),
               child: const Text("查看")),
           PopupMenuItem(
-            child: Text("取消收藏".tr),
+            child: Text("取消收藏".tl),
             onTap: () {
               LocalFavoritesManager().deleteComic(folderName, comic);
               onDelete();

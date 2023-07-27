@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import '../../base.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class BlockingKeywordPageLogic extends GetxController{
   var keywords = appdata.blockingKeyword;
@@ -18,13 +19,13 @@ class BlockingKeywordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var addButton = Tooltip(
-      message: "添加".tr,
+      message: "添加".tl,
       child: IconButton(
         icon: const Icon(Icons.add),
         onPressed: (){
           showDialog(context: context,
             builder: (dialogContext)=>GetBuilder<BlockingKeywordPageLogic>(builder: (logic)=>SimpleDialog(
-              title: Text("添加屏蔽关键词".tr),
+              title: Text("添加屏蔽关键词".tl),
               children: [
                 const SizedBox(width: 400,),
                 Padding(
@@ -33,7 +34,7 @@ class BlockingKeywordPage extends StatelessWidget {
                     controller: logic.controller,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      hintText: "添加关键词".tr
+                      hintText: "添加关键词".tl
                     ),
                     onEditingComplete: (){
                       appdata.blockingKeyword.add(logic.controller.text);
@@ -46,7 +47,7 @@ class BlockingKeywordPage extends StatelessWidget {
                 ),
                 Center(
                   child: FilledButton(
-                    child: Text("提交".tr),
+                    child: Text("提交".tl),
                     onPressed: (){
                       appdata.blockingKeyword.add(logic.controller.text);
                       logic.update();
@@ -89,7 +90,7 @@ class BlockingKeywordPage extends StatelessWidget {
                   forceActionsBelow: true,
                   padding: const EdgeInsets.all(15),
                   leading: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary,size: 30,),
-                  content: Text("关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息".tr), actions: [
+                  content: Text("关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息".tl), actions: [
                 TextButton(onPressed: (){
                   appdata.firstUse[0] = "0";
                   appdata.writeData();
@@ -115,9 +116,9 @@ class BlockingKeywordPage extends StatelessWidget {
     );
 
     return popUp?
-      PopUpWidgetScaffold(title: "关键词屏蔽".tr, body: widget,tailing: [addButton, orderButton],)
+      PopUpWidgetScaffold(title: "关键词屏蔽".tl, body: widget,tailing: [addButton, orderButton],)
         :Scaffold(
-          appBar: AppBar(title: Text("关键词屏蔽".tr),actions: [addButton, orderButton],),
+          appBar: AppBar(title: Text("关键词屏蔽".tl),actions: [addButton, orderButton],),
           body: widget,
     );
   }

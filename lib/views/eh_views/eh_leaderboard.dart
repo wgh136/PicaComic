@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/tools/translations.dart';
 import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../widgets/list_loading.dart';
@@ -32,10 +33,10 @@ class EhLeaderboardPage extends StatelessWidget {
         TabBar(
           splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
           tabs: [
-            Tab(text: "昨天".tr),
-            Tab(text: "一个月".tr),
-            Tab(text: "一年".tr),
-            Tab(text: "所有时间".tr),
+            Tab(text: "昨天".tl),
+            Tab(text: "一个月".tl),
+            Tab(text: "一年".tl),
+            Tab(text: "所有时间".tl),
           ]),
         const Expanded(child: TabBarView(
             children: [
@@ -107,12 +108,12 @@ class OneEhLeaderboardPage extends StatelessWidget{
                         children: [
                           const Icon(Icons.error_outline,size: 25,),
                           const SizedBox(width: 2,),
-                          Text("网络错误".tr)
+                          Text("网络错误".tl)
                         ],
                       ),
                     ),
                     Expanded(child: Center(child: FilledButton(
-                      child: Text("重试".tr),
+                      child: Text("重试".tl),
                       onPressed: (){
                         logic.networkStatus[index] = false;
                         logic.update();

@@ -8,6 +8,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -17,10 +18,10 @@ void saveImage(String urlOrHash, String id, {bool reading=false}) async{
       var url_ = getImageUrl(urlOrHash);
       var b = await saveImageFormCache(url_, id, reading: reading);
       if(b) {
-        showMessage(Get.context, "成功保存于Picture中".tr);
+        showMessage(Get.context, "成功保存于Picture中".tl);
       }
       else {
-        showMessage(Get.context, "保存失败".tr);
+        showMessage(Get.context, "保存失败".tl);
       }
   }else if(GetPlatform.isWindows){
     try {
@@ -86,7 +87,7 @@ Future<bool> saveImageFormCache(String urlOrHash, String id, {bool reading=false
 void saveImageFromDisk(String image) async{
   if(GetPlatform.isAndroid || GetPlatform.isIOS) {
     await ImageGallerySaver.saveFile(image);
-    showMessage(Get.context, "成功保存到Picture中".tr);
+    showMessage(Get.context, "成功保存到Picture中".tl);
   }else if(GetPlatform.isWindows){
     var f = File(image);
     String name;
@@ -120,7 +121,7 @@ void shareImageFromCache(String urlOrHash, String id, [bool reading=false]) asyn
   }
   catch(e, s){
     LogManager.addLog(LogLevel.error, "Share Image", "$e\n$s");
-    showMessage(Get.context, "分享失败".tr);
+    showMessage(Get.context, "分享失败".tl);
   }
 }
 
@@ -129,6 +130,6 @@ void shareImageFromDisk(String path) async{
     Share.shareXFiles([XFile(path)]);
   }
   catch(e){
-    showMessage(Get.context, "分享失败".tr);
+    showMessage(Get.context, "分享失败".tl);
   }
 }

@@ -5,6 +5,7 @@ import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -22,12 +23,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('登录哔咔账号'.tr),
+        title: Text('登录哔咔账号'.tl),
         actions: [
           Tooltip(
-            message: "转到注册".tr,
+            message: "转到注册".tl,
             child: TextButton(
-              child: Text("转到注册".tr),
+              child: Text("转到注册".tl),
               onPressed: ()=>Get.off(()=>const RegisterPage()),
             ),
           )
@@ -50,8 +51,8 @@ class _LoginPageState extends State<LoginPage> {
                       autofillHints: const [AutofillHints.email],
                       decoration: InputDecoration(
                           border: const OutlineInputBorder(),
-                          labelText: "账号".tr,
-                          hintText: "账号".tr,
+                          labelText: "账号".tl,
+                          hintText: "账号".tl,
                           prefixIcon: const Icon(Icons.person)
                       ),
                     ),
@@ -61,8 +62,8 @@ class _LoginPageState extends State<LoginPage> {
                       autofillHints: const [AutofillHints.password],
                       decoration: InputDecoration(
                           border: const OutlineInputBorder(),
-                          labelText: "密码".tr,
-                          hintText: "您的登录密码".tr,
+                          labelText: "密码".tl,
+                          hintText: "您的登录密码".tl,
                           prefixIcon: const Icon(Icons.lock)
                       ),
                       obscureText: true,
@@ -76,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           behavior: SnackBarBehavior.floating,
                           width: 400,
-                          content: Text("登录中".tr),
+                          content: Text("登录中".tl),
                         ));
                         fur.then((b){
                           if(b.success){
@@ -88,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   behavior: SnackBarBehavior.floating,
                                   width: 400,
-                                  content: Text("登录失败".tr),
+                                  content: Text("登录失败".tl),
                                 ));
                                 setState(() {
                                   isLogging = false;
@@ -138,14 +139,14 @@ class _LoginPageState extends State<LoginPage> {
                         });
                         network = PicacgNetwork();
                         var fur = network.login(nameController.text, passwordController.text);
-                        showMessage(context, "登录中".tr);
+                        showMessage(context, "登录中".tl);
                         fur.then((b){
                           if(b.success){
                             appdata.token = network.token;
                             var i = network.getProfile();
                             i.then((t){
                               if(t.error){
-                                showMessage(context, t.errorMessage??"未知错误".tr);
+                                showMessage(context, t.errorMessage??"未知错误".tl);
                                 setState(() {
                                   isLogging = false;
                                 });
@@ -167,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         });
                       },
-                      child: Text('登录'.tr),
+                      child: Text('登录'.tl),
                     ),
                   ),
                 if(isLogging)

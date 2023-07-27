@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import '../../base.dart';
 import '../widgets/select.dart';
@@ -24,7 +24,7 @@ class _EhSettingsState extends State<EhSettings> {
             ),
             ListTile(
               leading: Icon(Icons.domain, color: Theme.of(context).colorScheme.secondary),
-              title: Text("画廊站点".tr),
+              title: Text("画廊站点".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[20]),
                 width: 150,
@@ -43,7 +43,7 @@ class _EhSettingsState extends State<EhSettings> {
             ),
             ListTile(
               leading: const Icon(Icons.image),
-              title: Text("优先加载原图".tr),
+              title: Text("优先加载原图".tl),
               trailing: Switch(
                 value: appdata.settings[29] == "1",
                 onChanged: (b){

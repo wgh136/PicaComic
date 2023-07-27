@@ -5,6 +5,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import '../../base.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class CollectionPageLogic extends GetxController{
   bool isLoading = true;
@@ -39,7 +40,7 @@ class CollectionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("推荐".tr),
+        title: Text("推荐".tl),
       ),
       body: GetBuilder<CollectionPageLogic>(
         init: CollectionPageLogic(),
@@ -76,7 +77,7 @@ class CollectionsPage extends StatelessWidget {
                   top: MediaQuery.of(context).size.height/2-80,
                   child: Align(
                     alignment: Alignment.topCenter,
-                    child: Text("没有推荐, 可能等级不足".tr),
+                    child: Text("没有推荐, 可能等级不足".tl),
                   ),
                 ),
                 Positioned(
@@ -106,7 +107,7 @@ class CollectionsPage extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                    child: Text("本子妹推荐".tr,style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
+                    child: Text("本子妹推荐".tl,style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
                   )
                 ),
                 SliverGrid(
@@ -126,7 +127,7 @@ class CollectionsPage extends StatelessWidget {
                 SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                      child: Text("本子母推荐".tr,style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
+                      child: Text("本子母推荐".tl,style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 20),),
                     )
                 ),
                 SliverGrid(
@@ -145,7 +146,7 @@ class CollectionsPage extends StatelessWidget {
               ],
             );
           }else{
-            return showNetworkError(logic.message??"网络错误".tr,
+            return showNetworkError(logic.message??"网络错误".tl,
                     () {
                   logic.status = true;
                   logic.change();

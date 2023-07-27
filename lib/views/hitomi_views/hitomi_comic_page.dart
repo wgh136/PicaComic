@@ -13,6 +13,7 @@ import '../../base.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 import '../models/local_favorites.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class HitomiComicPage extends ComicPage<HitomiComic> {
   const HitomiComicPage(this.comic, {super.key});
@@ -24,14 +25,14 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
         children: [
           Expanded(
             child: ActionChip(
-              label: Text("本地".tr),
+              label: Text("本地".tl),
               avatar: const Icon(Icons.bookmark_add_outlined),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: false,
                 needLoadFolderData: false,
                 selectFolderCallback: (folder, page){
                   LocalFavoritesManager().addComic(folder, FavoriteItem.fromHitomi(comic));
-                  showMessage(context, "成功添加收藏".tr);
+                  showMessage(context, "成功添加收藏".tl);
                 },
               )),
             ),
@@ -45,7 +46,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   @override
   FilledButton get downloadButton => FilledButton(
         onPressed: () => downloadComic(data!, context, comic.cover, comic.link),
-        child: Text("下载".tr),
+        child: Text("下载".tl),
       );
 
   @override
@@ -64,7 +65,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   @override
   FilledButton get readButton => FilledButton(
         onPressed: () => readHitomiComic(data!, comic.cover),
-        child: Text("阅读".tr),
+        child: Text("阅读".tl),
       );
 
   @override
@@ -84,10 +85,10 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "类型".tr: data!.type.toList(),
-        "时间".tr: data!.time.toList(),
-        "语言".tr: data!.lang.toList(),
-        "标签".tr:
+        "类型".tl: data!.type.toList(),
+        "时间".tl: data!.time.toList(),
+        "语言".tl: data!.lang.toList(),
+        "标签".tl:
             List.generate(data!.tags.length, (index) => data!.tags[index].name)
       };
 
@@ -112,15 +113,15 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 void downloadComic(
     HitomiComic comic, BuildContext context, String cover, String link) {
   if (downloadManager.downloaded.contains(comic.id)) {
-    showMessage(context, "已下载".tr);
+    showMessage(context, "已下载".tl);
     return;
   }
   for (var i in downloadManager.downloading) {
     if (i.id == comic.id) {
-      showMessage(context, "下载中".tr);
+      showMessage(context, "下载中".tl);
       return;
     }
   }
   downloadManager.addHitomiDownload(comic, cover, link);
-  showMessage(context, "已加入下载".tr);
+  showMessage(context, "已加入下载".tl);
 }

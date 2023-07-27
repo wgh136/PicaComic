@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class SearchPageComicsList extends ComicsPage<HtComicBrief>{
   final String keyword;
@@ -89,7 +89,7 @@ class _HtSearchPageState extends State<HtSearchPage> {
               minHeight: 60,
               maxHeight: 0,
               child: FloatingSearchBar(
-                supportingText: '搜索'.tr,
+                supportingText: '搜索'.tl,
                 f:(s){
                   if(s=="") return;
                   setState(() {

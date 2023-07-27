@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:get/get.dart';
-
+import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
 
 class AuthPage extends StatefulWidget {
@@ -32,7 +32,7 @@ class _AuthPageState extends State<AuthPage> {
                   children: [
                     Icon(Icons.security,size: 40,color: Theme.of(context).colorScheme.secondary,),
                     const SizedBox(height: 5,),
-                    Text("需要身份验证".tr)
+                    Text("需要身份验证".tl)
                   ],
                 ),
               ),
@@ -44,7 +44,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void auth() async{
-    var res = await LocalAuthentication().authenticate(localizedReason: "需要身份验证".tr);
+    var res = await LocalAuthentication().authenticate(localizedReason: "需要身份验证".tl);
     if(res){
       if(appdata.flag){
         Get.offAll(()=>const MainPage());

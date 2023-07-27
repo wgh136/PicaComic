@@ -7,6 +7,7 @@ import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
 import 'history.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class MePage extends StatelessWidget {
   const MePage({super.key});
@@ -38,27 +39,27 @@ class MePage extends StatelessWidget {
                 Wrap(
                   children: [
                     MePageButton(
-                      title: "账号管理".tr,
-                      subTitle: "查看或修改账号信息".tr,
+                      title: "账号管理".tl,
+                      subTitle: "查看或修改账号信息".tl,
                       icon: Icons.switch_account,
                       onTap: () => showAdaptiveWidget(context,
                           AccountsPage(popUp: MediaQuery.of(context).size.width>600,)),
                     ),
                     MePageButton(
-                      title: "收藏夹".tr,
-                      subTitle: "查看已收藏的漫画".tr,
+                      title: "收藏夹".tl,
+                      subTitle: "查看已收藏的漫画".tl,
                       icon: Icons.bookmarks,
                       onTap: () => Get.to(() => const AllFavoritesPage()),
                     ),
                     MePageButton(
-                      title: "已下载".tr,
-                      subTitle: "管理已下载的漫画".tr,
+                      title: "已下载".tl,
+                      subTitle: "管理已下载的漫画".tl,
                       icon: Icons.download_for_offline,
                       onTap: () => Get.to(() => const DownloadPage()),
                     ),
                     MePageButton(
-                      title: "历史记录".tr,
-                      subTitle: "查看历史记录".tr,
+                      title: "历史记录".tl,
+                      subTitle: "查看历史记录".tl,
                       icon: Icons.history,
                       onTap: () => Get.to(() => const HistoryPage()),
                     ),

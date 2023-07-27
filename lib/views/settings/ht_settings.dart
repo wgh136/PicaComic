@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/views/widgets/select.dart';
 import '../../base.dart';
@@ -26,7 +26,7 @@ class HtSettings extends StatelessWidget {
       child: Column(
         children: [
           ListTile(
-            title: Text("绅士漫画".tr),
+            title: Text("绅士漫画".tl),
           ),
           ListTile(
             leading: const Icon(Icons.domain_rounded),

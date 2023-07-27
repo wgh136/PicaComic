@@ -5,6 +5,7 @@ import '../../base.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../network/picacg_network/models.dart';
 import '../widgets/show_error.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class PicacgLeaderboardPageLogic extends GetxController{
   bool loading = true;
@@ -63,7 +64,7 @@ class OnePicacgLeaderboardPage extends StatelessWidget {
             );
           }else{
             return showNetworkError(
-                logic.message??"未知错误".tr,
+                logic.message??"未知错误".tl,
                     () => logic.refresh_(),
                 context,
                 showBack: false
@@ -79,9 +80,9 @@ class PicacgLeaderboardPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final List<Tab> tabs = <Tab>[
-      Tab(text: '24小时'.tr),
-      Tab(text: '7天'.tr),
-      Tab(text: '30天'.tr),
+      Tab(text: '24小时'.tl),
+      Tab(text: '7天'.tl),
+      Tab(text: '30天'.tl),
     ];
     return DefaultTabController(
       length: 3,

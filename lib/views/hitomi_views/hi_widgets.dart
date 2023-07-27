@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
@@ -9,7 +8,6 @@ import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
-
 import '../widgets/comic_tile.dart';
 
 class HiComicTile extends ComicTile {
@@ -18,7 +16,7 @@ class HiComicTile extends ComicTile {
 
   @override
   void favorite() {
-    showMessage(Get.context, "无法添加收藏");
+    showMessage(Get.context, "Can't add favorite");
   }
   
   List<String> _generateTags(List<Tag> tags){

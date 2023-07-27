@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
-
+import 'package:pica_comic/tools/translations.dart';
 import '../../base.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/show_error.dart';
@@ -51,10 +51,10 @@ class HitomiLeaderboardPage extends StatelessWidget {
     return DefaultTabController(length: 4, child: Column(
       children: [
         TabBar(tabs: [
-          Tab(text: "今天".tr,),
-          Tab(text: "本周".tr,),
-          Tab(text: "本月".tr,),
-          Tab(text: "今年".tr,),
+          Tab(text: "今天".tl,),
+          Tab(text: "本周".tl,),
+          Tab(text: "本月".tl,),
+          Tab(text: "今年".tl,),
         ],),
         Expanded(
           child: GetBuilder<HitomiLeaderboardPageLogic>(

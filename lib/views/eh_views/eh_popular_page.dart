@@ -6,6 +6,7 @@ import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../../base.dart';
 import '../widgets/show_error.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class EhPopularPageLogic extends GetxController{
   bool loading = true;
@@ -75,7 +76,7 @@ class EhPopularPage extends StatelessWidget {
             onRefresh: ()async => logic.refresh_(),
           );
         }else{
-          return showNetworkError(logic.message??"网络错误".tr, logic.retry, context, showBack:false);
+          return showNetworkError(logic.message??"网络错误".tl, logic.retry, context, showBack:false);
         }
       },
     );

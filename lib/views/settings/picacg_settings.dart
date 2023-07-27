@@ -5,6 +5,7 @@ import '../../tools/background_service.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class PicacgSettings extends StatefulWidget {
   const PicacgSettings(this.popUp, {Key? key}) : super(key: key);
@@ -26,14 +27,14 @@ class _PicacgSettingsState extends State<PicacgSettings> {
         child: Column(
           children: [
             ListTile(
-              title: Text("哔咔漫画".tr),
+              title: Text("哔咔漫画".tl),
             ),
             if (!GetPlatform.isWeb)
               ListTile(
                 leading: Icon(Icons.change_circle,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text("使用转发服务器".tr),
-                subtitle: Text("同时使用网络代理工具会减慢速度".tr),
+                title: Text("使用转发服务器".tl),
+                subtitle: Text("同时使用网络代理工具会减慢速度".tl),
                 trailing: Switch(
                   value: useMyServer,
                   onChanged: (b) {
@@ -50,18 +51,18 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ListTile(
               leading: Icon(Icons.hub_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: Text("设置分流".tr),
+              title: Text("设置分流".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.appChannel)-1,
                 values: [
-                  "分流1".tr,
-                  "分流2".tr,
-                  "分流3".tr
+                  "分流1".tl,
+                  "分流2".tl,
+                  "分流3".tl
                 ],
                 whenChange: (i){
                   appdata.appChannel = (i+1).toString();
                   appdata.writeData();
-                  showMessage(Get.context, "正在获取分流IP".tr,time: 8);
+                  showMessage(Get.context, "正在获取分流IP".tl,time: 8);
                   network.updateApi().then((v)=>Get.closeAllSnackbars());
                 },
                 inPopUpWidget: widget.popUp,
@@ -69,14 +70,14 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ),
             ListTile(
               leading: Icon(Icons.image, color: Theme.of(context).colorScheme.secondary),
-              title: Text("设置图片质量".tr),
+              title: Text("设置图片质量".tl),
               trailing: Select(
                 initialValue: appdata.getQuality()-1,
                 values: [
-                  "低".tr,
-                  "中".tr,
-                  "高".tr,
-                  "原图".tr
+                  "低".tl,
+                  "中".tl,
+                  "高".tl,
+                  "原图".tl
                 ],
                 whenChange: (i){
                   appdata.setQuality(i+1);
@@ -90,19 +91,19 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               trailing: Select(
                 initialValue: appdata.getSearchMode(),
                 values: [
-                  "新到书".tr,"旧到新".tr,"最多喜欢".tr,"最多指名".tr
+                  "新到书".tl,"旧到新".tl,"最多喜欢".tl,"最多指名".tl
                 ],
                 whenChange: (i){
                   appdata.setSearchMode(i);
                 },
                 inPopUpWidget: widget.popUp,
               ),
-              title: Text("设置搜索及分类排序模式".tr),
+              title: Text("设置搜索及分类排序模式".tl),
             ),
             ListTile(
               leading: Icon(Icons.circle_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: Text("显示头像框".tr),
+              title: Text("显示头像框".tl),
               trailing: Switch(
                 value: showFrame,
                 onChanged: (b) {
@@ -117,8 +118,8 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ),
             ListTile(
               leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
-              title: Text("自动打卡".tr),
-              subtitle: GetPlatform.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tr):const Text("启动时执行"),
+              title: Text("自动打卡".tl),
+              subtitle: GetPlatform.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tl):const Text("启动时执行"),
               onTap: () {},
               trailing: Switch(
                 value: punchIn,
@@ -140,7 +141,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               trailing: Select(
                 initialValue: int.parse(appdata.settings[30]),
                 values: [
-                  "旧到新".tr, "新到书".tr
+                  "旧到新".tl, "新到书".tl
                 ],
                 whenChange: (i){
                   appdata.settings[30] = i.toString();
@@ -148,7 +149,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                 },
                 inPopUpWidget: widget.popUp,
               ),
-              title: Text("收藏夹漫画排序模式".tr),
+              title: Text("收藏夹漫画排序模式".tl),
             ),
           ],
         ));

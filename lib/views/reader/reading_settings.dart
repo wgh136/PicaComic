@@ -8,6 +8,7 @@ import '../../tools/keep_screen_on.dart';
 import '../widgets/select.dart';
 import '../widgets/show_message.dart';
 import 'reading_logic.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 Widget buildSettingWindow(
     ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
@@ -71,14 +72,14 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 10, 0, 5),
             child: Text(
-              "阅读设置".tr,
+              "阅读设置".tl,
               style: const TextStyle(fontSize: 18),
             ),
           ),
           ListTile(
             leading: Icon(Icons.touch_app_outlined,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("点按翻页".tr),
+            title: Text("点按翻页".tl),
             trailing: Switch(
               value: pageChangeValue,
               onChanged: (b) {
@@ -94,7 +95,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ListTile(
             leading: Icon(Icons.volume_mute,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("使用音量键翻页".tr),
+            title: Text("使用音量键翻页".tl),
             trailing: Switch(
               value: useVolumeKeyChangePage,
               onChanged: (b) {
@@ -112,7 +113,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ListTile(
               leading: Icon(Icons.screenshot_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: Text("保持屏幕常亮".tr),
+              title: Text("保持屏幕常亮".tl),
               onTap: () {},
               trailing: Switch(
                 value: keepScreenOn,
@@ -129,7 +130,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ListTile(
             leading: Icon(Icons.brightness_4,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("夜间模式降低图片亮度".tr),
+            title: Text("夜间模式降低图片亮度".tl),
             onTap: () {},
             trailing: Switch(
               value: lowBrightness,
@@ -180,12 +181,12 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 style: const TextStyle(fontSize: 14),
               ),
             ),
-            title: Text("自动翻页时间间隔".tr),
+            title: Text("自动翻页时间间隔".tl),
           ),
           ListTile(
             leading: Icon(Icons.chrome_reader_mode,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("选择阅读模式".tr),
+            title: Text("选择阅读模式".tl),
             trailing: const Icon(Icons.arrow_right),
             onTap: () => setState(() {
               i = 1;
@@ -197,7 +198,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ListTile(
               leading: Icon(Icons.account_tree_sharp,
                   color: Theme.of(context).colorScheme.secondary),
-              title: Text("设置分流".tr),
+              title: Text("设置分流".tl),
               trailing: const Icon(Icons.arrow_right),
               onTap: () => setState(() {
                 i = 2;
@@ -228,7 +229,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   }),
                 ),
                 Text(
-                  "选择阅读模式".tr,
+                  "选择阅读模式".tl,
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
@@ -242,7 +243,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: Text("从左至右".tr),
+            title: Text("从左至右".tl),
             onTap: () {
               setValue(1);
             },
@@ -255,7 +256,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: Text("从右至左".tr),
+            title: Text("从右至左".tl),
             onTap: () {
               setValue(2);
             },
@@ -268,7 +269,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: Text("从上至下".tr),
+            title: Text("从上至下".tl),
             onTap: () {
               setValue(3);
             },
@@ -281,7 +282,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setValue(i!);
               },
             ),
-            title: Text("从上至下(连续)".tr),
+            title: Text("从上至下(连续)".tl),
             onTap: () {
               setValue(4);
             },
@@ -309,7 +310,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                     }),
                   ),
                   Text(
-                    "设置分流".tr,
+                    "设置分流".tl,
                     style: const TextStyle(fontSize: 18),
                   ),
                 ],
@@ -319,14 +320,14 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               ListTile(
                 leading: Icon(Icons.hub_outlined,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text("设置分流".tr),
+                title: Text("设置分流".tl),
                 trailing: Select(
                   initialValue: int.parse(appdata.appChannel) - 1,
-                  values: ["分流1".tr, "分流2".tr, "分流3".tr],
+                  values: ["分流1".tl, "分流2".tl, "分流3".tl],
                   whenChange: (i) {
                     appdata.appChannel = (i + 1).toString();
                     appdata.writeData();
-                    showMessage(Get.context, "正在获取分流IP".tr, time: 8);
+                    showMessage(Get.context, "正在获取分流IP".tl, time: 8);
                     network.updateApi().then((v) => Get.closeAllSnackbars());
                   },
                 ),
@@ -335,10 +336,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               ListTile(
                 leading: Icon(Icons.account_tree_outlined,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text("设置分流".tr),
+                title: Text("设置分流".tl),
                 trailing: Select(
                   initialValue: int.parse(appdata.settings[17]),
-                  values: ["分流1".tr, "分流2".tr, "分流3".tr, "分流4".tr, "转发服务器".tr],
+                  values: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl, "转发服务器".tl],
                   whenChange: (i) {
                     appdata.settings[17] = i.toString();
                     appdata.updateSettings();

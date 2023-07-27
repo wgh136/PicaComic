@@ -22,6 +22,7 @@ import '../network/jm_network/jm_download.dart';
 import '../network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
+import 'package:pica_comic/tools/translations.dart';
 
 class DownloadPageLogic extends GetxController {
   ///是否正在加载
@@ -76,7 +77,7 @@ class DownloadPage extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(),
               body: Center(
-                child: Text("加载中".tr),
+                child: Text("加载中".tl),
               ),
             );
           } else {
@@ -96,13 +97,13 @@ class DownloadPage extends StatelessWidget {
                     : IconButton(onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
                 backgroundColor:
                     logic.selecting ? Theme.of(context).colorScheme.secondaryContainer : null,
-                title: logic.selecting ? Text("已选择 @num 个项目".trParams({
+                title: logic.selecting ? Text("已选择 @num 个项目".tlParams({
                     "num": logic.selectedNum.toString()
-                  })) : Text("已下载".tr),
+                  })) : Text("已下载".tl),
                 actions: [
                   if (!logic.selecting)
                     Tooltip(
-                      message: "下载管理器".tr,
+                      message: "下载管理器".tl,
                       child: IconButton(
                         icon: const Icon(Icons.download_for_offline),
                         onPressed: () {
@@ -112,7 +113,7 @@ class DownloadPage extends StatelessWidget {
                     )
                   else
                     Tooltip(
-                      message: "更多".tr,
+                      message: "更多".tl,
                       child: IconButton(
                         icon: const Icon(Icons.more_horiz),
                         onPressed: () {
@@ -125,7 +126,7 @@ class DownloadPage extends StatelessWidget {
                                   50),
                               items: [
                                 PopupMenuItem(
-                                  child: Text("全选".tr),
+                                  child: Text("全选".tl),
                                   onTap: () {
                                     for (int i = 0; i < logic.selected.length; i++) {
                                       logic.selected[i] = true;
@@ -135,12 +136,12 @@ class DownloadPage extends StatelessWidget {
                                   },
                                 ),
                                 PopupMenuItem(
-                                  child: Text("导出".tr),
+                                  child: Text("导出".tl),
                                   onTap: () {
                                     if (logic.selectedNum == 0) {
-                                      showMessage(context, "请选择漫画".tr);
+                                      showMessage(context, "请选择漫画".tl);
                                     } else if (logic.selectedNum > 1) {
-                                      showMessage(context, "一次只能导出一部漫画".tr);
+                                      showMessage(context, "一次只能导出一部漫画".tl);
                                     } else {
                                       Future<void>.delayed(
                                         const Duration(milliseconds: 200),
@@ -182,7 +183,7 @@ class DownloadPage extends StatelessWidget {
                                   },
                                 ),
                                 PopupMenuItem(
-                                  child: Text("查看漫画详情".tr),
+                                  child: Text("查看漫画详情".tl),
                                   onTap: () => Future.delayed(const Duration(milliseconds: 200),
                                       () => toComicInfoPage(logic)),
                                 ),
@@ -204,8 +205,8 @@ class DownloadPage extends StatelessWidget {
                         context: context,
                         builder: (dialogContext) {
                           return AlertDialog(
-                            title: Text("删除".tr),
-                            content: Text("要删除已选择的项目吗? 此操作无法撤销".tr),
+                            title: Text("删除".tl),
+                            content: Text("要删除已选择的项目吗? 此操作无法撤销".tl),
                             actions: [
                               TextButton(onPressed: () => Get.back(), child: const Text("取消")),
                               TextButton(
@@ -220,7 +221,7 @@ class DownloadPage extends StatelessWidget {
                                     await downloadManager.delete(comics);
                                     logic.fresh();
                                   },
-                                  child: Text("确认".tr)),
+                                  child: Text("确认".tl)),
                             ],
                           );
                         });
@@ -326,7 +327,7 @@ class DownloadPage extends StatelessWidget {
           if (logic.comics[index].comicSize != null) {
             return logic.comics[index].comicSize!.toStringAsFixed(2);
           } else {
-            return "未知大小".tr;
+            return "未知大小".tl;
           }
         }.call(),
         onLongTap: () {
@@ -349,10 +350,10 @@ class DownloadPage extends StatelessWidget {
                     logic.selected.removeAt(index);
                     logic.update();
                   },
-                  child: Text("删除".tr),
+                  child: Text("删除".tl),
                 ),
                 PopupMenuItem(
-                  child: Text("导出".tr),
+                  child: Text("导出".tl),
                   onTap: () {
                     Future<void>.delayed(
                       const Duration(milliseconds: 200),
@@ -378,7 +379,7 @@ class DownloadPage extends StatelessWidget {
                                       const SizedBox(
                                         height: 9,
                                       ),
-                                      Text("打包中".tr)
+                                      Text("打包中".tl)
                                     ],
                                   ),
                                 ),
@@ -400,7 +401,7 @@ class DownloadPage extends StatelessWidget {
                   },
                 ),
                 PopupMenuItem(
-                  child: Text("查看漫画详情".tr),
+                  child: Text("查看漫画详情".tl),
                   onTap: () {
                     Future.delayed(const Duration(milliseconds: 300), () {
                       switch (logic.comics[index].type.index) {
@@ -431,7 +432,7 @@ class DownloadPage extends StatelessWidget {
 
   void toComicInfoPage(DownloadPageLogic logic) {
     if (logic.selectedNum != 1) {
-      showMessage(Get.context, "请选择一个漫画".tr);
+      showMessage(Get.context, "请选择一个漫画".tl);
     } else {
       for (int i = 0; i < logic.selected.length; i++) {
         if (logic.selected[i]) {
@@ -565,13 +566,13 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             Get.to(() => HtComicPage((widget.item as DownloadedHtComic).comic.toBrief()));
                           }
                         },
-                        child: Text("查看详情".tr)),
+                        child: Text("查看详情".tl)),
                   ),
                   const SizedBox(
                     width: 16,
                   ),
                   Expanded(
-                    child: FilledButton(onPressed: () => read(), child: Text("阅读".tr)),
+                    child: FilledButton(onPressed: () => read(), child: Text("阅读".tl)),
                   ),
                 ],
               )),

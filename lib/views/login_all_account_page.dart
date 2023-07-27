@@ -7,6 +7,7 @@ import 'package:pica_comic/views/settings/settings_page.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class LoginAccountsPage extends StatefulWidget {
   const LoginAccountsPage({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class LoginAccountsPage extends StatefulWidget {
 class _LoginAccountsPageState extends State<LoginAccountsPage> {
   bool isLoading = true;
   String? message;
-  String status = "正在获取用户信息".tr;
+  String status = "正在获取用户信息".tl;
 
   @override
   void initState() {
@@ -86,7 +87,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
                 top: MediaQuery.of(context).size.height/2-80,
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: Text(message??"网络错误".tr, textAlign: TextAlign.center,),
+                  child: Text(message??"网络错误".tl, textAlign: TextAlign.center,),
                 ),
               ),
 
@@ -109,12 +110,12 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
                                 login();
                               });
                             },
-                            child: Text("重试".tr),
+                            child: Text("重试".tl),
                           ),
                           const Spacer(),
                           FilledButton.tonal(
                             onPressed: () => goToMainPage(),
-                            child: Text("跳过".tr),
+                            child: Text("跳过".tl),
                           )
                         ],
                       ),
@@ -129,7 +130,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
                   width: 400,
                   child: ListTile(
                     leading: const Icon(Icons.settings),
-                    title: Text("转到设置".tr),
+                    title: Text("转到设置".tl),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: ()=>Get.to(()=>const SettingsPage()),
                   ),
@@ -165,7 +166,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
         }
       }
       catch(e){
-        message = "登录哔咔时发生错误\n".tr + e.toString();
+        message = "登录哔咔时发生错误\n".tl + e.toString();
       }
     }
     try {
@@ -179,7 +180,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
     var res2 = await jmNetwork.loginFromAppdata();
     if(res2.error){
       message = res2.errorMessage;
-      message = "登录禁漫时发生错误\n".tr + message.toString();
+      message = "登录禁漫时发生错误\n".tl + message.toString();
     }
     try {
       setState(() {
@@ -192,7 +193,7 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
     var res3 = await HtmangaNetwork().loginFromAppdata();
     if(res3.error){
       message = res3.errorMessage;
-      message = "登录绅士漫画时发生错误\n".tr + message.toString();
+      message = "登录绅士漫画时发生错误\n".tl + message.toString();
     }
     if(message == null){
       goToMainPage();

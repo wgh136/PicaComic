@@ -9,6 +9,7 @@ import '../../network/jm_network/jm_image.dart';
 import '../../network/jm_network/jm_models.dart';
 import 'comic_reading_page.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 Future<void> addPicacgHistory(ComicItem comic) async{
   var history = NewHistory(
@@ -43,7 +44,7 @@ Future<void> addJmHistory(JmComicInfo comic) async{
       HistoryType.jmComic,
       DateTime.now(),
       comic.name,
-      comic.author.elementAtOrNull(0)??"未知".tr,
+      comic.author.elementAtOrNull(0)??"未知".tl,
       getJmCoverUrl(comic.id),
       0,
       0,
@@ -57,7 +58,7 @@ Future<void> addHitomiHistory(HitomiComic comic, String cover) async{
       HistoryType.hitomi,
       DateTime.now(),
       comic.name,
-      (comic.artists??["未知".tr]).elementAtOrNull(0)??"未知".tr,
+      (comic.artists??["未知".tl]).elementAtOrNull(0)??"未知".tl,
       cover,
       0,
       0,
@@ -89,8 +90,8 @@ void readPicacgComic(ComicItem comic, List<String> epsStr) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tr),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
           "ep": history.ep.toString(),
           "page": history.page.toString()
         })),
@@ -98,11 +99,11 @@ void readPicacgComic(ComicItem comic, List<String> epsStr) async{
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
-          }, child: Text("从头开始".tr)),
+          }, child: Text("从头开始".tl)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.picacg(id, history.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
-          }, child: Text("继续阅读".tr)),
+          }, child: Text("继续阅读".tl)),
         ],
       ));
     }else{
@@ -121,19 +122,19 @@ void readEhGallery(Gallery gallery) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tr),
-        content: Text("上次阅读到第 @page 页, 是否继续阅读?".trParams({
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @page 页, 是否继续阅读?".tlParams({
           "page": history.page.toString()
         })),
         actions: [
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.ehentai(target, gallery), preventDuplicates: false);
-          }, child: Text("从头开始".tr)),
+          }, child: Text("从头开始".tl)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.ehentai(target, gallery, initialPage: history.page), preventDuplicates: false);
-          }, child: Text("继续阅读".tr)),
+          }, child: Text("继续阅读".tl)),
         ],
       ));
     }else{
@@ -153,8 +154,8 @@ void readJmComic(JmComicInfo comic, List<String> eps) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tr),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
           "ep": history.ep.toString(),
           "page": history.page.toString()
         })),
@@ -162,11 +163,11 @@ void readJmComic(JmComicInfo comic, List<String> eps) async{
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
-          }, child: Text("从头开始".tr)),
+          }, child: Text("从头开始".tl)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history.ep, initialPage: history.page,), preventDuplicates: false);
-          }, child: Text("继续阅读".tr)),
+          }, child: Text("继续阅读".tl)),
         ],
       ));
     }else{
@@ -183,8 +184,8 @@ void readHitomiComic(HitomiComic comic, String cover) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tr),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".trParams({
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
           "ep": history.ep.toString(),
           "page": history.page.toString()
         })),
@@ -192,11 +193,11 @@ void readHitomiComic(HitomiComic comic, String cover) async{
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files), preventDuplicates: false);
-          }, child: Text("从头开始".tr)),
+          }, child: Text("从头开始".tl)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files, initialPage: history.page,), preventDuplicates: false);
-          }, child: Text("继续阅读".tr)),
+          }, child: Text("继续阅读".tl)),
         ],
       ));
     }else{
@@ -214,19 +215,19 @@ void readHtmangaComic(HtComicInfo comic) async{
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tr),
-        content: Text("上次阅读到第 @page 页, 是否继续阅读?".trParams({
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @page 页, 是否继续阅读?".tlParams({
           "page": history.page.toString()
         })),
         actions: [
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name), preventDuplicates: false);
-          }, child: Text("从头开始".tr)),
+          }, child: Text("从头开始".tl)),
           TextButton(onPressed: (){
             Get.back();
             Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name, initialPage: history.page), preventDuplicates: false);
-          }, child: Text("继续阅读".tr)),
+          }, child: Text("继续阅读".tl)),
         ],
       ));
     }else{

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/tools/background_service.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
@@ -94,7 +95,7 @@ class _MainPageState extends State<MainPage> {
         appdata.user.isPunched = true;
         network.punchIn().then((b) {
           if (b) {
-            showMessage(Get.context, "打卡成功", useGet: false);
+            showMessage(Get.context, "打卡成功".tr, useGet: false);
             appdata.user.exp += 10;
           }
         });
@@ -108,11 +109,11 @@ class _MainPageState extends State<MainPage> {
               if(s!=null){
                 showDialog(context: context, builder: (context){
                   return AlertDialog(
-                    title: Text("有可用更新".tr),
+                    title: Text("有可用更新".tl),
                     content: Text(s),
                     actions: [
                       TextButton(onPressed: (){Get.back();appdata.settings[2]="0";appdata.writeData();}, child: const Text("关闭更新检查")),
-                      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
+                      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
                       if(!GetPlatform.isWeb)
                         TextButton(
                             onPressed: (){
@@ -120,7 +121,7 @@ class _MainPageState extends State<MainPage> {
                                 launchUrlString(s,mode: LaunchMode.externalApplication);
                               });
                             },
-                            child: Text("下载".tr))
+                            child: Text("下载".tl))
                     ],
                   );
                 });
@@ -135,14 +136,14 @@ class _MainPageState extends State<MainPage> {
       Future.delayed(const Duration(microseconds: 500),(){
         showDialog(context: context, builder: (dialogContext){
           return AlertDialog(
-            title: Text("下载管理器".tr),
-            content: Text("有未完成的下载, 是否继续?".tr),
+            title: Text("下载管理器".tl),
+            content: Text("有未完成的下载, 是否继续?".tl),
             actions: [
-              TextButton(onPressed: ()=>Get.back(), child: Text("否".tr)),
+              TextButton(onPressed: ()=>Get.back(), child: Text("否".tl)),
               TextButton(onPressed: (){
                 downloadManager.start();
                 Get.back();
-              }, child: Text("是".tr))
+              }, child: Text("是".tl))
             ],
           );
         });
@@ -174,10 +175,10 @@ class _MainPageState extends State<MainPage> {
     }
 
     var titles = [
-      "我".tr,
-      "探索".tr,
-      "分类".tr,
-      "排行榜".tr
+      "我".tl,
+      "探索".tl,
+      "分类".tl,
+      "排行榜".tl
     ];
 
     return Scaffold(
@@ -185,7 +186,7 @@ class _MainPageState extends State<MainPage> {
         title: Text(titles[i]),
         actions: [
           Tooltip(
-            message: "搜索".tr,
+            message: "搜索".tl,
             child: IconButton(
               icon: const Icon(Icons.search),
               onPressed: (){
@@ -194,7 +195,7 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
           Tooltip(
-            message: "设置".tr,
+            message: "设置".tl,
             child: IconButton(
               icon: const Icon(Icons.settings),
               onPressed: (){
@@ -254,19 +255,19 @@ class _MainPageState extends State<MainPage> {
         destinations: <Widget>[
           NavigationDestination(
             icon: const Icon(Icons.person),
-            label: '我'.tr,
+            label: '我'.tl,
           ),
           NavigationDestination(
             icon: const Icon(Icons.explore),
-            label: '探索'.tr,
+            label: '探索'.tl,
           ),
           NavigationDestination(
             icon: const Icon(Icons.account_tree, size: 20,),
-            label: '分类'.tr,
+            label: '分类'.tl,
           ),
           NavigationDestination(
             icon: const Icon(Icons.leaderboard, size: 20,),
-            label: '排行榜'.tr,
+            label: '排行榜'.tl,
           ),
         ],
       ),
@@ -276,15 +277,15 @@ class _MainPageState extends State<MainPage> {
           if(downloadManager.downloading.isNotEmpty){
             await showDialog(context: context, builder: (dialogContext){
               return AlertDialog(
-                title: Text("下载未完成".tr),
-                content: Text("有未完成的下载, 确定退出?".tr),
+                title: Text("下载未完成".tl),
+                content: Text("有未完成的下载, 确定退出?".tl),
                 actions: [
                   TextButton(onPressed: ()=>Get.back(), child: const Text("否")),
                   TextButton(onPressed: (){
                     exit = true;
                     downloadManager.pause();
                     Get.back();
-                  }, child: Text("是".tr)),
+                  }, child: Text("是".tl)),
                 ],
               );
             });
@@ -305,14 +306,14 @@ class _MainPageState extends State<MainPage> {
                   children: [
                     const Text("      Pica Comic"),
                     const SizedBox(height: 10,),
-                    NavigatorItem(Icons.person_outlined,Icons.person, "我".tr,i==0,()=>setState(()=>i=0)),
-                    NavigatorItem(Icons.explore_outlined,Icons.explore, "探索".tr,i==1,()=>setState(()=>i=1)),
-                    NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类".tr,i==2,()=>setState(()=>i=2)),
-                    NavigatorItem(Icons.leaderboard_outlined,Icons.leaderboard, "排行榜".tr,i==3,()=>setState(()=>i=3)),
+                    NavigatorItem(Icons.person_outlined,Icons.person, "我".tl,i==0,()=>setState(()=>i=0)),
+                    NavigatorItem(Icons.explore_outlined,Icons.explore, "探索".tl,i==1,()=>setState(()=>i=1)),
+                    NavigatorItem(Icons.account_tree_outlined,Icons.account_tree, "分类".tl,i==2,()=>setState(()=>i=2)),
+                    NavigatorItem(Icons.leaderboard_outlined,Icons.leaderboard, "排行榜".tl,i==3,()=>setState(()=>i=3)),
                     const Divider(),
                     const Spacer(),
-                    NavigatorItem(Icons.search,Icons.games, "搜索".tr,false,()=>Get.to(()=>PreSearchPage())),
-                    NavigatorItem(Icons.settings,Icons.games, "设置".tr,false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
+                    NavigatorItem(Icons.search,Icons.games, "搜索".tl,false,()=>Get.to(()=>PreSearchPage())),
+                    NavigatorItem(Icons.settings,Icons.games, "设置".tl,false,()=>showAdaptiveWidget(context, SettingsPage(popUp: MediaQuery.of(context).size.width>600,)),),
                   ],
                 ),
               ))
@@ -347,22 +348,22 @@ class _MainPageState extends State<MainPage> {
                   NavigationRailDestination(
                     icon: const Icon(Icons.person_outlined),
                     selectedIcon: const Icon(Icons.person),
-                    label: Text('我'.tr),
+                    label: Text('我'.tl),
                   ),
                   NavigationRailDestination(
                     icon: const Icon(Icons.explore_outlined),
                     selectedIcon: const Icon(Icons.explore),
-                    label: Text('探索'.tr),
+                    label: Text('探索'.tl),
                   ),
                   NavigationRailDestination(
                     icon: const Icon(Icons.account_tree_outlined),
                     selectedIcon: const Icon(Icons.account_tree),
-                    label: Text('分类'.tr),
+                    label: Text('分类'.tl),
                   ),
                   NavigationRailDestination(
                     icon: const Icon(Icons.leaderboard_outlined),
                     selectedIcon: const Icon(Icons.leaderboard),
-                    label: Text('排行榜'.tr),
+                    label: Text('排行榜'.tl),
                   ),
                 ],
               ),

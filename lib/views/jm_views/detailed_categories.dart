@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_week_recommendation_page.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmDetailedCategoriesPage extends StatelessWidget {
   const JmDetailedCategoriesPage({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class JmDetailedCategoriesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildTitle("每周必看".tr),
+          buildTitle("每周必看".tl),
           Padding(
             padding: const EdgeInsets.only(left: 16, bottom: 16),
             child: SizedBox(
@@ -28,7 +29,7 @@ class JmDetailedCategoriesPage extends StatelessWidget {
                       const SizedBox(width: 8,),
                       const Icon(Icons.book_outlined),
                       const SizedBox(width: 16,),
-                      Text("每周必看".tr),
+                      Text("每周必看".tl),
                     ],
                   ),
                 ),

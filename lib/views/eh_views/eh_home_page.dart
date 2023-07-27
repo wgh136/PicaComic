@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
@@ -76,7 +77,7 @@ class EhHomePage extends StatelessWidget {
             onRefresh: ()async => logic.refresh_(),
           );
         }else{
-          return showNetworkError(logic.message??"网络错误".tr, logic.retry, context, showBack:false);
+          return showNetworkError(logic.message??"网络错误".tl, logic.retry, context, showBack:false);
         }
       },
     );

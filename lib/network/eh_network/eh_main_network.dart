@@ -12,6 +12,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class EhNetwork{
   factory EhNetwork() => cache==null?(cache=EhNetwork.create()):cache!;
@@ -116,7 +117,7 @@ class EhNetwork{
       String? message;
       sendNetworkLog(url, e.toString());
       if(e.type!=DioExceptionType.unknown){
-        message = e.message??"未知".tr;
+        message = e.message??"未知".tl;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
       }
@@ -155,7 +156,7 @@ class EhNetwork{
     on DioException catch(e){
       String? message;
       if(e.type!=DioExceptionType.unknown){
-        message = e.message??"未知".tr;
+        message = e.message??"未知".tl;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
       }
@@ -206,7 +207,7 @@ class EhNetwork{
     on DioException catch(e){
       String? message;
       if(e.type!=DioExceptionType.unknown){
-        message = e.message??"未知".tr;
+        message = e.message??"未知".tl;
       }else{
         message = e.toString().split("\n").elementAtOrNull(1);
       }

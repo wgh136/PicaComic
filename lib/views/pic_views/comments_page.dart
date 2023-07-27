@@ -8,6 +8,7 @@ import '../widgets/list_loading.dart';
 import '../widgets/side_bar.dart';
 import 'comment_reply_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class CommentsPageLogic extends GetxController{
   bool isLoading = true;
@@ -40,7 +41,7 @@ class CommentsPage extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }else if(logic.comments.loaded==0){
-          return showNetworkError("网络错误".tr,
+          return showNetworkError("网络错误".tl,
                   ()=>logic.change(), context, showBack: false);
         }else{
           return Column(
@@ -105,7 +106,7 @@ class CommentsPage extends StatelessWidget {
                               decoration: InputDecoration(
                                   border: InputBorder.none,
                                   isCollapsed: true,
-                                  hintText: "评论".tr
+                                  hintText: "评论".tl
                               ),
                               minLines: 1,
                               maxLines: 5,
@@ -116,7 +117,7 @@ class CommentsPage extends StatelessWidget {
                             child: SizedBox(width: 23,height: 23,child: CircularProgressIndicator(),),
                           ):IconButton(onPressed: () async{
                             if(logic.controller.text.length<2){
-                              showMessage(context, "评论至少需要2个字".tr);
+                              showMessage(context, "评论至少需要2个字".tl);
                               return;
                             }
                             logic.sending = true;
@@ -132,7 +133,7 @@ class CommentsPage extends StatelessWidget {
                               logic.comments = res;
                               logic.update();
                             }else{
-                              showMessage(Get.context, "网络错误".tr);
+                              showMessage(Get.context, "网络错误".tl);
                               logic.sending = false;
                               logic.update();
                             }
@@ -153,7 +154,7 @@ class CommentsPage extends StatelessWidget {
     }else{
       return Scaffold(
         appBar: AppBar(
-          title: Text("评论".tr),
+          title: Text("评论".tl),
         ),
         body: body,
       );
@@ -162,5 +163,5 @@ class CommentsPage extends StatelessWidget {
 }
 
 void showComments(BuildContext context, String id){
-  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论".tr);
+  showSideBar(context, CommentsPage(id, popUp: true,), title: "评论".tl);
 }

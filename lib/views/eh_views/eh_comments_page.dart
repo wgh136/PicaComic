@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
@@ -102,7 +103,7 @@ class CommentsPage extends StatelessWidget {
                               decoration: InputDecoration(
                                   border: InputBorder.none,
                                   isCollapsed: true,
-                                  hintText: "评论".tr
+                                  hintText: "评论".tl
                               ),
                               minLines: 1,
                               maxLines: 5,
@@ -114,7 +115,7 @@ class CommentsPage extends StatelessWidget {
                           ):IconButton(onPressed: () async{
                             var content = logic.controller.text;
                             if(content.isEmpty){
-                              showMessage(context, "请输入评论".tr);
+                              showMessage(context, "请输入评论".tl);
                               return;
                             }
                             logic.sending = true;
@@ -147,7 +148,7 @@ class CommentsPage extends StatelessWidget {
     }else{
       return Scaffold(
         appBar: AppBar(
-          title: Text("评论".tr),
+          title: Text("评论".tl),
         ),
         body: body,
       );
@@ -156,5 +157,5 @@ class CommentsPage extends StatelessWidget {
 }
 
 void showComments(BuildContext context, String url, String uploader){
-  showSideBar(context, CommentsPage(url, uploader, popUp: true,), title: "评论".tr);
+  showSideBar(context, CommentsPage(url, uploader, popUp: true,), title: "评论".tl);
 }

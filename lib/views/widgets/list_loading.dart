@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class ListLoadingIndicator extends StatelessWidget {
   const ListLoadingIndicator({Key? key}) : super(key: key);
@@ -20,7 +20,7 @@ class ListLoadingIndicator extends StatelessWidget {
                 height: 25,
                 child: CircularProgressIndicator(strokeWidth: 3,),
               ),
-              Text("  加载中...".tr)
+              Text("  加载中...".tl)
             ],
           ),
         ),

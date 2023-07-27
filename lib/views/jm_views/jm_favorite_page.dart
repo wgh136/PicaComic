@@ -7,6 +7,7 @@ import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../widgets/my_icons.dart';
 import '../widgets/show_message.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmFavoritePageLogic extends GetxController {
   bool loading = true;
@@ -86,7 +87,7 @@ class JmFavoritePage extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("创建收藏夹".tr),
+                          Text("创建收藏夹".tl),
                           const Icon(Icons.add, size: 18,),
                         ],
                       ),
@@ -157,21 +158,21 @@ class JmFolderTile extends StatelessWidget {
                 onPressed: (){
                   showDialog(context: context, builder: (context){
                     return AlertDialog(
-                      title: Text("确认删除".tr),
-                      content: Text("要删除这个收藏夹吗".tr),
+                      title: Text("确认删除".tl),
+                      content: Text("要删除这个收藏夹吗".tl),
                       actions: [
                         TextButton(onPressed: () => Get.back(), child: const Text("取消")),
                         TextButton(onPressed: () async{
                           Get.back();
-                          showMessage(context, "正在删除收藏夹".tr);
+                          showMessage(context, "正在删除收藏夹".tl);
                           var res = await jmNetwork.deleteFolder(id);
-                          showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tr);
+                          showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tl);
                           if(! res.error){
                             Get.find<JmFavoritePageLogic>().refresh_();
                           }else{
-                            showMessage(Get.context, res.error?res.errorMessage!:"删除失败".tr);
+                            showMessage(Get.context, res.error?res.errorMessage!:"删除失败".tl);
                           }
-                        }, child: Text("确认".tr)),
+                        }, child: Text("确认".tl)),
                       ],
                     );
                   });
@@ -228,7 +229,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text("创建收藏夹".tr),
+      title: Text("创建收藏夹".tl),
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -236,7 +237,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
             controller: controller,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              labelText: "名称".tr,
+              labelText: "名称".tl,
             ),
           ),
         ),
@@ -266,11 +267,11 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                       });
                     }else{
                       Get.back();
-                      showMessage(context, "成功创建".tr);
+                      showMessage(context, "成功创建".tl);
                       Get.find<JmFavoritePageLogic>().refresh_();
                     }
                   });
-                }, child: Text("提交".tr)),
+                }, child: Text("提交".tl)),
               )
           )
       ],

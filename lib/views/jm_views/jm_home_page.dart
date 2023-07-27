@@ -7,6 +7,7 @@ import 'package:pica_comic/views/jm_views/promote_list_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class JmHomePageLogic extends GetxController {
   bool loading = true;
@@ -81,7 +82,7 @@ class JmHomePage extends StatelessWidget {
                         Get.to(() => JmPromoteListPage(item.name, item.id));
                       }
                     },
-                    child: Text("查看更多".tr))
+                    child: Text("查看更多".tl))
               ],
             ),
           ),

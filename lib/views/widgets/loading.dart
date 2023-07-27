@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
   if(withScaffold){
@@ -19,10 +20,10 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
             const LinearProgressIndicator(),
             const SizedBox(height: 16,),
             Center(
-              child: Text("加载中".tr),
+              child: Text("加载中".tl),
             ),
             const SizedBox(height: 4,),
-            TextButton(onPressed: () => Get.back(), child: Text("取消".tr))
+            TextButton(onPressed: () => Get.back(), child: Text("取消".tl))
           ],
         ),
       ),

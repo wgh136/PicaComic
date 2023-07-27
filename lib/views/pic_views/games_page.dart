@@ -5,6 +5,7 @@ import 'package:pica_comic/views/widgets/game_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class GamesPageLogic extends GetxController{
   bool isLoading = true;
@@ -71,7 +72,7 @@ class GamesPage extends StatelessWidget {
               ),
             );
           }else{
-            return showNetworkError("网络错误".tr,
+            return showNetworkError("网络错误".tl,
                     ()=>logic.change(), context, showBack: false);
           }
         });

@@ -113,7 +113,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-      return Res<String>(null, errorMessage: "网络错误");
+      return Res<String>(null, errorMessage: e.toString());
     }
   }
 

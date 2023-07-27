@@ -4,6 +4,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/widgets/downloading_tile.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class DownloadingPageLogic extends GetxController{
   var items = <Widget>[];
@@ -67,8 +68,8 @@ class _DownloadingPageState extends State<DownloadingPage> {
                       const Icon(Icons.downloading,color: Colors.blue,):
                       const Icon(Icons.pause_circle_outline_outlined,color: Colors.red,),
                       content: downloadManager.error?
-                      Text("下载出错".tr):
-                      Text("${"@length 项下载任务".trParams({"length":downloadManager.downloading.length.toString()})}${downloadManager.isDownloading?" 下载中".tr:(downloadManager.downloading.isNotEmpty?" 已暂停".tr:"")}"),
+                      Text("下载出错".tl):
+                      Text("${"@length 项下载任务".tlParams({"length":downloadManager.downloading.length.toString()})}${downloadManager.isDownloading?" 下载中".tl:(downloadManager.downloading.isNotEmpty?" 已暂停".tl:"")}"),
                       actions: [
                         if(downloadManager.downloading.isNotEmpty)
                           TextButton(
@@ -77,8 +78,8 @@ class _DownloadingPageState extends State<DownloadingPage> {
                               logic.update();
                             },
                             child: downloadManager.isDownloading?
-                            Text("暂停".tr):
-                            (downloadManager.error?Text("重试".tr):Text("继续".tr)),
+                            Text("暂停".tl):
+                            (downloadManager.error?Text("重试".tl):Text("继续".tl)),
                           )
                         else
                           const Text(""),
@@ -94,12 +95,12 @@ class _DownloadingPageState extends State<DownloadingPage> {
     );
     if(widget.inPopupWidget){
       return PopUpWidgetScaffold(
-        title: "下载管理器".tr,
+        title: "下载管理器".tl,
         body: body,
       );
     }else{
       return Scaffold(
-        appBar: AppBar(title: Text("下载管理器".tr),),
+        appBar: AppBar(title: Text("下载管理器".tl),),
         body: body,
       );
     }

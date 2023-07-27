@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
 import '../../base.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 ///构建顶部工具栏
 Widget buildTopToolBar(
@@ -29,7 +30,7 @@ Widget buildTopToolBar(
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: Tooltip(
-                        message: "返回".tr,
+                        message: "返回".tl,
                         child: IconButton(
                           iconSize: 25,
                           icon: const Icon(Icons.arrow_back_outlined),
@@ -54,7 +55,7 @@ Widget buildTopToolBar(
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: Tooltip(
-                        message: "阅读设置".tr,
+                        message: "阅读设置".tl,
                         child: IconButton(
                           iconSize: 25,
                           icon: const Icon(Icons.settings),
@@ -166,7 +167,7 @@ Widget buildBottomToolBar(
                     children: [
                       if (appdata.settings[9] == "4" && GetPlatform.isWindows)
                         Tooltip(
-                          message: "放大".tr,
+                          message: "放大".tl,
                           child: IconButton(
                             icon: const Icon(Icons.zoom_in),
                             onPressed: () {
@@ -186,7 +187,7 @@ Widget buildBottomToolBar(
                         ),
                       if (appdata.settings[9] == "4" && GetPlatform.isWindows)
                         Tooltip(
-                          message: "缩小".tr,
+                          message: "缩小".tl,
                           child: IconButton(
                             icon: const Icon(Icons.zoom_out),
                             onPressed: () {
@@ -207,7 +208,7 @@ Widget buildBottomToolBar(
                         ),
                       if(GetPlatform.isAndroid)
                       Tooltip(
-                        message: "屏幕方向".tr,
+                        message: "屏幕方向".tl,
                         child: IconButton(
                           icon: (){
                             if(comicReadingPageLogic.rotation == null){
@@ -242,7 +243,7 @@ Widget buildBottomToolBar(
                         ),
                       ),
                       Tooltip(
-                        message: "自动翻页".tr,
+                        message: "自动翻页".tl,
                         child: IconButton(
                           icon: comicReadingPageLogic.runningAutoPageTurning?
                             const Icon(Icons.timer):
@@ -256,21 +257,21 @@ Widget buildBottomToolBar(
                       ),
                       if (showEps)
                         Tooltip(
-                          message: "章节".tr,
+                          message: "章节".tl,
                           child: IconButton(
                             icon: const Icon(Icons.library_books),
                             onPressed: openEpsDrawer,
                           ),
                         ),
                       Tooltip(
-                        message: "保存图片".tr,
+                        message: "保存图片".tl,
                         child: IconButton(
                           icon: const Icon(Icons.download),
                           onPressed: downloadCurrentImage,
                         ),
                       ),
                       Tooltip(
-                        message: "分享".tr,
+                        message: "分享".tl,
                         child: IconButton(
                           icon: const Icon(Icons.share),
                           onPressed: share,

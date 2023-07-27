@@ -14,6 +14,7 @@ import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import '../base.dart';
 import '../network/jm_network/jm_image.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 
 class HistoryPage extends StatefulWidget {
@@ -50,22 +51,22 @@ class _HistoryPageState extends State<HistoryPage> {
           slivers: [
             SliverAppBar.large(
               centerTitle: true,
-              title: Text("${"历史记录".tr}(${comics.length})"),
+              title: Text("${"历史记录".tl}(${comics.length})"),
               actions: [
                 Tooltip(
-                  message: "清除".tr,
+                  message: "清除".tl,
                   child: IconButton(
                     icon: const Icon(Icons.clear_all),
                     onPressed: ()=>showDialog(context: context, builder: (dialogContext)=>AlertDialog(
-                      title: Text("清除记录".tr),
-                      content: Text("要清除历史记录吗?".tr),
+                      title: Text("清除记录".tl),
+                      content: Text("要清除历史记录吗?".tl),
                       actions: [
-                        TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
+                        TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
                         TextButton(onPressed: (){
                           appdata.history.clearHistory();
                           setState(()=>comics.clear());
                           Get.back();
-                        }, child: Text("清除".tr)),
+                        }, child: Text("清除".tl)),
                       ],
                     )),
                   ),
@@ -90,17 +91,17 @@ class _HistoryPageState extends State<HistoryPage> {
                       onLongTap: (){
                         showDialog(context: context, builder: (context){
                           return AlertDialog(
-                            title: Text("删除".tr),
-                            content: Text("要删除这条历史记录吗".tr),
+                            title: Text("删除".tl),
+                            content: Text("要删除这条历史记录吗".tl),
                             actions: [
-                              TextButton(onPressed: ()=>Get.back(), child: Text("取消".tr)),
+                              TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
                               TextButton(onPressed: (){
                                 appdata.history.remove(comics[i].target);
                                 setState(() {
                                   comics.removeAt(i);
                                 });
                                 Get.back();
-                              }, child: Text("删除".tr)),
+                              }, child: Text("删除".tl)),
                             ],
                           );
                         });

@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';
 import '../widgets/search.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class PageData{
   List<int>? comics;
@@ -101,7 +101,7 @@ class _HitomiSearchPageState extends State<HitomiSearchPage> {
               minHeight: 60,
               maxHeight: 0,
               child: FloatingSearchBar(
-                supportingText: '搜索'.tr,
+                supportingText: '搜索'.tl,
                 f:(s){
                   if(s=="") return;
                   setState(() {

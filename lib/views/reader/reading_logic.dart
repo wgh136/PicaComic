@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart'
   show ReadingPageData;
 import 'package:pica_comic/views/reader/reading_type.dart';
@@ -114,10 +115,10 @@ class ComicReadingPageLogic extends GetxController{
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(urls.length);
       }
-      showMessage(Get.context, "已经是最后一章了".tr);
+      showMessage(Get.context, "已经是最后一章了".tl);
       return;
     }else if(!type.hasEps){
-      showMessage(Get.context, "已经是最后一章了".tr);
+      showMessage(Get.context, "已经是最后一章了".tl);
       return;
     }
     order += 1;
@@ -138,16 +139,16 @@ class ComicReadingPageLogic extends GetxController{
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(1);
       }
-      showMessage(Get.context, "已经是第一章了".tr);
+      showMessage(Get.context, "已经是第一章了".tl);
       return;
     }else if(order == 1 && type == ReadingType.jm){
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(1);
       }
-      showMessage(Get.context, "已经是第一章了".tr);
+      showMessage(Get.context, "已经是第一章了".tl);
       return;
     }else if(!type.hasEps){
-      showMessage(Get.context, "已经是第一章了".tr);
+      showMessage(Get.context, "已经是第一章了".tl);
       return;
     }
 

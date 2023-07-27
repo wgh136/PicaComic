@@ -12,6 +12,7 @@ import '../models/local_favorites.dart';
 import '../page_template/comic_page.dart';
 import '../widgets/avatar.dart';
 import '../widgets/show_message.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class HtComicPage extends ComicPage<HtComicInfo>{
   const HtComicPage(this.comic, {super.key});
@@ -23,7 +24,7 @@ class HtComicPage extends ComicPage<HtComicInfo>{
     children: [
       const Spacer(),
       ActionChip(
-        label: Text("收藏".tr),
+        label: Text("收藏".tl),
         avatar: const Icon(Icons.bookmark_add_outlined),
         onPressed: () => favoriteComic(FavoriteComicWidget(
           havePlatformFavorite: appdata.htName != "",
@@ -31,16 +32,16 @@ class HtComicPage extends ComicPage<HtComicInfo>{
           foldersLoader: () => HtmangaNetwork().getFolders(),
           selectFolderCallback: (folder, page) async{
             if(page == 0){
-              showMessage(context, "正在添加收藏".tr);
+              showMessage(context, "正在添加收藏".tl);
               var res = await HtmangaNetwork().addFavorite(comic.id, folder);
               if(res.error){
                 showMessage(Get.context, res.errorMessageWithoutNull);
               }else{
-                showMessage(Get.context, "成功添加收藏" .tr);
+                showMessage(Get.context, "成功添加收藏" .tl);
               }
             }else{
               LocalFavoritesManager().addComic(folder, FavoriteItem.fromHtcomic(comic));
-              showMessage(Get.context, "成功添加收藏" .tr);
+              showMessage(Get.context, "成功添加收藏" .tl);
             }
           },
         )),
@@ -63,22 +64,22 @@ class HtComicPage extends ComicPage<HtComicInfo>{
     onPressed: () {
       final id = "Ht${data!.id}";
       if (DownloadManager().downloadedHtComics.contains(id)) {
-        showMessage(context, "已下载".tr);
+        showMessage(context, "已下载".tl);
         return;
       }
       for (var i in DownloadManager().downloading) {
         if (i.id == id) {
-          showMessage(context, "下载中".tr);
+          showMessage(context, "下载中".tl);
           return;
         }
       }
       DownloadManager().addHtDownload(data!);
-      showMessage(context, "已加入下载队列".tr);
+      showMessage(context, "已加入下载队列".tl);
     },
     child:
     DownloadManager().downloadedHtComics.contains("Ht${data!.id}")
-        ? Text("已下载".tr)
-        : Text("下载".tr),
+        ? Text("已下载".tl)
+        : Text("下载".tl),
   );
 
   @override
@@ -96,7 +97,7 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   @override
   FilledButton get readButton => FilledButton(
     onPressed: () => readHtmangaComic(data!),
-    child: Text("阅读".tr),
+    child: Text("阅读".tl),
   );
 
   @override
@@ -107,8 +108,8 @@ class HtComicPage extends ComicPage<HtComicInfo>{
 
   @override
   Map<String, List<String>>? get tags => {
-    "分类".tr: data!.category.toList(),
-    "标签".tr: data!.tags.keys.toList()
+    "分类".tl: data!.category.toList(),
+    "标签".tl: data!.tags.keys.toList()
   };
 
   @override
@@ -213,7 +214,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
   bool loading = true;
   Map<String, String> folders = {};
   String? message;
-  String folderName = "选择收藏夹".tr;
+  String folderName = "选择收藏夹".tl;
   String folderId = "";
   bool loading2 = false;
   bool addedFavorite = false;
@@ -224,7 +225,7 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
       get();
     }
     return SimpleDialog(
-      title: Text("收藏漫画".tr),
+      title: Text("收藏漫画".tl),
       children: [
         if (loading)
           const SizedBox(
@@ -264,14 +265,14 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text("  选择收藏夹:  ".tr),
+                      Text("  选择收藏夹:  ".tl),
                       Text(folderName),
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.arrow_drop_down_sharp),
                         onPressed: () {
                           if (loading) {
-                            showMessage(context, "加载中".tr);
+                            showMessage(context, "加载中".tl);
                             return;
                           }
                           showMenu(
@@ -319,10 +320,10 @@ class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
                           });
                         } else {
                           Get.back();
-                          showMessage(Get.context, "添加成功".tr);
+                          showMessage(Get.context, "添加成功".tl);
                         }
                       },
-                      child: Text("提交".tr))
+                      child: Text("提交".tl))
                 else
                   const Center(
                     child: CircularProgressIndicator(),

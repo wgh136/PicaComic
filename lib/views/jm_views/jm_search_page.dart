@@ -7,6 +7,7 @@ import 'package:pica_comic/views/settings/jm_settings.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';
 import '../widgets/search.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class SearchPageComicsList extends ComicsPage{
   final String keyword;
@@ -89,7 +90,7 @@ class _SearchPageState extends State<JmSearchPage> {
               minHeight: 60,
               maxHeight: 0,
               child: FloatingSearchBar(
-                supportingText: '搜索'.tr,
+                supportingText: '搜索'.tl,
                 trailing: IconButton(
                   icon: const Icon(Icons.arrow_drop_down_sharp),
                   onPressed: ()=>setJmComicsOrder(context, search: true).then((b){

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download_model.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 class DownloadingProgressController extends GetxController{
   double value = 0.0;
@@ -57,7 +58,7 @@ class DownloadingTile extends StatelessWidget {
                   children: [
                     Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
                     const Spacer(),
-                    Text("${"已下载".tr}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
+                    Text("${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
                     const SizedBox(height: 3,),
                     LinearProgressIndicator(
                       value: controller.value,
