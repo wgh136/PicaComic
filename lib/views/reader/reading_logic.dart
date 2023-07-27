@@ -108,8 +108,9 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToNextChapter(){
     var type = data.type;
     var eps = data.eps;
+    eps.remove("");
     showFloatingButtonValue = 0;
-    if((order == eps.length - 1 && type == ReadingType.picacg) || eps.isEmpty || ((type==ReadingType.jm) && order == eps.length)){
+    if(eps.isEmpty || order == eps.length){
       if(appdata.settings[9] != "4") {
         controller.jumpToPage(urls.length);
       }
