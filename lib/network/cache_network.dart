@@ -32,7 +32,7 @@ class CachedNetwork {
 
   Future<CachedNetworkRes<String>> get(String url, BaseOptions options,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
-      CookieJar? cookieJar}) async {
+      CookieJar? cookieJar, bool log = true}) async {
     await setNetworkProxy();
     await init();
     var fileName = md5
@@ -52,7 +52,7 @@ class CachedNetwork {
       }
     }
     options.responseType = ResponseType.plain;
-    var dio = logDio(options);
+    var dio = log?logDio(options):Dio(options);
     if (cookieJar != null) {
       dio.interceptors.add(CookieManager(cookieJar));
     }

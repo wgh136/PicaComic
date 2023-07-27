@@ -798,9 +798,11 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       ),
     );
 
-    Widget platform = Column(
-      children: List.generate(folders.length, (index) =>
-          buildFolder(folders.values.elementAt(index), folders.keys.elementAt(index), 0)),
+    Widget platform = SingleChildScrollView(
+      child: Column(
+        children: List.generate(folders.length, (index) =>
+            buildFolder(folders.values.elementAt(index), folders.keys.elementAt(index), 0)),
+      ),
     );
 
     if(widget.favoriteOnPlatform){
@@ -844,10 +846,10 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       LocalFavoritesManager().readData().then((value) => setState(()=>{}));
       local = const SizedBox();
     }else{
-      local = Column(
+      local = SingleChildScrollView(child: Column(
         children: List.generate(localFolders.length, (index) =>
             buildFolder(localFolders[index], localFolders[index], 1)),
-      );
+      ),);
     }
 
     return DefaultTabController(

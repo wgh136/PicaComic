@@ -16,9 +16,10 @@ void onStart() {
     await notifications.init();
     if (appdata.token != "") {
       var network = PicacgNetwork(appdata.token);
-      var userInfo = await network.getProfile();
+      var userInfo = await network.getProfile(false);
       if (userInfo.error) {
-        notifications.sendUnimportantNotification("自动打卡", "网络错误");
+        notifications.sendUnimportantNotification(
+            "自动打卡", "网络错误: ${userInfo.errorMessageWithoutNull}");
       }
       if (userInfo.data.isPunched == false) {
         var res = await network.punchIn();

@@ -229,7 +229,7 @@ class Appdata{
       while(settings[24].length < 10){
         settings[24] += "1";
       }
-      appChannel = s.getString("appChannel")!;
+      appChannel = s.getString("appChannel")??"3";
       searchHistory = s.getStringList("search")??[];
       blockingKeyword = s.getStringList("blockingKeyword")??[];
       if(s.getStringList("firstUse")!=null) {
@@ -256,6 +256,58 @@ class Appdata{
       return firstUse[3]=="1"||token!="";
     }
     catch(e){
+      return false;
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    "settings": settings,
+    "firstUse": firstUse,
+    "picacgAccount": picacgAccount,
+    "picacgPassword": picacgPassword,
+    "token": token,
+    "ehId": ehId,
+    "ehPassHash": ehPassHash,
+    "ehAccount": ehAccount,
+    "igneous": igneous,
+    "jmName": jmName,
+    "jmEmail": jmEmail,
+    "jmPwd": jmPwd,
+    "htName": htName,
+    "htPwd": htPwd,
+    "history": history.toJson()
+  };
+
+  bool readDataFromJson(Map<String, dynamic> json){
+    try {
+      var newSettings = List<String>.from(json["settings"]);
+      var downloadPath = settings[22];
+      for (var i = 0; i < settings.length && i < newSettings.length; i++) {
+        settings[i] = newSettings[i];
+      }
+      settings[22] = downloadPath;
+      var newFirstUse = List<String>.from(json["firstUse"]);
+      for (var i = 0; i < firstUse.length && i < newFirstUse.length; i++) {
+        firstUse[i] = newFirstUse[i];
+      }
+      picacgAccount = json["picacgAccount"];
+      picacgPassword = json["picacgPassword"];
+      token = json["token"];
+      ehId = json["ehId"];
+      ehPassHash = json["ehPassHash"];
+      ehAccount = json["ehAccount"];
+      igneous = json["igneous"];
+      jmName = json["jmName"];
+      jmEmail = json["jmEmail"];
+      jmPwd = json["jmPwd"];
+      htName = json["htName"];
+      htPwd = json["htPwd"];
+      history.readDataFromJson(json["history"]);
+      writeData();
+      return true;
+    }
+    catch(e){
+      readData();
       return false;
     }
   }

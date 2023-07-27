@@ -4,7 +4,6 @@ extension AppTranslation on String{
   String _translate(){
     var locale = PlatformDispatcher.instance.locale;
     var key = "${locale.languageCode}_${locale.countryCode}";
-    key = "zh_TW";
     return (translations[key]?[this])??this;
   }
 
@@ -396,6 +395,11 @@ extension AppTranslation on String{
       "打卡成功": "打卡成功",
       "本地": "本地",
       "网络": "網絡",
+      "导出用户数据": "導出用戶數據",
+      "将导出设置, 账号, 历史记录, 下载内容等数据": "將導出設置, 賬號, 歷史記錄, 下載內容等數據",
+      "导入用户数据": "導入用戶數據",
+      "将导入设置, 账号, 历史记录, 下载内容等数据, 现在的所有数据将会被覆盖":
+        "將導入設置, 賬號, 歷史記錄, 下載內容等數據, 現在的所有數據將會被覆蓋",
     }
   };
 }

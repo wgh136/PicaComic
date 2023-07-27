@@ -119,10 +119,6 @@ base class NewHistory extends LinkedListEntry<NewHistory>{
 }
 
 class HistoryManager{
-  //粗略计算, 1000个本子的数据将占据1.38mb左右的内存空间(按照int64位,char8位计算), 显然难以接受, 应该不会有人历史记录超过10000吧?这样硬盘IO的速度可以接受
-  //也没必要整数据库, 遍历一遍用时不高(除非历史记录多得离谱)
-  //如果因为历史记录过多导致卡顿, 我的建议是注意身体, 卡顿可以帮助戒色
-
   static HistoryManager? cache;
 
   HistoryManager.create();
@@ -131,6 +127,16 @@ class HistoryManager{
 
   var history = LinkedList<NewHistory>();
   bool _open = false;
+
+  List<dynamic> toJson() => history.map((h)=>h.toMap()).toList();
+
+  void readDataFromJson(List<dynamic> json){
+    history.clear();
+    for(var h in json){
+      history.add(NewHistory.fromMap((h as Map<String, dynamic>)));
+    }
+    saveDataAndClose();
+  }
 
   void saveDataAndClose() async{
     //储存数据并且释放内存

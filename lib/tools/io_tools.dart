@@ -10,8 +10,14 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
+import 'package:pica_comic/views/models/local_favorites.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -163,4 +169,132 @@ Future<void> checkDownloadPath() async{
       appdata.updateSettings();
     }
   }
+}
+
+Future<String?> exportData(String path, String appdataString, String downloadPath) async{
+  try {
+    var filePath = "$path${pathSep}appdata";
+    var file = File(filePath);
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
+    file.createSync();
+    file.writeAsStringSync(appdataString);
+    var encode = ZipFileEncoder();
+    encode.create("$path${pathSep}userData.picadata");
+    await encode.addFile(file);
+    var localFavorite = File("$path${pathSep}localFavorite");
+    if(! localFavorite.existsSync()){
+      localFavorite.createSync();
+    }
+    await encode.addFile(localFavorite);
+    var download = Directory(downloadPath);
+    await encode.addDirectory(download);
+    encode.close();
+    return null;
+  }
+  catch(e){
+    return e.toString();
+  }
+}
+
+Future<bool> runExportData() async{
+  try {
+    var path = (await getApplicationSupportDirectory()).path;
+    if (DownloadManager().path == null) {
+      DownloadManager().init();
+    }
+    var appdataString = const JsonEncoder().convert(appdata.toJson());
+    var downloadPath = DownloadManager().path!;
+    var res = await compute<List<String>, String?>((message) =>
+        exportData(message[0], message[1], message[2]), [path, appdataString, downloadPath]);
+
+    if (res != null) {
+      throw Exception(res);
+    }
+
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      var params = SaveFileDialogParams(
+          sourceFilePath: "$path${pathSep}userData.picadata");
+      await FlutterFileDialog.saveFile(params: params);
+    } else if (GetPlatform.isWindows) {
+      final String? directoryPath = await getDirectoryPath();
+      if (directoryPath != null) {
+        var file = File("$path${pathSep}userData.picadata");
+        await file.copy("$directoryPath${pathSep}userData.picadata");
+      }
+    }
+    var file = File("$path${pathSep}userData.picadata");
+    file.delete();
+  }
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+    return false;
+  }
+  return true;
+}
+
+Future<bool> importData() async{
+  var path = (await getApplicationSupportDirectory()).path;
+  String? filePath;
+  if(GetPlatform.isMobile){
+    var params = const OpenFileDialogParams();
+    filePath = await FlutterFileDialog.pickFile(params: params);
+  }else if(GetPlatform.isWindows){
+    const XTypeGroup typeGroup = XTypeGroup(
+      label: 'data',
+      extensions: <String>['picadata'],
+    );
+    final XFile? file = await openFile(
+        acceptedTypeGroups: <XTypeGroup>[
+          typeGroup
+        ]);
+    filePath = file?.path;
+  }
+  if(filePath == null){
+    return false;
+  }
+  if (DownloadManager().path == null) {
+    DownloadManager().init();
+  }
+  var data = await compute<List<String>, String?>((data) async{
+    try {
+      var decode = ZipDecoder();
+      final inputStream = InputFileStream(data[1]);
+      var archive = decode.decodeBuffer(inputStream);
+      extractArchiveToDisk(archive, "$path${pathSep}dataTemp");
+      var downloadPath = Directory(data[2]);
+      downloadPath.deleteSync(recursive: true);
+      downloadPath.createSync();
+      List<FileSystemEntity> contents = Directory("$path${pathSep}dataTemp")
+          .listSync();
+      for (FileSystemEntity item in contents) {
+        if (item is Directory) {
+          item.renameSync('$path${pathSep}dataTemp${pathSep}download');
+        }
+      }
+      var localFavorite = File('$path${pathSep}dataTemp${pathSep}localFavorite');
+      localFavorite.copySync('$path${pathSep}localFavorite');
+      await copyDirectory(
+          Directory("$path${pathSep}dataTemp${pathSep}download"), downloadPath);
+      var json = File("$path${pathSep}dataTemp${pathSep}appdata")
+          .readAsStringSync();
+      return json;
+    }
+    catch(e){
+      return null;
+    }
+  }, [path, filePath, DownloadManager().path!]);
+  if(data == null){
+    return false;
+  }
+  var dataReadRes = appdata.readDataFromJson(const JsonDecoder().convert(data));
+  if(!dataReadRes){
+    return false;
+  }
+  await network.loginFromAppdata();
+  await jmNetwork.loginFromAppdata();
+  await HtmangaNetwork().loginFromAppdata();
+  LocalFavoritesManager().close();
+  return true;
 }

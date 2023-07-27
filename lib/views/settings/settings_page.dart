@@ -263,6 +263,18 @@ class _SettingsPageState extends State<SettingsPage> {
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => clearUserData(context),
                     ),
+                    ListTile(
+                      leading: Icon(Icons.sim_card_download, color: Theme.of(context).colorScheme.secondary),
+                      title: Text("导出用户数据".tl),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => exportDataSetting(context),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.data_object, color: Theme.of(context).colorScheme.secondary),
+                      title: Text("导入用户数据".tl),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => importDataSetting(context),
+                    ),
                   ],
                 ),
               ),

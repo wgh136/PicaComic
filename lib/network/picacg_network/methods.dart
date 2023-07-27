@@ -40,17 +40,18 @@ class PicacgNetwork {
   }
 
   Future<Res<Map<String, dynamic>>> get(String url,
-      {CacheExpiredTime expiredTime = CacheExpiredTime.short}) async {
+      {CacheExpiredTime expiredTime = CacheExpiredTime.short, bool log=true}) async {
     if (token == "") {
       await Future.delayed(const Duration(milliseconds: 500));
       return const Res(null, errorMessage: "未登录");
     }
+    await setNetworkProxy();
     var dio = CachedNetwork();
     var options = getHeaders("get", token, url.replaceAll("$apiUrl/", ""));
     options.validateStatus = (i) => i == 200 || i == 400 || i == 401;
 
     try {
-      var res = await dio.get(url, options, expiredTime: expiredTime);
+      var res = await dio.get(url, options, expiredTime: expiredTime, log: log);
       if (res.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(res.data) as Map<String, dynamic>;
         return Res(jsonResponse);
@@ -170,9 +171,9 @@ class PicacgNetwork {
   }
 
   ///获取用户信息
-  Future<Res<Profile>> getProfile() async {
+  Future<Res<Profile>> getProfile([bool log=true]) async {
     var response =
-        await get("$apiUrl/users/profile", expiredTime: CacheExpiredTime.no);
+        await get("$apiUrl/users/profile", expiredTime: CacheExpiredTime.no, log: log);
     if (response.error) {
       return Res(null, errorMessage: response.errorMessage);
     }
