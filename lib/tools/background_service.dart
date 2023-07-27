@@ -18,8 +18,8 @@ void onStart() {
       var network = PicacgNetwork(appdata.token);
       var userInfo = await network.getProfile(false);
       if (userInfo.error) {
-        notifications.sendUnimportantNotification(
-            "自动打卡", "网络错误: ${userInfo.errorMessageWithoutNull}");
+        // 这里经常出现错误, 发送通知影响用户体验
+        return true;
       }
       if (userInfo.data.isPunched == false) {
         var res = await network.punchIn();
