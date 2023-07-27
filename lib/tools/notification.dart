@@ -109,8 +109,8 @@ class Notifications{
     AndroidNotificationDetails androidNotificationDetails =
     const AndroidNotificationDetails('PicaComic', '通知',
       channelDescription: '通知',
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
+      importance: Importance.low,
+      priority: Priority.low,
     );
     NotificationDetails notificationDetails =
     NotificationDetails(android: androidNotificationDetails);

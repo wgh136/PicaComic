@@ -665,7 +665,7 @@ void clearUserData(BuildContext context){
 void exportDataSetting(BuildContext context){
   showDialog(context: context, builder: (context) => AlertDialog(
     title: Text("导出用户数据".tl),
-    content: Text("将导出设置, 账号, 历史记录, 下载内容等数据".tl),
+    content: Text("将导出设置, 账号, 历史记录, 下载内容, 本地收藏等数据".tl),
     actions: [
       TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
       TextButton(onPressed: (){
@@ -698,7 +698,7 @@ void exportDataSetting(BuildContext context){
 void importDataSetting(BuildContext context){
   showDialog(context: context, builder: (context) => AlertDialog(
     title: Text("导入用户数据".tl),
-    content: Text("将导入设置, 账号, 历史记录, 下载内容等数据, 现在的所有数据将会被覆盖".tl),
+    content: Text("将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl),
     actions: [
       TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
       TextButton(onPressed: (){
