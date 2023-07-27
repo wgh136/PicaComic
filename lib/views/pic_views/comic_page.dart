@@ -41,23 +41,30 @@ class PicacgComicPage extends ComicPage<ComicItem> {
           Expanded(
             child: ActionChip(
               label: Text("收藏".tr),
-              avatar: Icon((data!.isFavourite)
-                  ? Icons.bookmark
-                  : Icons.bookmark_outline),
-              onPressed: () {
-                network.favouriteOrUnfavouriteComic(comic.id);
-                data!.isFavourite = !data!.isFavourite;
-                update();
-              },
-            ),
-          ),
-          Expanded(
-            child: ActionChip(
-              label: Text("本地".tr),
               avatar: const Icon(Icons.bookmark_add_outlined),
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => LocalFavoriteComicDialog(comic)),
+              onPressed: () => favoriteComic(FavoriteComicWidget(
+                havePlatformFavorite: appdata.token != "",
+                needLoadFolderData: false,
+                folders: const {"Picacg": "Picacg"},
+                initialFolder: data!.isFavourite?null:"Picacg",
+                favoriteOnPlatform: data!.isFavourite,
+                cancelPlatformFavorite: (){
+                  network.favouriteOrUnfavouriteComic(comic.id);
+                  data!.isFavourite = false;
+                  update();
+                },
+                selectFolderCallback: (name, p){
+                  if(p == 0){
+                    network.favouriteOrUnfavouriteComic(comic.id);
+                    data!.isFavourite = true;
+                    update();
+                  }else{
+                    showMessage(Get.context, "已添加至收藏夹:".tr + name);
+                    LocalFavoritesManager().addComic(
+                        name, FavoriteItem.fromPicacg(comic));
+                  }
+                },
+              )),
             ),
           ),
           Expanded(
@@ -240,101 +247,5 @@ void downloadComic(
           showMessage(context, "已加入下载".tr);
         }, downloaded),
         useSurfaceTintColor: true);
-  }
-}
-
-class LocalFavoriteComicDialog extends StatefulWidget {
-  const LocalFavoriteComicDialog(this.comic, {Key? key}) : super(key: key);
-  final ComicItemBrief comic;
-
-  @override
-  State<LocalFavoriteComicDialog> createState() =>
-      _LocalFavoriteComicDialogState();
-}
-
-class _LocalFavoriteComicDialogState extends State<LocalFavoriteComicDialog> {
-  String? message;
-  String folderName = "";
-  bool addedFavorite = false;
-
-  @override
-  Widget build(BuildContext context) {
-    var folders = LocalFavoritesManager().folderNames;
-    if (folders == null) {
-      LocalFavoritesManager().readData().then((value) => setState(() {}));
-      return const SizedBox(
-        width: 300,
-        height: 150,
-      );
-    }
-    return SimpleDialog(
-      title: Text("收藏漫画".tr),
-      children: [
-        SizedBox(
-          key: const Key("2"),
-          width: 300,
-          height: 150,
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.all(5),
-                width: 300,
-                height: 50,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: const BorderRadius.all(Radius.circular(16))),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text("  选择收藏夹:  ".tr),
-                    Text(folderName),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_drop_down_sharp),
-                      onPressed: () {
-                        showMenu(
-                            context: context,
-                            position: RelativeRect.fromLTRB(
-                                MediaQuery.of(context).size.width / 2 + 150,
-                                MediaQuery.of(context).size.height / 2,
-                                MediaQuery.of(context).size.width / 2 - 150,
-                                MediaQuery.of(context).size.height / 2),
-                            items: [
-                              for (var folder in folders)
-                                PopupMenuItem(
-                                  child: Text(folder),
-                                  onTap: () {
-                                    setState(() {
-                                      folderName = folder;
-                                    });
-                                  },
-                                )
-                            ]);
-                      },
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              FilledButton(
-                  onPressed: () async {
-                    if (folderName == "") {
-                      showMessage(Get.context, "请选择收藏夹");
-                      return;
-                    }
-                    LocalFavoritesManager().addComic(
-                        folderName, FavoriteItem.fromPicacg(widget.comic));
-                    Get.back();
-                  },
-                  child: Text("提交".tr))
-            ],
-          ),
-        )
-      ],
-    );
   }
 }

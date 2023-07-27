@@ -73,7 +73,7 @@ class JmFavoritePage extends StatelessWidget {
                           name: logic.folders.values.elementAt(i))));
                 }),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 550,
+                  maxCrossAxisExtent: 500,
                   childAspectRatio: 5,
                 ),
               ),

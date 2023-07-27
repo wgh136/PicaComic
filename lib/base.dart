@@ -27,7 +27,7 @@ var pathSep = Platform.pathSeparator;
 //ComicTile的最大宽度
 const double comicTileMaxWidth = 630.0;
 //ComicTile的宽高比
-const double comicTileAspectRatio = 2.5;
+const double comicTileAspectRatio = 3;
 
 var hotSearch = <String>[];
 var downloadManager = DownloadManager();

@@ -76,8 +76,8 @@ class HtFavoritePage extends StatelessWidget {
                           name: logic.folders.values.elementAt(i))));
                 }),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 550,
-                  childAspectRatio: 4,
+                  maxCrossAxisExtent: 500,
+                  childAspectRatio: 5,
                 ),
               ),
               SliverToBoxAdapter(

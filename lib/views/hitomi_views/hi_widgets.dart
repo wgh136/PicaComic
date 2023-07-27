@@ -205,7 +205,7 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
             ),
             SizedBox.fromSize(size: const Size(16,5),),
             Expanded(
-              flex: 8,
+              flex: 10,
               child: Column(
                 children: [
                   const SizedBox(height: 3,),

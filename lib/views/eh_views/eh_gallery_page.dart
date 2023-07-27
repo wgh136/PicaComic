@@ -31,38 +31,31 @@ class EhGalleryPage extends ComicPage<Gallery> {
           ),
           Expanded(
             child: ActionChip(
-                label: Text("收藏".tr),
-                avatar: data!.favorite
-                    ? const Icon(Icons.bookmark)
-                    : const Icon(Icons.bookmark_outline),
-                onPressed: () {
-                  if (!data!.favorite) {
-                    showDialog(
-                        context: context,
-                        builder: (context) => FavoriteComicDialog(data!));
-                  } else {
-                    showMessage(context, "正在取消收藏".tr);
-                    EhNetwork()
-                        .unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!)
-                        .then((b) {
-                      if (b) {
-                        showMessage(Get.context, "取消收藏成功".tr);
-                        data!.favorite = false;
-                        update();
-                      } else {
-                        showMessage(Get.context, "取消收藏失败".tr);
-                      }
-                    });
-                  }
-                }),
-          ),
-          Expanded(
-            child: ActionChip(
-              label: Text("本地".tr),
+              label: Text("收藏".tr),
               avatar: const Icon(Icons.bookmark_add_outlined),
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => LocalFavoriteComicDialog(brief)),
+              onPressed: () => favoriteComic(FavoriteComicWidget(
+                havePlatformFavorite: appdata.ehAccount != "",
+                needLoadFolderData: false,
+                folders: Map<String, String>.fromIterable(EhNetwork().folderNames,),
+                favoriteOnPlatform: data!.favorite,
+                selectFolderCallback: (folder, page) async{
+                  if(page == 0){
+                    showMessage(context, "正在添加收藏".tr);
+                    var res = await EhNetwork().favorite(
+                        data!.auth!["gid"]!, data!.auth!["token"]!,
+                        id: EhNetwork().folderNames.indexOf(folder).toString());
+                    res?(data!.favorite=true):null;
+                    showMessage(Get.context, res?"成功添加收藏".tr:"网络错误".tr);
+                  }else{
+                    LocalFavoritesManager().addComic(folder,
+                        FavoriteItem.fromEhentai(brief));
+                    showMessage(Get.context, "成功添加收藏".tr);
+                  }
+                },
+                cancelPlatformFavorite: (){
+                  EhNetwork().unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
+                },
+              ))
             ),
           ),
           Expanded(
@@ -255,210 +248,4 @@ class RatingLogic extends GetxController {
 class CommentLogic extends GetxController {
   final controller = TextEditingController();
   bool sending = false;
-}
-
-class FavoriteComicDialog extends StatefulWidget {
-  const FavoriteComicDialog(this.comic, {Key? key}) : super(key: key);
-  final Gallery comic;
-
-  @override
-  State<FavoriteComicDialog> createState() => _FavoriteComicDialogState();
-}
-
-class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
-  bool loading = false;
-  Map<String, String> folders = Map<String, String>.fromIterables(
-      EhNetwork().folderNames,
-      List<String>.generate(10, (index) => index.toString()));
-  String? message;
-  String folderId = "0";
-  late String folderName = folders.keys.first;
-
-  @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: Text("收藏漫画".tr),
-      children: [
-        SizedBox(
-          key: const Key("2"),
-          width: 300,
-          height: 150,
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.all(5),
-                width: 300,
-                height: 50,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: const BorderRadius.all(Radius.circular(16))),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text("  选择收藏夹:  ".tr),
-                    Text(folderName),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_drop_down_sharp),
-                      onPressed: () {
-                        showMenu(
-                            context: context,
-                            position: RelativeRect.fromLTRB(
-                                MediaQuery.of(context).size.width / 2 + 150,
-                                MediaQuery.of(context).size.height / 2,
-                                MediaQuery.of(context).size.width / 2 - 150,
-                                MediaQuery.of(context).size.height / 2),
-                            items: [
-                              for (var folder in folders.entries)
-                                PopupMenuItem(
-                                  child: Text(folder.key),
-                                  onTap: () {
-                                    setState(() {
-                                      folderName = folder.key;
-                                    });
-                                    folderId = folder.value;
-                                  },
-                                )
-                            ]);
-                      },
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              if (!loading)
-                FilledButton(
-                    onPressed: () async {
-                      setState(() {
-                        loading = true;
-                      });
-                      var res = await EhNetwork().favorite(
-                          widget.comic.auth!["gid"]!,
-                          widget.comic.auth!["token"]!,
-                          id: folderId);
-                      if (!res) {
-                        showMessage(Get.context, "网络错误");
-                        setState(() {
-                          loading = false;
-                        });
-                        return;
-                      }
-                      Get.back();
-                      widget.comic.favorite = true;
-                      Get.find<ComicPageLogic<Gallery>>(
-                              tag: "Eh ComicPage ${widget.comic.link}")
-                          .update();
-                      showMessage(Get.context, "添加成功".tr);
-                    },
-                    child: Text("提交".tr))
-              else
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-            ],
-          ),
-        )
-      ],
-    );
-  }
-}
-
-class LocalFavoriteComicDialog extends StatefulWidget {
-  const LocalFavoriteComicDialog(this.comic, {Key? key}) : super(key: key);
-  final EhGalleryBrief comic;
-
-  @override
-  State<LocalFavoriteComicDialog> createState() =>
-      _LocalFavoriteComicDialogState();
-}
-
-class _LocalFavoriteComicDialogState extends State<LocalFavoriteComicDialog> {
-  String? message;
-  String folderName = "";
-  bool addedFavorite = false;
-
-  @override
-  Widget build(BuildContext context) {
-    var folders = LocalFavoritesManager().folderNames;
-    if (folders == null) {
-      LocalFavoritesManager().readData().then((value) => setState(() {}));
-      return const SizedBox(
-        width: 300,
-        height: 150,
-      );
-    }
-    return SimpleDialog(
-      title: Text("收藏漫画".tr),
-      children: [
-        SizedBox(
-          key: const Key("2"),
-          width: 300,
-          height: 150,
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.all(5),
-                width: 300,
-                height: 50,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: const BorderRadius.all(Radius.circular(16))),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text("  选择收藏夹:  ".tr),
-                    Text(folderName),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_drop_down_sharp),
-                      onPressed: () {
-                        showMenu(
-                            context: context,
-                            position: RelativeRect.fromLTRB(
-                                MediaQuery.of(context).size.width / 2 + 150,
-                                MediaQuery.of(context).size.height / 2,
-                                MediaQuery.of(context).size.width / 2 - 150,
-                                MediaQuery.of(context).size.height / 2),
-                            items: [
-                              for (var folder in folders)
-                                PopupMenuItem(
-                                  child: Text(folder),
-                                  onTap: () {
-                                    setState(() {
-                                      folderName = folder;
-                                    });
-                                  },
-                                )
-                            ]);
-                      },
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              FilledButton(
-                  onPressed: () async {
-                    if (folderName == "") {
-                      showMessage(Get.context, "请选择收藏夹");
-                      return;
-                    }
-                    LocalFavoritesManager().addComic(
-                        folderName, FavoriteItem.fromEhentai(widget.comic));
-                    Get.back();
-                  },
-                  child: Text("提交".tr))
-            ],
-          ),
-        )
-      ],
-    );
-  }
 }

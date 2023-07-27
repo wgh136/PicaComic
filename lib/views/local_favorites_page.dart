@@ -51,8 +51,8 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                   name: names[i], onDelete: () => setState(() {}));
             }),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 550,
-              childAspectRatio: 4,
+              maxCrossAxisExtent: 500,
+              childAspectRatio: 5,
             ),
           ),
           SliverToBoxAdapter(

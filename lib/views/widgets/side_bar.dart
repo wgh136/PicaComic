@@ -42,15 +42,16 @@ class SideBarRoute<T> extends PopupRoute<T> {
   String? get barrierLabel => "exit";
 
   @override
-  Widget buildPage(
-      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     bool showSideBar = MediaQuery.of(context).size.width > width;
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
         decoration: BoxDecoration(
-            borderRadius:
-                showSideBar ? const BorderRadius.horizontal(left: Radius.circular(16)) : null,
+            borderRadius: showSideBar
+                ? const BorderRadius.horizontal(left: Radius.circular(16))
+                : null,
             color: Theme.of(context).colorScheme.surfaceTint),
         clipBehavior: Clip.antiAlias,
         width: showSideBar ? width : MediaQuery.of(context).size.width,
@@ -63,14 +64,17 @@ class SideBarRoute<T> extends PopupRoute<T> {
                   0,
                   0,
                   MediaQuery.of(context).padding.right,
-                  addBottomPadding ? MediaQuery.of(context).padding.bottom + MediaQuery.of(context).viewInsets.bottom : 0
-              ),
+                  addBottomPadding
+                      ? MediaQuery.of(context).padding.bottom +
+                          MediaQuery.of(context).viewInsets.bottom
+                      : 0),
               color: useSurfaceTintColor
                   ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
                   : null,
               child: SidebarBody(
                 title: title,
                 widget: widget,
+                autoChangeTitleBarColor: !useSurfaceTintColor,
               ),
             ),
           ),
@@ -85,7 +89,8 @@ class SideBarRoute<T> extends PopupRoute<T> {
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
-    var offset = Tween<Offset>(begin: const Offset(1, 0), end: const Offset(0, 0));
+    var offset =
+        Tween<Offset>(begin: const Offset(1, 0), end: const Offset(0, 0));
     return SlideTransition(
       position: offset.animate(CurvedAnimation(
         parent: animation,
@@ -97,10 +102,15 @@ class SideBarRoute<T> extends PopupRoute<T> {
 }
 
 class SidebarBody extends StatefulWidget {
-  const SidebarBody({required this.title, required this.widget, super.key});
+  const SidebarBody(
+      {required this.title,
+      required this.widget,
+      required this.autoChangeTitleBarColor,
+      super.key});
 
   final String? title;
   final Widget widget;
+  final bool autoChangeTitleBarColor;
 
   @override
   State<SidebarBody> createState() => _SidebarBodyState();
@@ -111,12 +121,38 @@ class _SidebarBodyState extends State<SidebarBody> {
 
   @override
   Widget build(BuildContext context) {
+    Widget body = Expanded(child: widget.widget);
+
+    if (widget.autoChangeTitleBarColor) {
+      body = NotificationListener<ScrollNotification>(
+        onNotification: (notifications) {
+          if (notifications.metrics.pixels ==
+                  notifications.metrics.minScrollExtent &&
+              !top) {
+            setState(() {
+              top = true;
+            });
+          } else if (notifications.metrics.pixels !=
+                  notifications.metrics.minScrollExtent &&
+              top) {
+            setState(() {
+              top = false;
+            });
+          }
+          return false;
+        },
+        child: body,
+      );
+    }
+
     return Column(
       children: [
         if (widget.title != null)
           Container(
             height: 60 + MediaQuery.of(context).padding.top,
-            color: top?null:Theme.of(context).colorScheme.surfaceTint.withAlpha(20),
+            color: top
+                ? null
+                : Theme.of(context).colorScheme.surfaceTint.withAlpha(20),
             padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
             child: Row(
               children: [
@@ -141,26 +177,11 @@ class _SidebarBodyState extends State<SidebarBody> {
               ],
             ),
           ),
-        NotificationListener<ScrollNotification>(
-          onNotification: (notifications) {
-            if(notifications.metrics.pixels == notifications.metrics.minScrollExtent && !top){
-              setState(() {
-                top = true;
-              });
-            } else if(notifications.metrics.pixels != notifications.metrics.minScrollExtent && top){
-              setState(() {
-                top = false;
-              });
-            }
-            return false;
-          },
-          child: Expanded(child: widget.widget),
-        )
+        body
       ],
     );
   }
 }
-
 
 ///显示侧边栏
 ///
@@ -172,11 +193,11 @@ class _SidebarBodyState extends State<SidebarBody> {
 ///
 /// [title] 标题, 为空时不显示顶部的Appbar
 void showSideBar(BuildContext context, Widget widget,
-    { String? title,
-      bool showBarrier = true,
-      bool useSurfaceTintColor = false,
-      double width = 550,
-      bool addTopPadding = true}) {
+    {String? title,
+    bool showBarrier = true,
+    bool useSurfaceTintColor = false,
+    double width = 550,
+    bool addTopPadding = true}) {
   Navigator.of(context).push(SideBarRoute(title, widget,
       showBarrier: showBarrier,
       useSurfaceTintColor: useSurfaceTintColor,

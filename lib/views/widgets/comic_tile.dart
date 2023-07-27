@@ -96,7 +96,7 @@ abstract class ComicTile extends StatelessWidget {
                   size: const Size(16, 5),
                 ),
                 Expanded(
-                  flex: 8,
+                  flex: 10,
                   child: ComicDescription(
                     //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
                     title: title.replaceAll("\n", ""),
