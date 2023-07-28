@@ -401,6 +401,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     var logic = Get.find<ComicReadingPageLogic>();
     logic.tools = false;
     logic.showSettings = false;
+    logic.index = 1;
     logic.update();
   }
 }
