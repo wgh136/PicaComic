@@ -61,7 +61,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           leading: Icon(Icons.control_camera,
               color: Theme.of(context).colorScheme.secondary),
           title: Text("宽屏时显示前进后退关闭按钮".tl),
-          subtitle: Text("优化鼠标阅读体验".tl),
           onTap: () {},
           trailing: Switch(
             value: showThreeButton,
@@ -135,6 +134,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             },
             inPopUpWidget: widget.popUp,
             width: 140,
+          ),
+        ),
+        ListTile(
+          leading: Icon(Icons.animation,
+              color: Theme.of(context).colorScheme.secondary),
+          title: Text("翻页动画".tl),
+          onTap: () {},
+          trailing: Switch(
+            value: appdata.settings[36] == "1",
+            onChanged: (b) {
+              setState(() {
+                b ? appdata.settings[36] = "1" : appdata.settings[36] = "0";
+              });
+              appdata.writeData();
+            },
           ),
         ),
         ListTile(

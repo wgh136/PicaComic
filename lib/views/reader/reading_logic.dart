@@ -83,18 +83,40 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   void jumpToNextPage(){
-    if(appdata.settings[9]!="4") {
-      controller.animateToPage(index+1, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    if(appdata.settings[36] == "1") {
+      if (appdata.settings[9] != "4") {
+        controller.animateToPage(
+            index + 1, duration: const Duration(milliseconds: 300),
+            curve: Curves.ease);
+      } else {
+        cont.animateTo(cont.position.pixels + 600,
+            duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      }
     }else{
-      cont.animateTo(cont.position.pixels+600, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      if (appdata.settings[9] != "4") {
+        controller.jumpToPage(index + 1);
+      } else {
+        cont.jumpTo(cont.position.pixels + 600);
+      }
     }
   }
 
   void jumpToLastPage(){
-    if(appdata.settings[9]!="4") {
-      controller.animateToPage(index-1, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    if(appdata.settings[36] == "1") {
+      if (appdata.settings[9] != "4") {
+        controller.animateToPage(
+            index - 1, duration: const Duration(milliseconds: 300),
+            curve: Curves.ease);
+      } else {
+        cont.animateTo(cont.position.pixels - 600,
+            duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      }
     }else{
-      cont.animateTo(cont.position.pixels-600, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      if (appdata.settings[9] != "4") {
+        controller.jumpToPage(index - 1);
+      } else {
+        cont.jumpTo(cont.position.pixels - 600);
+      }
     }
   }
 
