@@ -343,7 +343,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   whenChange: (i) {
                     appdata.settings[17] = i.toString();
                     appdata.updateSettings();
-                    JmNetwork().updateApi();
                     JmNetwork().loginFromAppdata();
                   },
                 ),

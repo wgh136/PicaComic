@@ -154,7 +154,6 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
   Future<void> login() async{
     //如果同时进行两个网络请求, jm的登录存在问题, 导致无法获取收藏, 并不清楚为什么
     message = null;
-    jmNetwork.updateApi();
     if(appdata.token != "") {
       try {
         var res = await network.getProfile();

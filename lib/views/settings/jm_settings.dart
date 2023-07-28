@@ -173,7 +173,6 @@ class _JmSettingsState extends State<JmSettings> {
                 whenChange: (i){
                   appdata.settings[17] = i.toString();
                   appdata.updateSettings();
-                  JmNetwork().updateApi();
                   JmNetwork().loginFromAppdata();
                 },
                 inPopUpWidget: widget.popUp,

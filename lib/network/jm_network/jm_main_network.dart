@@ -25,11 +25,6 @@ class JmNetwork {
     1. jm的漫画列表加载, 当page大于存在的数量时返回最后一页, 而不是报错
    */
 
-  ///禁漫api地址
-  ///
-  /// "https://www.jmapinode1.cc", "https://www.jmapinode.cc",
-  /// "https://www.jmapibranch1.cc", "https://www.jmapibranch2.cc"
-  var baseUrl = "https://www.jmapinode1.cc";
 
   final baseData =
       "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
@@ -45,16 +40,15 @@ class JmNetwork {
 
   static JmNetwork? cache;
 
-  void updateApi() {
-    var urls = <String>[
-      "https://www.jmapinode1.cc",
-      "https://www.jmapinode.cc",
-      "https://www.jmapibranch3.cc",
-      "https://www.jmapibranch2.cc",
-      "https://api.kokoiro.xyz/jmComic"
-    ];
-    baseUrl = urls[int.parse(appdata.settings[17])];
-  }
+  static const urls = <String>[
+    "https://www.jmapinode1.cc",
+    "https://www.jmapinode2.cc",
+    "https://www.jmapibranch3.cc",
+    "https://www.jmapibranch2.cc",
+    "https://api.kokoiro.xyz/jmComic"
+  ];
+
+  String get baseUrl => urls[int.parse(appdata.settings[17])];
 
   ///解密数据
   static String convertData(String input, int time) {
