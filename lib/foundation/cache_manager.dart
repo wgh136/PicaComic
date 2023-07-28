@@ -431,12 +431,16 @@ class MyCacheManager{
         fileName = fileName.substring(0, 10);
       }
       int l;
+      int r = url.length-1;
       for (l = url.length - 1; l >= 0; l--) {
         if (url[l] == '.') {
           break;
         }
+        if(url[l] == '?'){
+          r = l;
+        }
       }
-      fileName += url.substring(l);
+      fileName += url.substring(l, r);
       fileName = fileName.replaceAll(RegExp(r"\?.+"), "");
       final savePath = "${(await getTemporaryDirectory())
           .path}${pathSep}imageCache$pathSep$fileName";
@@ -474,9 +478,13 @@ class MyCacheManager{
       if (!file.existsSync()) {
         file.create();
       }
-      var newBytes = await startRecombineImage(
-          Uint8List.fromList(bytes), epsId, scrambleId, bookId);
-      await startWriteFile(WriteInfo(savePath, newBytes));
+      if(url.substring(l, r) != ".gif") {
+        var newBytes = await startRecombineImage(
+            Uint8List.fromList(bytes), epsId, scrambleId, bookId);
+        await startWriteFile(WriteInfo(savePath, newBytes));
+      }else{
+        await startWriteFile(WriteInfo(savePath, bytes));
+      }
       //告知完成
       await saveInfo(url, savePath);
       progress = DownloadProgress(1, 1, url, savePath);

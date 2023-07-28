@@ -49,7 +49,7 @@ class JmNetwork {
     var urls = <String>[
       "https://www.jmapinode1.cc",
       "https://www.jmapinode.cc",
-      "https://www.jmapibranch1.cc",
+      "https://www.jmapibranch3.cc",
       "https://www.jmapibranch2.cc",
       "https://api.kokoiro.xyz/jmComic"
     ];
