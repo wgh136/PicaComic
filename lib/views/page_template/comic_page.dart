@@ -822,7 +822,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         );
       }
     }
-    else if(widget.needLoadFolderData && !loadedData){
+    else if(widget.havePlatformFavorite && widget.needLoadFolderData && !loadedData){
       widget.foldersLoader!.call().then((res){
         if(res.error){
           showMessage(Get.context, res.errorMessageWithoutNull);
