@@ -17,6 +17,7 @@ import 'package:get/get.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/base.dart';
+import 'package:html/parser.dart';
 
 class JmNetwork {
   /*
@@ -931,15 +932,19 @@ class JmNetwork {
       return Res(null, errorMessage: res.errorMessage);
     }
     try {
+      String parseContent(String input){
+        var fragment = parseFragment(input);
+        return fragment.querySelector("div")?.text??"";
+      }
       var comments = <Comment>[];
       for (var c in res.data["list"]) {
         var reply = <Comment>[];
         for (var r in c["replys"] ?? []) {
           reply.add(Comment(r["CID"], getJmAvatarUrl(r["photo"]), r["username"],
-              r["addtime"], r["content"], []));
+              r["addtime"], parseContent(r["content"]), []));
         }
         comments.add(Comment(c["CID"], getJmAvatarUrl(c["photo"]),
-            c["username"], c["addtime"], c["content"], reply));
+            c["username"], c["addtime"], parseContent(c["content"]), reply));
       }
       return Res(comments, subData: int.parse(res.data["total"]));
     } catch (e, s) {
