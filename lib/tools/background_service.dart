@@ -10,15 +10,14 @@ void onStart() {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   Workmanager().executeTask((taskName, inputData) async{
-    var appdata = Appdata();
-    appdata.readData();
+    appdata = Appdata();
+    await appdata.readData();
     var notifications = Notifications();
     await notifications.init();
     if (appdata.token != "") {
-      var network = PicacgNetwork(appdata.token);
+      network = PicacgNetwork(appdata.token);
       var userInfo = await network.getProfile(false);
       if (userInfo.error) {
-        // 这里经常出现错误, 发送通知影响用户体验
         return true;
       }
       if (userInfo.data.isPunched == false) {
