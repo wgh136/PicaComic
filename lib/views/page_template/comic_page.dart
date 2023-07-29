@@ -894,6 +894,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
               child: Center(
                 child: button,
               ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).padding.bottom,
             )
           ],
         ));
