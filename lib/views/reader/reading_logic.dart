@@ -82,40 +82,54 @@ class ComicReadingPageLogic extends GetxController{
     update();
   }
 
+  ReadingMethod get readingMethod => ReadingMethod.values[int.parse(appdata.settings[9])-1];
+
   void jumpToNextPage(){
     if(appdata.settings[36] == "1") {
-      if (appdata.settings[9] != "4") {
+      if (readingMethod.index < 3) {
         controller.animateToPage(
             index + 1, duration: const Duration(milliseconds: 300),
             curve: Curves.ease);
-      } else {
+      } else if(readingMethod == ReadingMethod.topToBottomContinuously){
         cont.animateTo(cont.position.pixels + 600,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      } else {
+        controller.animateToPage(
+            (index + 2) ~/ 2 + 1, duration: const Duration(milliseconds: 300),
+            curve: Curves.ease);
       }
     }else{
-      if (appdata.settings[9] != "4") {
+      if (readingMethod.index < 3) {
         controller.jumpToPage(index + 1);
-      } else {
+      } else if(readingMethod == ReadingMethod.topToBottomContinuously) {
         cont.jumpTo(cont.position.pixels + 600);
+      } else {
+        controller.jumpToPage((index+1) ~/ 2 + 1);
       }
     }
   }
 
   void jumpToLastPage(){
     if(appdata.settings[36] == "1") {
-      if (appdata.settings[9] != "4") {
+      if (readingMethod.index < 3) {
         controller.animateToPage(
             index - 1, duration: const Duration(milliseconds: 300),
             curve: Curves.ease);
-      } else {
+      } else if(readingMethod == ReadingMethod.topToBottomContinuously){
         cont.animateTo(cont.position.pixels - 600,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      } else {
+        controller.animateToPage(
+            index ~/ 2, duration: const Duration(milliseconds: 300),
+            curve: Curves.ease);
       }
     }else{
-      if (appdata.settings[9] != "4") {
+      if (readingMethod.index < 3) {
         controller.jumpToPage(index - 1);
-      } else {
+      } else if(readingMethod == ReadingMethod.topToBottomContinuously) {
         cont.jumpTo(cont.position.pixels - 600);
+      } else {
+        controller.jumpToPage(index ~/ 2);
       }
     }
   }
@@ -134,8 +148,10 @@ class ComicReadingPageLogic extends GetxController{
     eps.remove("");
     showFloatingButtonValue = 0;
     if(eps.isEmpty || order == eps.length){
-      if(appdata.settings[9] != "4") {
+      if(readingMethod.index < 3) {
         controller.jumpToPage(urls.length);
+      }else if(readingMethod == ReadingMethod.twoPage){
+        controller.jumpToPage(urls.length ~/ 2 + 1);
       }
       showMessage(Get.context, "已经是最后一章了".tl);
       return;

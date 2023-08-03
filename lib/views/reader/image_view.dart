@@ -19,6 +19,42 @@ import 'package:pica_comic/tools/translations.dart';
 
 Map<int, PhotoViewController> _controllers = {};
 
+ImageProvider createImageProvider(ReadingType type, ComicReadingPageLogic logic,
+    int index, String target){
+  ImageProvider image;
+
+  if (type == ReadingType.ehentai && !logic.downloaded) {
+    image = EhCachedImageProvider(logic.urls[index]);
+  } else if (type == ReadingType.hitomi &&
+      !logic.downloaded) {
+    image = HitomiCachedImageProvider(
+        logic.images[index], target);
+  } else if (type == ReadingType.picacg &&
+      !logic.downloaded) {
+    image =
+        CachedImageProvider(getImageUrl(logic.urls[index]));
+  } else if (type == ReadingType.jm && !logic.downloaded) {
+    image =
+        JmCachedImageProvider(logic.urls[index], target);
+  } else if (type == ReadingType.htmanga &&
+      !logic.downloaded) {
+    image = CachedImageProvider(logic.urls[index]);
+  } else {
+    var id = target;
+    if (type == ReadingType.ehentai) {
+      id = getGalleryId(target);
+    } else if (type == ReadingType.hitomi) {
+      id = "hitomi$target";
+    } else if (type == ReadingType.htmanga) {
+      id = "Ht$target";
+    }
+    image = FileImage(
+        downloadManager.getImage(id, logic.order, index));
+  }
+
+  return image;
+}
+
 ///构建从上至下(连续)阅读方式
 Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic,
     ReadingType type, String target) {
@@ -45,36 +81,7 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic,
       precacheComicImage(
           comicReadingPageLogic, type, context, index + 1, target);
 
-      ImageProvider image;
-
-      if (type == ReadingType.ehentai && !comicReadingPageLogic.downloaded) {
-        image = EhCachedImageProvider(comicReadingPageLogic.urls[index]);
-      } else if (type == ReadingType.hitomi &&
-          !comicReadingPageLogic.downloaded) {
-        image = HitomiCachedImageProvider(
-            comicReadingPageLogic.images[index], target);
-      } else if (type == ReadingType.picacg &&
-          !comicReadingPageLogic.downloaded) {
-        image =
-            CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index]));
-      } else if (type == ReadingType.jm && !comicReadingPageLogic.downloaded) {
-        image =
-            JmCachedImageProvider(comicReadingPageLogic.urls[index], target);
-      } else if (type == ReadingType.htmanga &&
-          !comicReadingPageLogic.downloaded) {
-        image = CachedImageProvider(comicReadingPageLogic.urls[index]);
-      } else {
-        var id = target;
-        if (type == ReadingType.ehentai) {
-          id = getGalleryId(target);
-        } else if (type == ReadingType.hitomi) {
-          id = "hitomi$target";
-        } else if (type == ReadingType.htmanga) {
-          id = "Ht$target";
-        }
-        image = FileImage(
-            downloadManager.getImage(id, comicReadingPageLogic.order, index));
-      }
+      ImageProvider image = createImageProvider(type, comicReadingPageLogic, index, target);
 
       return ComicImage(
         filterQuality: FilterQuality.medium,
@@ -87,47 +94,21 @@ Widget buildGallery(ComicReadingPageLogic comicReadingPageLogic,
 }
 
 ///构建漫画图片
-Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
+Widget buildComicView(ComicReadingPageLogic logic,
     ReadingType type, String target, List<String> eps, BuildContext context) {
   Widget body;
 
-  if (appdata.settings[9] != "4") {
+  if (["1","2","3"].contains(appdata.settings[9])) {
     body = PhotoViewGallery.builder(
+      key: Key(logic.readingMethod.index.toString()),
       reverse: appdata.settings[9] == "2",
       scrollDirection:
           appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
-      itemCount: comicReadingPageLogic.urls.length + 2,
+      itemCount: logic.urls.length + 2,
       builder: (BuildContext context, int index) {
         ImageProvider? imageProvider;
-        if (index != 0 && index != comicReadingPageLogic.urls.length + 1) {
-          if (type == ReadingType.ehentai &&
-              !comicReadingPageLogic.downloaded) {
-            imageProvider =
-                EhCachedImageProvider(comicReadingPageLogic.urls[index - 1]);
-          } else if (comicReadingPageLogic.downloaded) {
-            var id = target;
-            if (type == ReadingType.ehentai) {
-              id = getGalleryId(target);
-            } else if (type == ReadingType.hitomi) {
-              id = "hitomi$target";
-            } else if (type == ReadingType.htmanga) {
-              id = "Ht$target";
-            }
-            imageProvider = FileImage(downloadManager.getImage(
-                id, comicReadingPageLogic.order, index - 1));
-          } else if (type == ReadingType.picacg) {
-            imageProvider =
-                CachedImageProvider(comicReadingPageLogic.urls[index - 1]);
-          } else if (type == ReadingType.jm) {
-            imageProvider = JmCachedImageProvider(
-                comicReadingPageLogic.urls[index - 1], target);
-          } else if (type == ReadingType.hitomi) {
-            imageProvider = HitomiCachedImageProvider(
-                comicReadingPageLogic.images[index - 1], target);
-          } else {
-            imageProvider =
-                CachedImageProvider(comicReadingPageLogic.urls[index - 1]);
-          }
+        if (index != 0 && index != logic.urls.length + 1) {
+          imageProvider = createImageProvider(type, logic, index-1, target);
         } else {
           _controllers[index] = PhotoViewController();
           return PhotoViewGalleryPageOptions(
@@ -137,7 +118,7 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
           );
         }
 
-        precacheComicImage(comicReadingPageLogic, type, context, index, target);
+        precacheComicImage(logic, type, context, index, target);
 
         _controllers[index] = PhotoViewController();
         return PhotoViewGalleryPageOptions(
@@ -172,10 +153,10 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
           },
           initialScale: PhotoViewComputedScale.contained,
           heroAttributes: PhotoViewHeroAttributes(
-              tag: "$index/${comicReadingPageLogic.urls.length}"),
+              tag: "$index/${logic.urls.length}"),
         );
       },
-      pageController: comicReadingPageLogic.controller,
+      pageController: logic.controller,
       loadingBuilder: (context, event) => DecoratedBox(
         decoration: const BoxDecoration(color: Colors.black),
         child: Center(
@@ -196,40 +177,96 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
       onPageChanged: (i) {
         if (i == 0) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
-            comicReadingPageLogic.controller.jumpToPage(1);
+            logic.controller.jumpToPage(1);
             showMessage(Get.context, "已经是第一页了".tl);
             return;
           }
-          comicReadingPageLogic.jumpToLastChapter();
-        } else if (i == comicReadingPageLogic.urls.length + 1) {
+          logic.jumpToLastChapter();
+        } else if (i == logic.urls.length + 1) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
-            comicReadingPageLogic.controller.jumpToPage(i - 1);
+            logic.controller.jumpToPage(i - 1);
             showMessage(Get.context, "已经是最后一页了".tl);
             return;
           }
-          comicReadingPageLogic.jumpToNextChapter();
+          logic.jumpToNextChapter();
         } else {
-          comicReadingPageLogic.index = i;
-          comicReadingPageLogic.update();
+          logic.index = i;
+          logic.update();
         }
       },
     );
-  } else {
+  } else if(appdata.settings[9] == "4"){
     body = InteractiveViewer(
         transformationController:
-            comicReadingPageLogic.transformationController,
+            logic.transformationController,
         scaleEnabled: GetPlatform.isWindows ? false : true,
         maxScale: 2.5,
         minScale: 1,
         onInteractionEnd: (details) {
-          comicReadingPageLogic.currentScale = comicReadingPageLogic
+          logic.currentScale = logic
               .transformationController.value
               .getMaxScaleOnAxis();
         },
         child: SizedBox(
             width: MediaQuery.of(Get.context!).size.width,
             height: MediaQuery.of(Get.context!).size.height,
-            child: buildGallery(comicReadingPageLogic, type, target)));
+            child: buildGallery(logic, type, target)));
+  } else {
+    body = PhotoViewGallery.builder(
+      key: Key(logic.readingMethod.index.toString()),
+      itemCount: (logic.urls.length / 2).ceil() + 2,
+      builder: (BuildContext context, int index) {
+        if(index == 0 || index == (logic.urls.length / 2).ceil() + 1){
+          return PhotoViewGalleryPageOptions.customChild(
+              controller: _controllers[index],
+              child: const SizedBox()
+          );
+        }
+        precacheComicImage(logic, type, context, index*2+1, target);
+        _controllers[index] = PhotoViewController();
+        return PhotoViewGalleryPageOptions.customChild(
+          controller: _controllers[index],
+          child: Row(
+            children: [
+              Expanded(
+                child: ComicImage(
+                  image: createImageProvider(type, logic, index*2-2, target),
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+              Expanded(
+                child: index*2-1 < logic.urls.length ? ComicImage(
+                  image: createImageProvider(type, logic, index*2-1, target),
+                  fit: BoxFit.fitWidth,
+                ):const SizedBox(),
+              ),
+            ],
+          )
+        );
+      },
+      pageController: logic.controller,
+      backgroundDecoration: const BoxDecoration(color: Colors.black),
+      onPageChanged: (i) {
+        if (i == 0) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
+            logic.controller.jumpToPage(1);
+            showMessage(Get.context, "已经是第一页了".tl);
+            return;
+          }
+          logic.jumpToLastChapter();
+        } else if (i == (logic.urls.length / 2).ceil() + 1) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
+            logic.controller.jumpToPage(i-1);
+            showMessage(Get.context, "已经是最后一页了".tl);
+            return;
+          }
+          logic.jumpToNextChapter();
+        } else {
+          logic.index = i*2-1;
+          logic.update();
+        }
+      },
+    );
   }
 
   return Positioned(
@@ -241,14 +278,14 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
       focusNode: FocusNode(),
       autofocus: true,
       onKey: (event){
-        comicReadingPageLogic.ctrlPressed = event.isControlPressed;
+        logic.ctrlPressed = event.isControlPressed;
       },
       child: Listener(
         //监听鼠标滚轮
         onPointerSignal: (pointerSignal) {
           if (pointerSignal is PointerScrollEvent) {
-            if (comicReadingPageLogic.ctrlPressed) {
-              final controller = _controllers[comicReadingPageLogic.index];
+            if (logic.ctrlPressed) {
+              final controller = _controllers[logic.index];
               if (appdata.settings[9] != "4") {
                 final width = MediaQuery.of(Get.context!).size.width;
                 final height = MediaQuery.of(Get.context!).size.height;
@@ -277,38 +314,38 @@ Widget buildComicView(ComicReadingPageLogic comicReadingPageLogic,
                     position: updatedOffset,
                     scale: controller.scale! -
                         pointerSignal.scrollDelta.dy / 2000);
-              } else {
-                comicReadingPageLogic.cont.animateTo(
-                    comicReadingPageLogic.cont.position.pixels +
-                        pointerSignal.scrollDelta.dy,
-                    duration: const Duration(milliseconds: 100),
-                    curve: Curves.bounceIn);
               }
-            } else {
+            } else if(logic.readingMethod != ReadingMethod.topToBottomContinuously){
               pointerSignal.scrollDelta.dy > 0
-                  ? comicReadingPageLogic.jumpToNextPage()
-                  : comicReadingPageLogic.jumpToLastPage();
+                  ? logic.jumpToNextPage()
+                  : logic.jumpToLastPage();
+            } else {
+              logic.cont.animateTo(
+                  logic.cont.position.pixels +
+                      pointerSignal.scrollDelta.dy,
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.bounceIn);
             }
           }
         },
         child: NotificationListener<ScrollUpdateNotification>(
           child: body,
           onNotification: (notification) {
-            var length = comicReadingPageLogic.data.eps.length;
+            var length = logic.data.eps.length;
             if (type == ReadingType.picacg) length--;
-            if (!comicReadingPageLogic.cont.hasClients) return false;
-            if (comicReadingPageLogic.cont.position.pixels -
-                        comicReadingPageLogic.cont.position.minScrollExtent <=
+            if (!logic.cont.hasClients) return false;
+            if (logic.cont.position.pixels -
+                        logic.cont.position.minScrollExtent <=
                     0 &&
-                comicReadingPageLogic.order != 0) {
-              comicReadingPageLogic.showFloatingButton(-1);
-            } else if (comicReadingPageLogic.cont.position.pixels -
-                        comicReadingPageLogic.cont.position.maxScrollExtent >=
+                logic.order != 0) {
+              logic.showFloatingButton(-1);
+            } else if (logic.cont.position.pixels -
+                        logic.cont.position.maxScrollExtent >=
                     0 &&
-                comicReadingPageLogic.order < length) {
-              comicReadingPageLogic.showFloatingButton(1);
+                logic.order < length) {
+              logic.showFloatingButton(1);
             } else {
-              comicReadingPageLogic.showFloatingButton(0);
+              logic.showFloatingButton(0);
             }
             return false;
           },
@@ -323,49 +360,8 @@ void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,
     ReadingType type, BuildContext context, int index, String target) {
   int precacheNum = int.parse(appdata.settings[28]) + index;
   for (; index < precacheNum; index++) {
-    if (index < comicReadingPageLogic.urls.length &&
-        type == ReadingType.ehentai &&
-        !comicReadingPageLogic.downloaded) {
-      precacheImage(
-          EhCachedImageProvider(comicReadingPageLogic.urls[index]), context);
-    } else if (index < comicReadingPageLogic.urls.length &&
-        type == ReadingType.picacg &&
-        !comicReadingPageLogic.downloaded) {
-      precacheImage(
-          CachedImageProvider(getImageUrl(comicReadingPageLogic.urls[index])),
-          context);
-    } else if (index < comicReadingPageLogic.urls.length &&
-        type == ReadingType.jm &&
-        !comicReadingPageLogic.downloaded) {
-      precacheImage(
-          JmCachedImageProvider(comicReadingPageLogic.urls[index], target),
-          context);
-    } else if (index < comicReadingPageLogic.urls.length &&
-        type == ReadingType.hitomi &&
-        !comicReadingPageLogic.downloaded) {
-      precacheImage(
-          HitomiCachedImageProvider(
-              comicReadingPageLogic.images[index], target),
-          context);
-    } else if (index < comicReadingPageLogic.urls.length &&
-        type == ReadingType.htmanga &&
-        !comicReadingPageLogic.downloaded) {
-      precacheImage(
-          CachedImageProvider(comicReadingPageLogic.urls[index]), context);
-    } else if (index < comicReadingPageLogic.urls.length &&
-        comicReadingPageLogic.downloaded) {
-      var id = target;
-      if (type == ReadingType.ehentai) {
-        id = getGalleryId(target);
-      } else if (type == ReadingType.hitomi) {
-        id = "hitomi$target";
-      } else if (type == ReadingType.htmanga) {
-        id = "Ht$target";
-      }
-      precacheImage(
-          FileImage(
-              downloadManager.getImage(id, comicReadingPageLogic.order, index)),
-          context);
-    }
+    if(index >= comicReadingPageLogic.urls.length) return;
+    precacheImage(createImageProvider(type, comicReadingPageLogic, index, target),
+        context);
   }
 }

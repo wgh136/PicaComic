@@ -7,3 +7,11 @@ enum ReadingType {
 
   bool get hasEps => [0,2].contains(index);
 }
+
+enum ReadingMethod {
+  leftToRight,
+  rightToLeft,
+  topToBottom,
+  topToBottomContinuously,
+  twoPage;
+}

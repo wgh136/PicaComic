@@ -155,6 +155,7 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {
             !logic.tools) {
           switch (appdata.settings[9]) {
             case "1":
+            case "5":
               detail.globalPosition.dx >
                   MediaQuery.of(context).size.width * 0.75
                   ? logic.jumpToNextPage()

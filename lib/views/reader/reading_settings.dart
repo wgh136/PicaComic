@@ -286,6 +286,19 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               setValue(4);
             },
           ),
+          ListTile(
+            trailing: Radio<int>(
+              value: 5,
+              groupValue: value,
+              onChanged: (i) {
+                setValue(i!);
+              },
+            ),
+            title: Text("双页".tl),
+            onTap: () {
+              setValue(5);
+            },
+          ),
         ],
       ),
       SizedBox(
@@ -399,6 +412,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.tools = false;
     logic.showSettings = false;
     logic.index = 1;
+    logic.controller = PageController(initialPage: 1);
     logic.update();
   }
 }

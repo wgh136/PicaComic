@@ -410,13 +410,7 @@ List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildCont
               top: MediaQuery.of(context).size.height / 2 - 25,
               child: IconButton(
                 icon: const Icon(Icons.keyboard_arrow_left),
-                onPressed: () {
-                  if (appdata.settings[9] == "1") {
-                    comicReadingPageLogic.jumpToLastPage();
-                  } else if (appdata.settings[9] == "2") {
-                    comicReadingPageLogic.jumpToNextPage();
-                  }
-                },
+                onPressed: () => comicReadingPageLogic.jumpToLastPage(),
                 iconSize: 50,
               ),
             ),
@@ -426,13 +420,7 @@ List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildCont
               top: MediaQuery.of(context).size.height / 2 - 25,
               child: IconButton(
                 icon: const Icon(Icons.keyboard_arrow_right),
-                onPressed: () {
-                  if (appdata.settings[9] == "2") {
-                    comicReadingPageLogic.jumpToLastPage();
-                  } else if (appdata.settings[9] == "1") {
-                    comicReadingPageLogic.jumpToNextPage();
-                  }
-                },
+                onPressed: () => comicReadingPageLogic.jumpToNextPage(),
                 iconSize: 50,
               ),
             ),
