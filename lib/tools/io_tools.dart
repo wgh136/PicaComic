@@ -279,6 +279,12 @@ Future<bool> importData() async{
           Directory("$path${pathSep}dataTemp${pathSep}download"), downloadPath);
       var json = File("$path${pathSep}dataTemp${pathSep}appdata")
           .readAsStringSync();
+      try {
+        Directory("$path${pathSep}dataTemp").deleteSync(recursive: true);
+      }
+      catch(e){
+        //忽略
+      }
       return json;
     }
     catch(e){
