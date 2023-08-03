@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
-import '../../network/jm_network/jm_main_network.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../tools/keep_screen_on.dart';
 import '../widgets/select.dart';
@@ -334,16 +333,15 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               )
             else
               ListTile(
-                leading: Icon(Icons.account_tree_outlined,
+                leading: Icon(Icons.image,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text("设置分流".tl),
+                title: Text("图片分流".tl),
                 trailing: Select(
-                  initialValue: int.parse(appdata.settings[17]),
-                  values: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl, "转发服务器".tl],
+                  initialValue: int.parse(appdata.settings[37]),
+                  values: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl, "分流5".tl],
                   whenChange: (i) {
-                    appdata.settings[17] = i.toString();
+                    appdata.settings[37] = i.toString();
                     appdata.updateSettings();
-                    JmNetwork().loginFromAppdata();
                   },
                 ),
               ),

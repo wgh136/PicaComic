@@ -164,7 +164,7 @@ class _JmSettingsState extends State<JmSettings> {
             ListTile(
               leading: Icon(Icons.account_tree_outlined,
                   color: Theme.of(context).colorScheme.secondary),
-              title: Text("设置分流".tl),
+              title: Text("API分流".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[17]),
                 values: [
@@ -174,6 +174,22 @@ class _JmSettingsState extends State<JmSettings> {
                   appdata.settings[17] = i.toString();
                   appdata.updateSettings();
                   JmNetwork().loginFromAppdata();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.image,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("图片分流".tl),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[37]),
+                values: [
+                  "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl
+                ],
+                whenChange: (i){
+                  appdata.settings[37] = i.toString();
+                  appdata.updateSettings();
                 },
                 inPopUpWidget: widget.popUp,
               ),

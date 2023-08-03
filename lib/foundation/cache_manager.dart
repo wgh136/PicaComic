@@ -402,13 +402,14 @@ class MyCacheManager{
       {required String epsId, required String scrambleId, required String bookId}
       ) async*{
     bookId = bookId.replaceAll(RegExp(r"\..+"), "");
-    while(loadingItems[url] != null){
-      var progress = loadingItems[url]!;
+    final urlWithoutParam = url.replaceAll(RegExp(r"\?.+"), "");
+    while(loadingItems[urlWithoutParam] != null){
+      var progress = loadingItems[urlWithoutParam]!;
       yield progress;
       if(progress.finished)  return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    loadingItems[url] = DownloadProgress(0, 1, url, "");
+    loadingItems[urlWithoutParam] = DownloadProgress(0, 1, url, "");
     try {
       await readData();
       var directory = Directory("${(await getTemporaryDirectory()).path}${pathSep}imageCache");
@@ -416,13 +417,12 @@ class MyCacheManager{
         directory.create();
       }
       //检查缓存
-      if (_paths![url] != null) {
-        if (File(_paths![url]!).existsSync()) {
-          yield DownloadProgress(1, 1, url, _paths![url]!);
-          loadingItems.remove(url);
+      if (_paths![urlWithoutParam] != null) {
+        if (File(_paths![urlWithoutParam]!).existsSync()) {
+          yield DownloadProgress(1, 1, url, _paths![urlWithoutParam]!);
           return;
         } else {
-          _paths!.remove(url);
+          _paths!.remove(urlWithoutParam);
         }
       }
       //生成文件名
@@ -465,7 +465,7 @@ class MyCacheManager{
           }
           var progress = DownloadProgress(i, 1000, url, savePath);
           yield progress;
-          loadingItems[url] = progress;
+          loadingItems[urlWithoutParam] = progress;
         }
       }
       catch (e) {
@@ -473,7 +473,7 @@ class MyCacheManager{
       }
       var progress = DownloadProgress(750, 1000, url, savePath);
       yield progress;
-      loadingItems[url] = progress;
+      loadingItems[urlWithoutParam] = progress;
       var file = File(savePath);
       if (!file.existsSync()) {
         file.create();
@@ -486,15 +486,16 @@ class MyCacheManager{
         await startWriteFile(WriteInfo(savePath, bytes));
       }
       //告知完成
-      await saveInfo(url, savePath);
+      await saveInfo(urlWithoutParam, savePath);
       progress = DownloadProgress(1, 1, url, savePath);
       yield progress;
-      loadingItems[url] = progress;
+      loadingItems[urlWithoutParam] = progress;
     }
     catch(e){
       rethrow;
     }
     finally{
+      await Future.delayed(const Duration(milliseconds: 50));
       loadingItems.remove(url);
     }
   }
