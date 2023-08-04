@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/reader/reading_type.dart';
 import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -448,9 +449,15 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
         max: comicReadingPageLogic.urls.length.toDouble(),
         divisions: comicReadingPageLogic.urls.length - 1,
         onChanged: (i) {
-          comicReadingPageLogic.index = i.toInt();
-          comicReadingPageLogic.jumpToPage(i.toInt());
-          comicReadingPageLogic.update();
+          if(comicReadingPageLogic.readingMethod != ReadingMethod.twoPage) {
+            comicReadingPageLogic.index = i.toInt();
+            comicReadingPageLogic.jumpToPage(i.toInt());
+            comicReadingPageLogic.update();
+          }else{
+            comicReadingPageLogic.index = i.toInt() + i.toInt() % 2 - 1;
+            comicReadingPageLogic.jumpToPage((comicReadingPageLogic.index + 2) ~/ 2);
+            comicReadingPageLogic.update();
+          }
         },
       );
     } else {
