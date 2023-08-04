@@ -323,7 +323,6 @@ class HtmangaNetwork {
       for (var url in urls) {
         images.add("https://${url[0]!}");
       }
-      print(images);
       return Res(images);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
