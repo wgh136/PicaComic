@@ -681,7 +681,7 @@ void exportDataSetting(BuildContext context){
             )
           ],
         ));
-        runExportData().then((v){
+        runExportData(false).then((v){
           if(v){
             Get.back();
             showMessage(Get.context, "成功导出");
@@ -690,7 +690,30 @@ void exportDataSetting(BuildContext context){
             showMessage(Get.context, "导出失败");
           }
         });
-      }, child: Text("继续".tr))
+      }, child: Text("导出不含下载的数据".tr)),
+      TextButton(onPressed: (){
+        Get.back();
+        showDialog(barrierDismissible: false, context: context, builder: (context) => const SimpleDialog(
+          children: [
+            SizedBox(
+              width: 200,
+              height: 200,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          ],
+        ));
+        runExportData(true).then((v){
+          if(v){
+            Get.back();
+            showMessage(Get.context, "成功导出");
+          }else{
+            Get.back();
+            showMessage(Get.context, "导出失败");
+          }
+        });
+      }, child: Text("导出所有数据".tr))
     ],
   ));
 }
@@ -698,7 +721,8 @@ void exportDataSetting(BuildContext context){
 void importDataSetting(BuildContext context){
   showDialog(context: context, builder: (context) => AlertDialog(
     title: Text("导入用户数据".tl),
-    content: Text("将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl),
+    content: Text("将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl+
+        "\n如果导入的数据中包含下载数据, 则当前的下载数据也将被覆盖".tl),
     actions: [
       TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
       TextButton(onPressed: (){

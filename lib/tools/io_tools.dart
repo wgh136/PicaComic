@@ -171,7 +171,7 @@ Future<void> checkDownloadPath() async{
   }
 }
 
-Future<String?> exportData(String path, String appdataString, String downloadPath) async{
+Future<String?> exportData(String path, String appdataString, String? downloadPath) async{
   try {
     var filePath = "$path${pathSep}appdata";
     var file = File(filePath);
@@ -188,8 +188,10 @@ Future<String?> exportData(String path, String appdataString, String downloadPat
       localFavorite.createSync();
     }
     await encode.addFile(localFavorite);
-    var download = Directory(downloadPath);
-    await encode.addDirectory(download);
+    if(downloadPath != null) {
+      var download = Directory(downloadPath);
+      await encode.addDirectory(download);
+    }
     encode.close();
     return null;
   }
@@ -198,16 +200,16 @@ Future<String?> exportData(String path, String appdataString, String downloadPat
   }
 }
 
-Future<bool> runExportData() async{
+Future<bool> runExportData(bool includeDownload) async{
   try {
     var path = (await getApplicationSupportDirectory()).path;
     if (DownloadManager().path == null) {
       DownloadManager().init();
     }
     var appdataString = const JsonEncoder().convert(appdata.toJson());
-    var downloadPath = DownloadManager().path!;
-    var res = await compute<List<String>, String?>((message) =>
-        exportData(message[0], message[1], message[2]), [path, appdataString, downloadPath]);
+    var downloadPath = includeDownload?DownloadManager().path:null;
+    var res = await compute<List<String?>, String?>((message) =>
+        exportData(message[0]!, message[1]!, message[2]), [path, appdataString, downloadPath]);
 
     if (res != null) {
       throw Exception(res);
@@ -264,8 +266,6 @@ Future<bool> importData() async{
       var archive = decode.decodeBuffer(inputStream);
       extractArchiveToDisk(archive, "$path${pathSep}dataTemp");
       var downloadPath = Directory(data[2]);
-      downloadPath.deleteSync(recursive: true);
-      downloadPath.createSync();
       List<FileSystemEntity> contents = Directory("$path${pathSep}dataTemp")
           .listSync();
       for (FileSystemEntity item in contents) {
@@ -273,10 +273,17 @@ Future<bool> importData() async{
           item.renameSync('$path${pathSep}dataTemp${pathSep}download');
         }
       }
+      var downloadData = Directory("$path${pathSep}dataTemp${pathSep}download");
+      if(downloadData.existsSync()) {
+        downloadPath.deleteSync(recursive: true);
+        downloadPath.createSync();
+      }
       var localFavorite = File('$path${pathSep}dataTemp${pathSep}localFavorite');
       localFavorite.copySync('$path${pathSep}localFavorite');
-      await copyDirectory(
+      if(downloadData.existsSync()) {
+        await copyDirectory(
           Directory("$path${pathSep}dataTemp${pathSep}download"), downloadPath);
+      }
       var json = File("$path${pathSep}dataTemp${pathSep}appdata")
           .readAsStringSync();
       try {
