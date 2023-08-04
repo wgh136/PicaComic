@@ -104,7 +104,6 @@ class JmDownloadingItem extends DownloadingItem {
       if(urls.isNotEmpty) return true;
       var res = await jmNetwork.getChapter(comic.id);
       if (res.error) {
-        retry();
         return false;
       } else {
         urls.add(res.data);
@@ -119,7 +118,6 @@ class JmDownloadingItem extends DownloadingItem {
       }
       var res = await jmNetwork.getChapter(comic.series.values.elementAt(i));
       if (res.error) {
-        retry();
         return false;
       } else {
         urls.add(res.data);
@@ -137,6 +135,8 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   void pause() {
+    JmDownloads.downloading.clear();
+    MyCacheManager.loadingItems.clear();
     notifications.endProgress();
     _pauseFlag = true;
   }
@@ -170,7 +170,7 @@ class JmDownloadingItem extends DownloadingItem {
       retry();
       return;
     }
-    while(_downloadedPages < _totalPages && _index<comic.series.length){
+    while(_downloadedPages < _totalPages && (_index<comic.series.length || _index==0)){
       if(_pauseFlag)  return;
       if(_runtimeKey != currentKey) return;
       if(!_downloadEps.contains(_index)){
@@ -220,8 +220,8 @@ class JmDownloadingItem extends DownloadingItem {
         }
       }
       catch(e, s){
+        if(_pauseFlag)  return;
         LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-        if (_pauseFlag) return;
         //下载出错重试
         retry();
         return;
@@ -255,6 +255,8 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   void stop() {
+    JmDownloads.downloading.clear();
+    MyCacheManager.loadingItems.clear();
     _pauseFlag = true;
     var file = Directory("$path$pathSep$id");
     if(file.existsSync()) {
@@ -335,8 +337,8 @@ class JmDownloads{
       await for(var progress in MyCacheManager().getJmImage(path, {}, epsId: chapId, scrambleId: "220980", bookId: bookId, )){
         if(progress.currentBytes == progress.expectedBytes){
           var res = progress.getFile();
+          if(downloading.isEmpty) return;
           downloading[path]!.file = res;
-          downloading[path]!.finish = true;
         }
       }
       if(downloading[path]!.file == null) {
@@ -344,8 +346,13 @@ class JmDownloads{
       }
     }
     catch(e, s){
+      if(downloading.isEmpty) return;
       LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       downloading[path]!.message = e.toString();
+    }
+    finally{
+      if(downloading.isNotEmpty);
+        downloading[path]!.finish = true;
     }
   }
 
