@@ -43,12 +43,24 @@ class HitomiSearch{
     //positive results
     for(var term in positiveTerms){
       var res = await getGalleryIdsForQuery(term);
-      results = results.takeWhile((value) => res.contains(value)).toList();
+      var newRes = <int>[];
+      for(var c in res){
+        if(results.contains(c)){
+          newRes.add(c);
+        }
+      }
+      results = newRes;
     }
     //negative results
     for(var term in negativeTerms){
       var res = await getGalleryIdsForQuery(term);
-      results = results.takeWhile((value) => !res.contains(value)).toList();
+      var newRes = <int>[];
+      for(var c in res){
+        if(!results.contains(c)){
+          newRes.add(c);
+        }
+      }
+      results = newRes;
     }
     return Res(results);
   }
