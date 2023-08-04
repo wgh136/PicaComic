@@ -592,7 +592,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
 
   void read() {
     if (comic.type == DownloadType.picacg) {
-      readPicacgComic((comic as DownloadedComic).comicItem, ["", ...comic.eps]);
+      readPicacgComic((comic as DownloadedComic).comicItem, [...comic.eps]);
     } else if (comic.type == DownloadType.ehentai) {
       readEhGallery((comic as DownloadedGallery).gallery);
     } else if (comic.type == DownloadType.jm) {

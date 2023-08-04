@@ -151,7 +151,7 @@ class ComicReadingPageLogic extends GetxController{
       if(readingMethod.index < 3) {
         controller.jumpToPage(urls.length);
       }else if(readingMethod == ReadingMethod.twoPage){
-        controller.jumpToPage(urls.length ~/ 2 + 1);
+        controller.jumpToPage((urls.length % 2 + urls.length) ~/ 2);
       }
       showMessage(Get.context, "已经是最后一章了".tl);
       return;
