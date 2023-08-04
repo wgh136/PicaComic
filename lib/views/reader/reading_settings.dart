@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
+import 'package:pica_comic/views/widgets/side_bar.dart';
+import '../../foundation/ui_mode.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../tools/keep_screen_on.dart';
 import '../widgets/select.dart';
@@ -9,40 +11,16 @@ import '../widgets/show_message.dart';
 import 'reading_logic.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-Widget buildSettingWindow(
-    ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
-  return Positioned(
-    right: 10,
-    top: 60 + MediaQuery.of(context).viewPadding.top,
-    child: AnimatedSwitcher(
-      duration: const Duration(milliseconds: 150),
-      reverseDuration: const Duration(milliseconds: 150),
-      switchInCurve: Curves.fastOutSlowIn,
-      child: comicReadingPageLogic.showSettings
-          ? Container(
-              width: MediaQuery.of(context).size.width > 620
-                  ? 600
-                  : MediaQuery.of(context).size.width - 20,
-              decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondaryContainer
-                      .withOpacity(0.98),
-                  borderRadius: const BorderRadius.all(Radius.circular(16))),
-              child: const ReadingSettings(),
-            )
-          : const SizedBox(
-              width: 0,
-              height: 0,
-            ),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
-    ),
-  );
+void showSettings(BuildContext context){
+  if(UiMode.m1(context)){
+    showModalBottomSheet(context: context, builder: (context) => const SingleChildScrollView(
+      child: ReadingSettings(),
+    ));
+  }else{
+    showSideBar(context, const SingleChildScrollView(
+      child: ReadingSettings(),
+    ), useSurfaceTintColor: true);
+  }
 }
 
 class ReadingSettings extends StatefulWidget {
@@ -206,7 +184,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ],
       ),
       Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(
             width: 400,
@@ -385,10 +362,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           Tween<Offset> tween;
           if (i == 0) {
             tween = Tween<Offset>(
-                begin: const Offset(0.1, 0), end: const Offset(0, 0));
+                begin: const Offset(-0.1, 0), end: const Offset(0, 0));
           } else {
             tween = Tween<Offset>(
-                begin: const Offset(-0.1, 0), end: const Offset(0, 0));
+                begin: const Offset(0.1, 0), end: const Offset(0, 0));
           }
           return SlideTransition(
             position: tween.animate(animation),
@@ -405,6 +382,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   }
 
   void setValue(int i) {
+    Get.back();
     value = i;
     appdata.settings[9] = value.toString();
     appdata.writeData();

@@ -231,13 +231,15 @@ Widget buildComicView(ComicReadingPageLogic logic,
               Expanded(
                 child: ComicImage(
                   image: createImageProvider(type, logic, index*2-2, target),
-                  fit: BoxFit.fitWidth,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomRight,
                 ),
               ),
               Expanded(
                 child: index*2-1 < logic.urls.length ? ComicImage(
                   image: createImageProvider(type, logic, index*2-1, target),
-                  fit: BoxFit.fitWidth,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomLeft,
                 ):const SizedBox(),
               ),
             ],

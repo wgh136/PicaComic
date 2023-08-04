@@ -21,7 +21,6 @@ import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';
 import 'reading_logic.dart';
-import 'reading_settings.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -394,8 +393,6 @@ class ComicReadingPage extends StatelessWidget {
                   buildPageInfoText(logic, type.hasEps, eps, context,
                       jm: type == ReadingType.jm),
 
-                  //设置
-                  buildSettingWindow(logic, context),
                 ],
               ),
             );

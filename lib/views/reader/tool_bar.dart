@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/reader/reading_settings.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -60,11 +61,7 @@ Widget buildTopToolBar(
                         child: IconButton(
                           iconSize: 25,
                           icon: const Icon(Icons.settings),
-                          onPressed: () {
-                            comicReadingPageLogic.showSettings =
-                                !comicReadingPageLogic.showSettings;
-                            comicReadingPageLogic.update();
-                          },
+                          onPressed: () => showSettings(context),
                         ),
                       ),
                     ),
