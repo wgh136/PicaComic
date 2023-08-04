@@ -232,14 +232,14 @@ Widget buildComicView(ComicReadingPageLogic logic,
                 child: ComicImage(
                   image: createImageProvider(type, logic, index*2-2, target),
                   fit: BoxFit.contain,
-                  alignment: Alignment.bottomRight,
+                  alignment: Alignment.centerRight,
                 ),
               ),
               Expanded(
                 child: index*2-1 < logic.urls.length ? ComicImage(
                   image: createImageProvider(type, logic, index*2-1, target),
                   fit: BoxFit.contain,
-                  alignment: Alignment.bottomLeft,
+                  alignment: Alignment.centerLeft,
                 ):const SizedBox(),
               ),
             ],
