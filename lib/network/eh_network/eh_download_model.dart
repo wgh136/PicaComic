@@ -166,12 +166,18 @@ class EhDownloadingItem extends DownloadingItem{
         if(_runtimeKey != currentKey) return;
         if (_pauseFlag) return;
         for(int i=0;i<5&&_downloadedPages+i < _totalPages;i++){
-          EhDownloads.addDownload(_urls[_downloadedPages+i]);
+          MyCacheManager().getEhImage(_urls[_downloadedPages+i]).listen((event) {});
         }
-        var bytes = (await EhDownloads.getFile(_urls[_downloadedPages])).readAsBytesSync();
+        Uint8List? bytes;
+        await for(var s in MyCacheManager().getEhImage(_urls[_downloadedPages])){
+          if(s.finished){
+            bytes = s.getFile().readAsBytesSync();
+            break;
+          }
+        }
         var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
         if (!await file.exists()) await file.create();
-        await file.writeAsBytes(Uint8List.fromList(bytes));
+        await file.writeAsBytes(bytes!);
         await MyCacheManager().delete(_urls[_downloadedPages]);
         _downloadedPages++;
         super.updateUi?.call();
@@ -248,57 +254,3 @@ class EhDownloadingItem extends DownloadingItem{
 
 }
 
-///用于实现同时下载多张Eh图片
-class EhDownloads{
-  static Map<String, DownloadingStatus> downloading = {};
-
-  static Future<void> addDownload(String path) async{
-    if(downloading[path] != null){
-      if(downloading[path]!.message != null){
-        downloading.remove(path);
-      }else {
-        return;
-      }
-    }
-    downloading[path] = DownloadingStatus(null, null, false);
-    try {
-      await for (var progress in MyCacheManager().getEhImage(path)){
-        if(progress.expectedBytes == progress.currentBytes) {
-          var res = progress.getFile();
-          downloading[path]!.file = res;
-          downloading[path]!.finish = true;
-        }
-      }
-      if(downloading[path]!.file == null){
-        throw Error();
-      }
-    }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-      downloading[path]!.message = e.toString();
-    }
-  }
-
-  static Future<File> getFile(String path) async{
-    if(downloading[path] == null){
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    while(!downloading[path]!.finish){
-      await Future.delayed(const Duration(milliseconds: 100));
-      if(downloading[path]!.message != null){
-        throw Exception(downloading[path]!.message);
-      }
-    }
-    var res = downloading[path]!.file!;
-    downloading.remove(path);
-    return res;
-  }
-}
-
-class DownloadingStatus{
-  File? file;
-  String? message;
-  bool finish;
-
-  DownloadingStatus(this.file, this.message, this.finish);
-}

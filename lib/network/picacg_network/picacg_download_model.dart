@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
@@ -239,12 +238,18 @@ class PicDownloadingItem extends DownloadingItem {
         if (_pauseFlag) return;
         try {
           for(int i=0;i<5&&_index+i<_urls.length;i++){
-            PicacgDownloads.addDownload(_urls[_index+i]);
+            MyCacheManager().getImage(_urls[_index+i]).listen((event) {});
           }
-          var res = await PicacgDownloads.getFile(_urls[_index]);
+          File? res;
+          await for(var s in MyCacheManager().getImage(_urls[_index])){
+           if(s.finished){
+             res = s.getFile();
+             break;
+           }
+          }
           var file = File("$path$pathSep$id$pathSep$_downloadingEps$pathSep$_index.jpg");
           if (!await file.exists()) await file.create();
-          await file.writeAsBytes(Uint8List.fromList(res.readAsBytesSync()));
+          await file.writeAsBytes(Uint8List.fromList(res!.readAsBytesSync()));
           await MyCacheManager().delete(_urls[_index]);
           _index++;
           _downloadPages++;
@@ -313,52 +318,4 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   String get title => comic.title;
-}
-
-///用于实现同时下载多张Picacg图片
-class PicacgDownloads{
-  static Map<String, DownloadingStatus> downloading = {};
-
-  static Future<void> addDownload(String path) async{
-    if(downloading[path] != null){
-      if(downloading[path]!.message != null){
-        downloading.remove(path);
-      }else {
-        return;
-      }
-    }
-    downloading[path] = DownloadingStatus(null, null, false);
-    try {
-      var res = await DefaultCacheManager().getSingleFile(getImageUrl(path));
-      downloading[path]!.file = res;
-      downloading[path]!.finish = true;
-    }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-      downloading[path]!.message = e.toString();
-    }
-  }
-
-  static Future<File> getFile(String path) async{
-    if(downloading[path] == null){
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    while(!downloading[path]!.finish){
-      await Future.delayed(const Duration(milliseconds: 100));
-      if(downloading[path]!.message != null){
-        throw Exception(downloading[path]!.message);
-      }
-    }
-    var res = downloading[path]!.file!;
-    downloading.remove(path);
-    return res;
-  }
-}
-
-class DownloadingStatus{
-  File? file;
-  String? message;
-  bool finish;
-
-  DownloadingStatus(this.file, this.message, this.finish);
 }

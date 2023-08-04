@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/widgets/downloading_tile.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -46,12 +45,6 @@ class _DownloadingPageState extends State<DownloadingPage> {
             }));
           }
           logic.update();
-          try {
-            Get.find<DownloadPageLogic>().fresh();
-          }
-          catch(e){
-            //如果用户从通知中进入此页面, 可能在路由中不存在DownloadPage, 直接忽略
-          }
         };
         downloadManager.handleError = (){
           logic.update();

@@ -135,7 +135,6 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   void pause() {
-    JmDownloads.downloading.clear();
     MyCacheManager.loadingItems.clear();
     notifications.endProgress();
     _pauseFlag = true;
@@ -192,15 +191,26 @@ class JmDownloadingItem extends DownloadingItem {
               break;
             }
           }
-          JmDownloads.addDownload(url, chapId, bookId);
+          MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId).listen((event) {});
         }
         var bytes = <int>[];
         var file = File("$path$pathSep$id$pathSep${_index+1}$pathSep$_currentPage.jpg");
         if(! file.existsSync()){
           file.createSync(recursive: true);
         }
-
-        bytes = (await JmDownloads.getFile(url)).readAsBytesSync();
+        var bookId = "";
+        for(int i = url.length-1;i>=0;i--){
+          if(url[i] == '/'){
+            bookId = url.substring(i+1,url.length-5);
+            break;
+          }
+        }
+        await for(var s in MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId)){
+          if(s.finished){
+            bytes = s.getFile().readAsBytesSync();
+            break;
+          }
+        }
         if(bytes.isEmpty){
           throw(StateError("下载图片失败"));
         }
@@ -255,7 +265,6 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   void stop() {
-    JmDownloads.downloading.clear();
     MyCacheManager.loadingItems.clear();
     _pauseFlag = true;
     var file = Directory("$path$pathSep$id");
@@ -320,62 +329,3 @@ class JmDownloadingItem extends DownloadingItem {
   int get totalPages => _totalPages;
 }
 
-///用于实现同时下载多张禁漫图片
-class JmDownloads{
-  static Map<String, DownloadingStatus> downloading = {};
-
-  static Future<void> addDownload(String path, String chapId, String bookId) async{
-    if(downloading[path] != null){
-      if(downloading[path]!.message != null){
-        downloading.remove(path);
-      }else {
-        return;
-      }
-    }
-    downloading[path] = DownloadingStatus(null, null, false);
-    try {
-      await for(var progress in MyCacheManager().getJmImage(path, {}, epsId: chapId, scrambleId: "220980", bookId: bookId, )){
-        if(progress.currentBytes == progress.expectedBytes){
-          var res = progress.getFile();
-          if(downloading.isEmpty) return;
-          downloading[path]!.file = res;
-        }
-      }
-      if(downloading[path]!.file == null) {
-        throw Error();
-      }
-    }
-    catch(e, s){
-      if(downloading.isEmpty) return;
-      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-      downloading[path]!.message = e.toString();
-    }
-    finally{
-      if(downloading.isNotEmpty);
-        downloading[path]!.finish = true;
-    }
-  }
-
-  static Future<File> getFile(String path) async{
-    if(downloading[path] == null){
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    while(!downloading[path]!.finish){
-      await Future.delayed(const Duration(milliseconds: 100));
-      if(downloading[path]!.message != null){
-        throw Exception(downloading[path]!.message);
-      }
-    }
-    var res = downloading[path]!.file!;
-    downloading.remove(path);
-    return res;
-  }
-}
-
-class DownloadingStatus{
-  File? file;
-  String? message;
-  bool finish;
-
-  DownloadingStatus(this.file, this.message, this.finish);
-}

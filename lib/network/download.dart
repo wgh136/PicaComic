@@ -16,6 +16,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/views/download_page.dart';
 import 'picacg_network/models.dart';
 
 /*
@@ -301,6 +302,12 @@ class DownloadManager{
     }
     downloading.removeFirst();
     await _saveInfo();
+    try{
+      Get.find<DownloadPageLogic>().fresh();
+    }
+    catch(e){
+      // ignore
+    }
     if(downloading.isNotEmpty){
       //清除已完成的任务, 开始下一个任务
       downloading.first.start();
