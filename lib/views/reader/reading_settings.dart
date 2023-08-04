@@ -13,8 +13,11 @@ import 'package:pica_comic/tools/translations.dart';
 
 void showSettings(BuildContext context){
   if(UiMode.m1(context)){
-    showModalBottomSheet(context: context, builder: (context) => const SingleChildScrollView(
-      child: ReadingSettings(),
+    showModalBottomSheet(context: context, builder: (context) => SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        child: const ReadingSettings(),
+      ),
     ));
   }else{
     showSideBar(context, const SingleChildScrollView(
