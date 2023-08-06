@@ -42,8 +42,14 @@ class MyCacheManager{
       var appDataPath = (await getApplicationSupportDirectory()).path;
       var file = File("$appDataPath${pathSep}cache.json");
       if(file.existsSync()){
-        _paths = Map<String, String>.from(const JsonDecoder()
-            .convert(await file.readAsString()));
+        try {
+          _paths = Map<String, String>.from(const JsonDecoder()
+              .convert(await file.readAsString()));
+        }
+        catch(e){
+          clear();
+          _paths = {};
+        }
       }else{
         _paths = {};
       }
@@ -95,8 +101,10 @@ class MyCacheManager{
       if(! file.existsSync()){
         await file.create();
       }
-      await file.writeAsString(const JsonEncoder().convert(_paths),
-          mode: FileMode.writeOnly);
+      if(_paths != null) {
+        await file.writeAsString(const JsonEncoder().convert(_paths),
+            mode: FileMode.writeOnly);
+      }
       _paths = null;
     }
     LogManager.addLog(LogLevel.info, "Cache Manager",
