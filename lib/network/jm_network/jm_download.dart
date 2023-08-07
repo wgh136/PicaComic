@@ -108,7 +108,7 @@ class JmDownloadingItem extends DownloadingItem {
     }
     await for(var s in MyCacheManager()
         .getJmImage(link, {},
-        epsId: comic.series[downloadingEp+1]!,
+        epsId: comic.series[links!.keys.toList()[downloadingEp]]!,
         scrambleId: "220980",
         bookId: bookId)){
       if(s.finished){
@@ -142,9 +142,9 @@ class JmDownloadingItem extends DownloadingItem {
     }
     addStreamSubscription(MyCacheManager()
         .getJmImage(link, {},
-            epsId: comic.series[downloadingEp+1]!,
-            scrambleId: "220980",
-            bookId: bookId)
+          epsId: comic.series[links!.keys.toList()[downloadingEp]]!,
+          scrambleId: "220980",
+          bookId: bookId)
         .listen((event) {}));
   }
 
