@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/settings/ht_settings.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
@@ -154,6 +155,10 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
   Future<void> login() async{
     //如果同时进行两个网络请求, jm的登录存在问题, 导致无法获取收藏, 并不清楚为什么
     message = null;
+    if(!HtSettings.htUrls.contains(appdata.settings[31])){
+      appdata.settings[31] = HtSettings.htUrls[0];
+      appdata.updateSettings();
+    }
     if(appdata.token != "") {
       try {
         var res = await network.getProfile();

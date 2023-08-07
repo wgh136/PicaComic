@@ -11,12 +11,9 @@ class HtSettings extends StatelessWidget {
 
   static const htUrls = <String>[
     "https://www.wnacg.com",
-    "https://www.htmanga3.top",
-    "https://www.htmanga4.top",
-    "https://www.htmanga5.top",
-    "https://www.htmanga6.top",
-    "https://www.htmanga7.top",
-    "https://www.htmanga9.top",
+    "https://www.wnacg01.ru",
+    "https://www.wnacg02.ru",
+    "https://www.wnacg03.ru",
   ];
 
   @override
@@ -33,7 +30,8 @@ class HtSettings extends StatelessWidget {
             title: const Text("Domain"),
             trailing: Select(
               width: 180,
-              initialValue: htUrls.indexOf(appdata.settings[31]),
+              initialValue: !htUrls.contains(appdata.settings[31]) ? 0 :
+                htUrls.indexOf(appdata.settings[31]),
               whenChange: (i){
                 appdata.settings[31] = htUrls[i];
                 appdata.updateSettings();

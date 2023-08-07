@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 extension ListExtension<T> on List<T>{
   /// Remove all blank value and return the list.
   List<T> getNoBlankList(){
@@ -17,6 +19,16 @@ extension StringExtension on String{
 
   /// convert this to a one-element list.
   List<String> toList() => [this];
+
+  String _nums(){
+    String res = "";
+    for(int i=0; i<length; i++){
+      res += this[i].isNum?this[i]:"";
+    }
+    return res;
+  }
+
+  String get nums => _nums();
 }
 
 extension MapExtension<S, T> on Map<S, List<T>>{

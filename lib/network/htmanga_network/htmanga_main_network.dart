@@ -217,7 +217,7 @@ class HtmangaNetwork {
       int pages;
       try {
         if(searchPage){
-          var result = int.parse(document.querySelectorAll("p.result > b")[0].text);
+          var result = int.parse(document.querySelectorAll("p.result > b")[0].text.nums);
           var comicsOnePage = document.querySelectorAll("div.grid div.gallary_wrap > ul.cc > li").length;
           pages = result ~/ comicsOnePage + 1;
         }else{
