@@ -122,7 +122,7 @@ class Appdata{
 
   var jmAuth = <String>[
     "1",
-    "1.5.7",
+    "1.5.8",
     "18comicAPP",
     "Mozilla/5.0 (Linux; Android 13; JM114514 Build/TQ1A.230205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36"
   ];

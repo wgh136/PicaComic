@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
@@ -167,7 +168,8 @@ class DownloadManager{
         downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
       }
     }
-    catch(e){
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "IO", "Failed to read downloaded information\n$e\n$s");
       file.deleteSync();
       await _saveInfo();
     }
@@ -515,10 +517,18 @@ class DownloadManager{
 
   ///获取图片, 对于 eh 和 hitomi 和 绅士漫画, ep参数为0
   File getImage(String id, int ep, int index){
+    String downloadPath;
     if(ep == 0){
-      return File("$path$pathSep$id$pathSep$index.jpg");
+      downloadPath = "$path$pathSep$id$pathSep";
+    }else{
+      downloadPath = "$path$pathSep$id$pathSep$ep$pathSep";
     }
-    return File("$path$pathSep$id$pathSep$ep$pathSep$index.jpg");
+    for(var file in Directory(downloadPath).listSync()){
+      if(file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") == index.toString()){
+        return file as File;
+      }
+    }
+    throw Exception("File not found");
   }
 
   ///获取封面, 所有漫画源通用

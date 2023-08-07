@@ -18,3 +18,15 @@ extension StringExtension on String{
   /// convert this to a one-element list.
   List<String> toList() => [this];
 }
+
+extension MapExtension<S, T> on Map<S, List<T>>{
+  int _getTotalLength(){
+    int res = 0;
+    for(var l in values.toList()){
+      res += l.length;
+    }
+    return res;
+  }
+
+  int get totalLength => _getTotalLength();
+}

@@ -1,3 +1,15 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:pica_comic/tools/extensions.dart';
+import 'package:dio/dio.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/picacg_network/request.dart';
+import 'package:pica_comic/tools/translations.dart';
+import '../base.dart';
+import 'download.dart';
+
 abstract class DownloadedItem{
   ///漫画源
   DownloadType get type;
@@ -19,18 +31,22 @@ abstract class DownloadedItem{
 
 enum DownloadType{picacg, ehentai, jm, hitomi, htmanga}
 
+typedef DownloadProgressCallback = void Function();
+
+typedef DownloadProgressCallbackAsync = Future<void> Function();
+
 abstract class DownloadingItem{
   ///完成时调用
-  final void Function()? whenFinish;
+  final DownloadProgressCallback? whenFinish;
 
   ///更新ui, 用于下载管理器页面
-  void Function()? updateUi;
+  DownloadProgressCallback? updateUi;
 
   ///出现错误时调用
-  final void Function()? whenError;
+  final DownloadProgressCallback? whenError;
 
   ///更新下载信息
-  final Future<void> Function()? updateInfo;
+  final DownloadProgressCallbackAsync? updateInfo;
 
   ///标识符, 对于哔咔和eh, 直接使用其提供的漫画id, 禁漫开头加jm, hitomi开头加hitomi
   final String id;
@@ -38,31 +54,230 @@ abstract class DownloadingItem{
   ///类型
   DownloadType type;
 
-  DownloadingItem(this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
+  DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
+  int runtimeKey = 0;
 
-  ///开始或者继续暂停的下载
-  void start();
+  int _retryTimes = 0;
 
-  ///暂停下载
-  void pause();
+  /// download path
+  final String path;
 
-  ///停止下载
-  void stop();
+  /// headers for downloading cover
+  Map<String, String> get headers => {};
+
+  Future<void> downloadCover() async{
+    var file = File("$path$pathSep$id${pathSep}cover.jpg");
+    if(file.existsSync()){
+      return;
+    }
+    var dio = await request();
+    var res = await dio.get<Uint8List>(
+        cover, options: Options(responseType: ResponseType.bytes, headers: headers));
+    if(file.existsSync()){
+      file.deleteSync();
+    }
+    file.createSync();
+    file.writeAsBytesSync(res.data!);
+  }
+
+  int _downloadedNum = 0;
+
+  int _downloadingEp = 0;
+
+  /// index of downloading episode
+  ///
+  /// Attention, this is used for array indexing, so it starts with 0
+  int get downloadingEp => _downloadingEp;
+
+  /// retry when error, only allow 3 times.
+  void retry(){
+    _retryTimes++;
+    if(_retryTimes > 3){
+      whenError?.call();
+      _retryTimes = 0;
+    }else{
+      start();
+    }
+  }
+
+  int index = 0;
+
+  String? get imageExtension => null;
+
+  /// begin or continue downloading
+  void start() async{
+    runtimeKey++;
+    var currentKey = runtimeKey;
+    try{
+      notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
+          "共${downloadManager.downloading.length}项任务");
+
+      // get image links and cover
+      links ??= await getLinks();
+      await downloadCover();
+
+      // download images
+      while(_downloadingEp < links!.length && currentKey == runtimeKey){
+        int ep = links!.keys.elementAt(_downloadingEp);
+        var urls = links![ep]!;
+        while(index < urls.length && currentKey == runtimeKey){
+          notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
+              "共${downloadManager.downloading.length}项任务");
+          for(int i=0; i<5; i++){
+            if(index+i >= urls.length)  break;
+            loadImageToCache(urls[index+i]);
+          }
+          var bytes = await getImage(urls[index]);
+          String fileExtension = imageExtension ??
+              '.${urls[index].split('/').lastOrNull?.split('?').firstOrNull?.split(".").elementAtOrNull(1) ?? "jpg"}';
+          if(bytes.isEmpty){
+            throw Exception("Fail to download image");
+          }
+          if(currentKey != runtimeKey)  return;
+          File file;
+          if(haveEps) {
+            file = File("$path$pathSep$id$pathSep$ep$pathSep$index$fileExtension");
+          }else{
+            file = File("$path$pathSep$id$pathSep$index$fileExtension");
+          }
+          if(file.existsSync()){
+            file.deleteSync();
+          }
+          file.createSync(recursive: true);
+          file.writeAsBytesSync(bytes);
+          await MyCacheManager().delete(urls[index]);
+          index++;
+          _downloadedNum++;
+          updateUi?.call();
+          await updateInfo?.call();
+        }
+        if(currentKey != runtimeKey)  return;
+        index = 0;
+        _downloadingEp++;
+        await updateInfo?.call();
+      }
+
+      // finish downloading
+      if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
+      await saveInfo();
+      whenFinish?.call();
+      stopAllStream();
+    }
+    catch(e, s){
+      if(currentKey != runtimeKey)  return;
+      retry();
+      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
+    }
+  }
+
+  /// store all downloading stream
+  ///
+  /// when user click pause or stop button, stop all streams
+  static List<StreamSubscription> streams = [];
+
+  /// add a StreamSubscription to streams
+  void addStreamSubscription(StreamSubscription stream){
+    streams.add(stream);
+    stream.onDone(() {
+      streams.remove(stream);
+    });
+  }
+
+  /// stop all streams
+  void stopAllStream(){
+    for(var s in streams){
+      s.cancel();
+    }
+    streams.clear();
+  }
+
+  /// pause downloading
+  void pause(){
+    runtimeKey++;
+    notifications.endProgress();
+    MyCacheManager.loadingItems.clear();
+  }
+
+  /// stop downloading
+  void stop(){
+    runtimeKey++;
+    var file = Directory("$path$pathSep$id");
+    if(file.existsSync()) {
+      file.delete(recursive: true);
+    }
+  }
+
+  /// all image urls
+  Map<int, List<String>>? links;
+
+  Map<String, dynamic> toBaseMap() {
+    Map<String, List<String>>? convertedData;
+    if(links != null){
+      convertedData = {};
+      links!.forEach((key, value) {
+        convertedData![key.toString()] = value;
+      });
+    }
+
+    return {
+      "id": id,
+      "type": type.index,
+      "path": path,
+      "_downloadedNum": _downloadedNum,
+      "_downloadingEp": _downloadingEp,
+      "index": index,
+      "links": convertedData,
+    };
+  }
 
   Map<String, dynamic> toMap();
+
+  DownloadingItem.fromMap(Map<String, dynamic> map, this.whenFinish,this.whenError,this.updateInfo):
+      id = map["id"],
+      type = DownloadType.values[map["type"]],
+      path = map["path"],
+      _downloadedNum = map["_downloadedNum"],
+      _downloadingEp = map["_downloadingEp"],
+      index = map["index"],
+      links = null{
+    var data = map["links"] as Map<String, dynamic>?;
+    if(data != null){
+      links = {};
+      data.forEach((key, value) {
+        links![int.parse(key)] = List<String>.from(value);
+      });
+    }
+  }
+
+  /// get all image links
+  ///
+  /// key - episode number(starts with 1), value - image links in this episode
+  ///
+  /// if platform don't have episode, this only have one key: 0.
+  Future<Map<int, List<String>>> getLinks();
+
+  /// whether this platform have episode
+  bool get haveEps => type!=DownloadType.ehentai&&type!=DownloadType.hitomi&&type!=DownloadType.htmanga;
+
+  void loadImageToCache(String link);
+
+  Future<Uint8List> getImage(String link);
 
   ///获取封面链接
   String get cover;
 
   ///总共的图片数量
-  int get totalPages;
+  int get totalPages => links?.totalLength ?? 0;
 
   ///已下载的图片数量
-  int get downloadedPages;
+  int get downloadedPages => _downloadedNum;
 
   ///标题
   String get title;
+
+  /// save comic info
+  Future<void> saveInfo();
 
   @override
   bool operator==(Object other){

@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
-import '../../foundation/log.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
@@ -12,29 +10,29 @@ import 'dart:io';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'jm_main_network.dart';
 
-class DownloadedJmComic extends DownloadedItem{
+class DownloadedJmComic extends DownloadedItem {
   JmComicInfo comic;
   double? size;
   List<int> downloadedChapters;
   DownloadedJmComic(this.comic, this.size, this.downloadedChapters);
-  Map<String, dynamic> toMap()=>{
-    "comic": comic.toJson(),
-    "size": size,
-    "downloadedChapters": downloadedChapters
-  };
-  DownloadedJmComic.fromMap(Map<String, dynamic> map):
-        comic = JmComicInfo.fromMap(map["comic"]),
+  Map<String, dynamic> toMap() => {
+        "comic": comic.toJson(),
+        "size": size,
+        "downloadedChapters": downloadedChapters
+      };
+  DownloadedJmComic.fromMap(Map<String, dynamic> map)
+      : comic = JmComicInfo.fromMap(map["comic"]),
         size = map["size"],
-        downloadedChapters = []{
-    if(map["downloadedChapters"] == null){
+        downloadedChapters = [] {
+    if (map["downloadedChapters"] == null) {
       //旧版本中的数据不包含这一项
-      for(int i=0;i<comic.series.length;i++) {
+      for (int i = 0; i < comic.series.length; i++) {
         downloadedChapters.add(i);
       }
-      if(downloadedChapters.isEmpty){
+      if (downloadedChapters.isEmpty) {
         downloadedChapters.add(0);
       }
-    }else{
+    } else {
       downloadedChapters = List<int>.from(map["downloadedChapters"]);
     }
   }
@@ -46,7 +44,9 @@ class DownloadedJmComic extends DownloadedItem{
   List<int> get downloadedEps => downloadedChapters;
 
   @override
-  List<String> get eps => List<String>.generate(comic.series.isEmpty?1:comic.series.length, (index) => "第${index+1}章");
+  List<String> get eps => List<String>.generate(
+      comic.series.isEmpty ? 1 : comic.series.length,
+      (index) => "第${index + 1}章");
 
   @override
   String get name => comic.name;
@@ -55,277 +55,113 @@ class DownloadedJmComic extends DownloadedItem{
   String get id => "jm${comic.id}";
 
   @override
-  String get subTitle => comic.author.elementAtOrNull(0)??"";
+  String get subTitle => comic.author.elementAtOrNull(0) ?? "";
 
   @override
   double? get comicSize => size;
 }
 
 class JmDownloadingItem extends DownloadingItem {
-  JmDownloadingItem(
-      this.comic, this.path, this._downloadEps, super.whenFinish, super.whenError, super.updateInfo, super.id,
+  JmDownloadingItem(this.comic, super.path, this._downloadEps, super.whenFinish,
+      super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.jm});
 
   JmComicInfo comic;
-  final String path;
-  int _downloadedPages = 0;
-  bool _pauseFlag = true;
-  int _totalPages = 0;
-  int _retryTimes = 0;
-  ///当前正在下载的章节
-  int _index = 0;
-  ///当前正在下载的页面
-  int _currentPage = 0;
-  bool _downloadedCover = false;
+
   ///要下载的章节
-  List<int> _downloadEps;
-
-  ///用于判断是否已经启动了另一个下载线程, 避免重复
-  int _runtimeKey = 0;
-
-  void retry() {
-    //允许重试两次
-    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-    if (_retryTimes > 2) {
-      super.whenError?.call();
-      _retryTimes = 0;
-    } else {
-      _retryTimes++;
-      start();
-    }
-  }
-
-  ///图片链接
-  List<List<String>> urls = [];
-
-  ///获取所有的图片链接
-  Future<bool> getInfo() async {
-    if(comic.series.isEmpty){
-      if(urls.isNotEmpty) return true;
-      var res = await jmNetwork.getChapter(comic.id);
-      if (res.error) {
-        return false;
-      } else {
-        urls.add(res.data);
-        _totalPages += res.data.length;
-      }
-      return true;
-    }
-    for (int i = urls.length; i < comic.series.length; i++) {
-      if(!_downloadEps.contains(i)){
-        urls.add([]);
-        continue;
-      }
-      var res = await jmNetwork.getChapter(comic.series.values.elementAt(i));
-      if (res.error) {
-        return false;
-      } else {
-        urls.add(res.data);
-        _totalPages += res.data.length;
-      }
-    }
-    return true;
-  }
+  final List<int> _downloadEps;
 
   @override
   String get cover => getJmCoverUrl(comic.id);
 
   @override
-  int get downloadedPages => _downloadedPages;
-
-  @override
-  void pause() {
-    MyCacheManager.loadingItems.clear();
-    notifications.endProgress();
-    _pauseFlag = true;
-  }
-
-  @override
-  void start() async{
-    _runtimeKey++;
-    int currentKey = _runtimeKey;
-    _pauseFlag = false;
-    notifications.sendProgressNotification(
-        _downloadedPages, _totalPages==0?1:_totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
-    if(! _downloadedCover){
-      try {
-        var dio = Dio();
-        var res = await dio.get(cover,
-            options: Options(responseType: ResponseType.bytes));
-        var file = File("$path$pathSep$id${pathSep}cover.jpg");
-        if (!await file.exists()) await file.create();
-        await file.writeAsBytes(Uint8List.fromList(res.data));
-        _downloadedCover = true;
-      }
-      catch(e, s){
-        LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-        if (_pauseFlag) return;
-        //下载出错重试
-        retry();
-        return;
-      }
-    }
-    if(! await getInfo()){
-      retry();
-      return;
-    }
-    while(_downloadedPages < _totalPages && (_index<comic.series.length || _index==0)){
-      if(_pauseFlag)  return;
-      if(_runtimeKey != currentKey) return;
-      if(!_downloadEps.contains(_index)){
-        _index++;
-        continue;
-      }
-      try{
-        var chapId = comic.id;
-        if(comic.series.isNotEmpty){
-          chapId = comic.series.values.elementAt(_index);
-        }
-        var url = urls[_index][_currentPage];
-        for(int j=0;j<5&&_currentPage+j<urls[_index].length;j++){
-          var url = urls[_index][_currentPage+j];
-          var bookId = "";
-          for(int i = url.length-1;i>=0;i--){
-            if(url[i] == '/'){
-              bookId = url.substring(i+1,url.length-5);
-              break;
-            }
-          }
-          MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId).listen((event) {});
-        }
-        var bytes = <int>[];
-        var file = File("$path$pathSep$id$pathSep${_index+1}$pathSep$_currentPage.jpg");
-        if(! file.existsSync()){
-          file.createSync(recursive: true);
-        }
-        var bookId = "";
-        for(int i = url.length-1;i>=0;i--){
-          if(url[i] == '/'){
-            bookId = url.substring(i+1,url.length-5);
-            break;
-          }
-        }
-        await for(var s in MyCacheManager().getJmImage(url, {}, epsId: chapId, scrambleId: "220980", bookId: bookId)){
-          if(s.finished){
-            bytes = s.getFile().readAsBytesSync();
-            break;
-          }
-        }
-        if(bytes.isEmpty){
-          throw(StateError("下载图片失败"));
-        }
-        await file.writeAsBytes(bytes);
-        await MyCacheManager().delete(url);
-        _currentPage++;
-        if(_currentPage >= urls[_index].length){
-          _currentPage = 0;
-          _index++;
-        }
-        _downloadedPages++;
-        super.updateUi?.call();
-        await super.updateInfo?.call();
-        if (!_pauseFlag) {
-          notifications.sendProgressNotification(_downloadedPages, totalPages, "下载中",
-              "共${downloadManager.downloading.length}项任务");
-        }
-      }
-      catch(e, s){
-        if(_pauseFlag)  return;
-        LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-        //下载出错重试
-        retry();
-        return;
-      }
-    }
-    await MyCacheManager().saveData();
-    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-    saveInfo();
-    super.whenFinish?.call();
-  }
-
-  void saveInfo() async{
+  Future<void> saveInfo() async {
     var file = File("$path/$id/info.json");
     var previous = <int>[];
-    if(DownloadManager().downloadedJmComics.contains(id)){
+    if (DownloadManager().downloadedJmComics.contains(id)) {
       var comic = await DownloadManager().getJmComicFormId(id);
       previous = comic.downloadedEps;
     }
-    if(file.existsSync()){
+    if (file.existsSync()) {
       file.deleteSync();
     }
     file.createSync();
     var downloadEps = (_downloadEps + previous).toSet().toList();
     downloadEps.sort();
-    var downloadedItem = DownloadedJmComic(comic, await getFolderSize(Directory("$path$pathSep$id")),
-      downloadEps
-    );
+    var downloadedItem = DownloadedJmComic(
+        comic, await getFolderSize(Directory("$path$pathSep$id")), downloadEps);
     var json = jsonEncode(downloadedItem.toMap());
     await file.writeAsString(json);
-  }
-
-  @override
-  void stop() {
-    MyCacheManager.loadingItems.clear();
-    _pauseFlag = true;
-    var file = Directory("$path$pathSep$id");
-    if(file.existsSync()) {
-      file.delete(recursive: true);
-    }
   }
 
   @override
   String get title => comic.name;
 
   @override
-  Map<String, dynamic> toMap() => {
-    "type": type.index,
-    "comic": comic.toJson(),
-    "path": path,
-    "_index": _index,
-    "urls": urls,
-    "_downloadedPages": _downloadedPages,
-    "_currentPage": _currentPage,
-    "id": id,
-    "_downloadedCover": _downloadedCover,
-    "_totalPages": _totalPages,
-    "_downloadEps": _downloadEps
-  };
-  
-  static List<List<String>> array2dFromJson(List<dynamic> json){
-    var res = <List<String>>[];
-    for(var list in json){
-      res.add(List<String>.from(list));
+  Future<Uint8List> getImage(String link) async{
+    var bookId = "";
+    for (int i = link.length - 1; i >= 0; i--) {
+      if (link[i] == '/') {
+        bookId = link.substring(i + 1, link.length - 5);
+        break;
+      }
+    }
+    await for(var s in MyCacheManager()
+        .getJmImage(link, {},
+        epsId: comic.series[downloadingEp+1]!,
+        scrambleId: "220980",
+        bookId: bookId)){
+      if(s.finished){
+        return s.getFile().readAsBytesSync();
+      }
+    }
+    throw Exception("Failed to download image");
+  }
+
+  @override
+  Future<Map<int, List<String>>> getLinks() async {
+    if (comic.series.isEmpty) {
+      comic.series[1] = id.replaceFirst("jm", "");
+    }
+    var res = <int, List<String>>{};
+    for (var key in comic.series.keys.toList()) {
+      if (!_downloadEps.contains(key-1)) continue;
+      res[key] = (await JmNetwork().getChapter(comic.series[key]!)).data;
     }
     return res;
   }
 
-  JmDownloadingItem.fromMap(
-    Map<String, dynamic> map,
-    super.whenFinish,
-    super.whenError,
-    super.updateInfo,
-    super.id,
-    {super.type = DownloadType.jm}):
-    comic = JmComicInfo.fromMap(map["comic"]),
-    path = map["path"],
-    _downloadedPages = map["_downloadedPages"],
-    _index = map["_index"],
-    urls = array2dFromJson(map["urls"]),
-    _currentPage = map["_currentPage"],
-    _downloadedCover = map["_downloadedCover"],
-    _totalPages = map["_totalPages"],
-    _downloadEps = []{
-    if(map["_downloadEps"] == null){
-      _downloadEps = List<int>.generate(comic.series.length, (index) => index);
-      if(comic.series.isEmpty){
-        _downloadEps.add(0);
+  @override
+  void loadImageToCache(String link) {
+    var bookId = "";
+    for (int i = link.length - 1; i >= 0; i--) {
+      if (link[i] == '/') {
+        bookId = link.substring(i + 1, link.length - 5);
+        break;
       }
-    }else{
-      _downloadEps = List<int>.from(map["_downloadEps"]);
     }
+    addStreamSubscription(MyCacheManager()
+        .getJmImage(link, {},
+            epsId: comic.series[downloadingEp+1]!,
+            scrambleId: "220980",
+            bookId: bookId)
+        .listen((event) {}));
   }
 
   @override
-  int get totalPages => _totalPages;
-}
+  Map<String, dynamic> toMap() => {
+    "comic": comic.toJson(),
+    "_downloadEps": _downloadEps,
+    ...super.toBaseMap()
+  };
 
+  JmDownloadingItem.fromMap(
+      Map<String, dynamic> map,
+      DownloadProgressCallback whenFinish,
+      DownloadProgressCallback whenError,
+      DownloadProgressCallbackAsync updateInfo,
+      String id):
+        comic = JmComicInfo.fromMap(map["comic"]),
+        _downloadEps = List<int>.from(map["_downloadEps"]),
+        super.fromMap(map, whenFinish, whenError, updateInfo);
+}

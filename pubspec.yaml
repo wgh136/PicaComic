@@ -30,10 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
-  # The following adds the Cupertino Icons font to your application.
-  dio: ^5.2.1
+  dio: 5.2.1
   get: ^4.6.5
   shared_preferences: ^2.0.16
   dynamic_color: ^1.6.5
@@ -45,8 +42,8 @@ dependencies:
   photo_view: ^0.14.0
   url_launcher: ^6.1.8
   path_provider: ^2.0.12
-  file_selector: ^0.9.2
-  image_picker: ^0.8.6
+  file_selector: ^1.0.0
+  image_picker: ^1.0.2
   flutter_cache_manager: any
   image_gallery_saver:
     git:
@@ -54,7 +51,7 @@ dependencies:
       ref: master
   flutter_file_dialog: ^3.0.1
   archive: any
-  flutter_local_notifications: ^14.1.0
+  flutter_local_notifications: ^15.1.0+1
   share_plus: ^7.0.0
   local_auth: ^2.1.6
   html: any
@@ -63,7 +60,7 @@ dependencies:
       url: https://github.com/pichillilorenzo/flutter_inappwebview
       ref: v6.0.0-beta.22
   dio_cookie_manager: any
-  image: ^3.0.2
+  image: ^4.0.17
   shimmer_animation: ^2.1.0
   cookie_jar: any
   flutter_windows_webview:
@@ -149,9 +146,9 @@ flutter:
   fonts:
     # 这是在windows端使用的字体, 由于系统字体(微软雅黑)在Flutter App上显示效果极差, 因此使用此字体
     # 仅在打包windows时取消注释
-    #- family: font
-    #  fonts:
-    #    - asset: fonts/NotoSansSC-Regular.otf
+    - family: font
+      fonts:
+        - asset: fonts/NotoSansSC-Regular.otf
 
     # 这是一个英文字体, 文件很小, 无需担心体积, 用于显示Pica Comic
     - family: font2

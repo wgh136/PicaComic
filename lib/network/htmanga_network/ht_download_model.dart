@@ -1,15 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import '../../base.dart';
 import '../../foundation/cache_manager.dart';
-import '../../foundation/log.dart';
 import '../../tools/io_tools.dart';
-import '../download.dart';
 
 class DownloadedHtComic extends DownloadedItem{
   DownloadedHtComic(this.comic, this.size);
@@ -50,142 +47,27 @@ class DownloadedHtComic extends DownloadedItem{
 }
 
 class DownloadingHtComic extends DownloadingItem{
-  DownloadingHtComic(this.comic, this.path,
+  DownloadingHtComic(this.comic, super.path,
       super.whenFinish, super.whenError, super.updateInfo, super.id,
       {super.type=DownloadType.htmanga});
 
   final HtComicInfo comic;
 
-  ///储存路径
-  final String path;
-
-  ///已下载的页数
-  int _downloadedPages = 0;
-
-  ///是否处于暂停状态
-  bool _pauseFlag = false;
-
-  ///图片链接
-  List<String>? _urls;
-
-  ///是否已经下载了封面
-  bool _downloadedCover = false;
-
-  int _runtimeKey = 0;
-
   @override
   String get cover => comic.coverPath;
 
   @override
-  int get downloadedPages => _downloadedPages;
-
-  Future<void> _getUrls() async{
-    try{
-      if(_urls != null) return;
-      var res = await HtmangaNetwork().getImages(comic.id);
-      if(res.error){
-        throw Exception("Error when fetching image urls");
+  Future<Uint8List> getImage(String link) async{
+    await for(var s in MyCacheManager().getImage(link)){
+      if(s.finished){
+        return s.getFile().readAsBytesSync();
       }
-      _urls = res.data;
     }
-    catch(e){
-      rethrow;
-    }
-  }
-
-  int _retryTimes = 0;
-
-  void _retry() {
-    //允许重试两次
-    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-    if (_retryTimes > 2) {
-      super.whenError?.call();
-      _retryTimes = 0;
-    } else {
-      _retryTimes++;
-      start();
-    }
-  }
-
-  Future<void> _downloadCover() async{
-    try{
-      if (_downloadedCover) return;
-      var dio = Dio();
-      var res =
-      await dio.get(
-        comic.coverPath,
-        options: Options(
-            responseType: ResponseType.bytes,
-        ),
-      );
-      var file = File("$path$pathSep$id${pathSep}cover.jpg");
-      if (!await file.exists()) await file.create();
-      await file.writeAsBytes(Uint8List.fromList(res.data));
-      _downloadedCover = true;
-    }
-    catch(e){
-      rethrow;
-    }
+    throw Exception("Failed to download image");
   }
 
   @override
-  void pause() {
-    notifications.endProgress();
-    _pauseFlag = true;
-  }
-
-  @override
-  void start() async{
-    _runtimeKey++;
-    int currentKey = _runtimeKey;
-    _pauseFlag = false;
-    notifications.sendProgressNotification(
-        _downloadedPages, totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
-    try{
-      if (_pauseFlag) return;
-      await _getUrls();
-      await _downloadCover();
-      while (_downloadedPages < totalPages) {
-        if(_runtimeKey != currentKey) return;
-        if (_pauseFlag) return;
-        for(int i=0;i<5&&_downloadedPages+i < totalPages;i++){
-          MyCacheManager().getImage(_urls![_downloadedPages+i]).listen((event) {});
-        }
-        Uint8List? bytes;
-        await for(var s in MyCacheManager().getImage(_urls![_downloadedPages])){
-          if(s.finished){
-            bytes = s.getFile().readAsBytesSync();
-            break;
-          }
-        }
-        var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
-        if (!await file.exists()) await file.create();
-        await file.writeAsBytes(Uint8List.fromList(bytes!));
-        await MyCacheManager().delete(_urls![_downloadedPages]);
-        _downloadedPages++;
-        super.updateUi?.call();
-        await super.updateInfo?.call();
-        if (!_pauseFlag) {
-          notifications.sendProgressNotification(_downloadedPages, totalPages, "下载中",
-              "共${downloadManager.downloading.length}项任务");
-        } else {
-          notifications.endProgress();
-        }
-      }
-    }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-      _retry();
-      return;
-    }
-    await MyCacheManager().saveData();
-    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-    await _saveInfo();
-    super.whenFinish?.call();
-  }
-
-  ///储存漫画信息
-  Future<void> _saveInfo() async{
+  Future<void> saveInfo() async{
     var file = File("$path/$id/info.json");
     var item = DownloadedHtComic(comic, await getFolderSize(Directory("$path$pathSep$id")));
     var json = jsonEncode(item.toJson());
@@ -193,40 +75,32 @@ class DownloadingHtComic extends DownloadingItem{
   }
 
   @override
-  void stop() {
-    _pauseFlag = true;
-    var file = Directory("$path$pathSep$id");
-    if(file.existsSync()) {
-      file.delete(recursive: true);
-    }
-  }
-
-  @override
   String get title => comic.name;
 
   @override
-  Map<String, dynamic> toMap() => {
-    "type": type.index,
-    "comic": comic.toJson(),
-    "_downloadedPages": _downloadedPages,
-    "_urls": _urls,
-    "path": path
-  };
-
-  DownloadingHtComic.fromMap(
-      Map<String, dynamic> map,
-      super.whenFinish,
-      super.whenError,
-      super.updateInfo,
-      super.id,{super.type=DownloadType.htmanga}):
-      comic = HtComicInfo.fromJson(map["comic"]),
-      path = map["path"]{
-    _downloadedPages = map["_downloadedPages"];
-    _urls = map["_urls"];
+  Future<Map<int, List<String>>> getLinks() async{
+    var res = await HtmangaNetwork().getImages(comic.id);
+    return {0:res.data};
   }
 
   @override
-  int get totalPages => comic.pages;
+  void loadImageToCache(String link) {
+    addStreamSubscription(MyCacheManager().getImage(link).listen((event) {}));
+  }
 
+  @override
+  Map<String, dynamic> toMap() => {
+    "comic": comic.toJson(),
+    ...super.toBaseMap()
+  };
+
+  DownloadingHtComic.fromMap(
+    Map<String, dynamic> map,
+    DownloadProgressCallback whenFinish,
+    DownloadProgressCallback whenError,
+    DownloadProgressCallbackAsync updateInfo,
+    String id):
+    comic = HtComicInfo.fromJson(map["comic"]),
+    super.fromMap(map, whenFinish, whenError, updateInfo);
 }
 

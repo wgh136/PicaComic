@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
@@ -257,7 +258,10 @@ class ComicReadingPage extends StatelessWidget {
             if (data.initialPage != 0) {
               int i = data.initialPage;
               Future.delayed(
-                  const Duration(milliseconds: 300), () => logic.jumpToPage(i));
+                  const Duration(milliseconds: 300), () =>
+                    logic.readingMethod==ReadingMethod.twoPage?
+                      logic.jumpToPage((i + 2) ~/ 2):
+                      logic.jumpToPage(i));
               //重置为0, 避免切换章节时再次跳转
               data.initialPage = 0;
             }
@@ -538,8 +542,9 @@ class ComicReadingPage extends StatelessWidget {
       } else {
         comicReadingPageLogic.downloaded = false;
       }
-    } catch (e) {
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画".tl);
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.index = 1;

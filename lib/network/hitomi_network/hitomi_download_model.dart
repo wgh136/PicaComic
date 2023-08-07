@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
-import '../../foundation/log.dart';
-import '../download.dart';
 import 'hitomi_models.dart';
 import 'dart:io';
 
@@ -52,138 +49,34 @@ class DownloadedHitomiComic extends DownloadedItem {
 }
 
 class HitomiDownloadingItem extends DownloadingItem {
-  HitomiDownloadingItem(this.comic, this.path, this._coverPath, this.link, super.whenFinish,
+  HitomiDownloadingItem(this.comic, super.path, this._coverPath, this.link, super.whenFinish,
       super.whenError, super.updateInfo, super.id,
-      {super.type = DownloadType.hitomi}) {
-    _totalPages = comic.files.length;
-  }
+      {super.type = DownloadType.hitomi});
 
   final String _coverPath;
 
   ///漫画模型
   final HitomiComic comic;
 
-  ///储存路径
-  final String path;
-
   ///画廊链接
   final String link;
 
-  ///已下载的页数
-  int _downloadedPages = 0;
 
-  ///总共的页面数
-  int _totalPages = 0;
-
-  ///是否处于暂停状态
-  bool _pauseFlag = false;
-
-  int _runtimeKey = 0;
-
-  int _retryTimes = 0;
-
-  late final headers = {
+  late final _headers = {
     "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
     "Referer": "https://hitomi.la/reader/${id.substring(6)}.html"
   };
 
-  ///是否已经下载了封面
-  bool _downloadedCover = false;
-
-  void _retry() {
-    //允许重试两次
-    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-    if (_retryTimes > 2) {
-      super.whenError?.call();
-      _retryTimes = 0;
-    } else {
-      _retryTimes++;
-      start();
-    }
-  }
-
-  Future<void> _downloadCover() async {
-    try {
-      if (_downloadedCover) return;
-      var dio = Dio();
-      var res = await dio.get(
-        _coverPath,
-        options: Options(responseType: ResponseType.bytes, headers: headers),
-      );
-      var file = File("$path$pathSep$id${pathSep}cover.jpg");
-      if (!await file.exists()) await file.create();
-      await file.writeAsBytes(Uint8List.fromList(res.data));
-      _downloadedCover = true;
-    } catch (e) {
-      rethrow;
-    }
-  }
+  @override
+  Map<String, String> get headers => _headers;
 
   @override
   String get cover => _coverPath;
 
-  @override
-  int get downloadedPages => _downloadedPages;
-
-  @override
-  void pause() {
-    notifications.endProgress();
-    _pauseFlag = true;
-  }
-
-  @override
-  void start() async {
-    _runtimeKey++;
-    int currentKey = _runtimeKey;
-    _pauseFlag = false;
-    notifications.sendProgressNotification(
-        _downloadedPages, totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
-    try {
-      if (_pauseFlag) return;
-      await _downloadCover();
-      while (_downloadedPages < _totalPages) {
-        if (_runtimeKey != currentKey) return;
-        if (_pauseFlag) return;
-        for(int i=0; i<5&&_downloadedPages+i < _totalPages; i++){
-          MyCacheManager().getHitomiImage(comic.files[_downloadedPages+i], id.substring(6)).listen((event) {});
-        }
-        Uint8List? bytes;
-        await for(var s in MyCacheManager().getHitomiImage(comic.files[_downloadedPages], id.substring(6))){
-          if(s.finished){
-            bytes = s.getFile().readAsBytesSync();
-            break;
-          }
-        }
-        var file = File("$path$pathSep$id$pathSep$downloadedPages.jpg");
-        if (!await file.exists()) await file.create();
-        await file.writeAsBytes(bytes!);
-        await MyCacheManager().delete(comic.files[_downloadedPages].hash);
-        _downloadedPages++;
-        super.updateUi?.call();
-        await super.updateInfo?.call();
-        if (!_pauseFlag) {
-          notifications.sendProgressNotification(
-              _downloadedPages, totalPages, "下载中", "共${downloadManager.downloading.length}项任务");
-        } else {
-          notifications.endProgress();
-        }
-      }
-    } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
-      _retry();
-      return;
-    }
-    await MyCacheManager().saveData();
-    if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-    await _saveInfo();
-    if(currentKey == _runtimeKey) {
-      super.whenFinish?.call();
-    }
-  }
-
   ///储存漫画信息
-  Future<void> _saveInfo() async {
+  @override
+  Future<void> saveInfo() async {
     var file = File("$path/$id/info.json");
     var item = DownloadedHitomiComic(
         comic, await getFolderSize(Directory("$path$pathSep$id")), link, _coverPath);
@@ -192,42 +85,52 @@ class HitomiDownloadingItem extends DownloadingItem {
   }
 
   @override
-  void stop() {
-    _pauseFlag = true;
-    var file = Directory("$path$pathSep$id");
-    if(file.existsSync()) {
-      file.delete(recursive: true);
-    }
-  }
-
-  @override
   String get title => comic.name;
 
   @override
-  Map<String, dynamic> toMap() => {
-        "type": type.index,
-        "comic": comic.toMap(),
-        "path": path,
-        "_downloadedPages": _downloadedPages,
-        "id": id,
-        "_totalPages": _totalPages,
-        "_downloadedCover": _downloadedCover,
-        "_coverPath": _coverPath,
-        "link": link
-      };
-
-  HitomiDownloadingItem.fromMap(
-      Map<String, dynamic> map, super.whenFinish, super.whenError, super.updateInfo, super.id,
-      {super.type = DownloadType.hitomi})
-      : comic = HitomiComic.fromMap(map["comic"]),
-        path = map["path"],
-        _downloadedPages = map["_downloadedPages"],
-        _totalPages = map["_totalPages"],
-        _downloadedCover = map["_downloadedCover"],
-        _coverPath = map["_coverPath"],
-        link = map["link"];
+  Future<Uint8List> getImage(String link) async{
+    await for(var s in MyCacheManager().getHitomiImage(HitomiFile.fromMap(
+        const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))){
+      if(s.finished){
+        return s.getFile().readAsBytesSync();
+      }
+    }
+    throw Exception("Fail to download image");
+  }
 
   @override
-  int get totalPages => _totalPages;
+  Future<Map<int, List<String>>> getLinks() async{
+    return {0: List<String>.generate(comic.files.length,
+            (index) => const JsonEncoder().convert(comic.files[index].toMap()))};
+  }
+
+  @override
+  void loadImageToCache(String link) {
+    addStreamSubscription(MyCacheManager().getHitomiImage(HitomiFile.fromMap(
+        const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))
+        .listen((event) {}));
+  }
+
+  @override
+  String? get imageExtension => ".webp";
+
+  @override
+  Map<String, dynamic> toMap() => {
+    "comic": comic.toMap(),
+    "_coverPath": _coverPath,
+    "link": link,
+    ...super.toBaseMap()
+  };
+
+  HitomiDownloadingItem.fromMap(
+      Map<String, dynamic> map,
+      DownloadProgressCallback whenFinish,
+      DownloadProgressCallback whenError,
+      DownloadProgressCallbackAsync updateInfo,
+      String id
+      ):comic=HitomiComic.fromMap(map["comic"]),
+        _coverPath = map["_coverPath"],
+        link = map["link"],
+        super.fromMap(map, whenFinish, whenError, updateInfo);
 }
 

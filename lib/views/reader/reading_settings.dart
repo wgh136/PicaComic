@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import '../../foundation/ui_mode.dart';
@@ -331,8 +332,11 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 title: Text("图片分流".tl),
                 trailing: Select(
                   initialValue: int.parse(appdata.settings[37]),
-                  values: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl, "分流5".tl],
+                  values: [
+                    "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl,
+                  ],
                   whenChange: (i) {
+                    MyCacheManager.loadingItems.clear();
                     appdata.settings[37] = i.toString();
                     appdata.updateSettings();
                   },
@@ -344,7 +348,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             Center(
               child: FilledButton(
                 child: const Text("重启阅读器"),
-                onPressed: () => logic.refresh_(),
+                onPressed: () {
+                  Get.back();
+                  logic.refresh_();
+                },
               ),
             ),
             const SizedBox(

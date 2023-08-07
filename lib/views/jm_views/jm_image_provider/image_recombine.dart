@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as image;
 import 'package:crypto/crypto.dart';
@@ -38,7 +37,7 @@ int getSegmentationNum(String epsId, String scrambleID, String pictureName) {
 /// chatgpt转换后产生了一个错误, 导致我检查了很久
 ///
 /// 不建议使用gpt完成这种需要注意细节的东西, 它总能给你一些惊喜
-Future<Uint8List> segmentationPicture(_Data data) async{
+Future<Uint8List> segmentationPicture(RecombinationData data) async{
   int num = getSegmentationNum(data.epsId, data.scrambleId, data.bookId);
 
   if (num <= 1) {
@@ -58,34 +57,34 @@ Future<Uint8List> segmentationPicture(_Data data) async{
     blocks.add({'start': start, 'end': end});
   }
 
-  image.Image desImg = image.Image(srcImg.width, srcImg.height);
+  image.Image desImg = image.Image(width: srcImg.width, height: srcImg.height);
 
   int y = 0;
   for (int i = blocks.length-1; i >=0; i--) {
     var block = blocks[i];
     int currBlockHeight = block['end']! - block['start']!;
-    image.Image tempImg = image.copyCrop(srcImg, 0, block['start']!, srcImg.width, block['end']!);
+    image.Image tempImg = image.copyCrop(srcImg, x: 0, y: block['start']!, width: srcImg.width, height: block['end']!);
     await Future.delayed(const Duration(milliseconds: 40));
-    image.copyInto(desImg, tempImg, dstY: y);
+    image.compositeImage(desImg, tempImg, dstY: y);
     y += currBlockHeight;
   }
 
   return Uint8List.fromList(image.encodeJpg(desImg));
 }
 
-class _Data{
+class RecombinationData{
   Uint8List imgData;
   String epsId;
   String scrambleId;
   String bookId;
 
-  _Data(this.imgData, this.epsId, this.scrambleId, this.bookId);
+  RecombinationData(this.imgData, this.epsId, this.scrambleId, this.bookId);
 }
 
 ///启动一个新的线程转换图片
 ///
 /// 直接使用异步会导致卡顿
 Future<Uint8List> startRecombineImage(Uint8List imgData, String epsId, String scrambleId, String bookId) async{
-  var res =  await compute(segmentationPicture,_Data(imgData,epsId,scrambleId,bookId));
+  var res =  await compute(segmentationPicture,RecombinationData(imgData,epsId,scrambleId,bookId));
   return res;
 }

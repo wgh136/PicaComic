@@ -13,6 +13,7 @@ import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
 
+
 class MyCacheManager{
   static MyCacheManager? cache;
 
@@ -459,7 +460,14 @@ class MyCacheManager{
       var bytes = <int>[];
       try {
         var res =
-        await dio.get<ResponseBody>(url, options: Options(responseType: ResponseType.stream));
+        await dio.get<ResponseBody>(url, options: Options(
+            responseType: ResponseType.stream,
+            headers: {
+              "User-Agent": appdata.jmAuth[3],
+              "x-requested-with": "com.jiaohua_browser",
+              "referer": "https://www.jmapibranch2.cc/"
+            }
+        ));
         var stream = res.data!.stream;
         int i = 0;
         await for (var b in stream) {

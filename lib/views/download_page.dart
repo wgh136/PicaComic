@@ -609,7 +609,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
     if (comic.type == DownloadType.picacg) {
       addPicacgHistory((comic as DownloadedComic).comicItem);
       Get.to(() => ComicReadingPage.picacg((comic as DownloadedComic).comicItem.id, i + 1,
-          (comic as DownloadedComic).chapters, (comic as DownloadedComic).comicItem.title));
+          (comic as DownloadedComic).eps, (comic as DownloadedComic).comicItem.title));
     } else if (comic.type == DownloadType.jm) {
       addJmHistory((comic as DownloadedJmComic).comic);
       Get.to(() => ComicReadingPage.jmComic(

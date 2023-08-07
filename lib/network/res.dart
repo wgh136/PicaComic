@@ -18,8 +18,8 @@ class Res<T>{
 
   /// data
   ///
-  /// must be called when no error happened
-  T get data => _data!;
+  /// must be called when no error happened, or it will throw error
+  T get data => _data ?? (throw Exception(errorMessage));
 
   /// get data, or null if there is an error
   T? get dataOrNull => _data;

@@ -1,12 +1,12 @@
 import 'package:pica_comic/base.dart';
 
 const imageUrls = [
-  "https://cdn-msp2.jmapiproxy.cc",
-  "https://cdn-msp2.jmapiproxy1.cc",
-  "https://cdn-msp2.jmapiproxy2.cc",
-  "https://cdn-msp2.jmapiproxy3.cc",
   "https://cdn-msp.jmapiproxy4.cc",
-  "https://cdn-msp.jmapiproxy.cc",
+  "https://cdn-msp.jmapiproxy3.cc",
+  "https://cdn-msp.jmapiproxy2.cc",
+  "https://cdn-msp.jmapiproxy1.cc",
+  "https://cdn-msp2.jmapiproxy4.cc",
+  "https://cdn-msp2.jmapiproxy3.cc",
 ];
 
 String getBaseUrl(){
@@ -18,7 +18,7 @@ String getJmCoverUrl(String id) {
 }
 
 String getJmImageUrl(String imageName, String id) {
-  return "${getBaseUrl()}/media/photos/$id/$imageName?v=${DateTime.now().millisecondsSinceEpoch ~/ 1000}";
+  return "${getBaseUrl()}/media/photos/$id/$imageName";
 }
 
 String getJmAvatarUrl(String imageName) {

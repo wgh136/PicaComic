@@ -185,7 +185,7 @@ class _JmSettingsState extends State<JmSettings> {
               trailing: Select(
                 initialValue: int.parse(appdata.settings[37]),
                 values: [
-                  "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl
+                  "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl
                 ],
                 whenChange: (i){
                   appdata.settings[37] = i.toString();
