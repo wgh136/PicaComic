@@ -54,9 +54,10 @@ abstract class DownloadingItem{
   ///类型
   DownloadType type;
 
-  DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
-
-  int runtimeKey = 0;
+  /// run function start will cause this increasing by 1
+  ///
+  /// this is used for preventing running multiple downloading function at the same time
+  int _runtimeKey = 0;
 
   int _retryTimes = 0;
 
@@ -65,6 +66,29 @@ abstract class DownloadingItem{
 
   /// headers for downloading cover
   Map<String, String> get headers => {};
+
+  int _downloadedNum = 0;
+
+  int _downloadingEp = 0;
+
+  /// index of downloading episode
+  ///
+  /// Attention, this is used for array indexing, so it starts with 0
+  int get downloadingEp => _downloadingEp;
+
+  int index = 0;
+
+  /// store all downloading stream
+  ///
+  /// when user click pause or stop button, stop all streams
+  static List<StreamSubscription> streams = [];
+
+  /// all image urls
+  Map<int, List<String>>? links;
+
+  String? get imageExtension => null;
+
+  DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
     var file = File("$path$pathSep$id${pathSep}cover.jpg");
@@ -81,15 +105,6 @@ abstract class DownloadingItem{
     file.writeAsBytesSync(res.data!);
   }
 
-  int _downloadedNum = 0;
-
-  int _downloadingEp = 0;
-
-  /// index of downloading episode
-  ///
-  /// Attention, this is used for array indexing, so it starts with 0
-  int get downloadingEp => _downloadingEp;
-
   /// retry when error, only allow 3 times.
   void retry(){
     _retryTimes++;
@@ -101,14 +116,10 @@ abstract class DownloadingItem{
     }
   }
 
-  int index = 0;
-
-  String? get imageExtension => null;
-
   /// begin or continue downloading
   void start() async{
-    runtimeKey++;
-    var currentKey = runtimeKey;
+    _runtimeKey++;
+    var currentKey = _runtimeKey;
     try{
       notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
           "共${downloadManager.downloading.length}项任务");
@@ -118,10 +129,10 @@ abstract class DownloadingItem{
       await downloadCover();
 
       // download images
-      while(_downloadingEp < links!.length && currentKey == runtimeKey){
+      while(_downloadingEp < links!.length && currentKey == _runtimeKey){
         int ep = links!.keys.elementAt(_downloadingEp);
         var urls = links![ep]!;
-        while(index < urls.length && currentKey == runtimeKey){
+        while(index < urls.length && currentKey == _runtimeKey){
           notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
               "共${downloadManager.downloading.length}项任务");
           for(int i=0; i<5; i++){
@@ -134,7 +145,7 @@ abstract class DownloadingItem{
           if(bytes.isEmpty){
             throw Exception("Fail to download image");
           }
-          if(currentKey != runtimeKey)  return;
+          if(currentKey != _runtimeKey)  return;
           File file;
           if(haveEps) {
             file = File("$path$pathSep$id$pathSep$ep$pathSep$index$fileExtension");
@@ -152,7 +163,7 @@ abstract class DownloadingItem{
           updateUi?.call();
           await updateInfo?.call();
         }
-        if(currentKey != runtimeKey)  return;
+        if(currentKey != _runtimeKey)  return;
         index = 0;
         _downloadingEp++;
         await updateInfo?.call();
@@ -165,16 +176,11 @@ abstract class DownloadingItem{
       stopAllStream();
     }
     catch(e, s){
-      if(currentKey != runtimeKey)  return;
+      if(currentKey != _runtimeKey)  return;
       retry();
       LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
     }
   }
-
-  /// store all downloading stream
-  ///
-  /// when user click pause or stop button, stop all streams
-  static List<StreamSubscription> streams = [];
 
   /// add a StreamSubscription to streams
   void addStreamSubscription(StreamSubscription stream){
@@ -194,22 +200,33 @@ abstract class DownloadingItem{
 
   /// pause downloading
   void pause(){
-    runtimeKey++;
+    _runtimeKey++;
     notifications.endProgress();
+    stopAllStream();
     MyCacheManager.loadingItems.clear();
   }
 
   /// stop downloading
   void stop(){
-    runtimeKey++;
-    var file = Directory("$path$pathSep$id");
-    if(file.existsSync()) {
-      file.delete(recursive: true);
+    _runtimeKey++;
+    stopAllStream();
+    notifications.endProgress();
+    if(downloadManager.allComics.contains(id)) {
+      if(links == null) return;
+      var comicPath = "$path$pathSep$id$pathSep";
+      for(var ep in links!.keys.toList()){
+        var directory = Directory(comicPath + ep.toString());
+        if(directory.existsSync()){
+          directory.deleteSync(recursive: true);
+        }
+      }
+    } else {
+      var file = Directory("$path$pathSep$id");
+      if (file.existsSync()) {
+        file.delete(recursive: true);
+      }
     }
   }
-
-  /// all image urls
-  Map<int, List<String>>? links;
 
   Map<String, dynamic> toBaseMap() {
     Map<String, List<String>>? convertedData;
