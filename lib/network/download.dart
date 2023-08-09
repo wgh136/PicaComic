@@ -32,6 +32,8 @@ import 'picacg_network/models.dart';
 
  */
 
+typedef DownloadingCallback = void Function();
+
 class DownloadManager{
   static DownloadManager? cache;
 
@@ -57,17 +59,20 @@ class DownloadManager{
   ///已下载的绅士漫画
   List<String> downloadedHtComics = [];
 
+  List<String> get allComics => downloaded + downloadedGalleries
+      + downloadedJmComics + downloadedHitomiComics + downloadedHtComics;
+
   ///下载队列
   var downloading = Queue<DownloadingItem>();
 
   ///是否正在下载
   bool isDownloading = false;
 
-  ///用于监听下载队列的变化, 下载页面需要为此函数变量赋值, 从而实现监听
-  void Function() whenChange = (){};
+  ///用于监听下载队列的变化
+  DownloadingCallback? _whenChange = (){};
 
-  ///出现错误时调用, 下载页面应当修改此函数变量, 实现出现错误刷新页面
-  void Function() handleError = (){};
+  ///出现错误时调用
+  DownloadingCallback? _handleError;
 
   ///是否出现了错误
   bool _error = false;
@@ -77,6 +82,17 @@ class DownloadManager{
 
   ///是否初始化
   bool _runInit = false;
+
+  /// 用于下载页面, 监听下载情况
+  void addListener(DownloadingCallback whenChange, DownloadingCallback whenError){
+    _whenChange = whenChange;
+    _handleError = whenError;
+  }
+
+  void removeListener(){
+    _whenChange = null;
+    _handleError = null;
+  }
 
   ///获取下载目录
   Future<void> _getPath() async{
@@ -318,7 +334,7 @@ class DownloadManager{
       isDownloading = false;
       notifications.endProgress();
     }
-    whenChange();
+    _whenChange?.call();
   }
 
   ///暂停下载
@@ -332,7 +348,7 @@ class DownloadManager{
     pause();
     _error = true;
     notifications.sendNotification("下载出错", "点击查看详情");
-    handleError();
+    _handleError?.call();
   }
 
   ///开始或继续下载
@@ -356,8 +372,10 @@ class DownloadManager{
       downloading.first.stop();
       downloading.removeFirst();
     }else{
-      downloading.remove(index);
+      downloading.removeWhere((element) => element.id==id);
     }
+
+    _whenChange?.call();
 
     if(downloading.isEmpty){
       isDownloading = false;
