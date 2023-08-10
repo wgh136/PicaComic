@@ -32,113 +32,85 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Material(
-        child: Stack(
-          children: [
-            if(isLoading)
-              Positioned(
-                top: MediaQuery.of(context).size.height/2-80,
-                left: 0,
-                right: 0,
-                child: const Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(width: 200,child: LinearProgressIndicator(),),
-                ),
-              ),
-            if(!isLoading)
-              Positioned(
-                top: MediaQuery.of(context).size.height/2-150,
-                left: 0,
-                right: 0,
-                child: const Align(
-                  alignment: Alignment.topCenter,
-                  child: Icon(Icons.error_outline,size:60,),
-                ),
-              ),
-            if(isLoading)
-              Positioned(
-                left: 0,
-                right: 0,
-                top: MediaQuery.of(context).size.height/2-40,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(status),
-                ),
-              ),
-            if(isLoading)
-              Positioned(
-                left: 0,
-                right: 0,
-                top: MediaQuery.of(context).size.height/2-10,
-                child: SizedBox(
-                  width: 80,
-                  height: 40,
-                  child: Center(
-                    child: FilledButton(
-                      child: const Text("跳过"),
-                      onPressed: ()=>Get.offAll(() => const MainPage()),
+      body: Column(
+        children: [
+          Expanded(child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if(isLoading)
+                    const Align(
+                      alignment: Alignment.topCenter,
+                      child: SizedBox(width: 200,child: LinearProgressIndicator(),),
                     ),
-                  ),
-                ),
-              ),
-            if(!isLoading)
-              Positioned(
-                left: 0,
-                right: 0,
-                top: MediaQuery.of(context).size.height/2-80,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(message??"网络错误".tl, textAlign: TextAlign.center,),
-                ),
-              ),
-
-            if(!isLoading)
-              Positioned(
-                top: MediaQuery.of(context).size.height/2-30,
-                left: 0,
-                right: 0,
-                child: Align(
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      width: 180,
-                      height: 50,
-                      child: Row(
-                        children: [
-                          FilledButton.tonal(
-                            onPressed: (){
-                              setState(() {
-                                isLoading = true;
-                                login();
-                              });
-                            },
-                            child: Text("重试".tl),
-                          ),
-                          const Spacer(),
-                          FilledButton.tonal(
-                            onPressed: () => goToMainPage(),
-                            child: Text("跳过".tl),
-                          )
-                        ],
+                  if(!isLoading)
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Icon(Icons.error_outline,size:60,),
+                    ),
+                  const SizedBox(height: 8,),
+                  if(isLoading)
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Text(status),
+                    ),
+                  if(isLoading)
+                    SizedBox(
+                      width: 80,
+                      height: 40,
+                      child: Center(
+                        child: TextButton(
+                          child: Text("跳过".tl),
+                          onPressed: ()=>Get.offAll(() => const MainPage()),
+                        ),
                       ),
-                    )
-                ),
-              ),
-            if(!isLoading&&!GetPlatform.isWeb)
-              Positioned(
-                bottom: 20,
-                left: MediaQuery.of(context).size.width/2-200,
-                child: SizedBox(
-                  width: 400,
-                  child: ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: Text("转到设置".tl),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: ()=>Get.to(()=>const SettingsPage()),
-                  ),
-                ),
+                    ),
+                  if(!isLoading)
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Text(message??"网络错误".tl, textAlign: TextAlign.center,),
+                    ),
+                  if(!isLoading)
+                    Align(
+                        alignment: Alignment.topCenter,
+                        child: SizedBox(
+                          width: 180,
+                          height: 50,
+                          child: Row(
+                            children: [
+                              FilledButton.tonal(
+                                onPressed: (){
+                                  setState(() {
+                                    isLoading = true;
+                                    login();
+                                  });
+                                },
+                                child: Text("重试".tl),
+                              ),
+                              const Spacer(),
+                              FilledButton.tonal(
+                                onPressed: () => goToMainPage(),
+                                child: Text("跳过".tl),
+                              )
+                            ],
+                          ),
+                        )
+                    ),
+                ],
               )
-          ],
-        ),
+          )),
+          if(!isLoading)
+            SizedBox(
+              width: 400,
+              child: ListTile(
+                leading: const Icon(Icons.settings),
+                title: Text("设置".tl),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: ()=>Get.to(()=>const SettingsPage()),
+              ),
+            ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom,)
+        ],
       )
     );
   }
@@ -153,7 +125,6 @@ class _LoginAccountsPageState extends State<LoginAccountsPage> {
 
   ///获取哔咔账号信息, 登录禁漫账号
   Future<void> login() async{
-    //如果同时进行两个网络请求, jm的登录存在问题, 导致无法获取收藏, 并不清楚为什么
     message = null;
     if(!HtSettings.htUrls.contains(appdata.settings[31])){
       appdata.settings[31] = HtSettings.htUrls[0];

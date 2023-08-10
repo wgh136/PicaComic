@@ -117,8 +117,8 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   FilledButton get downloadButton => FilledButton(
         onPressed: () => downloadComic(data!, context),
         child: downloadManager.downloadedJmComics.contains("jm$id")
-            ? const Text("已下载")
-            : const Text("下载"),
+            ? Text("修改".tl)
+            : Text("下载".tl),
       );
 
   @override
@@ -386,6 +386,7 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addJmDownload(comic, selectedEps);
+            Get.back();
             showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
@@ -394,6 +395,7 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
         Get.context!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addJmDownload(comic, selectedEps);
+          Get.back();
           showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);

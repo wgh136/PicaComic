@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -149,6 +150,89 @@ class _SettingsPageState extends State<SettingsPage> {
                 elevation: 0,
                 child: Column(
                   children: [
+                    ListTile(
+                      title: Text("外观".tl),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.color_lens,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("主题选择".tl),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[27]),
+                        values: const ["动态", "Blue", "Light Blue", "Indigo", "Purple", "Pink", "Cyan", "Teal", "Yellow", "Brown"],
+                        whenChange: (i){
+                          appdata.settings[27] = i.toString();
+                          appdata.updateSettings();
+                          Get.forceAppUpdate();
+                        },
+                        inPopUpWidget: widget.popUp,
+                        width: 140,
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.dark_mode,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("深色模式".tl),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[32]),
+                        values: ["跟随系统".tl, "禁用".tl, "启用".tl],
+                        whenChange: (i){
+                          appdata.settings[32] = i.toString();
+                          appdata.updateSettings();
+                          Get.forceAppUpdate();
+                        },
+                        inPopUpWidget: widget.popUp,
+                        width: 140,
+                      ),
+                    ),
+                    if(GetPlatform.isAndroid)
+                      ListTile(
+                        leading: Icon(Icons.smart_screen_outlined,
+                            color: Theme.of(context).colorScheme.secondary),
+                        title: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("高刷新率模式".tl),
+                            const SizedBox(width: 2,),
+                            InkWell(
+                              borderRadius: const BorderRadius.all(Radius.circular(18)),
+                              onTap: () => showDialogMessage(
+                                  context,
+                                  "高刷新率模式".tl,
+                                  "启用后, APP将尝试设置高刷新率\n"
+                                  "如果OS没有限制APP的刷新率, 无需启用此项\n"
+                                  "OS可能不会响应更改"
+                              ),
+                              child: const Icon(Icons.info_outline, size: 18,),
+                            )
+                          ],
+                        ),
+                        subtitle: Text("实验性选项".tl),
+                        trailing: Switch(
+                          value: appdata.settings[38] == "1",
+                          onChanged: (b){
+                            appdata.settings[38] = b? "1" : "0";
+                            appdata.updateSettings();
+                            if(b){
+                              try {
+                                FlutterDisplayMode.setHighRefreshRate();
+                              }
+                              catch(e){
+                                // ignore
+                              }
+                            }
+                          },
+                        ),
+                      )
+                  ],
+                ),
+              ),
+
+              const Divider(),
+              Card(
+                elevation: 0,
+                child: Column(
+                  children: [
                     const ListTile(
                       title: Text("App"),
                     ),
@@ -218,38 +302,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: Text("阅读器缓存限制".tl),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => setCacheLimit(context),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.color_lens,
-                          color: Theme.of(context).colorScheme.secondary),
-                      title: Text("主题选择".tl),
-                      trailing: Select(
-                        initialValue: int.parse(appdata.settings[27]),
-                        values: const ["动态", "Blue", "Light Blue", "Indigo", "Purple", "Pink", "Cyan", "Teal", "Yellow", "Brown"],
-                        whenChange: (i){
-                          appdata.settings[27] = i.toString();
-                          appdata.updateSettings();
-                          Get.forceAppUpdate();
-                        },
-                        inPopUpWidget: widget.popUp,
-                        width: 140,
-                      ),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.dark_mode,
-                          color: Theme.of(context).colorScheme.secondary),
-                      title: Text("深色模式".tl),
-                      trailing: Select(
-                        initialValue: int.parse(appdata.settings[32]),
-                        values: ["跟随系统".tl, "禁用".tl, "启用".tl],
-                        whenChange: (i){
-                          appdata.settings[32] = i.toString();
-                          appdata.updateSettings();
-                          Get.forceAppUpdate();
-                        },
-                        inPopUpWidget: widget.popUp,
-                        width: 140,
-                      ),
                     ),
                     ListTile(
                       leading: Icon(Icons.bug_report, color: Theme.of(context).colorScheme.secondary),

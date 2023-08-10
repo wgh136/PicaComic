@@ -39,7 +39,10 @@ dependencies:
   crypto: any
   pointycastle: ^3.7.3
   uuid: ^3.0.7
-  photo_view: ^0.14.0
+  photo_view:
+    git:
+      url: https://github.com/wgh136/photo_view
+      ref: main
   url_launcher: ^6.1.8
   path_provider: ^2.0.12
   file_selector: ^1.0.0
@@ -71,6 +74,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  flutter_displaymode: 0.6.0
 
 dev_dependencies:
   flutter_test:

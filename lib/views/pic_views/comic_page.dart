@@ -237,6 +237,7 @@ void downloadComic(
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addPicDownload(comic, selectedEps);
+            Get.back();
             showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
@@ -245,6 +246,7 @@ void downloadComic(
         Get.context!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addPicDownload(comic, selectedEps);
+          Get.back();
           showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);

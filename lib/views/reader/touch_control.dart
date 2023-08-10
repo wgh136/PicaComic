@@ -142,6 +142,20 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {
       onTapDown: (details){
         tapOffset = details.globalPosition;
       },
+      onSecondaryTapDown: (event){
+        if (logic.showSettings) {
+          logic.showSettings = false;
+          logic.update();
+          return;
+        }
+        logic.tools = !logic.tools;
+        logic.update();
+        if (logic.tools) {
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        } else {
+          SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        }
+      },
       onTapUp: (detail) {
         if(tapOffset != null){
           var distance = detail.globalPosition.dy - tapOffset!.dy;

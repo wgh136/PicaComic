@@ -270,6 +270,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  flutter_displaymode:
+    dependency: "direct main"
+    description:
+      name: flutter_displaymode
+      sha256: "42c5e9abd13d28ed74f701b60529d7f8416947e58256e6659c5550db719c57ef"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   flutter_file_dialog:
     dependency: "direct main"
     description:
@@ -643,10 +651,11 @@ packages:
   photo_view:
     dependency: "direct main"
     description:
-      name: photo_view
-      sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: main
+      resolved-ref: "974662c3033f937e282a9ee36b125b7c4b8beaeb"
+      url: "https://github.com/wgh136/photo_view"
+    source: git
     version: "0.14.0"
   platform:
     dependency: transitive

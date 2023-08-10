@@ -1,8 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/tools/translations.dart';
 
 ///显示消息
-void showMessage(context, String message, {int time=2, bool useGet=true, Widget? action}){
+void showMessage(BuildContext? context, String message, {int time=2, bool useGet=true, Widget? action}){
   Get.closeCurrentSnackbar();
   if(useGet) {
     Get.showSnackbar(GetSnackBar(
@@ -16,9 +17,9 @@ void showMessage(context, String message, {int time=2, bool useGet=true, Widget?
       mainButton: action,
     ));
   }else{
-    var padding = MediaQuery.of(context).size.width - 350;
+    var padding = MediaQuery.of(Get.context!).size.width - 350;
     padding = padding>0?padding:0;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
       content: Text(message),
       behavior: SnackBarBehavior.floating,
       margin: EdgeInsets.fromLTRB(padding/2, 0, padding/2, 0),
@@ -26,6 +27,16 @@ void showMessage(context, String message, {int time=2, bool useGet=true, Widget?
   }
 }
 
-void hideMessage(context){
+void hideMessage(BuildContext context){
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
+}
+
+void showDialogMessage(BuildContext context, String title, String message){
+  showDialog(context: context, builder: (context) => AlertDialog(
+    title: Text(title),
+    content: Text(message),
+    actions: [
+      TextButton(onPressed: () => Get.back(), child: Text("了解".tl))
+    ],
+  ));
 }

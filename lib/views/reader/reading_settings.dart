@@ -23,7 +23,7 @@ void showSettings(BuildContext context){
   }else{
     showSideBar(context, const SingleChildScrollView(
       child: ReadingSettings(),
-    ), useSurfaceTintColor: true);
+    ), useSurfaceTintColor: true, width: 450);
   }
 }
 

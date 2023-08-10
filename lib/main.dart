@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
@@ -61,7 +62,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
+    if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
+      try {
+        FlutterDisplayMode.setHighRefreshRate();
+      }
+      catch(e){
+        // ignore
+      }
+    }
     setNetworkProxy(); //当App从后台进入前台, 代理设置可能发生变更
     if (state == AppLifecycleState.resumed) {
       if (appdata.settings[13] == "1" && appdata.flag) {
@@ -78,6 +86,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
+      try {
+        FlutterDisplayMode.setHighRefreshRate();
+      }
+      catch(e){
+        // ignore
+      }
+    }
     listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

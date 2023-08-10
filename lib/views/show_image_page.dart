@@ -64,16 +64,16 @@ class _ShowImagePageState extends State<ShowImagePage> {
                     padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
                     child: Row(
                       children: [
-                        Padding(padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),child: Tooltip(
+                        Padding(padding: const EdgeInsets.fromLTRB(16, 0, 10, 0),child: Tooltip(
                           message: "返回".tl,
                           child: IconButton(
                             iconSize: 25,
-                            icon: const Icon(Icons.arrow_back_outlined,color: Colors.white70),
+                            icon: const Icon(Icons.arrow_back_outlined,color: Colors.white),
                             onPressed: ()=>Get.back(),
                           ),
                         ),),
                         Container(
-                          width: MediaQuery.of(context).size.width-150,
+                          width: MediaQuery.of(context).size.width-166,
                           height: 50,
                           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
                           child: Padding(
@@ -84,7 +84,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                         Tooltip(
                           message: "保存图片".tl,
                           child: IconButton(
-                            icon: const Icon(Icons.download,color: Colors.white70,),
+                            icon: const Icon(Icons.download,color: Colors.white,),
                             onPressed: () async{
                               saveImage(getImageUrl(url),"");
                             },
@@ -93,12 +93,13 @@ class _ShowImagePageState extends State<ShowImagePage> {
                         Tooltip(
                           message: "分享".tl,
                           child: IconButton(
-                            icon: const Icon(Icons.share,color: Colors.white70),
+                            icon: const Icon(Icons.share,color: Colors.white),
                             onPressed: () async{
                               shareImageFromCache(url,"");
                             },
                           ),
                         ),
+                        const SizedBox(width: 16,),
                       ],
                     ),
                   ),
