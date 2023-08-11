@@ -20,7 +20,7 @@ class MyCacheManager{
   ///用于标记正在加载的项目, 避免出现多个异步函数加载同一张图片
   static Map<String, DownloadProgress> loadingItems = {};
 
-  /// Image cache manager for reader
+  /// Image cache manager for reader and download manager
   factory MyCacheManager() {
     createFolder();
     return cache??(cache = MyCacheManager._create());
@@ -495,9 +495,8 @@ class MyCacheManager{
         file.create();
       }
       if(url.substring(l, r) != ".gif") {
-        var newBytes = await startRecombineImage(
-            Uint8List.fromList(bytes), epsId, scrambleId, bookId);
-        await startWriteFile(WriteInfo(savePath, newBytes));
+        await startRecombineAndWriteImage(
+            Uint8List.fromList(bytes), epsId, scrambleId, bookId, savePath);
       }else{
         await startWriteFile(WriteInfo(savePath, bytes));
       }
