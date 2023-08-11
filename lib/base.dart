@@ -121,7 +121,7 @@ class Appdata{
   String htName = "";
   String htPwd = "";
 
-  var jmAuth = <String>[
+  final jmAuth = <String>[
     "1",
     "1.5.8",
     "18comicAPP",
@@ -253,9 +253,6 @@ class Appdata{
       picacgPassword = s.getString("picacgPassword")??"";
       htName = s.getString("htName")??"";
       htPwd = s.getString("htPwd")??"";
-      if(s.getStringList("jmAuth") != null) {
-        jmAuth = s.getStringList("jmAuth")!;
-      }
       return firstUse[3]=="1"||token!="";
     }
     catch(e){
