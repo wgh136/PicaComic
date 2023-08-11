@@ -7,9 +7,7 @@
 
 使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi, 绅士漫画
 
-目前支持Android, Windows; 
-
-由于缺乏测试条件, IOS未经过测试, 欢迎提出issue
+目前支持Android, Windows, IOS, linux(实验性); 
 
 本App目标为中文漫画, 因此App界面语言仅支持中文, 漫画源仅限于有中文漫画的漫画源
 
