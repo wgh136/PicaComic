@@ -364,8 +364,8 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
         if (GetPlatform.isWindows)
           SizedBox(
             width: 400,
-            height: 260,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -394,9 +394,10 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                     children: [
                       const Icon(Icons.info_outline, size: 18,),
                       const SizedBox(width: 4,),
-                      SizedBox(
-                        width: 378,
-                        child: Text("如需还原之前的下载, 将路径填写为下载目录的位置, 并取消勾选转移数据".tl, maxLines: 2,),
+                      Expanded(
+                        child: SizedBox(
+                          child: Text("如需还原之前的下载, 将路径填写为下载数据的位置, 并取消勾选转移数据".tl),
+                        ),
                       )
                     ],
                   ),
@@ -469,9 +470,10 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                     children: [
                       const Icon(Icons.info_outline, size: 18,),
                       const SizedBox(width: 2,),
-                      SizedBox(
-                        width: 380,
-                        child: Text("如需还原之前的下载, 将路径填写为下载数据的位置, 并取消勾选转移数据".tl, maxLines: 2,),
+                      Expanded(
+                        child: SizedBox(
+                          child: Text("如需还原之前的下载, 将路径填写为下载数据的位置, 并取消勾选转移数据".tl),
+                        ),
                       )
                     ],
                   ),
