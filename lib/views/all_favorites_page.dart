@@ -5,6 +5,7 @@ import 'package:pica_comic/views/ht_views/ht_favorites_page.dart';
 import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
 import 'package:pica_comic/views/local_favorites_page.dart';
 import 'package:pica_comic/views/pic_views/favorites_page.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import '../base.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -29,20 +30,11 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   }
 
   @override
-  void dispose() {
-    Get.find<JmFavoritePageLogic>().dispose();
-    Get.find<HtFavoritePageLogic>().dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("收藏夹".tl),
-      ),
       body: Column(
         children: [
+          CustomAppbar(title: Text("收藏夹".tl)),
           TabBar(
             splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
             isScrollable: MediaQuery.of(context).size.width < pages * 90,

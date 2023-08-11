@@ -4,6 +4,7 @@ import 'package:pica_comic/views/jm_views/jm_category_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
+import '../main_page.dart';
 
 
 class JmCategoriesPageLogic extends GetxController{
@@ -58,7 +59,7 @@ class JmCategoriesPage extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                 (context, index)=>InkWell(
                     borderRadius: BorderRadius.circular(16),
-                    onTap: ()=>Get.to(()=>JmCategoryPage(logic.categories![index])),
+                    onTap: ()=>MainPage.to(()=>JmCategoryPage(logic.categories![index])),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Row(
@@ -91,7 +92,7 @@ class JmCategoriesPage extends StatelessWidget {
                 childCount: logic.categories!.length,
               ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 600,
+                maxCrossAxisExtent: 500,
                 childAspectRatio: 3,
               )
             )

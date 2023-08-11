@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
+import '../main_page.dart';
 import '../widgets/comic_tile.dart';
 import 'comic_page.dart';
 
@@ -64,7 +64,7 @@ class PicComicTile extends ComicTile {
     if(onTap != null){
       onTap!();
     }else{
-      Get.to(()=>PicacgComicPage(comic), preventDuplicates: false);
+      MainPage.to(()=>PicacgComicPage(comic));
     }
   }
 
@@ -85,7 +85,7 @@ class CategoryTile extends StatelessWidget {
     return InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: (){
-          Get.to(()=>CategoryComicPage(categoryItem.title,categoryType: 1,));
+          MainPage.to(()=>CategoryComicPage(categoryItem.title,categoryType: 1,));
         },
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),

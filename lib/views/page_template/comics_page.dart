@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -10,6 +11,7 @@ import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -40,6 +42,8 @@ class ComicsPageLogic<T> extends GetxController {
   bool loadingData = false;
 
   void get(Future<Res<List<T>>> Function(int) getComics) async {
+    if(loadingData) return;
+    loadingData = true;
     if (comics == null) {
       var res = await getComics(1);
       if (res.error) {
@@ -67,6 +71,8 @@ class ComicsPageLogic<T> extends GetxController {
       loading = false;
       update();
     }
+    loadingData = false;
+
   }
 
   void loadNextPage(Future<Res<List<T>>> Function(int) getComics) async {
@@ -183,7 +189,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 slivers: [
                   if (showTitle)
                     if (largeTitle)
-                      SliverAppBar.large(
+                      CustomSliverAppbar(
                         title: Text(title),
                         centerTitle: centerTitle,
                         actions: tailing != null ? [tailing!] : null,
@@ -244,7 +250,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 slivers: [
                   if (showTitle)
                     if (largeTitle)
-                      SliverAppBar.large(
+                      CustomSliverAppbar(
                         title: Text(title),
                         centerTitle: centerTitle,
                         actions: tailing != null ? [tailing!] : null,
@@ -418,9 +424,10 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 showBack: showBackWhenError);
           }
         });
-    if (head != null) {
+    if(head != null && UiMode.m1(context)) {
       body = SafeArea(child: body);
     }
+
     if (withScaffold) {
       return Scaffold(
         floatingActionButton: withRefreshFloatingButton

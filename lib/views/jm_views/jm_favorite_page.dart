@@ -5,6 +5,7 @@ import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
+import '../main_page.dart';
 import '../widgets/my_icons.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -42,7 +43,6 @@ class JmFavoritePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<JmFavoritePageLogic>(
-      init: JmFavoritePageLogic(),
       builder: (logic) {
         if (logic.loading) {
           logic.get();
@@ -62,14 +62,14 @@ class JmFavoritePage extends StatelessWidget {
                         name: "全部",
                         id: "0",
                         onTap: () =>
-                            Get.to(() => const JmFavoriteFolder(folderId: "0", name: "全部")));
+                            MainPage.to(() => const JmFavoriteFolder(folderId: "0", name: "全部")));
                   } else {
                     i--;
                   }
                   return JmFolderTile(
                       name: logic.folders.values.elementAt(i),
                       id: logic.folders.keys.elementAt(i),
-                      onTap: () => Get.to(() => JmFavoriteFolder(
+                      onTap: () => MainPage.to(() => JmFavoriteFolder(
                           folderId: logic.folders.keys.elementAt(i),
                           name: logic.folders.values.elementAt(i))));
                 }),

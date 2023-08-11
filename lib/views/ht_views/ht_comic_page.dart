@@ -119,7 +119,7 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(data!.thumbnails,
       (page) => HtmangaNetwork().getThumbnails(data!.id, page),
-      (data!.pages / data!.thumbnails.length).ceil());
+      (data!.pages / 12).ceil());
 
   @override
   String? get title => comic.name.removeAllBlank;

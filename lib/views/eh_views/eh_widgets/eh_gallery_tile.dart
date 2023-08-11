@@ -9,6 +9,8 @@ import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+import '../../main_page.dart';
+
 class EhGalleryTile extends ComicTile{
   final EhGalleryBrief gallery;
   final void Function()? onTap;
@@ -88,7 +90,7 @@ class EhGalleryTile extends ComicTile{
 
   @override
   void onTap_() {
-    Get.to(() => EhGalleryPage(gallery), preventDuplicates: false);
+    MainPage.to(() => EhGalleryPage(gallery));
   }
 
   @override

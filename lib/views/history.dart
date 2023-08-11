@@ -11,10 +11,13 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import '../base.dart';
 import '../network/jm_network/jm_image.dart';
 import 'package:pica_comic/tools/translations.dart';
+
+import 'main_page.dart';
 
 
 class HistoryPage extends StatefulWidget {
@@ -49,7 +52,7 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
         body: CustomScrollView(
           slivers: [
-            SliverAppBar.large(
+            CustomSliverAppbar(
               centerTitle: true,
               title: Text("${"历史记录".tl}(${comics.length})"),
               actions: [
@@ -112,9 +115,9 @@ class _HistoryPageState extends State<HistoryPage> {
                       subTitle_: comic.author,
                       onTap: (){
                         if(comics[i].type == HistoryType.picacg){
-                          Get.to(()=>PicacgComicPage(comic));
+                          MainPage.to(()=>PicacgComicPage(comic));
                         }else if(comics[i].type == HistoryType.ehentai){
-                          Get.to(()=>EhGalleryPage(EhGalleryBrief(
+                          MainPage.to(()=>EhGalleryPage(EhGalleryBrief(
                             comics[i].title,
                             "",
                             "",
@@ -125,9 +128,9 @@ class _HistoryPageState extends State<HistoryPage> {
                             []
                           )));
                         }else if(comics[i].type == HistoryType.jmComic){
-                          Get.to(()=>JmComicPage(comics[i].target));
+                          MainPage.to(()=>JmComicPage(comics[i].target));
                         }else if(comics[i].type == HistoryType.hitomi){
-                          Get.to(()=>HitomiComicPage(HitomiComicBrief(
+                          MainPage.to(()=>HitomiComicPage(HitomiComicBrief(
                             comics[i].title,
                             "",
                             "",
@@ -138,7 +141,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             comics[i].cover
                           )));
                         }else{
-                          Get.to(() => HtComicPage(HtComicBrief(
+                          MainPage.to(() => HtComicPage(HtComicBrief(
                             comics[i].title,
                             "",
                             comics[i].cover,

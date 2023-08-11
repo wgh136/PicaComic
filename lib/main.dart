@@ -137,6 +137,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return GetMaterialApp(
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
+        popGesture: true,
         theme: ThemeData(
           colorScheme: (colorScheme ??
               lightColor ??

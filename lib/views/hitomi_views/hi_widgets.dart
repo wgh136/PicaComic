@@ -8,6 +8,7 @@ import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+import '../main_page.dart';
 import '../widgets/comic_tile.dart';
 
 class HiComicTile extends ComicTile {
@@ -67,7 +68,7 @@ class HiComicTile extends ComicTile {
 
   @override
   void onTap_() {
-    Get.to(() => HitomiComicPage(comic), preventDuplicates: false);
+    MainPage.to(() => HitomiComicPage(comic));
   }
 
   @override

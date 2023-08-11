@@ -7,6 +7,8 @@ import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+import '../main_page.dart';
+
 class HtComicTile extends ComicTile {
   const HtComicTile({required this.comic, super.key});
 
@@ -32,7 +34,7 @@ class HtComicTile extends ComicTile {
       );
 
   @override
-  void onTap_() => Get.to(() => HtComicPage(comic), preventDuplicates: false);
+  void onTap_() => MainPage.to(() => HtComicPage(comic));
 
   @override
   String get subTitle => "${comic.pages} Pages";

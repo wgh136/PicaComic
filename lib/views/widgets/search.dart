@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/main_page.dart';
 
 import '../../base.dart';
 
@@ -47,9 +48,7 @@ class FloatingSearchBar extends StatelessWidget {
                 message: "返回".tl,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: (){
-                    Get.back();
-                  },
+                  onPressed: () => MainPage.back(),
                 ),
               ),
               Expanded(

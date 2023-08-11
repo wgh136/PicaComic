@@ -16,6 +16,7 @@ import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/base.dart';
+import '../main_page.dart';
 import '../widgets/select_download_eps.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -140,7 +141,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
 
   @override
   void tapOnTags(String tag) =>
-      Get.to(() => CategoryComicPage(tag), preventDuplicates: false);
+      MainPage.to(() => CategoryComicPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;

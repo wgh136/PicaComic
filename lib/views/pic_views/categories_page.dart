@@ -8,6 +8,8 @@ import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../main_page.dart';
+
 
 class CategoriesPageLogic extends GetxController{
   var categories = <CategoryItem>[];
@@ -57,7 +59,7 @@ class CategoriesPage extends StatelessWidget {
                         return InkWell(
                             borderRadius: BorderRadius.circular(16),
                             onTap: (){
-                              Get.to(()=>const CollectionsPage());
+                              MainPage.to(()=>const CollectionsPage());
                             },
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -134,7 +136,7 @@ class CategoriesPage extends StatelessWidget {
                       }else if(i==2){
                         return InkWell(
                             borderRadius: BorderRadius.circular(18),
-                            onTap: () => Get.to(()=>const PicacgLatestPage()),
+                            onTap: () => MainPage.to(()=>const PicacgLatestPage()),
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
@@ -170,7 +172,7 @@ class CategoriesPage extends StatelessWidget {
                     }
                 ),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 600,
+                  maxCrossAxisExtent: 500,
                   childAspectRatio: 3,
                 ),
               ),

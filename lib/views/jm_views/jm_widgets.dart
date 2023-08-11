@@ -9,6 +9,8 @@ import '../../network/jm_network/jm_image.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
 
+import '../main_page.dart';
+
 class JmComicTile extends ComicTile {
   final JmComicBrief comic;
   const JmComicTile(this.comic, {super.key});
@@ -45,7 +47,7 @@ class JmComicTile extends ComicTile {
 
   @override
   void onTap_() {
-    Get.to(() => JmComicPage(comic.id), preventDuplicates: false);
+    MainPage.to(() => JmComicPage(comic.id));
   }
 
   @override

@@ -364,7 +364,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
         if (GetPlatform.isWindows)
           SizedBox(
             width: 400,
-            height: 220,
+            height: 260,
             child: Column(
               children: [
                 Padding(
@@ -385,6 +385,20 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                       transform = b!;
                     }),
                     title: Text("转移数据".tl),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.info_outline, size: 18,),
+                      const SizedBox(width: 4,),
+                      SizedBox(
+                        width: 378,
+                        child: Text("如需还原之前的下载, 将路径填写为下载目录的位置, 并取消勾选转移数据".tl, maxLines: 2,),
+                      )
+                    ],
                   ),
                 ),
                 Center(
@@ -448,6 +462,20 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                       onChanged: (value) => setState(() {
                             current = value!;
                           })),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.info_outline, size: 18,),
+                      const SizedBox(width: 2,),
+                      SizedBox(
+                        width: 380,
+                        child: Text("如需还原之前的下载, 将路径填写为下载数据的位置, 并取消勾选转移数据".tl, maxLines: 2,),
+                      )
+                    ],
+                  ),
+                ),
                 SizedBox(
                   height: 60,
                   child: Center(

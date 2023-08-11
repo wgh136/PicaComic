@@ -12,12 +12,14 @@ import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/models/local_favorites.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
 
 import '../base.dart';
 import '../network/hitomi_network/hitomi_models.dart';
+import 'main_page.dart';
 
 class LocalFavoritesPage extends StatefulWidget {
   const LocalFavoritesPage({super.key});
@@ -100,7 +102,7 @@ class FolderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: InkWell(
-        onTap: () => Get.to(() => LocalFavoritesFolder(name)),
+        onTap: () => MainPage.to(() => LocalFavoritesFolder(name)),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
@@ -263,17 +265,17 @@ class LocalFavoriteTile extends ComicTile {
   void onTap_() {
     switch (comic.type) {
       case ComicType.picacg:
-        Get.to(() => PicacgComicPage(ComicItemBrief(
+        MainPage.to(() => PicacgComicPage(ComicItemBrief(
             comic.name, comic.author, 0, comic.coverPath, comic.target, [],
             ignoreExamination: true)));
       case ComicType.ehentai:
-        Get.to(() => EhGalleryPage(EhGalleryBrief(comic.name, "", "",
+        MainPage.to(() => EhGalleryPage(EhGalleryBrief(comic.name, "", "",
             comic.author, comic.coverPath, 0, comic.target, comic.tags,
             ignoreExamination: true)));
       case ComicType.jm:
-        Get.to(() => JmComicPage(comic.target));
+        MainPage.to(() => JmComicPage(comic.target));
       case ComicType.hitomi:
-        Get.to(() => HitomiComicPage(HitomiComicBrief(
+        MainPage.to(() => HitomiComicPage(HitomiComicBrief(
               comic.name,
               "",
               "",
@@ -285,7 +287,7 @@ class LocalFavoriteTile extends ComicTile {
               comic.coverPath,
             )));
       case ComicType.ht:
-        Get.to(() => HtComicPage(HtComicBrief(comic.name, "", comic.coverPath,
+        MainPage.to(() => HtComicPage(HtComicBrief(comic.name, "", comic.coverPath,
             comic.target, int.parse(comic.author.replaceFirst("Pages", "")),
             ignoreExamination: true)));
     }
@@ -413,7 +415,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar.large(
+          CustomSliverAppbar(
             title: Text(widget.name),
             centerTitle: true,
           ),

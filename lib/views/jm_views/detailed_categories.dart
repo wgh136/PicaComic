@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_week_recommendation_page.dart';
 import 'package:pica_comic/tools/translations.dart';
+
+import '../main_page.dart';
 
 class JmDetailedCategoriesPage extends StatelessWidget {
   const JmDetailedCategoriesPage({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class JmDetailedCategoriesPage extends StatelessWidget {
               width: 200,
               height: 50,
               child: InkWell(
-                onTap: () => Get.to(() => JmWeekRecommendationPage()),
+                onTap: () => MainPage.to(() => JmWeekRecommendationPage()),
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 child: Card(
                   margin: EdgeInsets.zero,
@@ -116,7 +117,7 @@ class JmDetailedCategoriesPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
-        onTap: () => Get.to(() => JmSearchPage(tag)),
+        onTap: () => MainPage.to(() => JmSearchPage(tag)),
         child: Card(
           margin: EdgeInsets.zero,
           child: Padding(

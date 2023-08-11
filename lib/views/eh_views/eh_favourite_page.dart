@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import '../../network/eh_network/eh_main_network.dart';
+import '../main_page.dart';
 import '../widgets/my_icons.dart';
 
 
@@ -19,11 +19,11 @@ class EhFavoritePage extends StatelessWidget{
               childCount: 11,
                   (context, i){
                 if(i == 0) {
-                  return EhFolderTile(name: "全部", onTap: ()=>Get.to(()=>EhFavoritePageFolder(name: "全部", folderId: -1)));
+                  return EhFolderTile(name: "全部", onTap: ()=>MainPage.to(()=>EhFavoritePageFolder(name: "全部", folderId: -1)));
                 }else{
                   i--;
                 }
-                return EhFolderTile(name: EhNetwork().folderNames[i], onTap: ()=>Get.to(() => EhFavoritePageFolder(name: EhNetwork().folderNames[i], folderId: i)),);
+                return EhFolderTile(name: EhNetwork().folderNames[i], onTap: ()=>MainPage.to(() => EhFavoritePageFolder(name: EhNetwork().folderNames[i], folderId: i)),);
 
               }
           ),

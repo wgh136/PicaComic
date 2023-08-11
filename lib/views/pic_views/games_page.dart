@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
-import 'package:pica_comic/views/widgets/game_widgets.dart';
+import 'package:pica_comic/views/pic_views/game_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';

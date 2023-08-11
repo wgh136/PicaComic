@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_list.dart';
+import '../main_page.dart';
 
 class HtCategoriesPage extends StatelessWidget {
   const HtCategoriesPage({super.key});
@@ -97,7 +97,7 @@ class HtCategoriesPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
-        onTap: () => Get.to(() => HtComicList(name: tag, url: url)),
+        onTap: () => MainPage.to(() => HtComicList(name: tag, url: url)),
         child: Card(
           margin: EdgeInsets.zero,
           child: Padding(

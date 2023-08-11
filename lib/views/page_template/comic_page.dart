@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
@@ -57,6 +58,8 @@ class ComicPageLogic<T extends Object> extends GetxController {
   bool showAppbarTitle = false;
   ScrollController controller = ScrollController();
   ThumbnailsData? thumbnailsData;
+  double? width;
+  double? height;
 
   void get(Future<Res<T>> Function() loadData) async {
     var res = await loadData();
@@ -148,62 +151,105 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// translation tags to CN
   bool get enableTranslationToCN => false;
 
+  void scrollListener(){
+    var logic = _logic;
+    bool temp = logic.showAppbarTitle;
+    if (!logic.controller.hasClients) {
+      return;
+    }
+    logic.showAppbarTitle = logic.controller.position.pixels >
+        boundingTextSize(title!, const TextStyle(fontSize: 22),
+            maxWidth: logic.width!)
+            .height +
+            50;
+    if (temp != logic.showAppbarTitle) {
+      logic.update();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: GetBuilder<ComicPageLogic<T>>(
-        tag: tag,
-        initState: (logic) {
-          Get.put(ComicPageLogic<T>(), tag: tag);
-        },
-        dispose: (logic) {
-          Get.delete<ComicPageLogic<T>>(tag: tag);
-        },
-        builder: (logic) {
-          if (logic.loading) {
-            logic.get(loadData);
-            return showLoading(context);
-          } else if (logic.message != null) {
-            return showNetworkError(logic.message, logic.refresh_, context);
-          } else {
-            _logic.thumbnailsData ??= thumbnailsCreator;
-            logic.controller = ScrollController();
-            logic.controller.addListener(() {
-              bool temp = logic.showAppbarTitle;
-              if (!logic.controller.hasClients) {
-                return;
+    return LayoutBuilder(builder: (context, constraints){
+      return Scaffold(
+        body: GetBuilder<ComicPageLogic<T>>(
+          tag: tag,
+          initState: (logic) {
+            Get.put(ComicPageLogic<T>(), tag: tag);
+          },
+          dispose: (logic) {
+            Get.delete<ComicPageLogic<T>>(tag: tag);
+          },
+          builder: (logic) {
+            _logic.width = constraints.maxWidth;
+            _logic.height = constraints.maxHeight;
+            if (logic.loading) {
+              logic.get(loadData);
+              return showLoading(context);
+            } else if (logic.message != null) {
+              return showNetworkError(logic.message, logic.refresh_, context);
+            } else {
+              _logic.thumbnailsData ??= thumbnailsCreator;
+              logic.controller.removeListener(scrollListener);
+              if(UiMode.m1(context)) {
+                logic.controller.addListener(scrollListener);
               }
-              logic.showAppbarTitle = logic.controller.position.pixels >
-                  boundingTextSize(title!, const TextStyle(fontSize: 22),
-                              maxWidth: width)
-                          .height +
-                      50;
-              if (temp != logic.showAppbarTitle) {
-                logic.update();
-              }
-            });
-            return CustomScrollView(
-              controller: logic.controller,
-              slivers: [
-                ...buildTitle(logic),
-                buildComicInfo(logic, context),
-                ...buildEpisodeInfo(context),
-                ...buildIntroduction(context),
-                ...buildThumbnails(context),
-                ...buildRecommendation(context),
-                SliverPadding(
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).padding.bottom))
-              ],
-            );
-          }
-        },
-      ),
-    );
+              return CustomScrollView(
+                controller: logic.controller,
+                slivers: [
+                  ...buildTitle(logic),
+                  buildComicInfo(logic, context),
+                  ...buildEpisodeInfo(context),
+                  ...buildIntroduction(context),
+                  ...buildThumbnails(context),
+                  ...buildRecommendation(context),
+                  SliverPadding(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).padding.bottom))
+                ],
+              );
+            }
+          },
+        ),
+      );
+    });
   }
 
   List<Widget> buildTitle(ComicPageLogic<T> logic) {
+    var actions = [
+      Tooltip(
+        message: "分享".tl,
+        child: IconButton(
+          icon: const Icon(
+            Icons.share,
+          ),
+          onPressed: () {
+            Share.share(title!);
+          },
+        ),
+      ),
+      Tooltip(
+        message: "复制".tl,
+        child: IconButton(
+          icon: const Icon(
+            Icons.copy,
+          ),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: title!));
+          },
+        ),
+      ),
+    ];
+
+    if(!UiMode.m1(context)){
+      return [CustomSliverAppbar(
+          title: CustomSelectableText(
+            text: "$title${pages == null ? "" : "(${pages}P)"}",
+            style: const TextStyle(fontSize: 28),
+            withAddToBlockKeywordButton: true,
+          ), actions: actions, centerTitle: false
+      )];
+    }
+
     return [
       SliverAppBar(
         surfaceTintColor: logic.showAppbarTitle ? null : Colors.transparent,
@@ -214,30 +260,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Text("$title${pages == null ? "" : "(${pages}P)"}"),
         ),
         pinned: true,
-        actions: [
-          Tooltip(
-            message: "分享".tl,
-            child: IconButton(
-              icon: const Icon(
-                Icons.share,
-              ),
-              onPressed: () {
-                Share.share(title!);
-              },
-            ),
-          ),
-          Tooltip(
-            message: "复制".tl,
-            child: IconButton(
-              icon: const Icon(
-                Icons.copy,
-              ),
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: title!));
-              },
-            ),
-          ),
-        ],
+        actions: actions,
       ),
       SliverToBoxAdapter(
         child: Padding(
@@ -259,13 +282,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     if (UiMode.m1(context)) {
       return SliverToBoxAdapter(
         child: SizedBox(
-          width: MediaQuery.of(context).size.width / 2,
+          width: _logic.width! / 2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               //封面
               buildCover(
-                  context, logic, 350, MediaQuery.of(context).size.width),
+                  context, logic, 350, _logic.width!),
 
               const SizedBox(
                 height: 20,
@@ -279,13 +302,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     } else {
       return SliverToBoxAdapter(
         child: SizedBox(
-          width: MediaQuery.of(context).size.width,
+          width: _logic.width!,
           child: Row(
             children: [
               buildCover(
-                  context, logic, 550, MediaQuery.of(context).size.width / 2),
+                  context, logic, 550, _logic.width! / 2),
               SizedBox(
-                width: MediaQuery.of(context).size.width / 2,
+                width: _logic.width! / 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: buildInfoCards(logic, context),
@@ -334,7 +357,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     return GestureDetector(
       onLongPressStart: (details) {
         showMenu(
-            context: context,
+            context: Get.context!,
             position: RelativeRect.fromLTRB(
                 details.globalPosition.dx,
                 details.globalPosition.dy,
@@ -370,7 +393,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           onTap: title ? null : () => tapOnTags(text),
           onSecondaryTapDown: (details) {
             showMenu(
-                context: context,
+                context: Get.context!,
                 position: RelativeRect.fromLTRB(
                     details.globalPosition.dx,
                     details.globalPosition.dy,

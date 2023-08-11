@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
@@ -8,6 +7,8 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
 import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:get/get.dart';
+import 'main_page.dart';
 
 class MePage extends StatelessWidget {
   const MePage({super.key});
@@ -42,26 +43,26 @@ class MePage extends StatelessWidget {
                       title: "账号管理".tl,
                       subTitle: "查看或修改账号信息".tl,
                       icon: Icons.switch_account,
-                      onTap: () => showAdaptiveWidget(context,
-                          AccountsPage(popUp: MediaQuery.of(context).size.width>600,)),
+                      onTap: () => showAdaptiveWidget(Get.context!,
+                          AccountsPage(popUp: MediaQuery.of(Get.context!).size.width>600,)),
                     ),
                     MePageButton(
                       title: "收藏夹".tl,
                       subTitle: "查看已收藏的漫画".tl,
                       icon: Icons.bookmarks,
-                      onTap: () => Get.to(() => const AllFavoritesPage()),
+                      onTap: () => MainPage.to(() => const AllFavoritesPage()),
                     ),
                     MePageButton(
                       title: "已下载".tl,
                       subTitle: "管理已下载的漫画".tl,
                       icon: Icons.download_for_offline,
-                      onTap: () => Get.to(() => const DownloadPage()),
+                      onTap: () => MainPage.to(() => const DownloadPage()),
                     ),
                     MePageButton(
                       title: "历史记录".tl,
                       subTitle: "查看历史记录".tl,
                       icon: Icons.history,
-                      onTap: () => Get.to(() => const HistoryPage()),
+                      onTap: () => MainPage.to(() => const HistoryPage()),
                     ),
                   ],
                 )

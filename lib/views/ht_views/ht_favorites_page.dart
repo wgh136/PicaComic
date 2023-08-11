@@ -6,6 +6,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
+import '../main_page.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -64,7 +65,7 @@ class HtFavoritePage extends StatelessWidget {
                     return HtFolderTile(
                         name: "全部",
                         id: "0",
-                        onTap: () => Get.to(() =>
+                        onTap: () => MainPage.to(() =>
                             const HtFavoriteFolder(folderId: "0", name: "全部")));
                   } else {
                     i--;
@@ -72,7 +73,7 @@ class HtFavoritePage extends StatelessWidget {
                   return HtFolderTile(
                       name: logic.folders.values.elementAt(i),
                       id: logic.folders.keys.elementAt(i),
-                      onTap: () => Get.to(() => HtFavoriteFolder(
+                      onTap: () => MainPage.to(() => HtFavoriteFolder(
                           folderId: logic.folders.keys.elementAt(i),
                           name: logic.folders.values.elementAt(i))));
                 }),
