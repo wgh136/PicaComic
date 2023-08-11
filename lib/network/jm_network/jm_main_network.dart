@@ -921,18 +921,6 @@ class JmNetwork {
       return Res(res.data["msg"]);
     }
   }
-
-  void updateAuth() async{
-    try{
-      var dio = logDio();
-      var res = await dio.get("https://api.kokoiro.xyz/jmAuth");
-      appdata.jmAuth = List<String>.from(const JsonDecoder().convert(res.data));
-      appdata.writeData();
-    }
-    catch(e){
-      //忽略
-    }
-  }
 }
 
 ///禁漫漫画排序模式
