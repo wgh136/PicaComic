@@ -375,7 +375,7 @@ class DownloadPage extends StatelessWidget {
           },
           onSecondaryTap: (details) {
             showMenu(
-                context: context,
+                context: Get.context!,
                 position: RelativeRect.fromLTRB(
                     details.globalPosition.dx,
                     details.globalPosition.dy,
@@ -516,7 +516,7 @@ class DownloadPage extends StatelessWidget {
             return DownloadedComicInfoView(logic.comics[index], logic);
           });
     } else {
-      showSideBar(context, DownloadedComicInfoView(logic.comics[index], logic),
+      showSideBar(Get.context!, DownloadedComicInfoView(logic.comics[index], logic),
           useSurfaceTintColor: true);
     }
   }
