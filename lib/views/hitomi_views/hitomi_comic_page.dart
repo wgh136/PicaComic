@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
+import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
@@ -98,7 +98,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   void tapOnTags(String tag) =>
-      Get.to(() => HitomiSearchPage(tag), preventDuplicates: false);
+      MainPage.to(() => HitomiSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;

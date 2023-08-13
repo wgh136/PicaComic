@@ -10,6 +10,7 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_comments_page.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
+import 'package:pica_comic/views/main_page.dart';
 import '../../network/eh_network/get_gallery_id.dart';
 import '../models/local_favorites.dart';
 import '../page_template/comic_page.dart';
@@ -132,7 +133,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   void tapOnTags(String tag) =>
-      Get.to(() => EhSearchPage(tag), preventDuplicates: false);
+      MainPage.to(() => EhSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(

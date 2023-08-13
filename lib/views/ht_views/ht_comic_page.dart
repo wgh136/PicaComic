@@ -8,6 +8,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
+import '../main_page.dart';
 import '../models/local_favorites.dart';
 import '../page_template/comic_page.dart';
 import '../widgets/avatar.dart';
@@ -114,7 +115,7 @@ class HtComicPage extends ComicPage<HtComicInfo>{
 
   @override
   void tapOnTags(String tag) =>
-      Get.to(() => HtSearchPage(tag), preventDuplicates: false);
+      MainPage.to(() => HtSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(data!.thumbnails,

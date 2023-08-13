@@ -14,6 +14,7 @@ import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
+import '../main_page.dart';
 import '../models/local_favorites.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/side_bar.dart';
@@ -171,7 +172,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   void tapOnTags(String tag) =>
-      Get.to(() => JmSearchPage(tag), preventDuplicates: false);
+      MainPage.to(() => JmSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;
