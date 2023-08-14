@@ -112,7 +112,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           title: Text("选择阅读模式".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[9]) - 1,
-            values: ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl, "双页".tl],
+            values: ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl, "双页".tl, "双页(反向)"],
             whenChange: (i) {
               appdata.settings[9] = (i + 1).toString();
               appdata.updateSettings();

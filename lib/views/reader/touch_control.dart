@@ -180,6 +180,7 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {
                   : flag2 = true;
               break;
             case "2":
+            case "6":
               detail.globalPosition.dx >
                   MediaQuery.of(context).size.width * 0.75
                   ? logic.jumpToLastPage()

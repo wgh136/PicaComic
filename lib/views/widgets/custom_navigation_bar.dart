@@ -68,6 +68,8 @@ class CustomNavigationBar extends StatefulWidget {
 }
 
 class _CustomNavigationBarState extends State<CustomNavigationBar> {
+  late List<bool> hover = List<bool>.generate(widget.destinations.length, (index) => false);
+
   @override
   Widget build(BuildContext context) {
     final NavigationBarThemeData navigationBarTheme = _NavigationBarDefaultsM3(context);
@@ -85,12 +87,15 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
             children: List<Widget>.generate(widget.destinations.length, (index) => Expanded(
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
+                onEnter: (details) => setState(() => hover[index] = true),
+                onExit: (details) => setState(() => hover[index] = false),
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () => widget.onDestinationSelected(index),
                   child: NavigationItem(
                     data: widget.destinations[index],
                     selected: index == widget.selectedIndex,
+                    hover: hover[index],
                   ),
                 ),
               )
@@ -113,7 +118,7 @@ class NavigationItemData{
 }
 
 class NavigationItem extends StatelessWidget {
-  NavigationItem({required NavigationItemData data, required this.selected, super.key}):
+  NavigationItem({required NavigationItemData data, required this.selected, required this.hover, super.key}):
       icon = data.icon,
       selectedIcon = data.selectedIcon,
       label = data.label;
@@ -125,6 +130,8 @@ class NavigationItem extends StatelessWidget {
   final String label;
 
   final bool selected;
+
+  final bool hover;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +150,7 @@ class NavigationItem extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(32)),
-                    color: selected ? colorScheme.secondaryContainer : null
+                    color: selected ? colorScheme.secondaryContainer : (hover ? colorScheme.surfaceVariant : null)
                 ),
                 child: Center(
                     child: Icon(

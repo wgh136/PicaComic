@@ -215,6 +215,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
     body = PhotoViewGallery.builder(
       key: Key(logic.readingMethod.index.toString()),
       itemCount: (logic.urls.length / 2).ceil() + 2,
+      reverse: logic.readingMethod == ReadingMethod.twoPageReversed,
       builder: (BuildContext context, int index) {
         if(index == 0 || index == (logic.urls.length / 2).ceil() + 1){
           return PhotoViewGalleryPageOptions.customChild(
@@ -227,20 +228,35 @@ Widget buildComicView(ComicReadingPageLogic logic,
         return PhotoViewGalleryPageOptions.customChild(
           controller: _controllers[index],
           child: Row(
-            children: [
-              Expanded(
-                child: ComicImage(
-                  image: createImageProvider(type, logic, index*2-2, target),
-                  fit: BoxFit.contain,
-                  alignment: Alignment.centerRight,
-                ),
+            children: logic.readingMethod == ReadingMethod.twoPage ?
+            [
+            Expanded(
+              child: ComicImage(
+                image: createImageProvider(type, logic, index*2-2, target),
+                fit: BoxFit.contain,
+                alignment: Alignment.centerRight,
               ),
+            ),
+            Expanded(
+              child: index*2-1 < logic.urls.length ? ComicImage(
+                image: createImageProvider(type, logic, index*2-1, target),
+                fit: BoxFit.contain,
+                alignment: Alignment.centerLeft,
+              ):const SizedBox(),
+            ),] : [
               Expanded(
                 child: index*2-1 < logic.urls.length ? ComicImage(
                   image: createImageProvider(type, logic, index*2-1, target),
                   fit: BoxFit.contain,
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.centerRight,
                 ):const SizedBox(),
+              ),
+              Expanded(
+                child: ComicImage(
+                  image: createImageProvider(type, logic, index*2-2, target),
+                  fit: BoxFit.contain,
+                  alignment: Alignment.centerLeft,
+                ),
               ),
             ],
           )

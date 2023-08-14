@@ -5,6 +5,7 @@ import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_settings.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
+import 'package:pica_comic/views/widgets/custom_slider.dart';
 import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -408,7 +409,15 @@ List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildCont
               top: MediaQuery.of(context).size.height / 2 - 25,
               child: IconButton(
                 icon: const Icon(Icons.keyboard_arrow_left),
-                onPressed: () => comicReadingPageLogic.jumpToLastPage(),
+                onPressed: () {
+                  switch(comicReadingPageLogic.readingMethod){
+                    case ReadingMethod.rightToLeft:
+                    case ReadingMethod.twoPageReversed:
+                      comicReadingPageLogic.jumpToNextPage();
+                    default:
+                      comicReadingPageLogic.jumpToLastPage();
+                  }
+                },
                 iconSize: 50,
               ),
             ),
@@ -418,7 +427,15 @@ List<Widget> buildButtons(ComicReadingPageLogic comicReadingPageLogic, BuildCont
               top: MediaQuery.of(context).size.height / 2 - 25,
               child: IconButton(
                 icon: const Icon(Icons.keyboard_arrow_right),
-                onPressed: () => comicReadingPageLogic.jumpToNextPage(),
+                onPressed: () {
+                  switch(comicReadingPageLogic.readingMethod){
+                    case ReadingMethod.rightToLeft:
+                    case ReadingMethod.twoPageReversed:
+                      comicReadingPageLogic.jumpToLastPage();
+                    default:
+                      comicReadingPageLogic.jumpToNextPage();
+                  }
+                },
                 iconSize: 50,
               ),
             ),
@@ -439,14 +456,15 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
   if (comicReadingPageLogic.tools &&
       comicReadingPageLogic.index != 0 &&
       comicReadingPageLogic.index != comicReadingPageLogic.urls.length + 1) {
-    if (appdata.settings[9] != "2" && appdata.settings[9] != "4") {
-      return Slider(
+    if (appdata.settings[9] != "4") {
+      return CustomSlider(
         value: comicReadingPageLogic.index.toDouble(),
         min: 1,
+        reversed: appdata.settings[9] == "2" || appdata.settings[9] == "6",
         max: comicReadingPageLogic.urls.length.toDouble(),
         divisions: comicReadingPageLogic.urls.length - 1,
         onChanged: (i) {
-          if(comicReadingPageLogic.readingMethod != ReadingMethod.twoPage) {
+          if(comicReadingPageLogic.readingMethod != ReadingMethod.twoPage && comicReadingPageLogic.readingMethod != ReadingMethod.twoPageReversed) {
             comicReadingPageLogic.index = i.toInt();
             comicReadingPageLogic.jumpToPage(i.toInt());
             comicReadingPageLogic.update();
@@ -458,45 +476,27 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
         },
       );
     } else {
-      if (appdata.settings[9] == "4") {
-        return ValueListenableBuilder(
-          valueListenable: comicReadingPageLogic.scrollListener.itemPositions,
-          builder: (context, value, child) {
-            try {
-              comicReadingPageLogic.index = value.first.index + 1;
-            } catch (e) {
-              comicReadingPageLogic.index = 0;
-            }
-            return Slider(
-              value: comicReadingPageLogic.index.toDouble(),
-              min: 1,
-              max: comicReadingPageLogic.urls.length.toDouble(),
-              divisions: comicReadingPageLogic.urls.length - 1,
-              onChanged: (i) {
-                comicReadingPageLogic.index = i.toInt();
-                comicReadingPageLogic.jumpToPage(i.toInt());
-                comicReadingPageLogic.update();
-              },
-            );
-          },
-        );
-      } else {
-        return Slider(
-          value: comicReadingPageLogic.urls.length.toDouble() -
-              comicReadingPageLogic.index.toDouble() +
-              1,
-          min: 1,
-          max: comicReadingPageLogic.urls.length.toDouble(),
-          divisions: comicReadingPageLogic.urls.length - 1,
-          activeColor: Theme.of(Get.context!).colorScheme.surfaceVariant,
-          inactiveColor: Theme.of(Get.context!).colorScheme.primary,
-          thumbColor: Theme.of(Get.context!).colorScheme.secondary,
-          onChanged: (i) {
-            comicReadingPageLogic.controller
-                .jumpToPage(comicReadingPageLogic.urls.length - (i.round() - 1));
-          },
-        );
-      }
+      return ValueListenableBuilder(
+        valueListenable: comicReadingPageLogic.scrollListener.itemPositions,
+        builder: (context, value, child) {
+          try {
+            comicReadingPageLogic.index = value.first.index + 1;
+          } catch (e) {
+            comicReadingPageLogic.index = 0;
+          }
+          return CustomSlider(
+            value: comicReadingPageLogic.index.toDouble(),
+            min: 1,
+            max: comicReadingPageLogic.urls.length.toDouble(),
+            divisions: comicReadingPageLogic.urls.length - 1,
+            onChanged: (i) {
+              comicReadingPageLogic.index = i.toInt();
+              comicReadingPageLogic.jumpToPage(i.toInt());
+              comicReadingPageLogic.update();
+            },
+          );
+        },
+      );
     }
   } else {
     return const SizedBox(

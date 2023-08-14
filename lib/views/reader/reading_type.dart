@@ -13,5 +13,6 @@ enum ReadingMethod {
   rightToLeft,
   topToBottom,
   topToBottomContinuously,
-  twoPage;
+  twoPage,
+  twoPageReversed;
 }

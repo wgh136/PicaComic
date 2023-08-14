@@ -579,7 +579,7 @@ class JmNetwork {
 
   Future<Res<bool>> login(String account, String pwd) async {
     var res = await post("$baseUrl/login",
-        "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}&$baseData");
+        "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -598,7 +598,7 @@ class JmNetwork {
       return const Res(true);
     }
     var res = await post("$baseUrl/login",
-        "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}&$baseData");
+        "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }

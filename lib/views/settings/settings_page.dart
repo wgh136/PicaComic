@@ -207,15 +207,23 @@ class _SettingsPageState extends State<SettingsPage> {
                             )
                           ],
                         ),
-                        subtitle: Text("实验性选项".tl),
                         trailing: Switch(
                           value: appdata.settings[38] == "1",
                           onChanged: (b){
-                            appdata.settings[38] = b? "1" : "0";
+                            setState(() {
+                              appdata.settings[38] = b? "1" : "0";
+                            });
                             appdata.updateSettings();
                             if(b){
                               try {
                                 FlutterDisplayMode.setHighRefreshRate();
+                              }
+                              catch(e){
+                                // ignore
+                              }
+                            }else{
+                              try {
+                                FlutterDisplayMode.setLowRefreshRate();
                               }
                               catch(e){
                                 // ignore

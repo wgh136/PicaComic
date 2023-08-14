@@ -280,6 +280,19 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               setValue(5);
             },
           ),
+          ListTile(
+            trailing: Radio<int>(
+              value: 6,
+              groupValue: value,
+              onChanged: (i) {
+                setValue(i!);
+              },
+            ),
+            title: Text("双页(反向)".tl),
+            onTap: () {
+              setValue(6);
+            },
+          ),
         ],
       ),
       SizedBox(

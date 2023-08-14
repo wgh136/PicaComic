@@ -14,6 +14,7 @@ import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
+import '../main_page.dart';
 import '../models/local_favorites.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/side_bar.dart';
@@ -171,7 +172,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   void tapOnTags(String tag) =>
-      Get.to(() => JmSearchPage(tag), preventDuplicates: false);
+      MainPage.to(() => JmSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;
@@ -181,180 +182,6 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   Card? get uploaderInfo => null;
-}
-
-class FavoriteComicDialog extends StatefulWidget {
-  const FavoriteComicDialog(this.id, this.comic, {Key? key}) : super(key: key);
-  final String id;
-  final JmComicInfo comic;
-
-  @override
-  State<FavoriteComicDialog> createState() => _FavoriteComicDialogState();
-}
-
-class _FavoriteComicDialogState extends State<FavoriteComicDialog> {
-  bool loading = true;
-  Map<String, String> folders = {};
-  String? message;
-  String folderName = "全部收藏".tl;
-  String folderId = "0";
-  bool loading2 = false;
-  bool addedFavorite = false;
-
-  @override
-  Widget build(BuildContext context) {
-    if (loading) {
-      get();
-    }
-    return SimpleDialog(
-      title: Text("收藏漫画".tl),
-      children: [
-        if (loading)
-          const SizedBox(
-            key: Key("0"),
-            width: 300,
-            height: 150,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          )
-        else if (message != null)
-          SizedBox(
-            key: const Key("1"),
-            width: 300,
-            height: 150,
-            child: Center(
-              child: Text(message!),
-            ),
-          )
-        else
-          SizedBox(
-            key: const Key("2"),
-            width: 300,
-            height: 150,
-            child: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  padding: const EdgeInsets.all(5),
-                  width: 300,
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(16))),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("  选择收藏夹:  ".tl),
-                      Text(folderName),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_drop_down_sharp),
-                        onPressed: () {
-                          if (loading) {
-                            showMessage(context, "加载中".tl);
-                            return;
-                          }
-                          showMenu(
-                              context: context,
-                              position: RelativeRect.fromLTRB(
-                                  MediaQuery.of(context).size.width / 2 + 150,
-                                  MediaQuery.of(context).size.height / 2,
-                                  MediaQuery.of(context).size.width / 2 - 150,
-                                  MediaQuery.of(context).size.height / 2),
-                              items: [
-                                PopupMenuItem(
-                                  child: Text("全部收藏".tl),
-                                  onTap: () {
-                                    setState(() {
-                                      folderName = "全部收藏".tl;
-                                    });
-                                    folderId = "0";
-                                  },
-                                ),
-                                for (var folder in folders.entries)
-                                  PopupMenuItem(
-                                    child: Text(folder.value),
-                                    onTap: () {
-                                      setState(() {
-                                        folderName = folder.value;
-                                      });
-                                      folderId = folder.key;
-                                    },
-                                  )
-                              ]);
-                        },
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                if (!loading2)
-                  FilledButton(
-                      onPressed: () async {
-                        setState(() {
-                          loading2 = true;
-                        });
-                        if (!addedFavorite) {
-                          var res = await jmNetwork.favorite(widget.id);
-                          if (res.error) {
-                            showMessage(Get.context, res.errorMessage!);
-                            setState(() {
-                              loading2 = false;
-                            });
-                            return;
-                          }
-                        }
-                        addedFavorite = true;
-                        if (folderId != "0") {
-                          var res2 =
-                              await jmNetwork.moveToFolder(widget.id, folderId);
-                          if (res2.error) {
-                            showMessage(Get.context, res2.errorMessage!);
-                            setState(() {
-                              loading2 = false;
-                            });
-                            return;
-                          }
-                        }
-                        Get.back();
-                        widget.comic.favorite = true;
-                        Get.find<ComicPageLogic<JmComicInfo>>(
-                                tag: "Jm ComicPage ${widget.id}")
-                            .update();
-                        showMessage(Get.context, "添加成功".tl);
-                      },
-                      child: Text("提交".tl))
-                else
-                  const Center(
-                    child: CircularProgressIndicator(),
-                  )
-              ],
-            ),
-          )
-      ],
-    );
-  }
-
-  void get() async {
-    var r = await jmNetwork.getFolders();
-    if (r.error) {
-      message = r.errorMessage;
-    } else {
-      folders = r.data;
-    }
-    try {
-      setState(() {
-        loading = false;
-      });
-    } catch (e) {
-      //可能退出了弹窗后网络请求返回
-    }
-  }
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context) async {
