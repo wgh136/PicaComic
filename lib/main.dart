@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -84,6 +85,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     jmNetwork.loginFromAppdata();
   }
 
+
+
   @override
   void initState() {
     if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
@@ -96,10 +99,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarContrastEnforced: false));
     WidgetsBinding.instance.addObserver(this);
     downloadManager.init(); //初始化下载管理器
     notifications.init(); //初始化通知管理器
@@ -110,7 +109,47 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangePlatformBrightness() {
+    final Brightness brightness = View.of(context).platformDispatcher.platformBrightness;
+    if (brightness == Brightness.light) {
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarContrastEnforced: false));
+    } else {
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.light,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarIconBrightness: Brightness.light,
+          systemNavigationBarContrastEnforced: false));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final Brightness brightness = View.of(context).platformDispatcher.platformBrightness;
+    if (brightness == Brightness.light) {
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarContrastEnforced: false));
+    } else {
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.light,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarIconBrightness: Brightness.light,
+          systemNavigationBarContrastEnforced: false));
+    }
     return DynamicColorBuilder(builder: (light, dark) {
       ColorScheme? lightColor;
       ColorScheme? darkColor;
