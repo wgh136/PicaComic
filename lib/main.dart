@@ -15,7 +15,7 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
-import 'package:pica_comic/views/login_all_account_page.dart';
+import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:workmanager/workmanager.dart';
@@ -153,7 +153,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: GetPlatform.isWindows ? "font" : "",
         ),
-        home: notFirstUse ? const LoginAccountsPage() : const WelcomePage(),
+        home: notFirstUse ? const MainPage() : const WelcomePage(),
         fallbackLocale: const Locale('zh', 'CN'),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,

@@ -257,6 +257,21 @@ class AccountsPage extends StatelessWidget {
                       },
                       trailing: const Icon(Icons.logout),
                     ),
+                  if (appdata.htName != "")
+                    ListTile(
+                      title: Text("重新登录".tl),
+                      subtitle: const Text("如果登录失效点击此处"),
+                      onTap: () async {
+                        showMessage(Get.context, "正在重新登录".tl, time: 8);
+                        var res = await HtmangaNetwork().loginFromAppdata();
+                        if (res.error) {
+                          showMessage(Get.context, res.errorMessage!);
+                        } else {
+                          showMessage(Get.context, "重新登录成功".tl);
+                        }
+                      },
+                      trailing: const Icon(Icons.refresh),
+                    ),
                   if (appdata.htName == "")
                     ListTile(
                       title: Text("登录".tl),

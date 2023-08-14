@@ -17,6 +17,7 @@ import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:pica_comic/views/settings/ht_settings.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
@@ -24,6 +25,7 @@ import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
+import '../network/htmanga_network/htmanga_main_network.dart';
 import '../network/update.dart';
 import '../foundation/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
@@ -85,8 +87,31 @@ class _MainPageState extends State<MainPage> {
     const LeaderBoardPage(),
   ];
 
+  void login(){
+    if(!HtSettings.htUrls.contains(appdata.settings[31])){
+      appdata.settings[31] = HtSettings.htUrls[0];
+      appdata.updateSettings();
+    }
+    network.getProfile().then((res){
+      if(res.error){
+        showMessage(Get.context!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
+      }
+    });
+    jmNetwork.loginFromAppdata().then((res){
+      if(res.error){
+        showMessage(Get.context!, "登录禁漫时发生错误:".tl + res.errorMessageWithoutNull);
+      }
+    });
+    HtmangaNetwork().loginFromAppdata().then((res){
+      if(res.error){
+        showMessage(Get.context!, "登录绅士漫画时发生错误:".tl + res.errorMessageWithoutNull);
+      }
+    });
+  }
+
   @override
   void initState() {
+    login();
     notifications.requestPermission();
     EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php",
         favoritePage: true);
