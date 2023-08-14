@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/views/main_page.dart';
 
 void mouseSideButtonCallback(){
-  if(Get.routing.current != "/MainPage" || MainPage.overlayOpen){
+  if(Get.routing.current != "/" || MainPage.overlayOpen){
     Get.back();
   }else{
     MainPage.back();
