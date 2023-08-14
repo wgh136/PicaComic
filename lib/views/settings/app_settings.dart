@@ -280,7 +280,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
     return SimpleDialog(
       title: Text("设置下载目录".tl),
       children: [
-        if (GetPlatform.isWindows)
+        if (GetPlatform.isWindows || GetPlatform.isLinux)
           SizedBox(
             width: 400,
             child: Column(
@@ -382,6 +382,16 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                       onChanged: (value) => setState(() {
                             current = value!;
                           })),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: CheckboxListTile(
+                    value: transform,
+                    onChanged: (b) => setState(() {
+                      transform = b!;
+                    }),
+                    title: Text("转移数据".tl),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: Row(
