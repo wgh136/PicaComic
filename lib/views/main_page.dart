@@ -27,7 +27,6 @@ import '../network/htmanga_network/htmanga_main_network.dart';
 import '../network/update.dart';
 import '../foundation/ui_mode.dart';
 import 'eh_views/eh_home_page.dart';
-import 'models/tab_listener.dart';
 import 'pic_views/home_page.dart';
 import 'me_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -75,13 +74,10 @@ class _MainPageState extends State<MainPage> {
     _i = value;
   }
 
-  TabListener exploreListener = TabListener();
-  TabListener categoriesListener = TabListener();
-
-  late var pages = [
+  final pages = [
     const MePage(),
-    ExplorePageWithGetControl(exploreListener),
-    CategoryPageWithGetControl(categoriesListener),
+    const ExplorePageWithGetControl(),
+    const CategoryPageWithGetControl(),
     const LeaderBoardPage(),
   ];
 

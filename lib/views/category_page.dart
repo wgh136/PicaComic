@@ -5,12 +5,10 @@ import 'package:pica_comic/views/jm_views/detailed_categories.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import '../base.dart';
-import 'models/tab_listener.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class AllCategoryPage extends StatefulWidget {
-  const AllCategoryPage(this.tabListener, this.pages, {Key? key}) : super(key: key);
-  final TabListener tabListener;
+  const AllCategoryPage(this.pages, {Key? key}) : super(key: key);
   final int pages;
   @override
   State<AllCategoryPage> createState() => _AllCategoryPageState();
@@ -20,10 +18,13 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
   late TabController controller;
 
   @override
-  Widget build(BuildContext context) {
-    widget.tabListener.controller = null;
+  void initState() {
     controller = TabController(length: widget.pages, vsync: this);
-    widget.tabListener.controller = controller;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         TabBar(
@@ -63,15 +64,14 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
 class CategoryPageLogic extends GetxController{}
 
 class CategoryPageWithGetControl extends StatelessWidget {
-  const CategoryPageWithGetControl(this.listener, {Key? key}) : super(key: key);
-  final TabListener listener;
+  const CategoryPageWithGetControl({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CategoryPageLogic>(builder: (logic){
       int pages = int.parse(appdata.settings[21][0])*1 + int.parse(appdata.settings[21][2])*2
           + int.parse(appdata.settings[21][4])*1;
-      return AllCategoryPage(listener, pages);
+      return AllCategoryPage(pages);
     });
   }
 }

@@ -48,12 +48,15 @@ class HitomiHomePageComics extends StatelessWidget {
   const HitomiHomePageComics(this.url, {Key? key}) : super(key: key);
   final String url;
 
+  static void Function() refresh = (){};
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HitomiHomePageLogic>(
       tag: url,
       init: HitomiHomePageLogic(),
       builder: (logic){
+        refresh = logic.refresh_;
         if(logic.loading){
           logic.get(url);
           return const Center(
