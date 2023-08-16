@@ -32,10 +32,10 @@ class CustomWillPopScope extends StatelessWidget {
               child: child,
             ))
         : WillPopScope(
-            child: child,
-            onWillPop: () async {
+            onWillPop: GetPlatform.isDesktop ? null : () async {
               action();
               return onWillPop;
-            });
+            },
+            child: child);
   }
 }
