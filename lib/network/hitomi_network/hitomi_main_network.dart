@@ -189,10 +189,22 @@ class HiNetwork{
   }
 }
 
+enum HitomiUrls{
+  homePageAll('https://ltn.hitomi.la/index-all.nozomi'),
+  homePageCn("https://ltn.hitomi.la/index-chinese.nozomi"),
+  homePageJp("https://ltn.hitomi.la/index-japanese.nozomi"),
+  homePageEn("https://ltn.hitomi.la/index-english.nozomi");
+
+  final String url;
+
+  const HitomiUrls(this.url);
+}
+
 class HitomiDataUrls{
   static String homePageAll = 'https://ltn.hitomi.la/index-all.nozomi';
   static String homePageCn = "https://ltn.hitomi.la/index-chinese.nozomi";
   static String homePageJp = "https://ltn.hitomi.la/index-japanese.nozomi";
+  static String homePageEn = "https://ltn.hitomi.la/index-english.nozomi";
   static String todayPopular = "https://ltn.hitomi.la/popular/today-all.nozomi";
   static String weekPopular = "https://ltn.hitomi.la/popular/week-all.nozomi";
   static String monthPopular = "https://ltn.hitomi.la/popular/month-all.nozomi";

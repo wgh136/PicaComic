@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
@@ -67,11 +66,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                         if(appdata.settings[24][5] == "1")
                           Tab(text: "禁漫最新".tl, key: const Key("禁漫最新")),
                         if(appdata.settings[24][6] == "1")
-                          Tab(text: "Hitomi主页".tl, key: const Key("Hitomi主页")),
-                        if(appdata.settings[24][7] == "1")
-                          Tab(text: "Hitomi中文".tl, key: const Key("Hitomi中文")),
-                        if(appdata.settings[24][8] == "1")
-                          Tab(text: "Hitomi日文".tl, key: const Key("Hitomi日文")),
+                          Tab(text: "Hitomi".tl, key: const Key("Hitomi主页")),
                         if(appdata.settings[24][9] == "1")
                           const Tab(text: "绅士漫画", key: Key("绅士漫画")),
                       ],
@@ -136,11 +131,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
               if(appdata.settings[24][5] == "1")
                 const JmLatestPage(),
               if(appdata.settings[24][6] == "1")
-                HitomiHomePage(HitomiDataUrls.homePageAll),
-              if(appdata.settings[24][7] == "1")
-                HitomiHomePage(HitomiDataUrls.homePageCn),
-              if(appdata.settings[24][8] == "1")
-                HitomiHomePage(HitomiDataUrls.homePageJp),
+                const HitomiHomePage(),
               if(appdata.settings[24][9] == "1")
                 const HtHomePage()
             ],
@@ -162,6 +153,7 @@ class ExplorePageWithGetControl extends StatelessWidget {
     return GetBuilder<ExplorePageLogic>(builder: (logic){
       int pages = 0;
       for(int i=0;i<appdata.settings[24].length;i++){
+        if(i == 7 || i == 8)  continue;
         if(appdata.settings[24][i] == "1"){
           pages++;
         }

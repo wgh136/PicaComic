@@ -483,30 +483,32 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "Eh热门".tl,
       "禁漫主页".tl,
       "禁漫最新".tl,
-      "Hitomi主页".tl,
+      "Hitomi".tl,
       "Hitomi中文".tl,
       "Hitomi日文".tl,
       "绅士漫画".tl
     ];
+    var options = <Widget>[];
+    for (int i = 0; i < 10; i++) {
+      if(i == 7 || i == 8)  continue;
+      options.add(CheckboxListTile(
+        value: appdata.settings[24][i] == "1",
+        onChanged: (b) {
+          setState(() {
+            if (b!) {
+              appdata.settings[24] = appdata.settings[24].replaceRange(i, i + 1, '1');
+            } else {
+              appdata.settings[24] = appdata.settings[24].replaceRange(i, i + 1, '0');
+            }
+          });
+        },
+        title: Text(titles[i]),
+      ));
+    }
     return SizedBox(
       width: 400,
       child: Column(
-        children: [
-          for (int i = 0; i < 10; i++)
-            CheckboxListTile(
-              value: appdata.settings[24][i] == "1",
-              onChanged: (b) {
-                setState(() {
-                  if (b!) {
-                    appdata.settings[24] = appdata.settings[24].replaceRange(i, i + 1, '1');
-                  } else {
-                    appdata.settings[24] = appdata.settings[24].replaceRange(i, i + 1, '0');
-                  }
-                });
-              },
-              title: Text(titles[i]),
-            ),
-        ],
+        children: options,
       ),
     );
   }
