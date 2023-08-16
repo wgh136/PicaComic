@@ -251,7 +251,7 @@ class _MainPageState extends State<MainPage> {
             SystemNavigator.pop();
           }
         },
-        onWillPop: false,
+        popGesture: GetPlatform.isIOS && !UiMode.m1(context),
         child: Row(
           children: [
             NavigateBar(
