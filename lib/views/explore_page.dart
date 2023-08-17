@@ -7,6 +7,7 @@ import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
+import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import '../foundation/ui_mode.dart';
@@ -54,6 +55,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                   () => Get.find<JmLatestPageLogic>().refresh_(),
             if(appdata.settings[24][6] == "1")
                   () => HitomiHomePageComics.refresh(),
+            if(appdata.settings[24][7] == "1")
+                  (){},  //TODO
             if(appdata.settings[24][9] == "1")
                   () => Get.find<HtHomePageLogic>().refresh_(),
           ];
@@ -92,6 +95,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                             Tab(text: "禁漫最新".tl, key: const Key("禁漫最新")),
                           if(appdata.settings[24][6] == "1")
                             Tab(text: "Hitomi".tl, key: const Key("Hitomi主页")),
+                          if(appdata.settings[24][7] == "1")
+                            Tab(text: "Nhentai".tl, key: const Key("Nhentai")),
                           if(appdata.settings[24][9] == "1")
                             const Tab(text: "绅士漫画", key: Key("绅士漫画")),
                         ],
@@ -183,6 +188,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                     const JmLatestPage(),
                   if(appdata.settings[24][6] == "1")
                     const HitomiHomePage(),
+                  if(appdata.settings[24][7] == "1")
+                    const NhentaiHomePage(),
                   if(appdata.settings[24][9] == "1")
                     const HtHomePage()
                 ],
@@ -205,7 +212,7 @@ class ExplorePageWithGetControl extends StatelessWidget {
     return GetBuilder<ExplorePageLogic>(builder: (logic){
       int pages = 0;
       for(int i=0;i<appdata.settings[24].length;i++){
-        if(i == 7 || i == 8)  continue;
+        if(i == 8)  continue;
         if(appdata.settings[24][i] == "1"){
           pages++;
         }

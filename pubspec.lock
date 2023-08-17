@@ -362,8 +362,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: b8dae53a70f55178751bc87fe2c238f18698afca
+      ref: "5548659e"
+      resolved-ref: "5548659e3214990ffa10263cd72866283d83b9f5"
       url: "https://github.com/wgh136/flutter_windows_webview"
     source: git
     version: "0.0.1"
