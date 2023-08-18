@@ -151,6 +151,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// translation tags to CN
   bool get enableTranslationToCN => false;
 
+  Map<String, String> get headers => {};
+
   void scrollListener(){
     var logic = _logic;
     bool temp = logic.showAppbarTitle;
@@ -331,6 +333,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           height: height - 32,
           imageUrl: cover,
           fit: BoxFit.contain,
+          httpHeaders: headers,
           errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
@@ -637,6 +640,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
                     child: CachedNetworkImage(
                       imageUrl: thumbnails!.thumbnails[index],
+                      httpHeaders: headers,
                       fit: BoxFit.contain,
                       placeholder: (context, s) => ColoredBox(
                           color: Theme.of(context).colorScheme.surfaceVariant),

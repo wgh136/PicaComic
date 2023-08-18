@@ -14,7 +14,7 @@ class EhPopularPageLogic extends GetxController{
   String? message;
 
   void getGallery() async{
-    var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/popular");
+    var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/popular?inline_set=dm_l");
     if(res.error){
       message = res.errorMessage;
     }else{

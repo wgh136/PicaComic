@@ -136,6 +136,13 @@ class EhGalleryPage extends ComicPage<Gallery> {
       MainPage.to(() => EhSearchPage(tag));
 
   @override
+  Map<String, String> get headers => {
+    "Cookie": EhNetwork().cookiesStr,
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+    "Referer": EhNetwork().ehBaseUrl,
+  };
+
+  @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(
       data!.thumbnailUrls,
       (page) => EhNetwork().getThumbnailUrls(brief.link, page),
