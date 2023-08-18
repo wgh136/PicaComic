@@ -18,6 +18,7 @@ import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:share_plus/share_plus.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -310,4 +311,20 @@ Future<bool> importData() async{
   await HtmangaNetwork().loginFromAppdata();
   LocalFavoritesManager().close();
   return true;
+}
+
+void saveLog(String log) async{
+  var path = (await getTemporaryDirectory()).path;
+  var file = File("$path${pathSep}logs.txt");
+  file.writeAsStringSync(log);
+  if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+    var params = SaveFileDialogParams(
+        sourceFilePath: "$path${pathSep}logs.txt");
+    await FlutterFileDialog.saveFile(params: params);
+  } else if (GetPlatform.isWindows) {
+    final String? directoryPath = await getDirectoryPath();
+    if (directoryPath != null) {
+      await file.copy("$directoryPath${pathSep}logs.txt");
+    }
+  }
 }

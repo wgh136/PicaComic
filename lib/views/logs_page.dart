@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class LogsPage extends StatefulWidget {
   const LogsPage({super.key});
@@ -17,8 +19,30 @@ class _LogsPageState extends State<LogsPage> {
         title: const Text("Logs"),
         actions: [
           IconButton(onPressed: ()=>setState(() {
-            LogManager.clear();
-          }), icon: const Icon(Icons.clear_all))
+            final RelativeRect position = RelativeRect.fromLTRB(
+              MediaQuery.of(context).size.width,
+              MediaQuery.of(context).padding.top + kToolbarHeight,
+              0.0,
+              0.0,
+            );
+            showMenu(context: context, position: position, items: [
+              PopupMenuItem(
+                child: const Text("清空"),
+                onTap: () => setState(()=>LogManager.clear()),
+              ),
+              PopupMenuItem(
+                child: const Text("禁用长度限制"),
+                onTap: (){
+                  LogManager.ignoreLimitation = true;
+                  showMessage(context, "仅在本次运行时有效");
+                },
+              ),
+              PopupMenuItem(
+                child: const Text("导出"),
+                onTap: () => saveLog(LogManager().toString()),
+              ),
+            ]);
+          }), icon: const Icon(Icons.more_horiz))
         ],
       ),
       body: ListView.builder(

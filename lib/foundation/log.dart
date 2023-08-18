@@ -20,8 +20,10 @@ class LogManager{
 
   static const maxLogNumber = 400;
 
+  static bool ignoreLimitation = false;
+
   static void addLog(LogLevel lever, String title, String content){
-    if(content.length > maxLogLength){
+    if(!ignoreLimitation && content.length > maxLogLength){
       content = "${content.substring(0, maxLogLength)}...";
     }
     if(kDebugMode){
@@ -34,6 +36,15 @@ class LogManager{
   }
 
   static void clear() => _logs.clear();
+
+  @override
+  String toString() {
+    var res = "Logs\n\n";
+    for(var log in _logs){
+      res += log.toString();
+    }
+    return res;
+  }
 }
 
 @immutable
@@ -42,6 +53,9 @@ class Log{
   final String title;
   final String content;
   final DateTime time = DateTime.now();
+
+  @override
+  toString() => "${level.name} $title $time \n$content\n\n";
 
   Log(this.level, this.title, this.content);
 }
