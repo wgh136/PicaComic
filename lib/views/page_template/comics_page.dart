@@ -5,11 +5,13 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
+import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
+import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -228,6 +230,8 @@ abstract class ComicsPage<T> extends StatelessWidget {
                           return HtComicTileInFavoritePage(
                               comic: comics[i] as HtComicBrief,
                               refresh: refresh);
+                        case 6:
+                          return NhentaiComicTile(comics[i] as NhentaiComicBrief);
                         default:
                           throw UnimplementedError();
                       }
@@ -293,6 +297,8 @@ abstract class ComicsPage<T> extends StatelessWidget {
                           return HtComicTileInFavoritePage(
                               comic: comics?[logic.current]![i] as HtComicBrief,
                               refresh: refresh);
+                        case 6:
+                          return NhentaiComicTile(comics?[logic.current]![i] as NhentaiComicBrief);
                         default:
                           throw UnimplementedError();
                       }
@@ -446,4 +452,4 @@ abstract class ComicsPage<T> extends StatelessWidget {
   }
 }
 
-enum ComicType { picacg, ehentai, jm, hitomi, htManga, htFavorite }
+enum ComicType { picacg, ehentai, jm, hitomi, htManga, htFavorite, nhentai }

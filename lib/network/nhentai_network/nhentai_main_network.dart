@@ -7,8 +7,10 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import 'models.dart';
 import 'package:html/parser.dart';
+import 'package:get/get.dart';
 
 export 'models.dart';
 
@@ -108,6 +110,46 @@ class NhentaiNetwork{
       data.page++;
 
       return const Res(true);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: "解析失败: $e");
+    }
+  }
+
+  Future<Res<List<NhentaiComicBrief>>> search(String keyword, int page) async{
+    if(appdata.searchHistory.contains(keyword)){
+      appdata.searchHistory.remove(keyword);
+    }
+    appdata.searchHistory.add(keyword);
+    appdata.writeHistory();
+    var res = await get("https://nhentai.net/search/?q=${Uri.encodeComponent(keyword)}&page=$page");
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    try{
+      NhentaiComicBrief parseComic(Element comicDom){
+        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
+        var name = comicDom.querySelector("div.caption")!.text;
+        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
+        return NhentaiComicBrief(name, img, id);
+      }
+
+      var document = parse(res.data);
+
+      var comicDoms = document.querySelectorAll("div.gallery");
+
+      var results = document.querySelector("div#content > h1")!.text;
+
+      Future.microtask(() => Get.find<PreSearchController>().update());
+
+      if(comicDoms.isEmpty){
+        return const Res([], subData: 0);
+      }
+
+      return Res(List.generate(comicDoms.length,
+              (index) => parseComic(comicDoms[index])),
+          subData: (int.parse(results.nums) / comicDoms.length).ceil());
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");

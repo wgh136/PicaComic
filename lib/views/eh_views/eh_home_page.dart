@@ -14,7 +14,7 @@ class EhHomePageLogic extends GetxController{
   String? message;
 
   void getGallery() async{
-    var res = await EhNetwork().getGalleries(EhNetwork().ehBaseUrl);
+    var res = await EhNetwork().getGalleries(EhNetwork().ehBaseUrl + "?inline_set=dm_l");
     if(res.error){
       message = res.errorMessage;
     }else{

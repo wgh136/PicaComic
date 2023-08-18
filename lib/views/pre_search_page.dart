@@ -8,6 +8,7 @@ import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
+import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -59,6 +60,7 @@ class PreSearchPage extends StatelessWidget {
             case 2: MainPage.to(()=>JmSearchPage(controller.text));break;
             case 3: MainPage.to(()=>HitomiSearchPage(controller.text));break;
             case 4: MainPage.to(()=>HtSearchPage(controller.text));break;
+            case 5: MainPage.to(()=>NhentaiSearchPage(controller.text));break;
           }
         },
       ),
@@ -80,6 +82,7 @@ class PreSearchPage extends StatelessWidget {
                   case 2: MainPage.to(()=>JmSearchPage(controller.text));break;
                   case 3: MainPage.to(()=>HitomiSearchPage(controller.text));break;
                   case 4: MainPage.to(()=>HtSearchPage(controller.text));break;
+                  case 5: MainPage.to(()=>NhentaiSearchPage(controller.text));break;
                 }
               },
                 controller: controller,
@@ -153,6 +156,17 @@ class PreSearchPage extends StatelessWidget {
                                 selected: logic.target==4,
                                 onSelected: (b){
                                   logic.updateTarget(4);
+                                },
+                              ),
+                            ),
+                          if(appdata.settings[21][5] == "1")
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: FilterChip(
+                                label: const Text("Nhentai"),
+                                selected: logic.target==5,
+                                onSelected: (b){
+                                  logic.updateTarget(5);
                                 },
                               ),
                             ),
@@ -431,6 +445,7 @@ class PreSearchPage extends StatelessWidget {
                                     case 2: MainPage.to(()=>JmSearchPage(s));break;
                                     case 3: MainPage.to(()=>HitomiSearchPage(s));break;
                                     case 4: MainPage.to(()=>HtSearchPage(s));break;
+                                    case 5: MainPage.to(()=>NhentaiSearchPage(s));break;
                                   }
                                 },
                                 child: Padding(
