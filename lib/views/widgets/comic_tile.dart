@@ -12,6 +12,7 @@ abstract class ComicTile extends StatelessWidget {
   String get description;
   String? get badge => null;
   List<String>? get tags => null;
+  int get maxLines => 2;
 
   void favorite();
 
@@ -105,6 +106,7 @@ abstract class ComicTile extends StatelessWidget {
                     subDescription: buildSubDescription(context),
                     badge: badge,
                     tags: tags,
+                    maxLines: maxLines,
                   ),
                 ),
                 //const Center(
@@ -125,6 +127,7 @@ class ComicDescription extends StatelessWidget {
       required this.description,
       this.subDescription,
       this.badge,
+      this.maxLines=2,
       this.tags});
 
   final String title;
@@ -133,6 +136,7 @@ class ComicDescription extends StatelessWidget {
   final Widget? subDescription;
   final String? badge;
   final List<String>? tags;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +151,7 @@ class ComicDescription extends StatelessWidget {
               fontWeight: FontWeight.w500,
               fontSize: 14.0,
             ),
-            maxLines: 2,
+            maxLines: maxLines,
             overflow: TextOverflow.ellipsis,
           ),
           const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),

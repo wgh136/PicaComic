@@ -31,6 +31,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
   @override
   void initState() {
     controller = TabController(length: widget.pages, vsync: this);
+    Get.put(NhentaiHomePageController());
     super.initState();
   }
   
@@ -56,7 +57,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
             if(appdata.settings[24][6] == "1")
                   () => HitomiHomePageComics.refresh(),
             if(appdata.settings[24][7] == "1")
-                  (){},  //TODO
+                  () => Get.find<NhentaiHomePageController>().refresh_(),
             if(appdata.settings[24][9] == "1")
                   () => Get.find<HtHomePageLogic>().refresh_(),
           ];

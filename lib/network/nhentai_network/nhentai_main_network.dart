@@ -1,15 +1,27 @@
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:html/dom.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/tools/extensions.dart';
+import 'models.dart';
+import 'package:html/parser.dart';
+
+export 'models.dart';
 
 class NhentaiNetwork{
   factory NhentaiNetwork() => _cache ?? (_cache = NhentaiNetwork._create());
   NhentaiNetwork._create();
 
-  var ua = "Pica Comic";
+  String get ua => appdata.nhentaiData[0];
+
+  set ua(String value){
+    appdata.nhentaiData[0] = value;
+    appdata.updateNhentai();
+  }
 
   static NhentaiNetwork? _cache;
 
@@ -21,13 +33,13 @@ class NhentaiNetwork{
     cookieJar = PersistCookieJar(storage: FileStorage(path));
   }
 
-  Future<Res> get() async{
+  Future<Res> get(String url) async{
     if(cookieJar == null){
       await _init();
     }
     var dio = CachedNetwork();
     try {
-      var res = await dio.get("https://nhentai.net", BaseOptions(
+      var res = await dio.get(url, BaseOptions(
           headers: {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "Accept-Language": "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
@@ -42,6 +54,64 @@ class NhentaiNetwork{
     }
     catch(e){
       return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<Res<NhentaiHomePageData>> getHomePage() async{
+    var res = await get("https://nhentai.net");
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    try{
+      NhentaiComicBrief parseComic(Element comicDom){
+        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
+        var name = comicDom.querySelector("div.caption")!.text;
+        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
+        return NhentaiComicBrief(name, img, id);
+      }
+
+      var document = parse(res.data);
+      var popularDoms = document.querySelectorAll(
+          "div.container.index-container.index-popular > div.gallery");
+      var latest = document.querySelectorAll(
+          "div.container.index-container > div.gallery");
+
+      return Res(NhentaiHomePageData(
+          List.generate(popularDoms.length, (index) => parseComic(popularDoms[index])),
+          List.generate(latest.length-popularDoms.length, (index) => parseComic(latest[index+popularDoms.length]))));
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: "解析失败: $e");
+    }
+  }
+
+  Future<Res<bool>> loadMoreHomePageData(NhentaiHomePageData data) async{
+    var res = await get("https://nhentai.net?page=${data.page+1}");
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    try{
+      NhentaiComicBrief parseComic(Element comicDom){
+        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
+        var name = comicDom.querySelector("div.caption")!.text;
+        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
+        return NhentaiComicBrief(name, img, id);
+      }
+
+      var document = parse(res.data);
+
+      var latest = document.querySelectorAll("div.gallery");
+
+      data.latest.addAll(List.generate(latest.length, (index) => parseComic(latest[index])));
+
+      data.page++;
+
+      return const Res(true);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: "解析失败: $e");
     }
   }
 }

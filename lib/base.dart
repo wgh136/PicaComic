@@ -157,6 +157,15 @@ class Appdata{
     }
   }
 
+  var nhentaiData = <String>[
+    "Pica Comic", // ua
+  ];
+
+  void updateNhentai() async{
+    var s = await SharedPreferences.getInstance();
+    await s.setStringList("nhentaiData", nhentaiData);
+  }
+
   int getSearchMode(){
     var modes = ["dd","da","ld","vd"];
     return modes.indexOf(settings[1]);
@@ -253,6 +262,7 @@ class Appdata{
       picacgPassword = s.getString("picacgPassword")??"";
       htName = s.getString("htName")??"";
       htPwd = s.getString("htPwd")??"";
+      nhentaiData = s.getStringList("nhentaiData") ?? nhentaiData;
       return firstUse[3]=="1"||token!="";
     }
     catch(e){
