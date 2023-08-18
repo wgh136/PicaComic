@@ -27,6 +27,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
               })
           );
           webview.close();
+          whenFinish();
         }
       }
     ));
@@ -41,7 +42,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
             return cookie;
           })
       );
-    });
+    }, whenFinish);
     await browser.openUrlRequest(
         urlRequest: URLRequest(
             url: WebUri(
@@ -49,13 +50,12 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
   } else {
     showMessage(Get.context, "当前设备不支持".tl);
   }
-
-  whenFinish();
 }
 
 class ByPassCloudflare extends InAppBrowser {
-  ByPassCloudflare(this.action);
+  ByPassCloudflare(this.action, this.whenFinish);
   final Future<void> Function() action;
+  final void Function() whenFinish;
 
   @override
   void onTitleChanged(String? title) async{
@@ -64,6 +64,7 @@ class ByPassCloudflare extends InAppBrowser {
       NhentaiNetwork().ua = res.toString();
       await action();
       super.close();
+      whenFinish();
     }
   }
 }
