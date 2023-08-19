@@ -45,7 +45,7 @@ class NhentaiHomePage extends StatelessWidget {
             return const Center(
               child: CircularProgressIndicator(),
             );
-          } else if (logic.message == "403") {
+          } else if (logic.message == NhentaiNetwork.needCloudflareChallengeMessage) {
             return Center(
               child: SizedBox(
                 height: 170,
@@ -53,7 +53,7 @@ class NhentaiHomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     const Icon(
-                      Icons.error_outline,
+                      Icons.info,
                       size: 60,
                     ),
                     const SizedBox(height: 5,),

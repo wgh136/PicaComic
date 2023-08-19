@@ -29,13 +29,15 @@ class NhentaiNetwork{
 
   PersistCookieJar? cookieJar;
 
+  static const String needCloudflareChallengeMessage = "need Cloudflare Challenge";
+
   Future<void> _init() async{
     var path = (await getApplicationSupportDirectory()).path;
     path = "$path$pathSep${"cookies"}";
     cookieJar = PersistCookieJar(storage: FileStorage(path));
   }
 
-  Future<Res> get(String url) async{
+  Future<Res<String>> get(String url) async{
     if(cookieJar == null){
       await _init();
     }
@@ -50,7 +52,7 @@ class NhentaiNetwork{
           validateStatus: (i) => i == 200 || i == 403
       ), expiredTime: CacheExpiredTime.no, cookieJar: cookieJar);
       if(res.statusCode == 403){
-        return const Res(null, errorMessage: "403");  // need to bypass cloudflare
+        return const Res(null, errorMessage: needCloudflareChallengeMessage);  // need to bypass cloudflare
       }
       return Res(res.data);
     }
