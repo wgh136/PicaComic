@@ -1,11 +1,11 @@
 # Pica Comic
 
-[![flutter](https://img.shields.io/badge/flutter-3.10.6-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.13.0-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
 
-使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi, 绅士漫画
+使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi, 绅士漫画, Nhentai
 
 目前支持Android, Windows, IOS, linux(实验性); 
 
@@ -85,6 +85,9 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 - 登录
 - 收藏夹
 - 下载漫画
+
+### Nhentai
+在v2.1.0版本添加
 
 ## 从源代码构建
 首先, 必须安装**Stable频道最新版**[Flutter SDK](https://docs.flutter.dev/get-started/install)
