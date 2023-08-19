@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
+import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+
+import '../main_page.dart';
 
 class NhentaiComicTile extends ComicTile{
   final NhentaiComicBrief comic;
@@ -28,7 +31,7 @@ class NhentaiComicTile extends ComicTile{
 
   @override
   void onTap_() {
-    // TODO: implement onTap_
+    MainPage.to(() => NhentaiComicPage(comic.id));
   }
 
   @override
