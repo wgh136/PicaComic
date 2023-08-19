@@ -8,6 +8,7 @@ import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
+import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/models/history.dart';
@@ -28,7 +29,7 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  var comics = <NewHistory>[];
+  var comics = <History>[];
   bool status = true;
   
   @override
@@ -140,7 +141,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             comics[i].target,
                             comics[i].cover
                           )));
-                        }else{
+                        }else if(comics[i].type == HistoryType.htmanga){
                           MainPage.to(() => HtComicPage(HtComicBrief(
                             comics[i].title,
                             "",
@@ -148,6 +149,8 @@ class _HistoryPageState extends State<HistoryPage> {
                             comics[i].target,
                             0
                           )));
+                        }else{
+                          MainPage.to(() => NhentaiComicPage(comics[i].target));
                         }
                       },
                     );

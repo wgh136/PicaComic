@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../base.dart';
@@ -141,9 +143,9 @@ class MyCacheManager{
           followRedirects: true,
           headers: {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-            "cookie": EhNetwork().cookiesStr
           }
       );
+
       //生成文件名
       var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
       if (fileName.length > 10) {
@@ -154,6 +156,9 @@ class MyCacheManager{
           .path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, url, savePath);
       var dio = Dio(options);
+      if(url.contains("nhentai")){
+        dio.interceptors.add(CookieManager(NhentaiNetwork().cookieJar!));
+      }
       var dioRes = await dio.get<ResponseBody>(
           url, options: Options(responseType: ResponseType.stream));
       if (dioRes.data == null) {

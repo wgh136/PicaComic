@@ -5,6 +5,7 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import '../main_page.dart';
 import 'comments.dart';
@@ -116,9 +117,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   @override
   FilledButton get readButton => FilledButton(
     child: Text("阅读".tl),
-    onPressed: (){
-      //TODO
-    },
+    onPressed: () => readNhentai(data!),
   );
 
   @override

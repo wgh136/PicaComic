@@ -6,6 +6,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
@@ -130,6 +131,17 @@ class ComicReadingPage extends StatelessWidget {
     Get.put(ComicReadingPageLogic(order, data));
   }
 
+  ComicReadingPage.nhentai(this.target, this.title,
+      {super.key, int initialPage = 0})
+      : eps = [],
+        order = 0,
+        gallery = null,
+        type = ReadingType.nhentai,
+        images = null {
+    data.initialPage = initialPage;
+    Get.put(ComicReadingPageLogic(order, data));
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ComicReadingPageLogic>(initState: (logic) {
@@ -244,8 +256,10 @@ class ComicReadingPage extends StatelessWidget {
               loadJmComicInfo(logic);
             } else if (type == ReadingType.hitomi) {
               loadHitomiData(logic);
-            } else {
+            } else if(type == ReadingType.htmanga){
               loadHtmangaData(logic);
+            }else{
+              loadNhentaiData(logic);
             }
             return const DecoratedBox(
               decoration: BoxDecoration(color: Colors.black),
@@ -327,67 +341,8 @@ class ComicReadingPage extends StatelessWidget {
                     ),
                   buildTapDownListener(logic, context),
                   //底部工具栏
-                  buildBottomToolBar(logic, context, type.hasEps, () {
-                    if (MediaQuery.of(context).size.width > 600) {
-                      showSideBar(context, buildEpsView(),
-                          title: null, useSurfaceTintColor: true, width: 400);
-                    } else {
-                      showModalBottomSheet(
-                          context: context,
-                          useSafeArea: false,
-                          builder: (context) {
-                            return buildEpsView();
-                          });
-                    }
-                  }, () async {
-                    if (logic.downloaded) {
-                      var id = data.target;
-                      if (type == ReadingType.ehentai) {
-                        id = getGalleryId(data.target);
-                      }
-                      if (type == ReadingType.jm) {
-                        id = "jm$target";
-                      } else if (type == ReadingType.hitomi) {
-                        id = "hitomi$target";
-                      } else if (type == ReadingType.htmanga) {
-                        id = "Ht$target";
-                      }
-                      shareImageFromDisk(downloadManager
-                          .getImage(id, logic.order, logic.index - 1)
-                          .path);
-                    } else {
-                      shareImageFromCache(
-                          type == ReadingType.hitomi
-                              ? logic.images[logic.index - 1].hash
-                              : logic.urls[logic.index - 1],
-                          data.target,
-                          true);
-                    }
-                  }, () async {
-                    if (logic.downloaded) {
-                      var id = data.target;
-                      if (type == ReadingType.ehentai) {
-                        id = getGalleryId(data.target);
-                      }
-                      if (type == ReadingType.jm) {
-                        id = "jm$target";
-                      } else if (type == ReadingType.hitomi) {
-                        id = "hitomi$target";
-                      } else if (type == ReadingType.htmanga) {
-                        id = "Ht$target";
-                      }
-                      saveImageFromDisk(downloadManager
-                          .getImage(id, logic.order, logic.index - 1)
-                          .path);
-                    } else {
-                      saveImage(
-                          type == ReadingType.hitomi
-                              ? logic.images[logic.index - 1].hash
-                              : logic.urls[logic.index - 1],
-                          data.target,
-                          reading: true);
-                    }
-                  }),
+                  buildBottomToolBar(logic, context, type.hasEps, openEpsDrawer,
+                      share, saveCurrentImage),
 
                   ...buildButtons(logic, context),
 
@@ -741,8 +696,90 @@ class ComicReadingPage extends StatelessWidget {
     logic.update();
   }
 
+  void loadNhentaiData(ComicReadingPageLogic logic) async{
+    var res = await NhentaiNetwork().getImages(target);
+    if (res.error) {
+      data.message = res.errorMessage;
+    } else {
+      logic.urls = res.data;
+    }
+    logic.isLoading = false;
+    logic.update();
+  }
+
   Widget buildEpsView() {
     return EpsView(type, eps, data);
+  }
+
+  void openEpsDrawer(){
+    var context = Get.context!;
+    if (MediaQuery.of(context).size.width > 600) {
+      showSideBar(context, buildEpsView(),
+          title: null, useSurfaceTintColor: true, width: 400);
+    } else {
+      showModalBottomSheet(
+          context: context,
+          useSafeArea: false,
+          builder: (context) {
+            return buildEpsView();
+          });
+    }
+  }
+
+  void share(){
+    var logic = Get.find<ComicReadingPageLogic>();
+    if (logic.downloaded) {
+      var id = data.target;
+      if (type == ReadingType.ehentai) {
+        id = getGalleryId(data.target);
+      }
+      if (type == ReadingType.jm) {
+        id = "jm$target";
+      } else if (type == ReadingType.hitomi) {
+        id = "hitomi$target";
+      } else if (type == ReadingType.htmanga) {
+        id = "Ht$target";
+      }
+      shareImageFromDisk(downloadManager
+          .getImage(id, logic.order, logic.index - 1)
+          .path);
+    } else {
+      shareImageFromCache(
+          type == ReadingType.hitomi
+              ? logic.images[logic.index - 1].hash
+              : logic.urls[logic.index - 1],
+          data.target,
+          true);
+    }
+  }
+
+  void saveCurrentImage() async{
+    var logic = Get.find<ComicReadingPageLogic>();
+    if (logic.downloaded) {
+      var id = data.target;
+      if (type == ReadingType.ehentai) {
+        id = getGalleryId(data.target);
+      }
+      if (type == ReadingType.jm) {
+        id = "jm$target";
+      } else if (type == ReadingType.hitomi) {
+        id = "hitomi$target";
+      } else if (type == ReadingType.htmanga) {
+        id = "Ht$target";
+      } else if( type == ReadingType.nhentai) {
+        id = "nt$target";
+      }
+      saveImageFromDisk(downloadManager
+          .getImage(id, logic.order, logic.index - 1)
+          .path);
+    } else {
+      saveImage(
+          type == ReadingType.hitomi
+              ? logic.images[logic.index - 1].hash
+              : logic.urls[logic.index - 1],
+          data.target,
+          reading: true);
+    }
   }
 }
 

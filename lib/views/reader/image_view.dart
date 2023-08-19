@@ -39,7 +39,13 @@ ImageProvider createImageProvider(ReadingType type, ComicReadingPageLogic logic,
   } else if (type == ReadingType.htmanga &&
       !logic.downloaded) {
     image = CachedImageProvider(logic.urls[index]);
-  } else {
+  } else if (type == ReadingType.nhentai &&
+      !logic.downloaded) {
+    image = CachedImageProvider(logic.urls[index], headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+
+    });
+  }else {
     var id = target;
     if (type == ReadingType.ehentai) {
       id = getGalleryId(target);
@@ -176,14 +182,14 @@ Widget buildComicView(ComicReadingPageLogic logic,
       backgroundDecoration: const BoxDecoration(color: Colors.black),
       onPageChanged: (i) {
         if (i == 0) {
-          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.controller.jumpToPage(1);
             showMessage(Get.context, "已经是第一页了".tl);
             return;
           }
           logic.jumpToLastChapter();
         } else if (i == logic.urls.length + 1) {
-          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.controller.jumpToPage(i - 1);
             showMessage(Get.context, "已经是最后一页了".tl);
             return;
@@ -266,14 +272,14 @@ Widget buildComicView(ComicReadingPageLogic logic,
       backgroundDecoration: const BoxDecoration(color: Colors.black),
       onPageChanged: (i) {
         if (i == 0) {
-          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.controller.jumpToPage(1);
             showMessage(Get.context, "已经是第一页了".tl);
             return;
           }
           logic.jumpToLastChapter();
         } else if (i == (logic.urls.length / 2).ceil() + 1) {
-          if (type == ReadingType.ehentai || type == ReadingType.hitomi) {
+          if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.controller.jumpToPage(i-1);
             showMessage(Get.context, "已经是最后一页了".tl);
             return;

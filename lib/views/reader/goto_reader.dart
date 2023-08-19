@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
+import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/models/history.dart';
 import '../../base.dart';
@@ -12,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 Future<void> addPicacgHistory(ComicItem comic) async{
-  var history = NewHistory(
+  var history = History(
       HistoryType.picacg,
       DateTime.now(),
       comic.title,
@@ -26,7 +27,7 @@ Future<void> addPicacgHistory(ComicItem comic) async{
 }
 
 Future<void> addEhHistory(Gallery gallery) async{
-  var history = NewHistory(
+  var history = History(
       HistoryType.ehentai,
       DateTime.now(),
       gallery.title,
@@ -40,7 +41,7 @@ Future<void> addEhHistory(Gallery gallery) async{
 }
 
 Future<void> addJmHistory(JmComicInfo comic) async{
-  var history = NewHistory(
+  var history = History(
       HistoryType.jmComic,
       DateTime.now(),
       comic.name,
@@ -54,7 +55,7 @@ Future<void> addJmHistory(JmComicInfo comic) async{
 }
 
 Future<void> addHitomiHistory(HitomiComic comic, String cover) async{
-  var history = NewHistory(
+  var history = History(
       HistoryType.hitomi,
       DateTime.now(),
       comic.name,
@@ -68,12 +69,26 @@ Future<void> addHitomiHistory(HitomiComic comic, String cover) async{
 }
 
 Future<void> addHtmangaHistory(HtComicInfo comic) async{
-  var history = NewHistory(
+  var history = History(
       HistoryType.htmanga,
       DateTime.now(),
       comic.name,
       comic.uploader,
       comic.coverPath,
+      0,
+      0,
+      comic.id
+  );
+  await appdata.history.addHistory(history);
+}
+
+Future<void> addNhentaiHistory(NhentaiComic comic) async{
+  var history = History(
+      HistoryType.nhentai,
+      DateTime.now(),
+      comic.title,
+      "",
+      comic.cover,
       0,
       0,
       comic.id
@@ -204,7 +219,6 @@ void readHitomiComic(HitomiComic comic, String cover) async{
       Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files,), preventDuplicates: false);
     }
   } else {
-    HistoryManager().addHistory(NewHistory.fromHitomiComic(comic, cover, DateTime.now(), 0, 1));
     Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files,), preventDuplicates: false);
   }
 }
@@ -235,5 +249,34 @@ void readHtmangaComic(HtComicInfo comic) async{
     }
   }else {
     Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name), preventDuplicates: false);
+  }
+}
+
+void readNhentai(NhentaiComic comic) async{
+  await addNhentaiHistory(comic);
+  var history = await appdata.history.find(comic.id);
+  if(history!=null){
+    if(history.ep!=0){
+      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @page 页, 是否继续阅读?".tlParams({
+          "page": history.page.toString()
+        })),
+        actions: [
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.nhentai(comic.id, comic.title), preventDuplicates: false);
+          }, child: Text("从头开始".tl)),
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.nhentai(comic.id, comic.title, initialPage: history.page), preventDuplicates: false);
+          }, child: Text("继续阅读".tl)),
+        ],
+      ));
+    }else{
+      Get.to(()=>ComicReadingPage.nhentai(comic.id, comic.title), preventDuplicates: false);
+    }
+  }else {
+    Get.to(()=>ComicReadingPage.nhentai(comic.id, comic.title), preventDuplicates: false);
   }
 }

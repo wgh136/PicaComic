@@ -242,4 +242,40 @@ class NhentaiNetwork{
       return Res(null, errorMessage: "解析失败: $e");
     }
   }
+
+  Future<Res<List<String>>> getImages(String id) async{
+    var res = await get("https://nhentai.net/g/$id/1/");
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    try{
+      var document = parse(res.data);
+      var script = document.querySelectorAll("script").firstWhere(
+              (element) => element.text.contains("window._gallery")).text;
+
+
+      Map<String, dynamic> parseJavaScriptJson(String jsCode) {
+        String jsonText = jsCode.split('JSON.parse("')[1].split('");')[0];
+        String decodedJsonText = jsonText.replaceAll("\\u0022", "\"");
+
+        return json.decode(decodedJsonText);
+      }
+
+      var galleryData = parseJavaScriptJson(script);
+
+      String mediaId = galleryData["media_id"];
+
+      var images = <String>[];
+
+      for(var image in galleryData["images"]["pages"]){
+        images.add("https://i7.nhentai.net/galleries/$mediaId/${images.length+1}"
+            ".${image["t"] == 'j' ? 'jpg' : 'png'}");
+      }
+      return Res(images);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: "解析失败: $e");
+    }
+  }
 }

@@ -3,7 +3,8 @@ enum ReadingType {
   ehentai,
   jm ,
   hitomi,
-  htmanga;
+  htmanga,
+  nhentai;
 
   bool get hasEps => [0,2].contains(index);
 }

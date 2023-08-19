@@ -2,58 +2,21 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/network/eh_network/eh_models.dart';
-import 'package:pica_comic/network/picacg_network/models.dart';
-import '../../network/hitomi_network/hitomi_models.dart';
-import '../../network/jm_network/jm_models.dart';
 
-/*
-为了能够存储eh历史记录, 弃用此类, 重构历史记录功能
-class HistoryItem{
-  String id;
-  String title;
-  String author;
-  String cover;
-  DateTime time;
-  int ep;
-  int page;
-  HistoryItem(this.id,this.title,this.author,this.cover,this.time,this.ep,this.page);
 
-  HistoryItem.fromMap(Map<String, dynamic> map):
-      id=map["id"],
-      title=map["title"],
-      author=map["author"],
-      cover=map["cover"],
-      time=DateTime.fromMillisecondsSinceEpoch(map["time"]),
-      ep=map["ep"],
-      page=map["page"];
-
-  Map<String,dynamic> toMap()=>{
-    "id": id,
-    "title": title,
-    "author": author,
-    "cover": cover,
-    "time": time.millisecondsSinceEpoch,
-    "ep": ep,
-    "page": page
-  };
-
-  @override
-  String toString()=>"$id $title $author $time $ep $page";
-}
- */
 enum HistoryType{
   picacg(0),
   ehentai(1),
   jmComic(2),
   hitomi(3),
-  htmanga(4);
+  htmanga(4),
+  nhentai(5);
 
   final int value;
   const HistoryType(this.value);
 }
 
-base class NewHistory extends LinkedListEntry<NewHistory>{
+base class History extends LinkedListEntry<History>{
   HistoryType type;
   DateTime time;
   String title;
@@ -62,34 +25,8 @@ base class NewHistory extends LinkedListEntry<NewHistory>{
   int ep; //标记为0表示没有阅读位置记录
   int page;
   String target;  //picacg中为本子id, eh中为本子链接
-  NewHistory(this.type,this.time,this.title,this.subtitle,this.cover,this.ep,this.page,this.target);
+  History(this.type,this.time,this.title,this.subtitle,this.cover,this.ep,this.page,this.target);
 
-  NewHistory.fromComicItemBrief(ComicItemBrief brief, this.time, this.ep, this.page):
-    type=HistoryType.picacg,
-    title=brief.title,
-    subtitle=brief.author,
-    cover=brief.path,
-    target=brief.id;
-
-  NewHistory.fromGalleryBrief(EhGalleryBrief brief, this.time, this.ep, this.page):
-    type=HistoryType.ehentai,
-    title=brief.title,
-    subtitle=brief.uploader,
-    cover=brief.coverPath,
-    target=brief.link;
-
-  NewHistory.fromJmComicBrief(JmComicBrief brief, this.time, this.ep, this.page):
-     type=HistoryType.jmComic,
-     title=brief.name,
-     subtitle=brief.author,
-     cover="",
-     target=brief.id;
-
-  NewHistory.fromHitomiComic(HitomiComic comic, this.cover, this.time, this.ep, this.page):
-      type = HistoryType.hitomi,
-      title = comic.name,
-      subtitle = (comic.artists??[]).isEmpty?"":comic.artists![0],
-      target = comic.id;
 
   Map<String, dynamic> toMap()=>{
     "type": type.value,
@@ -102,7 +39,7 @@ base class NewHistory extends LinkedListEntry<NewHistory>{
     "target": target
   };
 
-  NewHistory.fromMap(Map<String, dynamic> map):
+  History.fromMap(Map<String, dynamic> map):
     type=HistoryType.values[map["type"]],
     time=DateTime.fromMillisecondsSinceEpoch(map["time"]),
     title=map["title"],
@@ -125,7 +62,7 @@ class HistoryManager{
 
   factory HistoryManager() => cache==null?(cache=HistoryManager.create()):cache!;
 
-  var history = LinkedList<NewHistory>();
+  var history = LinkedList<History>();
   bool _open = false;
 
   List<dynamic> toJson() => history.map((h)=>h.toMap()).toList();
@@ -133,7 +70,7 @@ class HistoryManager{
   void readDataFromJson(List<dynamic> json){
     history.clear();
     for(var h in json){
-      history.add(NewHistory.fromMap((h as Map<String, dynamic>)));
+      history.add(History.fromMap((h as Map<String, dynamic>)));
     }
     saveDataAndClose();
   }
@@ -164,13 +101,13 @@ class HistoryManager{
     }
     var data = const JsonDecoder().convert(file.readAsStringSync());
     for(var h in data){
-      history.add(NewHistory.fromMap((h as Map<String, dynamic>)));
+      history.add(History.fromMap((h as Map<String, dynamic>)));
     }
   }
 
   ///搜索是否存在, 存在则移至最前, 并且转移历史记录
   ///调用此方法不会记录阅读数据, 只是添加历史记录
-  Future<void> addHistory(NewHistory newItem) async{
+  Future<void> addHistory(History newItem) async{
     if(!_open) {
       await readData();
     }
@@ -179,11 +116,11 @@ class HistoryManager{
       newItem.page = p.page;
       newItem.ep = p.ep;
       history.remove(p);
-      history.addFirst(NewHistory.fromMap(newItem.toMap()));//不知道这里直接传递是复制还是引用, 总之这样写直接消灭问题
+      history.addFirst(History.fromMap(newItem.toMap()));//不知道这里直接传递是复制还是引用, 总之这样写直接消灭问题
     }
     catch(e){
       //没有之前的历史记录
-      history.addFirst(NewHistory.fromMap(newItem.toMap()));
+      history.addFirst(History.fromMap(newItem.toMap()));
       //做一个限制, 避免极端情况
       if(history.length >= 10000){
         history.remove(history.last);
@@ -225,7 +162,7 @@ class HistoryManager{
     history.remove(history.firstWhere((element) => element.target==id));
   }
 
-  Future<NewHistory?> find(String target) async{
+  Future<History?> find(String target) async{
     if(!_open) {
       await readData();
     }
