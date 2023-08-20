@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/error_report.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
@@ -102,6 +103,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     downloadManager.init(); //初始化下载管理器
     notifications.init(); //初始化通知管理器
+    NhentaiNetwork().init();
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }

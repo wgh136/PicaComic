@@ -145,6 +145,8 @@ abstract class ComicsPage<T> extends StatelessWidget {
 
   bool get showBackWhenError => true;
 
+  bool get showPageIndicator => true;
+
   ///加载时显示返回按钮
   bool get showBackWhenLoading => showTitle;
 
@@ -309,6 +311,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                       childAspectRatio: comicTileAspectRatio,
                     ),
                   ),
+                  if(showPageIndicator)
                   SliverToBoxAdapter(
                     child: SizedBox(
                       height: 80,

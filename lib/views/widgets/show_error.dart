@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 ///显示错误提示
@@ -29,9 +31,12 @@ Widget showNetworkError(String? message, void Function() retry, BuildContext con
               children: [
                 const Icon(Icons.error_outline, size: 60,),
                 const SizedBox(height: 5,),
-                Text(message??"网络错误", textAlign: TextAlign.center,),
+                Text((message??"网络错误").tl, textAlign: TextAlign.center,),
                 const SizedBox(height: 5,),
-                FilledButton(onPressed: retry, child: Text('重试'.tl))
+                if(message == NhentaiNetwork.needCloudflareChallengeMessage)
+                  FilledButton(onPressed: ()=>bypassCloudFlare(retry), child: Text('继续'.tl))
+                else
+                  FilledButton(onPressed: retry, child: Text('重试'.tl))
               ],
             ),
           ),

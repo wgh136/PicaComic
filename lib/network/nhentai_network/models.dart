@@ -26,9 +26,10 @@ class NhentaiComic{
   bool favorite;
   List<String> thumbnails;
   List<NhentaiComicBrief> recommendations;
+  String token;
 
   NhentaiComic(this.id, this.title, this.subTitle, this.cover, this.tags, this.favorite,
-      this.thumbnails, this.recommendations);
+      this.thumbnails, this.recommendations, this.token);
 }
 
 class NhentaiComment{

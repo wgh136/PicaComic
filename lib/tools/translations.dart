@@ -20,7 +20,8 @@ extension AppTranslation on String{
 
   static const Map<String, Map<String, String>> translations = {
     'zh_CN': {
-      "新到书": "新到旧"
+      "新到书": "新到旧",
+      "need Cloudflare Challenge": "需要进行安全挑战"
     },
     "zh_TW": {
       '有可用更新': '有可用更新',

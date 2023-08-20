@@ -4,6 +4,7 @@ import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
 import 'package:pica_comic/views/ht_views/ht_favorites_page.dart';
 import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
 import 'package:pica_comic/views/local_favorites_page.dart';
+import 'package:pica_comic/views/nhentai/favorites_page.dart';
 import 'package:pica_comic/views/pic_views/favorites_page.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import '../base.dart';
@@ -19,7 +20,7 @@ class AllFavoritesPage extends StatefulWidget {
 class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerProviderStateMixin{
   late TabController controller;
   int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1]) +
-      int.parse(appdata.settings[21][2]) + int.parse(appdata.settings[21][4]) + 1;
+      int.parse(appdata.settings[21][2]) + int.parse(appdata.settings[21][4]) + 1 + int.parse(appdata.settings[21][5]);
 
   @override
   void initState() {
@@ -48,6 +49,8 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
                 Tab(text: "禁漫天堂".tl,),
               if(appdata.settings[21][4] == "1")
                 Tab(text: "绅士漫画".tl,),
+              if(appdata.settings[21][5] == "1")
+                const Tab(text: "Nhentai",),
             ],
             controller: controller,),
           Expanded(
@@ -62,7 +65,9 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
                 if(appdata.settings[21][2] == "1")
                   const JmFavoritePage(),
                 if(appdata.settings[21][4] == "1")
-                  const HtFavoritePage()
+                  const HtFavoritePage(),
+                if(appdata.settings[21][5] == "1")
+                  const NhentaiFavoritePage(),
               ],
             ),
           )

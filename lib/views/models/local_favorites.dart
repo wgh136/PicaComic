@@ -9,10 +9,11 @@ import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
+import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'dart:io';
 
-enum ComicType{picacg, ehentai, jm, hitomi, ht}
+enum ComicType{picacg, ehentai, jm, hitomi, ht, nhentai}
 
 class FavoriteItem{
   String name;
@@ -62,6 +63,14 @@ class FavoriteItem{
       tags = [],
       target = comic.id,
       coverPath = comic.image;
+
+  FavoriteItem.fromNhentai(NhentaiComicBrief comic):
+      name = comic.title,
+      author = "",
+      type = ComicType.nhentai,
+      tags = [],
+      target = comic.id,
+      coverPath = comic.cover;
 
   Map<String, dynamic> toJson() => {
     "name": name,

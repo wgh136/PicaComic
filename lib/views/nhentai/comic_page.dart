@@ -8,7 +8,10 @@ import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import '../main_page.dart';
+import '../models/local_favorites.dart';
+import '../widgets/show_message.dart';
 import 'comments.dart';
+import 'package:get/get.dart';
 
 class NhentaiComicPage extends ComicPage<NhentaiComic>{
   const NhentaiComicPage(this.id, {super.key});
@@ -29,57 +32,38 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
         child: ActionChip(
           label: Text("收藏".tl),
           avatar: const Icon(Icons.bookmark_add_outlined),
-          onPressed: (){}/* favoriteComic(FavoriteComicWidget(
-            havePlatformFavorite: appdata.jmEmail != "",
-            needLoadFolderData: true,
-            foldersLoader: () async{
-              var res = await jmNetwork.getFolders();
-              if(res.error){
-                return res;
-              }else{
-                var resData = <String, String>{"-1":"全部收藏".tl};
-                resData.addAll(res.data);
-                return Res(resData);
-              }
-            },
+          onPressed: ()=> favoriteComic(FavoriteComicWidget(
+            havePlatformFavorite: NhentaiNetwork().logged,
+            needLoadFolderData: false,
             favoriteOnPlatform: data!.favorite,
+            initialFolder: "0",
+            folders: const {"0": "Nhentai"},
             selectFolderCallback: (folder, page) async{
               if(page == 0){
                 showMessage(context, "正在添加收藏".tl);
-                var res = await jmNetwork.favorite(id);
+                var res = await NhentaiNetwork().favoriteComic(id, data!.token);
                 if(res.error){
                   showMessage(Get.context, res.errorMessageWithoutNull);
                   return;
                 }
-                if(folder != "-1") {
-                  var res2 = await jmNetwork.moveToFolder(id, folder);
-                  if (res2.error) {
-                    showMessage(Get.context, res2.errorMessageWithoutNull);
-                    return;
-                  }
-                }
                 data!.favorite = true;
                 showMessage(Get.context, "成功添加收藏".tl);
               }else{
-                LocalFavoritesManager().addComic(folder, FavoriteItem.fromJmComic(JmComicBrief(
-                    id,
-                    data!.author.elementAtOrNull(0)??"",
-                    data!.name,
-                    data!.description,
-                    [],
-                    [],
-                    ignoreExamination: true
+                LocalFavoritesManager().addComic(folder, FavoriteItem.fromNhentai(NhentaiComicBrief(
+                    data!.title,
+                    data!.cover,
+                    id
                 )));
                 showMessage(Get.context, "成功添加收藏".tl);
               }
             },
             cancelPlatformFavorite: ()async{
               showMessage(context, "正在取消收藏".tl);
-              var res = await jmNetwork.favorite(id);
+              var res = await NhentaiNetwork().unfavoriteComic(id, data!.token);
               showMessage(Get.context, !res.error?"成功取消收藏".tl:"网络错误".tl);
               data!.favorite = false;
             },
-          )),*/
+          )),
         ),
       ),
       Expanded(

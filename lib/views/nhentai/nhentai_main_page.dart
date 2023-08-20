@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
@@ -44,31 +42,6 @@ class NhentaiHomePage extends StatelessWidget {
             logic.get();
             return const Center(
               child: CircularProgressIndicator(),
-            );
-          } else if (logic.message == NhentaiNetwork.needCloudflareChallengeMessage) {
-            return Center(
-              child: SizedBox(
-                height: 170,
-                width: 200,
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.info,
-                      size: 60,
-                    ),
-                    const SizedBox(height: 5,),
-                    Text("需要进行Cloudflare Challenge".tl),
-                    const SizedBox(height: 5,),
-                    Center(
-                      child: FilledButton(
-                          onPressed: () {
-                            bypassCloudFlare(()=>logic.refresh_());
-                          },
-                          child: Text("继续".tl)),
-                    )
-                  ],
-                ),
-              ),
             );
           } else if (logic.message != null) {
             return showNetworkError(logic.message!, ()=>logic.refresh_(), context,

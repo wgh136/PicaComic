@@ -1,13 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:get/get.dart';
 
 class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
   final String keyword;
@@ -15,12 +13,8 @@ class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
   const _SearchPageComicsList(this.keyword, {this.head_, super.key});
 
   @override
-  Future<Res<List<NhentaiComicBrief>>> getComics(int i) async{
-    var res = await NhentaiNetwork().search(keyword, i, );
-    if(res.errorMessage == NhentaiNetwork.needCloudflareChallengeMessage){
-      bypassCloudFlare(() => Get.find(tag: "Nhentai search $keyword").refresh_());
-    }
-    return res;
+  Future<Res<List<NhentaiComicBrief>>> getComics(int i){
+    return NhentaiNetwork().search(keyword, i);
   }
 
   @override

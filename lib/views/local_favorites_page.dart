@@ -11,6 +11,7 @@ import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
@@ -290,6 +291,8 @@ class LocalFavoriteTile extends ComicTile {
         MainPage.to(() => HtComicPage(HtComicBrief(comic.name, "", comic.coverPath,
             comic.target, int.parse(comic.author.replaceFirst("Pages", "")),
             ignoreExamination: true)));
+      case ComicType.nhentai:
+        MainPage.to(() => NhentaiComicPage(comic.target));
     }
   }
 

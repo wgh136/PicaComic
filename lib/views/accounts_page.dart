@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
+import 'package:pica_comic/network/nhentai_network/login.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/views/eh_views/eh_login_page.dart';
 import 'package:pica_comic/views/ht_views/ht_login_page.dart';
 import 'package:pica_comic/views/jm_views/jm_login_page.dart';
@@ -277,7 +279,34 @@ class AccountsPage extends StatelessWidget {
                       title: Text("登录".tl),
                       onTap: () => Get.to(() => const HtLoginPage())
                           ?.then((v) => logic.update()),
-                    )
+                    ),
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Nhentai",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text("账号".tl),
+                    subtitle: Text(NhentaiNetwork().logged ? "已登录".tl : "未登录".tl),
+                  ),
+                  if(!NhentaiNetwork().logged)
+                    ListTile(
+                      title: Text("登录".tl),
+                      onTap: ()=>login(() => logic.update()),
+                    ),
+                  if(NhentaiNetwork().logged)
+                    ListTile(
+                      title: Text("退出登录".tl),
+                      onTap: (){
+                        NhentaiNetwork().logged = false;
+                        NhentaiNetwork().logout();
+                        logic.update();
+                      },
+                      trailing: const Icon(Icons.logout),
+                    ),
                 ])),
             const SliverPadding(padding: EdgeInsets.only(bottom: 50))
           ],
