@@ -15,9 +15,11 @@ import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
+import 'package:pica_comic/network/nhentai_network/download.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/download_page.dart';
+import 'nhentai_network/models.dart';
 import 'picacg_network/models.dart';
 
 /*
@@ -59,6 +61,10 @@ class DownloadManager{
   ///已下载的绅士漫画
   List<String> downloadedHtComics = [];
 
+  /// 已下载的Nhentai漫画
+  List<String> downloadedNhentaiComics = [];
+
+  /// 获取所有漫画
   List<String> get allComics => downloaded + downloadedGalleries
       + downloadedJmComics + downloadedHitomiComics + downloadedHtComics;
 
@@ -180,6 +186,11 @@ class DownloadManager{
         if (!file.existsSync()) continue;
         downloadedHtComics.add(s);
       }
+      for (var s in json["downloadedNhentaiComics"] ?? []) {
+        var file = File("$path$pathSep$s${pathSep}info.json");
+        if (!file.existsSync()) continue;
+        downloadedNhentaiComics.add(s);
+      }
       for (var item in json["downloading"]) {
         downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
       }
@@ -221,6 +232,7 @@ class DownloadManager{
     data["downloadedJmComics"] = downloadedJmComics;
     data["downloadedHitomiComics"] = downloadedHitomiComics;
     data["downloadedHtComics"] = downloadedHtComics;
+    data["downloadedNhentaiComics"] = downloadedNhentaiComics;
     data["downloading"] = <Map<String, dynamic>>[];
     for(var item in downloading){
       data["downloading"].add(item.toMap());
@@ -305,6 +317,18 @@ class DownloadManager{
     }
   }
 
+  void addNhentaiDownload(NhentaiComic comic){
+    final id = "nhentai${comic.id}";
+    var downloadPath = Directory("$path$pathSep$id");
+    downloadPath.create(recursive: true);
+    downloading.addLast(NhentaiDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, id));
+    _saveInfo();
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
   ///当一个下载任务完成时, 调用此函数
   void _whenFinish() async{
     if(downloading.first.type == DownloadType.picacg && !downloaded.contains(downloading.first.id)) {
@@ -317,6 +341,8 @@ class DownloadManager{
       downloadedHitomiComics.add(downloading.first.id);
     }else if(downloading.first.type == DownloadType.htmanga && !downloadedHtComics.contains(downloading.first.id)){
       downloadedHtComics.add(downloading.first.id);
+    }else if(downloading.first.type == DownloadType.nhentai && !downloadedNhentaiComics.contains(downloading.first.id)){
+      downloadedNhentaiComics.add(downloading.first.id);
     }
     downloading.removeFirst();
     await _saveInfo();
@@ -496,6 +522,27 @@ class DownloadManager{
     }
   }
 
+  Future<NhentaiDownloadedComic> getNhentaiComic(String id) async{
+    try {
+      var file = File("$path$pathSep$id${pathSep}info.json");
+      var json = await file.readAsString();
+      var res =  NhentaiDownloadedComic.fromJson(jsonDecode(json));
+      try {
+        var time = file.lastModifiedSync();
+        res.time = time;
+      }
+      catch(e){
+        //忽视
+      }
+      return res;
+    }
+    catch(e){
+      downloadedHtComics.remove(id);
+      _saveInfo();
+      rethrow;
+    }
+  }
+
   ///删除已下载的漫画
   Future<void> delete(List<String> ids) async{
     for (var id in ids) {
@@ -526,14 +573,14 @@ class DownloadManager{
     return files.length;
   }
 
-  ///获取eh或hitomi或绅士漫画长度
+  ///获取eh或hitomi或绅士漫画或Nhentai长度
   Future<int> getComicLength(String id) async{
     var directory = Directory("$path$pathSep$id");
     var files = directory.list();
     return await files.length - 2;
   }
 
-  ///获取图片, 对于 eh 和 hitomi 和 绅士漫画, ep参数为0
+  ///获取图片, 对于 eh 和 hitomi 和 绅士漫画 和 Nhentai, ep参数为0
   File getImage(String id, int ep, int index){
     String downloadPath;
     if(ep == 0){
@@ -566,6 +613,7 @@ DownloadingItem downloadingItemFromMap(
     case 2: return JmDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 3: return HitomiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 4: return DownloadingHtComic.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    case 5: return NhentaiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     default: throw UnimplementedError();
   }
 }

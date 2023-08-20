@@ -29,7 +29,7 @@ abstract class DownloadedItem{
   DateTime? time;
 }
 
-enum DownloadType{picacg, ehentai, jm, hitomi, htmanga}
+enum DownloadType{picacg, ehentai, jm, hitomi, htmanga, nhentai}
 
 typedef DownloadProgressCallback = void Function();
 
@@ -275,7 +275,8 @@ abstract class DownloadingItem{
   Future<Map<int, List<String>>> getLinks();
 
   /// whether this platform have episode
-  bool get haveEps => type!=DownloadType.ehentai&&type!=DownloadType.hitomi&&type!=DownloadType.htmanga;
+  bool get haveEps => type!=DownloadType.ehentai&&type!=DownloadType.hitomi&&
+      type!=DownloadType.htmanga&&type!=DownloadType.nhentai;
 
   void loadImageToCache(String link);
 

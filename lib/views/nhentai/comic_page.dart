@@ -7,6 +7,7 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
+import '../../network/download.dart';
 import '../main_page.dart';
 import '../models/local_favorites.dart';
 import '../widgets/show_message.dart';
@@ -79,11 +80,27 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   String get cover => data!.cover;
 
   @override
+  @override
   FilledButton get downloadButton => FilledButton(
-    child: Text("下载".tl),
-    onPressed: (){
-      //TODO
+    onPressed: () {
+      final id = "nhentai${data!.id}";
+      if (DownloadManager().downloadedHtComics.contains(id)) {
+        showMessage(context, "已下载".tl);
+        return;
+      }
+      for (var i in DownloadManager().downloading) {
+        if (i.id == id) {
+          showMessage(context, "下载中".tl);
+          return;
+        }
+      }
+      DownloadManager().addNhentaiDownload(data!);
+      showMessage(context, "已加入下载队列".tl);
     },
+    child:
+    DownloadManager().downloadedHtComics.contains("nhentai${data!.id}")
+        ? Text("已下载".tl)
+        : Text("下载".tl),
   );
 
   @override

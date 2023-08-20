@@ -53,6 +53,8 @@ ImageProvider createImageProvider(ReadingType type, ComicReadingPageLogic logic,
       id = "hitomi$target";
     } else if (type == ReadingType.htmanga) {
       id = "Ht$target";
+    } else if(type == ReadingType.nhentai){
+      id = "nhentai$target";
     }
     image = FileImage(
         downloadManager.getImage(id, logic.order, index));

@@ -30,6 +30,24 @@ class NhentaiComic{
 
   NhentaiComic(this.id, this.title, this.subTitle, this.cover, this.tags, this.favorite,
       this.thumbnails, this.recommendations, this.token);
+
+  Map<String, dynamic> toMap() => {
+    "id": id,
+    "title": title,
+    "subTitle": subTitle,
+    "cover": cover,
+  };
+
+  NhentaiComic.fromMap(Map<String, dynamic> map):
+      id = map["id"],
+      title = map["title"],
+      subTitle = map["subTitle"],
+      cover = map["cover"],
+      tags = {},
+      favorite = false,
+      thumbnails = [],
+      recommendations = [],
+      token = "";
 }
 
 class NhentaiComment{

@@ -4,6 +4,8 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
+import 'package:pica_comic/network/nhentai_network/download.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/downloading_page.dart';
@@ -11,6 +13,7 @@ import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
+import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
@@ -24,6 +27,8 @@ import '../network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
 import 'package:pica_comic/tools/translations.dart';
+import 'main_page.dart';
+
 
 class DownloadPageLogic extends GetxController {
   ///是否正在加载
@@ -159,10 +164,10 @@ class DownloadPage extends StatelessWidget {
                               icon: const Icon(Icons.download_for_offline),
                               onPressed: () {
                                 showAdaptiveWidget(
-                                    context,
+                                    Get.context!,
                                     DownloadingPage(
                                       inPopupWidget:
-                                          MediaQuery.of(context).size.width >
+                                          MediaQuery.of(Get.context!).size.width >
                                               600,
                                     ));
                               },
@@ -250,7 +255,17 @@ class DownloadPage extends StatelessWidget {
                                         child: Text("查看漫画详情".tl),
                                         onTap: () => Future.delayed(
                                             const Duration(milliseconds: 200),
-                                            () => toComicInfoPage(logic)),
+                                            () {
+                                              if (logic.selectedNum != 1) {
+                                                showMessage(Get.context, "请选择一个漫画".tl);
+                                              } else {
+                                                for (int i = 0; i < logic.selected.length; i++) {
+                                                  if (logic.selected[i]) {
+                                                    toComicInfoPage(logic.comics[i]);
+                                                  }
+                                                }
+                                              }
+                                            }),
                                       ),
                                     ]);
                               },
@@ -297,6 +312,10 @@ class DownloadPage extends StatelessWidget {
 
       for (var comic in downloadManager.downloadedHtComics) {
         logic.comics.add(await downloadManager.getHtComicFromId(comic));
+      }
+
+      for(var comic in downloadManager.downloadedNhentaiComics){
+        logic.comics.add(await downloadManager.getNhentaiComic(comic));
       }
     } catch (e) {
       logic.comics.clear();
@@ -445,31 +464,7 @@ class DownloadPage extends StatelessWidget {
                     child: Text("查看漫画详情".tl),
                     onTap: () {
                       Future.delayed(const Duration(milliseconds: 300), () {
-                        switch (logic.comics[index].type.index) {
-                          case 0:
-                            Get.to(() => PicacgComicPage(
-                                (logic.comics[index] as DownloadedComic)
-                                    .comicItem
-                                    .toBrief()));
-                            break;
-                          case 1:
-                            Get.to(() => EhGalleryPage(
-                                (logic.comics[index] as DownloadedGallery)
-                                    .gallery
-                                    .toBrief()));
-                            break;
-                          case 2:
-                            Get.to(() => JmComicPage(
-                                (logic.comics[index] as DownloadedJmComic)
-                                    .comic
-                                    .id));
-                            break;
-                          case 3:
-                            Get.to(() => HitomiComicPage(
-                                (logic.comics[index] as DownloadedHitomiComic)
-                                    .toBrief()));
-                            break;
-                        }
+                        toComicInfoPage(logic.comics[index]);
                       });
                     },
                   ),
@@ -480,31 +475,39 @@ class DownloadPage extends StatelessWidget {
     );
   }
 
-  void toComicInfoPage(DownloadPageLogic logic) {
-    if (logic.selectedNum != 1) {
-      showMessage(Get.context, "请选择一个漫画".tl);
-    } else {
-      for (int i = 0; i < logic.selected.length; i++) {
-        if (logic.selected[i]) {
-          switch (logic.comics[i].type.index) {
-            case 0:
-              Get.to(() => PicacgComicPage(
-                  (logic.comics[i] as DownloadedComic).comicItem.toBrief()));
-              break;
-            case 1:
-              Get.to(() => EhGalleryPage(
-                  (logic.comics[i] as DownloadedGallery).gallery.toBrief()));
-              break;
-            case 2:
-              Get.to(() => JmComicPage(logic.comics[i].id.substring(2)));
-              break;
-            case 3:
-              Get.to(() => HitomiComicPage(
-                  (logic.comics[i] as DownloadedHitomiComic).toBrief()));
-              break;
-          }
-        }
-      }
+  void toComicInfoPage(DownloadedItem comic){
+    switch (comic.type.index) {
+      case 0:
+        MainPage.to(() => PicacgComicPage(
+            (comic as DownloadedComic)
+                .comicItem
+                .toBrief()));
+        break;
+      case 1:
+        MainPage.to(() => EhGalleryPage(
+            (comic as DownloadedGallery)
+                .gallery
+                .toBrief()));
+        break;
+      case 2:
+        MainPage.to(() => JmComicPage(
+            (comic as DownloadedJmComic)
+                .comic
+                .id));
+        break;
+      case 3:
+        MainPage.to(() => HitomiComicPage(
+            (comic as DownloadedHitomiComic)
+                .toBrief()));
+        break;
+      case 4:
+        MainPage.to(() => HtComicPage(
+            (comic as DownloadedHtComic)
+                .comic.toBrief()));
+      case 5:
+        MainPage.to(() => NhentaiComicPage(
+            (comic as NhentaiDownloadedComic)
+                .id.replaceFirst("nhentai", "")));
     }
   }
 
@@ -610,27 +613,31 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                     child: FilledButton(
                         onPressed: () {
                           if (widget.item is DownloadedComic) {
-                            Get.to(() => PicacgComicPage(
+                            MainPage.to(() => PicacgComicPage(
                                 (widget.item as DownloadedComic)
                                     .comicItem
                                     .toBrief()));
                           } else if (widget.item is DownloadedGallery) {
-                            Get.to(() => EhGalleryPage(
+                            MainPage.to(() => EhGalleryPage(
                                 (widget.item as DownloadedGallery)
                                     .gallery
                                     .toBrief()));
                           } else if (widget.item is DownloadedJmComic) {
-                            Get.to(() => JmComicPage(
+                            MainPage.to(() => JmComicPage(
                                 (widget.item as DownloadedJmComic).comic.id));
                           } else if (widget.item is DownloadedHitomiComic) {
-                            Get.to(() => HitomiComicPage(
+                            MainPage.to(() => HitomiComicPage(
                                 (widget.item as DownloadedHitomiComic)
                                     .toBrief()));
                           } else if (widget.item is DownloadedHtComic) {
-                            Get.to(() => HtComicPage(
+                            MainPage.to(() => HtComicPage(
                                 (widget.item as DownloadedHtComic)
                                     .comic
                                     .toBrief()));
+                          } else if(widget.item is NhentaiDownloadedComic){
+                            MainPage.to(() => NhentaiComicPage(
+                                (widget.item as NhentaiDownloadedComic)
+                                    .id.replaceFirst("nhentai", "")));
                           }
                         },
                         child: Text("查看详情".tl)),
@@ -671,6 +678,9 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
           (comic as DownloadedHitomiComic).cover);
     } else if (comic.type == DownloadType.htmanga) {
       readHtmangaComic((comic as DownloadedHtComic).comic);
+    } else if (comic.type == DownloadType.nhentai){
+      readNhentai(NhentaiComic(comic.id.replaceFirst("nhentai", ""), comic.name, comic.subTitle,
+          (comic as NhentaiDownloadedComic).cover, {}, false, [], [], ""));
     }
   }
 
@@ -696,6 +706,9 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
           (comic as DownloadedHitomiComic).cover);
     } else if (comic.type == DownloadType.htmanga) {
       readHtmangaComic((comic as DownloadedHtComic).comic);
+    } else if (comic.type == DownloadType.nhentai){
+      readNhentai(NhentaiComic(comic.id.replaceFirst("nhentai", ""), comic.name, comic.subTitle,
+          (comic as NhentaiDownloadedComic).cover, {}, false, [], [], ""));
     }
   }
 }

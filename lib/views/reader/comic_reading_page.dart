@@ -697,6 +697,21 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   void loadNhentaiData(ComicReadingPageLogic logic) async{
+    try {
+      if (downloadManager.downloadedNhentaiComics.contains("nhentai$target")) {
+        logic.downloaded = true;
+        for (int i = 0;
+        i < await downloadManager.getComicLength("nhentai$target");
+        i++) {
+          logic.urls.add("");
+        }
+        logic.change();
+        return;
+      }
+    } catch (e) {
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+      logic.downloaded = false;
+    }
     var res = await NhentaiNetwork().getImages(target);
     if (res.error) {
       data.message = res.errorMessage;
@@ -739,6 +754,8 @@ class ComicReadingPage extends StatelessWidget {
         id = "hitomi$target";
       } else if (type == ReadingType.htmanga) {
         id = "Ht$target";
+      } else if( type == ReadingType.nhentai) {
+        id = "nhentai$target";
       }
       shareImageFromDisk(downloadManager
           .getImage(id, logic.order, logic.index - 1)
@@ -767,7 +784,7 @@ class ComicReadingPage extends StatelessWidget {
       } else if (type == ReadingType.htmanga) {
         id = "Ht$target";
       } else if( type == ReadingType.nhentai) {
-        id = "nt$target";
+        id = "nhentai$target";
       }
       saveImageFromDisk(downloadManager
           .getImage(id, logic.order, logic.index - 1)
