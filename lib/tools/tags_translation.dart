@@ -43,6 +43,13 @@ extension TagsTranslation on String{
     "group": "团队",
     "cosplayer": "Coser",
     "reclass": "重新分类",
+    "Languages": "语言",
+    "Artists": "画师",
+    "Characters": "角色",
+    "Groups": "团队",
+    "Tags": "标签",
+    "Parodies": "原作",
+    "Categories": "分类",
   };
 
   /// English to chinese translations
@@ -652,6 +659,7 @@ extension TagsTranslation on String{
     "gender change": "性别改变",
     "ai generated": "AI生成",
     "loli": "萝莉",
+    "sensei": "老师",
 
     // 语言
     "chinese": "中文",

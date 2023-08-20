@@ -110,6 +110,9 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   String? get introduction => null;
 
   @override
+  bool get enableTranslationToCN => true;
+
+  @override
   Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(id);
 
   @override
@@ -136,8 +139,15 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   @override
   String get tag => "Nhentai $id";
 
+  Map<String, List<String>> generateTags(){
+    var tags = data!.tags;
+    tags.remove("Pages");
+    tags.removeWhere((key, value) => value.isEmpty);
+    return tags;
+  }
+
   @override
-  Map<String, List<String>>? get tags => data!.tags;
+  Map<String, List<String>>? get tags => generateTags();
 
   @override
   void tapOnTags(String tag) {
