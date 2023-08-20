@@ -290,11 +290,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v6.0.0-beta.22"
-      resolved-ref: a42b0e4dfd6c2dd0506391b03c2c901dcec8b325
+      ref: "v6.0.0-beta.23"
+      resolved-ref: "2c26f988e9cb28b47712c170b38c6a122cae817c"
       url: "https://github.com/pichillilorenzo/flutter_inappwebview"
     source: git
-    version: "6.0.0-beta.22"
+    version: "6.0.0-beta.23"
   flutter_inappwebview_internal_annotations:
     dependency: transitive
     description:
@@ -969,10 +969,11 @@ packages:
   workmanager:
     dependency: "direct main"
     description:
-      name: workmanager
-      sha256: e0be7e35d644643f164ee45d2ce14414f0e0fdde19456aa66065f35a0b1d2ea1
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: main
+      resolved-ref: aa5c51a751e5e8d75dbc4c46c2dea190e4e71af8
+      url: "https://github.com/wgh136/flutter_workmanager"
+    source: git
     version: "0.5.1"
   xdg_directories:
     dependency: transitive
