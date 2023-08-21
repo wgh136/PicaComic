@@ -55,7 +55,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
                 LocalFavoritesManager().addComic(folder, FavoriteItem.fromNhentai(NhentaiComicBrief(
                     data!.title,
                     data!.cover,
-                    id
+                    id,"Unknown"
                 )));
                 showMessage(Get.context, "成功添加收藏".tl);
               }
@@ -151,7 +151,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   String get tag => "Nhentai $id";
 
   Map<String, List<String>> generateTags(){
-    var tags = data!.tags;
+    var tags = Map<String, List<String>>.from(data!.tags);
     tags.remove("Pages");
     tags.removeWhere((key, value) => value.isEmpty);
     return tags;

@@ -7,9 +7,8 @@ class NhentaiFavoritePage extends ComicsPage<NhentaiComicBrief>{
   const NhentaiFavoritePage({super.key});
 
   @override
-  Future<Res<List<NhentaiComicBrief>>> getComics(int i) async{
-    var res = await NhentaiNetwork().getFavorites();
-    return Res(res.dataOrNull, subData: 1, errorMessage: res.errorMessage);
+  Future<Res<List<NhentaiComicBrief>>> getComics(int i){
+    return NhentaiNetwork().getFavorites(i);
   }
 
   @override
@@ -32,8 +31,5 @@ class NhentaiFavoritePage extends ComicsPage<NhentaiComicBrief>{
 
   @override
   bool get showTitle => false;
-
-  @override
-  bool get showPageIndicator => false;
 
 }

@@ -5,8 +5,9 @@ class NhentaiComicBrief{
   final String title;
   final String cover;
   final String id;
+  final String lang;
 
-  const NhentaiComicBrief(this.title, this.cover, this.id);
+  const NhentaiComicBrief(this.title, this.cover, this.id, this.lang);
 }
 
 class NhentaiHomePageData{

@@ -15,7 +15,7 @@ class NhentaiComicTile extends ComicTile{
   const NhentaiComicTile(this.comic, {super.key});
 
   @override
-  String get description => "ID: ${comic.id}";
+  String get description => comic.lang;
 
   @override
   Widget get image => CachedNetworkImage(

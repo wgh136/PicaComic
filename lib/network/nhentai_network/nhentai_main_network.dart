@@ -123,19 +123,28 @@ class NhentaiNetwork {
     }
   }
 
+  NhentaiComicBrief parseComic(Element comicDom) {
+    var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
+    var name = comicDom.querySelector("div.caption")!.text;
+    var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
+    var lang = "Unknown";
+    var tags = comicDom.attributes["data-tags"]??"";
+    if(tags.contains("12227")){
+      lang = "English";
+    }else if(tags.contains("6346")){
+      lang = "日本語";
+    }else if(tags.contains("29963")){
+      lang = "中文";
+    }
+    return NhentaiComicBrief(name, img, id, lang);
+  }
+
   Future<Res<NhentaiHomePageData>> getHomePage() async {
     var res = await get("https://nhentai.net");
     if (res.error) {
       return Res.fromErrorRes(res);
     }
     try {
-      NhentaiComicBrief parseComic(Element comicDom) {
-        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
-        var name = comicDom.querySelector("div.caption")!.text;
-        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
-        return NhentaiComicBrief(name, img, id);
-      }
-
       var document = parse(res.data);
       var popularDoms = document.querySelectorAll(
           "div.container.index-container.index-popular > div.gallery");
@@ -159,13 +168,6 @@ class NhentaiNetwork {
       return Res.fromErrorRes(res);
     }
     try {
-      NhentaiComicBrief parseComic(Element comicDom) {
-        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
-        var name = comicDom.querySelector("div.caption")!.text;
-        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
-        return NhentaiComicBrief(name, img, id);
-      }
-
       var document = parse(res.data);
 
       var latest = document.querySelectorAll("div.gallery");
@@ -194,13 +196,6 @@ class NhentaiNetwork {
       return Res.fromErrorRes(res);
     }
     try {
-      NhentaiComicBrief parseComic(Element comicDom) {
-        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
-        var name = comicDom.querySelector("div.caption")!.text;
-        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
-        return NhentaiComicBrief(name, img, id);
-      }
-
       var document = parse(res.data);
 
       var comicDoms = document.querySelectorAll("div.gallery");
@@ -229,13 +224,6 @@ class NhentaiNetwork {
       return Res.fromErrorRes(res);
     }
     try {
-      NhentaiComicBrief parseComic(Element comicDom) {
-        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
-        var name = comicDom.querySelector("div.caption")!.text;
-        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
-        return NhentaiComicBrief(name, img, id);
-      }
-
       String combineSpans(Element title) {
         var res = "";
         for (var span in title.children) {
@@ -352,26 +340,22 @@ class NhentaiNetwork {
     }
   }
 
-  Future<Res<List<NhentaiComicBrief>>> getFavorites() async {
+  Future<Res<List<NhentaiComicBrief>>> getFavorites(int page) async {
     if (!logged) {
       return const Res(null, errorMessage: "login required");
     }
-    var res = await get("https://nhentai.net/favorites/");
+    var res = await get("https://nhentai.net/favorites/?page=$page");
     if (res.error) {
       return Res.fromErrorRes(res);
     }
     try {
       var document = parse(res.data);
-      NhentaiComicBrief parseComic(Element comicDom) {
-        var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
-        var name = comicDom.querySelector("div.caption")!.text;
-        var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
-        return NhentaiComicBrief(name, img, id);
-      }
-
       var comics = document.querySelectorAll("div.gallery");
+      var lastPagination = document.querySelector("section.pagination > a.last")
+          ?.attributes["href"]?.nums;
       return Res(
-          List.generate(comics.length, (index) => parseComic(comics[index])));
+          List.generate(comics.length, (index) => parseComic(comics[index])),
+          subData: lastPagination==null?1:int.parse(lastPagination));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
       return Res(null, errorMessage: "解析失败: $e");
