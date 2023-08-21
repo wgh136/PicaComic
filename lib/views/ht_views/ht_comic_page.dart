@@ -84,6 +84,11 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   );
 
   @override
+  void onThumbnailTapped(int index) {
+    readHtmangaComic(data!, index);
+  }
+
+  @override
   EpsData? get eps => null;
 
   @override

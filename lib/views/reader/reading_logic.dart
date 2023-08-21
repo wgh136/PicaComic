@@ -12,7 +12,7 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式
-  var controller = PageController(initialPage: 1);
+  PageController controller;
   ///用于从上至下(连续)阅读方式, 跳转至指定项目
   var scrollController = ItemScrollController();
   ///用于从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
@@ -26,7 +26,25 @@ class ComicReadingPageLogic extends GetxController{
 
   double currentScale = 1.0;
 
-  ComicReadingPageLogic(this.order, this.data);
+  static int _getIndex(int initPage){
+   if(appdata.settings[9] == "5" || appdata.settings[9] == "6"){
+     return initPage % 2 == 1 ? initPage : initPage-1;
+   }else{
+     return initPage;
+   }
+  }
+
+  static int _getPage(int initPage){
+    if(appdata.settings[9] == "5" || appdata.settings[9] == "6"){
+      return (initPage + 2) ~/ 2;
+    }else{
+      return initPage;
+    }
+  }
+
+  ComicReadingPageLogic(this.order, this.data):
+     controller = PageController(initialPage: _getPage(data.initialPage)),
+     index = _getIndex(data.initialPage);
 
   ReadingPageData data;
 
@@ -61,7 +79,7 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
-  int index = 1;
+  int index;
   ///当前的章节位置, 从1开始
   int order;
   ///工具栏是否打开
@@ -76,6 +94,14 @@ class ComicReadingPageLogic extends GetxController{
   var epsWidgets = <Widget>[];
   ///是否是已下载的漫画
   bool downloaded = false;
+
+  void reload(){
+    index = 1;
+    data.initialPage = 1;
+    controller = PageController(initialPage: 1);
+    isLoading = true;
+    update();
+  }
 
   void change(){
     isLoading = !isLoading;
@@ -143,6 +169,7 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   void jumpToNextChapter(){
+    data.initialPage = 1;
     var type = data.type;
     var eps = data.eps;
     eps.remove("");
@@ -170,6 +197,7 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   void jumpToLastChapter(){
+    data.initialPage = 1;
     var type = data.type;
     var eps = data.eps;
     showFloatingButtonValue = 0;

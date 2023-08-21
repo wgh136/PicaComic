@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:get/get.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
   if(withScaffold){
@@ -28,4 +29,38 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
       ),
     );
   }
+}
+
+void showLoadingDialog(BuildContext context, void Function() onCancel){
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: Dialog(
+          child: Container(
+            width: 100,
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: CircularProgressIndicator(),
+                ),
+                const SizedBox(width: 16,),
+                const Text('Loading', style: TextStyle(fontSize: 16),),
+                const Spacer(),
+                TextButton(onPressed: () {
+                  Get.back();
+                  onCancel();
+                }, child: Text("取消".tl))
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

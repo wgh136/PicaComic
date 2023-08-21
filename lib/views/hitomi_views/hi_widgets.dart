@@ -5,20 +5,17 @@ import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import '../main_page.dart';
 import '../widgets/comic_tile.dart';
+import '../widgets/loading.dart';
 
 class HiComicTile extends ComicTile {
   final HitomiComicBrief comic;
   const HiComicTile(this.comic, {super.key});
-
-  @override
-  void favorite() {
-    showMessage(Get.context, "Can't add favorite");
-  }
   
   List<String> _generateTags(List<Tag> tags){
     var res = <String>[];
@@ -44,6 +41,23 @@ class HiComicTile extends ComicTile {
 
   @override
   List<String>? get tags => _generateTags(comic.tags);
+
+  @override
+  ActionFunc? get read => () async{
+    bool cancel = false;
+    showLoadingDialog(Get.context!, ()=>cancel=true);
+    var res = await HiNetwork().getComicInfo(comic.link, comic.name);
+    if(cancel){
+      return;
+    }
+    if(res.error){
+      Get.back();
+      showMessage(Get.context, res.errorMessageWithoutNull);
+    }else{
+      Get.back();
+      readHitomiComic(res.data, comic.cover);
+    }
+  };
 
   @override
   String get description => (){

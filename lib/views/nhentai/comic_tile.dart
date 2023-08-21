@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/nhentai_network/models.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
-
+import 'package:get/get.dart';
 import '../main_page.dart';
+import '../widgets/loading.dart';
+import '../widgets/show_message.dart';
 
 class NhentaiComicTile extends ComicTile{
   final NhentaiComicBrief comic;
@@ -13,11 +16,6 @@ class NhentaiComicTile extends ComicTile{
 
   @override
   String get description => "ID: ${comic.id}";
-
-  @override
-  void favorite() {
-    // TODO: implement favorite
-  }
 
   @override
   Widget get image => CachedNetworkImage(
@@ -42,4 +40,21 @@ class NhentaiComicTile extends ComicTile{
 
   @override
   int get maxLines => 4;
+
+  @override
+  ActionFunc? get read => () async{
+    bool cancel = false;
+    showLoadingDialog(Get.context!, ()=>cancel=true);
+    var res = await NhentaiNetwork().getComicInfo(comic.id);
+    if(cancel){
+      return;
+    }
+    if(res.error){
+      Get.back();
+      showMessage(Get.context, res.errorMessageWithoutNull);
+    }else{
+      Get.back();
+      readNhentai(res.data);
+    }
+  };
 }

@@ -22,9 +22,6 @@ class NormalComicTile extends ComicTile {
   String get description => description_;
 
   @override
-  void favorite() {}
-
-  @override
   void onLongTap_() => onLongTap!=null?onLongTap!.call():null;
 
   @override

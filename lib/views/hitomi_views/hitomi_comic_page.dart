@@ -11,7 +11,6 @@ import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-
 import '../models/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 

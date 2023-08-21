@@ -242,9 +242,6 @@ class LocalFavoriteTile extends ComicTile {
   String get description => comic.time;
 
   @override
-  void favorite() {}
-
-  @override
   Widget get image => FutureBuilder<File>(
         future: LocalFavoritesManager().getCover(comic.coverPath),
         builder: (context, file) {

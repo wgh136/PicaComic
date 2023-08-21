@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/translations.dart';
+
+typedef ActionFunc = void Function();
 
 ///漫画组件
 abstract class ComicTile extends StatelessWidget {
@@ -14,7 +17,9 @@ abstract class ComicTile extends StatelessWidget {
   List<String>? get tags => null;
   int get maxLines => 2;
 
-  void favorite();
+  ActionFunc? get favorite => null;
+
+  ActionFunc? get read => null;
 
   void onLongTap_() {
     showDialog(
@@ -35,18 +40,31 @@ abstract class ComicTile extends StatelessWidget {
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.menu_book_outlined),
+                      leading: const Icon(Icons.article),
                       title: const Text("查看详情"),
-                      onTap: onTap_,
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.bookmark_rounded),
-                      title: const Text("收藏/取消收藏"),
-                      onTap: () {
+                      onTap: (){
                         Get.back();
-                        favorite();
+                        onTap_();
                       },
                     ),
+                    if(favorite != null)
+                      ListTile(
+                        leading: const Icon(Icons.bookmark_rounded),
+                        title: const Text("收藏/取消收藏"),
+                        onTap: () {
+                          Get.back();
+                          favorite!();
+                        },
+                      ),
+                    if(read != null)
+                      ListTile(
+                        leading: const Icon(Icons.chrome_reader_mode),
+                        title: const Text("阅读"),
+                        onTap: () {
+                          Get.back();
+                          read!();
+                        },
+                      ),
                     const SizedBox(
                       height: 16,
                     ),
@@ -69,7 +87,12 @@ abstract class ComicTile extends StatelessWidget {
           PopupMenuItem(
               onTap: () => Future.delayed(
                   const Duration(milliseconds: 200), () => onTap_()),
-              child: const Text("查看"))
+              child: Text("查看".tl)),
+          if(read != null)
+          PopupMenuItem(
+              onTap: () => Future.delayed(
+                  const Duration(milliseconds: 200), () => read!()),
+              child: Text("阅读".tl)),
         ]);
   }
 

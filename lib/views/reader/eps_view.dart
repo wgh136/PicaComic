@@ -45,14 +45,14 @@ class _EpsViewState extends State<EpsView> {
                   data.target = eps[index];
                   data.epsWidgets.clear();
                   logic.urls.clear();
-                  logic.change();
+                  logic.reload();
                 }
                 Navigator.pop(Get.context!);
               }else if(type == ReadingType.picacg){
                 if (index+1 != logic.order) {
                   logic.order = index+1;
                   logic.urls = [];
-                  logic.change();
+                  logic.reload();
                 }
                 Navigator.pop(Get.context!);
               }

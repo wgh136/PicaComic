@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/network/res.dart';
@@ -110,7 +112,8 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   String? get introduction => null;
 
   @override
-  bool get enableTranslationToCN => true;
+  bool get enableTranslationToCN =>
+      PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
   Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(id);
@@ -119,10 +122,18 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   int? get pages => null;
 
   @override
+  String? get subTitle => data!.subTitle;
+
+  @override
   FilledButton get readButton => FilledButton(
     child: Text("阅读".tl),
     onPressed: () => readNhentai(data!),
   );
+
+  @override
+  void onThumbnailTapped(int index) {
+    readNhentai(data!, index+1);
+  }
 
   @override
   SliverGrid? recommendationBuilder(NhentaiComic data) => SliverGrid(

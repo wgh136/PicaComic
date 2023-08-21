@@ -186,7 +186,11 @@ abstract class ComicsPage<T> extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   )
                 : showLoading(context);
-          } else if (logic.comics != null) {
+          } else if (logic.message != null){
+            return showNetworkError(
+                logic.message ?? "网络错误", logic.refresh_, context,
+                showBack: showBackWhenError);
+          } else {
             if (appdata.settings[25] == "0") {
               var comics = logic.comics!;
               return CustomScrollView(
@@ -427,10 +431,6 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 ],
               );
             }
-          } else {
-            return showNetworkError(
-                logic.message ?? "网络错误", logic.refresh_, context,
-                showBack: showBackWhenError);
           }
         });
     if(head != null && UiMode.m1(context)) {

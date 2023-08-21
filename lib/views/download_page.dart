@@ -612,6 +612,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                   Expanded(
                     child: FilledButton(
                         onPressed: () {
+                          Get.back();
                           if (widget.item is DownloadedComic) {
                             MainPage.to(() => PicacgComicPage(
                                 (widget.item as DownloadedComic)
@@ -725,9 +726,6 @@ class DownloadedComicTile extends ComicTile {
 
   @override
   String get description => "${size}MB";
-
-  @override
-  void favorite() => throw UnimplementedError();
 
   @override
   Widget get image => Image.file(

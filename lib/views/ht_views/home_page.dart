@@ -4,6 +4,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_list.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
+import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -62,7 +63,7 @@ class HtHomePage extends StatelessWidget {
                       ),
                       const Spacer(),
                       TextButton(
-                          onPressed: () => Get.to(() => HtComicList(
+                          onPressed: () => MainPage.to(() => HtComicList(
                               name: logic.data!.links.keys.elementAt(i),
                               url: logic.data!.links.values.elementAt(i),
                               addDomain: false,)),

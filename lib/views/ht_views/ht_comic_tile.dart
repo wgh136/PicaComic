@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-
 import '../main_page.dart';
+import '../widgets/loading.dart';
+
 
 class HtComicTile extends ComicTile {
   const HtComicTile({required this.comic, super.key});
@@ -15,12 +17,7 @@ class HtComicTile extends ComicTile {
   final HtComicBrief comic;
 
   @override
-  String get description => comic.time;
-
-  @override
-  void favorite() {
-    // TODO: implement favorite
-  }
+  String get description => comic.time.trim();
 
   @override
   Widget get image => CachedNetworkImage(
@@ -40,7 +37,24 @@ class HtComicTile extends ComicTile {
   String get subTitle => "${comic.pages} Pages";
 
   @override
-  String get title => comic.name;
+  ActionFunc? get read => ()async{
+    bool cancel = false;
+    showLoadingDialog(Get.context!, ()=>cancel=true);
+    var res = await HtmangaNetwork().getComicInfo(comic.id);
+    if(cancel){
+      return;
+    }
+    if(res.error){
+      Get.back();
+      showMessage(Get.context, res.errorMessageWithoutNull);
+    }else{
+      Get.back();
+      readHtmangaComic(res.data);
+    }
+  };
+
+  @override
+  String get title => comic.name.trim();
 }
 
 class HtComicTileInFavoritePage extends HtComicTile {
@@ -69,9 +83,12 @@ class HtComicTileInFavoritePage extends HtComicTile {
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.menu_book_outlined),
+                      leading: const Icon(Icons.article),
                       title: const Text("查看详情"),
-                      onTap: onTap_,
+                      onTap: (){
+                        Get.back();
+                        onTap_();
+                      },
                     ),
                     ListTile(
                       leading: const Icon(Icons.bookmark_rounded),
@@ -87,6 +104,14 @@ class HtComicTileInFavoritePage extends HtComicTile {
                           Get.closeCurrentSnackbar();
                           refresh();
                         }
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.chrome_reader_mode),
+                      title: const Text("阅读"),
+                      onTap: () {
+                        Get.back();
+                        read!();
                       },
                     ),
                     const SizedBox(

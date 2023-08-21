@@ -82,7 +82,7 @@ class ComicReadingPage extends StatelessWidget {
   final List<HitomiFile>? images;
 
   ComicReadingPage.picacg(this.target, this.order, this.eps, this.title,
-      {super.key, int initialPage = 0})
+      {super.key, int initialPage = 1})
       : gallery = null,
         type = ReadingType.picacg,
         images = null {
@@ -91,7 +91,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   ComicReadingPage.ehentai(this.target, this.gallery,
-      {super.key, int initialPage = 0})
+      {super.key, int initialPage = 1})
       : eps = [],
         title = gallery!.title,
         order = 0,
@@ -102,7 +102,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order,
-      {super.key, int initialPage = 0})
+      {super.key, int initialPage = 1})
       : type = ReadingType.jm,
         gallery = null,
         images = null {
@@ -111,7 +111,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   ComicReadingPage.hitomi(this.target, this.title, this.images,
-      {super.key, int initialPage = 0})
+      {super.key, int initialPage = 1})
       : eps = [],
         order = 0,
         type = ReadingType.hitomi,
@@ -121,7 +121,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   ComicReadingPage.htmanga(this.target, this.title,
-      {super.key, int initialPage = 0})
+      {super.key, int initialPage = 1})
       : eps = [],
         order = 0,
         gallery = null,
@@ -132,7 +132,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   ComicReadingPage.nhentai(this.target, this.title,
-      {super.key, int initialPage = 0})
+      {super.key, int initialPage = 1})
       : eps = [],
         order = 0,
         gallery = null,
@@ -268,18 +268,12 @@ class ComicReadingPage extends StatelessWidget {
               ),
             );
           } else if (logic.urls.isNotEmpty) {
-            //检查传入的初始页面值, 并进行跳转
-            if (data.initialPage != 0) {
-              int i = data.initialPage;
-              Future.delayed(
-                  const Duration(milliseconds: 300), () =>
-                    logic.readingMethod==ReadingMethod.twoPage?
-                      logic.jumpToPage((i + 2) ~/ 2):
-                      logic.jumpToPage(i));
-              //重置为0, 避免切换章节时再次跳转
-              data.initialPage = 0;
+            if(logic.readingMethod == ReadingMethod.topToBottomContinuously && data.initialPage != 1){
+              Future.delayed(const Duration(milliseconds: 300), (){
+                logic.jumpToPage(data.initialPage);
+                data.initialPage = 1;
+              });
             }
-
             //监听音量键
             if (appdata.settings[7] == "1") {
               if (appdata.settings[9] != "4") {
@@ -502,7 +496,6 @@ class ComicReadingPage extends StatelessWidget {
       showMessage(Get.context, "数据丢失, 将从网络获取漫画".tl);
       comicReadingPageLogic.downloaded = false;
     }
-    comicReadingPageLogic.index = 1;
     comicReadingPageLogic.tools = false;
     if (data.epsWidgets.isEmpty) {
       data.epsWidgets.add(
@@ -607,7 +600,6 @@ class ComicReadingPage extends StatelessWidget {
       showMessage(Get.context, "数据丢失, 将从网络获取漫画");
       comicReadingPageLogic.downloaded = false;
     }
-    comicReadingPageLogic.index = 1;
     comicReadingPageLogic.tools = false;
     if (data.epsWidgets.isEmpty) {
       data.epsWidgets.add(

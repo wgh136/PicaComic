@@ -132,6 +132,11 @@ class EhGalleryPage extends ComicPage<Gallery> {
       PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
+  void onThumbnailTapped(int index) {
+    readEhGallery(data!, index+1);
+  }
+
+  @override
   void tapOnTags(String tag) =>
       MainPage.to(() => EhSearchPage(tag));
 

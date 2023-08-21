@@ -4,9 +4,13 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../main_page.dart';
 import '../widgets/comic_tile.dart';
 import 'comic_page.dart';
+import 'package:get/get.dart';
 
 ///哔咔漫画块
 class PicComicTile extends ComicTile {
@@ -46,9 +50,24 @@ class PicComicTile extends ComicTile {
   );
 
   @override
-  void favorite() {
-    network.favouriteOrUnfavouriteComic(comic.id);
-  }
+  ActionFunc? get favorite => () => network.favouriteOrUnfavouriteComic(comic.id);
+
+  @override
+  ActionFunc? get read => () async{
+    bool cancel = false;
+    showLoadingDialog(Get.context!, ()=>cancel=true);
+    var res = await network.getEps(comic.id);
+    if(cancel){
+      return;
+    }
+    if(res.error){
+      Get.back();
+      showMessage(Get.context, res.errorMessageWithoutNull);
+    }else{
+      Get.back();
+      readPicacgComic2(comic, res.data);
+    }
+  };
 
   @override
   void onLongTap_() {

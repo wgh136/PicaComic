@@ -151,7 +151,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// translation tags to CN
   bool get enableTranslationToCN => false;
 
+  String? get subTitle => null;
+
   Map<String, String> get headers => {};
+
+  /// callback when a thumbnail is tapped
+  void onThumbnailTapped(int index){}
 
   void scrollListener(){
     var logic = _logic;
@@ -199,6 +204,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 controller: logic.controller,
                 slivers: [
                   ...buildTitle(logic),
+                  buildSubTitle(context),
                   buildComicInfo(logic, context),
                   ...buildEpisodeInfo(context),
                   ...buildIntroduction(context),
@@ -271,13 +277,23 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             width: double.infinity,
             child: CustomSelectableText(
               text: "$title${pages == null ? "" : "(${pages}P)"}",
-              style: const TextStyle(fontSize: 28),
+              style: const TextStyle(fontSize: 26),
               withAddToBlockKeywordButton: true,
             ),
           ),
         ),
       ),
     ];
+  }
+
+  Widget buildSubTitle(BuildContext context) {
+    if(subTitle == null){
+      return const SliverToBoxAdapter(child: SizedBox(height: 0,),);
+    }
+    return SliverPadding(
+      padding: UiMode.m1(context) ? const EdgeInsets.fromLTRB(10, 0, 10, 8) : const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      sliver: SliverToBoxAdapter(child: Text(subTitle!, style: const TextStyle(fontSize: 18),),),
+    );
   }
 
   Widget buildComicInfo(ComicPageLogic<T> logic, BuildContext context) {
@@ -390,7 +406,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 ? colorScheme.primaryContainer
                 : colorScheme.surfaceVariant,
             borderRadius: const BorderRadius.all(Radius.circular(12))),
-        margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        margin: EdgeInsets.fromLTRB(3*size, 3*size, 3*size, 3*size),
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           onTap: title ? null : () => tapOnTags(text),
@@ -471,7 +487,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     for (var key in tags!.keys) {
       res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
+        padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
         child: Wrap(
           children: [
             buildInfoCard(key, context, title: true),
@@ -629,22 +645,26 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 padding: UiMode.m1(context)
                     ? const EdgeInsets.all(8)
                     : const EdgeInsets.all(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline,
+                child: InkWell(
+                  onTap: () => onThumbnailTapped(index),
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    child: CachedNetworkImage(
-                      imageUrl: thumbnails!.thumbnails[index],
-                      httpHeaders: headers,
-                      fit: BoxFit.contain,
-                      placeholder: (context, s) => ColoredBox(
-                          color: Theme.of(context).colorScheme.surfaceVariant),
-                      errorWidget: (context, s, d) => const Icon(Icons.error),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      child: CachedNetworkImage(
+                        imageUrl: thumbnails!.thumbnails[index],
+                        httpHeaders: headers,
+                        fit: BoxFit.contain,
+                        placeholder: (context, s) => ColoredBox(
+                            color: Theme.of(context).colorScheme.surfaceVariant),
+                        errorWidget: (context, s, d) => const Icon(Icons.error),
+                      ),
                     ),
                   ),
                 ),

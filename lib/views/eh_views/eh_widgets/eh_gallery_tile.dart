@@ -6,10 +6,11 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-
 import '../../main_page.dart';
+import '../../widgets/loading.dart';
 
 class EhGalleryTile extends ComicTile{
   final EhGalleryBrief gallery;
@@ -43,12 +44,24 @@ class EhGalleryTile extends ComicTile{
   }
 
   @override
-  List<String>? get tags => _generateTags(gallery.tags);
+  ActionFunc? get read => () async{
+    bool cancel = false;
+    showLoadingDialog(Get.context!, ()=>cancel=true);
+    var res = await EhNetwork().getGalleryInfo(gallery);
+    if(cancel){
+      return;
+    }
+    if(res.error){
+      Get.back();
+      showMessage(Get.context, res.errorMessageWithoutNull);
+    }else{
+      Get.back();
+      readEhGallery(res.data);
+    }
+  };
 
   @override
-  void favorite() {
-    showMessage(Get.context, "暂未实现, 请在漫画详情页收藏");
-  }
+  List<String>? get tags => _generateTags(gallery.tags);
 
   @override
   String get description => (){

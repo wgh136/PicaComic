@@ -8,6 +8,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../main_page.dart';
 
 class JmHomePageLogic extends GetxController {
   bool loading = true;
@@ -77,9 +78,9 @@ class JmHomePage extends StatelessWidget {
                 TextButton(
                     onPressed: (){
                       if(item.category){
-                        Get.to(()=>JmCategoryPage(Category(item.name, item.id, []), fromHomePage: true,));
+                        MainPage.to(()=>JmCategoryPage(Category(item.name, item.id, []), fromHomePage: true,));
                       }else{
-                        Get.to(() => JmPromoteListPage(item.name, item.id));
+                        MainPage.to(() => JmPromoteListPage(item.name, item.id));
                       }
                     },
                     child: Text("查看更多".tl))

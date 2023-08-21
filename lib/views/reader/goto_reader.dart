@@ -129,11 +129,57 @@ void readPicacgComic(ComicItem comic, List<String> epsStr) async{
   }
 }
 
-void readEhGallery(Gallery gallery) async{
+void readPicacgComic2(ComicItemBrief comic, List<String> epsStr) async{
+  History? history = History(
+      HistoryType.picacg,
+      DateTime.now(),
+      comic.title,
+      comic.author,
+      comic.path,
+      0,
+      0,
+      comic.id
+  );
+  await appdata.history.addHistory(history);
+  history = await appdata.history.find(comic.id);
+  var id = comic.id;
+  var name = comic.title;
+
+  if(history!=null){
+    if(history.ep!=0){
+      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
+        title: Text("继续阅读".tl),
+        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
+          "ep": history!.ep.toString(),
+          "page": history.page.toString()
+        })),
+        actions: [
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
+          }, child: Text("从头开始".tl)),
+          TextButton(onPressed: (){
+            Get.back();
+            Get.to(()=>ComicReadingPage.picacg(id, history!.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
+          }, child: Text("继续阅读".tl)),
+        ],
+      ));
+    }else{
+      Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
+    }
+  }else {
+    Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
+  }
+}
+
+void readEhGallery(Gallery gallery, [int? page]) async{
   addEhHistory(gallery);
   var target = gallery.link;
   var history = await appdata.history.find(target);
-
+  if(page != null){
+    Get.to(()=>ComicReadingPage.ehentai(target, gallery, initialPage: page,), preventDuplicates: false);
+    return;
+  }
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
@@ -223,9 +269,13 @@ void readHitomiComic(HitomiComic comic, String cover) async{
   }
 }
 
-void readHtmangaComic(HtComicInfo comic) async{
+void readHtmangaComic(HtComicInfo comic, [int? page]) async{
   await addHtmangaHistory(comic);
   var history = await appdata.history.find(comic.id);
+  if(page != null){
+    Get.to(()=>ComicReadingPage.htmanga(comic.id, comic.name, initialPage: page,), preventDuplicates: false);
+    return;
+  }
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
@@ -252,9 +302,13 @@ void readHtmangaComic(HtComicInfo comic) async{
   }
 }
 
-void readNhentai(NhentaiComic comic) async{
+void readNhentai(NhentaiComic comic, [int? page]) async{
   await addNhentaiHistory(comic);
   var history = await appdata.history.find(comic.id);
+  if(page != null){
+    Get.to(()=>ComicReadingPage.nhentai(comic.id, comic.title, initialPage: page,), preventDuplicates: false);
+    return;
+  }
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
