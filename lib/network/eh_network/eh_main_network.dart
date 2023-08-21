@@ -389,9 +389,9 @@ class EhNetwork{
   }
 
   ///从漫画详情页链接中获取漫画详细信息
-  Future<Res<Gallery>> getGalleryInfo(EhGalleryBrief brief) async{
+  Future<Res<Gallery>> getGalleryInfo(String link) async{
     try{
-      var res = await request(brief.link, expiredTime: CacheExpiredTime.no);
+      var res = await request(link, expiredTime: CacheExpiredTime.no);
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
@@ -429,43 +429,40 @@ class EhNetwork{
       if(document.getElementById("favoritelink")?.text == " Add to Favorites"){
         favorite = false;
       }
-      var gallery = Gallery(brief, tags, urls, favorite,maxPage);
-      gallery.coverPath = document.querySelector("div#gleft > div#gd1 > div")!.attributes["style"]!;
-      gallery.coverPath = RegExp(r"https?://([-a-zA-Z0-9.]+(/\S*)?\.(?:jpg|jpeg|gif|png))").firstMatch(gallery.coverPath)![0]!;
+      var coverPath = document.querySelector("div#gleft > div#gd1 > div")!.attributes["style"]!;
+      coverPath = RegExp(r"https?://([-a-zA-Z0-9.]+(/\S*)?\.(?:jpg|jpeg|gif|png))").firstMatch(coverPath)![0]!;
       //评论
-      var comments = document.getElementsByClassName("c1");
-      for(var c in comments){
+      var comments = <Comment>[];
+      for(var c in document.getElementsByClassName("c1")){
         var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a").elementAtOrNull(0)?.text??"未知";
         var time = c.getElementsByClassName("c3")[0].text.substring(11,32);
         var content = c.getElementsByClassName("c6")[0].text;
-        gallery.comments.add(Comment(name, content, time));
+        comments.add(Comment(name, content, time));
       }
       //上传者
       var uploader = document.getElementById("gdn")!.children.elementAtOrNull(0)?.text??"未知";
-      gallery.uploader = uploader;
+
       //星星
       var stars =
-      getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
-      gallery.stars = stars;
+        getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
+
       //平均分数
-      gallery.rating = document.getElementById("rating_label")?.text;
+      var rating = document.getElementById("rating_label")?.text;
       //类型
       var type = document.getElementsByClassName("cs")[0].text;
-      gallery.type = type;
       //时间
       var time = document.querySelector("div#gdd > table > tbody > tr > td.gdt2")!.text;
-      gallery.time = time;
       //身份认证数据
-      gallery.auth = getVariablesFromJsCode(res.data);
-      var imgUrls = <String>[];
+      var auth = getVariablesFromJsCode(res.data);
+      var thumbnailUrls = <String>[];
       var imgDom = document.querySelectorAll("div.gdtl > a > img");
       for(var i in imgDom){
         if(i.attributes["src"] != null) {
-          imgUrls.add(i.attributes["src"]!);
+          thumbnailUrls.add(i.attributes["src"]!);
         }
       }
-      gallery.thumbnailUrls = imgUrls;
-      return Res(gallery);
+      var title = document.querySelector("h1#gn")!.text;
+      return Res(Gallery(title, type, time, uploader, stars, rating, coverPath, tags, urls, comments, auth, favorite, link, maxPage, thumbnailUrls));
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");

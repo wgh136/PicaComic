@@ -17,6 +17,8 @@ class ExplorePage extends StatefulWidget {
   const ExplorePage(this.pages, {Key? key}) : super(key: key);
   final int pages;
 
+  static void Function(int index)? jumpTo;
+
   @override
   State<ExplorePage> createState() => _ExplorePageState();
 }
@@ -31,6 +33,10 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
   @override
   void initState() {
     controller = TabController(length: widget.pages, vsync: this);
+    ExplorePage.jumpTo = (index){
+      print(index);
+      controller.animateTo(index);
+    };
     Get.put(NhentaiHomePageController());
     super.initState();
   }

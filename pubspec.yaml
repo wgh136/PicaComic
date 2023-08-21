@@ -77,6 +77,7 @@ dependencies:
     sdk: flutter
   intl: any
   flutter_displaymode: 0.6.0
+  app_links: 3.4.3
 
 dev_dependencies:
   flutter_test:

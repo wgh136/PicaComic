@@ -46,7 +46,7 @@ class HiComicTile extends ComicTile {
   ActionFunc? get read => () async{
     bool cancel = false;
     showLoadingDialog(Get.context!, ()=>cancel=true);
-    var res = await HiNetwork().getComicInfo(comic.link, comic.name);
+    var res = await HiNetwork().getComicInfo(comic.link);
     if(cancel){
       return;
     }

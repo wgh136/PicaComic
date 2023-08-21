@@ -29,6 +29,19 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter android:label="filter_view_uris">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"/>
+                <data android:host="e-hentai.org"/>
+                <data android:scheme="https"/>
+                <data android:host="exhentai.org"/>
+                <data android:scheme="https"/>
+                <data android:host="nhentai.net"/>
+                <data android:scheme="https"/>
+                <data android:host="hitomi.la"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

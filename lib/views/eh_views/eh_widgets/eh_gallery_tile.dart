@@ -47,7 +47,7 @@ class EhGalleryTile extends ComicTile{
   ActionFunc? get read => () async{
     bool cancel = false;
     showLoadingDialog(Get.context!, ()=>cancel=true);
-    var res = await EhNetwork().getGalleryInfo(gallery);
+    var res = await EhNetwork().getGalleryInfo(gallery.link);
     if(cancel){
       return;
     }

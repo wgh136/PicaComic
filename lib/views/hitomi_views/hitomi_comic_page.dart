@@ -17,6 +17,9 @@ import 'package:pica_comic/tools/translations.dart';
 class HitomiComicPage extends ComicPage<HitomiComic> {
   const HitomiComicPage(this.comic, {super.key});
 
+  HitomiComicPage.fromLink(String link, {super.key}):
+      comic = HitomiComicBrief("", "", "", [], "", "", link, "");
+
   final HitomiComicBrief comic;
 
   @override
@@ -30,7 +33,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
                 havePlatformFavorite: false,
                 needLoadFolderData: false,
                 selectFolderCallback: (folder, page){
-                  LocalFavoritesManager().addComic(folder, FavoriteItem.fromHitomi(comic));
+                  LocalFavoritesManager().addComic(folder, FavoriteItem.fromHitomi(data!.toBrief(comic.link, cover)));
                   showMessage(context, "成功添加收藏".tl);
                 },
               )),
@@ -55,8 +58,24 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   String? get introduction => null;
 
   @override
-  Future<Res<HitomiComic>> loadData() =>
-      HiNetwork().getComicInfo(comic.link, comic.name);
+  Future<Res<HitomiComic>> loadData() async{
+    if(comic.cover == ""){
+      var id = RegExp(r"\d+(?=\.html)").firstMatch(comic.link)![0]!;
+      var res = await HiNetwork().getComicInfoBrief(id);
+      if(res.error){
+        return Res.fromErrorRes(res);
+      }else{
+        comic.cover = res.data.cover;
+        comic.name = res.data.name;
+        comic.tags = res.data.tags;
+        comic.artist = res.data.artist;
+        comic.lang = res.data.lang;
+        comic.time = res.data.time;
+        comic.type = res.data.type;
+      }
+    }
+    return HiNetwork().getComicInfo(comic.link);
+  }
 
   @override
   int? get pages => null;

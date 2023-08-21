@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ui';
+import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,23 +12,66 @@ import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/auth_page.dart';
+import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:workmanager/workmanager.dart';
 import 'network/picacg_network/methods.dart';
 
 bool notFirstUse = false;
 
+void handleAppLinks(Uri uri){
+  switch(uri.host){
+    case "e-hentai.org":
+    case "exhentai.org":
+      if(uri.pathSegments.isEmpty){
+        MainPage.toExplorePageAt(2);
+      }else if(uri.path.contains("popular")){
+        MainPage.toExplorePageAt(3);
+      }else if(uri.path.contains("/g/")){
+        MainPage.to(() => EhGalleryPage.fromLink("https://${uri.host}${uri.path}"));
+      }else{
+        showMessage(Get.context, "Unknown Link");
+      }
+    case "nhentai.net":
+      if(uri.pathSegments.isEmpty){
+        MainPage.toExplorePageAt(7);
+      }else if(uri.path.contains("/g/")){
+        MainPage.to(() => NhentaiComicPage(uri.path.nums));
+      }else{
+        showMessage(Get.context, "Unknown Link");
+      }
+    case "hitomi.la":
+      if(uri.pathSegments.isEmpty){
+        MainPage.toExplorePageAt(6);
+      }else if(["doujinshi", "cg", "manga"].contains(uri.pathSegments[0])){
+        MainPage.to(() => HitomiComicPage.fromLink("https://${uri.host}${uri.path}"));
+      }else{
+        showMessage(Get.context, "Unknown Link");
+      }
+  }
+}
+
 void main() {
   runZonedGuarded(() {
     WidgetsFlutterBinding.ensureInitialized();
     startClearCache();
+    if(GetPlatform.isAndroid) {
+      final appLinks = AppLinks();
+      appLinks.allUriLinkStream.listen((uri) {
+        handleAppLinks(uri);
+      });
+    }
     FlutterError.onError = (details) {
       sendLog(details.exceptionAsString(), details.stack.toString());
       LogManager.addLog(LogLevel.error, "Unhandled Exception",
@@ -62,6 +105,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  DateTime time = DateTime.fromMillisecondsSinceEpoch(0);
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
@@ -83,13 +128,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     //禁漫的登录有效期较短, 部分系统对后台的限制弱, 且本app占用资源少, 可能导致长期挂在后台的情况
     //因此从后台进入前台时, 尝试重新登录
-    jmNetwork.loginFromAppdata();
+    if(DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch > 7200000) {
+      jmNetwork.loginFromAppdata();
+      time = DateTime.now();
+    }
   }
 
 
 
   @override
   void initState() {
+    time = DateTime.now();
     if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
       try {
         FlutterDisplayMode.setHighRefreshRate();

@@ -147,9 +147,7 @@ class HiNetwork{
   }
 
   ///获取漫画信息
-  ///
-  /// 为了避免不必要的网络请求, 需要传入漫画标题
-  Future<Res<HitomiComic>> getComicInfo(String target, String name) async{
+  Future<Res<HitomiComic>> getComicInfo(String target) async{
     String id;
     if(target.isNum){
       id = target;
@@ -175,9 +173,10 @@ class HiNetwork{
       files.add(HitomiFile(file["name"], file["hash"],
           file["haswebp"]==1, file["hasavif"]==1, file["height"], file["width"], id));
     }
+
     return Res(HitomiComic(
       id,
-      name,
+      json["title"],
       List<int>.from(json["related"]),
       json["type"],
       List<String>.from((json["artists"]??[]).map((e) => e["artist"]).toList()),

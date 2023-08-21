@@ -18,8 +18,11 @@ import '../reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 class EhGalleryPage extends ComicPage<Gallery> {
-  const EhGalleryPage(this.brief, {super.key});
-  final EhGalleryBrief brief;
+  EhGalleryPage(EhGalleryBrief brief, {super.key}): link=brief.link;
+
+  const EhGalleryPage.fromLink(this.link, {super.key});
+
+  final String link;
 
   @override
   Row get actions => Row(
@@ -50,7 +53,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
                     showMessage(Get.context, res?"成功添加收藏".tl:"网络错误".tl);
                   }else{
                     LocalFavoritesManager().addComic(folder,
-                        FavoriteItem.fromEhentai(brief));
+                        FavoriteItem.fromEhentai(data!.toBrief()));
                     showMessage(Get.context, "成功添加收藏".tl);
                   }
                 },
@@ -65,13 +68,13 @@ class EhGalleryPage extends ComicPage<Gallery> {
                 label: const Text("评论"),
                 avatar: const Icon(Icons.comment_outlined),
                 onPressed: () =>
-                    showComments(context, brief.link, data!.uploader)),
+                    showComments(context, link, data!.uploader)),
           ),
         ],
       );
 
   @override
-  String get cover => brief.coverPath;
+  String get cover => data!.coverPath;
 
   @override
   FilledButton get downloadButton => FilledButton(
@@ -103,7 +106,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   String? get introduction => null;
 
   @override
-  Future<Res<Gallery>> loadData() => EhNetwork().getGalleryInfo(brief);
+  Future<Res<Gallery>> loadData() => EhNetwork().getGalleryInfo(link);
 
   @override
   int? get pages => null;
@@ -118,7 +121,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   SliverGrid? recommendationBuilder(Gallery data) => null;
 
   @override
-  String get tag => "Eh ComicPage ${brief.link}";
+  String get tag => "Eh ComicPage $link";
 
   @override
   Map<String, List<String>>? get tags => {
@@ -150,11 +153,11 @@ class EhGalleryPage extends ComicPage<Gallery> {
   @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(
       data!.thumbnailUrls,
-      (page) => EhNetwork().getThumbnailUrls(brief.link, page),
+      (page) => EhNetwork().getThumbnailUrls(link, page),
       int.parse(data!.maxPage));
 
   @override
-  String? get title => brief.title;
+  String? get title => data!.title;
 
   @override
   Card? get uploaderInfo => null;

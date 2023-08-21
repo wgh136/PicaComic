@@ -10,7 +10,7 @@ void showMessage(BuildContext? context, String message, {int time=2, bool useGet
       message: message,
       maxWidth: 350,
       snackStyle: SnackStyle.FLOATING,
-      margin: const EdgeInsets.all(5),
+      margin: const EdgeInsets.fromLTRB(5, 5, 5, 16),
       animationDuration: const Duration(microseconds: 400),
       borderRadius: 10,
       duration: Duration(seconds: time),

@@ -60,6 +60,25 @@ class MainPage extends StatefulWidget {
     Get.back(id: navigateId);
   }
 
+  static void Function()? toExplorePage;
+
+  static void toExplorePageAt(int page){
+    if(appdata.settings[24][page] != "1"){
+      showMessage(Get.context!, "探索页面被禁用".tl);
+      return;
+    }
+    toExplorePage?.call();
+    Future.microtask(() {
+      int index = 0;
+      for(int i=0; i<page; i++){
+        if(appdata.settings[24][i] == "1"){
+          index++;
+        }
+      }
+      ExplorePage.jumpTo?.call(index);
+    });
+  }
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -207,6 +226,7 @@ class _MainPageState extends State<MainPage> {
             });
       });
     }
+    MainPage.toExplorePage = () => setState(() => i = 1);
     super.initState();
   }
 

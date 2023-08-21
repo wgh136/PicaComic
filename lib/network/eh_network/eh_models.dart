@@ -59,17 +59,6 @@ class Gallery{
   ///已加载的缩略图页数
   int loadedThumbnailPage = 1;
 
-  Gallery(EhGalleryBrief brief,this.tags,this.urls,this.favorite,this.maxPage,
-      {this.thumbnailUrls=const <String>[]}){
-    title = brief.title;
-    type = brief.type;
-    time = brief.time;
-    uploader = brief.uploader;
-    stars = brief.stars;
-    uploader = brief.uploader;
-    coverPath = brief.coverPath;
-    link = brief.link;
-  }
 
   EhGalleryBrief toBrief() => EhGalleryBrief(
       title,
@@ -118,6 +107,22 @@ class Gallery{
     }
   }
 
+  Gallery(
+      this.title,
+      this.type,
+      this.time,
+      this.uploader,
+      this.stars,
+      this.rating,
+      this.coverPath,
+      this.tags,
+      this.urls,
+      this.comments,
+      this.auth,
+      this.favorite,
+      this.link,
+      this.maxPage,
+      this.thumbnailUrls);
 }
 
 enum EhLeaderboardType{
