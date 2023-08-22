@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
 jobs:
   Build_IOS:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
     - uses: subosito/flutter-action@v2
