@@ -40,3 +40,17 @@ void showDialogMessage(BuildContext context, String title, String message){
     ],
   ));
 }
+
+void showConfirmDialog(BuildContext context, String title, String content, void Function() onConfirm){
+  showDialog(context: context, builder: (context) => AlertDialog(
+    title: Text(title),
+    content: Text(content),
+    actions: [
+      TextButton(onPressed: () => Get.back(), child: Text("取消".tl)),
+      TextButton(onPressed: (){
+        Get.back();
+        onConfirm();
+      }, child: Text("确认".tl)),
+    ],
+  ));
+}

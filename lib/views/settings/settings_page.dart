@@ -297,9 +297,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                     "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
                                 onTap: () {
                                   if (GetPlatform.isAndroid || GetPlatform.isIOS || GetPlatform.isWindows) {
-                                    eraseCache();
-                                    logic.size = 0;
-                                    logic.update();
+                                    showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl, () {
+                                      eraseCache();
+                                      logic.size = 0;
+                                      logic.update();
+                                    });
                                   }
                                 },
                               );

@@ -14,10 +14,13 @@ import 'package:pica_comic/tools/translations.dart';
 
 void showSettings(BuildContext context){
   if(UiMode.m1(context)){
-    showModalBottomSheet(context: context, builder: (context) => SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: const ReadingSettings(),
+    showModalBottomSheet(context: context, builder: (context) => SizedBox(
+      height: MediaQuery.of(context).size.height*0.6,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          child: const ReadingSettings(),
+        ),
       ),
     ));
   }else{
@@ -122,6 +125,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 });
                 appdata.writeData();
                 logic.update();
+              },
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.animation,
+                color: Theme.of(context).colorScheme.secondary),
+            title: Text("翻页动画".tl),
+            onTap: () {},
+            trailing: Switch(
+              value: appdata.settings[36] == "1",
+              onChanged: (b) {
+                setState(() {
+                  b ? appdata.settings[36] = "1" : appdata.settings[36] = "0";
+                });
+                appdata.writeData();
               },
             ),
           ),

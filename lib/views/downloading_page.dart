@@ -3,6 +3,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/downloading_tile.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 class DownloadingPage extends StatefulWidget {
   const DownloadingPage({this.inPopupWidget=false, Key? key}) : super(key: key);
@@ -24,8 +25,10 @@ class _DownloadingPageState extends State<DownloadingPage> {
     var widgets = <Widget>[];
     for(var i in downloadManager.downloading){
       widgets.add(DownloadingTile(i, () {
-        setState(() {
-          downloadManager.cancel(i.id);
+        showConfirmDialog(context, "删除", "确认删除下载任务?", () {
+          setState(() {
+            downloadManager.cancel(i.id);
+          });
         });
       },  key: Key(i.id),));
     }
