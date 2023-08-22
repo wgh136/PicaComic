@@ -60,14 +60,16 @@ class ComicPageLogic<T extends Object> extends GetxController {
   ThumbnailsData? thumbnailsData;
   double? width;
   double? height;
+  bool favorite = false;
 
-  void get(Future<Res<T>> Function() loadData) async {
+  void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite) async {
     var res = await loadData();
     if (res.error) {
       message = res.errorMessage;
     } else {
       data = res.data;
     }
+    favorite = await loadFavorite(res.data);
     loading = false;
     update();
   }
@@ -155,6 +157,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Map<String, String> get headers => {};
 
+  bool get favorite => _logic.favorite;
+
+  set favorite(bool f) => _logic.favorite = f;
+
+  Future<bool> loadFavorite(T data);
+
   /// callback when a thumbnail is tapped
   void onThumbnailTapped(int index){}
 
@@ -183,14 +191,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           initState: (logic) {
             Get.put(ComicPageLogic<T>(), tag: tag);
           },
-          dispose: (logic) {
-            Get.delete<ComicPageLogic<T>>(tag: tag);
-          },
           builder: (logic) {
             _logic.width = constraints.maxWidth;
             _logic.height = constraints.maxHeight;
             if (logic.loading) {
-              logic.get(loadData);
+              logic.get(loadData, loadFavorite);
               return showLoading(context);
             } else if (logic.message != null) {
               return showNetworkError(logic.message, logic.refresh_, context);
@@ -745,12 +750,14 @@ class FavoriteComicWidget extends StatefulWidget {
   const FavoriteComicWidget(
       {required this.havePlatformFavorite,
       required this.needLoadFolderData,
+      required this.target,
       this.folders = const {},
       this.foldersLoader,
       this.selectFolderCallback,
       this.initialFolder,
       this.favoriteOnPlatform=false,
       this.cancelPlatformFavorite,
+      required this.setFavorite,
       super.key});
 
   /// whether this platform has favorites feather
@@ -778,7 +785,12 @@ class FavoriteComicWidget extends StatefulWidget {
   /// whether this comic have been added to platform's favorite folder
   final bool favoriteOnPlatform;
 
+  /// identifier for the comic
+  final String target;
+
   final void Function()? cancelPlatformFavorite;
+
+  final void Function(bool favorite) setFavorite;
 
   @override
   State<FavoriteComicWidget> createState() => _FavoriteComicWidgetState();
@@ -789,9 +801,13 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
   late int page = 0;
   late Map<String, String> folders;
   bool loadedData = false;
+  List<String> addedFolders = [];
 
   @override
   void initState() {
+    LocalFavoritesManager().find(widget.target).then((folder){
+      Future.microtask(() => setState(()=>addedFolders = folder));
+    });
     selectID = widget.initialFolder;
     if(!widget.havePlatformFavorite){
       page = 1;
@@ -820,6 +836,20 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
                 Icon(Icons.folder, size: 30, color: Theme.of(context).colorScheme.secondary,),
                 const SizedBox(width: 12,),
                 Text(name),
+                if(addedFolders.contains(name) && p == 1)
+                  const SizedBox(width: 12,),
+                if(addedFolders.contains(name) && p == 1)
+                Container(
+                    width: 60,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      borderRadius: const BorderRadius.all(Radius.circular(8))
+                    ),
+                    child: Center(
+                      child: Text("已收藏".tl),
+                    ),
+                  ),
                 const Spacer(),
                 if(selectID == id)
                   const AnimatedCheckIcon()
@@ -838,6 +868,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         onPressed: (){
           Get.closeAllSnackbars();
           if(selectID != null){
+            widget.setFavorite(true);
             Get.back();
             widget.selectFolderCallback?.call(selectID!, page);
           }
@@ -861,6 +892,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
           child: FilledButton(
             onPressed: (){
               Get.closeAllSnackbars();
+              if(addedFolders.isEmpty){
+                widget.setFavorite(false);
+              }
               Get.back();
               widget.cancelPlatformFavorite?.call();
             },
@@ -869,6 +903,25 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         );
       }
     }
+
+    if(page == 1 && addedFolders.contains(selectID)){
+      button = SizedBox(
+        height: 35,
+        width: 120,
+        child: FilledButton(
+          onPressed: (){
+            Get.closeAllSnackbars();
+            Get.back();
+            if(addedFolders.length == 1 && !widget.favoriteOnPlatform){
+              widget.setFavorite(false);
+            }
+            LocalFavoritesManager().deleteComicWithTarget(selectID!, widget.target);
+          },
+          child: const Text("取消收藏"),
+        ),
+      );
+    }
+
     else if(widget.havePlatformFavorite && widget.needLoadFolderData && !loadedData){
       widget.foldersLoader!.call().then((res){
         if(res.error){

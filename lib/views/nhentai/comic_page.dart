@@ -33,13 +33,20 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
       ),
       Expanded(
         child: ActionChip(
-          label: Text("收藏".tl),
-          avatar: const Icon(Icons.bookmark_add_outlined),
+          label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+          avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
           onPressed: ()=> favoriteComic(FavoriteComicWidget(
             havePlatformFavorite: NhentaiNetwork().logged,
             needLoadFolderData: false,
             favoriteOnPlatform: data!.favorite,
             initialFolder: "0",
+            target: id,
+            setFavorite: (b){
+              if(favorite != b){
+                favorite = b;
+                update();
+              }
+            },
             folders: const {"0": "Nhentai"},
             selectFolderCallback: (folder, page) async{
               if(page == 0){
@@ -133,6 +140,11 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   @override
   void onThumbnailTapped(int index) {
     readNhentai(data!, index+1);
+  }
+
+  @override
+  Future<bool> loadFavorite(NhentaiComic data) async{
+    return data.favorite || (await LocalFavoritesManager().find(data.id)).isNotEmpty;
   }
 
   @override

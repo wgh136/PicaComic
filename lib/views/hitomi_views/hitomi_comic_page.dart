@@ -27,11 +27,18 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
         children: [
           Expanded(
             child: ActionChip(
-              label: Text("本地".tl),
-              avatar: const Icon(Icons.bookmark_add_outlined),
+              label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+              avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: false,
                 needLoadFolderData: false,
+                target: comic.link,
+                setFavorite: (b){
+                  if(favorite != b){
+                    favorite = b;
+                    update();
+                  }
+                },
                 selectFolderCallback: (folder, page){
                   LocalFavoritesManager().addComic(folder, FavoriteItem.fromHitomi(data!.toBrief(comic.link, cover)));
                   showMessage(context, "成功添加收藏".tl);
@@ -126,6 +133,11 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   Card? get uploaderInfo => null;
+
+  @override
+  Future<bool> loadFavorite(HitomiComic data) async{
+    return (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+  }
 }
 
 void downloadComic(

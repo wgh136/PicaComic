@@ -36,13 +36,20 @@ class EhGalleryPage extends ComicPage<Gallery> {
           ),
           Expanded(
             child: ActionChip(
-              label: Text("收藏".tl),
-              avatar: const Icon(Icons.bookmark_add_outlined),
+                label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+                avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: appdata.ehAccount != "",
                 needLoadFolderData: false,
                 folders: Map<String, String>.fromIterable(EhNetwork().folderNames,),
                 favoriteOnPlatform: data!.favorite,
+                target: link,
+                setFavorite: (b){
+                  if(favorite != b){
+                    favorite = b;
+                    update();
+                  }
+                },
                 selectFolderCallback: (folder, page) async{
                   if(page == 0){
                     showMessage(context, "正在添加收藏".tl);
@@ -110,6 +117,11 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   int? get pages => null;
+
+  @override
+  Future<bool> loadFavorite(Gallery data) async{
+    return data.favorite || (await LocalFavoritesManager().find(data.link)).isNotEmpty;
+  }
 
   @override
   FilledButton get readButton => FilledButton(

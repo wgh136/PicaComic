@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -102,6 +103,19 @@ class LocalFavoritesManager{
   Map<String, List<FavoriteItem>>? _data;
 
   bool saving = false;
+
+  Future<List<String>> find(String target) async{
+    if(_data == null){
+      await readData();
+    }
+    var res = <String>[];
+    for(var key in _data!.keys.toList()){
+      if(_data![key]!.firstWhereOrNull((element) => element.target == target) != null){
+        res.add(key);
+      }
+    }
+    return res;
+  }
 
   Future<void> saveData() async{
     if(_data == null) return;
@@ -239,6 +253,11 @@ class LocalFavoritesManager{
   void deleteComic(String folder, FavoriteItem comic){
     _data![folder]!.removeWhere((element) => element.target==comic.target);
     checkAndDeleteCover(comic.coverPath);
+  }
+
+  void deleteComicWithTarget(String folder, String target){
+    var comic = _data![folder]!.firstWhere((element) => element.target==target);
+    deleteComic(folder, comic);
   }
 
   Future<void> clearAll() async{

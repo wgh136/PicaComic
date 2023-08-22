@@ -47,11 +47,17 @@ class JmComicPage extends ComicPage<JmComicInfo> {
           ),
           Expanded(
             child: ActionChip(
-              label: Text("收藏".tl),
-              avatar: const Icon(Icons.bookmark_add_outlined),
+              label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+              avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: appdata.jmEmail != "",
                 needLoadFolderData: true,
+                setFavorite: (b){
+                  if(favorite != b){
+                    favorite = b;
+                    update();
+                  }
+                },
                 foldersLoader: () async{
                   var res = await jmNetwork.getFolders();
                   if(res.error){
@@ -62,6 +68,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                     return Res(resData);
                   }
                 },
+                target: id,
                 favoriteOnPlatform: data!.favorite,
                 selectFolderCallback: (folder, page) async{
                   if(page == 0){
@@ -140,6 +147,11 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   int? get pages => null;
+
+  @override
+  Future<bool> loadFavorite(JmComicInfo data) async{
+    return data.favorite || (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+  }
 
   @override
   FilledButton get readButton => FilledButton(

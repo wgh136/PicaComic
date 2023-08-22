@@ -42,14 +42,21 @@ class PicacgComicPage extends ComicPage<ComicItem> {
           ),
           Expanded(
             child: ActionChip(
-              label: Text("收藏".tl),
-              avatar: const Icon(Icons.bookmark_add_outlined),
+              label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+              avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: appdata.token != "",
                 needLoadFolderData: false,
                 folders: const {"Picacg": "Picacg"},
                 initialFolder: data!.isFavourite?null:"Picacg",
                 favoriteOnPlatform: data!.isFavourite,
+                target: comic.id,
+                setFavorite: (b){
+                  if(favorite != b){
+                    favorite = b;
+                    update();
+                  }
+                },
                 cancelPlatformFavorite: (){
                   network.favouriteOrUnfavouriteComic(comic.id);
                   data!.isFavourite = false;
@@ -148,6 +155,11 @@ class PicacgComicPage extends ComicPage<ComicItem> {
 
   @override
   String? get title => comic.title;
+
+  @override
+  Future<bool> loadFavorite(ComicItem data) async{
+    return data.isFavourite || (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+  }
 
   @override
   Card? get uploaderInfo => Card(

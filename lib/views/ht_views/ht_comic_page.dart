@@ -31,6 +31,8 @@ class HtComicPage extends ComicPage<HtComicInfo>{
           havePlatformFavorite: appdata.htName != "",
           needLoadFolderData: true,
           foldersLoader: () => HtmangaNetwork().getFolders(),
+          target: comic.id,
+          setFavorite: (b){},
           selectFolderCallback: (folder, page) async{
             if(page == 0){
               showMessage(context, "正在添加收藏".tl);
@@ -168,6 +170,9 @@ class HtComicPage extends ComicPage<HtComicInfo>{
       ),
     ),
   );
+
+  @override
+  Future<bool> loadFavorite(HtComicInfo data) => Future.value(false);
 
 }
 
