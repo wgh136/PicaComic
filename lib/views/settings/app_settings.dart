@@ -233,7 +233,7 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
     return SizedBox(
       child: Column(
         children: [
-          for (int i = 0; i < 5; i++)
+          for (int i = 0; i < 6; i++)
             CheckboxListTile(
               value: appdata.settings[21][i] == "1",
               onChanged: (b) {
@@ -495,6 +495,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "禁漫最新".tl,
       "Hitomi".tl,
       "nhentai",
+      "",
       "绅士漫画".tl
     ];
     var options = <Widget>[];
