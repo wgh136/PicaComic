@@ -88,6 +88,8 @@ abstract class DownloadingItem{
 
   String? get imageExtension => null;
 
+  int get allowedLoadingNumbers => 5;
+
   DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
@@ -135,7 +137,7 @@ abstract class DownloadingItem{
         while(index < urls.length && currentKey == _runtimeKey){
           notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
               "共${downloadManager.downloading.length}项任务");
-          for(int i=0; i<5; i++){
+          for(int i=0; i<allowedLoadingNumbers; i++){
             if(index+i >= urls.length)  break;
             loadImageToCache(urls[index+i]);
           }

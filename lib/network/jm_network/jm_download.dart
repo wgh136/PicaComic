@@ -119,6 +119,9 @@ class JmDownloadingItem extends DownloadingItem {
   }
 
   @override
+  int get allowedLoadingNumbers => 3;
+
+  @override
   Future<Map<int, List<String>>> getLinks() async {
     if (comic.series.isEmpty) {
       comic.series[1] = id.replaceFirst("jm", "");

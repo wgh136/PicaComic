@@ -105,14 +105,14 @@ class PicDownloadingItem extends DownloadingItem {
 
 
   @override
-  get cover => comic.thumbUrl;
+  get cover => getImageUrl(comic.thumbUrl);
 
   @override
   String get title => comic.title;
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getImage(link)){
+    await for(var s in MyCacheManager().getImage(getImageUrl(link))){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -132,7 +132,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getImage(link).listen((event) {}));
+    addStreamSubscription(MyCacheManager().getImage(getImageUrl(link)).listen((event) {}));
   }
 
   @override
