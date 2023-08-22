@@ -62,7 +62,8 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
                 LocalFavoritesManager().addComic(folder, FavoriteItem.fromNhentai(NhentaiComicBrief(
                     data!.title,
                     data!.cover,
-                    id,"Unknown"
+                    id,"Unknown",
+                    const []
                 )));
                 showMessage(Get.context, "成功添加收藏".tl);
               }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/accounts_page.dart';
@@ -6,6 +7,7 @@ import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/subscription.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
+import '../tools/debug.dart';
 import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:get/get.dart';
@@ -70,6 +72,13 @@ class MePage extends StatelessWidget {
                       subTitle: "浏览订阅的漫画".tl,
                       icon: Icons.subscriptions,
                       onTap: () => MainPage.to(() => const SubscriptionPage()),
+                    ),
+                    if(kDebugMode)
+                    MePageButton(
+                      title: "Debug",
+                      subTitle: "",
+                      icon: Icons.bug_report,
+                      onTap: () => debug(),
                     ),
                   ],
                 )

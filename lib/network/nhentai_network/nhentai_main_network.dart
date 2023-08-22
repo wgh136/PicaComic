@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/network/nhentai_network/tags.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -123,7 +124,7 @@ class NhentaiNetwork {
     }
   }
 
-  NhentaiComicBrief parseComic(Element comicDom) {
+  NhentaiComicBrief? parseComic(Element comicDom, [bool examination = true]) {
     var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
     var name = comicDom.querySelector("div.caption")!.text;
     var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
@@ -136,7 +137,27 @@ class NhentaiNetwork {
     }else if(tags.contains("29963")){
       lang = "中文";
     }
-    return NhentaiComicBrief(name, img, id, lang);
+    var tagsRes = <String>[];
+    for(var tag in tags.split(" ")){
+      if(nhentaiTags[tag] != null){
+        tagsRes.add(nhentaiTags[tag]!);
+      }
+    }
+    if(examination){
+      var block = false;
+      for(var key in appdata.blockingKeyword){
+        block = block || name.contains(key) || lang.contains(key) || tagsRes.contains(key);
+        if(block){
+          return null;
+        }
+      }
+    }
+    return NhentaiComicBrief(name, img, id, lang, tagsRes);
+  }
+
+  List<T> removeNullValue<T extends Object>(List<T?> list){
+    while(list.remove(null)){}
+    return List.from(list);
   }
 
   Future<Res<NhentaiHomePageData>> getHomePage() async {
@@ -152,10 +173,10 @@ class NhentaiNetwork {
           .querySelectorAll("div.container.index-container > div.gallery");
 
       return Res(NhentaiHomePageData(
-          List.generate(
-              popularDoms.length, (index) => parseComic(popularDoms[index])),
-          List.generate(latest.length - popularDoms.length,
-              (index) => parseComic(latest[index + popularDoms.length]))));
+          removeNullValue(List.generate(
+              popularDoms.length, (index) => parseComic(popularDoms[index]))),
+          removeNullValue(List.generate(latest.length - popularDoms.length,
+                  (index) => parseComic(latest[index + popularDoms.length])))));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
       return Res(null, errorMessage: "解析失败: $e");
@@ -172,8 +193,8 @@ class NhentaiNetwork {
 
       var latest = document.querySelectorAll("div.gallery");
 
-      data.latest.addAll(
-          List.generate(latest.length, (index) => parseComic(latest[index])));
+      data.latest.addAll(removeNullValue(
+          List.generate(latest.length, (index) => parseComic(latest[index]))));
 
       data.page++;
 
@@ -208,9 +229,9 @@ class NhentaiNetwork {
         return const Res([], subData: 0);
       }
 
-      return Res(
+      return Res(removeNullValue(
           List.generate(
-              comicDoms.length, (index) => parseComic(comicDoms[index])),
+              comicDoms.length, (index) => parseComic(comicDoms[index]))),
           subData: (int.parse(results.nums) / comicDoms.length).ceil());
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
@@ -264,7 +285,10 @@ class NhentaiNetwork {
 
       var recommendations = <NhentaiComicBrief>[];
       for (var comic in document.querySelectorAll("div.gallery")) {
-        recommendations.add(parseComic(comic));
+        var c = parseComic(comic);
+        if(c != null) {
+          recommendations.add(c);
+        }
       }
 
       var script = document
@@ -353,8 +377,8 @@ class NhentaiNetwork {
       var comics = document.querySelectorAll("div.gallery");
       var lastPagination = document.querySelector("section.pagination > a.last")
           ?.attributes["href"]?.nums;
-      return Res(
-          List.generate(comics.length, (index) => parseComic(comics[index])),
+      return Res(removeNullValue(
+          List.generate(comics.length, (index) => parseComic(comics[index], false))),
           subData: lastPagination==null?1:int.parse(lastPagination));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");

@@ -14,7 +14,12 @@ class EhGalleryBrief{
     if(ignoreExamination) return;
     bool block = false;
     for(var key in appdata.blockingKeyword){
-      block = block || title.contains(key) || uploader==key || type==key || tags.contains(key);
+      block = block || title.contains(key) || uploader==key || type==key;
+    }
+    for(var key in appdata.blockingKeyword){
+      for(var tag in tags){
+        block = block || tag.split(":").contains(key);
+      }
     }
     if(block){
       throw Error();

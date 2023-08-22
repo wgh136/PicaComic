@@ -323,6 +323,7 @@ class EhNetwork{
           for (var node in items[i].children[2 + t].children[0].children[1].children) {
             tags.add(node.attributes["title"]!);
           }
+
           galleries.add(EhGalleryBrief(
               title,
               type,

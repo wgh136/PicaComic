@@ -13,7 +13,8 @@ class FloatingSearchBar extends StatelessWidget {
     this.trailing,
     required this.supportingText,
     required this.f,
-    required this.controller
+    required this.controller,
+    this.onChanged,
   }) : super(key: key);
 
   final double height;
@@ -24,6 +25,7 @@ class FloatingSearchBar extends StatelessWidget {
   final void Function(String) f;
   final String supportingText;
   final TextEditingController controller;
+  final void Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,7 @@ class FloatingSearchBar extends StatelessWidget {
                     style: textTheme.bodyLarge,
                     textAlignVertical: TextAlignVertical.center,
                     controller: controller,
+                    onChanged: onChanged,
                     decoration: InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,

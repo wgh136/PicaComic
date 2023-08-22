@@ -16,7 +16,7 @@ import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'jm_views/jm_comic_page.dart';
 import 'package:pica_comic/tools/translations.dart';
-
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'main_page.dart';
 
 class PreSearchController extends GetxController{
@@ -86,10 +86,66 @@ class PreSearchPage extends StatelessWidget {
                 }
               },
                 controller: controller,
+                onChanged: (s) => searchController.update([1]),
               ),
             ),
           ),
           const SliverPadding(padding: EdgeInsets.only(top: 5)),
+          SliverToBoxAdapter(
+            child: GetBuilder<PreSearchController>(builder: (logic){
+              Widget widget;
+              if(controller.text.isEmpty){
+                widget = const SizedBox();
+              }else{
+                var text = controller.text;
+                var suggestions = <String>[];
+                for (var element in TagsTranslation.enTagsTranslations.keys.toList()) {
+                  if(element.length >= text.length && element.substring(0, text.length) == text){
+                    suggestions.add(element);
+                  }else if(element.translateTagsToCN.length >= text.length
+                      && element.translateTagsToCN.substring(0, text.length) == text){
+                    suggestions.add(element);
+                  }
+                }
+                widget = Card(
+                  margin: const EdgeInsets.all(10),
+                  elevation: 0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(padding: const EdgeInsets.only(left: 8),child: Text("建议".tl),),
+                      Wrap(
+                        children: [
+                          for(var s in suggestions)
+                            Card(
+                              margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                              elevation: 0,
+                              color: Theme.of(context).colorScheme.primaryContainer,
+                              child: InkWell(
+                                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                                onTap: (){
+                                  switch(searchController.target){
+                                    case 0: MainPage.to(()=>SearchPage(s.translateTagsToCN));break;
+                                    case 1: MainPage.to(()=>EhSearchPage(s));break;
+                                    case 2: MainPage.to(()=>JmSearchPage(s.translateTagsToCN));break;
+                                    case 3: MainPage.to(()=>HitomiSearchPage(s));break;
+                                    case 4: MainPage.to(()=>HtSearchPage(s.translateTagsToCN));break;
+                                    case 5: MainPage.to(()=>NhentaiSearchPage(s));break;
+                                  }
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s/${s.translateTagsToCN}"),),
+                              ),
+                            ),
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              }
+              return widget;
+            }, id: 1,),
+          ),
           SliverToBoxAdapter(
             child: GetBuilder<PreSearchController>(builder: (logic){
               return Card(
