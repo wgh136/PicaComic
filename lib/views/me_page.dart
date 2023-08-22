@@ -3,6 +3,7 @@ import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
+import 'package:pica_comic/views/subscription.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
 import 'history.dart';
@@ -63,6 +64,12 @@ class MePage extends StatelessWidget {
                       subTitle: "查看历史记录".tl,
                       icon: Icons.history,
                       onTap: () => MainPage.to(() => const HistoryPage()),
+                    ),
+                    MePageButton(
+                      title: "订阅".tl,
+                      subTitle: "浏览订阅的漫画".tl,
+                      icon: Icons.subscriptions,
+                      onTap: () => MainPage.to(() => const SubscriptionPage()),
                     ),
                   ],
                 )
