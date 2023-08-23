@@ -68,8 +68,8 @@ class ComicPageLogic<T extends Object> extends GetxController {
       message = res.errorMessage;
     } else {
       data = res.data;
+      favorite = await loadFavorite(res.data);
     }
-    favorite = await loadFavorite(res.data);
     loading = false;
     update();
   }
