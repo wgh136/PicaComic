@@ -103,7 +103,7 @@ class PreSearchPage extends StatelessWidget {
                   if(element.length >= text.length && element.substring(0, text.length) == text){
                     suggestions.add(element);
                   }else if(element.translateTagsToCN.length >= text.length
-                      && element.translateTagsToCN.substring(0, text.length) == text){
+                      && element.translateTagsToCN.contains(text)){
                     suggestions.add(element);
                   }
                 }
@@ -134,7 +134,7 @@ class PreSearchPage extends StatelessWidget {
                                   }
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s/${s.translateTagsToCN}"),),
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s | ${s.translateTagsToCN}"),),
                               ),
                             ),
                         ],

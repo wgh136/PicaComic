@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -99,6 +100,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   Future<Res<T>> loadData();
 
   /// get comic data
+  @nonVirtual
   T? get data => _logic.data;
 
   /// tag, used by Get, creating a GetxController.
@@ -137,11 +139,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// create thumbnails data
   ThumbnailsData? get thumbnailsCreator;
 
+  @nonVirtual
   ThumbnailsData? get thumbnails => _logic.thumbnailsData;
 
   SliverGrid? recommendationBuilder(T data);
 
   /// update widget state
+  @nonVirtual
   void update() => _logic.update();
 
   /// get context
@@ -157,8 +161,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Map<String, String> get headers => {};
 
+  @nonVirtual
   bool get favorite => _logic.favorite;
 
+  @nonVirtual
   set favorite(bool f) => _logic.favorite = f;
 
   Future<bool> loadFavorite(T data);
@@ -297,7 +303,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
     return SliverPadding(
       padding: UiMode.m1(context) ? const EdgeInsets.fromLTRB(10, 0, 10, 8) : const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      sliver: SliverToBoxAdapter(child: Text(subTitle!, style: const TextStyle(fontSize: 18),),),
+      sliver: SliverToBoxAdapter(child: SelectableText(subTitle!, style: const TextStyle(fontSize: 18),),),
     );
   }
 
@@ -611,7 +617,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildThumbnails(BuildContext context) {
-    if (thumbnails == null || thumbnails!.thumbnails.isEmpty) return [];
+    if (thumbnails == null || (thumbnails!.thumbnails.isEmpty && !tag.contains("Hitomi"))) return [];
+    if(thumbnails!.thumbnails.isEmpty){
+      thumbnails!.get(update);
+    }
     return [
       const SliverPadding(padding: EdgeInsets.all(5)),
       const SliverToBoxAdapter(

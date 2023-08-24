@@ -239,9 +239,13 @@ void readJmComic(JmComicInfo comic, List<String> eps) async{
   }
 }
 
-void readHitomiComic(HitomiComic comic, String cover) async{
+void readHitomiComic(HitomiComic comic, String cover, [int? page]) async{
   await addHitomiHistory(comic, cover);
   var history = await appdata.history.find(comic.id);
+  if(page != null){
+    Get.to(()=>ComicReadingPage.hitomi(comic.id, comic.name, comic.files, initialPage: page,), preventDuplicates: false);
+    return;
+  }
   if(history!=null){
     if(history.ep!=0){
       showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(

@@ -55,7 +55,7 @@ extension TagsTranslation on String{
   };
 
   /// English to chinese translations
-  static const enTagsTranslations = {
+  static const enTagsTranslations = <String, String>{
     // 标签
     "3d": "3D",
     "abortion": "堕胎",
@@ -682,6 +682,7 @@ extension TagsTranslation on String{
     "domination loss": "统治权丧失",
     "poor grammar": "语法错误",
     "artistcg": "插画CG",
+    "multimouth blowjob": "多口口交",
 
     // 语言
     "chinese": "中文",
@@ -799,6 +800,8 @@ extension TagsTranslation on String{
     "ensemble stars": "偶像天团",
     "re zero kara hajimeru isekai seikatsu": "Re:从零开始的异世界生活",
     "bang dream": "BanG Dream!",
+    "goddess of victory nikke": "胜利女神：妮姬",
+    "cervix prolapse": "子宫脱垂",
 
     // 人物
     "teitoku": "提督",
@@ -918,7 +921,44 @@ extension TagsTranslation on String{
     "tsunade": "綱手",
     "tenshi hinanai": "比那名居天子",
     "miku hatsune": "初音未来",
-    "kallen stadtfeld": "卡列娜·斯塔德菲尔德"
+    "kallen stadtfeld": "卡列娜·斯塔德菲尔德",
+    "hina sorasaki": "空崎日奈",
+    "mutsuki asagi":"浅黄睦月",
+    "asuna ichinose":"一之濑明日奈",
+    "karin kakudate":"角楯花凛",
+    "aru rikuhachima":"陆八魔亚瑠",
+    "hifumi ajitani":"阿慈谷日富美",
+    "azusa shirasu":"白洲梓",
+    "hanako urawa":"浦和花子",
+    "koharu shimoe":"下江小春",
+    "ui kozeki":"古关忧",
+    "iori shiromi":"银镜伊织",
+    "shun sunohara":"春原瞬",
+    "yuuka hayase":"早濑优香",
+    "hoshino takanashi":"小鸟游星野",
+    "miyu kasumizawa":"霞泽美游",
+    "midori saiba":"才羽绿",
+    "momoi saiba":"才羽桃井",
+    "izuna kuda":"久田泉奈",
+    "shiroko sunaookami":"砂狼白子",
+    "mika misono":"圣园未花",
+    "ako amau":"天雨亚子",
+    "noa ushio":"生盐诺亚",
+    "kokona sunohara":"春原心奈",
+    "arona":"阿罗娜",
+    "seia yurizono":"百合园圣娅",
+    "saori joumae":"锭前纱织",
+    "wakamo kosaka":"狐坂若藻",
+    "kazusa kyouyama":"杏山和纱",
+    "toki asuma":"飞鸟马时",
+    "nagisa kirifuji":"桐藤渚",
+    "miyako tsukiyuki":"月雪宫子",
+    "atsuko hakari":"秤亚津子",
+    "moe kazekura": "风仓萌绘",
+    "saki sorai": "空井咲希",
+    "mari iochi": "伊落玛丽",
+    "chise waraku": "和乐千世",
+    "alice tendou": "天童爱丽丝"
   };
 }
 

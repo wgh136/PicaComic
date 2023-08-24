@@ -36,9 +36,10 @@ class GG{
   static List<String>? cacheNumbers;
 
   Future<void> getGg(String galleryId) async{
-    if(cacheTime!=null && DateTime.now().millisecondsSinceEpoch - cacheTime!.millisecondsSinceEpoch < 60000){
+    if(cacheTime!=null && DateTime.now().millisecondsSinceEpoch - cacheTime!.millisecondsSinceEpoch < 100){
       numbers = cacheNumbers!;
       b = cacheB!;
+      return;
     }
     var dio = Dio(BaseOptions(
         responseType: ResponseType.plain,
@@ -85,6 +86,14 @@ class GG{
     return '$b/${GG.s(hash)}/$hash';
   }
 
+  String realFullPathFromHash(String hash) {
+    RegExp regex = RegExp(r'^.*(..)(.)$');
+    String newPath = regex.stringMatch(hash)!.replaceAllMapped(regex, (match) {
+      return '${match.group(2)}/${match.group(1)}/$hash';
+    });
+    return newPath;
+  }
+
   String urlFromUrl(String url, String? base) {
     return url.replaceFirst(RegExp(r"//..?\.hitomi\.la/"), '//${subdomainFromUrl(url, base)}.hitomi.la/');
   }
@@ -92,12 +101,15 @@ class GG{
   String urlFromHash(HitomiFile image, String? dir, String? ext) {
     ext ??= dir ??= image.name.split('.').last;
     dir ??= 'images';
+    if(dir.contains('small')){
+      return 'https://a.hitomi.la/$dir/${realFullPathFromHash(image.hash)}.$ext';
+    }
     return 'https://a.hitomi.la/$dir/${fullPathFromHash(image.hash)}.$ext';
   }
 
   ///获取图像信息
-  Future<String> urlFromUrlFromHash(String galleryId, HitomiFile image, String? dir, String? ext) async{
+  Future<String> urlFromUrlFromHash(String galleryId, HitomiFile image, String? dir, String? ext, [String subDomainBase = 'a']) async{
     await getGg(galleryId);
-    return urlFromUrl(urlFromHash(image, dir, ext), 'a');
+    return urlFromUrl(urlFromHash(image, dir, ext), subDomainBase);
   }
 }

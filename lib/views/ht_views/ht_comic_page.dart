@@ -87,7 +87,7 @@ class HtComicPage extends ComicPage<HtComicInfo>{
 
   @override
   void onThumbnailTapped(int index) {
-    readHtmangaComic(data!, index);
+    readHtmangaComic(data!, index+1);
   }
 
   @override
