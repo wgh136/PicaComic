@@ -46,6 +46,20 @@ class SideBarRoute<T> extends PopupRoute<T> {
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     bool showSideBar = MediaQuery.of(context).size.width > width;
+
+    Widget body = SidebarBody(
+      title: title,
+      widget: widget,
+      autoChangeTitleBarColor: !useSurfaceTintColor,
+    );
+
+    if(addTopPadding){
+      body = Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        child: body,
+      );
+    }
+
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
@@ -72,11 +86,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
               color: useSurfaceTintColor
                   ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
                   : null,
-              child: SidebarBody(
-                title: title,
-                widget: widget,
-                autoChangeTitleBarColor: !useSurfaceTintColor,
-              ),
+              child: body,
             ),
           ),
         ),
@@ -210,7 +220,7 @@ void showSideBar(BuildContext context, Widget widget,
     bool showBarrier = true,
     bool useSurfaceTintColor = false,
     double width = 550,
-    bool addTopPadding = true}) {
+    bool addTopPadding = false}) {
   Navigator.of(context).push(SideBarRoute(title, widget,
       showBarrier: showBarrier,
       useSurfaceTintColor: useSurfaceTintColor,

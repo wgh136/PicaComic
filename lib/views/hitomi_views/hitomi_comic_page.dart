@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/hitomi_network/image.dart';
@@ -144,7 +145,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       return Res(images);
     }
     catch(e, s){
-      print("$e\n$s");
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return Res(null, errorMessage: e.toString());
     }
   }, 2);

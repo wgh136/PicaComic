@@ -43,7 +43,7 @@ class Destination {
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
-  static int navigateId = int.parse(appdata.settings[23]);
+  static const int navigateId = 1;
 
   static BuildContext? navigatorContext;
 
@@ -89,8 +89,8 @@ class _MainPageState extends State<MainPage> {
   int get i => _i;
 
   set i(int value) {
-    MainPage.navigateId = value;
     _i = value;
+    Navigator.popUntil(Get.nestedKey(1)!.currentContext!, (route) => route.isFirst);
   }
 
   final pages = [
@@ -280,7 +280,7 @@ class _MainPageState extends State<MainPage> {
                   Expanded(
                     child: ClipRect(
                       child: Navigator(
-                        key: Get.nestedKey(i),
+                        key: Get.nestedKey(1),
                         onGenerateRoute: (settings) =>
                             MaterialPageRoute(builder: (context) {
                           MainPage.navigatorContext = context;

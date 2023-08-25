@@ -34,7 +34,6 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
   void initState() {
     controller = TabController(length: widget.pages, vsync: this);
     ExplorePage.jumpTo = (index){
-      print(index);
       controller.animateTo(index);
     };
     Get.put(NhentaiHomePageController());
@@ -118,7 +117,9 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        onTap: () => controller.animateTo(controller.index - 1),
+                        onTap: () {
+                            if(controller.index - 1 >  0)  controller.animateTo(controller.index - 1);
+                          },
                         child: Container(
                           height: 50,
                           width: 30,
@@ -136,7 +137,11 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        onTap: () => controller.animateTo(controller.index + 1),
+                        onTap: () {
+                          if(controller.index + 1 < widget.pages) {
+                            controller.animateTo(controller.index + 1);
+                          }
+                        },
                         child: Container(
                           height: 50,
                           width: 30,

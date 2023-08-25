@@ -445,26 +445,27 @@ class ComicReadingPage extends StatelessWidget {
                         ),
                         Expanded(
                             child: FilledButton(
-                          onPressed: () {
-                            if (!type.hasEps) {
-                              showMessage(context, "没有其它章节".tl);
-                              return;
-                            }
-                            if (MediaQuery.of(context).size.width > 600) {
-                              showSideBar(context, buildEpsView(),
-                                  title: null,
-                                  useSurfaceTintColor: true,
-                                  width: 400);
-                            } else {
-                              showModalBottomSheet(
-                                  context: context,
-                                  useSafeArea: false,
-                                  builder: (context) {
-                                    return buildEpsView();
-                                  });
-                            }
-                          },
-                          child: Text("切换章节".tl),
+                              onPressed: () {
+                                if (!type.hasEps) {
+                                  showMessage(context, "没有其它章节".tl);
+                                  return;
+                                }
+                                if (MediaQuery.of(context).size.width > 600) {
+                                  showSideBar(context, buildEpsView(),
+                                      title: null,
+                                      useSurfaceTintColor: true,
+                                      addTopPadding: true,
+                                      width: 400);
+                                } else {
+                                  showModalBottomSheet(
+                                      context: context,
+                                      useSafeArea: false,
+                                      builder: (context) {
+                                        return buildEpsView();
+                                      });
+                                }
+                              },
+                              child: Text("切换章节".tl),
                         )),
                       ],
                     ),
@@ -722,7 +723,7 @@ class ComicReadingPage extends StatelessWidget {
     var context = Get.context!;
     if (MediaQuery.of(context).size.width > 600) {
       showSideBar(context, buildEpsView(),
-          title: null, useSurfaceTintColor: true, width: 400);
+          title: null, useSurfaceTintColor: true, width: 400, addTopPadding: true);
     } else {
       showModalBottomSheet(
           context: context,

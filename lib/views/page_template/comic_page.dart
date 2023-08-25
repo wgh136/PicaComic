@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -355,13 +357,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     return GestureDetector(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: CachedNetworkImage(
-          width: width - 32,
+        child: SizedBox(
+          width: width-32,
           height: height - 32,
-          imageUrl: cover,
-          fit: BoxFit.contain,
-          httpHeaders: headers,
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+          child: RoundedImage(image: CachedNetworkImageProvider(
+            cover
+          ),),
         ),
       ),
       onTap: () => Get.to(() => ShowImagePage(cover)),
@@ -657,36 +658,45 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               }
               return Padding(
                 padding: UiMode.m1(context)
-                    ? const EdgeInsets.all(8)
-                    : const EdgeInsets.all(16),
-                child: InkWell(
-                  onTap: () => onThumbnailTapped(index),
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                  child: Container(
-                    decoration: BoxDecoration(
+                    ? const EdgeInsets.all(4)
+                    : const EdgeInsets.all(8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(child: InkWell(
+                      onTap: () => onThumbnailTapped(index),
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          child: CachedNetworkImage(
+                            imageUrl: thumbnails!.thumbnails[index],
+                            httpHeaders: headers,
+                            fit: BoxFit.contain,
+                            placeholder: (context, s) => ColoredBox(
+                                color: Theme.of(context).colorScheme.surfaceVariant),
+                            errorWidget: (context, s, d) => const Icon(Icons.error),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      child: CachedNetworkImage(
-                        imageUrl: thumbnails!.thumbnails[index],
-                        httpHeaders: headers,
-                        fit: BoxFit.contain,
-                        placeholder: (context, s) => ColoredBox(
-                            color: Theme.of(context).colorScheme.surfaceVariant),
-                        errorWidget: (context, s, d) => const Icon(Icons.error),
-                      ),
-                    ),
-                  ),
+                    )),
+                    const SizedBox(height: 4,),
+                    Text((index+1).toString()),
+                  ],
                 ),
               );
             }),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 200,
-              childAspectRatio: 0.75,
+              childAspectRatio: 0.70,
             )),
       ),
       if (thumbnails!.current < thumbnails!.maxPage)
@@ -1073,5 +1083,100 @@ class _AnimatedCheckIconState extends State<AnimatedCheckIcon> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return AnimatedCheckWidget(animation: animation, size: widget.size,);
+  }
+}
+
+class RoundedImage extends StatefulWidget {
+  const RoundedImage({required this.image, super.key});
+  
+  final ImageProvider image;
+
+  @override
+  State<RoundedImage> createState() => _RoundedImageState();
+}
+
+class _RoundedImageState extends State<RoundedImage> {
+  ui.Image? image;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(image == null){
+      return const SizedBox();
+    }else{
+      return CustomPaint(
+        painter: _RoundedImagePainter(image: image!, borderRadius: 16),
+        child: const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      );
+    }
+  }
+  
+  void _loadImage() async{
+    final imageStream = widget.image.resolve(ImageConfiguration.empty);
+
+    var listener = ImageStreamListener((imageInfo, _) {
+      if(mounted) {
+        setState(() {
+          image = imageInfo.image;
+        });
+      }
+    });
+
+    imageStream.addListener(listener);
+  }
+}
+
+
+class _RoundedImagePainter extends CustomPainter {
+  final ui.Image image;
+  final double borderRadius;
+
+  _RoundedImagePainter({required this.image, required this.borderRadius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Calculate the layout rectangle for the contained image
+    double imageAspectRatio = image.width.toDouble() / image.height.toDouble();
+    double containerAspectRatio = size.width / size.height;
+
+    double drawWidth, drawHeight, xOffset, yOffset;
+
+    if (imageAspectRatio > containerAspectRatio) {
+      drawWidth = size.width;
+      drawHeight = size.width / imageAspectRatio;
+      xOffset = 0;
+      yOffset = (size.height - drawHeight) / 2;
+    } else {
+      drawWidth = size.height * imageAspectRatio;
+      drawHeight = size.height;
+      xOffset = (size.width - drawWidth) / 2;
+      yOffset = 0;
+    }
+
+    Rect drawRect = Offset(xOffset, yOffset) & Size(drawWidth, drawHeight);
+
+    // Create a rounded rectangle path
+    RRect roundedRect = RRect.fromRectAndRadius(drawRect, Radius.circular(borderRadius));
+    Path clipPath = Path()..addRRect(roundedRect);
+
+    // Clip the canvas with the rounded rectangle path
+    canvas.clipPath(clipPath);
+
+    // Draw the image within the clipped area
+    Rect srcRect = Rect.fromLTRB(0, 0, image.width.toDouble(), image.height.toDouble());
+    canvas.drawImageRect(image, srcRect, drawRect, Paint());
+  }
+
+  @override
+  bool shouldRepaint(_RoundedImagePainter oldDelegate) {
+    return image != oldDelegate.image || borderRadius != oldDelegate.borderRadius;
   }
 }

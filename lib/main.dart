@@ -44,6 +44,7 @@ void handleAppLinks(Uri uri){
         showMessage(Get.context, "Unknown Link");
       }
     case "nhentai.net":
+    case "nhentai.xxx":
       if(uri.pathSegments.isEmpty){
         MainPage.toExplorePageAt(7);
       }else if(uri.path.contains("/g/")){

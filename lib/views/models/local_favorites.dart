@@ -13,8 +13,8 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'dart:io';
+import '../../foundation/def.dart';
 
-enum ComicType{picacg, ehentai, jm, hitomi, ht, nhentai}
 
 class FavoriteItem{
   String name;
@@ -60,7 +60,7 @@ class FavoriteItem{
   FavoriteItem.fromHtcomic(HtComicBrief comic):
       name = comic.name,
       author = "${comic.pages}Pages",
-      type = ComicType.ht,
+      type = ComicType.htmanga,
       tags = [],
       target = comic.id,
       coverPath = comic.image;

@@ -1,13 +1,6 @@
-enum ReadingType {
-  picacg,
-  ehentai,
-  jm ,
-  hitomi,
-  htmanga,
-  nhentai;
+import '../../foundation/def.dart';
 
-  bool get hasEps => [0,2].contains(index);
-}
+typedef ReadingType = ComicType;
 
 enum ReadingMethod {
   leftToRight,

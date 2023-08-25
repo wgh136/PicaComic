@@ -10,11 +10,12 @@ import 'package:pica_comic/tools/translations.dart';
 class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
   final String keyword;
   final Widget? head_;
-  const _SearchPageComicsList(this.keyword, {this.head_, super.key});
+  final NhentaiSort sort;
+  const _SearchPageComicsList(this.keyword, this.sort, {this.head_, super.key});
 
   @override
   Future<Res<List<NhentaiComicBrief>>> getComics(int i){
-    return NhentaiNetwork().search(keyword, i);
+    return NhentaiNetwork().search(keyword, i, sort);
   }
 
   @override
@@ -41,7 +42,8 @@ class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
 
 class NhentaiSearchPage extends StatefulWidget {
   final String keyword;
-  const NhentaiSearchPage(this.keyword, {Key? key}) : super(key: key);
+  final NhentaiSort sort;
+  const NhentaiSearchPage(this.keyword, {Key? key, this.sort = NhentaiSort.recent}) : super(key: key);
 
   @override
   State<NhentaiSearchPage> createState() => _NhentaiSearchPageState();
@@ -80,7 +82,7 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
           return true;
         },
         child: _SearchPageComicsList(
-          keyword,
+          keyword,widget.sort,
           key: Key(keyword),
           head_: SliverPersistentHeader(
             floating: true,

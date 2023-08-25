@@ -131,148 +131,146 @@ class DownloadPage extends StatelessWidget {
               ),
               body: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: CustomAppbar(
-                      leading: logic.selecting
-                          ? IconButton(
-                              onPressed: () {
-                                logic.selecting = false;
-                                logic.selectedNum = 0;
-                                for (int i = 0;
-                                    i < logic.selected.length;
-                                    i++) {
-                                  logic.selected[i] = false;
-                                }
-                                logic.update();
-                              },
-                              icon: const Icon(Icons.close))
-                          : IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back)),
-                      backgroundColor: logic.selecting
-                          ? Theme.of(context).colorScheme.secondaryContainer
-                          : null,
-                      title: logic.selecting
-                          ? Text("已选择 @num 个项目"
-                              .tlParams({"num": logic.selectedNum.toString()}))
-                          : Text("已下载".tl),
-                      actions: [
-                        if (!logic.selecting)
-                          Tooltip(
-                            message: "下载管理器".tl,
-                            child: IconButton(
-                              icon: const Icon(Icons.download_for_offline),
-                              onPressed: () {
-                                showAdaptiveWidget(
-                                    Get.context!,
-                                    DownloadingPage(
-                                      inPopupWidget:
-                                          MediaQuery.of(Get.context!).size.width >
-                                              600,
-                                    ));
-                              },
-                            ),
-                          )
-                        else
-                          Tooltip(
-                            message: "更多".tl,
-                            child: IconButton(
-                              icon: const Icon(Icons.more_horiz),
-                              onPressed: () {
-                                showMenu(
-                                    context: context,
-                                    position: RelativeRect.fromLTRB(
-                                        MediaQuery.of(context).size.width - 60,
-                                        50,
-                                        MediaQuery.of(context).size.width - 60,
-                                        50),
-                                    items: [
-                                      PopupMenuItem(
-                                        child: Text("全选".tl),
-                                        onTap: () {
-                                          for (int i = 0;
-                                              i < logic.selected.length;
-                                              i++) {
-                                            logic.selected[i] = true;
-                                          }
-                                          logic.selectedNum =
-                                              logic.comics.length;
-                                          logic.update();
-                                        },
-                                      ),
-                                      PopupMenuItem(
-                                        child: Text("导出".tl),
-                                        onTap: () {
-                                          if (logic.selectedNum == 0) {
-                                            showMessage(context, "请选择漫画".tl);
-                                          } else if (logic.selectedNum > 1) {
-                                            showMessage(
-                                                context, "一次只能导出一部漫画".tl);
-                                          } else {
-                                            Future<void>.delayed(
-                                              const Duration(milliseconds: 200),
-                                              () => showDialog(
-                                                context: context,
-                                                barrierColor: Colors.black26,
-                                                barrierDismissible: false,
-                                                builder: (context) =>
-                                                    const SimpleDialog(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 200,
-                                                      height: 200,
-                                                      child: Center(
-                                                        child: SizedBox(
-                                                          width: 50,
-                                                          height: 75,
-                                                          child: Column(
-                                                            children: [
-                                                              SizedBox(
-                                                                height: 10,
-                                                              ),
-                                                              CircularProgressIndicator(),
-                                                              SizedBox(
-                                                                height: 9,
-                                                              ),
-                                                              Text("打包中")
-                                                            ],
-                                                          ),
+                  CustomSmallSliverAppbar(
+                    leading: logic.selecting
+                        ? IconButton(
+                        onPressed: () {
+                          logic.selecting = false;
+                          logic.selectedNum = 0;
+                          for (int i = 0;
+                          i < logic.selected.length;
+                          i++) {
+                            logic.selected[i] = false;
+                          }
+                          logic.update();
+                        },
+                        icon: const Icon(Icons.close))
+                        : IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back)),
+                    backgroundColor: logic.selecting
+                        ? Theme.of(context).colorScheme.secondaryContainer
+                        : null,
+                    title: logic.selecting
+                        ? Text("已选择 @num 个项目"
+                        .tlParams({"num": logic.selectedNum.toString()}))
+                        : Text("已下载".tl),
+                    actions: [
+                      if (!logic.selecting)
+                        Tooltip(
+                          message: "下载管理器".tl,
+                          child: IconButton(
+                            icon: const Icon(Icons.download_for_offline),
+                            onPressed: () {
+                              showAdaptiveWidget(
+                                  Get.context!,
+                                  DownloadingPage(
+                                    inPopupWidget:
+                                    MediaQuery.of(Get.context!).size.width >
+                                        600,
+                                  ));
+                            },
+                          ),
+                        )
+                      else
+                        Tooltip(
+                          message: "更多".tl,
+                          child: IconButton(
+                            icon: const Icon(Icons.more_horiz),
+                            onPressed: () {
+                              showMenu(
+                                  context: context,
+                                  position: RelativeRect.fromLTRB(
+                                      MediaQuery.of(context).size.width - 60,
+                                      50,
+                                      MediaQuery.of(context).size.width - 60,
+                                      50),
+                                  items: [
+                                    PopupMenuItem(
+                                      child: Text("全选".tl),
+                                      onTap: () {
+                                        for (int i = 0;
+                                        i < logic.selected.length;
+                                        i++) {
+                                          logic.selected[i] = true;
+                                        }
+                                        logic.selectedNum =
+                                            logic.comics.length;
+                                        logic.update();
+                                      },
+                                    ),
+                                    PopupMenuItem(
+                                      child: Text("导出".tl),
+                                      onTap: () {
+                                        if (logic.selectedNum == 0) {
+                                          showMessage(context, "请选择漫画".tl);
+                                        } else if (logic.selectedNum > 1) {
+                                          showMessage(
+                                              context, "一次只能导出一部漫画".tl);
+                                        } else {
+                                          Future<void>.delayed(
+                                            const Duration(milliseconds: 200),
+                                                () => showDialog(
+                                              context: context,
+                                              barrierColor: Colors.black26,
+                                              barrierDismissible: false,
+                                              builder: (context) =>
+                                              const SimpleDialog(
+                                                children: [
+                                                  SizedBox(
+                                                    width: 200,
+                                                    height: 200,
+                                                    child: Center(
+                                                      child: SizedBox(
+                                                        width: 50,
+                                                        height: 75,
+                                                        child: Column(
+                                                          children: [
+                                                            SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            CircularProgressIndicator(),
+                                                            SizedBox(
+                                                              height: 9,
+                                                            ),
+                                                            Text("打包中")
+                                                          ],
                                                         ),
                                                       ),
-                                                    )
-                                                  ],
-                                                ),
+                                                    ),
+                                                  )
+                                                ],
                                               ),
-                                            );
-                                            Future<void>.delayed(
-                                                const Duration(
-                                                    milliseconds: 500),
-                                                () => export(logic));
-                                          }
-                                        },
-                                      ),
-                                      PopupMenuItem(
-                                        child: Text("查看漫画详情".tl),
-                                        onTap: () => Future.delayed(
-                                            const Duration(milliseconds: 200),
-                                            () {
-                                              if (logic.selectedNum != 1) {
-                                                showMessage(Get.context, "请选择一个漫画".tl);
-                                              } else {
-                                                for (int i = 0; i < logic.selected.length; i++) {
-                                                  if (logic.selected[i]) {
-                                                    toComicInfoPage(logic.comics[i]);
-                                                  }
+                                            ),
+                                          );
+                                          Future<void>.delayed(
+                                              const Duration(
+                                                  milliseconds: 500),
+                                                  () => export(logic));
+                                        }
+                                      },
+                                    ),
+                                    PopupMenuItem(
+                                      child: Text("查看漫画详情".tl),
+                                      onTap: () => Future.delayed(
+                                          const Duration(milliseconds: 200),
+                                              () {
+                                            if (logic.selectedNum != 1) {
+                                              showMessage(Get.context, "请选择一个漫画".tl);
+                                            } else {
+                                              for (int i = 0; i < logic.selected.length; i++) {
+                                                if (logic.selected[i]) {
+                                                  toComicInfoPage(logic.comics[i]);
                                                 }
                                               }
-                                            }),
-                                      ),
-                                    ]);
-                              },
-                            ),
+                                            }
+                                          }),
+                                    ),
+                                  ]);
+                            },
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
