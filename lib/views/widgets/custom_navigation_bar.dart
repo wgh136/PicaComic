@@ -197,7 +197,7 @@ class _NavigationItemState extends State<NavigationItem>
   Widget build(BuildContext context) {
     return AnimatedNavigationItem(
         animation: controller,
-        icon: widget.icon,
+        icon: widget.selected ? widget.selectedIcon : widget.icon,
         hover: widget.hover,
         label: widget.label);
   }
@@ -249,7 +249,7 @@ class AnimatedNavigationItem extends AnimatedWidget {
                 top: 40,
                 left: 0,
                 right: 0,
-                bottom: 0,
+                bottom: 4,
                 child: Center(
                   child: Opacity(
                     opacity: value,

@@ -10,6 +10,7 @@ import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
+import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
@@ -19,6 +20,8 @@ import 'jm_views/jm_comic_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'main_page.dart';
+
+typedef FilterChip = CustomFilterChip;
 
 class PreSearchController extends GetxController{
   int target = 0;
@@ -102,6 +105,9 @@ class PreSearchPage extends StatelessWidget {
                   }else if(element.translateTagsToCN.length >= text.length
                       && element.translateTagsToCN.contains(text)){
                     suggestions.add(element);
+                  }
+                  if(suggestions.length > 50){
+                    break;
                   }
                 }
                 widget = Card(

@@ -16,6 +16,7 @@ import '../../base.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
 import '../show_image_page.dart';
+import '../widgets/animations.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/show_message.dart';
@@ -175,18 +176,23 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   void onThumbnailTapped(int index){}
 
   void scrollListener(){
-    var logic = _logic;
-    bool temp = logic.showAppbarTitle;
-    if (!logic.controller.hasClients) {
-      return;
+    try {
+      var logic = _logic;
+      bool temp = logic.showAppbarTitle;
+      if (!logic.controller.hasClients) {
+        return;
+      }
+      logic.showAppbarTitle = logic.controller.position.pixels >
+          boundingTextSize(title!, const TextStyle(fontSize: 22),
+              maxWidth: logic.width!)
+              .height +
+              50;
+      if (temp != logic.showAppbarTitle) {
+        logic.update();
+      }
     }
-    logic.showAppbarTitle = logic.controller.position.pixels >
-        boundingTextSize(title!, const TextStyle(fontSize: 22),
-            maxWidth: logic.width!)
-            .height +
-            50;
-    if (temp != logic.showAppbarTitle) {
-      logic.update();
+    catch(e){
+      return;
     }
   }
 
@@ -696,7 +702,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             }),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 200,
-              childAspectRatio: 0.70,
+              childAspectRatio: 0.65,
             )),
       ),
       if (thumbnails!.current < thumbnails!.maxPage)
@@ -1019,70 +1025,6 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
             )
           ],
         ));
-  }
-}
-
-class AnimatedCheckWidget extends AnimatedWidget{
-  const AnimatedCheckWidget({super.key, required Animation<double> animation, this.size})
-      : super(listenable: animation);
-
-  final double? size;
-
-  @override
-  Widget build(BuildContext context) {
-    var iconSize = size ?? IconTheme.of(context).size ?? 25;
-    final animation = listenable as Animation<double>;
-    return SizedBox(
-      width: iconSize,
-      height: iconSize,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FractionallySizedBox(
-          widthFactor: animation.value,
-          child: ClipRRect(
-            child: Icon(Icons.check, size: iconSize, color:Theme.of(context).colorScheme.primary,),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AnimatedCheckIcon extends StatefulWidget {
-  const AnimatedCheckIcon({this.size, super.key});
-
-  final double? size;
-
-  @override
-  State<AnimatedCheckIcon> createState() => _AnimatedCheckIconState();
-}
-
-class _AnimatedCheckIconState extends State<AnimatedCheckIcon> with SingleTickerProviderStateMixin{
-  late Animation<double> animation;
-  late AnimationController controller;
-
-  @override
-  void initState() {
-    controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
-    animation = Tween<double>(begin: 0, end: 1).animate(controller)
-      ..addListener(() {
-        setState(() {});
-      });
-    controller.forward();
-    super.initState();
-  }
-
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedCheckWidget(animation: animation, size: widget.size,);
   }
 }
 

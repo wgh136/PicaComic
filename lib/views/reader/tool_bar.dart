@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/views/reader/interact_view.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_settings.dart';
@@ -170,17 +171,7 @@ Widget buildBottomToolBar(
                           child: IconButton(
                             icon: const Icon(Icons.zoom_in),
                             onPressed: () {
-                              var value = comicReadingPageLogic.transformationController.value
-                                  .getMaxScaleOnAxis();
-                              final center = MediaQuery.of(context).size.center(Offset.zero);
-                              final anchor =
-                                  comicReadingPageLogic.transformationController.toScene(center);
-                              comicReadingPageLogic.transformationController.value =
-                                  composeMatrixFromOffsets(
-                                scale: value + 0.2,
-                                anchor: anchor,
-                                translate: center,
-                              );
+                              comicReadingPageLogic.transformationController.zoom(0.2);
                             },
                           ),
                         ),
@@ -190,18 +181,7 @@ Widget buildBottomToolBar(
                           child: IconButton(
                             icon: const Icon(Icons.zoom_out),
                             onPressed: () {
-                              var value = comicReadingPageLogic.transformationController.value
-                                  .getMaxScaleOnAxis();
-                              if (value == 1) return;
-                              final center = MediaQuery.of(context).size.center(Offset.zero);
-                              final anchor =
-                                  comicReadingPageLogic.transformationController.toScene(center);
-                              comicReadingPageLogic.transformationController.value =
-                                  composeMatrixFromOffsets(
-                                scale: value - 0.2 < 1 ? 1 : value - 0.2,
-                                anchor: anchor,
-                                translate: center,
-                              );
+                              comicReadingPageLogic.transformationController.zoom(-0.2);
                             },
                           ),
                         ),

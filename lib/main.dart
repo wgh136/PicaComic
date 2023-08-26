@@ -243,7 +243,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: GetPlatform.isWindows ? "font" : "",
         ),
-        home: notFirstUse ? const MainPage() : const WelcomePage(),
+        home: notFirstUse ?
+          (appdata.settings[13] == "1" ? const AuthPage() : const MainPage()) :
+          const WelcomePage(),
         fallbackLocale: const Locale('zh', 'CN'),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,

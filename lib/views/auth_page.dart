@@ -14,8 +14,13 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     Future.delayed(const Duration(microseconds: 200),()=>auth());
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: ()=>auth(),
       child: Scaffold(
