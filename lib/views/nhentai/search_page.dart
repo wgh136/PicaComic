@@ -6,6 +6,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:get/get.dart';
 
 class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
   final String keyword;
@@ -19,7 +20,7 @@ class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
   }
 
   @override
-  String? get tag => "Nhentai search $keyword";
+  String? get tag => "Nhentai search $keyword ${sort.name}";
 
   @override
   String get title => "";
@@ -53,6 +54,7 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
   late String keyword = widget.keyword;
   var controller = TextEditingController();
   bool _showFab = true;
+  late NhentaiSort sort = widget.sort;
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +84,8 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
           return true;
         },
         child: _SearchPageComicsList(
-          keyword,widget.sort,
-          key: Key(keyword),
+          keyword,sort,
+          key: Key(keyword + sort.index.toString()),
           head_: SliverPersistentHeader(
             floating: true,
             delegate: _SliverAppBarDelegate(
@@ -97,6 +99,87 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                     keyword = s;
                   });
                 },
+                trailing: Tooltip(
+                  message: "选择搜索模式".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_drop_down_rounded),
+                    onPressed: (){
+                      showDialog(context: context, builder: (context){
+                        return SimpleDialog(
+                            title: Text("选择漫画排序模式".tl),
+                            children: [
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(width: 400,),
+                                  ListTile(
+                                    trailing: Radio<int>(value: 0,groupValue: sort.index,onChanged: (i){
+                                      setState(() {
+                                        sort = NhentaiSort.values[0];
+                                      });
+                                      Get.back();
+                                    },),
+                                    title: Text("最新".tl),
+                                    onTap: (){
+                                      setState(() {
+                                        sort = NhentaiSort.values[0];
+                                      });
+                                      Get.back();
+                                    },
+                                  ),
+                                  ListTile(
+                                    trailing: Radio<int>(value: 1,groupValue: sort.index,onChanged: (i){
+                                      setState(() {
+                                        sort = NhentaiSort.values[1];
+                                      });
+                                      Get.back();
+                                    },),
+                                    title: Text("热门 | 今天".tl),
+                                    onTap: (){
+                                      setState(() {
+                                        sort = NhentaiSort.values[1];
+                                      });
+                                      Get.back();
+                                    },
+                                  ),
+                                  ListTile(
+                                    trailing: Radio<int>(value: 2,groupValue: sort.index,onChanged: (i){
+                                      setState(() {
+                                        sort = NhentaiSort.values[2];
+                                      });
+                                      Get.back();
+                                    },),
+                                    title: Text("热门 | 一周".tl),
+                                    onTap: (){
+                                      setState(() {
+                                        sort = NhentaiSort.values[2];
+                                      });
+                                      Get.back();
+                                    },
+                                  ),
+                                  ListTile(
+                                    trailing: Radio<int>(value: 3,groupValue: sort.index,onChanged: (i){
+                                      setState(() {
+                                        sort = NhentaiSort.values[3];
+                                      });
+                                      Get.back();
+                                    },),
+                                    title: Text("热门 | 所有时间".tl),
+                                    onTap: (){
+                                      setState(() {
+                                        sort = NhentaiSort.values[3];
+                                      });
+                                      Get.back();
+                                    },
+                                  ),
+                                ],
+                              )
+                            ]
+                        );
+                      });
+                    },
+                  ),
+                ),
                 controller: controller,),
             ),
           ),

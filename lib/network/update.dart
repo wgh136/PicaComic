@@ -64,7 +64,7 @@ Future<String> getDownloadUrl() async{
     device = 3;
   }else if(platform == "x86"){
     device = 4;
-  }else if(platform == "windows" || platform == "Linux"){
+  }else if(platform == "Linux" || platform == "iOS" || platform == "windows"){
     return "https://github.com/wgh136/PicaComic/releases";
   }
   return "https://api.kokoiro.xyz/download/${appName[device]}";

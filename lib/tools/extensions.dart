@@ -29,6 +29,10 @@ extension StringExtension on String{
   }
 
   String get nums => _nums();
+
+  String setValueAt(String value, int index){
+    return replaceRange(index, index+1, value);
+  }
 }
 
 extension MapExtension<S, T> on Map<S, List<T>>{

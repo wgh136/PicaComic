@@ -71,6 +71,11 @@ class CategoryPageWithGetControl extends StatelessWidget {
     return GetBuilder<CategoryPageLogic>(builder: (logic){
       int pages = int.parse(appdata.settings[21][0])*1 + int.parse(appdata.settings[21][2])*2
           + int.parse(appdata.settings[21][4])*1;
+      if(pages == 0){
+        return Center(
+          child: Text("无数据".tl),
+        );
+      }
       return AllCategoryPage(pages);
     });
   }

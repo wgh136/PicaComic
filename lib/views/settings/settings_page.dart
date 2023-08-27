@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'reading_settings.dart';
 import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
@@ -101,7 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       trailing: Select(
                         initialValue: int.parse(appdata.settings[25]),
                         whenChange: (i){
-                          appdata.settings[25] = i.toString();
+                          appdata.settings[26] = appdata.settings[25] = i.toString();
                           appdata.updateSettings();
                         },
                         values: const ["顺序显示", "分页显示"],
@@ -113,9 +114,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: Theme.of(context).colorScheme.secondary),
                       title: Text("已下载的漫画排序方式".tl),
                       trailing: Select(
-                        initialValue: int.parse(appdata.settings[26]),
+                        initialValue: int.parse(appdata.settings[26][0]),
                         whenChange: (i){
-                          appdata.settings[26] = i.toString();
+                          appdata.settings[26].setValueAt(i.toString(), 0);
                           appdata.updateSettings();
                         },
                         values: const ["时间", "漫画名", "作者名", "大小"],

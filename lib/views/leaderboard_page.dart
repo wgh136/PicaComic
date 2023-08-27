@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_leaderboard_page.dart';
 import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
@@ -33,6 +34,12 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
         int.parse(appdata.settings[21][1]) +
         int.parse(appdata.settings[21][2]) +
         int.parse(appdata.settings[21][3]);
+    if(pages == 0){
+      return Center(
+        child: Text("无数据".tl),
+      );
+    }
+
     return GetBuilder<LeaderboardPageLogic>(
         builder: (logic) => DefaultTabController(
             length: pages,

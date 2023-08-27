@@ -11,9 +11,9 @@ class HtSettings extends StatelessWidget {
 
   static const htUrls = <String>[
     "https://www.wnacg.com",
-    "https://www.wnacg01.ru",
-    "https://www.wnacg02.ru",
-    "https://www.wnacg03.ru",
+    "www.wn2.lol",
+    "www.wn3.lol",
+    "www.wn01.lol",
   ];
 
   @override
