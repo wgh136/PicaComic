@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -13,6 +16,7 @@ import '../../base.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
 import '../show_image_page.dart';
+import '../widgets/animations.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/show_message.dart';
@@ -68,8 +72,8 @@ class ComicPageLogic<T extends Object> extends GetxController {
       message = res.errorMessage;
     } else {
       data = res.data;
+      favorite = await loadFavorite(res.data);
     }
-    favorite = await loadFavorite(res.data);
     loading = false;
     update();
   }
@@ -99,6 +103,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   Future<Res<T>> loadData();
 
   /// get comic data
+  @nonVirtual
   T? get data => _logic.data;
 
   /// tag, used by Get, creating a GetxController.
@@ -137,11 +142,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// create thumbnails data
   ThumbnailsData? get thumbnailsCreator;
 
+  @nonVirtual
   ThumbnailsData? get thumbnails => _logic.thumbnailsData;
 
   SliverGrid? recommendationBuilder(T data);
 
   /// update widget state
+  @nonVirtual
   void update() => _logic.update();
 
   /// get context
@@ -157,8 +164,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Map<String, String> get headers => {};
 
+  @nonVirtual
   bool get favorite => _logic.favorite;
 
+  @nonVirtual
   set favorite(bool f) => _logic.favorite = f;
 
   Future<bool> loadFavorite(T data);
@@ -167,18 +176,23 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   void onThumbnailTapped(int index){}
 
   void scrollListener(){
-    var logic = _logic;
-    bool temp = logic.showAppbarTitle;
-    if (!logic.controller.hasClients) {
-      return;
+    try {
+      var logic = _logic;
+      bool temp = logic.showAppbarTitle;
+      if (!logic.controller.hasClients) {
+        return;
+      }
+      logic.showAppbarTitle = logic.controller.position.pixels >
+          boundingTextSize(title!, const TextStyle(fontSize: 22),
+              maxWidth: logic.width!)
+              .height +
+              50;
+      if (temp != logic.showAppbarTitle) {
+        logic.update();
+      }
     }
-    logic.showAppbarTitle = logic.controller.position.pixels >
-        boundingTextSize(title!, const TextStyle(fontSize: 22),
-            maxWidth: logic.width!)
-            .height +
-            50;
-    if (temp != logic.showAppbarTitle) {
-      logic.update();
+    catch(e){
+      return;
     }
   }
 
@@ -297,7 +311,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
     return SliverPadding(
       padding: UiMode.m1(context) ? const EdgeInsets.fromLTRB(10, 0, 10, 8) : const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      sliver: SliverToBoxAdapter(child: Text(subTitle!, style: const TextStyle(fontSize: 18),),),
+      sliver: SliverToBoxAdapter(child: SelectableText(subTitle!, style: const TextStyle(fontSize: 18),),),
     );
   }
 
@@ -349,13 +363,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     return GestureDetector(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: CachedNetworkImage(
-          width: width - 32,
+        child: SizedBox(
+          width: width-32,
           height: height - 32,
-          imageUrl: cover,
-          fit: BoxFit.contain,
-          httpHeaders: headers,
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+          child: RoundedImage(image: CachedNetworkImageProvider(
+            cover
+          ),),
         ),
       ),
       onTap: () => Get.to(() => ShowImagePage(cover)),
@@ -611,7 +624,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildThumbnails(BuildContext context) {
-    if (thumbnails == null || thumbnails!.thumbnails.isEmpty) return [];
+    if (thumbnails == null || (thumbnails!.thumbnails.isEmpty && !tag.contains("Hitomi"))) return [];
+    if(thumbnails!.thumbnails.isEmpty){
+      thumbnails!.get(update);
+    }
     return [
       const SliverPadding(padding: EdgeInsets.all(5)),
       const SliverToBoxAdapter(
@@ -648,36 +664,45 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               }
               return Padding(
                 padding: UiMode.m1(context)
-                    ? const EdgeInsets.all(8)
-                    : const EdgeInsets.all(16),
-                child: InkWell(
-                  onTap: () => onThumbnailTapped(index),
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                  child: Container(
-                    decoration: BoxDecoration(
+                    ? const EdgeInsets.all(4)
+                    : const EdgeInsets.all(8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(child: InkWell(
+                      onTap: () => onThumbnailTapped(index),
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          child: CachedNetworkImage(
+                            imageUrl: thumbnails!.thumbnails[index],
+                            httpHeaders: headers,
+                            fit: BoxFit.contain,
+                            placeholder: (context, s) => ColoredBox(
+                                color: Theme.of(context).colorScheme.surfaceVariant),
+                            errorWidget: (context, s, d) => const Icon(Icons.error),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      child: CachedNetworkImage(
-                        imageUrl: thumbnails!.thumbnails[index],
-                        httpHeaders: headers,
-                        fit: BoxFit.contain,
-                        placeholder: (context, s) => ColoredBox(
-                            color: Theme.of(context).colorScheme.surfaceVariant),
-                        errorWidget: (context, s, d) => const Icon(Icons.error),
-                      ),
-                    ),
-                  ),
+                    )),
+                    const SizedBox(height: 4,),
+                    Text((index+1).toString()),
+                  ],
                 ),
               );
             }),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 200,
-              childAspectRatio: 0.75,
+              childAspectRatio: 0.65,
             )),
       ),
       if (thumbnails!.current < thumbnails!.maxPage)
@@ -1003,66 +1028,97 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
   }
 }
 
-class AnimatedCheckWidget extends AnimatedWidget{
-  const AnimatedCheckWidget({super.key, required Animation<double> animation, this.size})
-      : super(listenable: animation);
-
-  final double? size;
-
-  @override
-  Widget build(BuildContext context) {
-    var iconSize = size ?? IconTheme.of(context).size ?? 25;
-    final animation = listenable as Animation<double>;
-    return SizedBox(
-      width: iconSize,
-      height: iconSize,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FractionallySizedBox(
-          widthFactor: animation.value,
-          child: ClipRRect(
-            child: Icon(Icons.check, size: iconSize, color:Theme.of(context).colorScheme.primary,),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AnimatedCheckIcon extends StatefulWidget {
-  const AnimatedCheckIcon({this.size, super.key});
-
-  final double? size;
+class RoundedImage extends StatefulWidget {
+  const RoundedImage({required this.image, super.key});
+  
+  final ImageProvider image;
 
   @override
-  State<AnimatedCheckIcon> createState() => _AnimatedCheckIconState();
+  State<RoundedImage> createState() => _RoundedImageState();
 }
 
-class _AnimatedCheckIconState extends State<AnimatedCheckIcon> with SingleTickerProviderStateMixin{
-  late Animation<double> animation;
-  late AnimationController controller;
+class _RoundedImageState extends State<RoundedImage> {
+  ui.Image? image;
 
   @override
   void initState() {
-    controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
-    animation = Tween<double>(begin: 0, end: 1).animate(controller)
-      ..addListener(() {
-        setState(() {});
-      });
-    controller.forward();
     super.initState();
-  }
-
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+    _loadImage();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedCheckWidget(animation: animation, size: widget.size,);
+    if(image == null){
+      return const SizedBox();
+    }else{
+      return CustomPaint(
+        painter: _RoundedImagePainter(image: image!, borderRadius: 16),
+        child: const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      );
+    }
+  }
+  
+  void _loadImage() async{
+    final imageStream = widget.image.resolve(ImageConfiguration.empty);
+
+    var listener = ImageStreamListener((imageInfo, _) {
+      if(mounted) {
+        setState(() {
+          image = imageInfo.image;
+        });
+      }
+    });
+
+    imageStream.addListener(listener);
+  }
+}
+
+
+class _RoundedImagePainter extends CustomPainter {
+  final ui.Image image;
+  final double borderRadius;
+
+  _RoundedImagePainter({required this.image, required this.borderRadius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Calculate the layout rectangle for the contained image
+    double imageAspectRatio = image.width.toDouble() / image.height.toDouble();
+    double containerAspectRatio = size.width / size.height;
+
+    double drawWidth, drawHeight, xOffset, yOffset;
+
+    if (imageAspectRatio > containerAspectRatio) {
+      drawWidth = size.width;
+      drawHeight = size.width / imageAspectRatio;
+      xOffset = 0;
+      yOffset = (size.height - drawHeight) / 2;
+    } else {
+      drawWidth = size.height * imageAspectRatio;
+      drawHeight = size.height;
+      xOffset = (size.width - drawWidth) / 2;
+      yOffset = 0;
+    }
+
+    Rect drawRect = Offset(xOffset, yOffset) & Size(drawWidth, drawHeight);
+
+    // Create a rounded rectangle path
+    RRect roundedRect = RRect.fromRectAndRadius(drawRect, Radius.circular(borderRadius));
+    Path clipPath = Path()..addRRect(roundedRect);
+
+    // Clip the canvas with the rounded rectangle path
+    canvas.clipPath(clipPath);
+
+    // Draw the image within the clipped area
+    Rect srcRect = Rect.fromLTRB(0, 0, image.width.toDouble(), image.height.toDouble());
+    canvas.drawImageRect(image, srcRect, drawRect, Paint());
+  }
+
+  @override
+  bool shouldRepaint(_RoundedImagePainter oldDelegate) {
+    return image != oldDelegate.image || borderRadius != oldDelegate.borderRadius;
   }
 }

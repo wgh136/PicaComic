@@ -6,6 +6,7 @@ import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
 import 'package:pica_comic/network/nhentai_network/download.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/views/downloading_page.dart';
@@ -20,7 +21,9 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/select.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
+import 'package:pica_comic/views/widgets/stateful_switch.dart';
 import '../network/eh_network/eh_download_model.dart';
 import '../network/jm_network/jm_download.dart';
 import '../network/picacg_network/picacg_download_model.dart';
@@ -87,193 +90,10 @@ class DownloadPage extends StatelessWidget {
             );
           } else {
             return Scaffold(
-              floatingActionButton: FloatingActionButton(
-                heroTag: UniqueKey(),
-                onPressed: () {
-                  if (!logic.selecting) {
-                    logic.selecting = true;
-                    logic.update();
-                  } else {
-                    if (logic.selectedNum == 0) return;
-                    showDialog(
-                        context: context,
-                        builder: (dialogContext) {
-                          return AlertDialog(
-                            title: Text("删除".tl),
-                            content: Text("要删除已选择的项目吗? 此操作无法撤销".tl),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Get.back(),
-                                  child: const Text("取消")),
-                              TextButton(
-                                  onPressed: () async {
-                                    Get.back();
-                                    var comics = <String>[];
-                                    for (int i = 0;
-                                        i < logic.selected.length;
-                                        i++) {
-                                      if (logic.selected[i]) {
-                                        comics.add(logic.comics[i].id);
-                                      }
-                                    }
-                                    await downloadManager.delete(comics);
-                                    logic.fresh();
-                                  },
-                                  child: Text("确认".tl)),
-                            ],
-                          );
-                        });
-                  }
-                },
-                child: logic.selecting
-                    ? const Icon(Icons.delete_forever_outlined)
-                    : const Icon(Icons.checklist_outlined),
-              ),
+              floatingActionButton: buildFAB(context, logic),
               body: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: CustomAppbar(
-                      leading: logic.selecting
-                          ? IconButton(
-                              onPressed: () {
-                                logic.selecting = false;
-                                logic.selectedNum = 0;
-                                for (int i = 0;
-                                    i < logic.selected.length;
-                                    i++) {
-                                  logic.selected[i] = false;
-                                }
-                                logic.update();
-                              },
-                              icon: const Icon(Icons.close))
-                          : IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back)),
-                      backgroundColor: logic.selecting
-                          ? Theme.of(context).colorScheme.secondaryContainer
-                          : null,
-                      title: logic.selecting
-                          ? Text("已选择 @num 个项目"
-                              .tlParams({"num": logic.selectedNum.toString()}))
-                          : Text("已下载".tl),
-                      actions: [
-                        if (!logic.selecting)
-                          Tooltip(
-                            message: "下载管理器".tl,
-                            child: IconButton(
-                              icon: const Icon(Icons.download_for_offline),
-                              onPressed: () {
-                                showAdaptiveWidget(
-                                    Get.context!,
-                                    DownloadingPage(
-                                      inPopupWidget:
-                                          MediaQuery.of(Get.context!).size.width >
-                                              600,
-                                    ));
-                              },
-                            ),
-                          )
-                        else
-                          Tooltip(
-                            message: "更多".tl,
-                            child: IconButton(
-                              icon: const Icon(Icons.more_horiz),
-                              onPressed: () {
-                                showMenu(
-                                    context: context,
-                                    position: RelativeRect.fromLTRB(
-                                        MediaQuery.of(context).size.width - 60,
-                                        50,
-                                        MediaQuery.of(context).size.width - 60,
-                                        50),
-                                    items: [
-                                      PopupMenuItem(
-                                        child: Text("全选".tl),
-                                        onTap: () {
-                                          for (int i = 0;
-                                              i < logic.selected.length;
-                                              i++) {
-                                            logic.selected[i] = true;
-                                          }
-                                          logic.selectedNum =
-                                              logic.comics.length;
-                                          logic.update();
-                                        },
-                                      ),
-                                      PopupMenuItem(
-                                        child: Text("导出".tl),
-                                        onTap: () {
-                                          if (logic.selectedNum == 0) {
-                                            showMessage(context, "请选择漫画".tl);
-                                          } else if (logic.selectedNum > 1) {
-                                            showMessage(
-                                                context, "一次只能导出一部漫画".tl);
-                                          } else {
-                                            Future<void>.delayed(
-                                              const Duration(milliseconds: 200),
-                                              () => showDialog(
-                                                context: context,
-                                                barrierColor: Colors.black26,
-                                                barrierDismissible: false,
-                                                builder: (context) =>
-                                                    const SimpleDialog(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 200,
-                                                      height: 200,
-                                                      child: Center(
-                                                        child: SizedBox(
-                                                          width: 50,
-                                                          height: 75,
-                                                          child: Column(
-                                                            children: [
-                                                              SizedBox(
-                                                                height: 10,
-                                                              ),
-                                                              CircularProgressIndicator(),
-                                                              SizedBox(
-                                                                height: 9,
-                                                              ),
-                                                              Text("打包中")
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                            Future<void>.delayed(
-                                                const Duration(
-                                                    milliseconds: 500),
-                                                () => export(logic));
-                                          }
-                                        },
-                                      ),
-                                      PopupMenuItem(
-                                        child: Text("查看漫画详情".tl),
-                                        onTap: () => Future.delayed(
-                                            const Duration(milliseconds: 200),
-                                            () {
-                                              if (logic.selectedNum != 1) {
-                                                showMessage(Get.context, "请选择一个漫画".tl);
-                                              } else {
-                                                for (int i = 0; i < logic.selected.length; i++) {
-                                                  if (logic.selected[i]) {
-                                                    toComicInfoPage(logic.comics[i]);
-                                                  }
-                                                }
-                                              }
-                                            }),
-                                      ),
-                                    ]);
-                              },
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                  buildAppbar(context, logic),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: logic.comics.length, (context, index) {
@@ -322,18 +142,23 @@ class DownloadPage extends StatelessWidget {
       await getComics(logic);
     }
     logic.comics.sort((a, b) {
-      switch (appdata.settings[26]) {
+      int res;
+      switch (appdata.settings[26][0]) {
         case "0":
-          return (a.time ?? DateTime.now()).compareTo(b.time ?? DateTime.now());
+          res = (a.time ?? DateTime.now()).compareTo(b.time ?? DateTime.now());
         case "1":
-          return a.name.compareTo(b.name);
+          res = a.name.compareTo(b.name);
         case "2":
-          return a.subTitle.compareTo(b.subTitle);
+          res = a.subTitle.compareTo(b.subTitle);
         case "3":
-          return (a.comicSize ?? 0).compareTo(b.comicSize ?? 0);
+          res = (a.comicSize ?? 0).compareTo(b.comicSize ?? 0);
         default:
           throw UnimplementedError();
       }
+      if(appdata.settings[26][1] == "1"){
+        res = 0 - res;
+      }
+      return res;
     });
   }
 
@@ -523,6 +348,246 @@ class DownloadPage extends StatelessWidget {
           useSurfaceTintColor: true);
     }
   }
+
+  Widget buildFAB(BuildContext context, DownloadPageLogic logic)
+    => FloatingActionButton(
+    enableFeedback: true,
+    onPressed: () {
+      if (!logic.selecting) {
+        logic.selecting = true;
+        logic.update();
+      } else {
+        if (logic.selectedNum == 0) return;
+        showDialog(
+            context: context,
+            builder: (dialogContext) {
+              return AlertDialog(
+                title: Text("删除".tl),
+                content: Text("要删除已选择的项目吗? 此操作无法撤销".tl),
+                actions: [
+                  TextButton(
+                      onPressed: () => Get.back(),
+                      child: const Text("取消")),
+                  TextButton(
+                      onPressed: () async {
+                        Get.back();
+                        var comics = <String>[];
+                        for (int i = 0;
+                        i < logic.selected.length;
+                        i++) {
+                          if (logic.selected[i]) {
+                            comics.add(logic.comics[i].id);
+                          }
+                        }
+                        await downloadManager.delete(comics);
+                        logic.fresh();
+                      },
+                      child: Text("确认".tl)),
+                ],
+              );
+            });
+      }
+    },
+    child: logic.selecting
+        ? const Icon(Icons.delete_forever_outlined)
+        : const Icon(Icons.checklist_outlined),
+  );
+
+  Widget buildAppbar(BuildContext context, DownloadPageLogic logic)
+    => CustomSmallSliverAppbar(
+      leading: logic.selecting
+          ? IconButton(
+              onPressed: () {
+                logic.selecting = false;
+                logic.selectedNum = 0;
+                for (int i = 0;
+                i < logic.selected.length;
+                i++) {
+                  logic.selected[i] = false;
+                }
+                logic.update();
+              },
+              icon: const Icon(Icons.close))
+          : IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back)),
+      backgroundColor: logic.selecting
+          ? Theme.of(context).colorScheme.secondaryContainer
+          : null,
+      title: logic.selecting
+          ? Text("已选择 @num 个项目"
+          .tlParams({"num": logic.selectedNum.toString()}))
+          : Text("已下载".tl),
+      actions: [
+        if (!logic.selecting)
+          Tooltip(
+            message: "排序".tl,
+            child: IconButton(
+              icon: const Icon(Icons.sort),
+              onPressed: () async{
+                bool changed = false;
+                await showDialog(context: context, builder: (context) => SimpleDialog(
+                  title: Text("漫画排序模式".tl),
+                  children: [
+                    SizedBox(
+                      width: 400,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text("漫画排序模式".tl),
+                            trailing: Select(
+                              initialValue: int.parse(appdata.settings[26][0]),
+                              whenChange: (i){
+                                appdata.settings[26] = appdata.settings[26].setValueAt(i.toString(), 0);
+                                appdata.updateSettings();
+                                changed = true;
+                              },
+                              values: const ["时间", "漫画名", "作者名", "大小"],
+                              inPopUpWidget: false,
+                            ),
+                          ),
+                          ListTile(
+                            title: Text("倒序".tl),
+                            trailing: StatefulSwitch(
+                              initialValue: appdata.settings[26][1] == "1",
+                              onChanged: (b){
+                                if(b){
+                                  appdata.settings[26] = appdata.settings[26].setValueAt("1", 1);
+                                }else{
+                                  appdata.settings[26] = appdata.settings[26].setValueAt("0", 1);
+                                }
+                                appdata.updateSettings();
+                                changed = true;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ));
+                if(changed){
+                  logic.fresh();
+                }
+              },
+            ),
+          ),
+        if (!logic.selecting)
+          Tooltip(
+            message: "下载管理器".tl,
+            child: IconButton(
+              icon: const Icon(Icons.download_for_offline),
+              onPressed: () {
+                showAdaptiveWidget(
+                    Get.context!,
+                    DownloadingPage(
+                      inPopupWidget:
+                      MediaQuery.of(Get.context!).size.width >
+                          600,
+                    ));
+              },
+            ),
+          )
+        else
+          Tooltip(
+            message: "更多".tl,
+            child: IconButton(
+              icon: const Icon(Icons.more_horiz),
+              onPressed: () {
+                showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                        MediaQuery.of(context).size.width - 60,
+                        50,
+                        MediaQuery.of(context).size.width - 60,
+                        50),
+                    items: [
+                      PopupMenuItem(
+                        child: Text("全选".tl),
+                        onTap: () {
+                          for (int i = 0;
+                          i < logic.selected.length;
+                          i++) {
+                            logic.selected[i] = true;
+                          }
+                          logic.selectedNum =
+                              logic.comics.length;
+                          logic.update();
+                        },
+                      ),
+                      PopupMenuItem(
+                        child: Text("导出".tl),
+                        onTap: () {
+                          if (logic.selectedNum == 0) {
+                            showMessage(context, "请选择漫画".tl);
+                          } else if (logic.selectedNum > 1) {
+                            showMessage(
+                                context, "一次只能导出一部漫画".tl);
+                          } else {
+                            Future<void>.delayed(
+                              const Duration(milliseconds: 200),
+                                  () => showDialog(
+                                context: context,
+                                barrierColor: Colors.black26,
+                                barrierDismissible: false,
+                                builder: (context) =>
+                                const SimpleDialog(
+                                  children: [
+                                    SizedBox(
+                                      width: 200,
+                                      height: 200,
+                                      child: Center(
+                                        child: SizedBox(
+                                          width: 50,
+                                          height: 75,
+                                          child: Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              CircularProgressIndicator(),
+                                              SizedBox(
+                                                height: 9,
+                                              ),
+                                              Text("打包中")
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                            Future<void>.delayed(
+                                const Duration(
+                                    milliseconds: 500),
+                                    () => export(logic));
+                          }
+                        },
+                      ),
+                      PopupMenuItem(
+                        child: Text("查看漫画详情".tl),
+                        onTap: () => Future.delayed(
+                            const Duration(milliseconds: 200),
+                                () {
+                              if (logic.selectedNum != 1) {
+                                showMessage(Get.context, "请选择一个漫画".tl);
+                              } else {
+                                for (int i = 0; i < logic.selected.length; i++) {
+                                  if (logic.selected[i]) {
+                                    toComicInfoPage(logic.comics[i]);
+                                  }
+                                }
+                              }
+                            }),
+                      ),
+                    ]);
+              },
+            ),
+          ),
+      ],
+    );
 }
 
 class DownloadedComicInfoView extends StatefulWidget {

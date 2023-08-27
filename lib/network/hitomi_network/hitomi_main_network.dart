@@ -109,7 +109,7 @@ class HiNetwork{
       //检查屏蔽词
       if(appdata.blockingKeyword.contains(name)||
           appdata.blockingKeyword.contains(artist)){
-        return Res(null, errorMessage: "block");
+        return const Res(null, errorMessage: "block");
       }
       bool flag = false;
       for(var tag in tags){
@@ -119,7 +119,7 @@ class HiNetwork{
         }
       }
       if(flag){
-        return Res(null, errorMessage: "block");
+        return const Res(null, errorMessage: "block");
       }
       return Res(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
     }

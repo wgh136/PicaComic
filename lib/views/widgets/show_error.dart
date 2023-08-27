@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../main_page.dart';
 
 ///显示错误提示
 Widget showNetworkError(String? message, void Function() retry, BuildContext context, {bool showBack=true}){
@@ -14,7 +14,7 @@ Widget showNetworkError(String? message, void Function() retry, BuildContext con
           top: 12,
           child: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: ()=>Get.back(),
+            onPressed: ()=>MainPage.back(),
           ),
         ),
       Positioned(

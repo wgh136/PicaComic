@@ -44,6 +44,7 @@ class Comment{
 
 class Gallery{
   late String title;
+  String? subTitle;
   late String type;
   late String time;
   late String uploader;
@@ -79,6 +80,7 @@ class Gallery{
   Map<String, dynamic> toJson() {
     return {
       "title": title,
+      "subTitle": subTitle,
       "type": type,
       "time": time,
       "uploader": uploader,
@@ -97,6 +99,7 @@ class Gallery{
     type = json["type"],
     time = json["time"],
     uploader = json["uploader"],
+    subTitle = json["subTitle"],
     stars = json["stars"],
     rating = json["rating"],
     coverPath = json["coverPath"],
@@ -127,7 +130,8 @@ class Gallery{
       this.favorite,
       this.link,
       this.maxPage,
-      this.thumbnailUrls);
+      this.thumbnailUrls,
+      this.subTitle);
 }
 
 enum EhLeaderboardType{

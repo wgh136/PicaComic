@@ -463,7 +463,12 @@ class EhNetwork{
         }
       }
       var title = document.querySelector("h1#gn")!.text;
-      return Res(Gallery(title, type, time, uploader, stars, rating, coverPath, tags, urls, comments, auth, favorite, link, maxPage, thumbnailUrls));
+      var subTitle = document.querySelector("h1#gj")?.text;
+      if(subTitle!=null && subTitle.removeAllWhitespace == ""){
+        subTitle = null;
+      }
+      return Res(Gallery(title, type, time, uploader, stars, rating, coverPath,
+          tags, urls, comments, auth, favorite, link, maxPage, thumbnailUrls, subTitle));
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");

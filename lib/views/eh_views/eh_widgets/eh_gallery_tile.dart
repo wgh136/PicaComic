@@ -44,6 +44,9 @@ class EhGalleryTile extends ComicTile{
   }
 
   @override
+  int get maxLines => MediaQuery.of(Get.context!).size.width < 430 ? 1 : 2;
+
+  @override
   ActionFunc? get read => () async{
     bool cancel = false;
     showLoadingDialog(Get.context!, ()=>cancel=true);

@@ -46,6 +46,54 @@ class CustomAppbar extends StatelessWidget {
   }
 }
 
+class CustomSmallSliverAppbar extends StatelessWidget{
+  const CustomSmallSliverAppbar({required this.title, this.leading, this.actions, this.backgroundColor, super.key});
+
+  final Widget title;
+
+  final Widget? leading;
+
+  final List<Widget>? actions;
+
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    if(UiMode.m1(context)){
+      return SliverAppBar(
+        pinned: true,
+        title: title,
+        leading: leading,
+        actions: actions,
+        backgroundColor: backgroundColor,
+      );
+    }else{
+      return SliverToBoxAdapter(
+        child: Material(
+          textStyle: Theme.of(context).textTheme.headlineSmall,
+          child: SizedBox(
+            height: 56,
+            child: Row(
+              children: [
+                const SizedBox(width: 8),
+                leading ?? Tooltip(message: "返回".tl, child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),),
+                const SizedBox(width: 24,),
+                Expanded(child: title),
+                ...?actions,
+                const SizedBox(width: 16,)
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+}
+
 class CustomSliverAppbar extends StatelessWidget{
   const CustomSliverAppbar({required this.title, this.leading,
     this.actions, super.key, required this.centerTitle});

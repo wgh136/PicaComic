@@ -10,19 +10,24 @@ import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
+import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import '../network/nhentai_network/nhentai_main_network.dart';
 import 'jm_views/jm_comic_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'main_page.dart';
 
+typedef FilterChip = CustomFilterChip;
+
 class PreSearchController extends GetxController{
   int target = 0;
   int picComicsOrder = appdata.getSearchMode();
   int jmComicsOrder = int.parse(appdata.settings[19]);
+  NhentaiSort nhentaiSort = NhentaiSort.recent;
 
   void updateTarget(int i){
     target = i;
@@ -48,21 +53,23 @@ class PreSearchPage extends StatelessWidget {
   final controller = TextEditingController();
   final searchController = Get.put(PreSearchController());
 
+  void search([String? s]){
+    switch(searchController.target){
+      case 0: MainPage.to(()=>SearchPage(s ?? controller.text));break;
+      case 1: MainPage.to(()=>EhSearchPage(s ?? controller.text));break;
+      case 2: MainPage.to(()=>JmSearchPage(s ?? controller.text));break;
+      case 3: MainPage.to(()=>HitomiSearchPage(s ?? controller.text));break;
+      case 4: MainPage.to(()=>HtSearchPage(s ?? controller.text));break;
+      case 5: MainPage.to(()=>NhentaiSearchPage(s ?? controller.text, sort: searchController.nhentaiSort));break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        onPressed: search,
         child: const Icon(Icons.search),
-        onPressed: (){
-          switch(searchController.target){
-            case 0: MainPage.to(()=>SearchPage(controller.text));break;
-            case 1: MainPage.to(()=>EhSearchPage(controller.text));break;
-            case 2: MainPage.to(()=>JmSearchPage(controller.text));break;
-            case 3: MainPage.to(()=>HitomiSearchPage(controller.text));break;
-            case 4: MainPage.to(()=>HtSearchPage(controller.text));break;
-            case 5: MainPage.to(()=>NhentaiSearchPage(controller.text));break;
-          }
-        },
       ),
       body: CustomScrollView(
         slivers: [
@@ -76,14 +83,7 @@ class PreSearchPage extends StatelessWidget {
               maxHeight: 60,
               child: FloatingSearchBar(supportingText: '搜索'.tl,f:(s){
                 if(s=="") return;
-                switch(searchController.target){
-                  case 0: MainPage.to(()=>SearchPage(controller.text));break;
-                  case 1: MainPage.to(()=>EhSearchPage(controller.text));break;
-                  case 2: MainPage.to(()=>JmSearchPage(controller.text));break;
-                  case 3: MainPage.to(()=>HitomiSearchPage(controller.text));break;
-                  case 4: MainPage.to(()=>HtSearchPage(controller.text));break;
-                  case 5: MainPage.to(()=>NhentaiSearchPage(controller.text));break;
-                }
+                search();
               },
                 controller: controller,
                 onChanged: (s) => searchController.update([1]),
@@ -103,8 +103,11 @@ class PreSearchPage extends StatelessWidget {
                   if(element.length >= text.length && element.substring(0, text.length) == text){
                     suggestions.add(element);
                   }else if(element.translateTagsToCN.length >= text.length
-                      && element.translateTagsToCN.substring(0, text.length) == text){
+                      && element.translateTagsToCN.contains(text)){
                     suggestions.add(element);
+                  }
+                  if(suggestions.length > 50){
+                    break;
                   }
                 }
                 widget = Card(
@@ -130,11 +133,11 @@ class PreSearchPage extends StatelessWidget {
                                     case 2: MainPage.to(()=>JmSearchPage(s.translateTagsToCN));break;
                                     case 3: MainPage.to(()=>HitomiSearchPage(s));break;
                                     case 4: MainPage.to(()=>HtSearchPage(s.translateTagsToCN));break;
-                                    case 5: MainPage.to(()=>NhentaiSearchPage(s));break;
+                                    case 5: MainPage.to(()=>NhentaiSearchPage(s, sort: searchController.nhentaiSort));break;
                                   }
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s/${s.translateTagsToCN}"),),
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s | ${s.translateTagsToCN}"),),
                               ),
                             ),
                         ],
@@ -411,6 +414,73 @@ class PreSearchPage extends StatelessWidget {
                       ),
                     ),
                   );
+                }else if(logic.target == 5){
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 5),
+                    child: Card(
+                      elevation: 0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(13, 5, 0, 0),
+                            child: Text("漫画排序模式".tl),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                            child: Wrap(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: FilterChip(
+                                    label: Text("最新".tl),
+                                    selected: logic.nhentaiSort.index == 0,
+                                    onSelected: (b) {
+                                      logic.nhentaiSort = NhentaiSort.recent;
+                                      logic.update();
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: FilterChip(
+                                    label: Text("热门 | 今天".tl),
+                                    selected: logic.nhentaiSort.index == 1,
+                                    onSelected: (b) {
+                                      logic.nhentaiSort = NhentaiSort.popularToday;
+                                      logic.update();
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: FilterChip(
+                                    label: Text("热门 | 一周".tl),
+                                    selected: logic.nhentaiSort.index == 2,
+                                    onSelected: (b) {
+                                      logic.nhentaiSort = NhentaiSort.popularWeek;
+                                      logic.update();
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: FilterChip(
+                                    label: Text("热门 | 所有时间".tl),
+                                    selected: logic.nhentaiSort.index == 3,
+                                    onSelected: (b) {
+                                      logic.nhentaiSort = NhentaiSort.popularAll;
+                                      logic.update();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 } else {
                   return const SizedBox();
                 }
@@ -494,16 +564,7 @@ class PreSearchPage extends StatelessWidget {
                               color: Theme.of(context).colorScheme.surfaceVariant,
                               child: InkWell(
                                 borderRadius: const BorderRadius.all(Radius.circular(16)),
-                                onTap: (){
-                                  switch(searchController.target){
-                                    case 0: MainPage.to(()=>SearchPage(s));break;
-                                    case 1: MainPage.to(()=>EhSearchPage(s));break;
-                                    case 2: MainPage.to(()=>JmSearchPage(s));break;
-                                    case 3: MainPage.to(()=>HitomiSearchPage(s));break;
-                                    case 4: MainPage.to(()=>HtSearchPage(s));break;
-                                    case 5: MainPage.to(()=>NhentaiSearchPage(s));break;
-                                  }
-                                },
+                                onTap: () => search(s),
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text(s),),
                               ),

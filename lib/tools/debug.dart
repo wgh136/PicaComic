@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:html/parser.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/network/nhentai_network/tags.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 
@@ -8,7 +9,7 @@ import 'package:pica_comic/tools/tags_translation.dart';
 void debug() async{
   var idToName = "";
   var enToCN = "";
-  for(int i = 0; i<2; i++){
+  for(int i = 1; i < 3; i++){
     var res = await NhentaiNetwork().get("https://nhentai.net/characters/popular?page=$i");
     if(res.error){
       await Future.delayed(const Duration(milliseconds: 500));
@@ -19,7 +20,9 @@ void debug() async{
     for(var e in elements){
       var name = e.querySelector("span.name")!.text;
       var id = e.className.nums;
-      idToName += "\"$id\":\"$name\",\n";
+      if(nhentaiTags[id] == null) {
+        idToName += "\"$id\":\"$name\",\n";
+      }
       if(name.translateTagsToCN == name){
         enToCN += "\"$name\": \"\",\n";
       }

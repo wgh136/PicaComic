@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
-
-typedef ActionFunc = void Function();
+import 'package:pica_comic/foundation/def.dart';
+export 'package:pica_comic/foundation/def.dart';
 
 ///漫画组件
 abstract class ComicTile extends StatelessWidget {

@@ -41,6 +41,8 @@
                 <data android:host="nhentai.net"/>
                 <data android:scheme="https"/>
                 <data android:host="hitomi.la"/>
+                <data android:scheme="https"/>
+                <data android:host="nhentai.xxx"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

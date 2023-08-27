@@ -44,6 +44,7 @@ void handleAppLinks(Uri uri){
         showMessage(Get.context, "Unknown Link");
       }
     case "nhentai.net":
+    case "nhentai.xxx":
       if(uri.pathSegments.isEmpty){
         MainPage.toExplorePageAt(7);
       }else if(uri.path.contains("/g/")){
@@ -242,7 +243,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: GetPlatform.isWindows ? "font" : "",
         ),
-        home: notFirstUse ? const MainPage() : const WelcomePage(),
+        home: notFirstUse ?
+          (appdata.settings[13] == "1" ? const AuthPage() : const MainPage()) :
+          const WelcomePage(),
         fallbackLocale: const Locale('zh', 'CN'),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,

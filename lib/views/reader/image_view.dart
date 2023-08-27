@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/views/hitomi_views/image_loader/hitomi_cached_image_provider.dart';
+import 'package:pica_comic/views/reader/interact_view.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:flutter/material.dart';
 import '../../base.dart';
@@ -340,17 +341,26 @@ Widget buildComicView(ComicReadingPageLogic logic,
                     position: updatedOffset,
                     scale: controller.scale! -
                         pointerSignal.scrollDelta.dy / 2000);
+              }else{
+                if (pointerSignal.scrollDelta.dy < 0) {
+                  logic.transformationController.zoom(0.1);
+                }else{
+                  logic.transformationController.zoom(-0.1);
+                }
               }
             } else if(logic.readingMethod != ReadingMethod.topToBottomContinuously){
               pointerSignal.scrollDelta.dy > 0
                   ? logic.jumpToNextPage()
                   : logic.jumpToLastPage();
             } else {
-              logic.cont.animateTo(
-                  logic.cont.position.pixels +
-                      pointerSignal.scrollDelta.dy,
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.bounceIn);
+              if((logic.cont.position.pixels == logic.cont.position.minScrollExtent && pointerSignal.scrollDelta.dy < 0) ||
+                  (logic.cont.position.pixels == logic.cont.position.maxScrollExtent && pointerSignal.scrollDelta.dy > 0)) {
+                logic.transformationController.updateLocation(Offset(0,pointerSignal.scrollDelta.dy));
+              }else{
+                logic.cont.jumpTo(
+                    (logic.cont.position.pixels +
+                        pointerSignal.scrollDelta.dy * logic.transformationController.value.getMaxScaleOnAxis()));
+              }
             }
           }
         },

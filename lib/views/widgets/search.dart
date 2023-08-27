@@ -1,10 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
 
-import '../../base.dart';
 
 class FloatingSearchBar extends StatelessWidget {
   const FloatingSearchBar({
@@ -84,59 +82,4 @@ class FloatingSearchBar extends StatelessWidget {
       ),
     );
   }
-}
-
-class NewFloatingSearchBar extends StatelessWidget{
-  const NewFloatingSearchBar({super.key,
-    this.trailing,
-    required this.supportingText,
-    required this.f,
-    required this.controller
-  });
-
-  final Widget? trailing;
-  final void Function(String) f;
-  final String supportingText;
-  final SearchController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
-      child: SearchAnchor.bar(
-        barElevation: MaterialStateProperty.all<double>(0),
-        barBackgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.surfaceVariant),
-        barPadding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.fromLTRB(8, 0, 8, 0)),
-        searchController: controller,
-        barLeading: Tooltip(
-          message: "返回",
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: ()=>Get.back(),
-          ),
-        ),
-        barTrailing: [
-          if(trailing!=null)
-            trailing!
-        ],
-        viewTrailing: [
-          IconButton(onPressed: ()=>f(controller.text), icon: const Icon(Icons.search))
-        ],
-        suggestionsBuilder:
-            (BuildContext context, SearchController controller) {
-          return List<Widget>.generate(
-            appdata.searchHistory.length,
-                (int index) {
-              return ListTile(
-                titleAlignment: ListTileTitleAlignment.center,
-                title: Text(appdata.searchHistory[index]),
-                onTap: () => f(appdata.searchHistory[index]),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
 }

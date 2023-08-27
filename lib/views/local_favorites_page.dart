@@ -13,14 +13,22 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/models/local_favorites.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
-
 import '../base.dart';
+import '../network/eh_network/eh_main_network.dart';
+import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/hitomi_network/hitomi_models.dart';
+import '../network/htmanga_network/htmanga_main_network.dart';
+import '../network/jm_network/jm_main_network.dart';
+import '../network/nhentai_network/nhentai_main_network.dart';
+import '../network/picacg_network/methods.dart';
 import 'main_page.dart';
+
 
 class LocalFavoritesPage extends StatefulWidget {
   const LocalFavoritesPage({super.key});
@@ -149,7 +157,7 @@ class FolderTile extends StatelessWidget {
                           actions: [
                             TextButton(
                                 onPressed: () => Get.back(),
-                                child: const Text("取消")),
+                                child: Text("取消".tl)),
                             TextButton(
                                 onPressed: () async {
                                   LocalFavoritesManager().deleteFolder(name);
@@ -284,7 +292,7 @@ class LocalFavoriteTile extends ComicTile {
               comic.target,
               comic.coverPath,
             )));
-      case ComicType.ht:
+      case ComicType.htmanga:
         MainPage.to(() => HtComicPage(HtComicBrief(comic.name, "", comic.coverPath,
             comic.target, int.parse(comic.author.replaceFirst("Pages", "")),
             ignoreExamination: true)));
@@ -345,14 +353,18 @@ class LocalFavoriteTile extends ComicTile {
           PopupMenuItem(
               onTap: () => Future.delayed(
                   const Duration(milliseconds: 200), () => onTap_()),
-              child: const Text("查看")),
+              child: Text("查看".tl)),
           PopupMenuItem(
             child: Text("取消收藏".tl),
             onTap: () {
               LocalFavoritesManager().deleteComic(folderName, comic);
               onDelete();
             },
-          )
+          ),
+          PopupMenuItem(
+            onTap: read,
+            child: Text("阅读".tl),
+          ),
         ]);
   }
 
@@ -376,17 +388,25 @@ class LocalFavoriteTile extends ComicTile {
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.menu_book_outlined),
-                      title: const Text("查看详情"),
+                      leading: const Icon(Icons.article),
+                      title: Text("查看详情".tl),
                       onTap: onTap_,
                     ),
                     ListTile(
                       leading: const Icon(Icons.bookmark_remove),
-                      title: const Text("取消收藏"),
+                      title: Text("取消收藏".tl),
                       onTap: () {
                         Get.back();
                         LocalFavoritesManager().deleteComic(folderName, comic);
                         onDelete();
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.chrome_reader_mode_rounded),
+                      title: Text("阅读".tl),
+                      onTap: (){
+                        Get.back();
+                        read();
                       },
                     ),
                     const SizedBox(
@@ -397,6 +417,110 @@ class LocalFavoriteTile extends ComicTile {
               ),
             ));
   }
+
+  @override
+  ActionFunc get read => () async{
+    switch (comic.type) {
+      case ComicType.picacg:
+        {
+          bool cancel = false;
+          showLoadingDialog(Get.context!, ()=>cancel=true);
+          var res = await network.getEps(comic.target);
+          if(cancel){
+            return;
+          }
+          if(res.error){
+            Get.back();
+            showMessage(Get.context, res.errorMessageWithoutNull);
+          }else{
+            Get.back();
+            readPicacgComic2(ComicItemBrief(
+                comic.name, comic.author, 0, comic.coverPath, comic.target, [],
+                ignoreExamination: true), res.data);
+          }
+        }
+      case ComicType.ehentai:
+        {
+          bool cancel = false;
+          showLoadingDialog(Get.context!, ()=>cancel=true);
+          var res = await EhNetwork().getGalleryInfo(comic.target);
+          if(cancel){
+            return;
+          }
+          if(res.error){
+            Get.back();
+            showMessage(Get.context, res.errorMessageWithoutNull);
+          }else{
+            Get.back();
+            readEhGallery(res.data);
+          }
+        }
+      case ComicType.jm:
+        {
+          bool cancel = false;
+          showLoadingDialog(Get.context!, ()=>cancel=true);
+          var res = await JmNetwork().getComicInfo(comic.target);
+          if(cancel){
+            return;
+          }
+          if(res.error){
+            Get.back();
+            showMessage(Get.context, res.errorMessageWithoutNull);
+          }else{
+            Get.back();
+            readJmComic(res.data, res.data.series.values.toList());
+          }
+        }
+      case ComicType.hitomi:
+        {
+          bool cancel = false;
+          showLoadingDialog(Get.context!, ()=>cancel=true);
+          var res = await HiNetwork().getComicInfo(comic.target);
+          if(cancel){
+            return;
+          }
+          if(res.error){
+            Get.back();
+            showMessage(Get.context, res.errorMessageWithoutNull);
+          }else{
+            Get.back();
+            readHitomiComic(res.data, comic.coverPath);
+          }
+        }
+      case ComicType.htmanga:
+        {
+          bool cancel = false;
+          showLoadingDialog(Get.context!, ()=>cancel=true);
+          var res = await HtmangaNetwork().getComicInfo(comic.target);
+          if(cancel){
+            return;
+          }
+          if(res.error){
+            Get.back();
+            showMessage(Get.context, res.errorMessageWithoutNull);
+          }else{
+            Get.back();
+            readHtmangaComic(res.data);
+          }
+        }
+      case ComicType.nhentai:
+        {
+          bool cancel = false;
+          showLoadingDialog(Get.context!, ()=>cancel=true);
+          var res = await NhentaiNetwork().getComicInfo(comic.target);
+          if(cancel){
+            return;
+          }
+          if(res.error){
+            Get.back();
+            showMessage(Get.context, res.errorMessageWithoutNull);
+          }else{
+            Get.back();
+            readNhentai(res.data);
+          }
+        }
+    }
+  };
 }
 
 class LocalFavoritesFolder extends StatefulWidget {

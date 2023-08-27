@@ -172,6 +172,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
   String? get title => data!.title;
 
   @override
+  String? get subTitle => data!.subTitle;
+
+  @override
   Card? get uploaderInfo => null;
 
   void starRating(BuildContext context, Map<String, String> auth) {

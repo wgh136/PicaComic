@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/views/category_page.dart';
@@ -178,11 +176,7 @@ class CalculateCacheLogic extends GetxController {
   }
 
   void get() async {
-    Future<double> calculateSize(i) async{
-      DartPluginRegistrant.ensureInitialized();
-      return await calculateCacheSize();
-    }
-    size = await compute<dynamic, double>(calculateSize, 1);
+    size = await calculateCacheSize();
     change();
   }
 }

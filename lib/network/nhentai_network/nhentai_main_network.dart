@@ -205,14 +205,15 @@ class NhentaiNetwork {
     }
   }
 
-  Future<Res<List<NhentaiComicBrief>>> search(String keyword, int page) async {
+  Future<Res<List<NhentaiComicBrief>>> search(String keyword, int page,
+      [NhentaiSort sort=NhentaiSort.recent]) async {
     if (appdata.searchHistory.contains(keyword)) {
       appdata.searchHistory.remove(keyword);
     }
     appdata.searchHistory.add(keyword);
     appdata.writeHistory();
     var res = await get(
-        "https://nhentai.net/search/?q=${Uri.encodeComponent(keyword)}&page=$page");
+        "https://nhentai.net/search/?q=${Uri.encodeComponent(keyword)}&page=$page${sort.value}");
     if (res.error) {
       return Res.fromErrorRes(res);
     }
@@ -412,4 +413,15 @@ class NhentaiNetwork {
       return const Res(true);
     }
   }
+}
+
+enum NhentaiSort{
+  recent(""),
+  popularToday("&sort=popular-today"),
+  popularWeek("&sort=popular-week"),
+  popularAll("&sort=popular");
+
+  final String value;
+
+  const NhentaiSort(this.value);
 }

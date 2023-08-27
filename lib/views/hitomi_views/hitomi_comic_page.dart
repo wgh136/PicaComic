@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
+import 'package:pica_comic/network/hitomi_network/image.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
@@ -126,7 +128,32 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       MainPage.to(() => HitomiSearchPage(tag));
 
   @override
-  ThumbnailsData? get thumbnailsCreator => null;
+  Map<String, String> get headers => {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
+    "Referer": "https://hitomi.la/"
+  };
+
+  @override
+  ThumbnailsData? get thumbnailsCreator => ThumbnailsData([], (page)async{
+    try {
+      var gg = GG();
+      var images = <String>[];
+      for (var file in data!.files) {
+        images.add(await gg.urlFromUrlFromHash(
+            data!.id, file, "webpsmallsmalltn", "webp", 'tn'));
+      }
+      return Res(images);
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
+      return Res(null, errorMessage: e.toString());
+    }
+  }, 2);
+
+  @override
+  void onThumbnailTapped(int index) {
+    readHitomiComic(data!, cover, index+1);
+  }
 
   @override
   String? get title => comic.name;
