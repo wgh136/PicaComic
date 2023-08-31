@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pica_comic/views/reader/interact_view.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_settings.dart';
@@ -165,26 +164,6 @@ Widget buildBottomToolBar(
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (appdata.settings[9] == "4" && GetPlatform.isWindows)
-                        Tooltip(
-                          message: "放大".tl,
-                          child: IconButton(
-                            icon: const Icon(Icons.zoom_in),
-                            onPressed: () {
-                              comicReadingPageLogic.transformationController.zoom(0.2);
-                            },
-                          ),
-                        ),
-                      if (appdata.settings[9] == "4" && GetPlatform.isWindows)
-                        Tooltip(
-                          message: "缩小".tl,
-                          child: IconButton(
-                            icon: const Icon(Icons.zoom_out),
-                            onPressed: () {
-                              comicReadingPageLogic.transformationController.zoom(-0.2);
-                            },
-                          ),
-                        ),
                       if(GetPlatform.isAndroid)
                       Tooltip(
                         message: "屏幕方向".tl,
@@ -290,7 +269,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
         left: 25,
         child: appdata.settings[9] == "4"
             ? ValueListenableBuilder(
-                valueListenable: comicReadingPageLogic.scrollListener.itemPositions,
+                valueListenable: comicReadingPageLogic.itemScrollListener.itemPositions,
                 builder: (context, value, child) {
                   try {
                     comicReadingPageLogic.index = value.first.index + 1;
@@ -335,7 +314,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showE
         left: 25,
         child: appdata.settings[9] == "4"
             ? ValueListenableBuilder(
-                valueListenable: comicReadingPageLogic.scrollListener.itemPositions,
+                valueListenable: comicReadingPageLogic.itemScrollListener.itemPositions,
                 builder: (context, value, child) {
                   try {
                     comicReadingPageLogic.index = value.first.index + 1;
@@ -457,7 +436,7 @@ Widget buildSlider(ComicReadingPageLogic comicReadingPageLogic) {
       );
     } else {
       return ValueListenableBuilder(
-        valueListenable: comicReadingPageLogic.scrollListener.itemPositions,
+        valueListenable: comicReadingPageLogic.itemScrollListener.itemPositions,
         builder: (context, value, child) {
           try {
             comicReadingPageLogic.index = value.first.index + 1;

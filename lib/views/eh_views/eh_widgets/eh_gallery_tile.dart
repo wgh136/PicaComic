@@ -86,7 +86,7 @@ class EhGalleryTile extends ComicTile{
     placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
     httpHeaders: {
       "Cookie": EhNetwork().cookiesStr,
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+      "User-Agent": webUA,
       "Referer": EhNetwork().ehBaseUrl,
     },
   ):Image.network(
@@ -99,7 +99,7 @@ class EhGalleryTile extends ComicTile{
     },
     headers: {
       "Cookie": EhNetwork().cookiesStr,
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+      "User-Agent": webUA,
       "Referer": EhNetwork().ehBaseUrl,
     },
   );

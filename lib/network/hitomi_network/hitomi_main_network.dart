@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/hitomi_network/search.dart';
 import '../../base.dart';
@@ -29,7 +30,7 @@ class HiNetwork{
           receiveTimeout: const Duration(seconds: 5),
           sendTimeout: const Duration(seconds: 5),
           headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+            "User-Agent": webUA,
             "Referer": "https://hitomi.la/"
           }
       );

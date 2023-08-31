@@ -7,7 +7,6 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/error_report.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
@@ -74,7 +73,6 @@ void main() {
       });
     }
     FlutterError.onError = (details) {
-      sendLog(details.exceptionAsString(), details.stack.toString());
       LogManager.addLog(LogLevel.error, "Unhandled Exception",
           "${details.exception}\n${details.stack}");
     };
@@ -93,7 +91,6 @@ void main() {
       runApp(const MyApp());
     });
   }, (error, stack) {
-    sendLog(error.toString(), stack.toString());
     LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
   });
 }

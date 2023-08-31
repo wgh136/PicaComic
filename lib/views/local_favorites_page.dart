@@ -292,12 +292,14 @@ class LocalFavoriteTile extends ComicTile {
               comic.target,
               comic.coverPath,
             )));
-      case ComicType.htmanga:
+      case ComicType.htManga:
         MainPage.to(() => HtComicPage(HtComicBrief(comic.name, "", comic.coverPath,
             comic.target, int.parse(comic.author.replaceFirst("Pages", "")),
             ignoreExamination: true)));
       case ComicType.nhentai:
         MainPage.to(() => NhentaiComicPage(comic.target));
+      case ComicType.htFavorite:
+        throw UnimplementedError();
     }
   }
 
@@ -487,7 +489,7 @@ class LocalFavoriteTile extends ComicTile {
             readHitomiComic(res.data, comic.coverPath);
           }
         }
-      case ComicType.htmanga:
+      case ComicType.htManga:
         {
           bool cancel = false;
           showLoadingDialog(Get.context!, ()=>cancel=true);
@@ -519,6 +521,8 @@ class LocalFavoriteTile extends ComicTile {
             readNhentai(res.data);
           }
         }
+      case ComicType.htFavorite:
+        throw UnimplementedError();
     }
   };
 }

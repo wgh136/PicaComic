@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
@@ -158,7 +159,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   @override
   Map<String, String> get headers => {
     "Cookie": EhNetwork().cookiesStr,
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+    "User-Agent": webUA,
     "Referer": EhNetwork().ehBaseUrl,
   };
 

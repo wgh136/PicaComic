@@ -60,7 +60,7 @@ class FavoriteItem{
   FavoriteItem.fromHtcomic(HtComicBrief comic):
       name = comic.name,
       author = "${comic.pages}Pages",
-      type = ComicType.htmanga,
+      type = ComicType.htManga,
       tags = [],
       target = comic.id,
       coverPath = comic.image;

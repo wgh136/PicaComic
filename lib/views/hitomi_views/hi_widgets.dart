@@ -69,7 +69,7 @@ class HiComicTile extends ComicTile {
   @override
   Widget get image => CachedNetworkImage(
     httpHeaders: const {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      "User-Agent": webUA,
       "Referer": "https://hitomi.la/"
     },
     placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),

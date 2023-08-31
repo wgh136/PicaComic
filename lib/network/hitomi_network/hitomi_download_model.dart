@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import '../../base.dart';
@@ -63,8 +64,7 @@ class HitomiDownloadingItem extends DownloadingItem {
 
 
   late final _headers = {
-    "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+    "User-Agent": webUA,
     "Referer": "https://hitomi.la/reader/${id.substring(6)}.html"
   };
 

@@ -33,6 +33,13 @@ extension StringExtension on String{
   String setValueAt(String value, int index){
     return replaceRange(index, index+1, value);
   }
+
+  String? subStringOrNull(int start, [int? end]){
+    if(start < 0 || (end != null && end > length)){
+      return null;
+    }
+    return subStringOrNull(start, end);
+  }
 }
 
 extension MapExtension<S, T> on Map<S, List<T>>{
