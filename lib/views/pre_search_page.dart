@@ -54,13 +54,15 @@ class PreSearchPage extends StatelessWidget {
   final searchController = Get.put(PreSearchController());
 
   void search([String? s]){
+    final keyword = (s ?? controller.text).trim();
     switch(searchController.target){
-      case 0: MainPage.to(()=>SearchPage(s ?? controller.text));break;
-      case 1: MainPage.to(()=>EhSearchPage(s ?? controller.text));break;
-      case 2: MainPage.to(()=>JmSearchPage(s ?? controller.text));break;
-      case 3: MainPage.to(()=>HitomiSearchPage(s ?? controller.text));break;
-      case 4: MainPage.to(()=>HtSearchPage(s ?? controller.text));break;
-      case 5: MainPage.to(()=>NhentaiSearchPage(s ?? controller.text, sort: searchController.nhentaiSort));break;
+      case 0: MainPage.to(()=>SearchPage(keyword));break;
+      case 1: MainPage.to(()=>EhSearchPage(keyword));break;
+      case 2: MainPage.to(()=>JmSearchPage(keyword));break;
+      case 3: MainPage.to(()=>HitomiSearchPage(keyword));break;
+      case 4: MainPage.to(()=>HtSearchPage(keyword));break;
+      case 5: MainPage.to(()=>NhentaiSearchPage(keyword,
+          sort: searchController.nhentaiSort));break;
     }
   }
 
@@ -94,16 +96,29 @@ class PreSearchPage extends StatelessWidget {
           SliverToBoxAdapter(
             child: GetBuilder<PreSearchController>(builder: (logic){
               Widget widget;
-              if(controller.text.isEmpty){
+
+              bool check(String text, String element){
+                if(text.removeAllWhitespace == ""){
+                  return false;
+                }
+                if(element.length >= text.length && element.substring(0, text.length) == text
+                    || (element.contains(" ") && element.split(" ").last.length >= text.length
+                        && element.split(" ").last.substring(0, text.length) == text)){
+                  return true;
+                }else if(element.translateTagsToCN.length >= text.length
+                    && element.translateTagsToCN.contains(text)){
+                  return true;
+                }
+                return false;
+              }
+
+              if(controller.text.removeAllWhitespace.isEmpty){
                 widget = const SizedBox();
               }else{
-                var text = controller.text;
+                var text = controller.text.split(" ").last;
                 var suggestions = <String>[];
                 for (var element in TagsTranslation.enTagsTranslations.keys.toList()) {
-                  if(element.length >= text.length && element.substring(0, text.length) == text){
-                    suggestions.add(element);
-                  }else if(element.translateTagsToCN.length >= text.length
-                      && element.translateTagsToCN.contains(text)){
+                  if(check(text, element)){
                     suggestions.add(element);
                   }
                   if(suggestions.length > 50){
@@ -127,14 +142,14 @@ class PreSearchPage extends StatelessWidget {
                               child: InkWell(
                                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                                 onTap: (){
-                                  switch(searchController.target){
-                                    case 0: MainPage.to(()=>SearchPage(s.translateTagsToCN));break;
-                                    case 1: MainPage.to(()=>EhSearchPage(s));break;
-                                    case 2: MainPage.to(()=>JmSearchPage(s.translateTagsToCN));break;
-                                    case 3: MainPage.to(()=>HitomiSearchPage(s));break;
-                                    case 4: MainPage.to(()=>HtSearchPage(s.translateTagsToCN));break;
-                                    case 5: MainPage.to(()=>NhentaiSearchPage(s, sort: searchController.nhentaiSort));break;
+                                  var words = controller.text.split(" ");
+                                  if(words.length >= 2 && check("${words[words.length-2]} ${words[words.length-1]}", s)){
+                                    controller.text = controller.text.replaceLast("${words[words.length-2]} ${words[words.length-1]}", "");
+                                  }else{
+                                    controller.text = controller.text.replaceLast(words[words.length-1], "");
                                   }
+                                  controller.text += s += " ";
+                                  logic.update([1]);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s | ${s.translateTagsToCN}"),),

@@ -40,6 +40,21 @@ extension StringExtension on String{
     }
     return subStringOrNull(start, end);
   }
+
+  String replaceLast(String from, String to) {
+    if (isEmpty || from.isEmpty) {
+      return this;
+    }
+
+    final lastIndex = lastIndexOf(from);
+    if (lastIndex == -1) {
+      return this;
+    }
+
+    final before = substring(0, lastIndex);
+    final after = substring(lastIndex + from.length);
+    return '$before$to$after';
+  }
 }
 
 extension MapExtension<S, T> on Map<S, List<T>>{
