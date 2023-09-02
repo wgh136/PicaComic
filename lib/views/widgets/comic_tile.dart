@@ -41,7 +41,7 @@ abstract class ComicTile extends StatelessWidget {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.article),
-                      title: const Text("查看详情"),
+                      title: Text("查看详情".tl),
                       onTap: (){
                         Get.back();
                         onTap_();
@@ -50,7 +50,7 @@ abstract class ComicTile extends StatelessWidget {
                     if(favorite != null)
                       ListTile(
                         leading: const Icon(Icons.bookmark_rounded),
-                        title: const Text("收藏/取消收藏"),
+                        title: Text("收藏/取消收藏".tl),
                         onTap: () {
                           Get.back();
                           favorite!();
@@ -59,7 +59,7 @@ abstract class ComicTile extends StatelessWidget {
                     if(read != null)
                       ListTile(
                         leading: const Icon(Icons.chrome_reader_mode),
-                        title: const Text("阅读"),
+                        title: Text("阅读".tl),
                         onTap: () {
                           Get.back();
                           read!();

@@ -78,7 +78,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           appdata.settings[23] = i.toString();
                           appdata.updateSettings();
                         },
-                        values: const ["我", "探索", "分类"],
+                        values: ["我".tl, "探索".tl, "分类".tl, "排行榜".tl],
                         inPopUpWidget: widget.popUp,
                       ),
                     ),
@@ -105,7 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           appdata.settings[26] = appdata.settings[25] = i.toString();
                           appdata.updateSettings();
                         },
-                        values: const ["顺序显示", "分页显示"],
+                        values: ["顺序显示".tl, "分页显示".tl],
                         inPopUpWidget: widget.popUp,
                       ),
                     ),
@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           appdata.settings[26].setValueAt(i.toString(), 0);
                           appdata.updateSettings();
                         },
-                        values: const ["时间", "漫画名", "作者名", "大小"],
+                        values: ["时间".tl, "漫画名".tl, "作者名".tl, "大小".tl],
                         inPopUpWidget: widget.popUp,
                       ),
                     ),
@@ -160,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: Text("主题选择".tl),
                       trailing: Select(
                         initialValue: int.parse(appdata.settings[27]),
-                        values: const ["动态", "Blue", "Light Blue", "Indigo", "Purple", "Pink", "Cyan", "Teal", "Yellow", "Brown"],
+                        values: const ["Dynamic", "Blue", "Light Blue", "Indigo", "Purple", "Pink", "Cyan", "Teal", "Yellow", "Brown"],
                         whenChange: (i){
                           appdata.settings[27] = i.toString();
                           appdata.updateSettings();
@@ -387,8 +387,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 elevation: 0,
                 child: Column(
                   children: [
-                    const ListTile(
-                      title: Text("关于"),
+                    ListTile(
+                      title: Text("关于".tl),
                     ),
                     ListTile(
                       leading:

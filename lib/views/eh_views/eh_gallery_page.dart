@@ -73,7 +73,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
           ),
           Expanded(
             child: ActionChip(
-                label: const Text("评论"),
+                label: Text("评论".tl),
                 avatar: const Icon(Icons.comment_outlined),
                 onPressed: () =>
                     showComments(context, link, data!.uploader)),
@@ -103,8 +103,8 @@ class EhGalleryPage extends ComicPage<Gallery> {
         },
         child: (downloadManager.downloadedGalleries
                 .contains(getGalleryId(data!.link)))
-            ? const Text("已下载")
-            : const Text("下载"),
+            ? Text("已下载".tl)
+            : Text("下载".tl),
       );
 
   @override

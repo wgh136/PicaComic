@@ -249,7 +249,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW')],
+        supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW'), Locale('en', 'US')],
         logWriterCallback: (String s, {bool? isError}) {
           LogManager.addLog(
               (isError ?? false) ? LogLevel.warning : LogLevel.info,

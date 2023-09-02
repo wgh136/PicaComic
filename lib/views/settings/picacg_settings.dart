@@ -119,7 +119,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ListTile(
               leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
               title: Text("自动打卡".tl),
-              subtitle: GetPlatform.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tl):const Text("启动时执行"),
+              subtitle: GetPlatform.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tl): Text("启动时执行".tl),
               onTap: () {},
               trailing: Switch(
                 value: punchIn,

@@ -38,7 +38,7 @@ extension StringExtension on String{
     if(start < 0 || (end != null && end > length)){
       return null;
     }
-    return subStringOrNull(start, end);
+    return substring(start, end);
   }
 
   String replaceLast(String from, String to) {

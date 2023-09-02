@@ -298,11 +298,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v6.0.0-beta.23"
-      resolved-ref: "2c26f988e9cb28b47712c170b38c6a122cae817c"
+      ref: "v6.0.0-beta.24+1"
+      resolved-ref: "93f51086e19e3a4944a297ff905be315273bdf8f"
       url: "https://github.com/pichillilorenzo/flutter_inappwebview"
     source: git
-    version: "6.0.0-beta.23"
+    version: "6.0.0-beta.24+1"
   flutter_inappwebview_internal_annotations:
     dependency: transitive
     description:
