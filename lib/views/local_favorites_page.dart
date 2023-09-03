@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,6 @@ import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
-import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/hitomi_network/hitomi_models.dart';
@@ -237,7 +237,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
 }
 
 class LocalFavoriteTile extends ComicTile {
-  const LocalFavoriteTile(this.comic, this.folderName, this.onDelete,
+  const LocalFavoriteTile(this.comic, this.folderName, this.onDelete, this._enableLongPressed,
       {super.key});
 
   final FavoriteItem comic;
@@ -245,6 +245,11 @@ class LocalFavoriteTile extends ComicTile {
   final String folderName;
 
   final void Function() onDelete;
+
+  final bool _enableLongPressed;
+
+  @override
+  bool get enableLongPressed => _enableLongPressed;
 
   @override
   String get description => comic.time;
@@ -341,6 +346,9 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   List<String>? get tags => _generateTags(comic.tags);
+
+  //@override
+  //bool get enableLongPressed => false;
 
   @override
   void onSecondaryTap_(TapDownDetails details) {
@@ -537,27 +545,89 @@ class LocalFavoritesFolder extends StatefulWidget {
 }
 
 class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
+  final _key = GlobalKey();
+  var reorderWidgetKey = UniqueKey();
+  final _scrollController = ScrollController();
+  late var comics = LocalFavoritesManager().getAllComics(widget.name);
+  double? width;
+  bool changed = false;
+  bool enableSort = false;
+
+  Color lightenColor(Color color, double lightenValue) {
+    int red = (color.red + ((255 - color.red) * lightenValue)).round();
+    int green = (color.green + ((255 - color.green) * lightenValue)).round();
+    int blue = (color.blue + ((255 - color.blue) * lightenValue)).round();
+
+    return Color.fromARGB(color.alpha, red, green, blue);
+  }
+
+  @override
+  void dispose() {
+    if(changed){
+      LocalFavoritesManager().reorder(comics!, widget.name);
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var comics = LocalFavoritesManager().getAllComics(widget.name);
+    var tiles = List.generate(comics!.length, (index) => LocalFavoriteTile(
+        comics![index], widget.name, () {
+          comics = LocalFavoritesManager().getAllComics(widget.name);
+    }, !enableSort, key: Key(comics![index].target),));
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          CustomSliverAppbar(
-            title: Text(widget.name),
-            centerTitle: true,
-          ),
-          SliverGrid(
-            delegate: SliverChildBuilderDelegate(childCount: comics!.length,
-                (context, i) {
-              return LocalFavoriteTile(
-                  comics[i], widget.name, () => setState(() {}));
-            }),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: comicTileMaxWidth,
-              childAspectRatio: comicTileAspectRatio,
+      body: Column(
+        children: [
+          CustomAppbar(title: Text(widget.name), actions: [
+            SizedBox(
+              width: 90,
+              height: 56,
+              child: Row(
+                children: [
+                  Text("排序".tl),
+                  Transform.scale(
+                    scale: 0.6,
+                    child: Switch(value: enableSort, onChanged: (value) {
+                      var currentWidth = MediaQuery.of(context).size.width;
+                      if(currentWidth != width){
+                        width = currentWidth;
+                        reorderWidgetKey = UniqueKey();
+                      }
+                      setState(() => enableSort = value);
+                    }),
+                  )
+                ],
+              ),
+            )
+          ],),
+          Expanded(
+            child: ReorderableBuilder(
+              key: reorderWidgetKey,
+              scrollController: _scrollController,
+              onReorder: (reorderFunc){
+                changed = true;
+                setState(() {
+                  comics = reorderFunc(comics!) as List<FavoriteItem>;
+                });
+              },
+              dragChildBoxDecoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: lightenColor(Theme.of(context).splashColor.withOpacity(1), 0.2)
+              ),
+              builder: (children){
+                return GridView(
+                  key: _key,
+                  controller: _scrollController,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: comicTileMaxWidth,
+                    childAspectRatio: comicTileAspectRatio,
+                  ),
+                  children: children,
+                );
+              },
+              children: tiles,
             ),
-          ),
+          )
         ],
       ),
     );

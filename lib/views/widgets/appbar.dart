@@ -23,23 +23,24 @@ class CustomAppbar extends StatelessWidget {
         backgroundColor: backgroundColor,
       );
     }else{
-      return Material(
-        textStyle: Theme.of(context).textTheme.headlineSmall,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            children: [
-              const SizedBox(width: 8),
-              leading ?? Tooltip(message: "返回".tl, child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-              ),),
-              const SizedBox(width: 24,),
-              Expanded(child: title),
-              ...?actions,
-              const SizedBox(width: 16,)
-            ],
-          ),
+      return SizedBox(
+        height: 56,
+        child: Row(
+          children: [
+            const SizedBox(width: 8),
+            leading ?? Tooltip(message: "返回".tl, child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),),
+            const SizedBox(width: 24,),
+            Material(
+              textStyle: Theme.of(context).textTheme.headlineSmall,
+              child: Expanded(child: title),
+            ),
+            const Spacer(),
+            ...?actions,
+            const SizedBox(width: 8,)
+          ],
         ),
       );
     }

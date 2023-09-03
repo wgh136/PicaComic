@@ -21,6 +21,8 @@ abstract class ComicTile extends StatelessWidget {
 
   ActionFunc? get read => null;
 
+  bool get enableLongPressed => true;
+
   void onLongTap_() {
     showDialog(
         context: Get.context!,
@@ -100,10 +102,11 @@ abstract class ComicTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap_,
-          onLongPress: onLongTap_,
+          onLongPress: enableLongPressed ? onLongTap_ : null,
           onSecondaryTapDown: onSecondaryTap_,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),

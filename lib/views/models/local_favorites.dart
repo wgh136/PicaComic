@@ -264,4 +264,15 @@ class LocalFavoritesManager{
     _data = {};
     await saveData();
   }
+
+  void reorder(List<FavoriteItem> newFolder, String folder) async{
+    if(_data == null){
+      await readData();
+    }
+    if(_data?[folder] == null){
+      throw Exception("Failed to reorder: folder not found");
+    }
+    _data![folder] = newFolder;
+    await saveData();
+  }
 }
