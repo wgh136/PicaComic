@@ -27,7 +27,7 @@ class PreSearchController extends GetxController{
   int target = 0;
   int picComicsOrder = appdata.getSearchMode();
   int jmComicsOrder = int.parse(appdata.settings[19]);
-  NhentaiSort nhentaiSort = NhentaiSort.recent;
+  NhentaiSort nhentaiSort = NhentaiSort.values[int.parse(appdata.settings[39])];
 
   void updateTarget(int i){
     target = i;
@@ -61,8 +61,7 @@ class PreSearchPage extends StatelessWidget {
       case 2: MainPage.to(()=>JmSearchPage(keyword));break;
       case 3: MainPage.to(()=>HitomiSearchPage(keyword));break;
       case 4: MainPage.to(()=>HtSearchPage(keyword));break;
-      case 5: MainPage.to(()=>NhentaiSearchPage(keyword,
-          sort: searchController.nhentaiSort));break;
+      case 5: MainPage.to(()=>NhentaiSearchPage(keyword));break;
     }
   }
 
@@ -453,6 +452,8 @@ class PreSearchPage extends StatelessWidget {
                                     onSelected: (b) {
                                       logic.nhentaiSort = NhentaiSort.recent;
                                       logic.update();
+                                      appdata.settings[39] = '0';
+                                      appdata.updateSettings();
                                     },
                                   ),
                                 ),
@@ -464,6 +465,8 @@ class PreSearchPage extends StatelessWidget {
                                     onSelected: (b) {
                                       logic.nhentaiSort = NhentaiSort.popularToday;
                                       logic.update();
+                                      appdata.settings[39] = '1';
+                                      appdata.updateSettings();
                                     },
                                   ),
                                 ),
@@ -475,6 +478,21 @@ class PreSearchPage extends StatelessWidget {
                                     onSelected: (b) {
                                       logic.nhentaiSort = NhentaiSort.popularWeek;
                                       logic.update();
+                                      appdata.settings[39] = '2';
+                                      appdata.updateSettings();
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: FilterChip(
+                                    label: Text("热门 | 本月".tl),
+                                    selected: logic.nhentaiSort.index == 3,
+                                    onSelected: (b) {
+                                      logic.nhentaiSort = NhentaiSort.popularMonth;
+                                      logic.update();
+                                      appdata.settings[39] = '3';
+                                      appdata.updateSettings();
                                     },
                                   ),
                                 ),
@@ -482,10 +500,12 @@ class PreSearchPage extends StatelessWidget {
                                   padding: const EdgeInsets.all(5),
                                   child: FilterChip(
                                     label: Text("热门 | 所有时间".tl),
-                                    selected: logic.nhentaiSort.index == 3,
+                                    selected: logic.nhentaiSort.index == 4,
                                     onSelected: (b) {
                                       logic.nhentaiSort = NhentaiSort.popularAll;
                                       logic.update();
+                                      appdata.settings[39] = '4';
+                                      appdata.updateSettings();
                                     },
                                   ),
                                 ),

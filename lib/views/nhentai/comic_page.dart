@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/network/res.dart';
@@ -16,10 +15,13 @@ import '../widgets/show_message.dart';
 import 'comments.dart';
 import 'package:get/get.dart';
 
-class NhentaiComicPage extends ComicPage<NhentaiComic>{
-  const NhentaiComicPage(this.id, {super.key});
 
-  final String id;
+class NhentaiComicPage extends ComicPage<NhentaiComic>{
+  const NhentaiComicPage(this._id, {super.key});
+
+  final String _id;
+
+  String get id => (data?.id) ?? _id;
 
   @override
   Row? get actions => Row(
@@ -90,7 +92,6 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   String get cover => data!.cover;
 
   @override
-  @override
   FilledButton get downloadButton => FilledButton(
     onPressed: () {
       final id = "nhentai${data!.id}";
@@ -124,7 +125,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
       PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
-  Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(id);
+  Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(_id);
 
   @override
   int? get pages => null;
@@ -161,7 +162,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   );
 
   @override
-  String get tag => "Nhentai $id";
+  String get tag => "Nhentai $_id";
 
   Map<String, List<String>> generateTags(){
     var tags = Map<String, List<String>>.from(data!.tags);

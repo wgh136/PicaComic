@@ -78,11 +78,16 @@ class NhentaiNetwork {
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "Accept-Language":
                 "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
-            if (url != "https://nhentai.net/") "Referer": "https://nhentai.net",
+            if (url != "https://nhentai.net/") "Referer": "https://nhentai.net/",
             "User-Agent": ua
-          }, validateStatus: (i) => i == 200 || i == 403),
+          }, validateStatus: (i) => i == 200 || i == 403 || i==302,
+              followRedirects: url.contains("random") ? false : true),
           expiredTime: CacheExpiredTime.no,
           cookieJar: cookieJar);
+      if(res.statusCode == 302){
+        print(res.headers);
+        return Res(res.headers["Location"]?.first ?? res.headers["location"]?.first ?? "");
+      }
       if (res.statusCode == 403) {
         return const Res(null,
             errorMessage:
@@ -224,7 +229,14 @@ class NhentaiNetwork {
 
       var results = document.querySelector("div#content > h1")!.text;
 
-      Future.microtask(() => Get.find<PreSearchController>().update());
+      Future.microtask(() {
+        try{
+          Get.find<PreSearchController>().update();
+        }
+        catch(e){
+          //
+        }
+      });
 
       if (comicDoms.isEmpty) {
         return const Res([], subData: 0);
@@ -241,14 +253,18 @@ class NhentaiNetwork {
   }
 
   Future<Res<NhentaiComic>> getComicInfo(String id) async {
-    var res = await get("https://nhentai.net/g/$id/");
+    if(id == ""){
+      var res = await get("https://nhentai.net/random/");
+      id = res.data.nums;
+    }
+    Res<String> res = await get("https://nhentai.net/g/$id/");
     if (res.error) {
       return Res.fromErrorRes(res);
     }
     try {
-      String combineSpans(Element title) {
+      String combineSpans(Element? title) {
         var res = "";
-        for (var span in title.children) {
+        for (var span in title?.children ?? []) {
           res += span.text;
         }
         return res;
@@ -262,7 +278,7 @@ class NhentaiNetwork {
 
       var title = combineSpans(document.querySelector("h1.title")!);
 
-      var subTitle = combineSpans(document.querySelector("h2.title")!);
+      var subTitle = combineSpans(document.querySelector("h2.title"));
 
       Map<String, List<String>> tags = {};
       for (var field in document.querySelectorAll("div.tag-container")) {
@@ -419,6 +435,7 @@ enum NhentaiSort{
   recent(""),
   popularToday("&sort=popular-today"),
   popularWeek("&sort=popular-week"),
+  popularMonth("&sort=popular-month"),
   popularAll("&sort=popular");
 
   final String value;

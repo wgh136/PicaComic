@@ -808,6 +808,10 @@ extension AppTranslation on String{
       "如果登录失效点击此处": "Click here if login expires",
       "已登录": "Logged in",
       "查看": "View",
+      "热门 | 今天": "Popular | Today",
+      "热门 | 一周": "Popular | Week",
+      "热门 | 本月": "Popular | Month",
+      "热门 | 所有时间": "Popular | All Time"
     }
   };
 }
