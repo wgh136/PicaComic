@@ -645,6 +645,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
             child: ReorderableBuilder(
               key: reorderWidgetKey,
               scrollController: _scrollController,
+              enableDraggable: enableSort,
               longPressDelay: GetPlatform.isDesktop ? const Duration(milliseconds: 100) : const Duration(milliseconds: 500),
               onReorder: (reorderFunc){
                 changed = true;
