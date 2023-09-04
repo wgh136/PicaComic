@@ -33,9 +33,11 @@ class CustomAppbar extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),),
             const SizedBox(width: 24,),
-            Material(
-              textStyle: Theme.of(context).textTheme.headlineSmall,
-              child: Expanded(child: title),
+            Expanded(
+              child: Material(
+                textStyle: Theme.of(context).textTheme.headlineSmall,
+                child: title,
+              ),
             ),
             const Spacer(),
             ...?actions,
