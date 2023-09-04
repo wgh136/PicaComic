@@ -4,6 +4,7 @@
 #include <flutter_windows.h>
 #include <fstream>
 #include "resource.h"
+#include <filesystem>
 
 namespace {
 
@@ -122,10 +123,14 @@ Win32Window::~Win32Window() {
 
 void readPlacement(HWND hwnd) {
     WINDOWPLACEMENT windowsPlacement{};
-    WCHAR szPath[MAX_PATH];
-    GetModuleFileName(NULL, szPath, MAX_PATH);
-    std::wstring path{szPath};
-    path = path.substr(0, path.find_last_of('\\') + 1) + L"location.data";
+    wchar_t appDataPath[MAX_PATH];
+    GetEnvironmentVariableW(L"APPDATA", appDataPath, MAX_PATH);
+    std::wstring path{appDataPath};
+    path += L"\\com.kokoiro.xyz\\pica_comic";
+    if (!std::filesystem::exists(path)) {
+        std::filesystem::create_directories(path);
+    }
+    path += L"\\location.data";
     std::ifstream file{path, std::ios::binary};
     if (file.good()) {
         file.read(reinterpret_cast<char*>(&windowsPlacement), sizeof(WINDOWPLACEMENT));
@@ -191,13 +196,15 @@ void writePlacement(HWND hwnd) {
     WINDOWPLACEMENT windowsPlacement{};
     GetWindowPlacement(hwnd, &windowsPlacement);
 
-    WCHAR szPath[MAX_PATH];
-    if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0) {
-        // handle error: failed to get module file name
-        return;
+    wchar_t appDataPath[MAX_PATH];
+    GetEnvironmentVariableW(L"APPDATA", appDataPath, MAX_PATH);
+    std::wstring path{appDataPath};
+    path += L"\\com.kokoiro.xyz\\pica_comic";
+    if (!std::filesystem::exists(path)) {
+        std::filesystem::create_directories(path);
     }
-    std::wstring path{ szPath };
-    path = path.substr(0, path.find_last_of('\\') + 1) + L"location.data";
+    path += L"\\location.data";
+
     std::ofstream file(path, std::ios::binary);
     if (!file.is_open()) {
         // handle error: failed to open file

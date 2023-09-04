@@ -51,18 +51,29 @@ class ImageLoader{
   ) async* {
     try {
       var manager = MyCacheManager();
-      var stream = manager.getHitomiImage(image, id);
 
       DownloadProgress? finishProgress;
 
-      await for(var progress in stream){
-        if(progress.currentBytes == progress.expectedBytes){
-          finishProgress = progress;
+      for(int i = 0; i<3; i++){
+        try{
+          var stream = manager.getHitomiImage(image, id);
+          await for(var progress in stream){
+            if(progress.currentBytes == progress.expectedBytes){
+              finishProgress = progress;
+            }
+            chunkEvents.add(ImageChunkEvent(
+                cumulativeBytesLoaded: progress.currentBytes,
+                expectedTotalBytes: progress.expectedBytes)
+            );
+          }
+          break;
         }
-        chunkEvents.add(ImageChunkEvent(
-            cumulativeBytesLoaded: progress.currentBytes,
-            expectedTotalBytes: progress.expectedBytes)
-        );
+        catch(e){
+          if(i == 2){
+            rethrow;
+          }
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
       }
 
       var file = finishProgress!.getFile();

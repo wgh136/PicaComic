@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
