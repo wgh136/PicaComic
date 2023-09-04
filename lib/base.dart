@@ -20,6 +20,8 @@ var pathSep = Platform.pathSeparator;
 var hotSearch = <String>[];
 var downloadManager = DownloadManager();
 
+String? appdataPath;
+
 class Appdata{
   //哔咔相关信息
   late String token;

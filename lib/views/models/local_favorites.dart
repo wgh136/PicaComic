@@ -222,7 +222,7 @@ class LocalFavoritesManager{
 
   /// get comic cover
   Future<File> getCover(String coverPath) async{
-    var path = "${(await getApplicationSupportDirectory()).path}${pathSep}favoritesCover";
+    var path = "${appdataPath!}${pathSep}favoritesCover";
     var hash = md5.convert(const Utf8Encoder().convert(coverPath)).toString();
     var file = File("$path$pathSep$hash.jpg");
     if(file.existsSync()) {

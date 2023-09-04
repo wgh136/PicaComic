@@ -20,6 +20,7 @@ import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
+import '../foundation/ui_mode.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/hitomi_network/hitomi_models.dart';
@@ -248,6 +249,8 @@ class LocalFavoriteTile extends ComicTile {
 
   final bool _enableLongPressed;
 
+  static Map<String, File> cache = {};
+
   @override
   bool get enableLongPressed => _enableLongPressed;
 
@@ -255,13 +258,14 @@ class LocalFavoriteTile extends ComicTile {
   String get description => comic.time;
 
   @override
-  Widget get image => FutureBuilder<File>(
+  Widget get image => cache[comic.target] == null ? FutureBuilder<File>(
         future: LocalFavoritesManager().getCover(comic.coverPath),
         builder: (context, file) {
           if (file.data == null) {
             return ColoredBox(
                 color: Theme.of(context).colorScheme.secondaryContainer);
           } else {
+            cache[comic.target] = file.data!;
             return Image.file(
               file.data!,
               fit: BoxFit.cover,
@@ -270,6 +274,11 @@ class LocalFavoriteTile extends ComicTile {
             );
           }
         },
+      ) : Image.file(
+        cache[comic.target]!,
+        fit: BoxFit.cover,
+        height: double.infinity,
+        filterQuality: FilterQuality.medium,
       );
 
   @override
@@ -562,10 +571,17 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
   }
 
   @override
+  void initState() {
+    width = MediaQuery.of(Get.context!).size.width;
+    super.initState();
+  }
+
+  @override
   void dispose() {
     if(changed){
       LocalFavoritesManager().reorder(comics!, widget.name);
     }
+    LocalFavoriteTile.cache.clear();
     super.dispose();
   }
 
@@ -576,34 +592,60 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
           comics = LocalFavoritesManager().getAllComics(widget.name);
     }, !enableSort, key: Key(comics![index].target),));
     return Scaffold(
+      appBar: UiMode.m1(context) ? AppBar(
+        title: Text(widget.name), actions: [
+        SizedBox(
+          width: 90,
+          height: 56,
+          child: Row(
+            children: [
+              Text("排序".tl),
+              Transform.scale(
+                scale: 0.6,
+                child: Switch(value: enableSort, onChanged: (value) {
+                  var currentWidth = MediaQuery.of(context).size.width;
+                  if(currentWidth != width){
+                    width = currentWidth;
+                    reorderWidgetKey = UniqueKey();
+                  }
+                  setState(() => enableSort = value);
+                }),
+              )
+            ],
+          ),
+        )
+      ]
+      ) : null,
       body: Column(
         children: [
-          CustomAppbar(title: Text(widget.name), actions: [
-            SizedBox(
-              width: 90,
-              height: 56,
-              child: Row(
-                children: [
-                  Text("排序".tl),
-                  Transform.scale(
-                    scale: 0.6,
-                    child: Switch(value: enableSort, onChanged: (value) {
-                      var currentWidth = MediaQuery.of(context).size.width;
-                      if(currentWidth != width){
-                        width = currentWidth;
-                        reorderWidgetKey = UniqueKey();
-                      }
-                      setState(() => enableSort = value);
-                    }),
-                  )
-                ],
-              ),
-            )
-          ],),
+          if(!UiMode.m1(context))
+            CustomAppbar(title: Text(widget.name), actions: [
+              SizedBox(
+                width: 90,
+                height: 56,
+                child: Row(
+                  children: [
+                    Text("排序".tl),
+                    Transform.scale(
+                      scale: 0.6,
+                      child: Switch(value: enableSort, onChanged: (value) {
+                        var currentWidth = MediaQuery.of(context).size.width;
+                        if(currentWidth != width){
+                          width = currentWidth;
+                          reorderWidgetKey = UniqueKey();
+                        }
+                        setState(() => enableSort = value);
+                      }),
+                    )
+                  ],
+                ),
+              )
+            ],),
           Expanded(
             child: ReorderableBuilder(
               key: reorderWidgetKey,
               scrollController: _scrollController,
+              longPressDelay: GetPlatform.isDesktop ? const Duration(milliseconds: 100) : const Duration(milliseconds: 500),
               onReorder: (reorderFunc){
                 changed = true;
                 setState(() {
