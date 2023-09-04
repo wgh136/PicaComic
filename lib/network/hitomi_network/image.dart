@@ -1,3 +1,5 @@
+import 'package:pica_comic/foundation/def.dart';
+
 import 'hitomi_models.dart';
 import 'package:dio/dio.dart';
 
@@ -44,7 +46,7 @@ class GG{
     var dio = Dio(BaseOptions(
         responseType: ResponseType.plain,
         headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+          "User-Agent": webUA,
           "Referer": "https://hitomi.la/reader/$galleryId.html"
         }
     ));

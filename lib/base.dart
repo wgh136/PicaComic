@@ -11,26 +11,16 @@ import 'package:pica_comic/views/models/local_favorites.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
 
-//定义宽屏设备的临界值
-const changePoint = 600;
-const changePoint2 = 1300;
+export 'foundation/def.dart';
 
-const List<int> colors = [0X42A5F5, 0X29B6F6, 0X5C6BC0, 0XAB47BC,
-  0XEC407A, 0X26C6DA, 0X26A69A, 0XFFEE58, 0X8D6E63];
-
-//App版本
-const appVersion = "2.1.1";
 
 //路径分隔符
 var pathSep = Platform.pathSeparator;
 
-//ComicTile的最大宽度
-const double comicTileMaxWidth = 630.0;
-//ComicTile的宽高比
-const double comicTileAspectRatio = 3;
-
 var hotSearch = <String>[];
 var downloadManager = DownloadManager();
+
+String? appdataPath;
 
 class Appdata{
   //哔咔相关信息
@@ -89,6 +79,7 @@ class Appdata{
     "1", //36 翻页动画
     "0", //37 禁漫图片分流
     "0", //38 高刷新率
+    "0", //39 nhentai搜索排序
   ];
 
   ///屏蔽的关键词

@@ -142,7 +142,7 @@ class MyCacheManager{
           receiveTimeout: const Duration(seconds: 8),
           followRedirects: true,
           headers: {
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "user-agent": webUA,
           }
       );
 
@@ -223,7 +223,7 @@ class MyCacheManager{
           receiveTimeout: const Duration(seconds: 8),
           followRedirects: true,
           headers: {
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "user-agent": webUA,
             "cookie": EhNetwork().cookiesStr
           }
       );
@@ -360,7 +360,7 @@ class MyCacheManager{
           .path}${pathSep}imageCache$pathSep$fileName";
       var dio = Dio();
       dio.options.headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+        "User-Agent": webUA,
         "Referer": "https://hitomi.la/reader/$galleryId.html"
       };
       var file = File(savePath);

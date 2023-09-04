@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
@@ -61,7 +62,7 @@ class EhDownloadingItem extends DownloadingItem{
   @override
   Map<String, String> get headers => {
     "Cookie": EhNetwork().cookiesStr,
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+    "User-Agent": webUA,
     "Referer": EhNetwork().ehBaseUrl,
   };
 

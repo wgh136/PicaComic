@@ -4,6 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -34,8 +35,7 @@ class HtmangaNetwork {
       var res = await dio.get(
           url,
           BaseOptions(headers: {
-            "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+            "User-Agent": webUA,
             if (headers != null) ...headers
           }),
           cookieJar: cookieJar,
@@ -57,8 +57,7 @@ class HtmangaNetwork {
   ///基本的Post请求
   Future<Res<String>> post(String url, String data) async {
     var dio = logDio(BaseOptions(headers: {
-      "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+      "User-Agent": webUA,
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
     }));
     dio.interceptors.add(CookieManager(cookieJar));

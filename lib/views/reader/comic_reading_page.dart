@@ -125,7 +125,7 @@ class ComicReadingPage extends StatelessWidget {
       : eps = [],
         order = 0,
         gallery = null,
-        type = ReadingType.htmanga,
+        type = ReadingType.htManga,
         images = null {
     data.initialPage = initialPage;
     Get.put(ComicReadingPageLogic(order, data));
@@ -256,7 +256,7 @@ class ComicReadingPage extends StatelessWidget {
               loadJmComicInfo(logic);
             } else if (type == ReadingType.hitomi) {
               loadHitomiData(logic);
-            } else if(type == ReadingType.htmanga){
+            } else if(type == ReadingType.htManga){
               loadHtmangaData(logic);
             }else{
               loadNhentaiData(logic);
@@ -281,8 +281,8 @@ class ComicReadingPage extends StatelessWidget {
                     () => logic.jumpToLastPage(), () => logic.jumpToNextPage());
               } else {
                 data.listenVolume = ListenVolumeController(
-                    () => logic.cont.jumpTo(logic.cont.position.pixels - 400),
-                    () => logic.cont.jumpTo(logic.cont.position.pixels + 400));
+                    () => logic.scrollController.jumpTo(logic.scrollController.position.pixels - 400),
+                    () => logic.scrollController.jumpTo(logic.scrollController.position.pixels + 400));
               }
               data.listenVolume!.listenVolumeChange();
             } else if (data.listenVolume != null) {
@@ -293,7 +293,7 @@ class ComicReadingPage extends StatelessWidget {
             //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
             if (appdata.settings[9] == "4") {
               //logic.cont = ScrollController();
-              data.scrollManager = ScrollManager(logic.cont);
+              data.scrollManager = ScrollManager(logic.scrollController);
             }
 
             var body = Listener(
@@ -302,7 +302,7 @@ class ComicReadingPage extends StatelessWidget {
                 if (appdata.settings[9] == "4" &&
                     data.scrollManager!.fingers != 2) {
                   data.scrollManager!.addOffset(details.delta.dy /
-                      logic.transformationController.value.getMaxScaleOnAxis());
+                      (logic.photoViewController.scale ?? 1.0));
                 }
               },
               onPointerUp: appdata.settings[9] == "4"
@@ -745,7 +745,7 @@ class ComicReadingPage extends StatelessWidget {
         id = "jm$target";
       } else if (type == ReadingType.hitomi) {
         id = "hitomi$target";
-      } else if (type == ReadingType.htmanga) {
+      } else if (type == ReadingType.htManga) {
         id = "Ht$target";
       } else if( type == ReadingType.nhentai) {
         id = "nhentai$target";
@@ -774,7 +774,7 @@ class ComicReadingPage extends StatelessWidget {
         id = "jm$target";
       } else if (type == ReadingType.hitomi) {
         id = "hitomi$target";
-      } else if (type == ReadingType.htmanga) {
+      } else if (type == ReadingType.htManga) {
         id = "Ht$target";
       } else if( type == ReadingType.nhentai) {
         id = "nhentai$target";

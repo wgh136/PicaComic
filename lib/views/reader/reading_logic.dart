@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart'
   show ReadingPageData;
@@ -12,15 +13,15 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 
 class ComicReadingPageLogic extends GetxController{
   ///控制页面, 用于非从上至下(连续)阅读方式
-  PageController controller;
+  PageController pageController;
   ///用于从上至下(连续)阅读方式, 跳转至指定项目
-  var scrollController = ItemScrollController();
+  var itemScrollController = ItemScrollController();
   ///用于从上至下(连续)阅读方式, 获取当前滚动到的元素的序号
-  var scrollListener = ItemPositionsListener.create();
+  var itemScrollListener = ItemPositionsListener.create();
   ///用于从上至下(连续)阅读方式, 控制滚动
-  var cont = ScrollController(keepScrollOffset: true);
+  var scrollController = ScrollController(keepScrollOffset: true);
   ///用于从上至下(连续)阅读方式, 获取放缩大小
-  var transformationController = TransformationController();
+  var photoViewController = PhotoViewController();
 
   bool noScroll = false;
 
@@ -43,7 +44,7 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   ComicReadingPageLogic(this.order, this.data):
-     controller = PageController(initialPage: _getPage(data.initialPage)),
+     pageController = PageController(initialPage: _getPage(data.initialPage)),
      index = _getIndex(data.initialPage);
 
   ReadingPageData data;
@@ -55,8 +56,6 @@ class ComicReadingPageLogic extends GetxController{
 
   ///是否应该显示悬浮按钮, 为-1表示显示上一章, 为0表示不显示, 为1表示显示下一章
   int showFloatingButtonValue = 0;
-
-  bool ctrlPressed = false;
 
   void showFloatingButton(int value){
     var length = data.eps.length;
@@ -98,7 +97,7 @@ class ComicReadingPageLogic extends GetxController{
   void reload(){
     index = 1;
     data.initialPage = 1;
-    controller = PageController(initialPage: 1);
+    pageController = PageController(initialPage: 1);
     isLoading = true;
     update();
   }
@@ -113,24 +112,24 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToNextPage(){
     if(appdata.settings[36] == "1") {
       if (readingMethod.index < 3) {
-        controller.animateToPage(
+        pageController.animateToPage(
             index + 1, duration: const Duration(milliseconds: 300),
             curve: Curves.ease);
       } else if(readingMethod == ReadingMethod.topToBottomContinuously){
-        cont.animateTo(cont.position.pixels + 600,
+        scrollController.animateTo(scrollController.position.pixels + 600,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
       } else {
-        controller.animateToPage(
+        pageController.animateToPage(
             (index + 2) ~/ 2 + 1, duration: const Duration(milliseconds: 300),
             curve: Curves.ease);
       }
     }else{
       if (readingMethod.index < 3) {
-        controller.jumpToPage(index + 1);
+        pageController.jumpToPage(index + 1);
       } else if(readingMethod == ReadingMethod.topToBottomContinuously) {
-        cont.jumpTo(cont.position.pixels + 600);
+        scrollController.jumpTo(scrollController.position.pixels + 600);
       } else {
-        controller.jumpToPage((index+1) ~/ 2 + 1);
+        pageController.jumpToPage((index+1) ~/ 2 + 1);
       }
     }
   }
@@ -138,33 +137,33 @@ class ComicReadingPageLogic extends GetxController{
   void jumpToLastPage(){
     if(appdata.settings[36] == "1") {
       if (readingMethod.index < 3) {
-        controller.animateToPage(
+        pageController.animateToPage(
             index - 1, duration: const Duration(milliseconds: 300),
             curve: Curves.ease);
       } else if(readingMethod == ReadingMethod.topToBottomContinuously){
-        cont.animateTo(cont.position.pixels - 600,
+        scrollController.animateTo(scrollController.position.pixels - 600,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
       } else {
-        controller.animateToPage(
+        pageController.animateToPage(
             index ~/ 2, duration: const Duration(milliseconds: 300),
             curve: Curves.ease);
       }
     }else{
       if (readingMethod.index < 3) {
-        controller.jumpToPage(index - 1);
+        pageController.jumpToPage(index - 1);
       } else if(readingMethod == ReadingMethod.topToBottomContinuously) {
-        cont.jumpTo(cont.position.pixels - 600);
+        scrollController.jumpTo(scrollController.position.pixels - 600);
       } else {
-        controller.jumpToPage(index ~/ 2);
+        pageController.jumpToPage(index ~/ 2);
       }
     }
   }
 
   void jumpToPage(int i){
     if(appdata.settings[9]!="4") {
-      controller.jumpToPage(i);
+      pageController.jumpToPage(i);
     }else{
-      scrollController.jumpTo(index: i-1);
+      itemScrollController.jumpTo(index: i-1);
     }
   }
 
@@ -176,9 +175,9 @@ class ComicReadingPageLogic extends GetxController{
     showFloatingButtonValue = 0;
     if(eps.isEmpty || order == eps.length){
       if(readingMethod.index < 3) {
-        controller.jumpToPage(urls.length);
+        pageController.jumpToPage(urls.length);
       }else if(readingMethod == ReadingMethod.twoPage){
-        controller.jumpToPage((urls.length % 2 + urls.length) ~/ 2);
+        pageController.jumpToPage((urls.length % 2 + urls.length) ~/ 2);
       }
       showMessage(Get.context, "已经是最后一章了".tl);
       return;
@@ -193,6 +192,8 @@ class ComicReadingPageLogic extends GetxController{
     if(type == ReadingType.jm){
       data.target = eps[order-1];
     }
+    index = 1;
+    pageController = PageController(initialPage: 1);
     update();
   }
 
@@ -203,13 +204,13 @@ class ComicReadingPageLogic extends GetxController{
     showFloatingButtonValue = 0;
     if(order == 1 && type == ReadingType.picacg){
       if(appdata.settings[9] != "4") {
-        controller.jumpToPage(1);
+        pageController.jumpToPage(1);
       }
       showMessage(Get.context, "已经是第一章了".tl);
       return;
     }else if(order == 1 && type == ReadingType.jm){
       if(appdata.settings[9] != "4") {
-        controller.jumpToPage(1);
+        pageController.jumpToPage(1);
       }
       showMessage(Get.context, "已经是第一章了".tl);
       return;
@@ -225,6 +226,8 @@ class ComicReadingPageLogic extends GetxController{
     if(type == ReadingType.jm){
       data.target = eps[order-1];
     }
+    pageController = PageController(initialPage: 1);
+    index = 1;
     update();
   }
 
@@ -253,11 +256,11 @@ class ComicReadingPageLogic extends GetxController{
   }
 
   void refresh_(){
-    controller = PageController(initialPage: 1);
-    scrollController = ItemScrollController();
-    scrollListener = ItemPositionsListener.create();
-    cont = ScrollController(keepScrollOffset: true);
-    transformationController = TransformationController();
+    pageController = PageController(initialPage: 1);
+    itemScrollController = ItemScrollController();
+    itemScrollListener = ItemPositionsListener.create();
+    scrollController = ScrollController(keepScrollOffset: true);
+    photoViewController = PhotoViewController();
     noScroll = false;
     currentScale = 1.0;
     showFloatingButtonValue = 0;

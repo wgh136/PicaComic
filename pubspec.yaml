@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.1.1+201
+version: 2.1.2+202
 environment:
   sdk: '>=3.0.0'
 
@@ -51,7 +51,7 @@ dependencies:
     git:
       url: https://github.com/wgh136/image_gallery_saver
       ref: master
-  flutter_file_dialog: ^3.0.1
+  flutter_file_dialog: 3.0.1
   archive: any
   flutter_local_notifications: ^15.1.0+1
   share_plus: ^7.0.0
@@ -60,7 +60,7 @@ dependencies:
   flutter_inappwebview:
     git:
       url: https://github.com/pichillilorenzo/flutter_inappwebview
-      ref: v6.0.0-beta.23
+      ref: v6.0.0-beta.24+1
   dio_cookie_manager: any
   image: ^4.0.17
   shimmer_animation: ^2.1.0
@@ -68,7 +68,7 @@ dependencies:
   flutter_windows_webview:
     git:
       url: https://github.com/wgh136/flutter_windows_webview
-      ref: 5548659e
+      ref: master
   workmanager:
     git:
       url: https://github.com/wgh136/flutter_workmanager
@@ -78,6 +78,7 @@ dependencies:
   intl: any
   flutter_displaymode: 0.6.0
   app_links: 3.4.3
+  flutter_reorderable_grid_view: 5.0.0-dev.7
 
 dev_dependencies:
   flutter_test:
@@ -107,7 +108,6 @@ flutter:
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   assets:
-    - images/black.png
     - images/app_icon.png
     - images/avatar.png
     - images/avatar_small.png
@@ -153,9 +153,9 @@ flutter:
   fonts:
     # 这是在windows端使用的字体, 由于系统字体(微软雅黑)在Flutter App上显示效果极差, 因此使用此字体
     # 仅在打包windows时取消注释
-    #- family: font
-    #  fonts:
-    #    - asset: fonts/NotoSansSC-Regular.otf
+   # - family: font
+   #   fonts:
+   #     - asset: fonts/NotoSansSC-Regular.otf
 
     # 这是一个英文字体, 文件很小, 无需担心体积, 用于显示Pica Comic
     - family: font2

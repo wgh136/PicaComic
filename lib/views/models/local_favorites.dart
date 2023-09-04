@@ -60,7 +60,7 @@ class FavoriteItem{
   FavoriteItem.fromHtcomic(HtComicBrief comic):
       name = comic.name,
       author = "${comic.pages}Pages",
-      type = ComicType.htmanga,
+      type = ComicType.htManga,
       tags = [],
       target = comic.id,
       coverPath = comic.image;
@@ -222,7 +222,7 @@ class LocalFavoritesManager{
 
   /// get comic cover
   Future<File> getCover(String coverPath) async{
-    var path = "${(await getApplicationSupportDirectory()).path}${pathSep}favoritesCover";
+    var path = "${appdataPath!}${pathSep}favoritesCover";
     var hash = md5.convert(const Utf8Encoder().convert(coverPath)).toString();
     var file = File("$path$pathSep$hash.jpg");
     if(file.existsSync()) {
@@ -262,6 +262,17 @@ class LocalFavoritesManager{
 
   Future<void> clearAll() async{
     _data = {};
+    await saveData();
+  }
+
+  void reorder(List<FavoriteItem> newFolder, String folder) async{
+    if(_data == null){
+      await readData();
+    }
+    if(_data?[folder] == null){
+      throw Exception("Failed to reorder: folder not found");
+    }
+    _data![folder] = newFolder;
     await saveData();
   }
 }

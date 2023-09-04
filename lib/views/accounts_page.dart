@@ -211,7 +211,7 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.jmEmail != "")
                     ListTile(
                       title: Text("重新登录".tl),
-                      subtitle: const Text("如果登录失效点击此处"),
+                      subtitle: Text("如果登录失效点击此处".tl),
                       onTap: () async {
                         showMessage(Get.context, "正在重新登录".tl, time: 8);
                         var res = await jmNetwork.loginFromAppdata();
@@ -262,7 +262,7 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.htName != "")
                     ListTile(
                       title: Text("重新登录".tl),
-                      subtitle: const Text("如果登录失效点击此处"),
+                      subtitle: Text("如果登录失效点击此处".tl),
                       onTap: () async {
                         showMessage(Get.context, "正在重新登录".tl, time: 8);
                         var res = await HtmangaNetwork().loginFromAppdata();

@@ -58,7 +58,7 @@ class CachedNetwork {
     }
 
     var res = await dio.get(url);
-    if (res.data == null) {
+    if (res.data == null && !url.contains("random")) {
       throw Exception("无数据");
     }
     if (expiredTime != CacheExpiredTime.no) {
@@ -68,7 +68,7 @@ class CachedNetwork {
       file.createSync();
       file.writeAsStringSync(res.data);
     }
-    return CachedNetworkRes(res.data, res.statusCode);
+    return CachedNetworkRes(res.data ?? "", res.statusCode, res.headers.map);
   }
 
   Future<CachedNetworkRes<String>> getJm(
@@ -133,6 +133,7 @@ enum CacheExpiredTime {
 class CachedNetworkRes<T> {
   T data;
   int? statusCode;
+  Map<String, List<String>> headers;
 
-  CachedNetworkRes(this.data, this.statusCode);
+  CachedNetworkRes(this.data, this.statusCode, [this.headers = const {}]);
 }

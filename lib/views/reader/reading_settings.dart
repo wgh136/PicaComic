@@ -431,7 +431,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.tools = false;
     logic.showSettings = false;
     logic.index = 1;
-    logic.controller = PageController(initialPage: 1);
+    logic.pageController = PageController(initialPage: 1);
     logic.update();
   }
 }

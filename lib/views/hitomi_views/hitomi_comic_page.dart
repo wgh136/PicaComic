@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
@@ -129,7 +130,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   Map<String, String> get headers => {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
+    "User-Agent": webUA,
     "Referer": "https://hitomi.la/"
   };
 

@@ -22,6 +22,8 @@ import '../../network/res.dart';
 import '../widgets/list_loading.dart';
 import 'package:pica_comic/tools/translations.dart';
 
+export 'package:pica_comic/foundation/def.dart';
+
 class ComicsPageLogic<T> extends GetxController {
   bool loading = true;
 
@@ -454,5 +456,3 @@ abstract class ComicsPage<T> extends StatelessWidget {
     }
   }
 }
-
-enum ComicType { picacg, ehentai, jm, hitomi, htManga, htFavorite, nhentai }

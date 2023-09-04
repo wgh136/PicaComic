@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/log_dio.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/js.dart';
 import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
@@ -95,7 +97,7 @@ class EhNetwork{
         receiveTimeout: const Duration(seconds: 8),
         followRedirects: true,
         headers: {
-          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "user-agent": webUA,
           ...?headers
         }
     );
@@ -115,7 +117,6 @@ class EhNetwork{
     }
     on DioException catch(e){
       String? message;
-      sendNetworkLog(url, e.toString());
       if(e.type!=DioExceptionType.unknown){
         message = e.message??"未知".tl;
       }else{
@@ -140,7 +141,7 @@ class EhNetwork{
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
         headers: {
-          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "user-agent": webUA,
           "cookie": "nw=1${appdata.ehId=="" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
           ...?headers
         }
@@ -192,7 +193,7 @@ class EhNetwork{
         receiveDataWhenStatusError: true,
         validateStatus: (status)=>status==200||status==302,
         headers: {
-          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+          "user-agent": webUA,
           ...?headers
         }
     );
@@ -436,7 +437,7 @@ class EhNetwork{
       var comments = <Comment>[];
       for(var c in document.getElementsByClassName("c1")){
         var name = c.getElementsByClassName("c3")[0].getElementsByTagName("a").elementAtOrNull(0)?.text??"未知";
-        var time = c.getElementsByClassName("c3")[0].text.substring(11,32);
+        var time = c.getElementsByClassName("c3")[0].text.subStringOrNull(11,32) ?? "Unknown";
         var content = c.getElementsByClassName("c6")[0].text;
         comments.add(Comment(name, content, time));
       }

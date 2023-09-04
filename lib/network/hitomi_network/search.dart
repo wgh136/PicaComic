@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pica_comic/foundation/def.dart';
 import '../res.dart';
 
 class HitomiSearch{
@@ -153,7 +154,7 @@ class HitomiSearch{
       responseType: ResponseType.bytes,
       headers: {
         'Range': "bytes=${range[0]}-${range[1]}",
-        'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        'User-Agent': webUA,
         'Referer': 'https://hitomi.la/search.html',
         'Origin': "https://hitomi.la"
       }

@@ -8,6 +8,8 @@ import 'package:pica_comic/views/widgets/search.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:get/get.dart';
 
+import '../../base.dart';
+
 class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
   final String keyword;
   final Widget? head_;
@@ -43,8 +45,7 @@ class _SearchPageComicsList extends ComicsPage<NhentaiComicBrief>{
 
 class NhentaiSearchPage extends StatefulWidget {
   final String keyword;
-  final NhentaiSort sort;
-  const NhentaiSearchPage(this.keyword, {Key? key, this.sort = NhentaiSort.recent}) : super(key: key);
+  const NhentaiSearchPage(this.keyword, {Key? key}) : super(key: key);
 
   @override
   State<NhentaiSearchPage> createState() => _NhentaiSearchPageState();
@@ -54,7 +55,7 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
   late String keyword = widget.keyword;
   var controller = TextEditingController();
   bool _showFab = true;
-  late NhentaiSort sort = widget.sort;
+  NhentaiSort sort = NhentaiSort.values[int.parse(appdata.settings[39])];
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +118,8 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                                       setState(() {
                                         sort = NhentaiSort.values[0];
                                       });
+                                      appdata.settings[39] = '0';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },),
                                     title: Text("最新".tl),
@@ -124,6 +127,8 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                                       setState(() {
                                         sort = NhentaiSort.values[0];
                                       });
+                                      appdata.settings[39] = '0';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },
                                   ),
@@ -133,12 +138,16 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                                         sort = NhentaiSort.values[1];
                                       });
                                       Get.back();
+                                      appdata.settings[39] = '1';
+                                      appdata.updateSettings();
                                     },),
                                     title: Text("热门 | 今天".tl),
                                     onTap: (){
                                       setState(() {
                                         sort = NhentaiSort.values[1];
                                       });
+                                      appdata.settings[39] = '1';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },
                                   ),
@@ -147,6 +156,8 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                                       setState(() {
                                         sort = NhentaiSort.values[2];
                                       });
+                                      appdata.settings[39] = '2';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },),
                                     title: Text("热门 | 一周".tl),
@@ -154,6 +165,8 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                                       setState(() {
                                         sort = NhentaiSort.values[2];
                                       });
+                                      appdata.settings[39] = '2';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },
                                   ),
@@ -162,13 +175,36 @@ class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
                                       setState(() {
                                         sort = NhentaiSort.values[3];
                                       });
+                                      appdata.settings[39] = '3';
+                                      appdata.updateSettings();
+                                      Get.back();
+                                    },),
+                                    title: Text("热门 | 本月".tl),
+                                    onTap: (){
+                                      setState(() {
+                                        sort = NhentaiSort.values[3];
+                                      });
+                                      appdata.settings[39] = '3';
+                                      appdata.updateSettings();
+                                      Get.back();
+                                    },
+                                  ),
+                                  ListTile(
+                                    trailing: Radio<int>(value: 4,groupValue: sort.index,onChanged: (i){
+                                      setState(() {
+                                        sort = NhentaiSort.values[4];
+                                      });
+                                      appdata.settings[39] = '4';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },),
                                     title: Text("热门 | 所有时间".tl),
                                     onTap: (){
                                       setState(() {
-                                        sort = NhentaiSort.values[3];
+                                        sort = NhentaiSort.values[4];
                                       });
+                                      appdata.settings[39] = '4';
+                                      appdata.updateSettings();
                                       Get.back();
                                     },
                                   ),

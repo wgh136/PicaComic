@@ -306,7 +306,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget buildSubTitle(BuildContext context) {
-    if(subTitle == null){
+    if(subTitle == null || subTitle == ""){
       return const SliverToBoxAdapter(child: SizedBox(height: 0,),);
     }
     return SliverPadding(

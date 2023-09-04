@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
@@ -72,7 +73,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
           ),
           Expanded(
             child: ActionChip(
-                label: const Text("评论"),
+                label: Text("评论".tl),
                 avatar: const Icon(Icons.comment_outlined),
                 onPressed: () =>
                     showComments(context, link, data!.uploader)),
@@ -102,8 +103,8 @@ class EhGalleryPage extends ComicPage<Gallery> {
         },
         child: (downloadManager.downloadedGalleries
                 .contains(getGalleryId(data!.link)))
-            ? const Text("已下载")
-            : const Text("下载"),
+            ? Text("已下载".tl)
+            : Text("下载".tl),
       );
 
   @override
@@ -158,7 +159,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   @override
   Map<String, String> get headers => {
     "Cookie": EhNetwork().cookiesStr,
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+    "User-Agent": webUA,
     "Referer": EhNetwork().ehBaseUrl,
   };
 

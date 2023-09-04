@@ -49,7 +49,10 @@ class MainPage extends StatefulWidget {
 
   static bool overlayOpen = false;
 
-  static void to(Widget Function() widget) {
+  static void to(Widget Function() widget) async{
+    if(navigatorContext == null){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
     Get.to(widget,
         id: navigateId, transition: Transition.fade, preventDuplicates: false);
   }
@@ -62,10 +65,13 @@ class MainPage extends StatefulWidget {
 
   static void Function()? toExplorePage;
 
-  static void toExplorePageAt(int page){
+  static void toExplorePageAt(int page) async{
     if(appdata.settings[24][page] != "1"){
       showMessage(Get.context!, "探索页面被禁用".tl);
       return;
+    }
+    if(toExplorePage == null){
+      await Future.delayed(const Duration(milliseconds: 100));
     }
     toExplorePage?.call();
     Future.microtask(() {

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:dio/dio.dart';
 
@@ -31,8 +32,7 @@ Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, in
     ));
     dio.options.responseType = ResponseType.bytes;
     dio.options.headers = {
-      "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      "User-Agent": webUA,
       "Range": "bytes=$start-$end",
       if(ref != null)
         "Referer": ref

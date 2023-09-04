@@ -33,6 +33,28 @@ extension StringExtension on String{
   String setValueAt(String value, int index){
     return replaceRange(index, index+1, value);
   }
+
+  String? subStringOrNull(int start, [int? end]){
+    if(start < 0 || (end != null && end > length)){
+      return null;
+    }
+    return substring(start, end);
+  }
+
+  String replaceLast(String from, String to) {
+    if (isEmpty || from.isEmpty) {
+      return this;
+    }
+
+    final lastIndex = lastIndexOf(from);
+    if (lastIndex == -1) {
+      return this;
+    }
+
+    final before = substring(0, lastIndex);
+    final after = substring(lastIndex + from.length);
+    return '$before$to$after';
+  }
 }
 
 extension MapExtension<S, T> on Map<S, List<T>>{

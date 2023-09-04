@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/views/ht_views/ht_categories_page.dart';
 import 'package:pica_comic/views/jm_views/detailed_categories.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
+import 'package:pica_comic/views/nhentai/categories.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import '../base.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -29,6 +30,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
       children: [
         TabBar(
           splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+          isScrollable: true,
           tabs: [
             if(appdata.settings[21][0] == "1")
               Tab(text: "Picacg".tl, key: const Key("Picacg分类"),),
@@ -38,6 +40,8 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
               Tab(text: "${"禁漫天堂".tl}2", key: const Key("禁漫详细分类"),),
             if(appdata.settings[21][4] == "1")
               Tab(text: "绅士漫画".tl, key: const Key("绅士漫画"),),
+            if(appdata.settings[21][5] == "1")
+              Tab(text: "Nhentai".tl, key: const Key("Nhentai"),),
           ],
           controller: controller,
         ),
@@ -53,6 +57,8 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
                 const JmDetailedCategoriesPage(),
               if(appdata.settings[21][4] == "1")
                 const HtCategoriesPage(),
+              if(appdata.settings[21][5] == "1")
+                const NhentaiCategories()
             ],
           ),
         )
@@ -70,7 +76,7 @@ class CategoryPageWithGetControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<CategoryPageLogic>(builder: (logic){
       int pages = int.parse(appdata.settings[21][0])*1 + int.parse(appdata.settings[21][2])*2
-          + int.parse(appdata.settings[21][4])*1;
+          + int.parse(appdata.settings[21][4])*1 + int.parse(appdata.settings[21][5])*1;
       if(pages == 0){
         return Center(
           child: Text("无数据".tl),

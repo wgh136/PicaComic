@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/error_report.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
@@ -74,7 +74,6 @@ void main() {
       });
     }
     FlutterError.onError = (details) {
-      sendLog(details.exceptionAsString(), details.stack.toString());
       LogManager.addLog(LogLevel.error, "Unhandled Exception",
           "${details.exception}\n${details.stack}");
     };
@@ -93,7 +92,6 @@ void main() {
       runApp(const MyApp());
     });
   }, (error, stack) {
-    sendLog(error.toString(), stack.toString());
     LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
   });
 }
@@ -157,6 +155,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }
+    (() async => appdataPath = (await getApplicationSupportDirectory()).path).call();
     super.initState();
   }
 
@@ -252,7 +251,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW')],
+        supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW'), Locale('en', 'US')],
         logWriterCallback: (String s, {bool? isError}) {
           LogManager.addLog(
               (isError ?? false) ? LogLevel.warning : LogLevel.info,

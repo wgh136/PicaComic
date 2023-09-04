@@ -71,7 +71,7 @@ void giveComments(BuildContext context) {
                 image: AssetImage("images/github.png"),
                 width: 25,
               ),
-              title: const Text("在Github上提出Issue"),
+              title: const Text("Github"),
               onTap: () {
                 launchUrlString("https://github.com/wgh136/PicaComic/issues",
                     mode: LaunchMode.externalApplication);
@@ -79,7 +79,7 @@ void giveComments(BuildContext context) {
             ),
             ListTile(
               leading: Icon(Icons.mail, color: Theme.of(context).colorScheme.secondary),
-              title: const Text("发送邮件"),
+              title: const Text("Email"),
               onTap: () {
                 launchUrlString("mailto:nyne19710@proton.me", mode: LaunchMode.externalApplication);
               },
@@ -132,15 +132,15 @@ void setProxy(BuildContext context) {
                     ),
                   ),
                   if (!controller.value)
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(18, 10, 15, 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 10, 15, 10),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.info_outline,
                             size: 20,
                           ),
-                          Text("  留空表示禁用网络代理")
+                          Text("  ${"留空表示禁用网络代理".tl}")
                         ],
                       ),
                     ),
@@ -372,7 +372,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 RadioListTile<String>(
-                    title: const Text("App内部储存目录"),
+                    title: Text("App内部储存目录".tl),
                     value: "",
                     groupValue: current,
                     onChanged: (value) => setState(() {
@@ -451,9 +451,9 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
 void setExplorePages(BuildContext context) {
   showDialog(
       context: context,
-      builder: (logic) => const SimpleDialog(
-            title: Text("设置探索页面"),
-            children: [SetExplorePages()],
+      builder: (logic) => SimpleDialog(
+            title: Text("显示的探索页面".tl),
+            children: const [SetExplorePages()],
           ));
 }
 
