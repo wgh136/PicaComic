@@ -25,6 +25,8 @@ class ComicReadingPageLogic extends GetxController{
 
   bool noScroll = false;
 
+  bool mouseScroll = GetPlatform.isDesktop;
+
   double currentScale = 1.0;
 
   static int _getIndex(int initPage){

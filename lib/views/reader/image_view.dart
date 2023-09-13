@@ -17,6 +17,17 @@ import 'package:get/get.dart';
 import 'reading_type.dart';
 import 'package:pica_comic/tools/translations.dart';
 
+extension ScrollExtension on ScrollController{
+  static double? futurePosition;
+
+  void smoothTo(double value){
+    futurePosition ??= position.pixels;
+    futurePosition = futurePosition! + value;
+    futurePosition = futurePosition!.clamp(position.minScrollExtent, position.maxScrollExtent);
+    animateTo(futurePosition!, duration: const Duration(milliseconds: 200), curve: Curves.linear);
+  }
+}
+
 /// create a image provider with the provided image and comic source.
 ImageProvider createImageProvider(ReadingType type, ComicReadingPageLogic logic,
     int index, String target){
@@ -96,6 +107,7 @@ bool updateLocation(BuildContext context, PhotoViewController controller){
 /// build comic image
 Widget buildComicView(ComicReadingPageLogic logic,
     ReadingType type, String target, List<String> eps, BuildContext context) {
+  ScrollExtension.futurePosition = null;
 
   Widget buildType4() {
     PhotoView.onCtrlKey = ()=>logic.update();
@@ -107,7 +119,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
       addSemanticIndexes: false,
       scrollController: logic.scrollController,
       physics: (logic.noScroll ||
-          logic.currentScale > 1.05 || PhotoView.isCtrlPressed)
+          logic.currentScale > 1.05 || PhotoView.isCtrlPressed || logic.mouseScroll)
           ? const NeverScrollableScrollPhysics()
           : const ClampingScrollPhysics(),
       itemBuilder: (context, index) {
@@ -330,6 +342,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
   }
 
   void onPointerSignal(PointerSignalEvent pointerSignal){
+    logic.mouseScroll = true;
     if (pointerSignal is PointerScrollEvent && !PhotoView.isCtrlPressed) {
       if(logic.readingMethod != ReadingMethod.topToBottomContinuously){
         pointerSignal.scrollDelta.dy > 0
@@ -339,10 +352,8 @@ Widget buildComicView(ComicReadingPageLogic logic,
         if((logic.scrollController.position.pixels == logic.scrollController.position.minScrollExtent && pointerSignal.scrollDelta.dy < 0) ||
             (logic.scrollController.position.pixels == logic.scrollController.position.maxScrollExtent && pointerSignal.scrollDelta.dy > 0)) {
           logic.photoViewController.updateMultiple(position: logic.photoViewController.position - Offset(0,pointerSignal.scrollDelta.dy));
-        }else if(logic.currentScale >= 1.05){
-          var value = (logic.scrollController.position.pixels + pointerSignal.scrollDelta.dy);
-          value = value.clamp(logic.scrollController.position.minScrollExtent, logic.scrollController.position.maxScrollExtent);
-          logic.scrollController.jumpTo(value);
+        }else{
+          logic.scrollController.smoothTo(pointerSignal.scrollDelta.dy);
         }
       }
     }
@@ -354,8 +365,8 @@ Widget buildComicView(ComicReadingPageLogic logic,
     left: 0,
     right: 0,
     child: Listener(
-      //监听鼠标滚轮
       onPointerSignal: onPointerSignal,
+      onPointerDown: (details) => logic.mouseScroll = false,
       child: NotificationListener<ScrollUpdateNotification>(
         child: body,
         onNotification: (notification) {

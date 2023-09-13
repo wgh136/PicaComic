@@ -140,7 +140,9 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {
     right: 0,
     child: GestureDetector(
       onTapDown: (details){
-        tapOffset = details.globalPosition;
+        if(!logic.scrollController.position.isScrollingNotifier.value){
+          tapOffset = details.globalPosition;
+        }
       },
       onSecondaryTapDown: (event){
         if (logic.showSettings) {
