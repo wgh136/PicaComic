@@ -167,48 +167,49 @@ Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {
         }
         bool flag = false;
         bool flag2 = false;
+        final range = int.parse(appdata.settings[40]) / 100;
         if (appdata.settings[0] == "1" &&
             !logic.tools) {
           switch (appdata.settings[9]) {
             case "1":
             case "5":
               detail.globalPosition.dx >
-                  MediaQuery.of(context).size.width * 0.75
+                  MediaQuery.of(context).size.width * (1 - range)
                   ? logic.jumpToNextPage()
                   : flag = true;
               detail.globalPosition.dx <
-                  MediaQuery.of(context).size.width * 0.25
+                  MediaQuery.of(context).size.width * range
                   ? logic.jumpToLastPage()
                   : flag2 = true;
               break;
             case "2":
             case "6":
               detail.globalPosition.dx >
-                  MediaQuery.of(context).size.width * 0.75
+                  MediaQuery.of(context).size.width * (1 - range)
                   ? logic.jumpToLastPage()
                   : flag = true;
               detail.globalPosition.dx <
-                  MediaQuery.of(context).size.width * 0.25
+                  MediaQuery.of(context).size.width * range
                   ? logic.jumpToNextPage()
                   : flag2 = true;
               break;
             case "3":
               detail.globalPosition.dy >
-                  MediaQuery.of(context).size.height * 0.75
+                  MediaQuery.of(context).size.height * (1 - range)
                   ? logic.jumpToNextPage()
                   : flag = true;
               detail.globalPosition.dy <
-                  MediaQuery.of(context).size.height * 0.25
+                  MediaQuery.of(context).size.height * range
                   ? logic.jumpToLastPage()
                   : flag2 = true;
               break;
             case "4":
               detail.globalPosition.dy >
-                  MediaQuery.of(context).size.height * 0.75
+                  MediaQuery.of(context).size.height * (1 - range)
                   ? logic.jumpToNextPage()
                   : flag = true;
               detail.globalPosition.dy <
-                  MediaQuery.of(context).size.height * 0.25
+                  MediaQuery.of(context).size.height * range
                   ? logic.jumpToLastPage()
                   : flag2 = true;
               break;

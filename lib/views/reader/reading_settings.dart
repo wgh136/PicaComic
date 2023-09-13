@@ -77,6 +77,45 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             onTap: () {},
           ),
           ListTile(
+            leading: Icon(Icons.touch_app_outlined,
+                color: Theme.of(context).colorScheme.secondary),
+            title: Text("点按翻页识别范围".tl),
+            subtitle: SizedBox(
+              height: 25,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                      top: 0,
+                      bottom: 0,
+                      left: -20,
+                      right: 0,
+                      child: Slider(
+                        max: 50,
+                        min: 0,
+                        divisions: 50,
+                        value: int.parse(appdata.settings[40]).toDouble(),
+                        overlayColor: MaterialStateColor.resolveWith(
+                                (states) => Colors.transparent),
+                        onChanged: (v) {
+                          if (v == 0) return;
+                          appdata.settings[40] = v.toInt().toString();
+                          appdata.updateSettings();
+                          setState(() {});
+                        },
+                      ))
+                ],
+              ),
+            ),
+            trailing: SizedBox(
+              width: 40,
+              child: Text(
+                "${appdata.settings[40]}%",
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          ),
+          ListTile(
             leading: Icon(Icons.volume_mute,
                 color: Theme.of(context).colorScheme.secondary),
             title: Text("使用音量键翻页".tl),

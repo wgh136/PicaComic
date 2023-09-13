@@ -811,7 +811,8 @@ extension AppTranslation on String{
       "热门 | 今天": "Popular | Today",
       "热门 | 一周": "Popular | Week",
       "热门 | 本月": "Popular | Month",
-      "热门 | 所有时间": "Popular | All Time"
+      "热门 | 所有时间": "Popular | All Time",
+      "点按翻页识别范围": "Range of Tapping to Flip Page"
     }
   };
 }
