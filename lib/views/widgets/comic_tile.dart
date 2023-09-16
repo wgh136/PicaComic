@@ -250,14 +250,14 @@ class ComicDescription extends StatelessWidget {
                     const Spacer(),
                     if (badge != null)
                       Container(
-                        padding: const EdgeInsets.fromLTRB(5, 1, 5, 3),
+                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
                         decoration: BoxDecoration(
                           color:
-                              Theme.of(context).colorScheme.secondaryContainer,
+                              Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8)),
                         ),
-                        child: Text(badge!),
+                        child: Text(badge!, style: const TextStyle(fontSize: 13),),
                       )
                   ],
                 )

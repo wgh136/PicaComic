@@ -526,7 +526,7 @@ extension TagsTranslation on String{
     "solo action": "独自自慰",
     "spanking": "拍打",
     "speculum": "窥器",
-    "speechless": "无文字内容",
+    "speechless": "无文字",
     "spider": "蜘蛛",
     "spider girl": "蜘蛛娘",
     "squid boy": "乌贼男孩",
