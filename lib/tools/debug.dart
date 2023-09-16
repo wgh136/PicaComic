@@ -35,7 +35,7 @@ void debug() async{
 ///保存网络请求数据, 用于Debug
 ///
 /// 由于较长, 不直接打印在终端
-void saveDebugData(String s, [String path = "D://debug.txt"]) async{
+void saveDebugData(String s, [String path = "D://debug.json"]) async{
   var file = File(path);
   file.writeAsStringSync(s);
 }

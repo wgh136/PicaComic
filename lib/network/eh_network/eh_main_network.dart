@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
@@ -314,8 +313,10 @@ class EhNetwork{
           var title = items[i].children[2 + t].children[0].children[0].text;
           var link = items[i].children[2 + t].children[0].attributes["href"];
           String uploader = "";
+          int? pages;
           try {
             uploader = items[i].children[3 + t].children[0].children[0].text;
+            pages = int.parse(items[i].children[3 + t].children[1].text.nums);
           }
           catch (e) {
             //收藏夹页没有uploader
@@ -334,7 +335,8 @@ class EhNetwork{
               stars,
               link!,
               tags,
-              ignoreExamination: ignoreExamination
+              ignoreExamination: ignoreExamination,
+              pages: pages
           ));
         }
         catch (e) {

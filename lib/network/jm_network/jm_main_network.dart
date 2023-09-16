@@ -20,12 +20,6 @@ import 'package:pica_comic/base.dart';
 import 'package:html/parser.dart';
 
 class JmNetwork {
-  /*
-  关于一些注意事项:
-    1. jm的漫画列表加载, 当page大于存在的数量时返回最后一页, 而不是报错
-   */
-
-
   final baseData =
       "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
 
@@ -126,7 +120,7 @@ class JmNetwork {
         return Res(null,
             errorMessage: const JsonDecoder().convert(
                     const Utf8Decoder().convert(res.data))["errorMsg"] ??
-                "未知错误".toString());
+                "Unknown Error".toString());
       }
       var resData = convertData(
           (const JsonDecoder()

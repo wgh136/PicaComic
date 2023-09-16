@@ -32,6 +32,7 @@ BaseOptions getHeaders(String method,String token,String url){
         receiveTimeout: const Duration(milliseconds: 2000),
         sendTimeout: const Duration(milliseconds: 2000),
         receiveDataWhenStatusError: true,
+        responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "accept": "application/vnd.picacomic.com.v1+json",
@@ -57,6 +58,7 @@ BaseOptions getHeaders(String method,String token,String url){
         connectTimeout: const Duration(milliseconds: 5000),
         receiveTimeout: const Duration(milliseconds: 2000),
         sendTimeout: const Duration(milliseconds: 2000),
+        responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
@@ -83,6 +85,7 @@ BaseOptions getHeaders(String method,String token,String url){
         connectTimeout: const Duration(milliseconds: 5000),
         receiveTimeout: const Duration(milliseconds: 2000),
         sendTimeout: const Duration(milliseconds: 2000),
+        responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,
@@ -106,6 +109,7 @@ BaseOptions getHeaders(String method,String token,String url){
     return BaseOptions(
         receiveDataWhenStatusError: true,
         connectTimeout: const Duration(milliseconds: 5000),
+        responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
           "authorization": token,

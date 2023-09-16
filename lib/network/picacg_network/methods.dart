@@ -292,7 +292,8 @@ class PicacgNetwork {
                   "/static/" +
                   res["data"]["comics"]["docs"][i]["thumb"]["path"],
               res["data"]["comics"]["docs"][i]["_id"],
-              tags);
+              tags,
+              pages: res["data"]["comics"]["docs"][i]["pagesCount"]);
           comics.add(si);
         } catch (e) {
           continue;
@@ -524,7 +525,8 @@ class PicacgNetwork {
                 res["data"]["comics"]["docs"][i]["thumb"]["path"],
             res["data"]["comics"]["docs"][i]["_id"],
             tags,
-            ignoreExamination: true);
+            ignoreExamination: true,
+            pages: res["data"]["comics"]["docs"][i]["pagesCount"]);
         comics.add(si);
       }
       return Res(comics, subData: pages);
@@ -556,6 +558,7 @@ class PicacgNetwork {
                 res["data"]["comics"][i]["thumb"]["path"],
             res["data"]["comics"][i]["_id"],
             tags,
+            pages: res["data"]["comics"][i]["pagesCount"]
           );
           comics.add(si);
         } catch (e) {
@@ -617,7 +620,8 @@ class PicacgNetwork {
                 "/static/" +
                 res["data"]["comics"][i]["thumb"]["path"],
             res["data"]["comics"][i]["_id"],
-            tags);
+            tags,
+            pages: res["data"]["comics"][i]["pagesCount"],);
         comics.add(si);
       } catch (e) {
         //出现错误跳过
@@ -833,7 +837,8 @@ class PicacgNetwork {
                   res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
               res["data"]["collections"][0]["comics"][i]["_id"],
               [],
-              ignoreExamination: true);
+              ignoreExamination: true,
+              pages: res["data"]["collections"][0]["comics"][i]["pagesCount"],);
           comics[0].add(si);
         } catch (e) {
           //出现错误跳过
@@ -855,7 +860,8 @@ class PicacgNetwork {
                   res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
               res["data"]["collections"][1]["comics"][i]["_id"],
               [],
-              ignoreExamination: true);
+              ignoreExamination: true,
+              pages: res["data"]["collections"][1]["comics"][i]["pagesCount"],);
           comics[1].add(si);
         } catch (e) {
           //出现错误跳过}
@@ -978,7 +984,8 @@ class PicacgNetwork {
                 "/static/" +
                 res["data"]["comics"]["docs"][i]["thumb"]["path"],
             res["data"]["comics"]["docs"][i]["_id"],
-            tags);
+            tags,
+            pages: res["data"]["comics"]["docs"][i]["pagesCount"],);
         comics.add(si);
       } catch (e) {
         continue;
@@ -1013,6 +1020,7 @@ class PicacgNetwork {
               res["data"]["comics"]["docs"][i]["thumb"]["path"],
           res["data"]["comics"]["docs"][i]["_id"],
           tags,
+          pages: res["data"]["comics"]["docs"][i]["pagesCount"],
         );
         comics.add(si);
       } catch (e) {

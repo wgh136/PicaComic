@@ -133,4 +133,6 @@ class EhGalleryTile extends ComicTile{
   @override
   String get title => gallery.title;
 
+  @override
+  int? get pages => gallery.pages;
 }
