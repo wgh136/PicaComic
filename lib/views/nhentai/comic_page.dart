@@ -21,6 +21,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
 
   final String _id;
 
+  @override
   String get id => (data?.id) ?? _id;
 
   @override

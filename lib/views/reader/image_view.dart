@@ -24,7 +24,7 @@ extension ScrollExtension on ScrollController{
     futurePosition ??= position.pixels;
     futurePosition = futurePosition! + value;
     futurePosition = futurePosition!.clamp(position.minScrollExtent, position.maxScrollExtent);
-    animateTo(futurePosition!, duration: const Duration(milliseconds: 200), curve: Curves.linear);
+    animateTo(futurePosition!, duration: const Duration(milliseconds: 160), curve: Curves.fastOutSlowIn);
   }
 }
 

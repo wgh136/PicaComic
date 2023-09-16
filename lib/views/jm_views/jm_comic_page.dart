@@ -23,6 +23,7 @@ import 'package:pica_comic/tools/translations.dart';
 
 class JmComicPage extends ComicPage<JmComicInfo> {
   const JmComicPage(this.id, {super.key});
+  @override
   final String id;
 
   @override

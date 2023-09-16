@@ -174,6 +174,9 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   @override
   Future<bool> loadFavorite(HtComicInfo data) => Future.value(false);
 
+  @override
+  String get id => comic.id;
+
 }
 
 class HtComicPageLogic extends GetxController {

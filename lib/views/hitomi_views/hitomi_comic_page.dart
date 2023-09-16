@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
@@ -166,6 +165,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   Future<bool> loadFavorite(HitomiComic data) async{
     return (await LocalFavoritesManager().find(data.id)).isNotEmpty;
   }
+
+  @override
+  String get id => comic.link;
 }
 
 void downloadComic(

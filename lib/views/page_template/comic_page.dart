@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/views/models/history.dart';
 import 'package:pica_comic/views/models/local_favorites.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -65,8 +66,9 @@ class ComicPageLogic<T extends Object> extends GetxController {
   double? width;
   double? height;
   bool favorite = false;
+  History? history;
 
-  void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite) async {
+  void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite, String id) async {
     var res = await loadData();
     if (res.error) {
       message = res.errorMessage;
@@ -75,6 +77,7 @@ class ComicPageLogic<T extends Object> extends GetxController {
       favorite = await loadFavorite(res.data);
     }
     loading = false;
+    history = await HistoryManager().find(id);
     update();
   }
 
@@ -172,6 +175,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Future<bool> loadFavorite(T data);
 
+  String get id;
+
   /// callback when a thumbnail is tapped
   void onThumbnailTapped(int index){}
 
@@ -209,7 +214,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             _logic.width = constraints.maxWidth;
             _logic.height = constraints.maxHeight;
             if (logic.loading) {
-              logic.get(loadData, loadFavorite);
+              logic.get(loadData, loadFavorite, id);
               return showLoading(context);
             } else if (logic.message != null) {
               return showNetworkError(logic.message, logic.refresh_, context);
@@ -503,9 +508,31 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       ),
     ));
 
+    if(logic.history != null && logic.history!.ep != 0) {
+      res2.add(Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        height: 38,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiaryContainer,
+          borderRadius: const BorderRadius.all(Radius.circular(8))
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 8,),
+            const Icon(Icons.history, size: 24,),
+            const SizedBox(width: 4,),
+            Text("上次阅读到第 @ep 章第 @page 页".tlParams({
+              "ep": logic.history!.ep.toString(),
+              "page": logic.history!.page.toString()
+            })),
+          ],
+        ),
+      ));
+    }
+
     for (var key in tags!.keys) {
       res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
         child: Wrap(
           children: [
             buildInfoCard(key, context, title: true),
@@ -1049,7 +1076,11 @@ class _RoundedImageState extends State<RoundedImage> {
   @override
   Widget build(BuildContext context) {
     if(image == null){
-      return const SizedBox();
+      return const SizedBox(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }else{
       return CustomPaint(
         painter: _RoundedImagePainter(image: image!, borderRadius: 16),

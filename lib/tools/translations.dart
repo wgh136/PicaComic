@@ -546,6 +546,7 @@ extension AppTranslation on String{
       "继续阅读": "Continue Reading",
       "从头开始": "Start from the beginning",
       "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?": "Last read at Chapter @ep, Page @page. Do you want to continue reading?",
+      "上次阅读到第 @ep 章第 @page 页": "Last read at Chapter @ep, Page @page.",
       "已经是第一页了": "Already on the first page",
       "已经是最后一页了": "Already on the last page",
       "已经是最后一章了": "Already on the last chapter",

@@ -203,6 +203,9 @@ class PicacgComicPage extends ComicPage<ComicItem> {
           ),
         ),
       );
+
+  @override
+  String get id => comic.id;
 }
 
 class ComicPageLogic extends GetxController {

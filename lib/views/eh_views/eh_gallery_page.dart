@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
@@ -271,6 +270,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
           ],
         ),
       );
+
+  @override
+  String get id => link;
 }
 
 class RatingLogic extends GetxController {
