@@ -22,7 +22,21 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   final String _id;
 
   @override
+  String get url => "https://nhentai.net/g/$_id/";
+
+  @override
   String get id => (data?.id) ?? _id;
+
+  @override
+  ActionFunc? get searchSimilar => (){
+    String? subTitle = data!.subTitle;
+    if(subTitle == ""){
+      subTitle = null;
+    }
+    var title = subTitle ?? data!.title;
+    title = title.replaceAll(RegExp(r"\[.*?\]"), "").replaceAll(RegExp(r"\(.*?\)"), "");
+    MainPage.to(() => NhentaiSearchPage("\"$title\"".trim()));
+  };
 
   @override
   Row? get actions => Row(

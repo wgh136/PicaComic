@@ -25,6 +25,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   final HitomiComicBrief comic;
 
   @override
+  String? get url => comic.link;
+
+  @override
   Row? get actions => Row(
         children: [
           Expanded(

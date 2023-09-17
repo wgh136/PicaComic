@@ -818,6 +818,10 @@ extension AppTranslation on String{
       "容纳": "contain",
       "适应宽度": "fit width",
       "适应高度": "fit height",
+      "复制标题": "copy title",
+      "复制链接": "copy link",
+      "在浏览器中打开": "open in browser",
+      "搜索相似画廊": "search similar gallery"
     }
   };
 }

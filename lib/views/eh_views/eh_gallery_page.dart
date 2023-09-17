@@ -25,6 +25,16 @@ class EhGalleryPage extends ComicPage<Gallery> {
   final String link;
 
   @override
+  String get url => link;
+  
+  @override
+  ActionFunc? get searchSimilar => (){
+    var title = data!.subTitle ?? data!.title;
+    title = title.replaceAll(RegExp(r"\[.*?\]"), "").replaceAll(RegExp(r"\(.*?\)"), "");
+    MainPage.to(() => EhSearchPage("\"$title\"".trim()));
+  };
+
+  @override
   Row get actions => Row(
         children: [
           Expanded(

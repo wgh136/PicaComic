@@ -13,6 +13,7 @@ import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../base.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
@@ -177,8 +178,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   String get id;
 
+  /// url linked to this comic
+  String? get url => null;
+
   /// callback when a thumbnail is tapped
   void onThumbnailTapped(int index){}
+
+  ActionFunc? get searchSimilar => null;
 
   void scrollListener(){
     try {
@@ -247,30 +253,33 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildTitle(ComicPageLogic<T> logic) {
-    var actions = [
-      Tooltip(
-        message: "分享".tl,
-        child: IconButton(
-          icon: const Icon(
-            Icons.share,
-          ),
-          onPressed: () {
-            Share.share(title!);
-          },
-        ),
+    final menu = Tooltip(
+      message: "更多".tl,
+      child: IconButton(
+        icon: const Icon(Icons.more_horiz),
+        onPressed: (){
+          showMenu(
+              context: context,
+              position: RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width, 0,
+                  MediaQuery.of(context).size.width, 0),
+              items: [
+                PopupMenuItem(child: Text("分享".tl),
+                  onTap: ()=>Share.share(title! + (url??"")),),
+                PopupMenuItem(child: Text("复制标题".tl),
+                  onTap: ()=>Clipboard.setData(ClipboardData(text: title!)),),
+                if(url != null)
+                  PopupMenuItem(child: Text("复制链接".tl),
+                    onTap: ()=>Clipboard.setData(ClipboardData(text: url!)),),
+                if(url != null)
+                  PopupMenuItem(child: Text("在浏览器中打开".tl),
+                    onTap: ()=>launchUrlString(url!)),
+                if(searchSimilar != null)
+                  PopupMenuItem(onTap: searchSimilar!,child: Text("搜索相似画廊".tl)),
+              ]);
+        },
       ),
-      Tooltip(
-        message: "复制".tl,
-        child: IconButton(
-          icon: const Icon(
-            Icons.copy,
-          ),
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: title!));
-          },
-        ),
-      ),
-    ];
+    );
 
     if(!UiMode.m1(context)){
       return [CustomSliverAppbar(
@@ -278,7 +287,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             text: "$title${pages == null ? "" : "(${pages}P)"}",
             style: const TextStyle(fontSize: 28),
             withAddToBlockKeywordButton: true,
-          ), actions: actions, centerTitle: false
+          ), actions: [menu], centerTitle: false
       )];
     }
 
@@ -292,7 +301,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Text("$title${pages == null ? "" : "(${pages}P)"}"),
         ),
         pinned: true,
-        actions: actions,
+        actions: [menu],
       ),
       SliverToBoxAdapter(
         child: Padding(
@@ -372,7 +381,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           width: width-32,
           height: height - 32,
           child: RoundedImage(image: CachedNetworkImageProvider(
-            cover
+            cover,
+            headers: headers
           ),),
         ),
       ),
@@ -1067,6 +1077,8 @@ class RoundedImage extends StatefulWidget {
 class _RoundedImageState extends State<RoundedImage> {
   ui.Image? image;
 
+  bool failed = false;
+
   @override
   void initState() {
     super.initState();
@@ -1075,6 +1087,12 @@ class _RoundedImageState extends State<RoundedImage> {
 
   @override
   Widget build(BuildContext context) {
+    if(failed){
+      return const Center(
+        child: Icon(Icons.error),
+      );
+    }
+
     if(image == null){
       return const SizedBox(
         child: Center(
@@ -1101,6 +1119,13 @@ class _RoundedImageState extends State<RoundedImage> {
           image = imageInfo.image;
         });
       }
+    }, onError: (error, stack){
+      if(kDebugMode){
+        print("$error\n$stack");
+      }
+      setState(() {
+        failed = true;
+      });
     });
 
     imageStream.addListener(listener);
