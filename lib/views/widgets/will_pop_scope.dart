@@ -17,12 +17,7 @@ class CustomWillPopScope extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget res = GetPlatform.isIOS ? WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: child,
-    ) : WillPopScope(
+    Widget res = GetPlatform.isIOS ? child : WillPopScope(
         onWillPop: GetPlatform.isDesktop ? null : () async {
           action();
           return false;
@@ -31,7 +26,7 @@ class CustomWillPopScope extends StatelessWidget {
     if(popGesture){
       res = GestureDetector(
           onPanStart: (details){
-            if(details.globalPosition.dx < 44){
+            if(details.globalPosition.dx < 64){
               panStartAtEdge = true;
             }
           },
