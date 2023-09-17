@@ -813,7 +813,11 @@ extension AppTranslation on String{
       "热门 | 一周": "Popular | Week",
       "热门 | 本月": "Popular | Month",
       "热门 | 所有时间": "Popular | All Time",
-      "点按翻页识别范围": "Range of Tapping to Flip Page"
+      "点按翻页识别范围": "Range of Tapping to Flip Page",
+      "图片缩放": "Image zoom",
+      "容纳": "contain",
+      "适应宽度": "fit width",
+      "适应高度": "fit height",
     }
   };
 }

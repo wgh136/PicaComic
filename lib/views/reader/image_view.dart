@@ -149,7 +149,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
 
   Widget buildType123(){
     return PhotoViewGallery.builder(
-      key: Key(logic.readingMethod.index.toString()),
+      key: Key(logic.readingMethod.index.toString() + appdata.settings[41]),
       reverse: appdata.settings[9] == "2",
       scrollDirection:
       appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
@@ -167,10 +167,18 @@ Widget buildComicView(ComicReadingPageLogic logic,
 
         precacheComicImage(logic, type, context, index, target);
 
+        BoxFit getFit(){
+          switch(appdata.settings[41]){
+            case "1": return BoxFit.fitWidth;
+            case "2": return BoxFit.fitHeight;
+            default: return BoxFit.contain;
+          }
+        }
+
         return PhotoViewGalleryPageOptions(
           filterQuality: FilterQuality.medium,
-          minScale: PhotoViewComputedScale.contained * 0.9,
           imageProvider: imageProvider,
+          fit: getFit(),
           errorBuilder: (w, o, s) {
             return Center(
               child: SizedBox(
@@ -196,7 +204,6 @@ Widget buildComicView(ComicReadingPageLogic logic,
               ),
             );
           },
-          initialScale: PhotoViewComputedScale.contained,
           heroAttributes: PhotoViewHeroAttributes(
               tag: "$index/${logic.urls.length}"),
         );

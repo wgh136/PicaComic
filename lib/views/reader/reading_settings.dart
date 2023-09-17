@@ -183,6 +183,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
           ListTile(
+            leading: Icon(Icons.fit_screen_outlined,
+                color: Theme.of(context).colorScheme.secondary),
+            title: Text("图片缩放".tl),
+            onTap: () {},
+            trailing: Select(
+              initialValue: int.parse(appdata.settings[41]),
+              values: ["容纳".tl, "适应宽度".tl, "适应高度".tl],
+              whenChange: (int i) {
+                appdata.settings[41] = i.toString();
+                appdata.updateSettings();
+                logic.update();
+              },
+            ),
+          ),
+          ListTile(
             leading: Icon(Icons.timer_sharp,
                 color: Theme.of(context).colorScheme.secondary),
             subtitle: SizedBox(
