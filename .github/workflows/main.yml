@@ -14,9 +14,7 @@ jobs:
     - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
     - run: flutter pub get
     - run: flutter build ios --debug --no-codesign
-    - run: cd ios
-    - run:
-        xcodebuild -project 'Runner.xcodeproj' -scheme Runner -config Flutter/Debug.xcconfig -derivedDataPath "../build/ios_integ" -sdk iphonesimulator
+    - run: bash /Users/runner/work/PicaComic/PicaComic/.github/xcode_build.sh
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
