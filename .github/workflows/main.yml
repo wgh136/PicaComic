@@ -14,8 +14,8 @@ jobs:
     - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
     - run: flutter pub get
     - run: flutter build ios --debug --no-codesign
+    - run: cd ios
     - run:
-        cd ios
         xcodebuild -workspace Runner.xcworkspace \
         -scheme Runner \
         -config Flutter/Release.xcconfig \
@@ -25,4 +25,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
-        path: /Users/runner/work/PicaComic/PicaComic/build/ios
+        path: /Users/runner/work/PicaComic/PicaComic/build/ios_integ
