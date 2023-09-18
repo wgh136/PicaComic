@@ -13,8 +13,7 @@ jobs:
         architecture: x64
     - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
     - run: flutter pub get
-    - run: flutter build ios --debug --no-codesign
-    - run: bash /Users/runner/work/PicaComic/PicaComic/.github/xcode_build.sh
+    - run: flutter build ios --simulator --no-codesign
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
