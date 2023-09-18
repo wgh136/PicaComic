@@ -17,4 +17,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
-        path: /Users/runner/work/PicaComic/PicaComic/build/ios_integ
+        path: /Users/runner/work/PicaComic/PicaComic/build
