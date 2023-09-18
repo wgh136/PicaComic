@@ -16,7 +16,7 @@ jobs:
     - run: flutter build ios --debug --no-codesign
     - run: cd ios
     - run:
-        xcodebuild -project 'Runner.xcodeproj' -scheme Runner -config Flutter/Release.xcconfig -derivedDataPath "../build/ios_integ" -sdk iphonesimulator
+        xcodebuild -project 'Runner.xcodeproj' -scheme Runner -config Flutter/Debug.xcconfig -derivedDataPath "../build/ios_integ" -sdk iphonesimulator
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
