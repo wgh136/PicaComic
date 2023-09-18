@@ -593,7 +593,7 @@ class EhNetwork{
       appdata.searchHistory.add(keyword);
       appdata.writeHistory();
     }
-    var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword");
+    var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword&inline_set=dm_l");
     Future.delayed(const Duration(microseconds: 500),(){
       try{
         Get.find<PreSearchController>().update();
