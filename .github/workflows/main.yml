@@ -3,7 +3,7 @@ run-name: Build IOS
 on:
   workflow_dispatch: {}
 jobs:
-  Build_IOS:
+  Build_IOS_TEST:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
@@ -16,7 +16,7 @@ jobs:
     - run: flutter build ios --debug --no-codesign
     - run: cd ios
     - run:
-        xcodebuild -workspace Runner.xcworkspace -scheme Runner -config Flutter/Release.xcconfig -derivedDataPath "../build/ios_integ" -sdk iphonesimulator -configuration Debug
+        xcodebuild -workspace Runner.xcworkspace -scheme Runner -config Flutter/Release.xcconfig -derivedDataPath "../build/ios_integ" -sdk iphonesimulator
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
