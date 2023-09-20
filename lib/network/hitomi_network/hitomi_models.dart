@@ -76,9 +76,17 @@ class HitomiComic {
   List<Tag> tags;
   String time;
   List<HitomiFile> files;
+  List<String> group;
 
   HitomiComic(this.id, this.name, this.related, this.type, this.artists, this.lang, this.tags,
-      this.time, this.files);
+      this.time, this.files, this.group){
+    if(group.isEmpty){
+      group.add("N/A");
+    }
+    if(artists == null || artists!.isEmpty){
+      artists = ["N/A"];
+    }
+  }
 
   Map<String, dynamic> toMap() => {
         "id": id,
@@ -99,6 +107,7 @@ class HitomiComic {
         time = map["time"],
         tags = [],
         related = [],
+        group = [],
         files =
             List.generate(map["files"].length, (index) => HitomiFile.fromMap(map["files"][index]));
 
