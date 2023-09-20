@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/def.dart';
 import '../res.dart';
 
@@ -45,20 +47,40 @@ class HitomiSearch{
     for(var term in positiveTerms){
       var res = await getGalleryIdsForQuery(term);
       var newRes = <int>[];
-      for(var c in res){
-        if(results.contains(c)){
-          newRes.add(c);
+
+      int p1 = 0;
+      int p2 = 0;
+      while(p1 < res.length && p2 < results.length){
+        if(res[p1] > results[p2]){
+          p1++;
+        } else if(res[p1] < results[p2]){
+          p2++;
+        } else {
+          newRes.add(res[p1]);
+          p1++;
+          p2++;
         }
       }
+
       results = newRes;
     }
     //negative results
     for(var term in negativeTerms){
       var res = await getGalleryIdsForQuery(term);
       var newRes = <int>[];
-      for(var c in res){
-        if(!results.contains(c)){
-          newRes.add(c);
+
+      int p1 = 0;
+      int p2 = 0;
+      while(p1 < res.length && p2 < results.length){
+        if(res[p1] > results[p2]){
+          p1++;
+          newRes.add(res[p1]);
+        } else if(res[p1] < results[p2]){
+          p2++;
+          newRes.add(res[p2]);
+        } else {
+          p1++;
+          p2++;
         }
       }
       results = newRes;
@@ -150,6 +172,12 @@ class HitomiSearch{
 
   Future<Uint8List?> getUrlAtRange(String url, List<int> range) async{
     assert(range.length==2);
+    var cachePath = await getApplicationCacheDirectory();
+    var key = md5.convert(const Utf8Encoder().convert(url + range.toString()));
+    var cacheFile = File("${cachePath.path}${Platform.pathSeparator}hitomi${Platform.pathSeparator}$key");
+    if(cacheFile.existsSync()){
+      return cacheFile.readAsBytesSync();
+    }
     var res = await dio.get<List<int>>(url, options: Options(
       responseType: ResponseType.bytes,
       headers: {
@@ -159,6 +187,8 @@ class HitomiSearch{
         'Origin': "https://hitomi.la"
       }
     ));
+    cacheFile.createSync(recursive: true);
+    cacheFile.writeAsBytesSync(res.data!);
     return Uint8List.fromList(res.data!);
   }
 
@@ -197,6 +227,9 @@ class HitomiSearch{
     List<int> subnodeAddresses = [];
     for (int i = 0; i < numberOfSubnodeAddresses; i++) {
       int subnodeAddress = view.getUint64(pos, Endian.big);
+      if(i != 0 && subnodeAddress < subnodeAddresses.last){
+        continue;
+      }
       pos += 8;
       subnodeAddresses.add(subnodeAddress);
     }
