@@ -259,6 +259,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               s);
         },
         builder: (context, widget) {
+          var channel = const MethodChannel("pica_comic/title_bar");
+          channel.invokeMethod("color", Theme.of(context).colorScheme.surface.value);
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
                 "${details.exception}\n${details.stack}");
