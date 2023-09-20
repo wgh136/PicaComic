@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -259,8 +260,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               s);
         },
         builder: (context, widget) {
-          var channel = const MethodChannel("pica_comic/title_bar");
-          channel.invokeMethod("color", Theme.of(context).colorScheme.surface.value);
+          if(Platform.isWindows){
+            var channel = const MethodChannel("pica_comic/title_bar");
+            channel.invokeMethod("color", Theme.of(context).colorScheme.surface.value);
+          }
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
                 "${details.exception}\n${details.stack}");
