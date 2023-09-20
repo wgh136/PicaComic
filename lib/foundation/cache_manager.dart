@@ -445,7 +445,7 @@ class MyCacheManager{
         fileName = fileName.substring(0, 10);
       }
       int l;
-      int r = url.length-1;
+      int r = url.length;
       for (l = url.length - 1; l >= 0; l--) {
         if (url[l] == '.') {
           break;
