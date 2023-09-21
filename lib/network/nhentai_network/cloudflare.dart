@@ -38,7 +38,6 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
       onTitleChange: (title){
         if (title.contains("nhentai")) {
           Get.back();
-          whenFinish();
         }
       },
       onDestroy: (controller) async{
@@ -54,6 +53,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
           cookiesList.add(cookie);
         });
         await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net/"), cookiesList);
+        whenFinish();
       },
     ));
   } else {
