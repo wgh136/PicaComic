@@ -6,6 +6,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/hitomi_network/image.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/main_page.dart';
@@ -115,10 +116,12 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "类型".tl: data!.type.toList(),
-        "时间".tl: data!.time.toList(),
-        "语言".tl: data!.lang.toList(),
-        "标签".tl:
+        "Artists".categoryTextDynamic: data!.artists??["N/A"],
+        "Groups".categoryTextDynamic: data!.group,
+        "Categories".categoryTextDynamic: data!.type.toList(),
+        "Time".categoryTextDynamic: data!.time.toList(),
+        "Languages".categoryTextDynamic: data!.lang.toList(),
+        "Tags".categoryTextDynamic:
             List.generate(data!.tags.length, (index) => data!.tags[index].name)
       };
 

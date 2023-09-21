@@ -31,7 +31,7 @@ class SearchPageComicsList extends ComicsPage<int>{
   }
 
   @override
-  String? get tag => "Picacg search $keyword";
+  String? get tag => "Hitomi search $keyword";
 
   @override
   String get title => "";

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -9,59 +10,22 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
-import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
-import 'package:pica_comic/views/auth_page.dart';
-import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
-import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
+import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:workmanager/workmanager.dart';
 import 'network/picacg_network/methods.dart';
 
 bool notFirstUse = false;
-
-void handleAppLinks(Uri uri){
-  switch(uri.host){
-    case "e-hentai.org":
-    case "exhentai.org":
-      if(uri.pathSegments.isEmpty){
-        MainPage.toExplorePageAt(2);
-      }else if(uri.path.contains("popular")){
-        MainPage.toExplorePageAt(3);
-      }else if(uri.path.contains("/g/")){
-        MainPage.to(() => EhGalleryPage.fromLink("https://${uri.host}${uri.path}"));
-      }else{
-        showMessage(Get.context, "Unknown Link");
-      }
-    case "nhentai.net":
-    case "nhentai.xxx":
-      if(uri.pathSegments.isEmpty){
-        MainPage.toExplorePageAt(7);
-      }else if(uri.path.contains("/g/")){
-        MainPage.to(() => NhentaiComicPage(uri.path.nums));
-      }else{
-        showMessage(Get.context, "Unknown Link");
-      }
-    case "hitomi.la":
-      if(uri.pathSegments.isEmpty){
-        MainPage.toExplorePageAt(6);
-      }else if(["doujinshi", "cg", "manga"].contains(uri.pathSegments[0])){
-        MainPage.to(() => HitomiComicPage.fromLink("https://${uri.host}${uri.path}"));
-      }else{
-        showMessage(Get.context, "Unknown Link");
-      }
-  }
-}
 
 void main() {
   runZonedGuarded(() {
@@ -259,6 +223,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               s);
         },
         builder: (context, widget) {
+          if(Platform.isWindows){
+            var channel = const MethodChannel("pica_comic/title_bar");
+            channel.invokeMethod("color", Theme.of(context).colorScheme.surface.value);
+          }
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
                 "${details.exception}\n${details.stack}");

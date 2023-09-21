@@ -102,6 +102,20 @@ bool FlutterWindow::OnCreate() {
     });
     
     channel2.SetStreamHandler(std::move(eventHandler));
+
+    const flutter::MethodChannel<> channel3(
+        flutter_controller_->engine()->messenger(), "pica_comic/title_bar",
+        &flutter::StandardMethodCodec::GetInstance()
+    );
+    channel3.SetMethodCallHandler(
+        [this](const flutter::MethodCall<>& call, const std::unique_ptr<flutter::MethodResult<>>& result) {
+            auto value = static_cast<COLORREF>(std::get<int64_t>(*call.arguments()));
+            COLORREF color = RGB(GetRValue(value), GetGValue(value), GetBValue(value));
+            DwmSetWindowAttribute(GetHandle(), DWMWA_CAPTION_COLOR,
+            &color, sizeof(color));
+            RedrawWindow(GetHandle(), NULL, 0, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+            result->Success();
+        });
     
     SetChildContent(flutter_controller_->view()->GetNativeWindow());
 

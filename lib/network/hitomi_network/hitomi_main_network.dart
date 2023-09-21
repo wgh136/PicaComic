@@ -184,7 +184,8 @@ class HiNetwork{
       json["language_localname"],
       tags,
       json["date"],
-      files
+      files,
+      List<String>.from((json["groups"]??[]).map((e) => e["group"]).toList()),
     ));
   }
 }

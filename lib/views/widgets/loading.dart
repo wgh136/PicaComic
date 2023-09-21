@@ -1,13 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:get/get.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
+  final loading = Lottie.asset(
+    "images/loading.json",
+    width: 180,
+    height: 180,
+    delegates: LottieDelegates(
+      values: [
+        ValueDelegate.strokeColor(
+          const ['**'],
+          value: Theme.of(context).colorScheme.primary,
+        ),
+        ValueDelegate.color(
+          const ['**'],
+          value: Theme.of(context).colorScheme.primary,
+        )
+      ],
+    )
+  );
+
   if(withScaffold){
     return Scaffold(
       appBar: AppBar(),
-      body: const Center(
-        child: CircularProgressIndicator(),
+      body: Center(
+        child: loading,
       ),
     );
   }else{
@@ -17,7 +36,7 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const LinearProgressIndicator(),
+            loading,
             const SizedBox(height: 16,),
             Center(
               child: Text("加载中".tl),

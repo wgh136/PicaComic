@@ -257,6 +257,9 @@ class NhentaiNetwork {
   Future<Res<NhentaiComic>> getComicInfo(String id) async {
     if(id == ""){
       var res = await get("https://nhentai.net/random/");
+      if(res.error){
+        return Res.fromErrorRes(res);
+      }
       id = res.data.nums;
     }
     Res<String> res = await get("https://nhentai.net/g/$id/");

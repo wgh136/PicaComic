@@ -12,6 +12,8 @@
 // 此翻译的目标是实现 **常见** tags的翻译, 冷门词语, 画师名, 团队名和角色名不在考虑之中
 // 为了确保UI布局良好, 翻译会尽可能简短, 可能导致表意不准确
 
+import 'dart:ui';
+
 extension TagsTranslation on String{
   /// 静态方法, 需要传入参数, 因为需要递归
   ///
@@ -30,6 +32,16 @@ extension TagsTranslation on String{
   }
   /// translate tag's text to chinese
   String get translateTagsToCN => _translateTags(this);
+
+  String _categoryTextDynamic(String c){
+    if(PlatformDispatcher.instance.locale.languageCode == "zh"){
+      return translateTagsCategoryToCN;
+    }else{
+      return this;
+    }
+  }
+
+  String get categoryTextDynamic => _categoryTextDynamic(this);
 
   String get translateTagsCategoryToCN => tagsCategoryTranslations[this]??this;
 
@@ -52,6 +64,7 @@ extension TagsTranslation on String{
     "Tags": "标签",
     "Parodies": "原作",
     "Categories": "分类",
+    "Time": "时间"
   };
 
   /// English to chinese translations
