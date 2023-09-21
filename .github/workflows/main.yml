@@ -3,7 +3,7 @@ run-name: Build IOS
 on:
   workflow_dispatch: {}
 jobs:
-  Build_IOS_TEST:
+  Build_IOS_SIMULATOR:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
@@ -17,4 +17,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: build_files
-        path: /Users/runner/work/PicaComic/PicaComic/build
+        path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphonesimulator
