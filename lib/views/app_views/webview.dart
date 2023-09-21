@@ -24,7 +24,9 @@ extension WebviewExtension on WebViewController{
   Future<String?> getUA() async{
     var res = await runJavaScriptReturningResult("navigator.userAgent");
     if(res is String){
-      res = res.substring(1, res.length-1);
+      if(res[0] == "'" || res[0] == "\"") {
+        res = res.substring(1, res.length-1);
+      }
     }
     return res is String ? res : null;
   }
