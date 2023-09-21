@@ -4,6 +4,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 extension WebviewExtension on WebViewController{
   Future<Map<String, String>?> getCookies(String url) async{
+    if(url.contains("https://")){
+      url.replaceAll("https://", "");
+    }
+    if(url[url.length-1] == '/'){
+      url = url.substring(0, url.length-1);
+    }
     final cookieManager = WebviewCookieManager();
     final cookies = await cookieManager.getCookies(url);
     Map<String, String> res = {};

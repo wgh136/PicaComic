@@ -41,7 +41,6 @@ void login(void Function() whenFinish) async{
       onTitleChange: (title){
         if (!title.contains("Login")) {
           Get.back();
-          whenFinish();
         }
       },
       onDestroy: (controller) async{
@@ -60,6 +59,7 @@ void login(void Function() whenFinish) async{
           cookiesList.add(cookie);
         });
         await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net/"), cookiesList);
+        whenFinish();
       },
     ));
   } else {
