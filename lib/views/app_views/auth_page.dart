@@ -3,7 +3,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
-import '../base.dart';
+import '../../base.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
