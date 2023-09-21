@@ -13,7 +13,6 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
-import '../../tools/debug.dart';
 import '../log_dio.dart';
 import 'models.dart';
 import 'package:html/parser.dart';
@@ -28,7 +27,6 @@ class NhentaiNetwork {
   String get ua => appdata.nhentaiData[0];
 
   set ua(String value) {
-    log("iOS Set UA\n$value");
     appdata.nhentaiData[0] = value;
     appdata.updateNhentai();
   }

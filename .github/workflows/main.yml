@@ -3,7 +3,7 @@ run-name: Build IOS
 on:
   workflow_dispatch: {}
 jobs:
-  Build_IOS_SIMULATOR:
+  Build_IOS:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
@@ -13,8 +13,9 @@ jobs:
         architecture: x64
     - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
     - run: flutter pub get
-    - run: flutter build ios --simulator --no-codesign
+    - run: flutter build ios --release --no-codesign
+    - run: bash /Users/runner/work/PicaComic/PicaComic/.github/generate_ipa.sh
     - uses: actions/upload-artifact@v3
       with:
-        name: build_files
-        path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphonesimulator
+        name: app-ios.ipa
+        path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/app-ios.ipa

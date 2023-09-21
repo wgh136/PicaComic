@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../../tools/debug.dart';
 
 extension WebviewExtension on WebViewController{
   Future<Map<String, String>?> getCookies(String url) async{
@@ -13,7 +12,6 @@ extension WebviewExtension on WebViewController{
     }
     final cookieManager = WebviewCookieManager();
     final cookies = await cookieManager.getCookies(url);
-    log("$url\n$cookies");
     Map<String, String> res = {};
     for(var cookie in cookies){
       res[cookie.name] = cookie.value;
