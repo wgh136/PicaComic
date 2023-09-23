@@ -31,13 +31,15 @@ extension WebviewExtension on WebViewController{
 }
 
 class AppWebview extends StatefulWidget {
-  const AppWebview({required this.initialUrl, this.onDestroy, this.onTitleChange, super.key});
+  const AppWebview({required this.initialUrl, this.onDestroy, this.onTitleChange, this.onNavigation, super.key});
 
   final String initialUrl;
 
   final void Function(WebViewController)? onDestroy;
 
   final void Function(String title)? onTitleChange;
+
+  final bool Function(String url)? onNavigation;
 
   @override
   State<AppWebview> createState() => _AppWebviewState();
@@ -80,6 +82,14 @@ class _AppWebviewState extends State<AppWebview> {
               setState(() {
                 loading = false;
               });
+            }
+          },
+          onNavigationRequest: (request){
+            var res = widget.onNavigation?.call(request.url) ?? false;
+            if(res) {
+              return NavigationDecision.prevent;
+            } else {
+              return NavigationDecision.navigate;
             }
           }
         ),

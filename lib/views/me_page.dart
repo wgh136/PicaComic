@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
+import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/subscription.dart';
@@ -102,9 +105,60 @@ class MePage extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.image_search_outlined),
-          title: Text("图片搜索".tl),
-          onTap: () {
-            // TODO
+          title: Text("图片搜索[搜图bot酱]".tl),
+          onTap: () async{
+            Get.back();
+            if(Platform.isAndroid || Platform.isIOS) {
+              Get.to(() => AppWebview(
+                initialUrl: "https://soutubot.moe/",
+                onNavigation: (uri){
+                  return handleAppLinks(Uri.parse(uri), showMessageWhenError: false);
+                },
+              ),);
+            }else{
+              var webview = FlutterWindowsWebview();
+              webview.launchWebview(
+                "https://soutubot.moe/",
+                WebviewOptions(
+                  onNavigation: (uri){
+                    if(handleAppLinks(Uri.parse(uri), showMessageWhenError: false)){
+                      Future.microtask(() => webview.close());
+                      return true;
+                    }
+                    return false;
+                  }
+                )
+              );
+            }
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.image_search),
+          title: Text("图片搜索[SauceNAO]".tl),
+          onTap: () async{
+            Get.back();
+            if(Platform.isAndroid || Platform.isIOS) {
+              Get.to(() => AppWebview(
+                initialUrl: "https://saucenao.com/",
+                onNavigation: (uri){
+                  return handleAppLinks(Uri.parse(uri), showMessageWhenError: false);
+                },
+              ),);
+            }else{
+              var webview = FlutterWindowsWebview();
+              webview.launchWebview(
+                  "https://saucenao.com/",
+                  WebviewOptions(
+                      onNavigation: (uri){
+                        if(handleAppLinks(Uri.parse(uri), showMessageWhenError: false)){
+                          Future.microtask(() => webview.close());
+                          return true;
+                        }
+                        return false;
+                      }
+                  )
+              );
+            }
           },
         ),
         ListTile(

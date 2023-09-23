@@ -6,7 +6,7 @@ import '../views/nhentai/comic_page.dart';
 import '../views/widgets/show_message.dart';
 import 'package:get/get.dart';
 
-void handleAppLinks(Uri uri){
+bool handleAppLinks(Uri uri, {bool showMessageWhenError = true}){
   switch(uri.host){
     case "e-hentai.org":
     case "exhentai.org":
@@ -18,6 +18,7 @@ void handleAppLinks(Uri uri){
         MainPage.to(() => EhGalleryPage.fromLink("https://${uri.host}${uri.path}"));
       }else{
         showMessage(Get.context, "Unknown Link");
+        return false;
       }
     case "nhentai.net":
     case "nhentai.xxx":
@@ -27,6 +28,7 @@ void handleAppLinks(Uri uri){
         MainPage.to(() => NhentaiComicPage(uri.path.nums));
       }else{
         showMessage(Get.context, "Unknown Link");
+        return false;
       }
     case "hitomi.la":
       if(uri.pathSegments.isEmpty){
@@ -35,6 +37,10 @@ void handleAppLinks(Uri uri){
         MainPage.to(() => HitomiComicPage.fromLink("https://${uri.host}${uri.path}"));
       }else{
         showMessage(Get.context, "Unknown Link");
+        return false;
       }
+    default:
+      return false;
   }
+  return true;
 }
