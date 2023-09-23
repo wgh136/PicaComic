@@ -27,6 +27,10 @@ abstract class DownloadedItem{
   double? get comicSize;
   ///下载的时间, 仅在下载页面时需要, 用于排序, 读取漫画信息时顺便读取即可
   DateTime? time;
+
+  Map<String, dynamic> toJson();
+
+  set comicSize(double? value);
 }
 
 enum DownloadType{picacg, ehentai, jm, hitomi, htmanga, nhentai}

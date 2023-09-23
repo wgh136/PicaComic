@@ -17,6 +17,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/nhentai_network/download.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
+import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'nhentai_network/models.dart';
@@ -564,6 +565,29 @@ class DownloadManager{
       }
     }
     await _saveInfo();
+  }
+
+  /// return error message when error, or null if success.
+  Future<String?> deleteEpisode(DownloadedItem comic, int ep) async{
+    try {
+      if (comic.downloadedEps.length == 1) {
+        return "Delete Error: only one downloaded episode";
+      }
+      if(Directory("$path$pathSep${comic.id}$pathSep${ep+1}").existsSync()) {
+        Directory("$path$pathSep${comic.id}$pathSep${ep+1}").deleteSync(recursive: true);
+      }
+      var size = Directory("$path$pathSep${comic.id}").getMBSizeSync();
+      comic.downloadedEps.remove(ep);
+      comic.comicSize = size;
+      var json = const JsonEncoder().convert(comic.toJson());
+      var file = File("$path$pathSep${comic.id}${pathSep}info.json");
+      file.writeAsStringSync(json);
+      return null;
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "IO", "$e/n$s");
+      return e.toString();
+    }
   }
 
   ///获取漫画章节的长度, 适用于picacg和禁漫

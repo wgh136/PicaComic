@@ -15,11 +15,13 @@ class DownloadedJmComic extends DownloadedItem {
   double? size;
   List<int> downloadedChapters;
   DownloadedJmComic(this.comic, this.size, this.downloadedChapters);
+
   Map<String, dynamic> toMap() => {
         "comic": comic.toJson(),
         "size": size,
         "downloadedChapters": downloadedChapters
       };
+
   DownloadedJmComic.fromMap(Map<String, dynamic> map)
       : comic = JmComicInfo.fromMap(map["comic"]),
         size = map["size"],
@@ -59,6 +61,12 @@ class DownloadedJmComic extends DownloadedItem {
 
   @override
   double? get comicSize => size;
+
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 class JmDownloadingItem extends DownloadingItem {

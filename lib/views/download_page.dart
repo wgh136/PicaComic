@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
@@ -607,6 +608,17 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
   List<int> downloadedEps = [];
   late final comic = widget.item;
 
+  deleteEpisode(int i){
+    showConfirmDialog(context, "确认删除", "要删除这个章节吗", () async{
+      var message = await DownloadManager().deleteEpisode(comic, i);
+      if(message == null) {
+        setState(() {});
+      }else{
+        showMessage(Get.context, message);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     getInfo();
@@ -633,7 +645,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                   padding: const EdgeInsets.all(4),
                   child: InkWell(
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    child: AnimatedContainer(
+                    child: Container(
                       decoration: BoxDecoration(
                         borderRadius:
                             const BorderRadius.all(Radius.circular(16)),
@@ -641,7 +653,6 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             ? Theme.of(context).colorScheme.primaryContainer
                             : Theme.of(context).colorScheme.surfaceVariant,
                       ),
-                      duration: const Duration(milliseconds: 200),
                       child: Row(
                         children: [
                           const SizedBox(
@@ -664,6 +675,12 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                       ),
                     ),
                     onTap: () => readSpecifiedEps(i),
+                    onLongPress: (){
+                      deleteEpisode(i);
+                    },
+                    onSecondaryTapDown: (details){
+                      deleteEpisode(i);
+                    },
                   ),
                 );
               },

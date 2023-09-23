@@ -16,12 +16,15 @@ class DownloadedComic extends DownloadedItem{
   List<int> downloadedChapters;
   double? size;
   DownloadedComic(this.comicItem,this.chapters,this.size,this.downloadedChapters);
+
+  @override
   Map<String,dynamic> toJson()=>{
     "comicItem": comicItem.toJson(),
     "chapters": chapters,
     "size": size,
     "downloadedChapters": downloadedChapters
   };
+
   DownloadedComic.fromJson(Map<String,dynamic> json):
         comicItem = ComicItem.fromJson(json["comicItem"]),
         chapters = List<String>.from(json["chapters"]),
@@ -57,6 +60,9 @@ class DownloadedComic extends DownloadedItem{
 
   @override
   double? get comicSize => size;
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 ///picacg的下载进程模型

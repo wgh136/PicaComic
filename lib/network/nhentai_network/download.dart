@@ -52,6 +52,9 @@ class NhentaiDownloadedComic extends DownloadedItem{
       title = json["title"],
       size = json["size"],
       cover = json["cover"];
+
+  @override
+  set comicSize(double? value){}
 }
 
 class NhentaiDownloadingItem extends DownloadingItem{

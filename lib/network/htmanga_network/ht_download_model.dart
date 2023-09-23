@@ -44,6 +44,9 @@ class DownloadedHtComic extends DownloadedItem{
   DownloadedHtComic.fromJson(Map<String, dynamic> json):
       comic = HtComicInfo.fromJson(json["comic"]),
       size = json["size"];
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 class DownloadingHtComic extends DownloadingItem{

@@ -47,6 +47,12 @@ class DownloadedHitomiComic extends DownloadedItem {
   DownloadType get type => DownloadType.hitomi;
 
   HitomiComicBrief toBrief() => comic.toBrief(link, cover);
+
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 class HitomiDownloadingItem extends DownloadingItem {

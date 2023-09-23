@@ -14,6 +14,8 @@ class DownloadedGallery extends DownloadedItem{
   Gallery gallery;
   double? size;
   DownloadedGallery(this.gallery,this.size);
+
+  @override
   Map<String, dynamic> toJson()=>{
     "gallery": gallery.toJson(),
     "size": size
@@ -42,6 +44,9 @@ class DownloadedGallery extends DownloadedItem{
 
   @override
   double? get comicSize => size;
+
+  @override
+  set comicSize(double? value) {}
 }
 
 ///e-hentai的下载进程模型
