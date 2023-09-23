@@ -255,6 +255,17 @@ class DownloadManager{
     return DownloadedComic.fromJson(jsonDecode(json));
   }
 
+  /// move comic to first
+  void moveToFirst(DownloadingItem item){
+    if(downloading.first == item){
+      return;
+    }
+    pause();
+    downloading.remove(item);
+    downloading.addFirst(item);
+    start();
+  }
+
   ///添加哔咔漫画下载
   void addPicDownload(ComicItem comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${comic.id}");
