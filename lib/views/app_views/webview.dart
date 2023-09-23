@@ -1,6 +1,14 @@
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/tools/translations.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:image/image.dart' as image;
 
 extension WebviewExtension on WebViewController{
   Future<Map<String, String>?> getCookies(String url) async{
@@ -71,8 +79,31 @@ class _AppWebviewState extends State<AppWebview> {
     updateTitle();
   }
 
+  Future<List<String>> _androidFilePicker(FileSelectorParams params) async {
+    final picker = ImagePicker();
+    final photo = await picker.pickImage(source: ImageSource.gallery);
+
+    if (photo == null) {
+      return [];
+    }
+
+    final imageData = await photo.readAsBytes();
+    final decodedImage = image.decodeImage(imageData)!;
+    final scaledImage = image.copyResize(decodedImage, width: 500);
+    final jpg = image.encodeJpg(scaledImage, quality: 90);
+
+    final filePath = (await getTemporaryDirectory()).uri.resolve(
+      './image_${DateTime.now().microsecondsSinceEpoch}.jpg',
+    );
+    final file = await File.fromUri(filePath).create(recursive: true);
+    await file.writeAsBytes(jpg, flush: true);
+
+    return [file.uri.toString()];
+  }
+
   @override
-  void initState() {
+  void initState() async{
+    super.initState();
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -94,7 +125,10 @@ class _AppWebviewState extends State<AppWebview> {
           }
         ),
       )..loadRequest(Uri.parse(widget.initialUrl));
-    super.initState();
+    if (Platform.isAndroid) {
+      final androidController = controller.platform as AndroidWebViewController;
+      await androidController.setOnShowFileSelector(_androidFilePicker);
+    }
     updateTitle();
   }
 
@@ -108,7 +142,38 @@ class _AppWebviewState extends State<AppWebview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,),),
+      appBar: AppBar(
+        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,),
+        actions: [
+          Tooltip(
+            message: "More",
+            child: IconButton(
+              icon: const Icon(Icons.more_horiz),
+              onPressed: (){
+                showMenu(context: context, position: RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width,
+                  0,
+                  MediaQuery.of(context).size.width,
+                  0
+                ), items: [
+                  PopupMenuItem(
+                    child: Text("在浏览器中打开".tl),
+                    onTap: () async => launchUrlString((await controller.currentUrl())!),
+                  ),
+                  PopupMenuItem(
+                    child: Text("复制链接".tl),
+                    onTap: () async => Clipboard.setData(ClipboardData(text: (await controller.currentUrl())!)),
+                  ),
+                  PopupMenuItem(
+                    child: Text("重新加载".tl),
+                    onTap: () => controller.reload(),
+                  ),
+                ]);
+              },
+            ),
+          )
+        ],
+      ),
       body: loading ? const Center(child: CircularProgressIndicator(),) :
         WebViewWidget(controller: controller,)
     );

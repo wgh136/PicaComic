@@ -109,7 +109,7 @@ class MePage extends StatelessWidget {
           onTap: () async{
             Get.back();
             if(Platform.isAndroid || Platform.isIOS) {
-              Get.to(() => AppWebview(
+              MainPage.to(() => AppWebview(
                 initialUrl: "https://soutubot.moe/",
                 onNavigation: (uri){
                   return handleAppLinks(Uri.parse(uri), showMessageWhenError: false);
@@ -138,7 +138,7 @@ class MePage extends StatelessWidget {
           onTap: () async{
             Get.back();
             if(Platform.isAndroid || Platform.isIOS) {
-              Get.to(() => AppWebview(
+              MainPage.to(() => AppWebview(
                 initialUrl: "https://saucenao.com/",
                 onNavigation: (uri){
                   return handleAppLinks(Uri.parse(uri), showMessageWhenError: false);

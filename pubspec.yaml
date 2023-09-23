@@ -81,6 +81,7 @@ dependencies:
     git:
       url: https://github.com/wgh136/webview_cookie_manager
       ref: master
+  webview_flutter_android: any
 
 dev_dependencies:
   flutter_test:
