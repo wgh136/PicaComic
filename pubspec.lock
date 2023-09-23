@@ -978,7 +978,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: df6c1f3eb2ae7ea80a014f81ea2fc9e643376291
+      resolved-ref: "566567ba78b2e43f65d1177e102d48ae99c3b6fa"
       url: "https://github.com/wgh136/webview_cookie_manager"
     source: git
     version: "2.0.6"
