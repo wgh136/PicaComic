@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -118,7 +118,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getImage(getImageUrl(link))){
+    await for(var s in ImageManager().getImage(getImageUrl(link))){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -138,7 +138,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getImage(getImageUrl(link)).listen((event) {}));
+    addStreamSubscription(ImageManager().getImage(getImageUrl(link)).listen((event) {}));
   }
 
   @override

@@ -6,8 +6,8 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
-import 'package:pica_comic/views/models/history.dart';
-import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
 

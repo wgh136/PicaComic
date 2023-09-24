@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/download_model.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import '../../base.dart';
 import '../../tools/io_tools.dart';
 import 'hitomi_models.dart';
@@ -95,7 +95,7 @@ class HitomiDownloadingItem extends DownloadingItem {
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getHitomiImage(HitomiFile.fromMap(
+    await for(var s in ImageManager().getHitomiImage(HitomiFile.fromMap(
         const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))){
       if(s.finished){
         return s.getFile().readAsBytesSync();
@@ -112,7 +112,7 @@ class HitomiDownloadingItem extends DownloadingItem {
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getHitomiImage(HitomiFile.fromMap(
+    addStreamSubscription(ImageManager().getHitomiImage(HitomiFile.fromMap(
         const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))
         .listen((event) {}));
   }

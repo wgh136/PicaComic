@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader{
@@ -50,7 +50,7 @@ class ImageLoader{
           cumulativeBytesLoaded: 0,
           expectedTotalBytes: 100)
       );
-      var manager = MyCacheManager();
+      var manager = ImageManager();
       DownloadProgress? finishProgress;
 
       for(int i = 0; i<3; i++){

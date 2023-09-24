@@ -62,7 +62,6 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
     int currBlockHeight = block['end']! - block['start']!;
     image.Image tempImg = image.copyCrop(srcImg,
         x: 0, y: block['start']!, width: srcImg.width, height: block['end']!);
-    await Future.delayed(const Duration(milliseconds: 40));
     image.compositeImage(desImg, tempImg, dstY: y);
     y += currBlockHeight;
   }

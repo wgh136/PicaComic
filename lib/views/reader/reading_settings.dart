@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import '../../foundation/ui_mode.dart';
@@ -421,7 +421,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                     "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl,
                   ],
                   whenChange: (i) {
-                    MyCacheManager.loadingItems.clear();
+                    ImageManager.loadingItems.clear();
                     appdata.settings[37] = i.toString();
                     appdata.updateSettings();
                   },

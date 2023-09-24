@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/download.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
@@ -114,7 +114,7 @@ class JmDownloadingItem extends DownloadingItem {
         break;
       }
     }
-    await for(var s in MyCacheManager()
+    await for(var s in ImageManager()
         .getJmImage(link, {},
         epsId: comic.series[links!.keys.toList()[downloadingEp]]!,
         scrambleId: "220980",
@@ -151,7 +151,7 @@ class JmDownloadingItem extends DownloadingItem {
         break;
       }
     }
-    addStreamSubscription(MyCacheManager()
+    addStreamSubscription(ImageManager()
         .getJmImage(link, {},
           epsId: comic.series[links!.keys.toList()[downloadingEp]]!,
           scrambleId: "220980",

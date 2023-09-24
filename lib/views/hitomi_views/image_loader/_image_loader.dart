@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 
 /// ImageLoader class to load images on IO platforms.
@@ -50,7 +50,7 @@ class ImageLoader{
     Function() evictImage,
   ) async* {
     try {
-      var manager = MyCacheManager();
+      var manager = ImageManager();
 
       DownloadProgress? finishProgress;
 

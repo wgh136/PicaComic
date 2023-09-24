@@ -11,7 +11,7 @@ import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
-import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';

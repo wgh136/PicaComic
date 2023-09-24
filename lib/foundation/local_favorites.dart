@@ -13,7 +13,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'dart:io';
-import '../../foundation/def.dart';
+import 'def.dart';
 
 
 class FavoriteItem{

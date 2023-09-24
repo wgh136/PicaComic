@@ -10,7 +10,7 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../widgets/show_message.dart';
 import 'comments.dart';
 import 'package:get/get.dart';

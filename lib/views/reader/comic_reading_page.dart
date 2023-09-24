@@ -8,8 +8,8 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
-import 'package:pica_comic/views/models/history.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
@@ -198,7 +198,7 @@ class ComicReadingPage extends StatelessWidget {
         if (appdata.settings[14] == "1") {
           cancelKeepScreenOn();
         }
-        MyCacheManager().saveData();
+        ImageManager().saveData();
         logic.controller?.runningAutoPageTurning = false;
         ComicImage.clear();
         Get.delete<ComicReadingPageLogic>();

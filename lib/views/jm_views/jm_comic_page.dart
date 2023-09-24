@@ -15,7 +15,7 @@ import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';

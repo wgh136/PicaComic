@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:dio/dio.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -163,7 +163,7 @@ abstract class DownloadingItem{
           }
           file.createSync(recursive: true);
           file.writeAsBytesSync(bytes);
-          await MyCacheManager().delete(urls[index]);
+          await ImageManager().delete(urls[index]);
           index++;
           _downloadedNum++;
           updateUi?.call();
@@ -209,7 +209,7 @@ abstract class DownloadingItem{
     _runtimeKey++;
     notifications.endProgress();
     stopAllStream();
-    MyCacheManager.loadingItems.clear();
+    ImageManager.loadingItems.clear();
   }
 
   /// stop downloading

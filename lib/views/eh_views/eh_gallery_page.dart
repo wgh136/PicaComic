@@ -12,7 +12,7 @@ import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/main_page.dart';
 import '../../network/eh_network/get_gallery_id.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../page_template/comic_page.dart';
 import '../reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';

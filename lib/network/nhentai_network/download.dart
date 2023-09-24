@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../base.dart';
-import '../../foundation/cache_manager.dart';
+import '../../foundation/image_manager.dart';
 import '../../tools/io_tools.dart';
 import '../download_model.dart';
 
@@ -67,7 +67,7 @@ class NhentaiDownloadingItem extends DownloadingItem{
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getImage(link)){
+    await for(var s in ImageManager().getImage(link)){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -83,7 +83,7 @@ class NhentaiDownloadingItem extends DownloadingItem{
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getImage(link).listen((event) {}));
+    addStreamSubscription(ImageManager().getImage(link).listen((event) {}));
   }
 
   @override

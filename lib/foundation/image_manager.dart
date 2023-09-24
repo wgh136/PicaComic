@@ -16,16 +16,16 @@ import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
 
 
-class MyCacheManager{
-  static MyCacheManager? cache;
+class ImageManager{
+  static ImageManager? cache;
 
   ///用于标记正在加载的项目, 避免出现多个异步函数加载同一张图片
   static Map<String, DownloadProgress> loadingItems = {};
 
   /// Image cache manager for reader and download manager
-  factory MyCacheManager() {
+  factory ImageManager() {
     createFolder();
-    return cache??(cache = MyCacheManager._create());
+    return cache??(cache = ImageManager._create());
   }
 
   static void createFolder() async{
@@ -36,7 +36,7 @@ class MyCacheManager{
     }
   }
 
-  MyCacheManager._create();
+  ImageManager._create();
 
   Map<String, String>? _paths;
 

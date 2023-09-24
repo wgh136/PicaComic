@@ -22,9 +22,9 @@ extension ScrollExtension on ScrollController{
 
   void smoothTo(double value){
     futurePosition ??= position.pixels;
-    futurePosition = futurePosition! + value;
+    futurePosition = futurePosition! + value*1.2;
     futurePosition = futurePosition!.clamp(position.minScrollExtent, position.maxScrollExtent);
-    animateTo(futurePosition!, duration: const Duration(milliseconds: 160), curve: Curves.fastOutSlowIn);
+    animateTo(futurePosition!, duration: const Duration(milliseconds: 200), curve: Curves.linear);
   }
 }
 

@@ -9,7 +9,7 @@ import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import '../main_page.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../page_template/comic_page.dart';
 import '../widgets/avatar.dart';
 import '../widgets/show_message.dart';
