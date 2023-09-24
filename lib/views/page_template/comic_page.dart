@@ -23,6 +23,7 @@ import '../widgets/list_loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/foundation/stack.dart' as stack;
 
 @immutable
 class EpsData {
@@ -87,6 +88,13 @@ class ComicPageLogic<T extends Object> extends GetxController {
     message = null;
     loading = true;
     update();
+  }
+
+  updateHistory(History? newHistory){
+    if(newHistory != null) {
+      history = newHistory;
+      update();
+    }
   }
 }
 
@@ -207,6 +215,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
   }
 
+  static stack.Stack<ComicPageLogic> tagsStack = stack.Stack<ComicPageLogic>();
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints){
@@ -214,7 +224,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         body: GetBuilder<ComicPageLogic<T>>(
           tag: tag,
           initState: (logic) {
-            Get.put(ComicPageLogic<T>(), tag: tag);
+            var getState = Get.put(ComicPageLogic<T>(), tag: tag);
+            tagsStack.push(getState);
+          },
+          dispose: (logic){
+            tagsStack.pop();
           },
           builder: (logic) {
             _logic.width = constraints.maxWidth;
@@ -563,6 +577,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildEpisodeInfo(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     if (eps == null) return [];
 
     return [
@@ -602,10 +617,16 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 child: Card(
                   elevation: 1,
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: (_logic.history?.readEpisode ?? const {}).contains(i+1) ?
+                    colorScheme.secondaryContainer.withOpacity(0.8)
+                        : colorScheme.secondaryContainer,
                   margin: EdgeInsets.zero,
                   child: Center(
-                    child: Text(eps!.eps[i]),
+                    child: Text(eps!.eps[i],
+                      style: TextStyle(color:
+                        (_logic.history?.readEpisode ?? const {}).contains(i+1) ?
+                          colorScheme.outline
+                              : null),),
                   ),
                 ),
                 onTap: () => eps!.onTap(i),

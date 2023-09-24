@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/extensions.dart';
@@ -12,11 +11,9 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/search.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
-import 'jm_views/jm_comic_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'main_page.dart';
@@ -240,54 +237,6 @@ class PreSearchPage extends StatelessWidget {
                                 selected: logic.target==5,
                                 onSelected: (b){
                                   logic.updateTarget(5);
-                                },
-                              ),
-                            ),
-                          if(appdata.settings[21][2] == "1")
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: ActionChip(
-                                label: Text("禁漫漫画ID".tl),
-                                onPressed: (){
-                                  var controller = TextEditingController();
-                                  showDialog(context: context, builder: (context){
-                                    return AlertDialog(
-                                      title: Text("输入禁漫漫画ID".tl),
-                                      content: Padding(
-                                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                        child: TextField(
-                                          keyboardType: TextInputType.number,
-                                          controller: controller,
-                                          onEditingComplete: () {
-                                            Get.back();
-                                            if(controller.text.isNum){
-                                              MainPage.to(()=>JmComicPage(controller.text));
-                                            }else{
-                                              showMessage(Get.context, "输入的ID不是数字".tl);
-                                            }
-                                          },
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-                                          ],
-                                          decoration: const InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              labelText: "ID",
-                                              prefix: Text("JM")
-                                          ),
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(onPressed: (){
-                                          Get.back();
-                                          if(controller.text.isNum){
-                                            MainPage.to(()=>JmComicPage(controller.text));
-                                          }else{
-                                            showMessage(Get.context, "输入的ID不是数字".tl);
-                                          }
-                                        }, child: Text("提交".tl))
-                                      ],
-                                    );
-                                  });
                                 },
                               ),
                             ),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/app_links.dart';
@@ -10,11 +11,13 @@ import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/subscription.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import '../tools/debug.dart';
 import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:get/get.dart';
+import 'jm_views/jm_comic_page.dart';
 import 'main_page.dart';
 
 class MePage extends StatelessWidget {
@@ -221,6 +224,52 @@ class MePage extends StatelessWidget {
                 ),
                 actions: [
                   TextButton(onPressed: onFinish, child: Text("打开".tl)),
+                ],
+              );
+            });
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.insert_drive_file),
+          title: Text("禁漫漫画ID".tl),
+          onTap: (){
+            Get.back();
+            var controller = TextEditingController();
+            showDialog(context: context, builder: (context){
+              return AlertDialog(
+                title: Text("输入禁漫漫画ID".tl),
+                content: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    controller: controller,
+                    onEditingComplete: () {
+                      Get.back();
+                      if(controller.text.isNum){
+                        MainPage.to(()=>JmComicPage(controller.text));
+                      }else{
+                        showMessage(Get.context, "输入的ID不是数字".tl);
+                      }
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                    ],
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "ID",
+                        prefix: Text("JM")
+                    ),
+                  ),
+                ),
+                actions: [
+                  TextButton(onPressed: (){
+                    Get.back();
+                    if(controller.text.isNum){
+                      MainPage.to(()=>JmComicPage(controller.text));
+                    }else{
+                      showMessage(Get.context, "输入的ID不是数字".tl);
+                    }
+                  }, child: Text("提交".tl))
                 ],
               );
             });

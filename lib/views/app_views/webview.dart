@@ -102,7 +102,7 @@ class _AppWebviewState extends State<AppWebview> {
   }
 
   @override
-  void initState() async{
+  void initState(){
     super.initState();
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -127,7 +127,7 @@ class _AppWebviewState extends State<AppWebview> {
       )..loadRequest(Uri.parse(widget.initialUrl));
     if (Platform.isAndroid) {
       final androidController = controller.platform as AndroidWebViewController;
-      await androidController.setOnShowFileSelector(_androidFilePicker);
+      androidController.setOnShowFileSelector(_androidFilePicker);
     }
     updateTitle();
   }

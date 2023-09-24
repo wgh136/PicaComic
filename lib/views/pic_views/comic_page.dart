@@ -102,8 +102,8 @@ class PicacgComicPage extends ComicPage<ComicItem> {
       );
 
   @override
-  EpsData? get eps => EpsData(data!.eps, (i) {
-        addPicacgHistory(data!);
+  EpsData? get eps => EpsData(data!.eps, (i) async{
+        await addPicacgHistory(data!);
         Get.to(() =>
             ComicReadingPage.picacg(comic.id, i + 1, data!.eps, comic.title));
       });

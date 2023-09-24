@@ -81,7 +81,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       }
     }
     setNetworkProxy(); //当App从后台进入前台, 代理设置可能发生变更
-    print(state);
     if (state == AppLifecycleState.resumed) {
       if (appdata.settings[13] == "1" && appdata.flag && !AuthPage.lock) {
         appdata.flag = false;

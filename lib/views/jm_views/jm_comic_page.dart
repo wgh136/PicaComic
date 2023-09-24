@@ -134,8 +134,8 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   EpsData? get eps => EpsData(
           List<String>.generate(data!.series.values.length,
               (index) => "第 @c 章".tlParams({"c": (index + 1).toString()})),
-          (i) {
-        addJmHistory(data!);
+          (i) async{
+        await addJmHistory(data!);
         Get.to(() => ComicReadingPage.jmComic(
             data!.id, data!.name, data!.series.values.toList(), i + 1));
       });
