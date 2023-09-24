@@ -89,19 +89,25 @@ class RecombinationData {
       [this.savePath]);
 }
 
-///启动一个新的线程转换图片
-///
-/// 直接使用异步会导致卡顿
-Future<Uint8List> startRecombineImage(
-    Uint8List imgData, String epsId, String scrambleId, String bookId) async {
-  var res = await compute(segmentationPicture,
-      RecombinationData(imgData, epsId, scrambleId, bookId));
-  return res;
-}
+int loadingItems = 0;
+
+final maxLoadingItems = Platform.isAndroid || Platform.isIOS ? 3 : 5;
 
 ///启动一个新的线程转换图片并且写入文件
 Future<void> startRecombineAndWriteImage(Uint8List imgData, String epsId,
     String scrambleId, String bookId, String savePath) async {
-  await compute(recombineImageAndWriteFile,
-      RecombinationData(imgData, epsId, scrambleId, bookId, savePath));
+  while(loadingItems >= maxLoadingItems){
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+  loadingItems++;
+  try {
+    await compute(recombineImageAndWriteFile,
+        RecombinationData(imgData, epsId, scrambleId, bookId, savePath));
+  }
+  catch(e){
+    rethrow;
+  }
+  finally{
+    loadingItems--;
+  }
 }

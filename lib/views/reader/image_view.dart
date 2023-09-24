@@ -328,6 +328,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
     body = buildType123();
   } else if(appdata.settings[9] == "4"){
     body = PhotoView.customChild(
+        key: Key(logic.order.toString()),
         maxScale: 2.5,
         minScale: 1.0,
         strictScale: true,
@@ -341,8 +342,8 @@ Widget buildComicView(ComicReadingPageLogic logic,
           return updateLocation(context, logic.photoViewController);
         },
         child: SizedBox(
-            width: MediaQuery.of(Get.context!).size.width,
-            height: MediaQuery.of(Get.context!).size.height,
+            width: double.infinity,
+            height: double.infinity,
             child: buildType4()));
   } else {
     body = buildType56();
@@ -366,11 +367,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
     }
   }
 
-  return Positioned(
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+  return Positioned.fill(
     child: Listener(
       onPointerSignal: onPointerSignal,
       onPointerDown: (details) => logic.mouseScroll = false,
@@ -378,7 +375,6 @@ Widget buildComicView(ComicReadingPageLogic logic,
         child: body,
         onNotification: (notification) {
           var length = logic.data.eps.length;
-          if (type == ReadingType.picacg) length--;
           if (!logic.scrollController.hasClients) return false;
           if (logic.scrollController.position.pixels -
               logic.scrollController.position.minScrollExtent <=

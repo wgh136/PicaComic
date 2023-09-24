@@ -60,17 +60,13 @@ class ComicReadingPageLogic extends GetxController{
   int showFloatingButtonValue = 0;
 
   void showFloatingButton(int value){
-    var length = data.eps.length;
-    if(data.type == ReadingType.picacg){
-      length--;
-    }
     if(value == 0) {
       if(showFloatingButtonValue != 0){
         showFloatingButtonValue = 0;
         update();
       }
     }
-    if(value == 1 && showFloatingButtonValue == 0 && order < length){
+    if(value == 1 && showFloatingButtonValue == 0){
       showFloatingButtonValue = 1;
       update();
     }else if(value == -1 && showFloatingButtonValue == 0 && order!=1){
@@ -196,6 +192,7 @@ class ComicReadingPageLogic extends GetxController{
     }
     index = 1;
     pageController = PageController(initialPage: 1);
+    photoViewController = PhotoViewController();
     update();
   }
 
@@ -230,6 +227,7 @@ class ComicReadingPageLogic extends GetxController{
     }
     pageController = PageController(initialPage: 1);
     index = 1;
+    photoViewController = PhotoViewController();
     update();
   }
 
