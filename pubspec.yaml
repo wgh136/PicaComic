@@ -58,7 +58,7 @@ dependencies:
   local_auth: ^2.1.6
   html: any
   dio_cookie_manager: any
-  image: ^4.0.17
+  image: ^4.1.0
   shimmer_animation: ^2.1.0
   cookie_jar: any
   flutter_windows_webview:

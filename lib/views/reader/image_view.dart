@@ -399,6 +399,9 @@ Widget buildComicView(ComicReadingPageLogic logic,
 /// preload image
 void precacheComicImage(ComicReadingPageLogic comicReadingPageLogic,
     ReadingType type, BuildContext context, int index, String target) {
+  if(comicReadingPageLogic.readingMethod == ReadingMethod.topToBottomContinuously){
+    return;
+  }
   int precacheNum = int.parse(appdata.settings[28]) + index;
   for (; index < precacheNum; index++) {
     if(index >= comicReadingPageLogic.urls.length) return;

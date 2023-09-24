@@ -40,7 +40,6 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
   if (num <= 1) {
     return data.imgData;
   }
-
   image.Image srcImg = image.decodeImage(data.imgData)!;
 
   int blockSize = (srcImg.height / num).floor();
@@ -60,13 +59,18 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
   for (int i = blocks.length - 1; i >= 0; i--) {
     var block = blocks[i];
     int currBlockHeight = block['end']! - block['start']!;
-    image.Image tempImg = image.copyCrop(srcImg,
-        x: 0, y: block['start']!, width: srcImg.width, height: block['end']!);
-    image.compositeImage(desImg, tempImg, dstY: y);
+    var range = srcImg.getRange(0, block['start']!, srcImg.width, currBlockHeight);
+    var desRange = desImg.getRange(0, y, srcImg.width, currBlockHeight);
+    while(range.moveNext() && desRange.moveNext()){
+      desRange.current.r = range.current.r;
+      desRange.current.g = range.current.g;
+      desRange.current.b = range.current.b;
+      desRange.current.a = range.current.a;
+    }
     y += currBlockHeight;
   }
 
-  return Uint8List.fromList(image.encodeJpg(desImg));
+  return image.encodeJpg(desImg);
 }
 
 Future<void> recombineImageAndWriteFile(RecombinationData data) async {
@@ -77,6 +81,7 @@ Future<void> recombineImageAndWriteFile(RecombinationData data) async {
   }
   file.writeAsBytesSync(bytes);
 }
+
 
 class RecombinationData {
   Uint8List imgData;
