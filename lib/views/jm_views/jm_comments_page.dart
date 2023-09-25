@@ -22,8 +22,8 @@ class JmCommentsPageLogic extends GetxController {
     update();
   }
 
-  void get(String id) async {
-    var res = await jmNetwork.getComment(id, 1);
+  void get(String id, [String? mode]) async {
+    var res = await jmNetwork.getComment(id, 1, mode??"manhua");
     if (res.error) {
       message = res.errorMessage;
       change();
@@ -69,9 +69,10 @@ class JmCommentsPageLogic extends GetxController {
 }
 
 class JmCommentsPage extends StatelessWidget {
-  const JmCommentsPage(this.id, {this.popUp = false, Key? key}) : super(key: key);
+  const JmCommentsPage(this.id, {this.mode,this.popUp = false, Key? key}) : super(key: key);
   final String id;
   final bool popUp;
+  final String? mode;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +80,7 @@ class JmCommentsPage extends StatelessWidget {
         init: JmCommentsPageLogic(),
         builder: (logic) {
           if (logic.loading) {
-            logic.get(id);
+            logic.get(id, mode);
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -205,12 +206,13 @@ void showReply(BuildContext context, List<Comment> comments, Comment replyTo) {
       showBarrier: false);
 }
 
-void showComments(BuildContext context, String id) {
+void showComments(BuildContext context, String id, [String? mode]) {
   showSideBar(
       context,
       JmCommentsPage(
         id,
         popUp: true,
+        mode: mode,
       ),
       title: "评论".tl);
 }

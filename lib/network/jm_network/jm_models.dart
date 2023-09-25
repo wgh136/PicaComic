@@ -158,15 +158,6 @@ class JmComicInfo{
     comments = 0;
 }
 
-class FavoriteFolder{
-  String id;
-  List<JmComicBrief> comics;
-  int loadedPage = 1;
-  int total;
-  int loadedComics;
-
-  FavoriteFolder(this.id, this.comics, this.loadedPage, this.total, this.loadedComics);
-}
 
 class Comment{
   String id;

@@ -40,7 +40,13 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
   if (num <= 1) {
     return data.imgData;
   }
-  image.Image srcImg = image.decodeImage(data.imgData)!;
+  image.Image srcImg;
+  try {
+    srcImg = image.decodeImage(data.imgData)!;
+  }
+  catch(e){
+    throw Exception("Failed to decode image: Data length is ${data.imgData.length} bytes");
+  }
 
   int blockSize = (srcImg.height / num).floor();
   int remainder = srcImg.height % num;
