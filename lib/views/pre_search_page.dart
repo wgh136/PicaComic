@@ -541,6 +541,7 @@ class PreSearchPage extends StatelessWidget{
 
   Widget buildHistorySideBar(BuildContext context){
     return GetBuilder<PreSearchController>(builder: (logic)=>ListView.builder(
+      padding: EdgeInsets.zero,
       itemCount: appdata.searchHistory.length + 1,
       itemBuilder: (context, index){
         if(index == 0){
@@ -568,6 +569,7 @@ class PreSearchPage extends StatelessWidget{
 
   Widget buildPinnedSideBar(){
     return GetBuilder<PreSearchController>(builder: (logic) => ListView.builder(
+      padding: EdgeInsets.zero,
       itemCount: appdata.pinnedKeyword.length + 1,
       itemBuilder: (context, index){
         if(index == 0){

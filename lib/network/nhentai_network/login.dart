@@ -38,6 +38,7 @@ void login(void Function() whenFinish) async{
   } else if(GetPlatform.isMobile) {
     Get.to(() => AppWebview(
       initialUrl: "https://nhentai.net/login/?next=/",
+      singlePage: true,
       onTitleChange: (title){
         if (!title.contains("Login")) {
           Get.back();

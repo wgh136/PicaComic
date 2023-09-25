@@ -108,7 +108,7 @@ class MePage extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.image_search_outlined),
-          title: Text("图片搜索[搜图bot酱]".tl),
+          title: Text("图片搜索 [搜图bot酱]".tl),
           onTap: () async{
             Get.back();
             if(Platform.isAndroid || Platform.isIOS) {
@@ -137,7 +137,7 @@ class MePage extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.image_search),
-          title: Text("图片搜索[SauceNAO]".tl),
+          title: Text("图片搜索 [SauceNAO]".tl),
           onTap: () async{
             Get.back();
             if(Platform.isAndroid || Platform.isIOS) {

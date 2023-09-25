@@ -3,12 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:image/image.dart' as image;
+
+import '../../foundation/ui_mode.dart';
 
 extension WebviewExtension on WebViewController{
   Future<Map<String, String>?> getCookies(String url) async{
@@ -39,7 +42,7 @@ extension WebviewExtension on WebViewController{
 }
 
 class AppWebview extends StatefulWidget {
-  const AppWebview({required this.initialUrl, this.onDestroy, this.onTitleChange, this.onNavigation, super.key});
+  const AppWebview({required this.initialUrl, this.onDestroy, this.onTitleChange, this.onNavigation, this.singlePage = false, super.key});
 
   final String initialUrl;
 
@@ -48,6 +51,8 @@ class AppWebview extends StatefulWidget {
   final void Function(String title)? onTitleChange;
 
   final bool Function(String url)? onNavigation;
+
+  final bool singlePage;
 
   @override
   State<AppWebview> createState() => _AppWebviewState();
@@ -141,41 +146,59 @@ class _AppWebviewState extends State<AppWebview> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,),
-        actions: [
-          Tooltip(
-            message: "More",
-            child: IconButton(
-              icon: const Icon(Icons.more_horiz),
-              onPressed: (){
-                showMenu(context: context, position: RelativeRect.fromLTRB(
-                  MediaQuery.of(context).size.width,
-                  0,
-                  MediaQuery.of(context).size.width,
-                  0
-                ), items: [
-                  PopupMenuItem(
-                    child: Text("在浏览器中打开".tl),
-                    onTap: () async => launchUrlString((await controller.currentUrl())!),
-                  ),
-                  PopupMenuItem(
-                    child: Text("复制链接".tl),
-                    onTap: () async => Clipboard.setData(ClipboardData(text: (await controller.currentUrl())!)),
-                  ),
-                  PopupMenuItem(
-                    child: Text("重新加载".tl),
-                    onTap: () => controller.reload(),
-                  ),
-                ]);
-              },
-            ),
-          )
+    bool useCustomAppBar = !UiMode.m1(context) && !widget.singlePage;
+
+    final actions = [
+      Tooltip(
+        message: "More",
+        child: IconButton(
+          icon: const Icon(Icons.more_horiz),
+          onPressed: (){
+            showMenu(context: context, position: RelativeRect.fromLTRB(
+                MediaQuery.of(context).size.width,
+                0,
+                MediaQuery.of(context).size.width,
+                0
+            ), items: [
+              PopupMenuItem(
+                child: Text("在浏览器中打开".tl),
+                onTap: () async => launchUrlString((await controller.currentUrl())!),
+              ),
+              PopupMenuItem(
+                child: Text("复制链接".tl),
+                onTap: () async => Clipboard.setData(ClipboardData(text: (await controller.currentUrl())!)),
+              ),
+              PopupMenuItem(
+                child: Text("重新加载".tl),
+                onTap: () => controller.reload(),
+              ),
+            ]);
+          },
+        ),
+      )
+    ];
+
+    Widget body = loading ? const Center(child: CircularProgressIndicator(),) :
+    WebViewWidget(controller: controller,);
+
+    if(useCustomAppBar){
+      body = Column(
+        children: [
+          CustomAppbar(
+            title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,),
+            actions: actions,
+          ),
+          Expanded(child: body)
         ],
-      ),
-      body: loading ? const Center(child: CircularProgressIndicator(),) :
-        WebViewWidget(controller: controller,)
+      );
+    }
+
+    return Scaffold(
+      appBar: !useCustomAppBar ? AppBar(
+        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,),
+        actions: actions,
+      ) : null,
+      body: body
     );
   }
 }

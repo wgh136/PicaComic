@@ -217,6 +217,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
 
   void loginWithWebview(){
     Get.to(() => AppWebview(
+      singlePage: true,
       initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
       onTitleChange: (title){
         if (title == "E-Hentai Forums") {

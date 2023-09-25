@@ -35,6 +35,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
   } else if(GetPlatform.isMobile) {
     Get.to(() => AppWebview(
       initialUrl: "https://nhentai.net",
+      singlePage: true,
       onTitleChange: (title){
         if (title.contains("nhentai")) {
           Get.back();
