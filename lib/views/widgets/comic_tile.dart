@@ -237,17 +237,23 @@ class ComicDescription extends StatelessWidget {
                 const SizedBox(
                   height: 2,
                 ),
-                if (subDescription != null) subDescription!,
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 12.0,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (subDescription != null) subDescription!,
+                          Text(
+                            description,
+                            style: const TextStyle(
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
                     if (badge != null)
                       Container(
                         padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),

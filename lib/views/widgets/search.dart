@@ -2,6 +2,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:get/get.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
+import '../../base.dart';
 
 
 class FloatingSearchBar extends StatelessWidget {
@@ -13,6 +17,8 @@ class FloatingSearchBar extends StatelessWidget {
     required this.f,
     required this.controller,
     this.onChanged,
+    this.showPinnedButton = true,
+    this.focusNode
   }) : super(key: key);
 
   final double height;
@@ -24,6 +30,8 @@ class FloatingSearchBar extends StatelessWidget {
   final String supportingText;
   final TextEditingController controller;
   final void Function(String)? onChanged;
+  final bool showPinnedButton;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +41,6 @@ class FloatingSearchBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(padding, 4, padding, 0),
       child: Container(
-        constraints: const BoxConstraints(minWidth: 360, maxWidth: 720),
         padding: const EdgeInsets.only(top: 5),
         width: double.infinity,
         height: effectiveHeight,
@@ -60,6 +67,7 @@ class FloatingSearchBar extends StatelessWidget {
                     textAlignVertical: TextAlignVertical.center,
                     controller: controller,
                     onChanged: onChanged,
+                    focusNode: focusNode,
                     decoration: InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,
@@ -74,6 +82,24 @@ class FloatingSearchBar extends StatelessWidget {
                   ),
                 ),
               ),
+              if(showPinnedButton)
+                Tooltip(
+                  message: "固定".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.sell_outlined),
+                    onPressed: (){
+                      appdata.pinnedKeyword.add(controller.text);
+                      appdata.writeHistory();
+                      try {
+                        Get.find<PreSearchController>().update();
+                      }
+                      catch(e){
+                        // ignore
+                      }
+                      showMessage(Get.context, "已固定".tl);
+                    },
+                  ),
+                ),
               if(trailing!=null)
                 trailing!
             ]),

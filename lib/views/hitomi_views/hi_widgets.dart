@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -158,6 +159,7 @@ class HitomiComicTileDynamicLoading extends StatefulWidget {
 class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLoading> {
   HitomiComicBrief? comic;
   bool onScreen = true;
+  bool block = false;
 
   static List<HitomiComicBrief> cache = [];
 
@@ -176,18 +178,26 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
       }
     }
     if(comic == null) {
-      HiNetwork().getComicInfoBrief(widget.id.toString()).then((c){
-        if(c.error){
-          showMessage(context, c.errorMessage!);
-          return;
-        }
-        cache.add(c.data);
-        if(onScreen) {
-          setState(() {
-            comic = c.data;
-          });
-        }
-      });
+      if(!block) {
+        HiNetwork().getComicInfoBrief(widget.id.toString()).then((c){
+          if(c.error){
+            if(c.errorMessage == "block"){
+              setState(() {
+                block = true;
+              });
+              return;
+            }
+            showMessage(context, c.errorMessage!);
+            return;
+          }
+          cache.add(c.data);
+          if(onScreen) {
+            setState(() {
+              comic = c.data;
+            });
+          }
+        });
+      }
 
       return buildLoadingWidget();
     }else{
@@ -195,65 +205,74 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
     }
   }
 
-  Widget buildLoadingWidget(){
-    return Shimmer(
-      color: Theme.of(context).colorScheme.surfaceVariant,
-      child: Container(
-        padding: const EdgeInsets.only(top: 8, bottom: 8),
-        decoration: BoxDecoration(
+  Widget buildPlaceHolder(){
+    return Container(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16)
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16,),
-            Expanded(
-                flex: 3,
-                child: Container(
-                  decoration: BoxDecoration(
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 16,),
+          Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     color: Theme.of(context).colorScheme.secondaryContainer.withAlpha(140)
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                )
-            ),
-            SizedBox.fromSize(size: const Size(16,5),),
-            Expanded(
-              flex: 10,
-              child: Column(
-                children: [
-                  const SizedBox(height: 3,),
-                  Container(
-                    decoration: BoxDecoration(
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: block ? Center(
+                  child: Text("已屏蔽".tl),
+                ) : null,
+              )
+          ),
+          SizedBox.fromSize(size: const Size(16,5),),
+          Expanded(
+            flex: 10,
+            child: Column(
+              children: [
+                const SizedBox(height: 3,),
+                Container(
+                  decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
-                    ),
-                    height: 25,
                   ),
-                  const SizedBox(height: 3,),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
-                    ),
-                    height: 20,
+                  height: 25,
+                ),
+                const SizedBox(height: 3,),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
                   ),
-                  const Spacer(),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
-                    ),
-                    height: 20,
+                  height: 20,
+                ),
+                const Spacer(),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.tertiaryContainer.withAlpha(140)
                   ),
-                ],
-              ),
+                  height: 20,
+                ),
+              ],
             ),
-            const SizedBox(width: 16,),
-          ],
-        ),
+          ),
+          const SizedBox(width: 16,),
+        ],
       ),
     );
   }
 
+  Widget buildLoadingWidget(){
+    if(block){
+      return buildPlaceHolder();
+    }
 
+    return Shimmer(
+      color: Theme.of(context).colorScheme.surfaceVariant,
+      child: buildPlaceHolder(),
+    );
+  }
 }
