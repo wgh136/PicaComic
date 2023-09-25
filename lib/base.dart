@@ -6,8 +6,8 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
-import 'package:pica_comic/views/models/history.dart';
-import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
 
@@ -31,6 +31,7 @@ class Appdata{
 
   ///搜索历史
   late List<String> searchHistory;
+  Set<String> pinnedKeyword = {};
 
   ///用于身份认证页面判断当前状态
   bool flag = true;
@@ -80,6 +81,9 @@ class Appdata{
     "0", //37 禁漫图片分流
     "0", //38 高刷新率
     "0", //39 nhentai搜索排序
+    "25", //40 点按翻页识别范围(0-50),
+    "0", //41 阅读器图片布局方式, 0-contain, 1-fitWidth, 2-fitHeight
+    "0", //42 禁漫收藏夹排序模式, 0-最新收藏, 1-最新更新
   ];
 
   ///屏蔽的关键词
@@ -114,7 +118,7 @@ class Appdata{
 
   final jmAuth = <String>[
     "1",
-    "1.5.8",
+    "1.5.9",
     "18comicAPP",
     "Mozilla/5.0 (Linux; Android 13; JM114514 Build/TQ1A.230205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36"
   ];
@@ -182,6 +186,7 @@ class Appdata{
   void writeHistory() async{
     var s = await SharedPreferences.getInstance();
     await s.setStringList("search", searchHistory);
+    await s.setStringList("pinnedKeywords", pinnedKeyword.toList());
   }
 
   Future<void> writeData() async{
@@ -237,6 +242,7 @@ class Appdata{
       }
       appChannel = s.getString("appChannel")??"3";
       searchHistory = s.getStringList("search")??[];
+      pinnedKeyword = (s.getStringList("pinnedKeyword")??[]).toSet();
       blockingKeyword = s.getStringList("blockingKeyword")??[];
       if(s.getStringList("firstUse")!=null) {
         var st = s.getStringList("firstUse")!;

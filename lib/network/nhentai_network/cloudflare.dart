@@ -1,10 +1,11 @@
 import 'dart:io' as io;
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+
+import '../../views/app_views/webview.dart';
 
 Future<void> bypassCloudFlare(void Function() whenFinish) async{
   if(GetPlatform.isWindows && (await FlutterWindowsWebview.isAvailable())){
@@ -32,39 +33,31 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
       }
     ));
   } else if(GetPlatform.isMobile) {
-    var browser = ByPassCloudflare(() async {
-      CookieManager cookieManager = CookieManager.instance();
-      var cookies = await cookieManager.getCookies(url: WebUri("https://nhentai.net"),);
-      await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net"),
-          List<io.Cookie>.generate(cookies.length, (index){
-            var cookie = io.Cookie(cookies[index].name, cookies[index].value);
-            cookie.domain = ".nhentai.net";
-            return cookie;
-          })
-      );
-    }, whenFinish);
-    await browser.openUrlRequest(
-        urlRequest: URLRequest(
-            url: WebUri(
-                "https://nhentai.net")));
+    Get.to(() => AppWebview(
+      initialUrl: "https://nhentai.net",
+      singlePage: true,
+      onTitleChange: (title){
+        if (title.contains("nhentai")) {
+          Get.back();
+        }
+      },
+      onDestroy: (controller) async{
+        var ua = await controller.getUA();
+        if(ua != null){
+          NhentaiNetwork().ua = ua;
+        }
+        var cookies = await controller.getCookies("https://nhentai.net/") ?? {};
+        List<io.Cookie> cookiesList = [];
+        cookies.forEach((key, value) {
+          var cookie = io.Cookie(key, value);
+          cookie.domain = ".nhentai.net";
+          cookiesList.add(cookie);
+        });
+        await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net/"), cookiesList);
+        whenFinish();
+      },
+    ));
   } else {
     showMessage(Get.context, "当前设备不支持".tl);
-  }
-}
-
-class ByPassCloudflare extends InAppBrowser {
-  ByPassCloudflare(this.action, this.whenFinish);
-  final Future<void> Function() action;
-  final void Function() whenFinish;
-
-  @override
-  void onTitleChanged(String? title) async{
-    if (title?.contains("nhentai") ?? false) {
-      var res = await webViewController?.evaluateJavascript(source: "navigator.userAgent");
-      NhentaiNetwork().ua = res.toString();
-      await action();
-      super.close();
-      whenFinish();
-    }
   }
 }

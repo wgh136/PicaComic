@@ -17,9 +17,9 @@ import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import '../network/jm_network/jm_main_network.dart';
-import '../network/picacg_network/methods.dart';
-import '../network/picacg_network/models.dart';
+import '../../network/jm_network/jm_main_network.dart';
+import '../../network/picacg_network/methods.dart';
+import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class AccountsPageLogic extends GetxController {}

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
@@ -16,12 +16,15 @@ class DownloadedComic extends DownloadedItem{
   List<int> downloadedChapters;
   double? size;
   DownloadedComic(this.comicItem,this.chapters,this.size,this.downloadedChapters);
+
+  @override
   Map<String,dynamic> toJson()=>{
     "comicItem": comicItem.toJson(),
     "chapters": chapters,
     "size": size,
     "downloadedChapters": downloadedChapters
   };
+
   DownloadedComic.fromJson(Map<String,dynamic> json):
         comicItem = ComicItem.fromJson(json["comicItem"]),
         chapters = List<String>.from(json["chapters"]),
@@ -57,6 +60,9 @@ class DownloadedComic extends DownloadedItem{
 
   @override
   double? get comicSize => size;
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 ///picacg的下载进程模型
@@ -112,7 +118,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getImage(getImageUrl(link))){
+    await for(var s in ImageManager().getImage(getImageUrl(link))){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -132,7 +138,7 @@ class PicDownloadingItem extends DownloadingItem {
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getImage(getImageUrl(link)).listen((event) {}));
+    addStreamSubscription(ImageManager().getImage(getImageUrl(link)).listen((event) {}));
   }
 
   @override

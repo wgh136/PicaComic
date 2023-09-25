@@ -20,12 +20,6 @@ import 'package:pica_comic/base.dart';
 import 'package:html/parser.dart';
 
 class JmNetwork {
-  /*
-  关于一些注意事项:
-    1. jm的漫画列表加载, 当page大于存在的数量时返回最后一页, 而不是报错
-   */
-
-
   final baseData =
       "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
 
@@ -41,10 +35,10 @@ class JmNetwork {
   static JmNetwork? cache;
 
   static const urls = <String>[
-    "https://www.jmapinode1.cc",
     "https://www.jmapinode2.cc",
-    "https://www.jmapibranch3.cc",
-    "https://www.jmapibranch2.cc",
+    "https://www.jmapinode.top",
+    "https://www.jmapinode3.cc",
+    "https://www.jmapinode6.cc",
     "https://api.kokoiro.xyz/jmComic"
   ];
 
@@ -126,7 +120,7 @@ class JmNetwork {
         return Res(null,
             errorMessage: const JsonDecoder().convert(
                     const Utf8Decoder().convert(res.data))["errorMsg"] ??
-                "未知错误".toString());
+                "Unknown Error".toString());
       }
       var resData = convertData(
           (const JsonDecoder()
@@ -147,7 +141,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-      return Res<String>(null, errorMessage: "网络错误");
+      return const Res<String>(null, errorMessage: "网络错误");
     }
   }
 
@@ -624,14 +618,15 @@ class JmNetwork {
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     } else {
-      return Res(true);
+      return const Res(true);
     }
   }
 
   Future<Res<List<JmComicBrief>>> getFolderComicsPage(
       String id, int page) async {
+    ComicsOrder order = appdata.settings[42] == "0" ? ComicsOrder.latest : ComicsOrder.update;
     var res = await get(
-        "$baseUrl/favorite?$baseData&page=$page&folder_id=$id&o=${ComicsOrder.latest}",
+        "$baseUrl/favorite?$baseData&page=$page&folder_id=$id&o=$order",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
@@ -670,78 +665,6 @@ class JmNetwork {
     }
   }
 
-  ///获取收藏夹中的漫画
-  ///
-  /// 需要提供收藏夹的ID
-  ///
-  /// 要获取全部收藏, 提供id为0
-  Future<Res<FavoriteFolder>> getFolderComics(String id) async {
-    var res = await get(
-        "$baseUrl/favorite?$baseData&page=1&folder_id=$id&o=${ComicsOrder.latest}",
-        expiredTime: CacheExpiredTime.no);
-    if (res.error) {
-      return Res(null, errorMessage: res.errorMessage);
-    }
-    try {
-      var comics = <JmComicBrief>[];
-      for (var comic in (res.data["list"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null &&
-            comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(
-              comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null &&
-            comic["category_sub"]["title"] != null) {
-          categories.add(ComicCategoryInfo(
-              comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-            comic["description"] ?? "", categories, [],
-            ignoreExamination: true));
-      }
-      return Res(FavoriteFolder(
-          id, comics, 1, int.parse(res.data["total"]), comics.length));
-    } catch (e, s) {
-      if (kDebugMode) {
-        print(e);
-      }
-      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
-    }
-  }
-
-  Future<void> loadFavoriteFolderNextPage(FavoriteFolder folder) async {
-    if (folder.loadedComics >= folder.total) {
-      return;
-    }
-    try {
-      var res = await get(
-          "$baseUrl/favorite?$baseData&page=${folder.loadedPage + 1}&folder_id=${folder.id}&o=${ComicsOrder.latest}",
-          expiredTime: CacheExpiredTime.no);
-      for (var comic in (res.data["list"])) {
-        var categories = <ComicCategoryInfo>[];
-        if (comic["category"]["id"] != null &&
-            comic["category"]["title"] != null) {
-          categories.add(ComicCategoryInfo(
-              comic["category"]["id"], comic["category"]["title"]));
-        }
-        if (comic["category_sub"]["id"] != null &&
-            comic["category_sub"]["title"] != null) {
-          categories.add(ComicCategoryInfo(
-              comic["category_sub"]["id"], comic["category_sub"]["title"]));
-        }
-        folder.comics.add(JmComicBrief(comic["id"], comic["author"],
-            comic["name"], comic["description"] ?? "", categories, [],
-            ignoreExamination: true));
-      }
-      folder.loadedPage++;
-      folder.loadedComics = folder.comics.length;
-    } catch (e) {
-      //无所谓了
-    }
-  }
-
   ///获取收藏夹
   Future<Res<Map<String, String>>> getFolders() async {
     var res = await get("$baseUrl/favorite?$baseData",
@@ -768,7 +691,7 @@ class JmNetwork {
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     } else {
-      return Res(true);
+      return const Res(true);
     }
   }
 
@@ -816,8 +739,9 @@ class JmNetwork {
     return exp.firstMatch(res.data)!.group(0);
   }
 
-  Future<Res<List<Comment>>> getComment(String id, int page) async {
-    var res = await get("$baseUrl/forum?$baseData&aid=$id&page=$page",
+  /// 获取评论, 获取章节评论需要mode = all
+  Future<Res<List<Comment>>> getComment(String id, int page, [String mode = "manhua"]) async {
+    var res = await get("$baseUrl/forum?mode=$mode&aid=$id&page=$page",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
@@ -853,7 +777,7 @@ class JmNetwork {
       if (res.data["code"] == 400) {
         return Res(null, errorMessage: res.data["msg"]);
       }
-      return Res(true);
+      return const Res(true);
     }
   }
 
@@ -944,7 +868,10 @@ enum ComicsOrder {
   maxPictures("mp"),
 
   ///最多喜欢
-  maxLikes("tf");
+  maxLikes("tf"),
+
+  /// 最新更新(收藏夹)
+  update("mp");
 
   @override
   String toString() => value;

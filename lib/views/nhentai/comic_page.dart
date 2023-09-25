@@ -10,7 +10,7 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../widgets/show_message.dart';
 import 'comments.dart';
 import 'package:get/get.dart';
@@ -21,7 +21,22 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
 
   final String _id;
 
+  @override
+  String get url => "https://nhentai.net/g/$_id/";
+
+  @override
   String get id => (data?.id) ?? _id;
+
+  @override
+  ActionFunc? get searchSimilar => (){
+    String? subTitle = data!.subTitle;
+    if(subTitle == ""){
+      subTitle = null;
+    }
+    var title = subTitle ?? data!.title;
+    title = title.replaceAll(RegExp(r"\[.*?\]"), "").replaceAll(RegExp(r"\(.*?\)"), "");
+    MainPage.to(() => NhentaiSearchPage("\"$title\"".trim()));
+  };
 
   @override
   Row? get actions => Row(

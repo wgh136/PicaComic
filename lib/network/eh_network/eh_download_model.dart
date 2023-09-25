@@ -4,7 +4,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/download_model.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
 import 'eh_main_network.dart';
@@ -14,6 +14,8 @@ class DownloadedGallery extends DownloadedItem{
   Gallery gallery;
   double? size;
   DownloadedGallery(this.gallery,this.size);
+
+  @override
   Map<String, dynamic> toJson()=>{
     "gallery": gallery.toJson(),
     "size": size
@@ -42,6 +44,9 @@ class DownloadedGallery extends DownloadedItem{
 
   @override
   double? get comicSize => size;
+
+  @override
+  set comicSize(double? value) {}
 }
 
 ///e-hentai的下载进程模型
@@ -83,7 +88,7 @@ class EhDownloadingItem extends DownloadingItem{
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getEhImage(link)){
+    await for(var s in ImageManager().getEhImage(link)){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -105,7 +110,7 @@ class EhDownloadingItem extends DownloadingItem{
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getEhImage(link).listen((event) {}));
+    addStreamSubscription(ImageManager().getEhImage(link).listen((event) {}));
   }
 
   @override

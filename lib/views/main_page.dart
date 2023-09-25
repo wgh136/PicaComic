@@ -434,11 +434,18 @@ class AnimatedMainPage extends StatefulWidget {
 class _AnimatedMainPageState extends State<AnimatedMainPage> {
   var offset = const Offset(0, 0.05);
 
+  static bool initial = true;
+
   @override
   void initState() {
-    Future.microtask(() => setState(() {
+    if(!initial) {
+      Future.microtask(() => setState(() {
           offset = const Offset(0, 0);
         }));
+    }else{
+      offset = const Offset(0, 0);
+    }
+    initial = false;
     super.initState();
   }
 

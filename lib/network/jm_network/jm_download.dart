@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/download.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
@@ -15,11 +15,13 @@ class DownloadedJmComic extends DownloadedItem {
   double? size;
   List<int> downloadedChapters;
   DownloadedJmComic(this.comic, this.size, this.downloadedChapters);
+
   Map<String, dynamic> toMap() => {
         "comic": comic.toJson(),
         "size": size,
         "downloadedChapters": downloadedChapters
       };
+
   DownloadedJmComic.fromMap(Map<String, dynamic> map)
       : comic = JmComicInfo.fromMap(map["comic"]),
         size = map["size"],
@@ -59,6 +61,12 @@ class DownloadedJmComic extends DownloadedItem {
 
   @override
   double? get comicSize => size;
+
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 class JmDownloadingItem extends DownloadingItem {
@@ -106,7 +114,7 @@ class JmDownloadingItem extends DownloadingItem {
         break;
       }
     }
-    await for(var s in MyCacheManager()
+    await for(var s in ImageManager()
         .getJmImage(link, {},
         epsId: comic.series[links!.keys.toList()[downloadingEp]]!,
         scrambleId: "220980",
@@ -143,7 +151,7 @@ class JmDownloadingItem extends DownloadingItem {
         break;
       }
     }
-    addStreamSubscription(MyCacheManager()
+    addStreamSubscription(ImageManager()
         .getJmImage(link, {},
           epsId: comic.series[links!.keys.toList()[downloadingEp]]!,
           scrambleId: "220980",

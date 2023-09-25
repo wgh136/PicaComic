@@ -18,14 +18,26 @@ enum HistoryType{
 
 base class History extends LinkedListEntry<History>{
   HistoryType type;
+
   DateTime time;
+
   String title;
-  String subtitle;  //picacg中为作者, eh中为上传者
+
+  String subtitle;
+
   String cover;
-  int ep; //标记为0表示没有阅读位置记录
+
+  /// 标记为0表示没有阅读位置记录
+  int ep;
+
   int page;
-  String target;  //picacg中为本子id, eh中为本子链接
-  History(this.type,this.time,this.title,this.subtitle,this.cover,this.ep,this.page,this.target);
+
+  String target;
+
+  Set<int> readEpisode;
+
+  History(this.type,this.time,this.title,this.subtitle,this.cover,this.ep,
+      this.page,this.target,[this.readEpisode=const <int>{}]);
 
 
   Map<String, dynamic> toMap()=>{
@@ -36,7 +48,8 @@ base class History extends LinkedListEntry<History>{
     "cover": cover,
     "ep": ep,
     "page": page,
-    "target": target
+    "target": target,
+    "readEpisode": readEpisode.toList()
   };
 
   History.fromMap(Map<String, dynamic> map):
@@ -47,7 +60,8 @@ base class History extends LinkedListEntry<History>{
     cover=map["cover"],
     ep=map["ep"],
     page=map["page"],
-    target=map["target"];
+    target=map["target"],
+    readEpisode=Set<int>.from((map["readEpisode"] as List<dynamic>?)?.toSet() ?? const <int>{});
 
   @override
   String toString() {
@@ -83,8 +97,8 @@ class HistoryManager{
       await file.create();
     }
     file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
-    //_open = false;
-    //history.clear();
+    _open = false;
+    history.clear();
   }
 
   void close() async{
@@ -113,10 +127,8 @@ class HistoryManager{
     }
     try {
       var p = history.firstWhere((element) => element.target == newItem.target);
-      newItem.page = p.page;
-      newItem.ep = p.ep;
       history.remove(p);
-      history.addFirst(History.fromMap(newItem.toMap()));//不知道这里直接传递是复制还是引用, 总之这样写直接消灭问题
+      history.addFirst(p);
     }
     catch(e){
       //没有之前的历史记录
@@ -125,9 +137,6 @@ class HistoryManager{
       if(history.length >= 10000){
         history.remove(history.last);
       }
-    }
-    finally{
-      saveDataAndClose();
     }
   }
 
@@ -166,6 +175,15 @@ class HistoryManager{
     if(!_open) {
       await readData();
     }
+    try {
+      return history.firstWhere((element) => element.target == target);
+    }
+    catch(e){
+      return null;
+    }
+  }
+
+  History? findSync(String target){
     try {
       return history.firstWhere((element) => element.target == target);
     }

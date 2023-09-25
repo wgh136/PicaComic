@@ -57,9 +57,9 @@ class EhFavoritePageFolder extends ComicsPage{
     if(data.galleries == null){
       Res<Galleries> res;
       if(folderId == -1){
-        res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php", favoritePage: true);
+        res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?inline_set=dm_l", favoritePage: true);
       }else{
-        res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folderId", favoritePage: true);
+        res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folderId&inline_set=dm_l", favoritePage: true);
       }
       if(res.error){
         return Res(null, errorMessage: res.errorMessage);

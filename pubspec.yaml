@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.1.2+202
+version: 2.2.0+220
 environment:
   sdk: '>=3.0.0'
 
@@ -57,12 +57,8 @@ dependencies:
   share_plus: ^7.0.0
   local_auth: ^2.1.6
   html: any
-  flutter_inappwebview:
-    git:
-      url: https://github.com/pichillilorenzo/flutter_inappwebview
-      ref: v6.0.0-beta.24+1
   dio_cookie_manager: any
-  image: ^4.0.17
+  image: ^4.1.0
   shimmer_animation: ^2.1.0
   cookie_jar: any
   flutter_windows_webview:
@@ -79,6 +75,13 @@ dependencies:
   flutter_displaymode: 0.6.0
   app_links: 3.4.3
   flutter_reorderable_grid_view: 5.0.0-dev.7
+  lottie: any
+  webview_flutter: any
+  webview_cookie_manager:
+    git:
+      url: https://github.com/wgh136/webview_cookie_manager
+      ref: master
+  webview_flutter_android: any
 
 dev_dependencies:
   flutter_test:
@@ -127,6 +130,7 @@ flutter:
     - images/10.jpg
     - images/11.jpg
     - images/12.jpg
+    - images/loading.json
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
@@ -153,9 +157,9 @@ flutter:
   fonts:
     # 这是在windows端使用的字体, 由于系统字体(微软雅黑)在Flutter App上显示效果极差, 因此使用此字体
     # 仅在打包windows时取消注释
-   # - family: font
-   #   fonts:
-   #     - asset: fonts/NotoSansSC-Regular.otf
+    #- family: font
+    #  fonts:
+    #    - asset: fonts/NotoSansSC-Regular.otf
 
     # 这是一个英文字体, 文件很小, 无需担心体积, 用于显示Pica Comic
     - family: font2

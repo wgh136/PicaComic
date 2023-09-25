@@ -30,6 +30,9 @@ class EhGalleryTile extends ComicTile{
     for(var tag in tags){
       if(tag.contains(":")){
         var splits = tag.split(":");
+        if(splits[0] == "language"){
+          continue;
+        }
         var lowLevelKey = ["character", "artist", "cosplayer", "group"];
         if(lowLevelKey.contains(splits[0])){
           res2.add(splits[1].translateTagsToCN);
@@ -67,12 +70,20 @@ class EhGalleryTile extends ComicTile{
   List<String>? get tags => _generateTags(gallery.tags);
 
   @override
-  String get description => (){
-    var lang = "";
+  String get description => "${gallery.time}  ${gallery.type}";
+
+  @override
+  String? get badge => (){
+    String? lang;
     if(gallery.tags.isNotEmpty&&gallery.tags[0].substring(0,4) == "lang"){
       lang = gallery.tags[0].substring(9);
+    }else if(gallery.tags.length > 1 && gallery.tags.isNotEmpty&&gallery.tags[1].substring(0,4) == "lang"){
+      lang = gallery.tags[1].substring(9);
     }
-    return "${gallery.time}  ${gallery.type}  $lang";
+    if(PlatformDispatcher.instance.locale.languageCode == "zh" && lang != null){
+      lang = lang.translateTagsToCN;
+    }
+    return lang;
   }.call();
 
   @override
@@ -133,4 +144,6 @@ class EhGalleryTile extends ComicTile{
   @override
   String get title => gallery.title;
 
+  @override
+  int? get pages => gallery.pages;
 }

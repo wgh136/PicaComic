@@ -23,6 +23,8 @@ abstract class ComicTile extends StatelessWidget {
 
   bool get enableLongPressed => true;
 
+  int? get pages => null;
+
   void onLongTap_() {
     showDialog(
         context: Get.context!,
@@ -126,7 +128,7 @@ abstract class ComicTile extends StatelessWidget {
                   flex: 10,
                   child: ComicDescription(
                     //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
-                    title: title.replaceAll("\n", ""),
+                    title: pages == null ? title.replaceAll("\n", "") : "[${pages}P]${title.replaceAll("\n", "")}",
                     user: subTitle,
                     description: description,
                     subDescription: buildSubDescription(context),
@@ -181,11 +183,13 @@ class ComicDescription extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),
+          if(user != "")
           Text(
             user,
             style: const TextStyle(fontSize: 10.0),
             maxLines: 1,
           ),
+          if(user != "")
           const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),
           Expanded(
             child: Column(
@@ -233,27 +237,33 @@ class ComicDescription extends StatelessWidget {
                 const SizedBox(
                   height: 2,
                 ),
-                if (subDescription != null) subDescription!,
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 12.0,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (subDescription != null) subDescription!,
+                          Text(
+                            description,
+                            style: const TextStyle(
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
                     if (badge != null)
                       Container(
-                        padding: const EdgeInsets.fromLTRB(5, 1, 5, 3),
+                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
                         decoration: BoxDecoration(
                           color:
-                              Theme.of(context).colorScheme.secondaryContainer,
+                              Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8)),
                         ),
-                        child: Text(badge!),
+                        child: Text(badge!, style: const TextStyle(fontSize: 13),),
                       )
                   ],
                 )

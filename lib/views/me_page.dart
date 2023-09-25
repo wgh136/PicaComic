@@ -1,16 +1,23 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
-import 'package:pica_comic/views/accounts_page.dart';
+import 'package:pica_comic/tools/app_links.dart';
+import 'package:pica_comic/views/app_views/accounts_page.dart';
+import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/subscription.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import '../tools/debug.dart';
 import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:get/get.dart';
+import 'jm_views/jm_comic_page.dart';
 import 'main_page.dart';
 
 class MePage extends StatelessWidget {
@@ -68,10 +75,10 @@ class MePage extends StatelessWidget {
                       onTap: () => MainPage.to(() => const HistoryPage()),
                     ),
                     MePageButton(
-                      title: "订阅".tl,
-                      subTitle: "浏览订阅的漫画".tl,
-                      icon: Icons.subscriptions,
-                      onTap: () => MainPage.to(() => const SubscriptionPage()),
+                      title: "工具".tl,
+                      subTitle: "使用工具发现更多漫画".tl,
+                      icon: Icons.construction,
+                      onTap: openTool,
                     ),
                     if(kDebugMode)
                     MePageButton(
@@ -88,6 +95,188 @@ class MePage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void openTool(){
+    showModalBottomSheet(context: Get.context!, builder: (context) => Column(
+      children: [
+        ListTile(title: Text("工具".tl),),
+        ListTile(
+          leading: const Icon(Icons.subscriptions),
+          title: Text("EH订阅".tl),
+          onTap: () => MainPage.to(() => const SubscriptionPage()),
+        ),
+        ListTile(
+          leading: const Icon(Icons.image_search_outlined),
+          title: Text("图片搜索 [搜图bot酱]".tl),
+          onTap: () async{
+            Get.back();
+            if(Platform.isAndroid || Platform.isIOS) {
+              MainPage.to(() => AppWebview(
+                initialUrl: "https://soutubot.moe/",
+                onNavigation: (uri){
+                  return handleAppLinks(Uri.parse(uri), showMessageWhenError: false);
+                },
+              ),);
+            }else{
+              var webview = FlutterWindowsWebview();
+              webview.launchWebview(
+                "https://soutubot.moe/",
+                WebviewOptions(
+                  onNavigation: (uri){
+                    if(handleAppLinks(Uri.parse(uri), showMessageWhenError: false)){
+                      Future.microtask(() => webview.close());
+                      return true;
+                    }
+                    return false;
+                  }
+                )
+              );
+            }
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.image_search),
+          title: Text("图片搜索 [SauceNAO]".tl),
+          onTap: () async{
+            Get.back();
+            if(Platform.isAndroid || Platform.isIOS) {
+              MainPage.to(() => AppWebview(
+                initialUrl: "https://saucenao.com/",
+                onNavigation: (uri){
+                  return handleAppLinks(Uri.parse(uri), showMessageWhenError: false);
+                },
+              ),);
+            }else{
+              var webview = FlutterWindowsWebview();
+              webview.launchWebview(
+                  "https://saucenao.com/",
+                  WebviewOptions(
+                      onNavigation: (uri){
+                        if(handleAppLinks(Uri.parse(uri), showMessageWhenError: false)){
+                          Future.microtask(() => webview.close());
+                          return true;
+                        }
+                        return false;
+                      }
+                  )
+              );
+            }
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.web),
+          title: Text("打开链接".tl),
+          onTap: (){
+            Get.back();
+            showDialog(context: Get.context!, builder: (context) {
+              final controller = TextEditingController();
+
+              validateText() {
+                var text = controller.text;
+                if(text == ""){
+                  return null;
+                }
+
+                if(!text.contains("http://") && !text.contains("https://")){
+                  text = "https://$text";
+                }
+
+                if(!text.isURL){
+                  return "不支持的链接".tl;
+                }
+                var uri = Uri.parse(text);
+                if(!["exhentai.org", "e-hentai.org", "hitomi.la",
+                  "nhentai.net", "nhentai.xxx"].contains(uri.host)){
+                  return "不支持的链接".tl;
+                }
+                return null;
+              }
+
+              void Function(void Function())? stateSetter;
+
+              onFinish(){
+                if(validateText() != null){
+                  stateSetter?.call((){});
+                }else{
+                  Get.back();
+                  var text = controller.text;
+                  if(!text.contains("http://") && !text.contains("https://")){
+                    text = "https://$text";
+                  }
+                  handleAppLinks(Uri.parse(text));
+                }
+              }
+
+              return AlertDialog(
+                title: Text("输入链接".tl),
+                content: StatefulBuilder(
+                  builder: (BuildContext context, void Function(void Function()) setState) {
+                    stateSetter = setState;
+                    return TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        errorText: validateText(),
+                      ),
+                      onSubmitted: (s) => onFinish(),
+                    );
+                  },
+                ),
+                actions: [
+                  TextButton(onPressed: onFinish, child: Text("打开".tl)),
+                ],
+              );
+            });
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.insert_drive_file),
+          title: Text("禁漫漫画ID".tl),
+          onTap: (){
+            Get.back();
+            var controller = TextEditingController();
+            showDialog(context: context, builder: (context){
+              return AlertDialog(
+                title: Text("输入禁漫漫画ID".tl),
+                content: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    controller: controller,
+                    onEditingComplete: () {
+                      Get.back();
+                      if(controller.text.isNum){
+                        MainPage.to(()=>JmComicPage(controller.text));
+                      }else{
+                        showMessage(Get.context, "输入的ID不是数字".tl);
+                      }
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                    ],
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "ID",
+                        prefix: Text("JM")
+                    ),
+                  ),
+                ),
+                actions: [
+                  TextButton(onPressed: (){
+                    Get.back();
+                    if(controller.text.isNum){
+                      MainPage.to(()=>JmComicPage(controller.text));
+                    }else{
+                      showMessage(Get.context, "输入的ID不是数字".tl);
+                    }
+                  }, child: Text("提交".tl))
+                ],
+              );
+            });
+          },
+        )
+      ],
+    ));
   }
 }
 
@@ -121,8 +310,8 @@ class _MePageButtonState extends State<MePageButton> {
       width = screenWidth - padding * 2;
     }
 
-    if (width > 500) {
-      width = 500;
+    if (width > 400) {
+      width = 400;
     }
     var height = width / 3;
     if(height < 100){

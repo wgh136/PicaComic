@@ -10,6 +10,8 @@ import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/nhentai_network/tags.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/tools/time.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import '../log_dio.dart';
 import 'models.dart';
@@ -255,6 +257,9 @@ class NhentaiNetwork {
   Future<Res<NhentaiComic>> getComicInfo(String id) async {
     if(id == ""){
       var res = await get("https://nhentai.net/random/");
+      if(res.error){
+        return Res.fromErrorRes(res);
+      }
       id = res.data.nums;
     }
     Res<String> res = await get("https://nhentai.net/g/$id/");
@@ -284,7 +289,13 @@ class NhentaiNetwork {
       for (var field in document.querySelectorAll("div.tag-container")) {
         var fieldName =
             field.text.removeAllBlank.replaceFirst(RegExp(r":.+"), "");
-        if (fieldName == "Uploaded") continue;
+        if (fieldName == "Uploaded") {
+          var timeStr = document.querySelector("time")?.attributes["datetime"];
+          if(timeStr != null){
+            tags["时间".tl] = [timeToString(DateTime.parse(timeStr))];
+            continue;
+          }
+        }
         tags[fieldName] = [];
         for (var span in field.querySelectorAll("span.name")) {
           tags[fieldName]!.add(span.text);

@@ -60,7 +60,9 @@ class ComicItemBrief {
   String path;
   String id;
   List<String> tags;
-  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, this.tags, {bool ignoreExamination = false}){
+  int? pages;
+
+  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, this.tags, {bool ignoreExamination = false, this.pages}){
     if(ignoreExamination) return;
     bool block = false;
     for(var key in appdata.blockingKeyword){

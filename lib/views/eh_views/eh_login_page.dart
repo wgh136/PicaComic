@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:get/get.dart';
@@ -34,7 +34,6 @@ class _EhLoginPageState extends State<EhLoginPage> {
           children: [
             Center(
               child: SizedBox(
-                height: 400,
                 width: 400,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,29 +102,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                           child: TextButton(
                             onPressed: () async {
                               if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-                                var browser = LoginInBrowser(() async {
-                                  CookieManager cookieManager =
-                                      CookieManager.instance();
-                                  var id = await cookieManager.getCookie(
-                                      url: WebUri("https://e-hentai.org"),
-                                      name: "ipb_member_id");
-                                  var hash = await cookieManager.getCookie(
-                                      url: WebUri("https://e-hentai.org"),
-                                      name: "ipb_pass_hash");
-                                  var igneous = await cookieManager.getCookie(
-                                      url: WebUri("https://exhentai.org"),
-                                      name: "igneous");
-                                  try {
-                                    login(id!.value, hash!.value,
-                                        igneous == null ? "" : igneous.value);
-                                  } catch (e) {
-                                    showMessage(Get.context, "登录失败".tl);
-                                  }
-                                });
-                                await browser.openUrlRequest(
-                                    urlRequest: URLRequest(
-                                        url: WebUri(
-                                            "https://forums.e-hentai.org/index.php?act=Login&CODE=00")));
+                                loginWithWebview();
                               } else {
                                 if (await FlutterWindowsWebview.isAvailable()) {
                                   var webview = FlutterWindowsWebview();
@@ -237,22 +214,28 @@ class _EhLoginPageState extends State<EhLoginPage> {
       });
     });
   }
-}
 
-class LoginInBrowser extends InAppBrowser {
-  LoginInBrowser(this.exit);
-  final void Function() exit;
-  @override
-  void onExit() {
-    exit();
-    super.onExit();
-  }
+  void loginWithWebview(){
+    Get.to(() => AppWebview(
+      singlePage: true,
+      initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
+      onTitleChange: (title){
+        if (title == "E-Hentai Forums") {
+          Get.back();
+        }
+      },
+      onDestroy: (controller) async{
+        var cookies = await controller.getCookies("https://e-hentai.org") ?? {};
+        var id = cookies["ipb_member_id"];
+        var hash = cookies["ipb_pass_hash"];
+        var igneous = cookies["igneous"];
+        try {
+          login(id!, hash!, igneous ?? "");
+        } catch (e) {
+          showMessage(Get.context, "登录失败".tl);
+        }
+      },
+    ));
 
-  @override
-  void onTitleChanged(String? title) {
-    if (title == "E-Hentai Forums") {
-      super.close();
-    }
-    super.onTitleChanged(title);
   }
 }

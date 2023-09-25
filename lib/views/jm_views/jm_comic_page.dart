@@ -15,7 +15,7 @@ import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -23,6 +23,7 @@ import 'package:pica_comic/tools/translations.dart';
 
 class JmComicPage extends ComicPage<JmComicInfo> {
   const JmComicPage(this.id, {super.key});
+  @override
   final String id;
 
   @override
@@ -133,8 +134,8 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   EpsData? get eps => EpsData(
           List<String>.generate(data!.series.values.length,
               (index) => "第 @c 章".tlParams({"c": (index + 1).toString()})),
-          (i) {
-        addJmHistory(data!);
+          (i) async{
+        await addJmHistory(data!);
         Get.to(() => ComicReadingPage.jmComic(
             data!.id, data!.name, data!.series.values.toList(), i + 1));
       });

@@ -9,8 +9,9 @@ class EhGalleryBrief{
   String coverPath;
   String link;
   List<String> tags;
+  int? pages;
 
-  EhGalleryBrief(this.title,this.type,this.time,this.uploader,this.coverPath,this.stars,this.link,this.tags, {bool ignoreExamination=false}){
+  EhGalleryBrief(this.title,this.type,this.time,this.uploader,this.coverPath,this.stars,this.link,this.tags, {bool ignoreExamination=false, this.pages}){
     if(ignoreExamination) return;
     bool block = false;
     for(var key in appdata.blockingKeyword){

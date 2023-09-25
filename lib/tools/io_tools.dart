@@ -7,9 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/download.dart';
@@ -17,8 +18,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
-import 'package:pica_comic/views/models/local_favorites.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -102,12 +102,12 @@ Future<void> eraseCache() async{
   if(GetPlatform.isAndroid || GetPlatform.isIOS) {
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
-    await MyCacheManager().clear();
+    await ImageManager().clear();
     await CachedNetwork.clearCache();
   }else if(GetPlatform.isWindows){
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
-    await MyCacheManager().clear();
+    await ImageManager().clear();
     await CachedNetwork.clearCache();
   }
 }

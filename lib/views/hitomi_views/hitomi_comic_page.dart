@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/hitomi_network/image.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/main_page.dart';
@@ -14,7 +14,7 @@ import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class HitomiComicPage extends ComicPage<HitomiComic> {
@@ -24,6 +24,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       comic = HitomiComicBrief("", "", "", [], "", "", link, "");
 
   final HitomiComicBrief comic;
+
+  @override
+  String? get url => comic.link;
 
   @override
   Row? get actions => Row(
@@ -113,10 +116,12 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "类型".tl: data!.type.toList(),
-        "时间".tl: data!.time.toList(),
-        "语言".tl: data!.lang.toList(),
-        "标签".tl:
+        "Artists".categoryTextDynamic: data!.artists??["N/A"],
+        "Groups".categoryTextDynamic: data!.group,
+        "Categories".categoryTextDynamic: data!.type.toList(),
+        "Time".categoryTextDynamic: data!.time.toList(),
+        "Languages".categoryTextDynamic: data!.lang.toList(),
+        "Tags".categoryTextDynamic:
             List.generate(data!.tags.length, (index) => data!.tags[index].name)
       };
 
@@ -166,6 +171,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   Future<bool> loadFavorite(HitomiComic data) async{
     return (await LocalFavoritesManager().find(data.id)).isNotEmpty;
   }
+
+  @override
+  String get id => comic.link;
 }
 
 void downloadComic(

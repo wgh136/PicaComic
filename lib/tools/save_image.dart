@@ -7,7 +7,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:share_plus/share_plus.dart';
@@ -27,7 +27,7 @@ void saveImage(String urlOrHash, String id, {bool reading=false}) async{
     try {
       File? file;
       if(reading){
-        file = await MyCacheManager().getFile(urlOrHash);
+        file = await ImageManager().getFile(urlOrHash);
       } else {
         var f = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
         file = f!.file;
@@ -59,7 +59,7 @@ Future<bool> saveImageFormCache(String urlOrHash, String id, {bool reading=false
   try {
     File? file;
     if(reading){
-      file = await MyCacheManager().getFile(urlOrHash);
+      file = await ImageManager().getFile(urlOrHash);
     }else {
       var f = await DefaultCacheManager().getFileFromCache(urlOrHash);
       file = f!.file;
@@ -111,7 +111,7 @@ void saveImageFromDisk(String image) async{
 void shareImageFromCache(String urlOrHash, String id, [bool reading=false]) async{
   try{
     if(reading){
-      var file = await MyCacheManager().getFile(urlOrHash);
+      var file = await ImageManager().getFile(urlOrHash);
       var bytes = await file!.readAsBytes();
       Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
     } else {

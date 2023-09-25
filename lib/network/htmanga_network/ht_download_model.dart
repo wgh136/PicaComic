@@ -5,7 +5,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import '../../base.dart';
-import '../../foundation/cache_manager.dart';
+import '../../foundation/image_manager.dart';
 import '../../tools/io_tools.dart';
 
 class DownloadedHtComic extends DownloadedItem{
@@ -44,6 +44,9 @@ class DownloadedHtComic extends DownloadedItem{
   DownloadedHtComic.fromJson(Map<String, dynamic> json):
       comic = HtComicInfo.fromJson(json["comic"]),
       size = json["size"];
+
+  @override
+  set comicSize(double? value) => size = value;
 }
 
 class DownloadingHtComic extends DownloadingItem{
@@ -58,7 +61,7 @@ class DownloadingHtComic extends DownloadingItem{
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in MyCacheManager().getImage(link)){
+    await for(var s in ImageManager().getImage(link)){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -85,7 +88,7 @@ class DownloadingHtComic extends DownloadingItem{
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(MyCacheManager().getImage(link).listen((event) {}));
+    addStreamSubscription(ImageManager().getImage(link).listen((event) {}));
   }
 
   @override

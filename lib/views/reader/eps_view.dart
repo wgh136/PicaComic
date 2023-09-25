@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/views/jm_views/jm_comments_page.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:get/get.dart';
@@ -105,6 +106,13 @@ class _EpsViewState extends State<EpsView> {
                 const SizedBox(width: 8,),
                 Text("章节".tl, style: const TextStyle(fontSize: 18),),
                 const Spacer(),
+                if(type == ReadingType.jm)
+                IconButton(
+                  icon: Icon(Icons.comment_outlined, color: Theme.of(context).colorScheme.secondary,),
+                  onPressed: (){
+                    showComments(context, data.target, "all");
+                  },
+                ),
                 IconButton(
                   icon: Icon(Icons.my_location_outlined, color: Theme.of(context).colorScheme.secondary,size: 23,),
                   onPressed: (){

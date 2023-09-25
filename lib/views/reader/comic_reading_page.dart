@@ -8,7 +8,9 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
+import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
@@ -66,6 +68,8 @@ class ComicReadingPage extends StatelessWidget {
 
   ///阅读类型
   final ReadingType type;
+
+  late final History? history;
 
   ///一些会发生变更的信息, 全放logic里面会很乱
   late final ReadingPageData data = ReadingPageData(
@@ -142,54 +146,70 @@ class ComicReadingPage extends StatelessWidget {
     Get.put(ComicReadingPageLogic(order, data));
   }
 
+  _updateHistory(GetBuilderState<ComicReadingPageLogic> logic){
+    if (type.hasEps) {
+      if (logic.controller!.order == 1 && logic.controller!.index == 1) {
+        history?.ep = 0; history?.page = 0;
+      } else {
+        if (logic.controller!.order == data.epsWidgets.length - 1 &&
+            logic.controller!.index == logic.controller!.length) {
+          history?.ep = 0; history?.page = 0;
+        } else {
+          history?.ep = logic.controller!.order; history?.page = logic.controller!.index;
+        }
+      }
+    } else {
+      if (logic.controller!.index == 1 ||
+          logic.controller!.index == logic.controller!.length) {
+        history?.ep = 0; history?.page = 0;
+      } else {
+        history?.ep = 1; history?.page = logic.controller!.index;
+      }
+    }
+    HistoryManager().saveDataAndClose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ComicReadingPageLogic>(initState: (logic) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-      if (appdata.settings[14] == "1") {
-        setKeepScreenOn();
-      }
-      //进入阅读器时清除内存中的缓存, 并且增大限制
-      PaintingBinding.instance.imageCache.clear();
-      PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
-    }, dispose: (logic) {
-      //清除缓存并减小最大缓存
-      PaintingBinding.instance.imageCache.clear();
-      PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
-      //保存历史记录
-      if (type.hasEps) {
-        if (logic.controller!.order == 1 && logic.controller!.index == 1) {
-          appdata.history.saveReadHistory(target, 0, 0);
-        } else {
-          if (logic.controller!.order == data.epsWidgets.length - 1 &&
-              logic.controller!.index == logic.controller!.length) {
-            appdata.history.saveReadHistory(target, 0, 0);
-          } else {
-            appdata.history.saveReadHistory(
-                target, logic.controller!.order, logic.controller!.index);
-          }
+    return GetBuilder<ComicReadingPageLogic>(
+      initState: (logic) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        if (appdata.settings[14] == "1") {
+          setKeepScreenOn();
         }
-      } else {
-        if (logic.controller!.index == 1 ||
-            logic.controller!.index == logic.controller!.length) {
-          appdata.history.saveReadHistory(target, 0, 0);
-        } else {
-          appdata.history.saveReadHistory(target, 1, logic.controller!.index);
-        }
-      }
+        //进入阅读器时清除内存中的缓存, 并且增大限制
+        PaintingBinding.instance.imageCache.clear();
+        PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+        history = HistoryManager().findSync(target);
+      },
 
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-      if (data.listenVolume != null) {
-        data.listenVolume!.stop();
-      }
-      if (appdata.settings[14] == "1") {
-        cancelKeepScreenOn();
-      }
-      MyCacheManager().saveData();
-      logic.controller?.runningAutoPageTurning = false;
-      ComicImage.clear();
-    }, builder: (logic) {
+      dispose: (logic) {
+        //清除缓存并减小最大缓存
+        PaintingBinding.instance.imageCache.clear();
+        PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
+        //保存历史记录
+        _updateHistory(logic);
+
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        if (data.listenVolume != null) {
+          data.listenVolume!.stop();
+        }
+        if (appdata.settings[14] == "1") {
+          cancelKeepScreenOn();
+        }
+        ImageManager().saveData();
+        logic.controller?.runningAutoPageTurning = false;
+        ComicImage.clear();
+        Get.delete<ComicReadingPageLogic>();
+        Future.microtask((){
+          if(ComicPage.tagsStack.isNotEmpty) {
+            ComicPage.tagsStack.last.updateHistory(history);
+          }
+        });
+      },
+
+      builder: (logic) {
       return Scaffold(
         backgroundColor: Colors.black,
         endDrawerEnableOpenDragGesture: false,
@@ -216,6 +236,7 @@ class ComicReadingPage extends StatelessWidget {
         }.call(),
         body: GetBuilder<ComicReadingPageLogic>(builder: (logic) {
           if (logic.isLoading) {
+            history?.readEpisode.add(logic.order);
             //加载信息
             if (type == ReadingType.ehentai) {
               var ehLoadingInfo = EhLoadingInfo();

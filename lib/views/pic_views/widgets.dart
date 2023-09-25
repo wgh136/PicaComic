@@ -92,6 +92,9 @@ class PicComicTile extends ComicTile {
 
   @override
   String get title => comic.title;
+
+  @override
+  int? get pages => comic.pages;
 }
 
 class CategoryTile extends StatelessWidget {

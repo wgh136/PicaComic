@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
-import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../base.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
@@ -21,6 +23,7 @@ import '../widgets/list_loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/foundation/stack.dart' as stack;
 
 @immutable
 class EpsData {
@@ -65,8 +68,9 @@ class ComicPageLogic<T extends Object> extends GetxController {
   double? width;
   double? height;
   bool favorite = false;
+  History? history;
 
-  void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite) async {
+  void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite, String id) async {
     var res = await loadData();
     if (res.error) {
       message = res.errorMessage;
@@ -75,6 +79,7 @@ class ComicPageLogic<T extends Object> extends GetxController {
       favorite = await loadFavorite(res.data);
     }
     loading = false;
+    history = await HistoryManager().find(id);
     update();
   }
 
@@ -83,6 +88,13 @@ class ComicPageLogic<T extends Object> extends GetxController {
     message = null;
     loading = true;
     update();
+  }
+
+  updateHistory(History? newHistory){
+    if(newHistory != null) {
+      history = newHistory;
+      update();
+    }
   }
 }
 
@@ -172,8 +184,15 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Future<bool> loadFavorite(T data);
 
+  String get id;
+
+  /// url linked to this comic
+  String? get url => null;
+
   /// callback when a thumbnail is tapped
   void onThumbnailTapped(int index){}
+
+  ActionFunc? get searchSimilar => null;
 
   void scrollListener(){
     try {
@@ -196,6 +215,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
   }
 
+  static stack.Stack<ComicPageLogic> tagsStack = stack.Stack<ComicPageLogic>();
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints){
@@ -203,13 +224,17 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         body: GetBuilder<ComicPageLogic<T>>(
           tag: tag,
           initState: (logic) {
-            Get.put(ComicPageLogic<T>(), tag: tag);
+            var getState = Get.put(ComicPageLogic<T>(), tag: tag);
+            tagsStack.push(getState);
+          },
+          dispose: (logic){
+            tagsStack.pop();
           },
           builder: (logic) {
             _logic.width = constraints.maxWidth;
             _logic.height = constraints.maxHeight;
             if (logic.loading) {
-              logic.get(loadData, loadFavorite);
+              logic.get(loadData, loadFavorite, id);
               return showLoading(context);
             } else if (logic.message != null) {
               return showNetworkError(logic.message, logic.refresh_, context);
@@ -242,30 +267,33 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildTitle(ComicPageLogic<T> logic) {
-    var actions = [
-      Tooltip(
-        message: "分享".tl,
-        child: IconButton(
-          icon: const Icon(
-            Icons.share,
-          ),
-          onPressed: () {
-            Share.share(title!);
-          },
-        ),
+    final menu = Tooltip(
+      message: "更多".tl,
+      child: IconButton(
+        icon: const Icon(Icons.more_horiz),
+        onPressed: (){
+          showMenu(
+              context: context,
+              position: RelativeRect.fromLTRB(
+                  MediaQuery.of(context).size.width, 0,
+                  MediaQuery.of(context).size.width, 0),
+              items: [
+                PopupMenuItem(child: Text("分享".tl),
+                  onTap: ()=>Share.share(title! + (url??"")),),
+                PopupMenuItem(child: Text("复制标题".tl),
+                  onTap: ()=>Clipboard.setData(ClipboardData(text: title!)),),
+                if(url != null)
+                  PopupMenuItem(child: Text("复制链接".tl),
+                    onTap: ()=>Clipboard.setData(ClipboardData(text: url!)),),
+                if(url != null)
+                  PopupMenuItem(child: Text("在浏览器中打开".tl),
+                    onTap: ()=>launchUrlString(url!)),
+                if(searchSimilar != null)
+                  PopupMenuItem(onTap: searchSimilar!,child: Text("搜索相似画廊".tl)),
+              ]);
+        },
       ),
-      Tooltip(
-        message: "复制".tl,
-        child: IconButton(
-          icon: const Icon(
-            Icons.copy,
-          ),
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: title!));
-          },
-        ),
-      ),
-    ];
+    );
 
     if(!UiMode.m1(context)){
       return [CustomSliverAppbar(
@@ -273,7 +301,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             text: "$title${pages == null ? "" : "(${pages}P)"}",
             style: const TextStyle(fontSize: 28),
             withAddToBlockKeywordButton: true,
-          ), actions: actions, centerTitle: false
+          ), actions: [menu], centerTitle: false
       )];
     }
 
@@ -287,7 +315,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Text("$title${pages == null ? "" : "(${pages}P)"}"),
         ),
         pinned: true,
-        actions: actions,
+        actions: [menu],
       ),
       SliverToBoxAdapter(
         child: Padding(
@@ -367,7 +395,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           width: width-32,
           height: height - 32,
           child: RoundedImage(image: CachedNetworkImageProvider(
-            cover
+            cover,
+            headers: headers
           ),),
         ),
       ),
@@ -503,9 +532,31 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       ),
     ));
 
+    if(logic.history != null && logic.history!.ep != 0) {
+      res2.add(Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        height: 38,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiaryContainer,
+          borderRadius: const BorderRadius.all(Radius.circular(8))
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 8,),
+            const Icon(Icons.history, size: 24,),
+            const SizedBox(width: 4,),
+            Text("上次阅读到第 @ep 章第 @page 页".tlParams({
+              "ep": logic.history!.ep.toString(),
+              "page": logic.history!.page.toString()
+            })),
+          ],
+        ),
+      ));
+    }
+
     for (var key in tags!.keys) {
       res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 10, 8),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
         child: Wrap(
           children: [
             buildInfoCard(key, context, title: true),
@@ -526,6 +577,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildEpisodeInfo(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     if (eps == null) return [];
 
     return [
@@ -565,10 +617,16 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 child: Card(
                   elevation: 1,
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: (_logic.history?.readEpisode ?? const {}).contains(i+1) ?
+                    colorScheme.secondaryContainer.withOpacity(0.8)
+                        : colorScheme.secondaryContainer,
                   margin: EdgeInsets.zero,
                   child: Center(
-                    child: Text(eps!.eps[i]),
+                    child: Text(eps!.eps[i],
+                      style: TextStyle(color:
+                        (_logic.history?.readEpisode ?? const {}).contains(i+1) ?
+                          colorScheme.outline
+                              : null),),
                   ),
                 ),
                 onTap: () => eps!.onTap(i),
@@ -1040,6 +1098,8 @@ class RoundedImage extends StatefulWidget {
 class _RoundedImageState extends State<RoundedImage> {
   ui.Image? image;
 
+  bool failed = false;
+
   @override
   void initState() {
     super.initState();
@@ -1048,8 +1108,18 @@ class _RoundedImageState extends State<RoundedImage> {
 
   @override
   Widget build(BuildContext context) {
+    if(failed){
+      return const Center(
+        child: Icon(Icons.error),
+      );
+    }
+
     if(image == null){
-      return const SizedBox();
+      return const SizedBox(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }else{
       return CustomPaint(
         painter: _RoundedImagePainter(image: image!, borderRadius: 16),
@@ -1070,6 +1140,13 @@ class _RoundedImageState extends State<RoundedImage> {
           image = imageInfo.image;
         });
       }
+    }, onError: (error, stack){
+      if(kDebugMode){
+        print("$error\n$stack");
+      }
+      setState(() {
+        failed = true;
+      });
     });
 
     imageStream.addListener(listener);

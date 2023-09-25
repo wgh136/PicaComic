@@ -3,10 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
-import 'package:pica_comic/foundation/cache_manager.dart';
-
-var _loadingItem = 0;
-
+import 'package:pica_comic/foundation/image_manager.dart';
 
 /// 为禁漫提供的ImageLoader class, 需要对image重组
 class ImageLoader{
@@ -58,14 +55,7 @@ class ImageLoader{
       );
       //由于需要使用多线程对图片重组
       //同时加载太多会导致内存占用极高
-      var manager = MyCacheManager();
-      while(_loadingItem > 3){
-        if(await manager.find(url)){
-          break;
-        }
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-      _loadingItem++;
+      var manager = ImageManager();
 
       var bookId = "";
       for(int i = url.length-1;i>=0;i--){
@@ -118,7 +108,6 @@ class ImageLoader{
       errorListener?.call();
       rethrow;
     } finally {
-      _loadingItem--;
       await chunkEvents.close();
     }
   }

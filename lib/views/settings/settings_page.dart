@@ -11,7 +11,7 @@ import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import '../logs_page.dart';
+import '../app_views/logs_page.dart';
 import '../widgets/select.dart';
 import 'eh_settings.dart';
 import 'jm_settings.dart';

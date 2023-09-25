@@ -162,6 +162,21 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
+              leading: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.secondary),
+              title: Text("收藏夹中漫画排序模式".tl),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[42]),
+                values: [
+                  "最新收藏".tl, "最新更新".tl
+                ],
+                whenChange: (i){
+                  appdata.settings[42] = i.toString();
+                  appdata.updateSettings();
+                },
+                inPopUpWidget: widget.popUp,
+              ),
+            ),
+            ListTile(
               leading: Icon(Icons.account_tree_outlined,
                   color: Theme.of(context).colorScheme.secondary),
               title: Text("API分流".tl),

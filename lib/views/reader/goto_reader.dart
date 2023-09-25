@@ -3,7 +3,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
-import 'package:pica_comic/views/models/history.dart';
+import 'package:pica_comic/foundation/history.dart';
 import '../../base.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../network/jm_network/jm_image.dart';

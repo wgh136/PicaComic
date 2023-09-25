@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
@@ -13,7 +12,7 @@ import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/main_page.dart';
 import '../../network/eh_network/get_gallery_id.dart';
-import '../models/local_favorites.dart';
+import '../../foundation/local_favorites.dart';
 import '../page_template/comic_page.dart';
 import '../reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -24,6 +23,16 @@ class EhGalleryPage extends ComicPage<Gallery> {
   const EhGalleryPage.fromLink(this.link, {super.key});
 
   final String link;
+
+  @override
+  String get url => link;
+  
+  @override
+  ActionFunc? get searchSimilar => (){
+    var title = data!.subTitle ?? data!.title;
+    title = title.replaceAll(RegExp(r"\[.*?\]"), "").replaceAll(RegExp(r"\(.*?\)"), "");
+    MainPage.to(() => EhSearchPage("\"$title\"".trim()));
+  };
 
   @override
   Row get actions => Row(
@@ -271,6 +280,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
           ],
         ),
       );
+
+  @override
+  String get id => link;
 }
 
 class RatingLogic extends GetxController {

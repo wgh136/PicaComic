@@ -30,7 +30,7 @@ class _CustomFilterChipState extends State<CustomFilterChip> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-              border: Border.all(width: 0.5),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               color: selected ? Theme.of(context).colorScheme.primaryContainer : null
           ),

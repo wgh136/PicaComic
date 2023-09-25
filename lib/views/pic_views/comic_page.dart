@@ -6,7 +6,7 @@ import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/views/models/local_favorites.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
@@ -102,8 +102,8 @@ class PicacgComicPage extends ComicPage<ComicItem> {
       );
 
   @override
-  EpsData? get eps => EpsData(data!.eps, (i) {
-        addPicacgHistory(data!);
+  EpsData? get eps => EpsData(data!.eps, (i) async{
+        await addPicacgHistory(data!);
         Get.to(() =>
             ComicReadingPage.picacg(comic.id, i + 1, data!.eps, comic.title));
       });
@@ -203,6 +203,9 @@ class PicacgComicPage extends ComicPage<ComicItem> {
           ),
         ),
       );
+
+  @override
+  String get id => comic.id;
 }
 
 class ComicPageLogic extends GetxController {

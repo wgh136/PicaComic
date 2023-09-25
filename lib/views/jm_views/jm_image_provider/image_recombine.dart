@@ -40,8 +40,13 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
   if (num <= 1) {
     return data.imgData;
   }
-
-  image.Image srcImg = image.decodeImage(data.imgData)!;
+  image.Image srcImg;
+  try {
+    srcImg = image.decodeImage(data.imgData)!;
+  }
+  catch(e){
+    throw Exception("Failed to decode image: Data length is ${data.imgData.length} bytes");
+  }
 
   int blockSize = (srcImg.height / num).floor();
   int remainder = srcImg.height % num;
@@ -60,14 +65,18 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
   for (int i = blocks.length - 1; i >= 0; i--) {
     var block = blocks[i];
     int currBlockHeight = block['end']! - block['start']!;
-    image.Image tempImg = image.copyCrop(srcImg,
-        x: 0, y: block['start']!, width: srcImg.width, height: block['end']!);
-    await Future.delayed(const Duration(milliseconds: 40));
-    image.compositeImage(desImg, tempImg, dstY: y);
+    var range = srcImg.getRange(0, block['start']!, srcImg.width, currBlockHeight);
+    var desRange = desImg.getRange(0, y, srcImg.width, currBlockHeight);
+    while(range.moveNext() && desRange.moveNext()){
+      desRange.current.r = range.current.r;
+      desRange.current.g = range.current.g;
+      desRange.current.b = range.current.b;
+      desRange.current.a = range.current.a;
+    }
     y += currBlockHeight;
   }
 
-  return Uint8List.fromList(image.encodeJpg(desImg));
+  return image.encodeJpg(desImg);
 }
 
 Future<void> recombineImageAndWriteFile(RecombinationData data) async {
@@ -78,6 +87,7 @@ Future<void> recombineImageAndWriteFile(RecombinationData data) async {
   }
   file.writeAsBytesSync(bytes);
 }
+
 
 class RecombinationData {
   Uint8List imgData;
@@ -90,19 +100,25 @@ class RecombinationData {
       [this.savePath]);
 }
 
-///启动一个新的线程转换图片
-///
-/// 直接使用异步会导致卡顿
-Future<Uint8List> startRecombineImage(
-    Uint8List imgData, String epsId, String scrambleId, String bookId) async {
-  var res = await compute(segmentationPicture,
-      RecombinationData(imgData, epsId, scrambleId, bookId));
-  return res;
-}
+int loadingItems = 0;
+
+final maxLoadingItems = Platform.isAndroid || Platform.isIOS ? 3 : 5;
 
 ///启动一个新的线程转换图片并且写入文件
 Future<void> startRecombineAndWriteImage(Uint8List imgData, String epsId,
     String scrambleId, String bookId, String savePath) async {
-  await compute(recombineImageAndWriteFile,
-      RecombinationData(imgData, epsId, scrambleId, bookId, savePath));
+  while(loadingItems >= maxLoadingItems){
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+  loadingItems++;
+  try {
+    await compute(recombineImageAndWriteFile,
+        RecombinationData(imgData, epsId, scrambleId, bookId, savePath));
+  }
+  catch(e){
+    rethrow;
+  }
+  finally{
+    loadingItems--;
+  }
 }

@@ -13,7 +13,7 @@ class HtSettings extends StatelessWidget {
     "https://www.wnacg.com",
     "www.wn2.lol",
     "www.wn3.lol",
-    "www.wn01.lol",
+    "www.wn4.lol",
   ];
 
   @override
