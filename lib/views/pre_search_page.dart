@@ -247,10 +247,6 @@ class PreSearchPage extends StatelessWidget{
   }
 
   Widget buildModeSelector(BuildContext context){
-    if(![0,2,5].contains(searchController.target)){
-      return const SizedBox();
-    }
-
     List<Widget> buildPicacg(PreSearchController logic){
       Widget buildItem(String text, int index) => Padding(
         padding: const EdgeInsets.all(5),
@@ -317,6 +313,10 @@ class PreSearchPage extends StatelessWidget{
 
     return GetBuilder<PreSearchController>(
       builder: (logic){
+        if(![0,2,5].contains(searchController.target)){
+          return const SizedBox();
+        }
+
         return Card(
           margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           elevation: 0,

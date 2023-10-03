@@ -355,6 +355,10 @@ class ComicReadingPage extends StatelessWidget {
                       ),
                     ),
                   buildTapDownListener(logic, context),
+
+                  buildPageInfoText(logic, type.hasEps, eps, context,
+                      jm: type == ReadingType.jm),
+
                   //底部工具栏
                   buildBottomToolBar(logic, context, type.hasEps, openEpsDrawer,
                       share, saveCurrentImage),
@@ -363,9 +367,6 @@ class ComicReadingPage extends StatelessWidget {
 
                   //顶部工具栏
                   buildTopToolBar(logic, context, title),
-
-                  buildPageInfoText(logic, type.hasEps, eps, context,
-                      jm: type == ReadingType.jm),
 
                 ],
               ),

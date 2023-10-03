@@ -1,18 +1,16 @@
 import 'package:flutter/cupertino.dart';
+import 'app.dart' as app;
 
 class UiMode{
   static bool m1(BuildContext context){
-    //显示底部导航栏
-    return MediaQuery.of(context).size.shortestSide<600;
+    return app.App.uiMode(context) == app.UiMode.m1;
   }
 
   static bool m2(BuildContext context){
-    //显示左侧按钮
-    return !(MediaQuery.of(context).size.shortestSide<600)&&!(MediaQuery.of(context).size.width>1300);
+    return app.App.uiMode(context) == app.UiMode.m2;
   }
 
   static bool m3(BuildContext context){
-    //显示左侧导航栏
-    return !(MediaQuery.of(context).size.shortestSide<600)&&(MediaQuery.of(context).size.width>1300);
+    return app.App.uiMode(context) == app.UiMode.m3;
   }
 }

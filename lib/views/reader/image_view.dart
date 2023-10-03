@@ -374,6 +374,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
       child: NotificationListener<ScrollUpdateNotification>(
         child: body,
         onNotification: (notification) {
+          // update floating button
           var length = logic.data.eps.length;
           if (!logic.scrollController.hasClients) return false;
           if (logic.scrollController.position.pixels -
@@ -389,6 +390,17 @@ Widget buildComicView(ComicReadingPageLogic logic,
           } else {
             logic.showFloatingButton(0);
           }
+
+          // update index
+          if(logic.readingMethod == ReadingMethod.topToBottomContinuously) {
+            var value = logic.itemScrollListener.itemPositions.value.first
+                .index + 1;
+            if (value != logic.index) {
+              logic.index = value;
+              logic.update();
+            }
+          }
+
           return true;
         },
       ),
