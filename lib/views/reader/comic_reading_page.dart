@@ -38,7 +38,8 @@ class ReadingPageData {
   List<int> downloadedEps = [];
   ReadingType type;
   List<String> eps;
-  ReadingPageData(this.initialPage, this.target, this.type, this.eps);
+  Gallery? gallery;
+  ReadingPageData(this.initialPage, this.target, this.type, this.eps, this.gallery);
 }
 
 ///阅读器
@@ -78,7 +79,7 @@ class ComicReadingPage extends StatelessWidget {
           ? eps.elementAtOrNull(order - 1) ?? eps[0]
           : target,
       type,
-      eps);
+      eps, gallery);
 
   ///阅读Hitomi画廊时使用的图片数据
   ///
@@ -582,7 +583,7 @@ class ComicReadingPage extends StatelessWidget {
         return;
       }
     } catch (e) {
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+      showMessage(Get.context, "数据丢失, 将从网络获取漫画".tl);
       logic.downloaded = false;
     }
     info.current.value++;

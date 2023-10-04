@@ -44,14 +44,14 @@ class Comment{
 }
 
 class Gallery{
-  late String title;
+  String title;
   String? subTitle;
-  late String type;
-  late String time;
-  late String uploader;
-  late double stars;
+  String type;
+  String time;
+  String uploader;
+  double stars;
   String? rating;
-  late String coverPath;
+  String coverPath;
   Map<String,List<String>> tags;
   /// 图片链接, 在进入漫画详情页时获取第一页, 进入阅读器时获取完成
   List<String> urls;
@@ -59,7 +59,7 @@ class Gallery{
   /// api身份验证信息
   Map<String,String>? auth;
   bool favorite;
-  late String link;
+  String link;
   String maxPage;
   ///缩略图链接
   List<String> thumbnailUrls;

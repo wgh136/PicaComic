@@ -34,7 +34,7 @@ ImageProvider createImageProvider(ReadingType type, ComicReadingPageLogic logic,
   ImageProvider image;
 
   if (type == ReadingType.ehentai && !logic.downloaded) {
-    image = EhCachedImageProvider(logic.urls[index]);
+    image = EhCachedImageProvider(logic.data.gallery!, index+1);
   } else if (type == ReadingType.hitomi &&
       !logic.downloaded) {
     image = HitomiCachedImageProvider(

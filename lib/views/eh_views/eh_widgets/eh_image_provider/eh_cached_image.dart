@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'eh_cached_image.dart' as image_provider;
 import '_image_loader.dart';
 
@@ -17,7 +18,7 @@ class EhCachedImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const EhCachedImageProvider(
-      this.url, {
+      this.gallery, this.page, {
         this.maxHeight,
         this.maxWidth,
         this.scale = 1.0,
@@ -26,9 +27,9 @@ class EhCachedImageProvider
         this.cacheKey,
       });
 
+  final Gallery gallery;
 
-  /// Web url of the image to load
-  final String url;
+  final int page;
 
   /// Cache key of the image to cache
   final String? cacheKey;
@@ -81,7 +82,8 @@ class EhCachedImageProvider
       ) {
     assert(key == this);
     return ImageLoader().loadBufferAsync(
-      url,
+      gallery,
+      page,
       cacheKey,
       chunkEvents,
       decode,
@@ -95,10 +97,12 @@ class EhCachedImageProvider
     );
   }
 
+  String get key => "${gallery.link}$page";
+
   @override
   bool operator ==(dynamic other) {
     if (other is EhCachedImageProvider) {
-      return ((cacheKey ?? url) == (other.cacheKey ?? other.url)) &&
+      return ((cacheKey ?? key) == (other.cacheKey ?? other.key)) &&
           scale == other.scale &&
           maxHeight == other.maxHeight &&
           maxWidth == other.maxWidth;
@@ -107,8 +111,8 @@ class EhCachedImageProvider
   }
 
   @override
-  int get hashCode => Object.hash(cacheKey ?? url, scale, maxHeight, maxWidth);
+  int get hashCode => Object.hash(cacheKey ?? key, scale, maxHeight, maxWidth);
 
   @override
-  String toString() => '$runtimeType("$url", scale: $scale)';
+  String toString() => '$runtimeType(key, scale: $scale)';
 }

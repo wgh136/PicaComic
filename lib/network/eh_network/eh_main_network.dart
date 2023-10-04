@@ -581,6 +581,9 @@ class EhNetwork{
       }
     }
     for (int i = 1; i < int.parse(gallery.maxPage); i++){
+      if(gallery.urls.contains(urls[i]!.first)){
+        continue;
+      }
       gallery.urls.addAll(urls[i]!);
     }
     yield -1;
