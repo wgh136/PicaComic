@@ -111,7 +111,7 @@ class _MainPageState extends State<MainPage> {
       appdata.settings[31] = HtSettings.htUrls[0];
       appdata.updateSettings();
     }
-    network.getProfile().then((res){
+    network.updateProfile().then((res){
       if(res.error){
         showMessage(Get.context!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
       }
