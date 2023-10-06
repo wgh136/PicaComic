@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
-import 'package:pica_comic/views/widgets/select.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 
-class HtSettings extends StatelessWidget {
+class HtSettings extends StatefulWidget {
   const HtSettings(this.popUp, {super.key});
 
   final bool popUp;
 
   static const htUrls = <String>[
     "https://www.wnacg.com",
-    "www.wn2.lol",
-    "www.wn3.lol",
-    "www.wn4.lol",
+    "https://www.wn2.lol",
+    "https://www.wn3.lol",
+    "https://www.wn4.lol",
   ];
 
+  @override
+  State<HtSettings> createState() => _HtSettingsState();
+}
+
+class _HtSettingsState extends State<HtSettings> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -27,22 +32,57 @@ class HtSettings extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.domain_rounded),
-            title: const Text("Domain"),
-            trailing: Select(
-              width: 180,
-              initialValue: !htUrls.contains(appdata.settings[31]) ? 0 :
-                htUrls.indexOf(appdata.settings[31]),
-              whenChange: (i){
-                appdata.settings[31] = htUrls[i];
-                appdata.updateSettings();
-                HtmangaNetwork().loginFromAppdata();
-              },
-              values: List.generate(htUrls.length, (index) => htUrls[index].substring(8)),
-              inPopUpWidget: popUp,
-            ),
+            title: Text("Domain: ${appdata.settings[31].replaceFirst("https://", "")}"),
+            trailing: IconButton(onPressed: () => changeDomain(context), icon: const Icon(Icons.edit)),
           )
         ],
       ),
     );
+  }
+
+  void changeDomain(BuildContext context){
+    var controller = TextEditingController();
+
+    void onFinished() {
+      var text = controller.text;
+      if(!text.contains("https://")){
+        text = "https://$text";
+      }
+      Get.back();
+      if(!text.isURL){
+        showMessage(context, "Invalid URL");
+      }else {
+        appdata.settings[31] = text;
+        appdata.updateSettings();
+        setState(() {});
+      }
+    }
+
+    showDialog(context: context, builder: (context){
+      return SimpleDialog(
+        title: const Text("Change Domain"),
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            width: 400,
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                label: Text("Domain")
+              ),
+              controller: controller,
+              onEditingComplete: onFinished,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(onPressed: onFinished, child: Text("完成".tl)),
+              const SizedBox(width: 16,),
+            ],
+          )
+        ],
+      );
+    });
   }
 }

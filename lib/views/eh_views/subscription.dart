@@ -3,9 +3,9 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:get/get.dart';
-import '../network/eh_network/eh_main_network.dart';
-import '../network/eh_network/eh_models.dart';
-import '../network/res.dart';
+import '../../network/eh_network/eh_main_network.dart';
+import '../../network/eh_network/eh_models.dart';
+import '../../network/res.dart';
 
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
