@@ -9,13 +9,6 @@ class HtSettings extends StatefulWidget {
 
   final bool popUp;
 
-  static const htUrls = <String>[
-    "https://www.wnacg.com",
-    "https://www.wn2.lol",
-    "https://www.wn3.lol",
-    "https://www.wn4.lol",
-  ];
-
   @override
   State<HtSettings> createState() => _HtSettingsState();
 }
