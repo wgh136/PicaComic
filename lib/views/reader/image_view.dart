@@ -128,7 +128,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
 
         double imageWidth = width;
 
-        if (height / width < 1.2) {
+        if (height / width < 1.2 && appdata.settings[43] == "1") {
           imageWidth = height / 1.2;
         }
 
@@ -338,6 +338,9 @@ Widget buildComicView(ComicReadingPageLogic logic,
           logic.currentScale = value.scale ?? 1.0;
           if((prev <= 1.05 && logic.currentScale > 1.05) || (prev > 1.05 && logic.currentScale <= 1.05)){
             logic.update();
+          }
+          if(appdata.settings[43] != "1"){
+            return false;
           }
           return updateLocation(context, logic.photoViewController);
         },
