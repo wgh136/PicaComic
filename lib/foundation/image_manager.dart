@@ -198,7 +198,7 @@ class ImageManager{
     }
   }
 
-  Stream<DownloadProgress> getEhImageNew(final Gallery gallery, int page) async*{
+  Stream<DownloadProgress> getEhImageNew(final Gallery gallery, final int page) async*{
     final galleryLink = gallery.link;
     final cacheKey  = "$galleryLink$page";
     final gid = getGalleryId(galleryLink);
@@ -235,6 +235,12 @@ class ImageManager{
 
       var dio = Dio(options);
 
+      // Get imgKey
+      const urlsOnePage = 40;
+      final shouldLoadPage = (page - 1) ~/ urlsOnePage + 1;
+      final urls = (await EhNetwork().getReaderLinks(galleryLink, shouldLoadPage)).data;
+      final readerLink = urls[(page - 1) % urlsOnePage];
+
       Future<void> getShowKey() async{
         while(gallery.auth!["showKey"] == "loading"){
           await Future.delayed(const Duration(milliseconds: 100));
@@ -243,7 +249,7 @@ class ImageManager{
           return;
         }
         gallery.auth!["showKey"] = "loading";
-        var res = await dio.get<String>(gallery.urls[0]);
+        var res = await dio.get<String>(urls[0]);
         var html  = parse(res.data!);
         var script = html.querySelectorAll("script").firstWhere((element) => element.text.contains("showkey"));
         var match = RegExp(r'showkey="(.*?)"').firstMatch(script.text);
@@ -263,7 +269,7 @@ class ImageManager{
           .path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, cacheKey, savePath);
 
-      var imgKey = gallery.urls[page-1].split('/')[4];
+      var imgKey = readerLink.split('/')[4];
       // get image url through api
       var apiRes = await EhNetwork().apiRequest({
         "gid": int.parse(gid),

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
@@ -98,13 +97,8 @@ class EhDownloadingItem extends DownloadingItem{
 
   @override
   Future<Map<int, List<String>>> getLinks() async{
-    await for(var s in EhNetwork().loadGalleryPages(gallery)){
-      if(s == 0){
-        throw Exception("Failed to get image urls");
-      }
-    }
     return {
-      0: gallery.urls
+      0: List.generate((int.parse(gallery.maxPage)), (index) => "")
     };
   }
 

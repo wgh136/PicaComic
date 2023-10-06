@@ -16,7 +16,6 @@ import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import '../../network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
@@ -240,38 +239,7 @@ class ComicReadingPage extends StatelessWidget {
             history?.readEpisode.add(logic.order);
             //加载信息
             if (type == ReadingType.ehentai) {
-              var ehLoadingInfo = EhLoadingInfo();
-              ehLoadingInfo.total = int.parse(gallery!.maxPage);
-              loadGalleryInfo(logic, ehLoadingInfo);
-              return DecoratedBox(
-                decoration: const BoxDecoration(color: Colors.black),
-                child: Center(
-                  child: SizedBox(
-                    height: 100,
-                    child: Column(
-                      children: [
-                        const CircularProgressIndicator(),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        ValueListenableBuilder<int>(
-                            valueListenable: ehLoadingInfo.current,
-                            builder: (context, current, widget) {
-                              return Text(
-                                "$current/${ehLoadingInfo.total}",
-                                style: const TextStyle(color: Colors.white),
-                              );
-                            }),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        FilledButton(
-                            onPressed: () => Get.back(), child: Text("退出".tl))
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              loadGalleryInfo(logic);
             } else if (type == ReadingType.picacg) {
               loadComicInfo(logic);
             } else if (type == ReadingType.jm) {
@@ -567,7 +535,7 @@ class ComicReadingPage extends StatelessWidget {
     }
   }
 
-  void loadGalleryInfo(ComicReadingPageLogic logic, EhLoadingInfo info) async {
+  void loadGalleryInfo(ComicReadingPageLogic logic) async {
     try {
       if (downloadManager.downloadedGalleries
           .contains(getGalleryId(gallery!.link))) {
@@ -586,20 +554,10 @@ class ComicReadingPage extends StatelessWidget {
       showMessage(Get.context, "数据丢失, 将从网络获取漫画".tl);
       logic.downloaded = false;
     }
-    info.current.value++;
-    await for (var i in EhNetwork().loadGalleryPages(gallery!)) {
-      if (i == -1) {
-        logic.urls = gallery!.urls;
-        logic.change();
-        return;
-      } else if (i == 0) {
-        data.message = "网络错误".tl;
-        logic.change();
-        return;
-      } else {
-        info.current.value = i;
-      }
-    }
+    var maxPage = int.parse(gallery!.maxPage);
+    logic.urls.addAll(List.generate(maxPage, (index) => ""));
+    await Future.delayed(const Duration(milliseconds: 200));
+    logic.change();
   }
 
   void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
@@ -814,9 +772,4 @@ class ComicReadingPage extends StatelessWidget {
           reading: true);
     }
   }
-}
-
-class EhLoadingInfo {
-  int total = 1;
-  var current = ValueNotifier<int>(0);
 }

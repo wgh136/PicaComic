@@ -194,6 +194,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   ActionFunc? get searchSimilar => null;
 
+  Widget thumbnailImageBuilder(int index, String imageUrl) => _thumbnailImageBuilder(index);
+
   void scrollListener(){
     try {
       var logic = _logic;
@@ -681,8 +683,19 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     ];
   }
 
+  Widget _thumbnailImageBuilder(int index){
+    return CachedNetworkImage(
+      imageUrl: thumbnails!.thumbnails[index],
+      httpHeaders: headers,
+      fit: BoxFit.contain,
+      placeholder: (context, s) => ColoredBox(
+          color: Theme.of(context).colorScheme.surfaceVariant),
+      errorWidget: (context, s, d) => const Icon(Icons.error),
+    );
+  }
+
   List<Widget> buildThumbnails(BuildContext context) {
-    if (thumbnails == null || (thumbnails!.thumbnails.isEmpty && !tag.contains("Hitomi"))) return [];
+    if (thumbnails == null || (thumbnails!.thumbnails.isEmpty && !tag.contains("Hitomi") && !tag.contains("Eh"))) return [];
     if(thumbnails!.thumbnails.isEmpty){
       thumbnails!.get(update);
     }
@@ -741,14 +754,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                         height: double.infinity,
                         child: ClipRRect(
                           borderRadius: const BorderRadius.all(Radius.circular(16)),
-                          child: CachedNetworkImage(
-                            imageUrl: thumbnails!.thumbnails[index],
-                            httpHeaders: headers,
-                            fit: BoxFit.contain,
-                            placeholder: (context, s) => ColoredBox(
-                                color: Theme.of(context).colorScheme.surfaceVariant),
-                            errorWidget: (context, s, d) => const Icon(Icons.error),
-                          ),
+                          child: thumbnailImageBuilder(index, thumbnails!.thumbnails[index]),
                         ),
                       ),
                     )),

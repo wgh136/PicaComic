@@ -53,8 +53,6 @@ class Gallery{
   String? rating;
   String coverPath;
   Map<String,List<String>> tags;
-  /// 图片链接, 在进入漫画详情页时获取第一页, 进入阅读器时获取完成
-  List<String> urls;
   List<Comment> comments = [];
   /// api身份验证信息
   Map<String,String>? auth;
@@ -109,8 +107,7 @@ class Gallery{
     link = json["link"],
     maxPage = json["maxPage"],
     comments = [],
-    thumbnailUrls = [],
-    urls = []{
+    thumbnailUrls = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);
     }
@@ -125,7 +122,6 @@ class Gallery{
       this.rating,
       this.coverPath,
       this.tags,
-      this.urls,
       this.comments,
       this.auth,
       this.favorite,
