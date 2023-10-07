@@ -281,7 +281,9 @@ class ImageManager{
 
       var image = const JsonDecoder().convert(apiRes.data)["i3"] as String;
       image = image.substring(image.indexOf("src=\"")+5, image.indexOf("\" style")-1);
-
+      if(image.contains("509")){
+        throw ImageExceedError();
+      }
       var res =
         await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
 

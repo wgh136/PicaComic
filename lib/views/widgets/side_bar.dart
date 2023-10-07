@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/main_page.dart';
 
@@ -80,7 +82,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
                   color: Theme.of(context).colorScheme.surfaceTint),
               clipBehavior: Clip.antiAlias,
               constraints: BoxConstraints(
-                  maxWidth: width
+                  maxWidth: min(width, MediaQuery.of(context).size.width)
               ),
               height: MediaQuery.of(context).size.height,
               child: GestureDetector(
