@@ -644,7 +644,10 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
     }else{
       bool findTag(FavoriteItemWithFolderInfo comic){
         for(var element in comic.comic.tags){
-          if(element == keyword || element.translateTagsToCN == keyword){
+          if(element.contains(':')){
+            element = element.split(':').elementAtOrNull(1) ?? element;
+          }
+          if(element.contains(keyword) || element.translateTagsToCN.contains(keyword)){
             return true;
           }
         }
@@ -761,7 +764,9 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
   Widget build(BuildContext context) {
     var tiles = List.generate(comics!.length, (index) => LocalFavoriteTile(
         comics![index], widget.name, () {
-          comics = LocalFavoritesManager().getAllComics(widget.name);
+          setState(() {
+            comics = LocalFavoritesManager().getAllComics(widget.name);
+          });
     }, !enableSort, key: Key(comics![index].target),));
     return Scaffold(
       appBar: UiMode.m1(context) ? AppBar(

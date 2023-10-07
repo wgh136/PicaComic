@@ -80,7 +80,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
                     data!.title,
                     data!.cover,
                     id,"Unknown",
-                    const []
+                    data!.tags["Tags"] ?? const <String>[]
                 )));
                 showMessage(Get.context, "成功添加收藏".tl);
               }

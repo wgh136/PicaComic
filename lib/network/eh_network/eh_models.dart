@@ -59,11 +59,16 @@ class Gallery{
   bool favorite;
   String link;
   String maxPage;
-  ///缩略图链接
-  List<String> thumbnailUrls;
-  ///已加载的缩略图页数
-  int loadedThumbnailPage = 1;
 
+  List<String> _generateTags(){
+    var res = <String>[];
+    tags.forEach((key, value) {
+      for(var element in value) {
+        res.add("$key:$element");
+      }
+    });
+    return res;
+  }
 
   EhGalleryBrief toBrief() => EhGalleryBrief(
       title,
@@ -73,7 +78,7 @@ class Gallery{
       coverPath,
       stars,
       link,
-      []
+      _generateTags()
   );
 
   Map<String, dynamic> toJson() {
@@ -106,8 +111,7 @@ class Gallery{
     favorite = json["favorite"],
     link = json["link"],
     maxPage = json["maxPage"],
-    comments = [],
-    thumbnailUrls = []{
+    comments = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);
     }
@@ -127,7 +131,7 @@ class Gallery{
       this.favorite,
       this.link,
       this.maxPage,
-      this.thumbnailUrls,
+      List<String> str, // unused field
       this.subTitle);
 }
 

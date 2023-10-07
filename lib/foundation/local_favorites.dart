@@ -69,7 +69,7 @@ class FavoriteItem{
       name = comic.title,
       author = "",
       type = ComicType.nhentai,
-      tags = [],
+      tags = comic.tags,
       target = comic.id,
       coverPath = comic.cover;
 
