@@ -43,20 +43,23 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Widget buildTitle(){
     if(searchMode){
-      return Center(
-        child: Container(
-          height: 42,
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
-          child: TextField(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "搜索".tl
+      return Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top / 2),
+        child: Center(
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 6),
+            child: TextField(
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "搜索".tl
+              ),
+              onChanged: (s){
+                setState(() {
+                  keyword = s.toLowerCase();
+                });
+              },
             ),
-            onChanged: (s){
-              setState(() {
-                keyword = s.toLowerCase();
-              });
-            },
           ),
         ),
       );

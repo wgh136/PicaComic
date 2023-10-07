@@ -615,20 +615,23 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
 
   Widget buildTitle(){
     if(searchMode){
-      return Center(
-        child: Container(
-          height: 42,
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
-          child: TextField(
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "搜索".tl
+      return Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top / 2),
+        child: Center(
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 6),
+            child: TextField(
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "搜索".tl
+              ),
+              onChanged: (s){
+                setState(() {
+                  keyword = s.toLowerCase();
+                });
+              },
             ),
-            onChanged: (s){
-              setState(() {
-                keyword = s.toLowerCase();
-              });
-            },
           ),
         ),
       );
@@ -700,6 +703,7 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
   Widget buildComics(List<FavoriteItemWithFolderInfo> comics){
     return Expanded(
       child: GridView.builder(
+        padding: EdgeInsets.zero,
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: comicTileMaxWidth,
           childAspectRatio: comicTileAspectRatio,

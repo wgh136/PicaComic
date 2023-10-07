@@ -50,6 +50,13 @@ class DownloadPageLogic extends GetxController {
   ///已下载的漫画
   var comics = <DownloadedItem>[];
 
+  var baseComics = <DownloadedItem>[];
+
+  bool searchMode = false;
+
+  String keyword = "";
+  String keyword_ = "";
+
   void change() {
     loading = !loading;
     try {
@@ -59,12 +66,37 @@ class DownloadPageLogic extends GetxController {
     }
   }
 
+  void find(){
+    if(keyword == keyword_){
+      return;
+    }
+    keyword_ = keyword;
+    comics.clear();
+    if(keyword == ""){
+      comics.addAll(baseComics);
+    }else{
+      for (var element in baseComics) {
+        if(element.name.toLowerCase().contains(keyword)
+            || element.subTitle.toLowerCase().contains(keyword)){
+          comics.add(element);
+        }
+      }
+    }
+    resetSelected(comics.length);
+  }
+
   void fresh() {
+    searchMode = false;
     selecting = false;
     selectedNum = 0;
     selected.clear();
     comics.clear();
     change();
+  }
+
+  void resetSelected(int length){
+    selected = List.generate(length, (index) => false);
+    selectedNum = 0;
   }
 }
 
@@ -78,9 +110,7 @@ class DownloadPage extends StatelessWidget {
         builder: (logic) {
           if (logic.loading) {
             getComics(logic).then((v) {
-              for (var i = 0; i < logic.comics.length; i++) {
-                logic.selected.add(false);
-              }
+              logic.resetSelected(logic.comics.length);
               logic.change();
             });
             return Scaffold(
@@ -95,22 +125,28 @@ class DownloadPage extends StatelessWidget {
               body: CustomScrollView(
                 slivers: [
                   buildAppbar(context, logic),
-                  SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                        childCount: logic.comics.length, (context, index) {
-                      return buildItem(context, logic, index);
-                    }),
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: comicTileMaxWidth,
-                      childAspectRatio: comicTileAspectRatio,
-                    ),
-                  )
+                  buildComics(context, logic)
                 ],
               ),
             );
           }
         });
+  }
+
+  Widget buildComics(BuildContext context, DownloadPageLogic logic){
+    logic.find();
+    final comics = logic.comics;
+    return SliverGrid(
+      delegate: SliverChildBuilderDelegate(
+          childCount: comics.length, (context, index) {
+        return buildItem(context, logic, index);
+      }),
+      gridDelegate:
+      const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: comicTileMaxWidth,
+        childAspectRatio: comicTileAspectRatio,
+      ),
+    );
   }
 
   Future<void> getComics(DownloadPageLogic logic) async {
@@ -161,6 +197,7 @@ class DownloadPage extends StatelessWidget {
       }
       return res;
     });
+    logic.baseComics = logic.comics.map((e) => e).toList();
   }
 
   Future<void> export(DownloadPageLogic logic) async {
@@ -394,6 +431,35 @@ class DownloadPage extends StatelessWidget {
         : const Icon(Icons.checklist_outlined),
   );
 
+  Widget buildTitle(BuildContext context, DownloadPageLogic logic){
+    if(logic.searchMode && !logic.selecting){
+      return Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top / 2),
+        child: Center(
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 6),
+            child: TextField(
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "搜索".tl
+              ),
+              onChanged: (s){
+                logic.keyword = s.toLowerCase();
+                logic.update();
+              },
+            ),
+          ),
+        ),
+      );
+    }else{
+      return logic.selecting
+          ? Text("已选择 @num 个项目"
+          .tlParams({"num": logic.selectedNum.toString()}))
+          : Text("已下载".tl);
+    }
+  }
+
   Widget buildAppbar(BuildContext context, DownloadPageLogic logic)
     => CustomSmallSliverAppbar(
       leading: logic.selecting
@@ -415,12 +481,9 @@ class DownloadPage extends StatelessWidget {
       backgroundColor: logic.selecting
           ? Theme.of(context).colorScheme.secondaryContainer
           : null,
-      title: logic.selecting
-          ? Text("已选择 @num 个项目"
-          .tlParams({"num": logic.selectedNum.toString()}))
-          : Text("已下载".tl),
+      title: buildTitle(context, logic),
       actions: [
-        if (!logic.selecting)
+        if (!logic.selecting && !logic.searchMode)
           Tooltip(
             message: "排序".tl,
             child: IconButton(
@@ -443,7 +506,7 @@ class DownloadPage extends StatelessWidget {
                                 appdata.updateSettings();
                                 changed = true;
                               },
-                              values: const ["时间", "漫画名", "作者名", "大小"],
+                              values: ["时间", "漫画名", "作者名", "大小"].tl,
                               inPopUpWidget: false,
                             ),
                           ),
@@ -473,7 +536,7 @@ class DownloadPage extends StatelessWidget {
               },
             ),
           ),
-        if (!logic.selecting)
+        if (!logic.selecting && !logic.searchMode)
           Tooltip(
             message: "下载管理器".tl,
             child: IconButton(
@@ -489,7 +552,7 @@ class DownloadPage extends StatelessWidget {
               },
             ),
           )
-        else
+        else if(logic.selecting)
           Tooltip(
             message: "更多".tl,
             child: IconButton(
@@ -587,6 +650,20 @@ class DownloadPage extends StatelessWidget {
               },
             ),
           ),
+        if (!logic.selecting)
+          Tooltip(
+            message: "搜索".tl,
+            child: IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                logic.searchMode = !logic.searchMode;
+                if(!logic.searchMode){
+                  logic.keyword = "";
+                }
+                logic.update();
+              },
+            ),
+          )
       ],
     );
 }

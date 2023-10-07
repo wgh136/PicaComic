@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/extensions.dart';
@@ -10,11 +11,13 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/search.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'jm_views/jm_comic_page.dart';
 import 'main_page.dart';
 
 typedef FilterChip = CustomFilterChip;
@@ -217,6 +220,67 @@ class PreSearchPage extends StatelessWidget{
       ),
     );
 
+    buildJMID(){
+      return Padding(
+        padding: const EdgeInsets.all(5),
+        child: Material(
+          textStyle: Theme.of(context).textTheme.labelLarge,
+          child: InkWell(
+            onTap: () {
+              var controller = TextEditingController();
+              showDialog(context: context, builder: (context){
+                return AlertDialog(
+                  title: Text("输入禁漫漫画ID".tl),
+                  content: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      controller: controller,
+                      onEditingComplete: () {
+                        Get.back();
+                        if(controller.text.isNum){
+                          MainPage.to(()=>JmComicPage(controller.text));
+                        }else{
+                          showMessage(Get.context, "输入的ID不是数字".tl);
+                        }
+                      },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                      ],
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "ID",
+                          prefix: Text("JM")
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(onPressed: (){
+                      Get.back();
+                      if(controller.text.isNum){
+                        MainPage.to(()=>JmComicPage(controller.text));
+                      }else{
+                        showMessage(Get.context, "输入的ID不是数字".tl);
+                      }
+                    }, child: Text("提交".tl))
+                  ],
+                );
+              });
+            },
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.outline),
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+              ),
+              padding: const EdgeInsets.fromLTRB(24, 7, 24, 7),
+              child: const Text("JM ID"),
+            ),
+          ),
+        ),
+      );
+    }
+
     return GetBuilder<PreSearchController>(builder: (logic){
       return Card(
         margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -232,6 +296,8 @@ class PreSearchPage extends StatelessWidget{
                   buildItem(logic, 1, "EHentai"),
                 if(appdata.settings[21][2] == "1")
                   buildItem(logic, 2, "JM Comic"),
+                if(appdata.settings[21][2] == "1")
+                  buildJMID(),
                 if(appdata.settings[21][3] == "1")
                   buildItem(logic, 3, "Hitomi"),
                 if(appdata.settings[21][4] == "1")

@@ -153,7 +153,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ListTile(
             leading: Icon(Icons.brightness_4,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("夜间模式降低图片亮度".tl),
+            title: Text("深色模式下降低图片亮度".tl),
             onTap: () {},
             trailing: Switch(
               value: lowBrightness,
@@ -432,7 +432,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ),
         ...List.generate(6, (index) => ListTile(
           trailing: Radio<int>(
-            value: index,
+            value: index+1,
             groupValue: value,
             onChanged: (i) {
               setValue(i!);
@@ -440,7 +440,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           title: Text(options[index]),
           onTap: () {
-            setValue(index);
+            setValue(index+1);
           },
         ))
       ],
