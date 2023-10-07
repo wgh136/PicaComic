@@ -31,11 +31,52 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
   var comics = <History>[];
   bool status = true;
+  bool searchMode = false;
+  String keyword = "";
+  var results = <History>[];
   
   @override
   void dispose() {
     appdata.history.close();
     super.dispose();
+  }
+
+  Widget buildTitle(){
+    if(searchMode){
+      return Center(
+        child: Container(
+          height: 42,
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
+          child: TextField(
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "搜索".tl
+            ),
+            onChanged: (s){
+              setState(() {
+                keyword = s.toLowerCase();
+              });
+            },
+          ),
+        ),
+      );
+    }else{
+      return Text("${"历史记录".tl}(${comics.length})");
+    }
+  }
+
+  void find(){
+    results.clear();
+    if(keyword == ""){
+      results.addAll(comics);
+    }else{
+      for (var element in comics) {
+        if(element.title.toLowerCase().contains(keyword)
+            || element.subtitle.toLowerCase().contains(keyword)){
+          results.add(element);
+        }
+      }
+    }
   }
 
   @override
@@ -50,12 +91,14 @@ class _HistoryPageState extends State<HistoryPage> {
         });
       });
     }
+    if(searchMode){
+      find();
+    }
     return Scaffold(
         body: CustomScrollView(
           slivers: [
-            CustomSliverAppbar(
-              centerTitle: true,
-              title: Text("${"历史记录".tl}(${comics.length})"),
+            CustomSmallSliverAppbar(
+              title: buildTitle(),
               actions: [
                 Tooltip(
                   message: "清除".tl,
@@ -75,95 +118,116 @@ class _HistoryPageState extends State<HistoryPage> {
                     )),
                   ),
                 ),
+                Tooltip(
+                  message: "搜索".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      setState(() {
+                        searchMode = !searchMode;
+                        if(!searchMode){
+                          keyword = "";
+                        }
+                      });
+                    },
+                  ),
+                )
               ],
             ),
-            SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                  childCount: comics.length,
-                      (context, i){
-                    final comic = ComicItemBrief(
-                        comics[i].title,
-                        comics[i].subtitle,
-                        0,
-                        comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
-                        comics[i].target,
-                        [],
-                        ignoreExamination: true
-                    );
-                    return NormalComicTile(
-                      key: Key(comics[i].target),
-                      onLongTap: (){
-                        showDialog(context: context, builder: (context){
-                          return AlertDialog(
-                            title: Text("删除".tl),
-                            content: Text("要删除这条历史记录吗".tl),
-                            actions: [
-                              TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
-                              TextButton(onPressed: (){
-                                appdata.history.remove(comics[i].target);
-                                setState(() {
-                                  comics.removeAt(i);
-                                });
-                                Get.back();
-                              }, child: Text("删除".tl)),
-                            ],
-                          );
-                        });
-                      },
-                      description_: timeToString(comics[i].time),
-                      coverPath: comic.path,
-                      name: comic.title,
-                      subTitle_: comic.author,
-                      onTap: (){
-                        if(comics[i].type == HistoryType.picacg){
-                          MainPage.to(()=>PicacgComicPage(comic));
-                        }else if(comics[i].type == HistoryType.ehentai){
-                          MainPage.to(()=>EhGalleryPage(EhGalleryBrief(
-                            comics[i].title,
-                            "",
-                            "",
-                            comics[i].subtitle,
-                            comics[i].cover,
-                            0.0,
-                            comics[i].target,
-                            []
-                          )));
-                        }else if(comics[i].type == HistoryType.jmComic){
-                          MainPage.to(()=>JmComicPage(comics[i].target));
-                        }else if(comics[i].type == HistoryType.hitomi){
-                          MainPage.to(()=>HitomiComicPage(HitomiComicBrief(
-                            comics[i].title,
-                            "",
-                            "",
-                            [],
-                            "",
-                            "",
-                            comics[i].target,
-                            comics[i].cover
-                          )));
-                        }else if(comics[i].type == HistoryType.htmanga){
-                          MainPage.to(() => HtComicPage(HtComicBrief(
-                            comics[i].title,
-                            "",
-                            comics[i].cover,
-                            comics[i].target,
-                            0
-                          )));
-                        }else{
-                          MainPage.to(() => NhentaiComicPage(comics[i].target));
-                        }
-                      },
-                    );
-                  }
-              ),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: comicTileMaxWidth,
-                childAspectRatio: comicTileAspectRatio,
-              ),
-            ),
+            if(!searchMode)
+              buildComics(comics)
+            else
+              buildComics(results),
             SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
           ],
         )
+    );
+  }
+
+  Widget buildComics(List<History> comics){
+    return SliverGrid(
+      delegate: SliverChildBuilderDelegate(
+          childCount: comics.length,
+              (context, i){
+            final comic = ComicItemBrief(
+                comics[i].title,
+                comics[i].subtitle,
+                0,
+                comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
+                comics[i].target,
+                [],
+                ignoreExamination: true
+            );
+            return NormalComicTile(
+              key: Key(comics[i].target),
+              onLongTap: (){
+                showDialog(context: context, builder: (context){
+                  return AlertDialog(
+                    title: Text("删除".tl),
+                    content: Text("要删除这条历史记录吗".tl),
+                    actions: [
+                      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
+                      TextButton(onPressed: (){
+                        appdata.history.remove(comics[i].target);
+                        setState(() {
+                          comics.removeAt(i);
+                        });
+                        Get.back();
+                      }, child: Text("删除".tl)),
+                    ],
+                  );
+                });
+              },
+              description_: timeToString(comics[i].time),
+              coverPath: comic.path,
+              name: comic.title,
+              subTitle_: comic.author,
+              onTap: (){
+                if(comics[i].type == HistoryType.picacg){
+                  MainPage.to(()=>PicacgComicPage(comic));
+                }else if(comics[i].type == HistoryType.ehentai){
+                  MainPage.to(()=>EhGalleryPage(EhGalleryBrief(
+                      comics[i].title,
+                      "",
+                      "",
+                      comics[i].subtitle,
+                      comics[i].cover,
+                      0.0,
+                      comics[i].target,
+                      []
+                  )));
+                }else if(comics[i].type == HistoryType.jmComic){
+                  MainPage.to(()=>JmComicPage(comics[i].target));
+                }else if(comics[i].type == HistoryType.hitomi){
+                  MainPage.to(()=>HitomiComicPage(HitomiComicBrief(
+                      comics[i].title,
+                      "",
+                      "",
+                      [],
+                      "",
+                      "",
+                      comics[i].target,
+                      comics[i].cover
+                  )));
+                }else if(comics[i].type == HistoryType.htmanga){
+                  MainPage.to(() => HtComicPage(HtComicBrief(
+                      comics[i].title,
+                      "",
+                      comics[i].cover,
+                      comics[i].target,
+                      0
+                  )));
+                }else{
+                  MainPage.to(() => NhentaiComicPage(comics[i].target));
+                }
+              },
+            );
+          }
+      ),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: comicTileMaxWidth,
+        childAspectRatio: comicTileAspectRatio,
+      ),
     );
   }
 }

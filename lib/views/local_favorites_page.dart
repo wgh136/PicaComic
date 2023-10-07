@@ -57,10 +57,61 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
       return CustomScrollView(
         slivers: [
           SliverGrid(
-            delegate: SliverChildBuilderDelegate(childCount: names.length,
+            delegate: SliverChildBuilderDelegate(childCount: names.length + 1,
                 (context, i) {
-              return FolderTile(
-                  name: names[i], onDelete: () => setState(() {}));
+              if(i == 0){
+                return Material(
+                  child: InkWell(
+                    onTap: () => MainPage.to(() => const AllLocalFavorites()),
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 2.5,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Icon(
+                              Icons.folder,
+                              size: 35,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 16,
+                          ),
+                          const SizedBox(
+                            width: 2.5,
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "全部".tl,
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => MainPage.to(() => const AllLocalFavorites()),
+                            icon: const Icon(Icons.open_in_new)),
+                          const SizedBox(
+                            width: 5,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }else {
+                i--;
+                return FolderTile(
+                    name: names[i], onDelete: () => setState(() {}));
+              }
             }),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 500,
@@ -239,7 +290,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
 
 class LocalFavoriteTile extends ComicTile {
   const LocalFavoriteTile(this.comic, this.folderName, this.onDelete, this._enableLongPressed,
-      {super.key});
+      {this.showFolderInfo = false, super.key});
 
   final FavoriteItem comic;
 
@@ -249,7 +300,12 @@ class LocalFavoriteTile extends ComicTile {
 
   final bool _enableLongPressed;
 
+  final bool showFolderInfo;
+
   static Map<String, File> cache = {};
+
+  @override
+  String? get badge => showFolderInfo ? folderName : null;
 
   @override
   bool get enableLongPressed => _enableLongPressed;
@@ -543,6 +599,122 @@ class LocalFavoriteTile extends ComicTile {
     }
   };
 }
+
+class AllLocalFavorites extends StatefulWidget {
+  const AllLocalFavorites({super.key});
+
+  @override
+  State<AllLocalFavorites> createState() => _AllLocalFavoritesState();
+}
+
+class _AllLocalFavoritesState extends State<AllLocalFavorites> {
+  late final comics = LocalFavoritesManager().allComics();
+  bool searchMode = false;
+  String keyword = "";
+  var results = <FavoriteItemWithFolderInfo>[];
+
+  Widget buildTitle(){
+    if(searchMode){
+      return Center(
+        child: Container(
+          height: 42,
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
+          child: TextField(
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "搜索".tl
+            ),
+            onChanged: (s){
+              setState(() {
+                keyword = s.toLowerCase();
+              });
+            },
+          ),
+        ),
+      );
+    }else{
+      return const Text("ALL");
+    }
+  }
+
+  void find(){
+    results.clear();
+    if(keyword == ""){
+      results.addAll(comics);
+    }else{
+      bool findTag(FavoriteItemWithFolderInfo comic){
+        for(var element in comic.comic.tags){
+          if(element == keyword || element.translateTagsToCN == keyword){
+            return true;
+          }
+        }
+        return false;
+      }
+      for (var element in comics) {
+        if(element.comic.name.toLowerCase().contains(keyword)
+            || element.comic.author.toLowerCase().contains(keyword)
+            || element.folder.toLowerCase() == keyword
+            || findTag(element)){
+          results.add(element);
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(searchMode){
+      find();
+    }
+    return Scaffold(
+      body: Column(
+        children: [
+          CustomAppbar(title: buildTitle(),actions: [
+            Tooltip(
+              message: "搜索".tl,
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  setState(() {
+                    searchMode = !searchMode;
+                    if(!searchMode){
+                      keyword = "";
+                    }
+                  });
+                },
+              ),
+            )
+          ],),
+          if(searchMode)
+            buildComics(results)
+          else
+            buildComics(comics)
+        ],
+      ),
+    );
+  }
+
+  Widget buildComics(List<FavoriteItemWithFolderInfo> comics){
+    return Expanded(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: comicTileMaxWidth,
+          childAspectRatio: comicTileAspectRatio,
+        ),
+        itemCount: comics.length,
+        itemBuilder: (BuildContext context, int index) {
+          return LocalFavoriteTile(comics[index].comic, comics[index].folder, () {
+            comics.clear();
+            setState(() {
+              comics = LocalFavoritesManager().allComics();
+            });
+          }, true, showFolderInfo: true,);
+        },
+      ),
+    );
+  }
+}
+
 
 class LocalFavoritesFolder extends StatefulWidget {
   const LocalFavoritesFolder(this.name, {super.key});
