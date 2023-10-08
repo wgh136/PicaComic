@@ -136,7 +136,7 @@ Widget buildBottomToolBar(
     void Function() openEpsDrawer,
     void Function() share,
     void Function() downloadCurrentImage) {
-  var text = "EP${logic.order} : P${logic.index}";
+  var text = "E${logic.order} : P${logic.index}";
   if (logic.order == 0) {
     text = "P${logic.index}";
   }
@@ -181,16 +181,14 @@ Widget buildBottomToolBar(
                         width: 16,
                       ),
                       Container(
-                        width: 56,
                         height: 24,
+                        padding: const EdgeInsets.fromLTRB(6, 2, 6, 0),
                         decoration: BoxDecoration(
                           color:
                               Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Center(
-                          child: Text(text),
-                        ),
+                        child: Text(text),
                       ),
                       const Spacer(),
                       if (GetPlatform.isAndroid)

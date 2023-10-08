@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/views/hitomi_views/image_loader/hitomi_cached_image_provider.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/views/reader/touch_control.dart';
 import '../../base.dart';
 import '../../foundation/image_loader/cached_image.dart';
 import '../../network/eh_network/get_gallery_id.dart';
@@ -377,6 +378,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
       child: NotificationListener<ScrollUpdateNotification>(
         child: body,
         onNotification: (notification) {
+          TapController.lastScrollTime = DateTime.now();
           // update floating button
           var length = logic.data.eps.length;
           if (!logic.scrollController.hasClients) return false;

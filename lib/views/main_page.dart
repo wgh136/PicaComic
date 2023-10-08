@@ -73,12 +73,15 @@ class MainPage extends StatefulWidget {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     toExplorePage?.call();
-    Future.microtask(() {
+    Future.microtask(() async{
       int index = 0;
       for(int i=0; i<page; i++){
         if(appdata.settings[24][i] == "1"){
           index++;
         }
+      }
+      if(ExplorePage.jumpTo == null){
+        await Future.delayed(const Duration(milliseconds: 100));
       }
       ExplorePage.jumpTo?.call(index);
     });

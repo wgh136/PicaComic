@@ -295,12 +295,9 @@ class ComicReadingPage extends StatelessWidget {
                       (logic.photoViewController.scale ?? 1.0));
                 }
               },
-              onPointerUp: appdata.settings[9] == "4"
-                  ? (details) => data.scrollManager!.tapUp(details)
-                  : null,
-              onPointerDown: appdata.settings[9] == "4"
-                  ? (details) => data.scrollManager!.tapDown(details)
-                  : null,
+              onPointerUp: TapController.onTapUp,
+              onPointerDown: TapController.onTapDown,
+              behavior: HitTestBehavior.translucent,
               child: Stack(
                 children: [
                   buildComicView(
@@ -323,7 +320,6 @@ class ComicReadingPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                  buildTapDownListener(logic, context),
 
                   buildPageInfoText(logic, type.hasEps, eps, context,
                       jm: type == ReadingType.jm),
@@ -715,8 +711,53 @@ class ComicReadingPage extends StatelessWidget {
     }
   }
 
-  void share(){
+  /// Used when [ComicReadingPageLogic.readingMethod] is [ReadingMethod.topToBottomContinuously].
+  ///
+  /// Select a image form screen, to share or download
+  Future<int?> selectImage() async{
     var logic = Get.find<ComicReadingPageLogic>();
+    var items = logic.itemScrollListener.itemPositions.value.toList();
+    if(items.length == 1){
+      return items[0].index;
+    }
+    int? res;
+    await showDialog(context: Get.context!, builder: (context){
+      return SimpleDialog(
+        title: Text("选择屏幕上的图片".tl),
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 400,
+            ),
+            child: Column(
+              children: [
+                for(var item in items)
+                  ListTile(
+                    title: Text((item.index + 1).toString()),
+                    onTap: (){
+                      res = item.index;
+                      Get.back();
+                    },
+                    trailing: const Icon(Icons.arrow_right),
+                  )
+              ],
+            ),
+          )
+        ],
+      );
+    });
+    return res;
+  }
+
+  void share() async{
+    var logic = Get.find<ComicReadingPageLogic>();
+    int? index = logic.index - 1;
+    if(logic.readingMethod == ReadingMethod.topToBottomContinuously){
+      index = await selectImage();
+    }
+    if(index == null){
+      return;
+    }
     if (logic.downloaded) {
       var id = data.target;
       if (type == ReadingType.ehentai) {
@@ -732,13 +773,13 @@ class ComicReadingPage extends StatelessWidget {
         id = "nhentai$target";
       }
       shareImageFromDisk(downloadManager
-          .getImage(id, logic.order, logic.index - 1)
+          .getImage(id, logic.order, index)
           .path);
     } else {
       shareImageFromCache(
           type == ReadingType.hitomi
-              ? logic.images[logic.index - 1].hash
-              : logic.urls[logic.index - 1],
+              ? logic.images[index].hash
+              : logic.urls[index],
           data.target,
           true);
     }
@@ -746,6 +787,13 @@ class ComicReadingPage extends StatelessWidget {
 
   void saveCurrentImage() async{
     var logic = Get.find<ComicReadingPageLogic>();
+    int? index = logic.index - 1;
+    if(logic.readingMethod == ReadingMethod.topToBottomContinuously){
+      index = await selectImage();
+    }
+    if(index == null){
+      return;
+    }
     if (logic.downloaded) {
       var id = data.target;
       if (type == ReadingType.ehentai) {
@@ -761,13 +809,13 @@ class ComicReadingPage extends StatelessWidget {
         id = "nhentai$target";
       }
       saveImageFromDisk(downloadManager
-          .getImage(id, logic.order, logic.index - 1)
+          .getImage(id, logic.order, index)
           .path);
     } else {
       saveImage(
           type == ReadingType.hitomi
-              ? logic.images[logic.index - 1].hash
-              : logic.urls[logic.index - 1],
+              ? logic.images[index].hash
+              : logic.urls[index],
           data.target,
           reading: true);
     }

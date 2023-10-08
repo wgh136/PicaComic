@@ -1,6 +1,10 @@
+import 'dart:ui';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'dart:math';
 import '../../base.dart';
@@ -130,109 +134,124 @@ class ScrollManager{
   }
 }
 
-Offset? tapOffset;
+class TapController{
+  static Offset? _tapOffset;
 
-Widget buildTapDownListener(ComicReadingPageLogic logic, BuildContext context, {Widget? child}){
-  return Positioned(
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    child: GestureDetector(
-      onTapDown: (details){
-        if(!logic.scrollController.hasClients || !logic.scrollController.position.isScrollingNotifier.value){
-          tapOffset = details.globalPosition;
-        }
-      },
-      onSecondaryTapDown: (event){
-        if (logic.showSettings) {
-          logic.showSettings = false;
-          logic.update();
-          return;
-        }
-        logic.tools = !logic.tools;
+  static DateTime lastScrollTime = DateTime(2023);
+
+  static void onTapDown(PointerDownEvent event){
+    var logic = Get.find<ComicReadingPageLogic>();
+
+    if(event.buttons == kSecondaryMouseButton){
+      if (logic.showSettings) {
+        logic.showSettings = false;
         logic.update();
-        if (logic.tools) {
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        } else {
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-        }
-      },
-      onTapUp: (detail) {
-        if(tapOffset != null){
-          var distance = detail.globalPosition.dy - tapOffset!.dy;
-          if(distance > 0.1 || distance < -0.1){
-            return;
-          }
-        }
-        bool flag = false;
-        bool flag2 = false;
-        final range = int.parse(appdata.settings[40]) / 100;
-        if (appdata.settings[0] == "1" &&
-            !logic.tools) {
-          switch (appdata.settings[9]) {
-            case "1":
-            case "5":
-              detail.globalPosition.dx >
-                  MediaQuery.of(context).size.width * (1 - range)
-                  ? logic.jumpToNextPage()
-                  : flag = true;
-              detail.globalPosition.dx <
-                  MediaQuery.of(context).size.width * range
-                  ? logic.jumpToLastPage()
-                  : flag2 = true;
-              break;
-            case "2":
-            case "6":
-              detail.globalPosition.dx >
-                  MediaQuery.of(context).size.width * (1 - range)
-                  ? logic.jumpToLastPage()
-                  : flag = true;
-              detail.globalPosition.dx <
-                  MediaQuery.of(context).size.width * range
-                  ? logic.jumpToNextPage()
-                  : flag2 = true;
-              break;
-            case "3":
-              detail.globalPosition.dy >
-                  MediaQuery.of(context).size.height * (1 - range)
-                  ? logic.jumpToNextPage()
-                  : flag = true;
-              detail.globalPosition.dy <
-                  MediaQuery.of(context).size.height * range
-                  ? logic.jumpToLastPage()
-                  : flag2 = true;
-              break;
-            case "4":
-              detail.globalPosition.dy >
-                  MediaQuery.of(context).size.height * (1 - range)
-                  ? logic.jumpToNextPage()
-                  : flag = true;
-              detail.globalPosition.dy <
-                  MediaQuery.of(context).size.height * range
-                  ? logic.jumpToLastPage()
-                  : flag2 = true;
-              break;
-          }
-        } else {
-          flag = flag2 = true;
-        }
-        if (flag && flag2) {
-          if (logic.showSettings) {
-            logic.showSettings = false;
-            logic.update();
-            return;
-          }
-          logic.tools = !logic.tools;
-          logic.update();
-          if (logic.tools) {
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-          } else {
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-          }
-        }
-      },
-      child: child,
-    ),
-  );
+        return;
+      }
+      logic.tools = !logic.tools;
+      logic.update();
+      if (logic.tools) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      }
+      return;
+    }
+
+    if(appdata.settings[9] == "4"){
+      logic.data.scrollManager!.tapDown(event);
+    }
+    if(!logic.scrollController.hasClients){
+      _tapOffset = event.position;
+    }
+    else if(logic.scrollController.hasClients && (DateTime.now() - lastScrollTime).inMilliseconds > 50){
+      _tapOffset = event.position;
+    }
+  }
+
+  static void onTapUp(PointerUpEvent detail){
+    var logic = Get.find<ComicReadingPageLogic>();
+
+    if(appdata.settings[9] == "4"){
+      logic.data.scrollManager!.tapUp(detail);
+    }
+
+    var context = Get.context!;
+    if(_tapOffset != null){
+      var distance = detail.position.dy - _tapOffset!.dy;
+      if(distance > 0.1 || distance < -0.1){
+        return;
+      }
+      _tapOffset = null;
+    }else{
+      return;
+    }
+    bool flag = false;
+    bool flag2 = false;
+    final range = int.parse(appdata.settings[40]) / 100;
+    if (appdata.settings[0] == "1" &&
+        !logic.tools) {
+      switch (appdata.settings[9]) {
+        case "1":
+        case "5":
+          detail.position.dx >
+              MediaQuery.of(context).size.width * (1 - range)
+              ? logic.jumpToNextPage()
+              : flag = true;
+          detail.position.dx <
+              MediaQuery.of(context).size.width * range
+              ? logic.jumpToLastPage()
+              : flag2 = true;
+          break;
+        case "2":
+        case "6":
+          detail.position.dx >
+              MediaQuery.of(context).size.width * (1 - range)
+              ? logic.jumpToLastPage()
+              : flag = true;
+          detail.position.dx <
+              MediaQuery.of(context).size.width * range
+              ? logic.jumpToNextPage()
+              : flag2 = true;
+          break;
+        case "3":
+          detail.position.dy >
+              MediaQuery.of(context).size.height * (1 - range)
+              ? logic.jumpToNextPage()
+              : flag = true;
+          detail.position.dy <
+              MediaQuery.of(context).size.height * range
+              ? logic.jumpToLastPage()
+              : flag2 = true;
+          break;
+        case "4":
+          detail.position.dy >
+              MediaQuery.of(context).size.height * (1 - range)
+              ? logic.jumpToNextPage()
+              : flag = true;
+          detail.position.dy <
+              MediaQuery.of(context).size.height * range
+              ? logic.jumpToLastPage()
+              : flag2 = true;
+          break;
+      }
+    } else {
+      flag = flag2 = true;
+    }
+    if (flag && flag2) {
+      if (logic.showSettings) {
+        logic.showSettings = false;
+        logic.update();
+        return;
+      }
+      logic.tools = !logic.tools;
+      logic.update();
+      if (logic.tools) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      }
+    }
+  }
 }
+

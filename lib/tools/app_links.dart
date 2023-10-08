@@ -1,3 +1,4 @@
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import '../views/eh_views/eh_gallery_page.dart';
 import '../views/hitomi_views/hitomi_comic_page.dart';
@@ -7,6 +8,7 @@ import '../views/widgets/show_message.dart';
 import 'package:get/get.dart';
 
 bool handleAppLinks(Uri uri, {bool showMessageWhenError = true}){
+  LogManager.addLog(LogLevel.info, "App Link", "Open Link $uri");
   switch(uri.host){
     case "e-hentai.org":
     case "exhentai.org":
