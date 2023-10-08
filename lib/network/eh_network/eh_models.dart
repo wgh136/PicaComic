@@ -44,28 +44,31 @@ class Comment{
 }
 
 class Gallery{
-  late String title;
+  String title;
   String? subTitle;
-  late String type;
-  late String time;
-  late String uploader;
-  late double stars;
+  String type;
+  String time;
+  String uploader;
+  double stars;
   String? rating;
-  late String coverPath;
+  String coverPath;
   Map<String,List<String>> tags;
-  /// 图片链接, 在进入漫画详情页时获取第一页, 进入阅读器时获取完成
-  List<String> urls;
   List<Comment> comments = [];
   /// api身份验证信息
   Map<String,String>? auth;
   bool favorite;
-  late String link;
+  String link;
   String maxPage;
-  ///缩略图链接
-  List<String> thumbnailUrls;
-  ///已加载的缩略图页数
-  int loadedThumbnailPage = 1;
 
+  List<String> _generateTags(){
+    var res = <String>[];
+    tags.forEach((key, value) {
+      for(var element in value) {
+        res.add("$key:$element");
+      }
+    });
+    return res;
+  }
 
   EhGalleryBrief toBrief() => EhGalleryBrief(
       title,
@@ -75,7 +78,7 @@ class Gallery{
       coverPath,
       stars,
       link,
-      []
+      _generateTags()
   );
 
   Map<String, dynamic> toJson() {
@@ -108,9 +111,7 @@ class Gallery{
     favorite = json["favorite"],
     link = json["link"],
     maxPage = json["maxPage"],
-    comments = [],
-    thumbnailUrls = [],
-    urls = []{
+    comments = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);
     }
@@ -125,13 +126,12 @@ class Gallery{
       this.rating,
       this.coverPath,
       this.tags,
-      this.urls,
       this.comments,
       this.auth,
       this.favorite,
       this.link,
       this.maxPage,
-      this.thumbnailUrls,
+      List<String> str, // unused field
       this.subTitle);
 }
 

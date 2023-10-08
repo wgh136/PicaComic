@@ -9,7 +9,7 @@ import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
-import 'package:pica_comic/views/subscription.dart';
+import 'package:pica_comic/views/eh_views/subscription.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';

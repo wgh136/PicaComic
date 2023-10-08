@@ -1,4 +1,5 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
@@ -154,7 +155,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   bool get enableTranslationToCN =>
-      PlatformDispatcher.instance.locale.languageCode == "zh";
+      ui.PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
   void onThumbnailTapped(int index) {
@@ -174,9 +175,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(
-      data!.thumbnailUrls,
-      (page) => EhNetwork().getThumbnailUrls(link, page),
-      int.parse(data!.maxPage));
+      [],
+      (page) => EhNetwork().getThumbnailUrls(data!),
+      2);
 
   @override
   String? get title => data!.title;
@@ -186,6 +187,14 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   Card? get uploaderInfo => null;
+
+  @override
+  Widget thumbnailImageBuilder(int index, String imageUrl) {
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceVariant,
+      child: EhThumbnailLoader(image: CachedNetworkImageProvider(imageUrl), index: index),
+    );
+  }
 
   void starRating(BuildContext context, Map<String, String> auth) {
     if (appdata.ehId == "") {
@@ -293,4 +302,95 @@ class RatingLogic extends GetxController {
 class CommentLogic extends GetxController {
   final controller = TextEditingController();
   bool sending = false;
+}
+
+class EhThumbnailLoader extends StatefulWidget {
+  const EhThumbnailLoader({required this.image, required this.index, super.key});
+
+  final ImageProvider image;
+
+  final int index;
+
+  @override
+  State<EhThumbnailLoader> createState() => _EhThumbnailLoaderState();
+}
+
+class _EhThumbnailLoaderState extends State<EhThumbnailLoader> {
+  ui.Image? image;
+
+  bool failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(failed){
+      return const Center(
+        child: Icon(Icons.error),
+      );
+    }
+
+    if(image == null){
+      return const SizedBox();
+    }else{
+      return CustomPaint(
+        painter: _EhThumbnailPainter(widget.index, image!),
+        child: const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      );
+    }
+  }
+
+  void _loadImage() async{
+    final imageStream = widget.image.resolve(ImageConfiguration.empty);
+
+    var listener = ImageStreamListener((imageInfo, _) {
+      if(mounted) {
+        setState(() {
+          image = imageInfo.image;
+        });
+      }
+    }, onError: (error, stack){
+      setState(() {
+        failed = true;
+      });
+    });
+
+    imageStream.addListener(listener);
+  }
+}
+
+
+class _EhThumbnailPainter extends CustomPainter{
+  final int index;
+  final ui.Image image;
+
+  _EhThumbnailPainter(this.index, this.image);
+
+  @override
+  void paint(Canvas canvas, Size size){
+    final start = index % 20 * 100;
+    final end = start + 100;
+    final rect = Rect.fromLTRB(0, 0, size.width, size.height);
+    final srcRect = Rect.fromLTRB(
+        start.toDouble(), 0, end.toDouble(), image.height.toDouble());
+
+    canvas.drawImageRect(
+      image,
+      srcRect,
+      rect,
+      Paint(),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _EhThumbnailPainter oldDelegate) {
+    return image != oldDelegate.image;
+  }
 }

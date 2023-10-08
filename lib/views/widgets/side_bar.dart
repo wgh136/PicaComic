@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/main_page.dart';
 
@@ -60,37 +62,81 @@ class SideBarRoute<T> extends PopupRoute<T> {
       );
     }
 
-    return Align(
+    double location = 0;
+
+    bool shouldPop = true;
+
+    return Stack(
       alignment: Alignment.centerRight,
-      child: Container(
-        decoration: BoxDecoration(
-            borderRadius: showSideBar
-                ? const BorderRadius.horizontal(left: Radius.circular(16))
-                : null,
-            color: Theme.of(context).colorScheme.surfaceTint),
-        clipBehavior: Clip.antiAlias,
-        width: showSideBar ? width : MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: Material(
-          child: ClipRect(
-            clipBehavior: Clip.antiAlias,
+      children: [
+        StatefulBuilder(
+          builder: (context, stateUpdater) => Positioned(
+            right: location,
+            top: 0,
+            bottom: 0,
             child: Container(
-              padding: EdgeInsets.fromLTRB(
-                  0,
-                  0,
-                  MediaQuery.of(context).padding.right,
-                  addBottomPadding
-                      ? MediaQuery.of(context).padding.bottom +
-                          MediaQuery.of(context).viewInsets.bottom
-                      : 0),
-              color: useSurfaceTintColor
-                  ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
-                  : null,
-              child: body,
+              decoration: BoxDecoration(
+                  borderRadius: showSideBar
+                      ? const BorderRadius.horizontal(left: Radius.circular(16))
+                      : null,
+                  color: Theme.of(context).colorScheme.surfaceTint),
+              clipBehavior: Clip.antiAlias,
+              constraints: BoxConstraints(
+                  maxWidth: min(width, MediaQuery.of(context).size.width)
+              ),
+              height: MediaQuery.of(context).size.height,
+              child: GestureDetector(
+                onHorizontalDragUpdate: (details){
+                  shouldPop = details.delta.dx > 0;
+                  location = location - details.delta.dx;
+                  if(location > 0){
+                    location = 0;
+                  }
+                  stateUpdater((){});
+                },
+                onHorizontalDragEnd: (details){
+                  if(location != 0 && shouldPop){
+                    Navigator.of(context).pop();
+                  } else {
+                    () async{
+                      double value = 5;
+                      while(location != 0){
+                        stateUpdater((){
+                          location += value;
+                          value += 5;
+                          if(location > 0){
+                            location = 0;
+                          }
+                        });
+                        await Future.delayed(const Duration(milliseconds: 12));
+                      }
+                    }();
+                  }
+                },
+                child: Material(
+                  child: ClipRect(
+                    clipBehavior: Clip.antiAlias,
+                    child: Container(
+                      padding: EdgeInsets.fromLTRB(
+                          0,
+                          0,
+                          MediaQuery.of(context).padding.right,
+                          addBottomPadding
+                              ? MediaQuery.of(context).padding.bottom +
+                              MediaQuery.of(context).viewInsets.bottom
+                              : 0),
+                      color: useSurfaceTintColor
+                          ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
+                          : null,
+                      child: body,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        )
+      ],
     );
   }
 

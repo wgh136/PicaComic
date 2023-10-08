@@ -556,7 +556,7 @@ extension AppTranslation on String{
       "使用音量键翻页": "Use Volume Keys to Flip Page",
       "宽屏时显示前进后退关闭按钮": "Display Forward, Backward, and Close Buttons in Landscape Mode",
       "保持屏幕常亮": "Keep Screen On",
-      "夜间模式降低图片亮度": "Night Mode: Reduce Image Brightness",
+      "深色模式下降低图片亮度": "Reduce Image Brightness in dark mode",
       "选择阅读模式": "Select Reading Mode",
       "从左至右": "Left to Right",
       "从右至左": "Right to Left",
@@ -854,7 +854,17 @@ extension AppTranslation on String{
       "图片搜索 [SauceNAO]": "Image Search [SauceNAO]",
       "输入链接": "Enter Link",
       "不支持的链接": "Unsupported Link",
-      "打开": "open"
+      "打开": "open",
+      "限制图片最大显示宽度": "Limit image width",
+      "倒序": "Reverse",
     }
   };
+}
+
+extension ListTranslation on List<String>{
+  List<String> _translate(){
+    return List.generate(length, (index) => this[index].tl);
+  }
+
+  List<String> get tl => _translate();
 }

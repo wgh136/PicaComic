@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/views/hitomi_views/image_loader/hitomi_cached_image_provider.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/views/reader/touch_control.dart';
 import '../../base.dart';
 import '../../foundation/image_loader/cached_image.dart';
 import '../../network/eh_network/get_gallery_id.dart';
@@ -34,7 +35,7 @@ ImageProvider createImageProvider(ReadingType type, ComicReadingPageLogic logic,
   ImageProvider image;
 
   if (type == ReadingType.ehentai && !logic.downloaded) {
-    image = EhCachedImageProvider(logic.urls[index]);
+    image = EhCachedImageProvider(logic.data.gallery!, index+1);
   } else if (type == ReadingType.hitomi &&
       !logic.downloaded) {
     image = HitomiCachedImageProvider(
@@ -128,7 +129,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
 
         double imageWidth = width;
 
-        if (height / width < 1.2) {
+        if (height / width < 1.2 && appdata.settings[43] == "1") {
           imageWidth = height / 1.2;
         }
 
@@ -339,6 +340,9 @@ Widget buildComicView(ComicReadingPageLogic logic,
           if((prev <= 1.05 && logic.currentScale > 1.05) || (prev > 1.05 && logic.currentScale <= 1.05)){
             logic.update();
           }
+          if(appdata.settings[43] != "1"){
+            return false;
+          }
           return updateLocation(context, logic.photoViewController);
         },
         child: SizedBox(
@@ -374,6 +378,8 @@ Widget buildComicView(ComicReadingPageLogic logic,
       child: NotificationListener<ScrollUpdateNotification>(
         child: body,
         onNotification: (notification) {
+          TapController.lastScrollTime = DateTime.now();
+          // update floating button
           var length = logic.data.eps.length;
           if (!logic.scrollController.hasClients) return false;
           if (logic.scrollController.position.pixels -
@@ -389,6 +395,17 @@ Widget buildComicView(ComicReadingPageLogic logic,
           } else {
             logic.showFloatingButton(0);
           }
+
+          // update index
+          if(logic.readingMethod == ReadingMethod.topToBottomContinuously) {
+            var value = logic.itemScrollListener.itemPositions.value.first
+                .index + 1;
+            if (value != logic.index) {
+              logic.index = value;
+              logic.update();
+            }
+          }
+
           return true;
         },
       ),

@@ -90,15 +90,16 @@ class HistoryManager{
   }
 
   void saveDataAndClose() async{
-    //储存数据并且释放内存
     final dataPath = await getApplicationSupportDirectory();
     var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
     if(!(await file.exists())){
       await file.create();
     }
     file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
+    /*
     _open = false;
     history.clear();
+     */
   }
 
   void close() async{

@@ -4,12 +4,14 @@ import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader{
 
   Stream<ui.Codec> loadBufferAsync(
-      String url,
+      Gallery gallery,
+      int page,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
       ImageDecoderCallback decode,
@@ -19,7 +21,8 @@ class ImageLoader{
       Function()? errorListener,
       Function() evictImage) {
     return _load(
-      url,
+      gallery,
+      page,
       cacheKey,
       chunkEvents,
       (bytes) async {
@@ -28,8 +31,8 @@ class ImageLoader{
           return decode(buffer);
         }
         catch(e){
-          ImageManager().delete(url);
-          throw Exception("图片数据不正确, 当前IP可能超出E-Hentai的限制");
+          ImageManager().delete("${gallery.link}$page");
+          throw Exception("Invalid Image Data");
         }
       },
       maxHeight,
@@ -41,7 +44,8 @@ class ImageLoader{
   }
 
   Stream<ui.Codec> _load(
-    String url,
+    Gallery gallery,
+    int page,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
     _FileDecoderCallback decode,
@@ -62,7 +66,7 @@ class ImageLoader{
 
       for(int i = 0; i<3; i++){
         try{
-          var stream = manager.getEhImage(url);
+          var stream = manager.getEhImageNew(gallery, page);
           await for(var progress in stream){
             if(progress.currentBytes == progress.expectedBytes){
               finishProgress = progress;

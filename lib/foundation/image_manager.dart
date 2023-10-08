@@ -7,6 +7,8 @@ import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
@@ -196,6 +198,136 @@ class ImageManager{
     }
   }
 
+  Stream<DownloadProgress> getEhImageNew(final Gallery gallery, final int page) async*{
+    final galleryLink = gallery.link;
+    final cacheKey  = "$galleryLink$page";
+    final gid = getGalleryId(galleryLink);
+
+    // check whether this image is loading
+    while(loadingItems[cacheKey] != null){
+      var progress = loadingItems[cacheKey]!;
+      yield progress;
+      if(progress.finished)  return;
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
+
+    try{
+      await readData();
+      // find cache
+      if (_paths![cacheKey] != null) {
+        if (File(_paths![cacheKey]!).existsSync()) {
+          yield DownloadProgress(1, 1, cacheKey, _paths![cacheKey]!);
+          loadingItems.remove(cacheKey);
+          return;
+        } else {
+          _paths!.remove(cacheKey);
+        }
+      }
+
+      final options = BaseOptions(
+          followRedirects: true,
+          headers: {
+            "user-agent": webUA,
+            "cookie": EhNetwork().cookiesStr
+          }
+      );
+
+      var dio = Dio(options);
+
+      // Get imgKey
+      const urlsOnePage = 40;
+      final shouldLoadPage = (page - 1) ~/ urlsOnePage + 1;
+      final urls = (await EhNetwork().getReaderLinks(galleryLink, shouldLoadPage)).data;
+      final readerLink = urls[(page - 1) % urlsOnePage];
+
+      Future<void> getShowKey() async{
+        while(gallery.auth!["showKey"] == "loading"){
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        if(gallery.auth!["showKey"] != null){
+          return;
+        }
+        gallery.auth!["showKey"] = "loading";
+        var res = await dio.get<String>(urls[0]);
+        var html  = parse(res.data!);
+        var script = html.querySelectorAll("script").firstWhere((element) => element.text.contains("showkey"));
+        var match = RegExp(r'showkey="(.*?)"').firstMatch(script.text);
+        final showKey = match!.group(1)!;
+        gallery.auth!["showKey"] = showKey;
+      }
+      await getShowKey();
+      assert(gallery.auth?["showKey"] != null);
+
+      // generate file name
+      var fileName = md5.convert(const Utf8Encoder().convert(cacheKey)).toString();
+      if (fileName.length > 10) {
+        fileName = fileName.substring(0, 10);
+      }
+      fileName = "$fileName.jpg";
+      final savePath = "${(await getTemporaryDirectory())
+          .path}${pathSep}imageCache$pathSep$fileName";
+      yield DownloadProgress(0, 100, cacheKey, savePath);
+
+      var imgKey = readerLink.split('/')[4];
+      // get image url through api
+      var apiRes = await EhNetwork().apiRequest({
+        "gid": int.parse(gid),
+        "imgkey": imgKey,
+        "method": "showpage",
+        "page": page,
+        "showkey": gallery.auth!["showKey"]
+      });
+
+      var image = const JsonDecoder().convert(apiRes.data)["i3"] as String;
+      image = image.substring(image.indexOf("src=\"")+5, image.indexOf("\" style")-1);
+      if(image.contains("509")){
+        throw ImageExceedError();
+      }
+      var res =
+        await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
+
+      if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8"
+          || res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
+        throw ImageExceedError();
+      }
+
+      var stream = res.data!.stream;
+      int? expectedBytes;
+      try {
+        expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
+      }
+      catch (e) {
+        try {
+          expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
+        }
+        catch (e) {
+          // ignore
+        }
+      }
+      var currentBytes = 0;
+      var file = File(savePath);
+      if (!file.existsSync()) {
+        file.create();
+      } else {
+        file.deleteSync();
+        file.createSync();
+      }
+      await for (var b in stream) {
+        file.writeAsBytesSync(b, mode: FileMode.append);
+        currentBytes += b.length;
+        var progress =  DownloadProgress(currentBytes, (expectedBytes ?? currentBytes) + 1, cacheKey, savePath);
+        yield progress;
+        loadingItems[cacheKey] = progress;
+      }
+      await saveInfo(cacheKey, savePath);
+      yield DownloadProgress(1, 1, cacheKey, savePath);
+    }
+    finally{
+      loadingItems.remove(cacheKey);
+    }
+  }
+
   ///获取eh图片, 传入的为阅读器地址
   Stream<DownloadProgress> getEhImage(String url) async*{
     while(loadingItems[url] != null){
@@ -274,7 +406,7 @@ class ImageManager{
         throw Exception("Fail to get image url");
       }
       res =
-      await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
+        await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
 
       if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8"
           || res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {

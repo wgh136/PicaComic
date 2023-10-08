@@ -16,7 +16,6 @@ import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
-import 'package:pica_comic/views/settings/ht_settings.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
@@ -74,12 +73,15 @@ class MainPage extends StatefulWidget {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     toExplorePage?.call();
-    Future.microtask(() {
+    Future.microtask(() async{
       int index = 0;
       for(int i=0; i<page; i++){
         if(appdata.settings[24][i] == "1"){
           index++;
         }
+      }
+      if(ExplorePage.jumpTo == null){
+        await Future.delayed(const Duration(milliseconds: 100));
       }
       ExplorePage.jumpTo?.call(index);
     });
@@ -107,11 +109,7 @@ class _MainPageState extends State<MainPage> {
   ];
 
   void login(){
-    if(!HtSettings.htUrls.contains(appdata.settings[31])){
-      appdata.settings[31] = HtSettings.htUrls[0];
-      appdata.updateSettings();
-    }
-    network.getProfile().then((res){
+    network.updateProfile().then((res){
       if(res.error){
         showMessage(Get.context!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
       }

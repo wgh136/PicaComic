@@ -20,3 +20,9 @@ String timeToString(DateTime time){
     return "刚刚".tl;
   }
 }
+
+extension TimeExtension on DateTime{
+  Duration operator-(DateTime other){
+    return Duration(microseconds: microsecondsSinceEpoch - other.microsecondsSinceEpoch);
+  }
+}

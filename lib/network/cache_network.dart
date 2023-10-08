@@ -59,7 +59,7 @@ class CachedNetwork {
 
     var res = await dio.get(url);
     if (res.data == null && !url.contains("random")) {
-      throw Exception("无数据");
+      throw Exception("Empty data");
     }
     if (expiredTime != CacheExpiredTime.no) {
       if (file.existsSync()) {
@@ -102,9 +102,9 @@ class CachedNetwork {
     var json = const JsonDecoder().convert(res.data);
     var data = json["data"];
     if (data is List && data.isEmpty) {
-      throw Exception("无数据");
+      throw Exception("Empty data");
     } else if (data is List) {
-      throw Exception("解析出错");
+      throw Exception("Data parsing error");
     }
     var decodedData = JmNetwork.convertData(data, time);
     if (expiredTime != CacheExpiredTime.no) {

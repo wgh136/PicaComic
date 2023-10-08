@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/js.dart';
@@ -410,25 +411,14 @@ class EhNetwork{
         }
         tags[tr.children[0].text.substring(0, tr.children[0].text.length - 1)] = list;
       }
-      //图片链接, 仅加载第一页, 因为无需额外的网络请求, 剩下的进入阅读器加载
-      var urls = <String>[];
-      String maxPage = "1"; //缩略图列表的最大页数
-      var pages = document.querySelectorAll("div.gtb > table.ptb > tbody > tr > td");
-      maxPage = pages[pages.length - 2].text;
-      try {
-        var temp = document;
-        var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
-        for (var link in links) {
-          urls.add(link.attributes["href"]!);
+      String maxPage = "1";
+
+      for(var element in document.querySelectorAll("td.gdt2")){
+        if(element.text.contains("pages")){
+          maxPage = element.text.nums;
         }
-        links = temp.querySelectorAll("div#gdt > div.gdtl > a");
-        for (var link in links) {
-          urls.add(link.attributes["href"]!);
-        }
-      } catch (e) {
-        //获取图片链接失败
-        return Res(null, errorMessage: "解析失败: $e");
       }
+
       bool favorite = true;
       if(document.getElementById("favoritelink")?.text == " Add to Favorites"){
         favorite = false;
@@ -470,8 +460,18 @@ class EhNetwork{
       if(subTitle!=null && subTitle.removeAllWhitespace == ""){
         subTitle = null;
       }
+      var thumbnailDiv = document.querySelectorAll("div.gdtm > div")[0];
+      var pattern = RegExp(r"/m/(\d+)/");
+      var match = pattern.firstMatch(thumbnailDiv.attributes["style"]??"");
+
+      if (match != null) {
+        var extractedValue = match.group(1);
+        if(extractedValue != null){
+          auth["thumbnailKey"] = extractedValue;
+        }
+      }
       return Res(Gallery(title, type, time, uploader, stars, rating, coverPath,
-          tags, urls, comments, auth, favorite, link, maxPage, thumbnailUrls, subTitle));
+          tags, comments, auth, favorite, link, maxPage, thumbnailUrls, subTitle));
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
@@ -502,21 +502,28 @@ class EhNetwork{
     }
   }
 
-  Future<Res<List<String>>> getThumbnailUrls(String link, int page) async{
-    var res = await request("$link?inline_set=ts_l&p=${page-1}");
+  /// page starts from 1
+  Future<Res<List<String>>> getReaderLinks(String link, int page) async{
+    String url = "$link?inline_set=ts_m";
+    if(page != 1){
+      url = "$url&p=${page-1}";
+    }
+    var res = await request(url);
     if(res.error){
       return Res(null, errorMessage: res.errorMessage);
     }
     try{
-      var document = parse(res.data);
-      var imgUrls = <String>[];
-      var imgDom = document.querySelectorAll("div.gdtl > a > img");
-      for(var i in imgDom){
-        if(i.attributes["src"] != null) {
-          imgUrls.add(i.attributes["src"]!);
-        }
+      var urls_ = <String>[];
+      var temp = parse(res.data);
+      var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
+      for (var link in links) {
+        urls_.add(link.attributes["href"]!);
       }
-      return Res(imgUrls);
+      links = temp.querySelectorAll("div#gdt > div.gdtl > a");
+      for (var link in links) {
+        urls_.add(link.attributes["href"]!);
+      }
+      return Res(urls_);
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
@@ -524,66 +531,33 @@ class EhNetwork{
     }
   }
 
-  ///获取图片链接
-  ///
-  /// 返回值表示成功加载的页数
-  /// 返回-1表示加载完成
-  /// 返回0表示失败
-  Stream<int> loadGalleryPages(Gallery gallery) async*{
-    Map<int, List<String>> urls = {};
-    int loadingItems = 0;
-    int loaded = 0;
-    Future<void> loadPage(int p) async{
-      loadingItems++;
-      try {
-        var urls_ = <String>[];
-        var temp = parse((await request("${gallery.link}?p=$p")).data);
-        var links = temp.querySelectorAll("div#gdt > div.gdtm > div > a");
-        for (var link in links) {
-          urls_.add(link.attributes["href"]!);
+  Future<Res<List<String>>> getThumbnailUrls(Gallery gallery) async{
+    if(gallery.auth!["thumbnailKey"] == null){
+      var res = await request("${gallery.link}?inline_set=ts_m");
+      if(res.error){
+        return Res.fromErrorRes(res);
+      }
+      var document = parse(res.data);
+      var thumbnailDiv = document.querySelectorAll("div.gdtm > div")[0];
+      var pattern = RegExp(r"/m/(\d+)/");
+      var match = pattern.firstMatch(thumbnailDiv.attributes["style"]??"");
+
+      if (match != null) {
+        var extractedValue = match.group(1);
+        if(extractedValue != null){
+          gallery.auth!["thumbnailKey"] = extractedValue;
         }
-        links = temp.querySelectorAll("div#gdt > div.gdtl > a");
-        for (var link in links) {
-          urls_.add(link.attributes["href"]!);
-        }
-        await Future.delayed(const Duration(milliseconds: 100));
-        urls[p] = urls_;
-        loaded++;
-      }
-      catch(e){
-        rethrow;
-      }
-      finally{
-        loadingItems--;
+      }else{
+        return const Res(null, errorMessage: "Failed to get Thumbnail");
       }
     }
-    int loaded_ = 0;
-    bool error = false;
-    for (int i = 1; i < int.parse(gallery.maxPage); i++) {
-      while(loadingItems > 5){
-        await Future.delayed(const Duration(milliseconds: 200));
+    return Res(List.generate(int.parse(gallery.maxPage), (index) {
+      var page = (index ~/ 20).toString();
+      if(page.length == 1){
+        page = "0$page";
       }
-      if(loaded_ != loaded){
-        yield loaded;
-        loaded_ = loaded;
-      }
-      loadPage(i).onError((e, stackTrace) => error = true);
-      if(error){
-        yield 0;
-        return;
-      }
-    }
-    while(loadingItems != 0){
-      await Future.delayed(const Duration(milliseconds: 200));
-      if(error){
-        yield 0;
-        return;
-      }
-    }
-    for (int i = 1; i < int.parse(gallery.maxPage); i++){
-      gallery.urls.addAll(urls[i]!);
-    }
-    yield -1;
+      return "https://ehgt.org/m/${gallery.auth!["thumbnailKey"]!}/${getGalleryId(gallery.link)}-$page.jpg";
+    }));
   }
 
   ///搜索e-hentai

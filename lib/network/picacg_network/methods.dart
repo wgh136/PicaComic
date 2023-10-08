@@ -199,6 +199,18 @@ class PicacgNetwork {
     return Res(p);
   }
 
+  Future<Res<bool>> updateProfile() async{
+    if(token == ""){
+      return const Res(true);
+    }
+    var res = await getProfile();
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    appdata.user = res.data;
+    return const Res(true);
+  }
+
   ///获取热搜词
   Future<Res<List<String>>> getKeyWords() async {
     var response =
@@ -216,7 +228,7 @@ class PicacgNetwork {
 
   ///获取分类
   Future<Res<List<CategoryItem>>> getCategories() async {
-    var response = await get("$apiUrl/categories");
+    var response = await get("$apiUrl/categories", expiredTime: CacheExpiredTime.no);
     if (response.error) {
       return Res(null, errorMessage: response.errorMessage);
     }
@@ -284,8 +296,8 @@ class PicacgNetwork {
           tags.addAll(List<String>.from(
               res["data"]["comics"]["docs"][i]["categories"] ?? []));
           var si = ComicItemBrief(
-              res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-              res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+              res["data"]["comics"]["docs"][i]["title"] ?? "Unknown",
+              res["data"]["comics"]["docs"][i]["author"] ?? "Unknown",
               int.parse(
                   res["data"]["comics"]["docs"][i]["likesCount"].toString()),
               res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
@@ -347,7 +359,7 @@ class PicacgNetwork {
           res["data"]["comic"]["_creator"]["exp"],
           res["data"]["comic"]["_creator"]["level"],
           res["data"]["comic"]["_creator"]["name"],
-          res["data"]["comic"]["_creator"]["title"] ?? "未知",
+          res["data"]["comic"]["_creator"]["title"] ?? "Unknown",
           null,
           res["data"]["comic"]["_creator"]["slogan"] ?? "无",
           null);
@@ -361,14 +373,14 @@ class PicacgNetwork {
       }
       var ci = ComicItem(
           creator,
-          res["data"]["comic"]["title"] ?? "未知",
+          res["data"]["comic"]["title"] ?? "Unknown",
           res["data"]["comic"]["description"] ?? "无",
           res["data"]["comic"]["thumb"]["fileServer"] +
                   "/static/" +
                   res["data"]["comic"]["thumb"]["path"] ??
               "",
-          res["data"]["comic"]["author"] ?? "未知",
-          res["data"]["comic"]["chineseTeam"] ?? "未知",
+          res["data"]["comic"]["author"] ?? "Unknown",
+          res["data"]["comic"]["chineseTeam"] ?? "Unknown",
           categories,
           tags,
           res["data"]["comic"]["likesCount"] ?? 0,
@@ -470,7 +482,7 @@ class PicacgNetwork {
               res["data"]["comments"]["docs"][i]["created_at"]);
         } else {
           t = Comment(
-              "未知",
+              "Unknown",
               url,
               "",
               1,
@@ -516,8 +528,8 @@ class PicacgNetwork {
         tags.addAll(List<String>.from(
             res["data"]["comics"]["docs"][i]["categories"] ?? []));
         var si = ComicItemBrief(
-            res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-            res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+            res["data"]["comics"]["docs"][i]["title"] ?? "Unknown",
+            res["data"]["comics"]["docs"][i]["author"] ?? "Unknown",
             int.parse(
                 res["data"]["comics"]["docs"][i]["likesCount"].toString()),
             res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
@@ -550,8 +562,8 @@ class PicacgNetwork {
           tags.addAll(
               List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
-            res["data"]["comics"][i]["title"] ?? "未知",
-            res["data"]["comics"][i]["author"] ?? "未知",
+            res["data"]["comics"][i]["title"] ?? "Unknown",
+            res["data"]["comics"][i]["author"] ?? "Unknown",
             res["data"]["comics"][i]["totalLikes"] ?? 0,
             res["data"]["comics"][i]["thumb"]["fileServer"] +
                 "/static/" +
@@ -613,8 +625,8 @@ class PicacgNetwork {
         tags.addAll(
             List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
         var si = ComicItemBrief(
-            res["data"]["comics"][i]["title"] ?? "未知",
-            res["data"]["comics"][i]["author"] ?? "未知",
+            res["data"]["comics"][i]["title"] ?? "Unknown",
+            res["data"]["comics"][i]["author"] ?? "Unknown",
             res["data"]["comics"][i]["totalLikes"] ?? 0,
             res["data"]["comics"][i]["thumb"]["fileServer"] +
                 "/static/" +
@@ -726,7 +738,7 @@ class PicacgNetwork {
         var t = Comment("", "", "", 1, "", 0, "", false, 0, null, null, "");
         if (res["data"]["comments"]["docs"][i]["_user"] != null) {
           t = Comment(
-              res["data"]["comments"]["docs"][i]["_user"]["name"] ?? "未知",
+              res["data"]["comments"]["docs"][i]["_user"]["name"] ?? "Unknown",
               url,
               res["data"]["comments"]["docs"][i]["_user"]["_id"] ?? "",
               res["data"]["comments"]["docs"][i]["_user"]["level"] ?? 0,
@@ -740,7 +752,7 @@ class PicacgNetwork {
               res["data"]["comments"]["docs"][i]["created_at"]);
         } else {
           t = Comment(
-              "未知",
+              "Unknown",
               url,
               "",
               1,
@@ -795,8 +807,8 @@ class PicacgNetwork {
           tags.addAll(
               List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
-              res["data"]["comics"][i]["title"] ?? "未知",
-              res["data"]["comics"][i]["author"] ?? "未知",
+              res["data"]["comics"][i]["title"] ?? "Unknown",
+              res["data"]["comics"][i]["author"] ?? "Unknown",
               int.parse(res["data"]["comics"][i]["likesCount"].toString()),
               res["data"]["comics"][i]["thumb"]["fileServer"] +
                   "/static/" +
@@ -828,8 +840,8 @@ class PicacgNetwork {
       for (int i = 0; i < res["data"]["collections"][0]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["collections"][0]["comics"][i]["title"] ?? "未知",
-              res["data"]["collections"][0]["comics"][i]["author"] ?? "未知",
+              res["data"]["collections"][0]["comics"][i]["title"] ?? "Unknown",
+              res["data"]["collections"][0]["comics"][i]["author"] ?? "Unknown",
               res["data"]["collections"][0]["comics"][i]["totalLikes"] ?? 0,
               res["data"]["collections"][0]["comics"][i]["thumb"]
                       ["fileServer"] +
@@ -851,8 +863,8 @@ class PicacgNetwork {
       for (int i = 0; i < res["data"]["collections"][1]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["collections"][1]["comics"][i]["title"] ?? "未知",
-              res["data"]["collections"][1]["comics"][i]["author"] ?? "未知",
+              res["data"]["collections"][1]["comics"][i]["title"] ?? "Unknown",
+              res["data"]["collections"][1]["comics"][i]["author"] ?? "Unknown",
               res["data"]["collections"][1]["comics"][i]["totalLikes"] ?? 0,
               res["data"]["collections"][1]["comics"][i]["thumb"]
                       ["fileServer"] +
@@ -883,12 +895,12 @@ class PicacgNetwork {
       for (int i = 0; i < res["data"]["games"]["docs"].length; i++) {
         var game = GameItemBrief(
             res["data"]["games"]["docs"][i]["_id"] ?? "",
-            res["data"]["games"]["docs"][i]["title"] ?? "未知",
+            res["data"]["games"]["docs"][i]["title"] ?? "Unknown",
             res["data"]["games"]["docs"][i]["adult"],
             res["data"]["games"]["docs"][i]["icon"]["fileServer"] +
                 "/static/" +
                 res["data"]["games"]["docs"][i]["icon"]["path"],
-            res["data"]["games"]["docs"][i]["publisher"] ?? "未知");
+            res["data"]["games"]["docs"][i]["publisher"] ?? "Unknown");
         games.games.add(game);
       }
     }
@@ -909,7 +921,7 @@ class PicacgNetwork {
     var res = response.data;
     var gameInfo = GameInfo(
         id,
-        res["data"]["game"]["title"] ?? "未知",
+        res["data"]["game"]["title"] ?? "Unknown",
         res["data"]["game"]["description"],
         res["data"]["game"]["icon"]["fileServer"] +
             "/static/" +
@@ -976,8 +988,8 @@ class PicacgNetwork {
         tags.addAll(List<String>.from(
             res["data"]["comics"]["docs"][i]["categories"] ?? []));
         var si = ComicItemBrief(
-            res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-            res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+            res["data"]["comics"]["docs"][i]["title"] ?? "Unknown",
+            res["data"]["comics"]["docs"][i]["author"] ?? "Unknown",
             int.parse(
                 res["data"]["comics"]["docs"][i]["likesCount"].toString()),
             res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
@@ -1012,8 +1024,8 @@ class PicacgNetwork {
             res["data"]["comics"]["docs"][i]["categories"] ?? []));
 
         var si = ComicItemBrief(
-          res["data"]["comics"]["docs"][i]["title"] ?? "未知",
-          res["data"]["comics"]["docs"][i]["author"] ?? "未知",
+          res["data"]["comics"]["docs"][i]["title"] ?? "Unknown",
+          res["data"]["comics"]["docs"][i]["author"] ?? "Unknown",
           int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
           res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
               "/static/" +

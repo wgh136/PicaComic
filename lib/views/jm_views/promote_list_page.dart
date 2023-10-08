@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -58,7 +59,7 @@ class JmPromoteListPage extends StatelessWidget {
           }else if(logic.list!=null){
             return CustomScrollView(
               slivers: [
-                SliverAppBar.large(
+                CustomSliverAppbar(
                   title: Text(title),
                   centerTitle: true,
                 ),

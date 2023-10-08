@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
 import 'jm_widgets.dart';
@@ -45,73 +46,79 @@ class JmWeekRecommendationPage extends StatelessWidget {
     var key = GlobalKey();
     const titleLength = 190;
     return Scaffold(
-      appBar: AppBar(
-        title: Text("每周必看".tl),
-        actions: [
-          GetBuilder<JWRPLogic>(builder: (logic)=>Container(
-            key: key,
-            margin: const EdgeInsets.all(5),
-            padding: const EdgeInsets.all(5),
-            width: MediaQuery.of(context).size.width>250+titleLength?250:MediaQuery.of(context).size.width-titleLength,
-            height: 40,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: const BorderRadius.all(Radius.circular(16))
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 8,),
-                Expanded(child: Text(logic.currentName, maxLines: 1, overflow: TextOverflow.ellipsis,),),
-                IconButton(
-                  icon: const Icon(Icons.arrow_drop_down_sharp),
-                  iconSize: 16,
-                  onPressed: (){
-                    if(logic.rec == null) return;
-                    var renderObject = key.currentContext!.findRenderObject() as RenderBox;
-                    var offset = renderObject.localToGlobal(Offset.zero);
-                    offset = Offset(offset.dx+246, offset.dy+53);
-                    showMenu(
-                        constraints: BoxConstraints(
-                            maxHeight: 300,
-                            minWidth: (MediaQuery.of(context).size.width > 250 ? 250 : MediaQuery.of(context).size.width)-16
-                        ),
-                        context: context,
-                        position: RelativeRect.fromLTRB(offset.dx, offset.dy, MediaQuery.of(context).size.width-offset.dx, MediaQuery.of(context).size.height-offset.dy),
-                        items: [
-                          for(var item in logic.rec!.entries)
-                            PopupMenuItem(
-                              child: Text(item.value),
-                              onTap: (){
-                                logic.currentId = item.key;
-                                logic.currentName = item.value;
-                                logic.update();
-                              },
-                            )
-                        ]
-                    );
-                  },
+      body: Column(
+        children: [
+          CustomAppbar(
+            title: Text("每周必看".tl),
+            actions: [
+              GetBuilder<JWRPLogic>(builder: (logic)=>Container(
+                key: key,
+                margin: const EdgeInsets.all(5),
+                padding: const EdgeInsets.all(5),
+                width: MediaQuery.of(context).size.width>250+titleLength?250:MediaQuery.of(context).size.width-titleLength,
+                height: 40,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: const BorderRadius.all(Radius.circular(16))
                 ),
-              ],
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8,),
+                    Expanded(child: Text(logic.currentName, maxLines: 1, overflow: TextOverflow.ellipsis,),),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_drop_down_sharp),
+                      iconSize: 16,
+                      onPressed: (){
+                        if(logic.rec == null) return;
+                        var renderObject = key.currentContext!.findRenderObject() as RenderBox;
+                        var offset = renderObject.localToGlobal(Offset.zero);
+                        offset = Offset(offset.dx+246, offset.dy+53);
+                        showMenu(
+                            constraints: BoxConstraints(
+                                maxHeight: 300,
+                                minWidth: (MediaQuery.of(context).size.width > 250 ? 250 : MediaQuery.of(context).size.width)-16
+                            ),
+                            context: context,
+                            position: RelativeRect.fromLTRB(offset.dx, offset.dy, MediaQuery.of(context).size.width-offset.dx, MediaQuery.of(context).size.height-offset.dy),
+                            items: [
+                              for(var item in logic.rec!.entries)
+                                PopupMenuItem(
+                                  child: Text(item.value),
+                                  onTap: (){
+                                    logic.currentId = item.key;
+                                    logic.currentName = item.value;
+                                    logic.update();
+                                  },
+                                )
+                            ]
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ))
+            ],
+          ),
+          Expanded(
+            child: GetBuilder<JWRPLogic>(
+              builder: (logic){
+                if(logic.loading){
+                  logic.get();
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }else if(logic.message != null){
+                  return showNetworkError(logic.message!, () {
+                    logic.change();
+                    logic.get();
+                  }, context);
+                }else{
+                  return WeekRecommendationList(logic.currentId, key: Key(logic.currentId),);
+                }
+              },
             ),
-          ))
+          )
         ],
-      ),
-      body: GetBuilder<JWRPLogic>(
-        builder: (logic){
-          if(logic.loading){
-            logic.get();
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }else if(logic.message != null){
-            return showNetworkError(logic.message!, () {
-              logic.change();
-              logic.get();
-            }, context);
-          }else{
-            return WeekRecommendationList(logic.currentId, key: Key(logic.currentId),);
-          }
-        },
       ),
     );
   }

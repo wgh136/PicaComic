@@ -153,7 +153,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ListTile(
             leading: Icon(Icons.brightness_4,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("夜间模式降低图片亮度".tl),
+            title: Text("深色模式下降低图片亮度".tl),
             onTap: () {},
             trailing: Switch(
               value: lowBrightness,
@@ -182,21 +182,22 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               },
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.fit_screen_outlined,
-                color: Theme.of(context).colorScheme.secondary),
-            title: Text("图片缩放".tl),
-            onTap: () {},
-            trailing: Select(
-              initialValue: int.parse(appdata.settings[41]),
-              values: ["容纳".tl, "适应宽度".tl, "适应高度".tl],
-              whenChange: (int i) {
-                appdata.settings[41] = i.toString();
-                appdata.updateSettings();
-                logic.update();
-              },
+          if(logic.readingMethod != ReadingMethod.topToBottomContinuously)
+            ListTile(
+              leading: Icon(Icons.fit_screen_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("图片缩放".tl),
+              onTap: () {},
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[41]),
+                values: ["容纳".tl, "适应宽度".tl, "适应高度".tl],
+                whenChange: (int i) {
+                  appdata.settings[41] = i.toString();
+                  appdata.updateSettings();
+                  logic.update();
+                },
+              ),
             ),
-          ),
           ListTile(
             leading: Icon(Icons.timer_sharp,
                 color: Theme.of(context).colorScheme.secondary),
@@ -236,6 +237,20 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
             title: Text("自动翻页时间间隔".tl),
           ),
+          if(logic.readingMethod == ReadingMethod.topToBottomContinuously)
+            ListTile(
+              leading: Icon(Icons.width_normal_sharp,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("限制图片最大显示宽度".tl),
+              trailing: Switch(
+                value: appdata.settings[43] == "1",
+                onChanged: (b) => setState(() {
+                  appdata.settings[43] = b ? "1" : "0";
+                  appdata.updateSettings();
+                  Future.microtask(() => logic.update());
+                }),
+              ),
+            ),
           ListTile(
             leading: Icon(Icons.chrome_reader_mode,
                 color: Theme.of(context).colorScheme.secondary),
@@ -259,114 +274,9 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
         ],
       ),
-      Column(
-        children: [
-          const SizedBox(
-            width: 400,
-          ),
-          SizedBox(
-            height: 60,
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 6,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  onPressed: () => setState(() {
-                    i = 0;
-                  }),
-                ),
-                Text(
-                  "选择阅读模式".tl,
-                  style: const TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            trailing: Radio<int>(
-              value: 1,
-              groupValue: value,
-              onChanged: (i) {
-                setValue(i!);
-              },
-            ),
-            title: Text("从左至右".tl),
-            onTap: () {
-              setValue(1);
-            },
-          ),
-          ListTile(
-            trailing: Radio<int>(
-              value: 2,
-              groupValue: value,
-              onChanged: (i) {
-                setValue(i!);
-              },
-            ),
-            title: Text("从右至左".tl),
-            onTap: () {
-              setValue(2);
-            },
-          ),
-          ListTile(
-            trailing: Radio<int>(
-              value: 3,
-              groupValue: value,
-              onChanged: (i) {
-                setValue(i!);
-              },
-            ),
-            title: Text("从上至下".tl),
-            onTap: () {
-              setValue(3);
-            },
-          ),
-          ListTile(
-            trailing: Radio<int>(
-              value: 4,
-              groupValue: value,
-              onChanged: (i) {
-                setValue(i!);
-              },
-            ),
-            title: Text("从上至下(连续)".tl),
-            onTap: () {
-              setValue(4);
-            },
-          ),
-          ListTile(
-            trailing: Radio<int>(
-              value: 5,
-              groupValue: value,
-              onChanged: (i) {
-                setValue(i!);
-              },
-            ),
-            title: Text("双页".tl),
-            onTap: () {
-              setValue(5);
-            },
-          ),
-          ListTile(
-            trailing: Radio<int>(
-              value: 6,
-              groupValue: value,
-              onChanged: (i) {
-                setValue(i!);
-              },
-            ),
-            title: Text("双页(反向)".tl),
-            onTap: () {
-              setValue(6);
-            },
-          ),
-        ],
-      ),
+
+      buildReadingMethodSetting(),
+
       SizedBox(
         width: 400,
         child: Column(
@@ -487,5 +397,53 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.index = 1;
     logic.pageController = PageController(initialPage: 1);
     logic.update();
+  }
+
+  Widget buildReadingMethodSetting(){
+    var options = ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl,
+      "双页".tl, "双页(反向)".tl];
+    return Column(
+      children: [
+        const SizedBox(
+          width: 400,
+        ),
+        SizedBox(
+          height: 60,
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 6,
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.arrow_back_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                onPressed: () => setState(() {
+                  i = 0;
+                }),
+              ),
+              Text(
+                "选择阅读模式".tl,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        ),
+        ...List.generate(6, (index) => ListTile(
+          trailing: Radio<int>(
+            value: index+1,
+            groupValue: value,
+            onChanged: (i) {
+              setValue(i!);
+            },
+          ),
+          title: Text(options[index]),
+          onTap: () {
+            setValue(index+1);
+          },
+        ))
+      ],
+    );
   }
 }

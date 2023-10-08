@@ -134,7 +134,7 @@ class AccountsPage extends StatelessWidget {
                   ),
                   if (appdata.ehAccount == "")
                     ListTile(
-                      title: const Text("登录"),
+                      title: Text("登录".tl),
                       onTap: () => Get.to(() => const EhLoginPage())
                           ?.then((v) => logic.update()),
                     ),

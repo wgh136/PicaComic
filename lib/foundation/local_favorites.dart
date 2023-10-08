@@ -69,7 +69,7 @@ class FavoriteItem{
       name = comic.title,
       author = "",
       type = ComicType.nhentai,
-      tags = [],
+      tags = comic.tags,
       target = comic.id,
       coverPath = comic.cover;
 
@@ -91,6 +91,13 @@ class FavoriteItem{
       target = json["target"],
       coverPath = json["coverPath"],
       time = json["time"];
+}
+
+class FavoriteItemWithFolderInfo{
+  FavoriteItem comic;
+  String folder;
+
+  FavoriteItemWithFolderInfo(this.comic, this.folder);
 }
 
 class LocalFavoritesManager{
@@ -181,6 +188,15 @@ class LocalFavoritesManager{
   List<String>? get folderNames => _data?.keys.toList();
 
   List<FavoriteItem>? getAllComics(String folder) => _data?[folder];
+
+  List<FavoriteItemWithFolderInfo> allComics(){
+    var res = <FavoriteItemWithFolderInfo>[];
+    if(_data != null){
+      _data!.forEach((key, value) => value.forEach((element)
+        => res.add(FavoriteItemWithFolderInfo(element, key))));
+    }
+    return res;
+  }
 
   /// create a folder
   void createFolder(String name){
