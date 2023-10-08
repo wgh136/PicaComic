@@ -460,14 +460,16 @@ class EhNetwork{
       if(subTitle!=null && subTitle.removeAllWhitespace == ""){
         subTitle = null;
       }
-      var thumbnailDiv = document.querySelectorAll("div.gdtm > div")[0];
-      var pattern = RegExp(r"/m/(\d+)/");
-      var match = pattern.firstMatch(thumbnailDiv.attributes["style"]??"");
+      var thumbnailDiv = document.querySelectorAll("div.gdtm > div").elementAtOrNull(0);
+      if(thumbnailDiv != null) {
+        var pattern = RegExp(r"/m/(\d+)/");
+        var match = pattern.firstMatch(thumbnailDiv.attributes["style"] ?? "");
 
-      if (match != null) {
-        var extractedValue = match.group(1);
-        if(extractedValue != null){
-          auth["thumbnailKey"] = extractedValue;
+        if (match != null) {
+          var extractedValue = match.group(1);
+          if (extractedValue != null) {
+            auth["thumbnailKey"] = extractedValue;
+          }
         }
       }
       return Res(Gallery(title, type, time, uploader, stars, rating, coverPath,
