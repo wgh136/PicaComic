@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
@@ -71,8 +72,6 @@ class PreSearchPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final showSideBar =  MediaQuery.of(context).size.width > 900;
-
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: search,
@@ -88,121 +87,197 @@ class PreSearchPage extends StatelessWidget{
             search();
           },
             controller: controller,
-            onChanged: (s) => searchController.update([1]),
+            onChanged: (s) => searchController.update([1, 100]),
             showPinnedButton: false,
             focusNode: _focusNode,
           ),
           const SizedBox(height: 8,),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if(showSideBar)
-                  SizedBox(width: 250, height: double.infinity, child: buildHistorySideBar(context),),
-                if(showSideBar)
-                const VerticalDivider(),
-                Expanded(child: SingleChildScrollView(
-                  padding: showSideBar ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if(showSideBar)
-                        ListTile(
-                          leading: const Icon(Icons.select_all),
-                          title: Text("搜索选项".tl),
-                        ),
-                      buildSuggestions(context),
-                      buildTargetSelector(context),
-                      buildModeSelector(context),
-                      ...buildHotSearch(context),
-                      if(!showSideBar)
-                        buildPinned(context),
-                      if(!showSideBar)
-                        buildHistory(context)
-                    ],
-                  ),
-                )),
-                if(showSideBar)
-                const VerticalDivider(),
-                if(showSideBar)
-                  SizedBox(width: 250, height: double.infinity, child: buildPinnedSideBar(),),
-              ],
-            ),
-          )
+          buildBody(context)
         ],
       ),
     );
   }
 
-  Widget buildSuggestions(BuildContext context){
-    return GetBuilder<PreSearchController>(builder: (logic){
-      Widget widget;
+  Widget buildBody(BuildContext context){
+    var widget = GetBuilder<PreSearchController>(
+      id: 100,
+      builder: (_){
+        if(controller.text.removeAllWhitespace.isEmpty || controller.text.endsWith(" ")){
+          return buildMainView(context);
+        }else{
+          return buildSuggestions(context);
+        }
+      },
+    );
+    return Expanded(
+      child: widget,
+    );
+  }
 
-      bool check(String text, String element){
-        if(text.removeAllWhitespace == ""){
-          return false;
-        }
-        if(element.length >= text.length && element.substring(0, text.length) == text
-            || (element.contains(" ") && element.split(" ").last.length >= text.length
-                && element.split(" ").last.substring(0, text.length) == text)){
-          return true;
-        }else if(element.translateTagsToCN.length >= text.length
-            && element.translateTagsToCN.contains(text)){
-          return true;
-        }
+  Widget buildMainView(BuildContext context){
+    final showSideBar =  MediaQuery.of(context).size.width > 900;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if(showSideBar)
+          SizedBox(width: 250, height: double.infinity, child: buildHistorySideBar(context),),
+        if(showSideBar)
+          const VerticalDivider(),
+        Expanded(child: SingleChildScrollView(
+          padding: showSideBar ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if(showSideBar)
+                ListTile(
+                  leading: const Icon(Icons.select_all),
+                  title: Text("搜索选项".tl),
+                ),
+              buildTargetSelector(context),
+              buildModeSelector(context),
+              ...buildHotSearch(context),
+              if(!showSideBar)
+                buildPinned(context),
+              if(!showSideBar)
+                buildHistory(context)
+            ],
+          ),
+        )),
+        if(showSideBar)
+          const VerticalDivider(),
+        if(showSideBar)
+          SizedBox(width: 250, height: double.infinity, child: buildPinnedSideBar(),),
+      ],
+    );
+  }
+
+  Widget buildSuggestions(BuildContext context){
+    bool check(String text, String key, String value){
+      if(text.removeAllWhitespace == ""){
         return false;
       }
+      if(key.length >= text.length && key.substring(0, text.length) == text
+          || (key.contains(" ") && key.split(" ").last.length >= text.length
+              && key.split(" ").last.substring(0, text.length) == text)){
+        return true;
+      }else if(value.length >= text.length
+          && value.contains(text)){
+        return true;
+      }
+      return false;
+    }
+
+    return GetBuilder<PreSearchController>(builder: (logic){
+      void onSelected(String text, TranslationType? type, [bool? male]){
+        var words = controller.text.split(" ");
+        if(words.length >= 2 && check("${words[words.length-2]} ${words[words.length-1]}", text, text.translateTagsToCN)){
+          controller.text = controller.text.replaceLast("${words[words.length-2]} ${words[words.length-1]}", "");
+        }else{
+          controller.text = controller.text.replaceLast(words[words.length-1], "");
+        }
+        if(text.contains(" ")){
+          if(logic.target == 3){
+            text = text.replaceAll(" ", '_');
+          }else {
+            text = "\"$text\"";
+          }
+        }
+        if(logic.target == 1) {
+          switch (type) {
+            case null:
+              controller.text += "$text ";
+              break;
+            case TranslationType.tag:
+              if(male == null){
+                controller.text += "$text ";
+                break;
+              }
+              controller.text += male ? "m:$text " : "f:$text ";
+              break;
+            case TranslationType.original:
+              controller.text += "p:$text ";
+              break;
+            case TranslationType.language:
+              controller.text += "l:$text ";
+              break;
+            case TranslationType.character:
+              controller.text += "a:$text ";
+              break;
+          }
+        }else{
+          controller.text += "$text ";
+        }
+        logic.update([1, 100]);
+        _focusNode.requestFocus();
+      }
+
+      Widget widget;
 
       if(controller.text.removeAllWhitespace.isEmpty){
         widget = const SizedBox(height: 0,);
       }else{
         var text = controller.text.split(" ").last;
-        var suggestions = <String>[];
-        for (var element in TagsTranslation.enTagsTranslations.keys.toList()) {
-          if(check(text, element)){
-            suggestions.add(element);
-          }
-          if(suggestions.length > 50){
-            break;
+        var suggestions = <Pair<String, TranslationType>>[];
+
+        void find(Map<String, String> map, TranslationType type){
+          for (var element in map.entries) {
+            if(check(text, element.key, element.value)){
+              suggestions.add(Pair(element.key, type));
+            }
+            if(suggestions.length > 50){
+              break;
+            }
           }
         }
-        widget = Card(
-          margin: const EdgeInsets.all(10),
-          elevation: 0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("建议".tl),
-              Wrap(
-                children: [
-                  for(var s in suggestions)
-                    Card(
-                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                      elevation: 0,
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: InkWell(
-                        borderRadius: const BorderRadius.all(Radius.circular(16)),
-                        onTap: (){
-                          var words = controller.text.split(" ");
-                          if(words.length >= 2 && check("${words[words.length-2]} ${words[words.length-1]}", s)){
-                            controller.text = controller.text.replaceLast("${words[words.length-2]} ${words[words.length-1]}", "");
-                          }else{
-                            controller.text = controller.text.replaceLast(words[words.length-1], "");
-                          }
-                          controller.text += s += " ";
-                          logic.update([1]);
-                          _focusNode.requestFocus();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text("$s | ${s.translateTagsToCN}"),),
-                      ),
-                    ),
-                ],
-              )
-            ],
-          ),
+
+        find(TagsTranslation.tagsTranslations, TranslationType.tag);
+        find(TagsTranslation.languageTranslations, TranslationType.language);
+        find(TagsTranslation.originalTranslations, TranslationType.original);
+        find(TagsTranslation.characterTranslations, TranslationType.character);
+
+        bool showMethod = MediaQuery.of(context).size.width < 600;
+        Widget buildItem(Pair<String, TranslationType> value){
+          bool showAction = value.right == TranslationType.tag;
+          var subTitle = "${value.left.translateTagsToCN}  ${value.right.name}";
+          return ListTile(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(value.left),
+                if(!showMethod)
+                  const SizedBox(width: 12,),
+                if(!showMethod)
+                  Text(subTitle, style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.outline),
+                  )
+              ],
+            ),
+            subtitle: showMethod ? Text(subTitle) : null,
+            trailing: !showAction ? null : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () => onSelected(value.left, value.right, true),
+                  icon: Icon(Icons.male, color: Theme.of(context).colorScheme.outline,),
+                ),
+                IconButton(
+                  onPressed: () => onSelected(value.left, value.right, false),
+                  icon: Icon(Icons.female, color: Theme.of(context).colorScheme.outline,),
+                ),
+              ],
+            ),
+            onTap: () => onSelected(value.left, value.right),
+          );
+        }
+
+        widget = ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: suggestions.length,
+          itemBuilder: (context, index) => buildItem(suggestions[index]),
         );
+
       }
       return widget;
     }, id: 1,);
