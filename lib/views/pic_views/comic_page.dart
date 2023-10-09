@@ -147,8 +147,15 @@ class PicacgComicPage extends ComicPage<ComicItem> {
       };
 
   @override
-  void tapOnTags(String tag) =>
-      MainPage.to(() => CategoryComicPage(tag));
+  void tapOnTags(String tag){
+    if(data!.categories.contains(tag)){
+      MainPage.to(() => CategoryComicPage(tag, categoryType: 1,));
+    }else if(data!.author == tag){
+      MainPage.to(() => CategoryComicPage(tag, categoryType: 3,));
+    }else {
+      MainPage.to(() => CategoryComicPage(tag, categoryType: 2,));
+    }
+  }
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;

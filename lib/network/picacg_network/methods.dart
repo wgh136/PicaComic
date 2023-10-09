@@ -970,9 +970,9 @@ class PicacgNetwork {
 
   /// 获取分类中的漫画
   Future<Res<List<ComicItemBrief>>> getCategoryComics(
-      String keyWord, int page, String sort) async {
+      String keyWord, int page, String sort, [String type = "c"]) async {
     var response = await get(
-        '$apiUrl/comics?page=$page&c=${Uri.encodeComponent(keyWord)}&s=$sort',
+        '$apiUrl/comics?page=$page&$type=${Uri.encodeComponent(keyWord)}&s=$sort',
         expiredTime: CacheExpiredTime.no);
     if (response.error) {
       return Res(null, errorMessage: response.errorMessage);
