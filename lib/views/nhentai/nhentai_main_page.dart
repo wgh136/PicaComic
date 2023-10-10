@@ -5,7 +5,7 @@ import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import '../../base.dart';
+import '../../foundation/app.dart';
 
 class NhentaiHomePageController extends GetxController {
   bool loading = true;
@@ -69,9 +69,9 @@ class NhentaiHomePage extends StatelessWidget {
                   delegate: SliverChildBuilderDelegate((context, index) {
                     return NhentaiComicTile(logic.data!.popular[index]);
                   }, childCount: logic.data!.popular.length),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: App.comicTileMaxWidth,
+                    childAspectRatio: App.comicTileAspectRatio,
                   ),
                 ),
                 const SliverToBoxAdapter(child: Divider(),),
@@ -104,9 +104,9 @@ class NhentaiHomePage extends StatelessWidget {
                     }
                     return NhentaiComicTile(logic.data!.latest[index]);
                   }, childCount: logic.data!.latest.length),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: App.comicTileMaxWidth,
+                    childAspectRatio: App.comicTileAspectRatio,
                   ),
                 ),
                 const SliverToBoxAdapter(child: ListLoadingIndicator(),)

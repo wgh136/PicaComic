@@ -123,6 +123,21 @@ class _SettingsPageState extends State<SettingsPage> {
                         inPopUpWidget: widget.popUp,
                       ),
                     ),
+                    ListTile(
+                      leading: Icon(Icons.crop_square,
+                          color: Theme.of(context).colorScheme.secondary),
+                      title: Text("漫画块显示模式".tl),
+                      subtitle: Text("需要重新加载页面".tl),
+                      trailing: Select(
+                        initialValue: int.parse(appdata.settings[44]),
+                        whenChange: (i){
+                          appdata.settings[44] = i.toString();
+                          appdata.updateSettings();
+                        },
+                        values: ["详细".tl, "简略".tl, "最小".tl],
+                        inPopUpWidget: widget.popUp,
+                      ),
+                    ),
                   ],
                 ),
               ),

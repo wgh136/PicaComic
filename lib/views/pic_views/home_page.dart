@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
+import '../../foundation/app.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import '../widgets/show_message.dart';
@@ -63,9 +63,9 @@ class HomePage extends StatelessWidget {
                           return PicComicTile(logic.comics[i],);
                         }
                     ),
-                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: comicTileMaxWidth,
-                      childAspectRatio: comicTileAspectRatio,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: App.comicTileMaxWidth,
+                      childAspectRatio: App.comicTileAspectRatio,
                     ),
                   ),
                   const SliverToBoxAdapter(

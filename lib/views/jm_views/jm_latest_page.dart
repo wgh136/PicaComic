@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
+import '../../foundation/app.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
@@ -51,9 +51,9 @@ class JmLatestPage extends StatelessWidget {
                     },
                     childCount: logic.comics.length
                 ),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: comicTileMaxWidth,
-                  childAspectRatio: comicTileAspectRatio,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: App.comicTileMaxWidth,
+                  childAspectRatio: App.comicTileAspectRatio,
                 ),
               ),
             ],

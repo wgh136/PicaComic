@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/jm_views/jm_category_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/promote_list_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
+import '../../foundation/app.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -93,9 +93,9 @@ class JmHomePage extends StatelessWidget {
         delegate: SliverChildBuilderDelegate((context, index) {
           return JmComicTile(item.comics[index]);
         }, childCount: item.comics.length),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: comicTileMaxWidth,
-          childAspectRatio: comicTileAspectRatio,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: App.comicTileMaxWidth,
+          childAspectRatio: App.comicTileAspectRatio,
         ),
       ),
       const SliverToBoxAdapter(

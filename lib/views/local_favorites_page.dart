@@ -20,6 +20,7 @@ import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
+import '../foundation/app.dart';
 import '../foundation/ui_mode.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
@@ -704,9 +705,9 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
     return Expanded(
       child: GridView.builder(
         padding: EdgeInsets.zero,
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: comicTileMaxWidth,
-          childAspectRatio: comicTileAspectRatio,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: App.comicTileMaxWidth,
+          childAspectRatio: App.comicTileAspectRatio,
         ),
         itemCount: comics.length,
         itemBuilder: (BuildContext context, int index) {
@@ -842,9 +843,9 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
                 return GridView(
                   key: _key,
                   controller: _scrollController,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: App.comicTileMaxWidth,
+                    childAspectRatio: App.comicTileAspectRatio,
                   ),
                   children: children,
                 );

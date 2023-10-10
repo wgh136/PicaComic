@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
-import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../network/picacg_network/models.dart';
 import '../widgets/show_error.dart';
@@ -55,9 +55,9 @@ class OnePicacgLeaderboardPage extends StatelessWidget {
                         return PicComicTile(logic.comics![i]);
                       }
                   ),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: App.comicTileMaxWidth,
+                    childAspectRatio: App.comicTileAspectRatio,
                   ),
                 )
               ],

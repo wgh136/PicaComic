@@ -8,6 +8,7 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
 import '../../foundation/local_favorites.dart';
@@ -170,9 +171,9 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
         childCount: data.recommendations.length, (context, i) {
       return NhentaiComicTile(data.recommendations[i]);
     }),
-    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-      maxCrossAxisExtent: comicTileMaxWidth,
-      childAspectRatio: comicTileAspectRatio,
+    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent: App.comicTileMaxWidth,
+      childAspectRatio: App.comicTileAspectRatio,
     ),
   );
 
@@ -191,6 +192,9 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
 
   @override
   void tapOnTags(String tag) {
+    if(tag.contains(" ")){
+      tag = "\"$tag\"";
+    }
     MainPage.to(()=>NhentaiSearchPage(tag));
   }
 

@@ -22,11 +22,6 @@ const appVersion = "2.2.1";
 const changePoint = 600;
 const changePoint2 = 1300;
 
-//ComicTile的最大宽度
-const double comicTileMaxWidth = 630.0;
-//ComicTile的宽高比
-const double comicTileAspectRatio = 3;
-
 const List<int> colors = [
   0X42A5F5,
   0X29B6F6,

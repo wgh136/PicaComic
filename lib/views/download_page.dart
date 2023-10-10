@@ -25,6 +25,7 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/stateful_switch.dart';
+import '../foundation/app.dart';
 import '../network/eh_network/eh_download_model.dart';
 import '../network/jm_network/jm_download.dart';
 import '../network/picacg_network/picacg_download_model.dart';
@@ -142,9 +143,9 @@ class DownloadPage extends StatelessWidget {
         return buildItem(context, logic, index);
       }),
       gridDelegate:
-      const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: comicTileMaxWidth,
-        childAspectRatio: comicTileAspectRatio,
+      SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: App.comicTileMaxWidth,
+        childAspectRatio: App.comicTileAspectRatio,
       ),
     );
   }

@@ -15,6 +15,7 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import '../base.dart';
+import '../foundation/app.dart';
 import '../network/jm_network/jm_image.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -227,9 +228,9 @@ class _HistoryPageState extends State<HistoryPage> {
             );
           }
       ),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: comicTileMaxWidth,
-        childAspectRatio: comicTileAspectRatio,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: App.comicTileMaxWidth,
+        childAspectRatio: App.comicTileAspectRatio,
       ),
     );
   }

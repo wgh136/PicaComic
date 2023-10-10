@@ -5,7 +5,7 @@ import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../widgets/select.dart';
 
@@ -74,9 +74,9 @@ class HitomiHomePageComics extends StatelessWidget {
                   }
                   return HitomiComicTileDynamicLoading(logic.comics!.comicIds[index]);
                 }, childCount: logic.comics!.comicIds.length),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: comicTileMaxWidth,
-                  childAspectRatio: comicTileAspectRatio,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: App.comicTileMaxWidth,
+                  childAspectRatio: App.comicTileAspectRatio,
                 ),
               ),
               if(logic.comics!.toLoad < logic.comics!.total)
