@@ -110,9 +110,9 @@ Widget buildComicView(ComicReadingPageLogic logic,
     ReadingType type, String target, List<String> eps, BuildContext context) {
   ScrollExtension.futurePosition = null;
 
+  PhotoViewGallery.onKeyDown = logic.handleKeyboard;
+
   Widget buildType4() {
-    PhotoView.onCtrlKey = ()=>logic.update();
-    PhotoViewGallery.onCtrlKey = ()=>logic.update();
     return ScrollablePositionedList.builder(
       itemScrollController: logic.itemScrollController,
       itemPositionsListener: logic.itemScrollListener,
@@ -120,7 +120,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
       addSemanticIndexes: false,
       scrollController: logic.scrollController,
       physics: (logic.noScroll ||
-          logic.currentScale > 1.05 || PhotoView.isCtrlPressed || logic.mouseScroll)
+          logic.currentScale > 1.05 || logic.isCtrlPressed || logic.mouseScroll)
           ? const NeverScrollableScrollPhysics()
           : const ClampingScrollPhysics(),
       itemBuilder: (context, index) {
@@ -355,7 +355,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
 
   void onPointerSignal(PointerSignalEvent pointerSignal){
     logic.mouseScroll = true;
-    if (pointerSignal is PointerScrollEvent && !PhotoView.isCtrlPressed) {
+    if (pointerSignal is PointerScrollEvent && !logic.isCtrlPressed) {
       if(logic.readingMethod != ReadingMethod.topToBottomContinuously){
         pointerSignal.scrollDelta.dy > 0
             ? logic.jumpToNextPage()

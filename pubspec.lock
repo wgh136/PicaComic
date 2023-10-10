@@ -668,7 +668,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: eb15ed9a833b4728a0265d91af67782178d6f5a8
+      resolved-ref: "759c1d6fb2926c7f2cba1f988963c63ce6987f52"
       url: "https://github.com/wgh136/photo_view"
     source: git
     version: "0.14.0"
