@@ -163,8 +163,22 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  void tapOnTags(String tag) =>
-      MainPage.to(() => EhSearchPage(tag));
+  void tapOnTags(String tag) {
+    var namespace = "";
+    for(var entry in data!.tags.entries){
+      if(entry.value.contains(tag)){
+        namespace = entry.key;
+        break;
+      }
+    }
+    if(tag.contains(" ")){
+      tag = "\"$tag\"";
+    }
+    if(namespace != ""){
+      tag = "$namespace:$tag";
+    }
+    MainPage.to(() => EhSearchPage(tag));
+  }
 
   @override
   Map<String, String> get headers => {
