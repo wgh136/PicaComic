@@ -973,6 +973,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.4-beta"
+  webdav_client:
+    dependency: "direct main"
+    description:
+      name: webdav_client
+      sha256: b3f5afee27e7db5635817ddd79d57f56d43fdc6dad4c6bc93b0703261f96064c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   webview_cookie_manager:
     dependency: "direct main"
     description:

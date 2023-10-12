@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'reading_settings.dart';
 import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
 import 'package:pica_comic/views/settings/ht_settings.dart';
 import 'package:pica_comic/views/settings/picacg_settings.dart';
@@ -157,9 +156,6 @@ class _SettingsPageState extends State<SettingsPage> {
               const Divider(),
 
               HtSettings(widget.popUp),
-
-              const Divider(),
-              ReadingSettings(widget.popUp),
 
               const Divider(),
               Card(
@@ -353,6 +349,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => importDataSetting(context),
                     ),
+                    ListTile(
+                      leading: Icon(Icons.sync, color: Theme.of(context).colorScheme.secondary),
+                      title: Text("数据同步".tl),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => syncDataSettings(context),
+                    )
                   ],
                 ),
               ),

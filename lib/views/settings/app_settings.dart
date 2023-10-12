@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../network/update.dart';
 import '../../tools/io_tools.dart';
@@ -713,6 +715,118 @@ void importDataSetting(BuildContext context){
           }
         });
       }, child: Text("继续".tl))
+    ],
+  ));
+}
+
+void syncDataSettings(BuildContext context){
+  var configs = ["", "", "", ""];
+  if(appdata.settings[45] != ""){
+    configs = appdata.settings[45].split(';');
+  }
+  String url = configs[0];
+  String username = configs[1];
+  String pwd = configs[2];
+  String path = configs[3];
+  int value = 0;
+  showDialog(context: context, builder: (context) => SimpleDialog(
+    title: const Text("Webdav"),
+    children: [
+      Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        width: 400,
+        child: Column(
+          children: [
+            TextField(
+              onChanged: (s) => url = s,
+              controller: TextEditingController(text: url),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                label: Text("URL"),
+                hintText: "https://example.com:4433/webdav"
+            )),
+            const SizedBox(height: 8,),
+            TextField(
+                onChanged: (s) => username = s,
+                controller: TextEditingController(text: username),
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    label: Text("用户名".tl),
+                )),
+            const SizedBox(height: 8,),
+            TextField(
+                onChanged: (s) => pwd = s,
+                controller: TextEditingController(text: pwd),
+                obscureText: true,
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    label: Text("密码".tl),
+                )),
+            const SizedBox(height: 8,),
+            TextField(
+                onChanged: (s) => path = s,
+                controller: TextEditingController(text: path),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  label: Text("储存路径".tl),
+                  hintText: "请确保路径存在"
+                )),
+            const SizedBox(height: 8,),
+            StatefulBuilder(builder: (context, stateSetter){
+              return Row(
+                children: [
+                  const Text("立即执行:"),
+                  Radio<int>(value: 0, groupValue: value,
+                      onChanged: (i) => stateSetter(() => value = 0)),
+                  const Text("上传数据"),
+                  Radio<int>(value: 1, groupValue: value,
+                      onChanged: (i) => stateSetter(() => value = 1)),
+                  const Text("下载数据"),
+                ],
+              );
+            }),
+            const SizedBox(height: 8,),
+            Center(
+              child: FilledButton(
+                child: Text("提交".tl),
+                onPressed: () async{
+                  if(url.isEmpty){
+                    appdata.settings[45] = "$url;$username;$pwd;$path";
+                    appdata.updateSettings();
+                    Get.back();
+                    return;
+                  }
+                  showLoadingDialog(context, () {}, false, false, value == 0 ? "Uploading" : "Downloading");
+                  var res = value == 0 ? await Webdav.uploadData("$url;$username;$pwd;$path")
+                      : await Webdav.downloadData("$url;$username;$pwd;$path");
+                  if(!res){
+                    Get.back();
+                    showMessage(Get.context, "Failed to sync data");
+                  }else {
+                    appdata.settings[45] = "$url;$username;$pwd;$path";
+                    appdata.updateSettings();
+                    Get.back();
+                    Get.back();
+                  }
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    size: 20,
+                  ),
+                  Text("  ${"将URL留空以禁用同步".tl}")
+                ],
+              ),
+            ),
+          ],
+        ),
+      )
     ],
   ));
 }

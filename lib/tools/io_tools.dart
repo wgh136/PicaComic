@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
@@ -201,9 +200,9 @@ Future<String?> exportData(String path, String appdataString, String? downloadPa
   }
 }
 
-Future<bool> runExportData(bool includeDownload) async{
+Future<String> exportDataToFile(bool includeDownload) async{
+  var path = (await getApplicationSupportDirectory()).path;
   try {
-    var path = (await getApplicationSupportDirectory()).path;
     if (DownloadManager().path == null) {
       DownloadManager().init();
     }
@@ -215,7 +214,18 @@ Future<bool> runExportData(bool includeDownload) async{
     if (res != null) {
       throw Exception(res);
     }
+  }
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+    rethrow;
+  }
+  return "$path${pathSep}userData.picadata";
+}
 
+Future<bool> runExportData(bool includeDownload) async{
+  try {
+    var path = (await getApplicationSupportDirectory()).path;
+    await exportDataToFile(includeDownload);
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
       var params = SaveFileDialogParams(
           sourceFilePath: "$path${pathSep}userData.picadata");
@@ -237,25 +247,26 @@ Future<bool> runExportData(bool includeDownload) async{
   return true;
 }
 
-Future<bool> importData() async{
+Future<bool> importData([String? filePath]) async{
   var path = (await getApplicationSupportDirectory()).path;
-  String? filePath;
-  if(GetPlatform.isMobile){
-    var params = const OpenFileDialogParams();
-    filePath = await FlutterFileDialog.pickFile(params: params);
-  }else if(GetPlatform.isWindows){
-    const XTypeGroup typeGroup = XTypeGroup(
-      label: 'data',
-      extensions: <String>['picadata'],
-    );
-    final XFile? file = await openFile(
-        acceptedTypeGroups: <XTypeGroup>[
-          typeGroup
-        ]);
-    filePath = file?.path;
-  }
-  if(filePath == null){
-    return false;
+  if(filePath == null) {
+    if (GetPlatform.isMobile) {
+      var params = const OpenFileDialogParams();
+      filePath = await FlutterFileDialog.pickFile(params: params);
+    } else if (GetPlatform.isWindows) {
+      const XTypeGroup typeGroup = XTypeGroup(
+        label: 'data',
+        extensions: <String>['picadata'],
+      );
+      final XFile? file = await openFile(
+          acceptedTypeGroups: <XTypeGroup>[
+            typeGroup
+          ]);
+      filePath = file?.path;
+    }
+    if (filePath == null) {
+      return false;
+    }
   }
   if (DownloadManager().path == null) {
     DownloadManager().init();
@@ -302,13 +313,20 @@ Future<bool> importData() async{
   if(data == null){
     return false;
   }
+  var prevAccounts = [appdata.picacgAccount, appdata.jmEmail, appdata.htName];
   var dataReadRes = appdata.readDataFromJson(const JsonDecoder().convert(data));
   if(!dataReadRes){
     return false;
   }
-  await network.loginFromAppdata();
-  await jmNetwork.loginFromAppdata();
-  await HtmangaNetwork().loginFromAppdata();
+  if(appdata.picacgAccount != prevAccounts[0]) {
+    await network.loginFromAppdata();
+  }
+  if(appdata.jmEmail != prevAccounts[1]) {
+    await jmNetwork.loginFromAppdata();
+  }
+  if(appdata.htName != prevAccounts[2]) {
+    await HtmangaNetwork().loginFromAppdata();
+  }
   LocalFavoritesManager().close();
   return true;
 }

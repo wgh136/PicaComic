@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/network/webdav.dart';
 
 
 enum HistoryType{
@@ -96,6 +97,7 @@ class HistoryManager{
       await file.create();
     }
     file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
+    Webdav.uploadData();
     /*
     _open = false;
     history.clear();

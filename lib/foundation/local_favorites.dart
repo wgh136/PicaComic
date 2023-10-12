@@ -13,6 +13,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'dart:io';
+import '../network/webdav.dart';
 import 'def.dart';
 
 
@@ -153,6 +154,7 @@ class LocalFavoritesManager{
     }
     finally{
       saving = false;
+      Webdav.uploadData();
     }
   }
 
