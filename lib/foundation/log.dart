@@ -15,9 +15,7 @@ class LogManager{
     if(!ignoreLimitation && content.length > maxLogLength){
       content = "${content.substring(0, maxLogLength)}...";
     }
-    if(kDebugMode){
-      print(content);
-    }
+
     _logs.add(Log(lever, title, content));
     if(_logs.length > maxLogNumber){
       _logs.removeAt(0);

@@ -45,33 +45,11 @@ ProxyHttpOverrides? proxyHttpOverrides;
 Future<void> setNetworkProxy() async{
   //Image加载使用的是Image.network()和CachedNetworkImage(), 均使用flutter内置http进行网络请求
   var proxy = await getProxy();
-  String? checkProxy(String? proxy){
-    if(proxy == null){
-      return null;
-    }
-    for(int i=0;i<proxy.length;i++){
-      var char = proxy[i];
-      if(!char.isNum&&char!=':'&&char!='.'){
-        return null;
-      }
-    }
 
-    if(!proxy.contains(":")){
-      proxy = null;
-      return null;
-    }
-
-    var lr = proxy.split(":");
-    if (lr.length != 2) {
-      proxy = null;
-    }else{
-      if(lr[0].split(".").length != 4 || !lr[1].isNum){
-        proxy = null;
-      }
-    }
-    return proxy;
+  if(proxy != null) {
+    proxy = "PROXY $proxy;";
   }
-  proxy = checkProxy(proxy);
+
   LogManager.addLog(LogLevel.info, "Network", "Set Proxy $proxy");
   if(proxyHttpOverrides==null){
     proxyHttpOverrides = ProxyHttpOverrides(proxy);
@@ -88,7 +66,7 @@ class ProxyHttpOverrides extends HttpOverrides {
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);
     client.connectionTimeout = const Duration(seconds: 5);
-    client.findProxy = (uri) => proxy==null ? "DIRECT" : 'PROXY $proxy;';
+    client.findProxy = (uri) => proxy??"DIRECT";
     client.badCertificateCallback = (X509Certificate cert, String host, int port)=>true;
     return client;
   }

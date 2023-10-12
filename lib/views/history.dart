@@ -31,14 +31,13 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   var comics = <History>[];
-  bool status = true;
+  bool loading = true;
   bool searchMode = false;
   String keyword = "";
   var results = <History>[];
   
   @override
   void dispose() {
-    appdata.history.close();
     super.dispose();
   }
 
@@ -85,13 +84,14 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    if(status){
-      status = false;
+    if(loading){
       appdata.history.readData().then((v){
         setState(() {
+          appdata.history.check();
           for(var c in appdata.history.history){
             comics.add(c);
           }
+          loading = false;
         });
       });
     }

@@ -73,7 +73,6 @@ class _GuidePageState extends State<GuidePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       floatingActionButton: !showFinish
           ? FloatingActionButton.extended(
               onPressed: () {
@@ -336,6 +335,19 @@ class _GuidePageState extends State<GuidePage> {
                                   },
                                   inPopUpWidget: false,
                                   width: 140,
+                                ),
+                              ),
+                              ListTile(
+                                leading: Icon(Icons.crop_square,
+                                    color: Theme.of(context).colorScheme.secondary),
+                                title: Text("漫画块显示模式".tl),
+                                trailing: Select(
+                                  initialValue: int.parse(appdata.settings[44]),
+                                  whenChange: (i){
+                                    appdata.settings[44] = i.toString();
+                                    appdata.updateSettings();
+                                  },
+                                  values: ["详细".tl, "简略".tl, "最小".tl],
                                 ),
                               ),
                               const SizedBox(
