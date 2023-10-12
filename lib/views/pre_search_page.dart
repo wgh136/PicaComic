@@ -184,26 +184,10 @@ class PreSearchPage extends StatelessWidget{
           }
         }
         if(logic.target == 1) {
-          switch (type) {
-            case null:
-              controller.text += "$text ";
-              break;
-            case TranslationType.tag:
-              if(male == null){
-                controller.text += "$text ";
-                break;
-              }
-              controller.text += male ? "m:$text " : "f:$text ";
-              break;
-            case TranslationType.original:
-              controller.text += "p:$text ";
-              break;
-            case TranslationType.language:
-              controller.text += "l:$text ";
-              break;
-            case TranslationType.character:
-              controller.text += "a:$text ";
-              break;
+          if(type != null) {
+            controller.text += "${type.name}:$text ";
+          } else {
+            controller.text += "$text ";
           }
         }else{
           controller.text += "$text ";
@@ -222,6 +206,9 @@ class PreSearchPage extends StatelessWidget{
 
         void find(Map<String, String> map, TranslationType type){
           for (var element in map.entries) {
+            if(suggestions.length > 50){
+              break;
+            }
             if(check(text, element.key, element.value)){
               suggestions.add(Pair(element.key, type));
             }
@@ -231,14 +218,15 @@ class PreSearchPage extends StatelessWidget{
           }
         }
 
-        find(TagsTranslation.tagsTranslations, TranslationType.tag);
-        find(TagsTranslation.languageTranslations, TranslationType.language);
-        find(TagsTranslation.originalTranslations, TranslationType.original);
+        find(TagsTranslation.femaleTags, TranslationType.female);
+        find(TagsTranslation.maleTags, TranslationType.male);
+        find(TagsTranslation.parodyTags, TranslationType.parody);
         find(TagsTranslation.characterTranslations, TranslationType.character);
+        find(TagsTranslation.otherTags, TranslationType.other);
+        find(TagsTranslation.mixedTags, TranslationType.mixed);
 
         bool showMethod = MediaQuery.of(context).size.width < 600;
         Widget buildItem(Pair<String, TranslationType> value){
-          bool showAction = value.right == TranslationType.tag;
           var subTitle = "${value.left.translateTagsToCN}  ${value.right.name}";
           return ListTile(
             title: Row(
@@ -255,19 +243,6 @@ class PreSearchPage extends StatelessWidget{
               ],
             ),
             subtitle: showMethod ? Text(subTitle) : null,
-            trailing: !showAction ? null : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: () => onSelected(value.left, value.right, true),
-                  icon: Icon(Icons.male, color: Theme.of(context).colorScheme.outline,),
-                ),
-                IconButton(
-                  onPressed: () => onSelected(value.left, value.right, false),
-                  icon: Icon(Icons.female, color: Theme.of(context).colorScheme.outline,),
-                ),
-              ],
-            ),
             onTap: () => onSelected(value.left, value.right),
           );
         }

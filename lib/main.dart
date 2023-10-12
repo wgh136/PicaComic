@@ -18,6 +18,7 @@ import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
@@ -103,6 +104,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     time = DateTime.now();
+    TagsTranslation.readData();
     if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
       try {
         FlutterDisplayMode.setHighRefreshRate();

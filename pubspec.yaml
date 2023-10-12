@@ -131,6 +131,7 @@ flutter:
     - images/11.jpg
     - images/12.jpg
     - images/loading.json
+    - assets/tags.json
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
