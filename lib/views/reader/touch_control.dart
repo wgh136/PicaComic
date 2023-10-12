@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -141,6 +139,11 @@ class TapController{
 
   static void onTapDown(PointerDownEvent event){
     var logic = Get.find<ComicReadingPageLogic>();
+
+    if(logic.tools && (event.position.dy < MediaQuery.of(Get.context!).padding.top  + 50
+        || MediaQuery.of(Get.context!).size.height - event.position.dy < 105 + MediaQuery.of(Get.context!).padding.bottom)){
+      return;
+    }
 
     if(event.buttons == kSecondaryMouseButton){
       if (logic.showSettings) {

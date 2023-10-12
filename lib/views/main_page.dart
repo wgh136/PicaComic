@@ -219,6 +219,7 @@ class _MainPageState extends State<MainPage> {
       Get.back();
     }, false, true, "同步数据中".tl);
     var res = await Webdav.downloadData();
+    Get.closeAllSnackbars();
     if(!res){
       Get.back();
       showMessage(Get.context, "Failed to download data",
