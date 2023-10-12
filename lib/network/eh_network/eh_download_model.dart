@@ -87,7 +87,7 @@ class EhDownloadingItem extends DownloadingItem{
 
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in ImageManager().getEhImage(link)){
+    await for(var s in ImageManager().getEhImageNew(gallery, int.parse(link))){
       if(s.finished){
         return s.getFile().readAsBytesSync();
       }
@@ -98,13 +98,13 @@ class EhDownloadingItem extends DownloadingItem{
   @override
   Future<Map<int, List<String>>> getLinks() async{
     return {
-      0: List.generate((int.parse(gallery.maxPage)), (index) => "")
+      0: List.generate((int.parse(gallery.maxPage)), (index) => (index+1).toString())
     };
   }
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(ImageManager().getEhImage(link).listen((event) {}));
+    addStreamSubscription(ImageManager().getEhImageNew(gallery, int.parse(link)).listen((event) {}));
   }
 
   @override

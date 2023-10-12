@@ -749,6 +749,16 @@ class ComicReadingPage extends StatelessWidget {
     return res;
   }
 
+  String getImageKey(int index){
+    var logic = Get.find<ComicReadingPageLogic>();
+    if(type == ComicType.ehentai){
+      return "${gallery!.link}${index+1}";
+    }
+    return type == ReadingType.hitomi
+        ? logic.images[index].hash
+        : logic.urls[index];
+  }
+
   void share() async{
     var logic = Get.find<ComicReadingPageLogic>();
     int? index = logic.index - 1;
@@ -777,9 +787,7 @@ class ComicReadingPage extends StatelessWidget {
           .path);
     } else {
       shareImageFromCache(
-          type == ReadingType.hitomi
-              ? logic.images[index].hash
-              : logic.urls[index],
+          getImageKey(index),
           data.target,
           true);
     }
@@ -813,9 +821,7 @@ class ComicReadingPage extends StatelessWidget {
           .path);
     } else {
       saveImage(
-          type == ReadingType.hitomi
-              ? logic.images[index].hash
-              : logic.urls[index],
+          getImageKey(index),
           data.target,
           reading: true);
     }
