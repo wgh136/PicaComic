@@ -18,7 +18,9 @@ class Webdav{
     }
     if(_isUploading){
       _haveWaitingTask = true;
-      await Future.delayed(const Duration(milliseconds: 100));
+      while(_isUploading) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
     }
     _haveWaitingTask = false;
     _isUploading = true;
