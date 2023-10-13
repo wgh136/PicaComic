@@ -769,19 +769,19 @@ void syncDataSettings(BuildContext context){
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   label: Text("储存路径".tl),
-                  hintText: "请确保路径存在"
+                  hintText: "请确保路径存在".tl
                 )),
             const SizedBox(height: 8,),
             StatefulBuilder(builder: (context, stateSetter){
               return Row(
                 children: [
-                  const Text("立即执行:"),
+                  Text("立即执行:".tl),
                   Radio<int>(value: 0, groupValue: value,
                       onChanged: (i) => stateSetter(() => value = 0)),
-                  const Text("上传数据"),
+                  Text("上传数据".tl),
                   Radio<int>(value: 1, groupValue: value,
                       onChanged: (i) => stateSetter(() => value = 1)),
-                  const Text("下载数据"),
+                  Text("下载数据".tl),
                 ],
               );
             }),

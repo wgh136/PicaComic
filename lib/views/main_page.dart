@@ -19,7 +19,6 @@ import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -210,25 +209,6 @@ class _MainPageState extends State<MainPage> {
     Get.put(HtHomePageLogic());
   }
 
-  void syncData() async{
-    var configs = appdata.settings[45].split(';');
-    if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
-      return;
-    }
-    showLoadingDialog(context, () {
-      Get.back();
-    }, false, true, "同步数据中".tl);
-    var res = await Webdav.downloadData();
-    Get.closeAllSnackbars();
-    if(!res){
-      Get.back();
-      showMessage(Get.context, "Failed to download data",
-          action: TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
-    }else{
-      Get.back();
-    }
-  }
-
   @override
   void initState() {
     initLogic();
@@ -273,7 +253,7 @@ class _MainPageState extends State<MainPage> {
 
     MainPage.toExplorePage = () => setState(() => i = 1);
 
-    Future.delayed(const Duration(milliseconds: 300), () => syncData());
+    Future.delayed(const Duration(milliseconds: 300), () => Webdav.syncData());
 
     super.initState();
   }

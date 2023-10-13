@@ -3,8 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:webdav_client/webdav_client.dart';
 import '../base.dart';
+import '../views/widgets/loading.dart';
+import '../views/widgets/show_message.dart';
+import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
 class Webdav{
   static bool _isUploading = false;
@@ -87,6 +92,25 @@ class Webdav{
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Sync", "Failed to upload data to webdav server.\n$s");
       return false;
+    }
+  }
+
+  static void syncData() async{
+    var configs = appdata.settings[45].split(';');
+    if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
+      return;
+    }
+    showLoadingDialog(Get.context!, () {
+      Get.back();
+    }, false, true, "同步数据中".tl);
+    var res = await Webdav.downloadData();
+    Get.closeAllSnackbars();
+    if(!res){
+      Get.back();
+      showMessage(Get.context, "Failed to download data",
+          action: TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
+    }else{
+      Get.back();
     }
   }
 }

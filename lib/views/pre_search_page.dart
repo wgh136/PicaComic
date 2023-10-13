@@ -124,7 +124,7 @@ class PreSearchPage extends StatelessWidget{
         if(showSideBar)
           const VerticalDivider(),
         Expanded(child: SingleChildScrollView(
-          padding: showSideBar ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          padding: showSideBar ? EdgeInsets.zero : const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +227,7 @@ class PreSearchPage extends StatelessWidget{
 
         bool showMethod = MediaQuery.of(context).size.width < 600;
         Widget buildItem(Pair<String, TranslationType> value){
-          var subTitle = "${value.left.translateTagsToCN}  ${value.right.name}";
+          var subTitle = value.left.translateTagsToCN;
           return ListTile(
             title: Row(
               mainAxisSize: MainAxisSize.min,
@@ -243,6 +243,7 @@ class PreSearchPage extends StatelessWidget{
               ],
             ),
             subtitle: showMethod ? Text(subTitle) : null,
+            trailing: Text(value.right.name, style: const TextStyle(fontSize: 13),),
             onTap: () => onSelected(value.left, value.right),
           );
         }

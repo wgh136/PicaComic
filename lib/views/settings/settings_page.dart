@@ -97,7 +97,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading: Icon(Icons.list,
                           color: Theme.of(context).colorScheme.secondary),
                       title: Text("漫画列表显示方式".tl),
-                      subtitle: Text("适用于非探索页面".tl),
                       trailing: Select(
                         initialValue: int.parse(appdata.settings[25]),
                         whenChange: (i){
