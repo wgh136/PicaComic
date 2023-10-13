@@ -6,8 +6,9 @@ import 'package:pica_comic/views/ht_views/ht_comic_list.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
-import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
+
+import '../../foundation/app.dart';
 
 class HtHomePageLogic extends GetxController {
   bool loading = true;
@@ -78,9 +79,9 @@ class HtHomePage extends StatelessWidget {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return HtComicTile(comic: logic.data!.comics[i][index]);
                 }, childCount: logic.data!.comics[i].length),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: comicTileMaxWidth,
-                  childAspectRatio: comicTileAspectRatio,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: App.comicTileMaxWidth,
+                  childAspectRatio: App.comicTileAspectRatio,
                 ),
               ),
             );

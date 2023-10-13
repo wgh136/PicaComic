@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/category_page.dart';
@@ -126,48 +127,8 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  @override
-  void initState() {
-    login();
-    notifications.requestPermission();
-    EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php",
-        favoritePage: true);
-    Get.put(HomePageLogic());
-    Get.put(CategoriesPageLogic());
-    Get.put(GamesPageLogic());
-    Get.put(EhHomePageLogic());
-    Get.put(EhPopularPageLogic());
-    Get.put(JmHomePageLogic());
-    Get.put(JmLatestPageLogic());
-    Get.put(JmCategoriesPageLogic());
-    Get.put(ExplorePageLogic());
-    Get.put(CategoryPageLogic());
-    Get.put(HtHomePageLogic());
-    if (appdata.firstUse[3] == "0") {
-      appdata.firstUse[3] = "1";
-      appdata.writeData();
-    }
-    //清除未正常退出时的下载通知
-    try {
-      notifications.endProgress();
-    } catch (e) {
-      //不清楚清除一个不存在的通知会不会引发错误
-    }
-    //检查是否打卡
-    if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
-      if (GetPlatform.isMobile) {
-        runBackgroundService();
-      } else {
-        appdata.user.isPunched = true;
-        network.punchIn().then((b) {
-          if (b) {
-            showMessage(Get.context, "打卡成功".tr, useGet: false);
-            appdata.user.exp += 10;
-          }
-        });
-      }
-    }
-    if (appdata.settings[2] == "1" && !GetPlatform.isWeb) {
+  void checkUpdates(){
+    if (appdata.settings[2] == "1") {
       checkUpdate().then((b) {
         if (b != null) {
           if (b) {
@@ -208,7 +169,9 @@ class _MainPageState extends State<MainPage> {
         }
       });
     }
-    //检查是否有未完成的下载
+  }
+
+  void checkDownload(){
     if (downloadManager.downloading.isNotEmpty) {
       Future.delayed(const Duration(microseconds: 500), () {
         showDialog(
@@ -230,7 +193,68 @@ class _MainPageState extends State<MainPage> {
             });
       });
     }
+  }
+
+  void initLogic(){
+    Get.put(HomePageLogic());
+    Get.put(CategoriesPageLogic());
+    Get.put(GamesPageLogic());
+    Get.put(EhHomePageLogic());
+    Get.put(EhPopularPageLogic());
+    Get.put(JmHomePageLogic());
+    Get.put(JmLatestPageLogic());
+    Get.put(JmCategoriesPageLogic());
+    Get.put(ExplorePageLogic());
+    Get.put(CategoryPageLogic());
+    Get.put(HtHomePageLogic());
+  }
+
+  @override
+  void initState() {
+    initLogic();
+
+    login();
+
+    notifications.requestPermission();
+
+    if(appdata.ehAccount != "") {
+      EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php",
+        favoritePage: true);
+    }
+
+    if (appdata.firstUse[3] == "0") {
+      appdata.firstUse[3] = "1";
+      appdata.writeData();
+    }
+    //清除未正常退出时的下载通知
+    try {
+      notifications.endProgress();
+    } catch (e) {
+      //不清楚清除一个不存在的通知会不会引发错误
+    }
+    //检查是否打卡
+    if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
+      if (GetPlatform.isMobile) {
+        runBackgroundService();
+      } else {
+        appdata.user.isPunched = true;
+        network.punchIn().then((b) {
+          if (b) {
+            showMessage(Get.context, "打卡成功".tr, useGet: false);
+            appdata.user.exp += 10;
+          }
+        });
+      }
+    }
+
+    checkUpdates();
+
+    checkDownload();
+
     MainPage.toExplorePage = () => setState(() => i = 1);
+
+    Future.delayed(const Duration(milliseconds: 300), () => Webdav.syncData());
+
     super.initState();
   }
 

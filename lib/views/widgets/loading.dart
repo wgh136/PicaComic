@@ -50,10 +50,11 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
   }
 }
 
-void showLoadingDialog(BuildContext context, void Function() onCancel){
+void showLoadingDialog(BuildContext context, void Function() onCancel,
+    [bool barrierDismissible = true, bool allowCancel = true, String? message]){
   showDialog(
     context: context,
-    barrierDismissible: true,
+    barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
       return WillPopScope(
         onWillPop: () async => false,
@@ -69,12 +70,13 @@ void showLoadingDialog(BuildContext context, void Function() onCancel){
                   child: CircularProgressIndicator(),
                 ),
                 const SizedBox(width: 16,),
-                const Text('Loading', style: TextStyle(fontSize: 16),),
+                Text(message ?? 'Loading', style: const TextStyle(fontSize: 16),),
                 const Spacer(),
-                TextButton(onPressed: () {
-                  Get.back();
-                  onCancel();
-                }, child: Text("取消".tl))
+                if(allowCancel)
+                  TextButton(onPressed: () {
+                    Get.back();
+                    onCancel();
+                  }, child: Text("取消".tl))
               ],
             ),
           ),

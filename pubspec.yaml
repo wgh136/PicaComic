@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.2.1+221
+version: 2.2.2+222
 environment:
   sdk: '>=3.0.0'
 
@@ -82,6 +82,7 @@ dependencies:
       url: https://github.com/wgh136/webview_cookie_manager
       ref: master
   webview_flutter_android: any
+  webdav_client: 1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -131,6 +132,7 @@ flutter:
     - images/11.jpg
     - images/12.jpg
     - images/loading.json
+    - assets/tags.json
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 

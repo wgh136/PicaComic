@@ -10,6 +10,7 @@ import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/login.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/views/eh_views/eh_login_page.dart';
 import 'package:pica_comic/views/ht_views/ht_login_page.dart';
 import 'package:pica_comic/views/jm_views/jm_login_page.dart';
@@ -122,7 +123,10 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => Get.to(() => const LoginPage())
-                          ?.then((value) => logic.update()),
+                          ?.then((value) {
+                        logic.update();
+                        Webdav.uploadData();
+                      }),
                     ),
                   const Divider(),
                   const Padding(
@@ -136,7 +140,10 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => Get.to(() => const EhLoginPage())
-                          ?.then((v) => logic.update()),
+                          ?.then((v) {
+                        logic.update();
+                        Webdav.uploadData();
+                      }),
                     ),
                   if (appdata.ehAccount != "")
                     ListTile(
@@ -206,7 +213,10 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => Get.to(() => const JmLoginPage())
-                          ?.then((v) => logic.update()),
+                          ?.then((v) {
+                        logic.update();
+                        Webdav.uploadData();
+                      }),
                     ),
                   if (appdata.jmEmail != "")
                     ListTile(
@@ -278,7 +288,10 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => Get.to(() => const HtLoginPage())
-                          ?.then((v) => logic.update()),
+                          ?.then((v) {
+                        logic.update();
+                        Webdav.uploadData();
+                      }),
                     ),
                   const Divider(),
                   const Padding(
@@ -295,7 +308,10 @@ class AccountsPage extends StatelessWidget {
                   if(!NhentaiNetwork().logged)
                     ListTile(
                       title: Text("登录".tl),
-                      onTap: ()=>login(() => logic.update()),
+                      onTap: ()=>login(() {
+                        logic.update();
+                        Webdav.uploadData();
+                      }),
                     ),
                   if(NhentaiNetwork().logged)
                     ListTile(

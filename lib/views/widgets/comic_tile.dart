@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/foundation/def.dart';
+import '../../base.dart';
 export 'package:pica_comic/foundation/def.dart';
 
-///漫画组件
+
 abstract class ComicTile extends StatelessWidget {
+  /// Show a comic brief information. Usually displayed in comic list page.
   const ComicTile({Key? key}) : super(key: key);
 
   Widget get image;
@@ -102,6 +103,14 @@ abstract class ComicTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(appdata.settings[44] == "0"){
+      return _buildDetailedMode(context);
+    }else{
+      return _buildBriefMode(context);
+    }
+  }
+
+  Widget _buildDetailedMode(BuildContext context){
     return Material(
       color: Colors.transparent,
       borderRadius: const BorderRadius.all(Radius.circular(16)),
@@ -126,7 +135,7 @@ abstract class ComicTile extends StatelessWidget {
                 ),
                 Expanded(
                   flex: 10,
-                  child: ComicDescription(
+                  child: _ComicDescription(
                     //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
                     title: pages == null ? title.replaceAll("\n", "") : "[${pages}P]${title.replaceAll("\n", "")}",
                     user: subTitle,
@@ -145,12 +154,41 @@ abstract class ComicTile extends StatelessWidget {
           )),
     );
   }
+
+  Widget _buildBriefMode(BuildContext context){
+    return Material(
+      color: Colors.transparent,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap_,
+          onLongPress: enableLongPressed ? onLongTap_ : null,
+          onSecondaryTapDown: onSecondaryTap_,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16)),
+                      clipBehavior: Clip.antiAlias,
+                      child: image),
+                ),
+                const SizedBox(height: 2,),
+                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, ),
+                Text(subTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11),)
+              ],
+            ),
+          )),
+    );
+  }
 }
 
-class ComicDescription extends StatelessWidget {
-  const ComicDescription(
-      {super.key,
-      required this.title,
+class _ComicDescription extends StatelessWidget {
+  const _ComicDescription(
+      {required this.title,
       required this.user,
       required this.description,
       this.subDescription,

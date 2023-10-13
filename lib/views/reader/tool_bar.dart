@@ -25,52 +25,48 @@ Widget buildTopToolBar(ComicReadingPageLogic comicReadingPageLogic,
                       .colorScheme
                       .secondaryContainer
                       .withOpacity(0.95)),
-              width: MediaQuery.of(context).size.width +
-                  MediaQuery.of(context).padding.top,
-              child: Padding(
-                padding:
-                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Tooltip(
-                        message: "返回".tl,
-                        child: IconButton(
-                          iconSize: 25,
-                          icon: const Icon(Icons.arrow_back_outlined),
-                          onPressed: () => Get.back(),
-                        ),
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Tooltip(
+                      message: "返回".tl,
+                      child: IconButton(
+                        iconSize: 25,
+                        icon: const Icon(Icons.arrow_back_outlined),
+                        onPressed: () => Get.back(),
                       ),
                     ),
-                    Container(
-                      width: MediaQuery.of(context).size.width - 125,
-                      height: 50,
-                      constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width - 75),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Text(
-                          title,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 20),
-                        ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width - 125,
+                    height: 50,
+                    constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width - 75),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 20),
                       ),
                     ),
-                    //const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Tooltip(
-                        message: "阅读设置".tl,
-                        child: IconButton(
-                          iconSize: 25,
-                          icon: const Icon(Icons.settings),
-                          onPressed: () => showSettings(context),
-                        ),
+                  ),
+                  //const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Tooltip(
+                      message: "阅读设置".tl,
+                      child: IconButton(
+                        iconSize: 25,
+                        icon: const Icon(Icons.settings),
+                        onPressed: () => showSettings(context),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             )
           : const SizedBox(

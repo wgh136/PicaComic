@@ -857,6 +857,18 @@ extension AppTranslation on String{
       "打开": "open",
       "限制图片最大显示宽度": "Limit image width",
       "倒序": "Reverse",
+      "漫画块显示模式": "Display mode of comic tile",
+      "需要重新加载页面": "Requires page reload",
+      "数据同步": "Data Sync",
+      "简略": "Brief",
+      "详细": "Detailed",
+      "最小": "Minimal",
+      "储存路径": "Storage Path",
+      "请确保路径存在": "Make sure the path exists",
+      "立即执行:": "Run Now:",
+      "上传数据": "Upload",
+      "下载数据": "Download",
+      "将URL留空以禁用同步": "Leave the URL blank to disable sync"
     }
   };
 }

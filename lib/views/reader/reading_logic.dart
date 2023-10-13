@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -28,6 +29,8 @@ class ComicReadingPageLogic extends GetxController{
   bool mouseScroll = GetPlatform.isDesktop;
 
   double currentScale = 1.0;
+
+  bool isCtrlPressed = false;
 
   static int _getIndex(int initPage){
    if(appdata.settings[9] == "5" || appdata.settings[9] == "6"){
@@ -270,5 +273,31 @@ class ComicReadingPageLogic extends GetxController{
     tools = false;
     showSettings = false;
     update();
+  }
+
+  void handleKeyboard(RawKeyEvent event){
+    isCtrlPressed = event.isControlPressed;
+    switch(event.logicalKey){
+      case LogicalKeyboardKey.arrowDown:
+        if(!event.isKeyPressed(LogicalKeyboardKey.arrowDown) || event.repeat) {
+          jumpToNextPage();
+        }
+        break;
+      case LogicalKeyboardKey.arrowRight:
+        if(!event.isKeyPressed(LogicalKeyboardKey.arrowRight) || event.repeat) {
+          jumpToNextPage();
+        }
+        break;
+      case LogicalKeyboardKey.arrowUp:
+        if(!event.isKeyPressed(LogicalKeyboardKey.arrowUp) || event.repeat) {
+          jumpToLastPage();
+        }
+        break;
+      case LogicalKeyboardKey.arrowLeft:
+        if(!event.isKeyPressed(LogicalKeyboardKey.arrowLeft) || event.repeat) {
+          jumpToLastPage();
+        }
+        break;
+    }
   }
 }

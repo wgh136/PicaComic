@@ -14,6 +14,7 @@ import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import '../../foundation/app.dart';
 import '../../foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -105,9 +106,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
             (context, i) {
           return HitomiComicTileDynamicLoading(data.related[i]);
         }),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: comicTileMaxWidth,
-          childAspectRatio: comicTileAspectRatio,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: App.comicTileMaxWidth,
+          childAspectRatio: App.comicTileAspectRatio,
         ),
       );
 
@@ -130,8 +131,10 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       PlatformDispatcher.instance.locale.languageCode == "zh";
 
   @override
-  void tapOnTags(String tag) =>
-      MainPage.to(() => HitomiSearchPage(tag));
+  void tapOnTags(String tag) {
+    tag = tag.replaceAll(" ", "_");
+    MainPage.to(() => HitomiSearchPage(tag));
+  }
 
   @override
   Map<String, String> get headers => {

@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/network/webdav.dart';
 
 
 enum HistoryType{
@@ -89,13 +90,32 @@ class HistoryManager{
     saveDataAndClose();
   }
 
+  /// remove repeated item
+  void check(){
+    Set<String> keys = {};
+    var shouldRemove = <History>[];
+    for(var value in history){
+      if(keys.contains(value.target)){
+        shouldRemove.add(value);
+        continue;
+      }else{
+        keys.add(value.target);
+      }
+    }
+    for(var value in shouldRemove){
+      history.remove(value);
+    }
+  }
+
   void saveDataAndClose() async{
+    check();
     final dataPath = await getApplicationSupportDirectory();
     var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
     if(!(await file.exists())){
       await file.create();
     }
     file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
+    Webdav.uploadData();
     /*
     _open = false;
     history.clear();

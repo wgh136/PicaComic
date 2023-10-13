@@ -20,7 +20,7 @@ class ListLoadingIndicator extends StatelessWidget {
                 height: 25,
                 child: CircularProgressIndicator(strokeWidth: 3,),
               ),
-              Text("  加载中...".tl)
+              Text("  ${"加载中".tl}...")
             ],
           ),
         ),

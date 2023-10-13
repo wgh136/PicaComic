@@ -10,7 +10,6 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
-
 export 'foundation/def.dart';
 
 
@@ -85,6 +84,8 @@ class Appdata{
     "0", //41 阅读器图片布局方式, 0-contain, 1-fitWidth, 2-fitHeight
     "0", //42 禁漫收藏夹排序模式, 0-最新收藏, 1-最新更新
     "1", //43 限制图片宽度
+    "0", //44 comic display type
+    "", //45 webdav
   ];
 
   ///屏蔽的关键词

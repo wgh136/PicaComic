@@ -28,8 +28,10 @@ class CategoryComicPage extends ComicsPage<ComicItemBrief>{
   Future<Res<List<ComicItemBrief>>> getComics(int i) async{
     if(categoryType == 1){
       return await network.getCategoryComics(keyWord, i, appdata.settings[1]);
-    }else{
+    }else if(categoryType == 2){
       return await network.search(keyWord, appdata.settings[1], i);
+    }else{
+      return await network.getCategoryComics(keyWord, i, appdata.settings[1], "a");
     }
   }
 
@@ -47,7 +49,6 @@ class CategoryComicPage extends ComicsPage<ComicItemBrief>{
 
   @override
   bool get withScaffold => true;
-
 
   @override
   Widget? get tailing => Tooltip(

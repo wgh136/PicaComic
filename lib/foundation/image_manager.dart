@@ -280,10 +280,10 @@ class ImageManager{
       });
 
       var image = const JsonDecoder().convert(apiRes.data)["i3"] as String;
-      image = image.substring(image.indexOf("src=\"")+5, image.indexOf("\" style")-1);
-      if(image.contains("509")){
+      if(image.contains("/img/509.gif")){
         throw ImageExceedError();
       }
+      image = image.substring(image.indexOf("src=\"")+5, image.indexOf("\" style")-1);
       var res =
         await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
 
@@ -325,130 +325,6 @@ class ImageManager{
     }
     finally{
       loadingItems.remove(cacheKey);
-    }
-  }
-
-  ///获取eh图片, 传入的为阅读器地址
-  Stream<DownloadProgress> getEhImage(String url) async*{
-    while(loadingItems[url] != null){
-      var progress = loadingItems[url]!;
-      yield progress;
-      if(progress.finished)  return;
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    loadingItems[url] = DownloadProgress(0, 1, url, "");
-    try {
-      await readData();
-      //检查缓存
-      if (_paths![url] != null) {
-        if (File(_paths![url]!).existsSync()) {
-          yield DownloadProgress(1, 1, url, _paths![url]!);
-          loadingItems.remove(url);
-          return;
-        } else {
-          _paths!.remove(url);
-        }
-      }
-      var options = BaseOptions(
-          connectTimeout: const Duration(seconds: 8),
-          sendTimeout: const Duration(seconds: 8),
-          receiveTimeout: const Duration(seconds: 8),
-          followRedirects: true,
-          headers: {
-            "user-agent": webUA,
-            "cookie": EhNetwork().cookiesStr
-          }
-      );
-
-      //生成文件名
-      var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-      if (fileName.length > 10) {
-        fileName = fileName.substring(0, 10);
-      }
-      fileName = "$fileName.jpg";
-      final savePath = "${(await getTemporaryDirectory())
-          .path}${pathSep}imageCache$pathSep$fileName";
-      yield DownloadProgress(0, 100, url, savePath);
-
-      //获取图片地址
-      var dio = Dio(options);
-      var html = await dio.get(url);
-      var document = parse(html.data);
-      var image = document.querySelector("img#img")?.attributes["src"];
-      var nl = document.getElementById("loadfail")?.attributes["onclick"];
-      if (image == "https://ehgt.org/g/509.gif") {
-        throw ImageExceedError();
-      }
-      var originImage = document
-          .querySelector("div#i7 > a")
-          ?.attributes["href"];
-
-      if(appdata.settings[29] == "0"){
-        originImage = null;
-      }
-
-      if(nl == null){
-        throw Exception("Fail to get image url");
-      }
-
-      Response<ResponseBody> res;
-      if (originImage == null) {
-        html = await dio.get("$url?nl=${nl.substring(11, nl.length - 2)}");
-        document = parse(html.data);
-        image = document.querySelector("img#img")?.attributes["src"];
-        if (image == "https://ehgt.org/g/509.gif") {
-          throw ImageExceedError();
-        }
-      } else {
-        image = originImage;
-      }
-      if(image == null){
-        throw Exception("Fail to get image url");
-      }
-      res =
-        await dio.get<ResponseBody>(image, options: Options(responseType: ResponseType.stream));
-
-      if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8"
-          || res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
-        throw ImageExceedError();
-      }
-
-      var stream = res.data!.stream;
-      int? expectedBytes;
-      try {
-        expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
-      }
-      catch (e) {
-        try {
-          expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
-        }
-        catch (e) {
-          //忽视
-        }
-      }
-      var currentBytes = 0;
-      var file = File(savePath);
-      if (!file.existsSync()) {
-        file.create();
-      } else {
-        file.deleteSync();
-        file.createSync();
-      }
-      await for (var b in stream) {
-        file.writeAsBytesSync(b, mode: FileMode.append);
-        currentBytes += b.length;
-        var progress =  DownloadProgress(currentBytes, (expectedBytes ?? currentBytes) + 1, url, savePath);
-        yield progress;
-        loadingItems[url] = progress;
-      }
-      await saveInfo(url, savePath);
-      yield DownloadProgress(1, 1, url, savePath);
-    }
-    catch(e){
-      rethrow;
-    }
-    finally{
-      loadingItems.remove(url);
     }
   }
 

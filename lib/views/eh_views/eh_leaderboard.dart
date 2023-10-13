@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/translations.dart';
-import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../widgets/list_loading.dart';
 import 'eh_widgets/eh_gallery_tile.dart';
@@ -86,9 +86,9 @@ class OneEhLeaderboardPage extends StatelessWidget{
                   return EhGalleryTile(logic.leaderboards[index].galleries[i]);
                 }
             ),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: comicTileMaxWidth,
-              childAspectRatio: comicTileAspectRatio,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: App.comicTileMaxWidth,
+              childAspectRatio: App.comicTileAspectRatio,
             ),
           ),
           if(logic.leaderboards[index].loaded!=EhLeaderboard.max&&!logic.networkStatus[index])

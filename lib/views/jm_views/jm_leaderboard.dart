@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
-import 'package:pica_comic/base.dart';
+import '../../foundation/app.dart';
 import '../widgets/list_loading.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -112,9 +112,9 @@ class OneJmLeaderboardPage extends StatelessWidget{
                     },
                     childCount: logic.comics!.comics.length
                 ),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: comicTileMaxWidth,
-                  childAspectRatio: comicTileAspectRatio,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: App.comicTileMaxWidth,
+                  childAspectRatio: App.comicTileAspectRatio,
                 ),
               ),
               if(logic.comics!.loaded < logic.comics!.total)

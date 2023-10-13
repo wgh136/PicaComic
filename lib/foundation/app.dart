@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../base.dart';
+
 class App{
   // platform
   static bool get isAndroid => Platform.isAndroid;
@@ -9,13 +11,13 @@ class App{
   static bool get isWindows => Platform.isWindows;
 
   /// get ui mode
-  static UiMode uiMode(BuildContext context){
+  static UiModes uiMode(BuildContext context){
     if(MediaQuery.of(context).size.shortestSide<600){
-      return UiMode.m1;
+      return UiModes.m1;
     } else if(!(MediaQuery.of(context).size.shortestSide<600)&&!(MediaQuery.of(context).size.width>1300)){
-      return UiMode.m2;
+      return UiModes.m2;
     } else {
-      return UiMode.m3;
+      return UiModes.m3;
     }
   }
 
@@ -33,9 +35,14 @@ class App{
     cachePath = (await getApplicationCacheDirectory()).path;
     dataPath = (await getApplicationSupportDirectory()).path;
   }
+
+  //ComicTile的最大宽度
+  static double get comicTileMaxWidth =>  [630.0, 200.0, 150.0][int.parse(appdata.settings[44])];
+  //ComicTile的宽高比
+  static double get comicTileAspectRatio => [3.0, 0.68, 0.68][int.parse(appdata.settings[44])];
 }
 
-enum UiMode{
+enum UiModes{
   /// The screen have a short width. Usually the device is phone.
   m1,
   /// The screen's width is medium size. Usually the device is tablet.

@@ -18,6 +18,7 @@ import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../network/res.dart';
 import '../widgets/list_loading.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -244,10 +245,9 @@ abstract class ComicsPage<T> extends StatelessWidget {
                           throw UnimplementedError();
                       }
                     }),
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: comicTileMaxWidth,
-                      childAspectRatio: comicTileAspectRatio,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: App.comicTileMaxWidth,
+                      childAspectRatio: App.comicTileAspectRatio,
                     ),
                   ),
                   if (logic.current < (logic.maxPage ?? 114514))
@@ -311,10 +311,9 @@ abstract class ComicsPage<T> extends StatelessWidget {
                           throw UnimplementedError();
                       }
                     }),
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: comicTileMaxWidth,
-                      childAspectRatio: comicTileAspectRatio,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: App.comicTileMaxWidth,
+                      childAspectRatio: App.comicTileAspectRatio,
                     ),
                   ),
                   if(showPageIndicator)

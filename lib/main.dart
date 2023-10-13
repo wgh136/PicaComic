@@ -18,12 +18,14 @@ import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:workmanager/workmanager.dart';
 import 'network/picacg_network/methods.dart';
+import 'network/webdav.dart';
 
 bool notFirstUse = false;
 
@@ -90,10 +92,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       appdata.flag = true;
     }
-    //禁漫的登录有效期较短, 部分系统对后台的限制弱, 且本app占用资源少, 可能导致长期挂在后台的情况
-    //因此从后台进入前台时, 尝试重新登录
+
     if(DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch > 7200000) {
       jmNetwork.loginFromAppdata();
+      Webdav.syncData();
       time = DateTime.now();
     }
   }
@@ -103,6 +105,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     time = DateTime.now();
+    TagsTranslation.readData();
     if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
       try {
         FlutterDisplayMode.setHighRefreshRate();

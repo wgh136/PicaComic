@@ -4,7 +4,7 @@ import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
-import '../../base.dart';
+import '../../foundation/app.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
@@ -73,9 +73,9 @@ class JmPromoteListPage extends StatelessWidget {
                     },
                     childCount: logic.list!.comics.length
                   ),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: comicTileMaxWidth,
-                    childAspectRatio: comicTileAspectRatio,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: App.comicTileMaxWidth,
+                    childAspectRatio: App.comicTileAspectRatio,
                   ),
                 ),
                 if(logic.list!.total > logic.list!.loaded)

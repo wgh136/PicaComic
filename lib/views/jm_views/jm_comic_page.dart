@@ -10,6 +10,7 @@ import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import '../../foundation/app.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
@@ -166,9 +167,9 @@ class JmComicPage extends ComicPage<JmComicInfo> {
             childCount: data.relatedComics.length, (context, i) {
           return JmComicTile(data.relatedComics[i]);
         }),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: comicTileMaxWidth,
-          childAspectRatio: comicTileAspectRatio,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: App.comicTileMaxWidth,
+          childAspectRatio: App.comicTileAspectRatio,
         ),
       );
 
