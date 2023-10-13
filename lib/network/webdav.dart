@@ -32,7 +32,7 @@ class Webdav{
     config ??= appdata.settings[45];
     var configs = config.split(';');
     if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
-      _isUploading = true;
+      _isUploading = false;
       return true;
     }
     if(!configs[3].endsWith('/') && !configs[3].endsWith('\\')){
@@ -49,17 +49,17 @@ class Webdav{
       await client.ping();
     } catch (e) {
       LogManager.addLog(LogLevel.error, "Sync", "Failed to connect to webdav server.");
-      _isUploading = true;
+      _isUploading = false;
       return false;
     }
     try {
       await client.writeFromFile(await exportDataToFile(false), "${configs[3]}picadata");
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Sync", "Failed to upload data to webdav server.\n$s");
-      _isUploading = true;
+      _isUploading = false;
       return false;
     }
-    _isUploading = true;
+    _isUploading = false;
     return true;
   }
 

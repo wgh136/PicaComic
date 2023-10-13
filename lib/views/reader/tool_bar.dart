@@ -316,13 +316,16 @@ List<Widget> buildButtons(
               MediaQuery.of(context).size.height &&
           appdata.settings[4] == "1"))
       ? [
-          if (appdata.settings[9] != "4")
+          if (appdata.settings[9] != "4" && comicReadingPageLogic.readingMethod != ReadingMethod.topToBottom)
             Positioned(
               left: 20,
               top: MediaQuery.of(context).size.height / 2 - 25,
               child: IconButton(
                 icon: const Icon(Icons.keyboard_arrow_left),
                 onPressed: () {
+                  if(appdata.settings[0] == "1"){
+                    return;
+                  }
                   switch (comicReadingPageLogic.readingMethod) {
                     case ReadingMethod.rightToLeft:
                     case ReadingMethod.twoPageReversed:
@@ -334,13 +337,16 @@ List<Widget> buildButtons(
                 iconSize: 50,
               ),
             ),
-          if (appdata.settings[9] != "4")
+          if (appdata.settings[9] != "4" && comicReadingPageLogic.readingMethod != ReadingMethod.topToBottom)
             Positioned(
               right: 20,
               top: MediaQuery.of(context).size.height / 2 - 25,
               child: IconButton(
                 icon: const Icon(Icons.keyboard_arrow_right),
                 onPressed: () {
+                  if(appdata.settings[0] == "1" ){
+                    return;
+                  }
                   switch (comicReadingPageLogic.readingMethod) {
                     case ReadingMethod.rightToLeft:
                     case ReadingMethod.twoPageReversed:
