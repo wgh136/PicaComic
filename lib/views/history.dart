@@ -18,7 +18,6 @@ import '../base.dart';
 import '../foundation/app.dart';
 import '../network/jm_network/jm_image.dart';
 import 'package:pica_comic/tools/translations.dart';
-
 import 'main_page.dart';
 
 
@@ -35,9 +34,13 @@ class _HistoryPageState extends State<HistoryPage> {
   bool searchMode = false;
   String keyword = "";
   var results = <History>[];
+  bool isModified = false;
   
   @override
   void dispose() {
+    if(isModified){
+      appdata.history.saveDataAndClose();
+    }
     super.dispose();
   }
 
@@ -116,6 +119,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         TextButton(onPressed: (){
                           appdata.history.clearHistory();
                           setState(()=>comics.clear());
+                          isModified = true;
                           Get.back();
                         }, child: Text("清除".tl)),
                       ],
@@ -148,22 +152,22 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  Widget buildComics(List<History> comics){
+  Widget buildComics(List<History> comics_){
     return SliverGrid(
       delegate: SliverChildBuilderDelegate(
-          childCount: comics.length,
+          childCount: comics_.length,
               (context, i){
             final comic = ComicItemBrief(
-                comics[i].title,
-                comics[i].subtitle,
+                comics_[i].title,
+                comics_[i].subtitle,
                 0,
-                comics[i].cover!=""?comics[i].cover:getJmCoverUrl(comics[i].target),
-                comics[i].target,
+                comics_[i].cover!=""?comics_[i].cover:getJmCoverUrl(comics_[i].target),
+                comics_[i].target,
                 [],
                 ignoreExamination: true
             );
             return NormalComicTile(
-              key: Key(comics[i].target),
+              key: Key(comics_[i].target),
               onLongTap: (){
                 showDialog(context: context, builder: (context){
                   return AlertDialog(
@@ -172,9 +176,11 @@ class _HistoryPageState extends State<HistoryPage> {
                     actions: [
                       TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
                       TextButton(onPressed: (){
-                        appdata.history.remove(comics[i].target);
+                        appdata.history.remove(comics_[i].target);
                         setState(() {
-                          comics.removeAt(i);
+                          isModified = true;
+                          comics.removeWhere((element) =>
+                            element.target == comics_[i].target);
                         });
                         Get.back();
                       }, child: Text("删除".tl)),
@@ -182,47 +188,47 @@ class _HistoryPageState extends State<HistoryPage> {
                   );
                 });
               },
-              description_: timeToString(comics[i].time),
+              description_: timeToString(comics_[i].time),
               coverPath: comic.path,
               name: comic.title,
               subTitle_: comic.author,
               onTap: (){
-                if(comics[i].type == HistoryType.picacg){
+                if(comics_[i].type == HistoryType.picacg){
                   MainPage.to(()=>PicacgComicPage(comic));
-                }else if(comics[i].type == HistoryType.ehentai){
+                }else if(comics_[i].type == HistoryType.ehentai){
                   MainPage.to(()=>EhGalleryPage(EhGalleryBrief(
-                      comics[i].title,
+                      comics_[i].title,
                       "",
                       "",
-                      comics[i].subtitle,
-                      comics[i].cover,
+                      comics_[i].subtitle,
+                      comics_[i].cover,
                       0.0,
-                      comics[i].target,
+                      comics_[i].target,
                       []
                   )));
-                }else if(comics[i].type == HistoryType.jmComic){
-                  MainPage.to(()=>JmComicPage(comics[i].target));
-                }else if(comics[i].type == HistoryType.hitomi){
+                }else if(comics_[i].type == HistoryType.jmComic){
+                  MainPage.to(()=>JmComicPage(comics_[i].target));
+                }else if(comics_[i].type == HistoryType.hitomi){
                   MainPage.to(()=>HitomiComicPage(HitomiComicBrief(
-                      comics[i].title,
+                      comics_[i].title,
                       "",
                       "",
                       [],
                       "",
                       "",
-                      comics[i].target,
-                      comics[i].cover
+                      comics_[i].target,
+                      comics_[i].cover
                   )));
-                }else if(comics[i].type == HistoryType.htmanga){
+                }else if(comics_[i].type == HistoryType.htmanga){
                   MainPage.to(() => HtComicPage(HtComicBrief(
-                      comics[i].title,
+                      comics_[i].title,
                       "",
-                      comics[i].cover,
-                      comics[i].target,
+                      comics_[i].cover,
+                      comics_[i].target,
                       0
                   )));
                 }else{
-                  MainPage.to(() => NhentaiComicPage(comics[i].target));
+                  MainPage.to(() => NhentaiComicPage(comics_[i].target));
                 }
               },
             );
