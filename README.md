@@ -1,6 +1,6 @@
 # Pica Comic
 
-[![flutter](https://img.shields.io/badge/flutter-3.13.4-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.13.7-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
@@ -91,34 +91,12 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 在v2.1.0版本添加
 
 ## 从源代码构建
-首先, 必须安装**Stable频道最新版**[Flutter SDK](https://docs.flutter.dev/get-started/install)
+请参考[https://docs.flutter.dev/](https://docs.flutter.dev/)
 
-然后将本项目克隆至本地
+使用**Stable频道最新版**的[Flutter SDK](https://docs.flutter.dev/get-started/install)
 
-### 构建APK
-1. 安装Android Studio
-2. 创建签名证书: 可以通过Java的keytool创建, 或者使用Android Studio进行创建
-3. 在/PicaComic/android/下创建文件`key.properties`, 内容如下, 等号右边更改为创建签名时提供的数据, `storeFile`填写签名证书的位置
-```
-storePassword=
-keyPassword=
-keyAlias=
-storeFile=
-```
-4. 在终端运行`flutter pub get`
-5. 在终端运行`flutter build apk`
+对于Windows, 打开 PicaComic/pubspec.yaml, 移至文件末尾, 找到注释`仅在打包windows时取消注释`, 将下面的字体使用取消注释. 你也可以将字体替换为其他字体
 
-### 构建Windows
-1. 安装Visual Studio, 并且勾选使用C++的桌面开发
-2. 打开/PicaComic/pubspec.yaml, 移至文件末尾, 找到注释`仅在打包windows时取消注释`, 将下面的字体使用取消注释. 你也可以将字体替换为其他字体
-3. 在终端运行`flutter pub get`
-4. 在终端运行`flutter build windows`
-
-### 构建IOS
-可以直接在[Action](https://github.com/wgh136/PicaComic/actions)页面查看构建结果
-
-### 其他平台?
-其它平台暂时不受支持, 你可以尝试构建, 并且遇到问题时可以提出issue, 但并不会在第一时间得到处理
 
 ## Thanks
 
@@ -148,6 +126,11 @@ storeFile=
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=tonquer&repo=JMComic-qt)](https://github.com/tonquer/JMComic-qt)
 
 禁漫图片分割算法来自此项目, 并且使用chatgpt将python函数转换为了dart函数
+
+### Tags翻译
+v2.2.2后Tags翻译来自此项目
+
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=EhTagTranslation&repo=Database)](https://github.com/EhTagTranslation/Database)
 
 ## 屏幕截图
 
