@@ -35,9 +35,9 @@ class EhGalleryTile extends ComicTile{
         }
         var lowLevelKey = ["character", "artist", "cosplayer", "group"];
         if(lowLevelKey.contains(splits[0])){
-          res2.add(splits[1].translateTagsToCN);
+          res2.add(TagsTranslation.translationTagWithNamespace(splits[1], splits[0]));
         }else {
-          res.add(splits[1].translateTagsToCN);
+          res.add(TagsTranslation.translationTagWithNamespace(splits[1], splits[0]));
         }
       }else{
         res.add(tag.translateTagsToCN);

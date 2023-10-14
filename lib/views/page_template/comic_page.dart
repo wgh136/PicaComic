@@ -407,7 +407,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget buildInfoCard(String text, BuildContext context,
-      {bool title = false}) {
+      {bool title = false, String key = "key"}) {
     final colorScheme = Theme.of(context).colorScheme;
     double size = 1;
     int values = 0;
@@ -491,7 +491,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: enableTranslationToCN
                 ? (title
                     ? Text(text.translateTagsCategoryToCN)
-                    : Text(text.translateTagsToCN))
+                    : Text(TagsTranslation.translationTagWithNamespace(text, key)))
                 : Text(text),
           ),
         ),
@@ -562,7 +562,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         child: Wrap(
           children: [
             buildInfoCard(key, context, title: true),
-            for (var tag in tags![key]!) buildInfoCard(tag, context)
+            for (var tag in tags![key]!) buildInfoCard(tag, context, key: key)
           ],
         ),
       ));

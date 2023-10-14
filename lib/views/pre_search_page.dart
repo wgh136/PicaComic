@@ -206,14 +206,11 @@ class PreSearchPage extends StatelessWidget{
 
         void find(Map<String, String> map, TranslationType type){
           for (var element in map.entries) {
-            if(suggestions.length > 50){
+            if(suggestions.length > 200){
               break;
             }
             if(check(text, element.key, element.value)){
               suggestions.add(Pair(element.key, type));
-            }
-            if(suggestions.length > 50){
-              break;
             }
           }
         }
@@ -224,10 +221,14 @@ class PreSearchPage extends StatelessWidget{
         find(TagsTranslation.characterTranslations, TranslationType.character);
         find(TagsTranslation.otherTags, TranslationType.other);
         find(TagsTranslation.mixedTags, TranslationType.mixed);
+        find(TagsTranslation.languageTranslations, TranslationType.language);
+        find(TagsTranslation.artistTags, TranslationType.artist);
+        find(TagsTranslation.groupTags, TranslationType.group);
+        find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
 
         bool showMethod = MediaQuery.of(context).size.width < 600;
         Widget buildItem(Pair<String, TranslationType> value){
-          var subTitle = value.left.translateTagsToCN;
+          var subTitle = TagsTranslation.translationTagWithNamespace(value.left, value.right.name);
           return ListTile(
             title: Row(
               mainAxisSize: MainAxisSize.min,
