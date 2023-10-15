@@ -1,4 +1,4 @@
-name: 其它
+name: 其它/other
 description: 其它内容
 body:
   - type: textarea
