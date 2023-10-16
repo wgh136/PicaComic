@@ -260,25 +260,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    //获取热搜
-    if (hotSearch.isEmpty || jmNetwork.hotTags.isEmpty) {
-      if (jmNetwork.hotTags.isEmpty) {
-        jmNetwork.getHotTags();
-      }
-      if (hotSearch.isEmpty) {
-        network.getKeyWords().then((s) {
-          if (s.success) {
-            hotSearch = s.data;
-            try {
-              Get.find<PreSearchController>().update();
-            } catch (e) {
-              //处于搜索页面时更新页面, 否则忽视
-            }
-          }
-        });
-      }
-    }
-
     var titles = ["我".tl, "探索".tl, "分类".tl, "排行榜".tl];
 
     return Scaffold(

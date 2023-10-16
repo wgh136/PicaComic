@@ -31,6 +31,8 @@ class PicacgNetwork {
   InitData? initData;
   String token;
 
+  var hotTags = <String>[];
+
   Future<void> updateApi() async {
     if (appdata.settings[3] == "1") {
       apiUrl = "https://api.kokoiro.xyz/picaapi";
@@ -212,7 +214,7 @@ class PicacgNetwork {
   }
 
   ///获取热搜词
-  Future<Res<List<String>>> getKeyWords() async {
+  Future<Res<bool>> getKeyWords() async {
     var response =
         await get("$apiUrl/keywords", expiredTime: CacheExpiredTime.no);
     if (response.error) {
@@ -223,7 +225,8 @@ class PicacgNetwork {
     for (int i = 0; i < (res["data"]["keywords"] ?? []).length; i++) {
       k.add(res["data"]["keywords"][i]);
     }
-    return Res(k);
+    hotTags = k;
+    return const Res(true);
   }
 
   ///获取分类

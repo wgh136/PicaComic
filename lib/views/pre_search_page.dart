@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
@@ -12,6 +13,7 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/search.dart';
+import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
@@ -136,7 +138,7 @@ class PreSearchPage extends StatelessWidget{
                 ),
               buildTargetSelector(context),
               buildModeSelector(context),
-              ...buildHotSearch(context),
+              buildHotSearch(context),
               if(!showSideBar)
                 buildPinned(context),
               if(!showSideBar)
@@ -457,18 +459,19 @@ class PreSearchPage extends StatelessWidget{
     );
   }
 
-  List<Widget> buildHotSearch(BuildContext context){
+  List<Widget> buildHotSearchTags(BuildContext context){
     return [
-      Card(
-        margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-        elevation: 0,
+      const SizedBox(height: 8,),
+      Container(
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("哔咔热搜".tl),
             Wrap(
               children: [
-                for(var s in hotSearch.getNoBlankList())
+                for(var s in network.hotTags.getNoBlankList())
                   Card(
                     margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                     elevation: 0,
@@ -485,9 +488,9 @@ class PreSearchPage extends StatelessWidget{
           ],
         ),
       ),
-      Card(
-        margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-        elevation: 0,
+      Container(
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -510,7 +513,8 @@ class PreSearchPage extends StatelessWidget{
             )
           ],
         ),
-      )
+      ),
+      SizedBox(height: MediaQuery.of(context).padding.bottom,)
     ];
   }
 
@@ -586,6 +590,10 @@ class PreSearchPage extends StatelessWidget{
   }
 
   Widget buildPinned(BuildContext context){
+    if(appdata.pinnedKeyword.isEmpty){
+      return const SizedBox();
+    }
+
     buildClearButton(){
       if(appdata.pinnedKeyword.isNotEmpty) {
         return Row(
@@ -711,5 +719,78 @@ class PreSearchPage extends StatelessWidget{
         }
       },
     ));
+  }
+
+  Widget buildHotSearch(BuildContext context){
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(context: context, builder: (context) =>
+            buildStatefulHotSearch(context));
+      },
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+        child: Row(
+          children: [
+            const SizedBox(width: 8,),
+            Text("热搜".tl),
+            const Spacer(),
+            const Icon(Icons.arrow_right),
+            const SizedBox(width: 8,)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildStatefulHotSearch(BuildContext context){
+    int loading = 2;
+    String? message;
+    bool flag = true;
+    return StatefulBuilder(builder: (context, stateUpdater){
+      if(flag) {
+        flag = false;
+        if (jmNetwork.hotTags.isEmpty) {
+          jmNetwork.getHotTags().then((value) =>
+              stateUpdater(() {
+                loading--;
+                if (value.error) {
+                  message = value.errorMessageWithoutNull;
+                }
+              }));
+        } else {
+          loading--;
+        }
+        if (network.hotTags.isEmpty) {
+          network.getKeyWords().then((value) =>
+              stateUpdater(() {
+                loading--;
+                if (value.error) {
+                  message = value.errorMessageWithoutNull;
+                }
+              }));
+        } else {
+          loading--;
+        }
+      }
+      if(loading != 0){
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else if (message != null){
+        return showNetworkError(message, () {
+          stateUpdater((){
+            loading = 2;
+            message = null;
+            flag = true;
+          });
+        }, context);
+      } else {
+        return SingleChildScrollView(
+          child: Column(
+            children: buildHotSearchTags(context),
+          ),
+        );
+      }
+    });
   }
 }

@@ -313,21 +313,17 @@ class JmNetwork {
   }
 
   ///获取热搜词
-  Future<void> getHotTags() async {
+  Future<Res<bool>> getHotTags() async {
     var res = await get("$baseUrl/hot_tags?$baseData",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
-      return;
+      return Res.fromErrorRes(res);
     }
-    hotTags.clear(); //在尚未完成请求时刷新页面会导致重复调用此方法, 清除以避免出现重复热搜
+    hotTags.clear();
     for (var s in res.data) {
       hotTags.add(s);
     }
-    try {
-      Get.find<PreSearchController>().update();
-    } catch (e) {
-      //处于搜索页面时更新页面, 否则忽视
-    }
+    return const Res(true);
   }
 
   Future<Res<List<JmComicBrief>>> searchNew(String keyword, int page) async {

@@ -16,7 +16,6 @@ export 'foundation/def.dart';
 //路径分隔符
 var pathSep = Platform.pathSeparator;
 
-var hotSearch = <String>[];
 var downloadManager = DownloadManager();
 
 String? appdataPath;
