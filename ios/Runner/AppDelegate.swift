@@ -21,15 +21,15 @@ import flutter_local_notifications
     // 用于获取系统代理配置的 MethodChannel
     let methodChannel = FlutterMethodChannel(name: "kokoiro.xyz.pica_comic/proxy", binaryMessenger: controller.binaryMessenger)
     methodChannel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-      if let proxySettings = CFNetworkCopySystemProxySettings()?.takeUnretainedValue() as NSDictionary? {
-        let dict = proxySettings.object(forKey: kCFNetworkProxiesHTTPProxy) as? NSDictionary
-        let host = dict?.object(forKey: kCFNetworkProxiesHTTPProxy) as? String ?? ""
-        let port = dict?.object(forKey: kCFNetworkProxiesHTTPPort) as? Int ?? 0
-        let proxyConfig = "\(host):\(port)"
-        result(proxyConfig)
-      } else {
-        result("")
-      }
+        if let proxySettings = CFNetworkCopySystemProxySettings()?.takeUnretainedValue() as NSDictionary?,
+           let dict = proxySettings.object(forKey: kCFNetworkProxiesHTTPProxy) as? NSDictionary,
+           let host = dict.object(forKey: kCFNetworkProxiesHTTPProxy) as? String,
+           let port = dict.object(forKey: kCFNetworkProxiesHTTPPort) as? Int {
+            let proxyConfig = "\(host):\(port)"
+            result(proxyConfig)
+        } else {
+            result("")
+        }
     }
 
     // 用于设置屏幕常亮的 MethodChannel

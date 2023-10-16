@@ -36,6 +36,16 @@ Future<String?> getProxy() async{
       }
     }
   }
+  // 执行最终检查
+  final RegExp regex = RegExp(
+    r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$',
+    caseSensitive: false,
+    multiLine: false,
+  );
+  if (!regex.hasMatch(res)) {
+    return null;
+  }
+
   return res;
 }
 
