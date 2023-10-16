@@ -90,7 +90,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
       );
 
   @override
-  String get cover => comic.path;
+  String get cover => getImageUrl(comic.path);
 
   @override
   FilledButton get downloadButton => FilledButton(
