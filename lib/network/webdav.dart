@@ -29,6 +29,7 @@ class Webdav{
     }
     _haveWaitingTask = false;
     _isUploading = true;
+    appdata.settings[46] = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
     config ??= appdata.settings[45];
     var configs = config.split(';');
     if(configs.length != 4 || configs.elementAtOrNull(0) == ""){

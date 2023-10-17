@@ -313,8 +313,17 @@ Future<bool> importData([String? filePath]) async{
   if(data == null){
     return false;
   }
+  var json = const JsonDecoder().convert(data);
+  int fileVersion = int.parse((json["settings"] as List).elementAtOrNull(46) ?? "1");
+  int appVersion = int.parse(appdata.settings[46]);
+  if(fileVersion <= appVersion){
+    LogManager.addLog(LogLevel.info, "Appdata",
+        "The data file version is $fileVersion, while the app data version is "
+            "$appVersion\nStop importing data");
+    return true;
+  }
   var prevAccounts = [appdata.picacgAccount, appdata.jmEmail, appdata.htName];
-  var dataReadRes = appdata.readDataFromJson(const JsonDecoder().convert(data));
+  var dataReadRes = appdata.readDataFromJson(json);
   if(!dataReadRes){
     return false;
   }

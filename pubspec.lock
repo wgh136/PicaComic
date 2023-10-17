@@ -976,10 +976,11 @@ packages:
   webdav_client:
     dependency: "direct main"
     description:
-      name: webdav_client
-      sha256: b3f5afee27e7db5635817ddd79d57f56d43fdc6dad4c6bc93b0703261f96064c
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: main
+      resolved-ref: f2875f9327dabea1732373fb8b24a71917360f46
+      url: "https://github.com/wgh136/webdav_client"
+    source: git
     version: "1.2.1"
   webview_cookie_manager:
     dependency: "direct main"

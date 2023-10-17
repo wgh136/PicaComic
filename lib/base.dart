@@ -85,6 +85,7 @@ class Appdata{
     "1", //43 限制图片宽度
     "0", //44 comic display type
     "", //45 webdav
+    "0", //46 webdav version
   ];
 
   ///屏蔽的关键词

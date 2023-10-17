@@ -82,7 +82,10 @@ dependencies:
       url: https://github.com/wgh136/webview_cookie_manager
       ref: master
   webview_flutter_android: any
-  webdav_client: 1.2.1
+  webdav_client:
+    git:
+      url: https://github.com/wgh136/webdav_client
+      ref: main
 
 dev_dependencies:
   flutter_test:
