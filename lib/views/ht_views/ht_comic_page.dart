@@ -177,6 +177,8 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   @override
   String get id => comic.id;
 
+  @override
+  String get source => "绅士漫画".tl;
 }
 
 class HtComicPageLogic extends GetxController {

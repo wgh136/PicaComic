@@ -192,6 +192,7 @@ class _HistoryPageState extends State<HistoryPage> {
               coverPath: comic.path,
               name: comic.title,
               subTitle_: comic.author,
+              badgeName: comics_[i].type.name,
               onTap: (){
                 if(comics_[i].type == HistoryType.picacg){
                   MainPage.to(()=>PicacgComicPage(comic));

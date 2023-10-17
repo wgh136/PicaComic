@@ -100,7 +100,7 @@ class ComicPageLogic<T extends Object> extends GetxController {
 
 abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// comic info page, show comic's detailed information,
-  /// and allow user download or read comic.
+  /// and allow user to download or read comic.
   const ComicPage({super.key});
 
   ComicPageLogic<T> get _logic => Get.find<ComicPageLogic<T>>(tag: tag);
@@ -195,6 +195,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   ActionFunc? get searchSimilar => null;
 
   Widget thumbnailImageBuilder(int index, String imageUrl) => _thumbnailImageBuilder(index);
+
+  /// source of this comic
+  String get source;
 
   void scrollListener(){
     try {
@@ -297,10 +300,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       ),
     );
 
+    final finalTitle = "[$source] $title${pages == null ? "" : "(${pages}P)"}";
+
     if(!UiMode.m1(context)){
       return [CustomSliverAppbar(
           title: CustomSelectableText(
-            text: "$title${pages == null ? "" : "(${pages}P)"}",
+            text: finalTitle,
             style: const TextStyle(fontSize: 28),
             withAddToBlockKeywordButton: true,
           ), actions: [menu], centerTitle: false
@@ -314,7 +319,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         title: AnimatedOpacity(
           opacity: logic.showAppbarTitle ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 200),
-          child: Text("$title${pages == null ? "" : "(${pages}P)"}"),
+          child: Text(finalTitle),
         ),
         pinned: true,
         actions: [menu],
@@ -325,7 +330,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: CustomSelectableText(
-              text: "$title${pages == null ? "" : "(${pages}P)"}",
+              text: finalTitle,
               style: const TextStyle(fontSize: 26),
               withAddToBlockKeywordButton: true,
             ),
@@ -353,14 +358,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //封面
               buildCover(
                   context, logic, 350, _logic.width!),
-
               const SizedBox(
                 height: 20,
               ),
-
               ...buildInfoCards(logic, context),
             ],
           ),

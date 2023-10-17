@@ -66,19 +66,13 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                     onTap: () => MainPage.to(() => const AllLocalFavorites()),
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Row(
                         children: [
-                          const SizedBox(
-                            width: 2.5,
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Icon(
-                              Icons.folder,
-                              size: 35,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
+                          Icon(
+                            Icons.folder,
+                            size: 35,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                           const SizedBox(
                             width: 16,
@@ -111,7 +105,7 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
               }else {
                 i--;
                 return FolderTile(
-                    name: names[i], onDelete: () => setState(() {}));
+                    name: names[i], stateSetter: () => setState(() {}),);
               }
             }),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -154,11 +148,11 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
 }
 
 class FolderTile extends StatelessWidget {
-  const FolderTile({required this.name, required this.onDelete, super.key});
+  const FolderTile({required this.name, required this.stateSetter, super.key});
 
   final String name;
 
-  final void Function() onDelete;
+  final void Function() stateSetter;
 
   @override
   Widget build(BuildContext context) {
@@ -167,19 +161,13 @@ class FolderTile extends StatelessWidget {
         onTap: () => MainPage.to(() => LocalFavoritesFolder(name)),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Row(
             children: [
-              const SizedBox(
-                width: 2.5,
-              ),
-              Expanded(
-                flex: 1,
-                child: Icon(
-                  Icons.folder,
-                  size: 35,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+              Icon(
+                Icons.folder,
+                size: 35,
+                color: Theme.of(context).colorScheme.secondary,
               ),
               const SizedBox(
                 width: 16,
@@ -188,7 +176,6 @@ class FolderTile extends StatelessWidget {
                 width: 2.5,
               ),
               Expanded(
-                flex: 4,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -214,13 +201,20 @@ class FolderTile extends StatelessWidget {
                             TextButton(
                                 onPressed: () async {
                                   LocalFavoritesManager().deleteFolder(name);
-                                  onDelete();
+                                  stateSetter();
                                   Get.back();
                                 },
                                 child: Text("确认".tl)),
                           ],
                         );
                       });
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.drive_file_rename_outline),
+                onPressed: () async{
+                  await showDialog(context: context, builder: (context) => RenameFolderDialog(name));
+                  stateSetter();
                 },
               ),
               const SizedBox(
@@ -234,17 +228,12 @@ class FolderTile extends StatelessWidget {
   }
 }
 
-class CreateFolderDialog extends StatefulWidget {
+class CreateFolderDialog extends StatelessWidget {
   const CreateFolderDialog({Key? key}) : super(key: key);
 
   @override
-  State<CreateFolderDialog> createState() => _CreateFolderDialogState();
-}
-
-class _CreateFolderDialogState extends State<CreateFolderDialog> {
-  var controller = TextEditingController();
-  @override
   Widget build(BuildContext context) {
+    final controller = TextEditingController();
     return SimpleDialog(
       title: Text("创建收藏夹".tl),
       children: [
@@ -257,7 +246,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                 LocalFavoritesManager().createFolder(controller.text);
                 Get.back();
               } catch (e) {
-                showMessage(context, "e");
+                showMessage(context, e.toString());
               }
             },
             decoration: InputDecoration(
@@ -279,7 +268,59 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                       LocalFavoritesManager().createFolder(controller.text);
                       Get.back();
                     } catch (e) {
-                      showMessage(context, "e");
+                      showMessage(context, e.toString());
+                    }
+                  },
+                  child: Text("提交".tl)),
+            ))
+      ],
+    );
+  }
+}
+
+class RenameFolderDialog extends StatelessWidget {
+  const RenameFolderDialog(this.before, {Key? key}) : super(key: key);
+
+  final String before;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = TextEditingController();
+    return SimpleDialog(
+      title: Text("重命名".tl),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+          child: TextField(
+            controller: controller,
+            onEditingComplete: () {
+              try {
+                LocalFavoritesManager().rename(before, controller.text);
+                Get.back();
+              } catch (e) {
+                showMessage(context, e.toString());
+              }
+            },
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: "名称".tl,
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 200,
+          height: 10,
+        ),
+        SizedBox(
+            height: 35,
+            child: Center(
+              child: TextButton(
+                  onPressed: () {
+                    try {
+                      LocalFavoritesManager().rename(before, controller.text);
+                      Get.back();
+                    } catch (e) {
+                      showMessage(context, e.toString());
                     }
                   },
                   child: Text("提交".tl)),
@@ -312,7 +353,7 @@ class LocalFavoriteTile extends ComicTile {
   bool get enableLongPressed => _enableLongPressed;
 
   @override
-  String get description => comic.time;
+  String get description => "${comic.time} | ${comic.type.name}";
 
   @override
   Widget get image => cache[comic.target] == null ? FutureBuilder<File>(

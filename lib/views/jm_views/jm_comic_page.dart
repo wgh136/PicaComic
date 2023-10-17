@@ -196,6 +196,9 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   Card? get uploaderInfo => null;
+
+  @override
+  String get source => "禁漫天堂".tl;
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context) async {

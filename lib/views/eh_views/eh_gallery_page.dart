@@ -306,6 +306,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   String get id => link;
+
+  @override
+  String get source => "EHentai";
 }
 
 class RatingLogic extends GetxController {

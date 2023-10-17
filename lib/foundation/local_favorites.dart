@@ -14,7 +14,6 @@ import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'dart:io';
 import '../network/webdav.dart';
-import 'def.dart';
 
 
 class FavoriteItem{
@@ -292,5 +291,14 @@ class LocalFavoritesManager{
     }
     _data![folder] = newFolder;
     await saveData();
+  }
+
+  void rename(String before, String after){
+    if(_data![after] != null){
+      throw "收藏夹名称被占用";
+    }
+    _data![after] = _data![before]!;
+    _data!.remove(before);
+    saveData();
   }
 }

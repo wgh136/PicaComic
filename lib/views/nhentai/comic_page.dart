@@ -207,4 +207,6 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   @override
   Card? get uploaderInfo => null;
 
+  @override
+  String get source => "Nhentai";
 }

@@ -10,6 +10,7 @@ class NormalComicTile extends ComicTile {
       required this.subTitle_,
       required this.onTap,
       this.onLongTap,
+      this.badgeName,
       super.key});
   final String description_;
   final String coverPath;
@@ -17,12 +18,16 @@ class NormalComicTile extends ComicTile {
   final String subTitle_;
   final String name;
   final void Function()? onLongTap;
+  final String? badgeName;
 
   @override
   String get description => description_;
 
   @override
   void onLongTap_() => onLongTap!=null?onLongTap!.call():null;
+
+  @override
+  String? get badge => badgeName;
 
   @override
   Widget get image => CachedNetworkImage(

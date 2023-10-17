@@ -177,6 +177,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   String get id => comic.link;
+
+  @override
+  String get source => "hitomi";
 }
 
 void downloadComic(
