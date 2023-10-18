@@ -1,0 +1,34 @@
+name: 功能建议
+description: 提出改进APP的建议
+title: "[Enhancement]: "
+labels: ["enhancement🚀"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        欢迎提出功能建议, 请先补全标题后填写以下信息
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 描述
+      description: 描述具体的建议
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 操作系统
+      description: 如果建议针对某个平台, 请在此选择
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - Windows
+        - other
+    validations:
+      required: false
+  - type: textarea
+    id: screenshotOrVideo
+    attributes:
+      label: 图片
+      description: 如果需要图片描述, 请在这里上传

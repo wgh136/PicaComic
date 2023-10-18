@@ -1,0 +1,9 @@
+name: 其它/other
+description: 其它内容
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Content
+    validations:
+      required: true
