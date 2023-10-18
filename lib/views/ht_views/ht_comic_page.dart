@@ -8,6 +8,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
+import '../../foundation/history.dart';
 import '../main_page.dart';
 import '../../foundation/local_favorites.dart';
 import '../page_template/comic_page.dart';
@@ -104,9 +105,14 @@ class HtComicPage extends ComicPage<HtComicInfo>{
 
   @override
   FilledButton get readButton => FilledButton(
-    onPressed: () => readHtmangaComic(data!),
-    child: Text("阅读".tl),
+    onPressed: () => readHtmangaComic(data!, 1),
+    child: Text("从头开始".tl),
   );
+
+  @override
+  void continueRead(History history) {
+    readHtmangaComic(data!, history.page);
+  }
 
   @override
   SliverGrid? recommendationBuilder(HtComicInfo data) => null;

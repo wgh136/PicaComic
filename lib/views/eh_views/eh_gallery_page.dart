@@ -12,6 +12,7 @@ import 'package:pica_comic/views/eh_views/eh_comments_page.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/stars.dart';
 import 'package:pica_comic/views/main_page.dart';
+import '../../foundation/history.dart';
 import '../../network/eh_network/get_gallery_id.dart';
 import '../../foundation/local_favorites.dart';
 import '../page_template/comic_page.dart';
@@ -136,9 +137,14 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   FilledButton get readButton => FilledButton(
-        onPressed: () => readEhGallery(data!),
-        child: Text("阅读".tl),
+        onPressed: () => readEhGallery(data!, 1),
+        child: Text("从头开始".tl),
       );
+
+  @override
+  void continueRead(History history) {
+    readEhGallery(data!, history.page);
+  }
 
   @override
   SliverGrid? recommendationBuilder(Gallery data) => null;

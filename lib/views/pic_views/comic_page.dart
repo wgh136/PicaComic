@@ -17,6 +17,7 @@ import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/base.dart';
 import '../../foundation/app.dart';
+import '../../foundation/history.dart';
 import '../main_page.dart';
 import '../widgets/select_download_eps.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -120,9 +121,14 @@ class PicacgComicPage extends ComicPage<ComicItem> {
 
   @override
   FilledButton get readButton => FilledButton(
-        onPressed: () => readPicacgComic(data!, data!.eps),
-        child: Text("阅读".tl),
+        onPressed: () => readPicacgComic(data!, data!.eps, false),
+        child: Text("从头开始".tl),
       );
+
+  @override
+  void continueRead(History history) {
+    readPicacgComic(data!, data!.eps, true);
+  }
 
   @override
   SliverGrid recommendationBuilder(data) => SliverGrid(

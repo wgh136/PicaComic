@@ -9,6 +9,8 @@ class App{
   static bool get isAndroid => Platform.isAndroid;
   static bool get isIOS => Platform.isIOS;
   static bool get isWindows => Platform.isWindows;
+  static bool get isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  static bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
   /// get ui mode
   static UiModes uiMode(BuildContext context){
@@ -37,9 +39,9 @@ class App{
   }
 
   //ComicTile的最大宽度
-  static double get comicTileMaxWidth =>  [630.0, 200.0, 150.0][int.parse(appdata.settings[44])];
+  static double get comicTileMaxWidth =>  [680.0, 200.0, 150.0, 720.0][int.parse(appdata.settings[44])];
   //ComicTile的宽高比
-  static double get comicTileAspectRatio => [3.0, 0.68, 0.68][int.parse(appdata.settings[44])];
+  static double get comicTileAspectRatio => [3.0, 0.68, 0.68, 2.5][int.parse(appdata.settings[44])];
 }
 
 enum UiModes{

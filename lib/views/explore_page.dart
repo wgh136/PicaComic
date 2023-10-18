@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
@@ -42,6 +43,96 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
   
   @override
   Widget build(BuildContext context) {
+    bool shouldShowSwitchButton = !UiMode.m1(context) || App.isDesktop;
+
+    Widget tabBar = TabBar(
+      splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+      isScrollable: true,
+      tabs: [
+        if(appdata.settings[24][0] == "1")
+          Tab(text: "Picacg".tl, key: const Key("Picacg"),),
+        if(appdata.settings[24][1] == "1")
+          Tab(text: "Picacg游戏".tl, key: const Key("Picacg游戏"),),
+        if(appdata.settings[24][2] == "1")
+          Tab(text: "Eh主页".tl, key: const Key("Eh主页"),),
+        if(appdata.settings[24][3] == "1")
+          Tab(text: "Eh热门".tl, key: const Key("Eh热门"),),
+        if(appdata.settings[24][4] == "1")
+          Tab(text: "禁漫主页".tl, key: const Key("禁漫主页")),
+        if(appdata.settings[24][5] == "1")
+          Tab(text: "禁漫最新".tl, key: const Key("禁漫最新")),
+        if(appdata.settings[24][6] == "1")
+          Tab(text: "Hitomi".tl, key: const Key("Hitomi主页")),
+        if(appdata.settings[24][7] == "1")
+          Tab(text: "Nhentai".tl, key: const Key("Nhentai")),
+        if(appdata.settings[24][9] == "1")
+          const Tab(text: "绅士漫画", key: Key("绅士漫画")),
+      ],
+      controller: controller,
+    );
+
+    if(shouldShowSwitchButton){
+      tabBar = SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: tabBar,
+                ),
+              ),
+            ),
+              Positioned(
+                left: 0,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      if(controller.index - 1 >  0)  controller.animateTo(controller.index - 1);
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 30,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.6)
+                      ),
+                      child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16,),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 0,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      if(controller.index + 1 < widget.pages) {
+                        controller.animateTo(controller.index + 1);
+                      }
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 30,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.6)
+                      ),
+                      child: const Icon(Icons.arrow_forward_ios_outlined, size: 16,),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       floatingActionButton: showFB ? FloatingActionButton(
         child: const Icon(Icons.refresh),

@@ -11,6 +11,7 @@ import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../foundation/app.dart';
+import '../../foundation/history.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
@@ -157,9 +158,14 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   FilledButton get readButton => FilledButton(
-        onPressed: () => readJmComic(data!, data!.series.values.toList()),
-        child: Text("阅读".tl),
+        onPressed: () => readJmComic(data!, data!.series.values.toList(), false),
+        child: Text("从头开始".tl),
       );
+
+  @override
+  void continueRead(History history) {
+    readJmComic(data!, data!.series.values.toList(), true);
+  }
 
   @override
   SliverGrid recommendationBuilder(JmComicInfo data) => SliverGrid(

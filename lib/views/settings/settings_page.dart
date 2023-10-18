@@ -132,7 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           appdata.settings[44] = i.toString();
                           appdata.updateSettings();
                         },
-                        values: ["详细".tl, "简略".tl, "最小".tl],
+                        values: ["详细".tl, "简略".tl, "最小".tl, "详细(大)".tl],
                         inPopUpWidget: widget.popUp,
                       ),
                     ),

@@ -199,6 +199,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// source of this comic
   String get source;
 
+  /// continue reading from history
+  void continueRead(History history);
+
   void scrollListener(){
     try {
       var logic = _logic;
@@ -553,6 +556,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               "ep": logic.history!.ep.toString(),
               "page": logic.history!.page.toString()
             })),
+            const Spacer(),
+            TextButton(onPressed: () => continueRead(logic.history!),
+                child: Text("继续阅读".tl)),
+            const SizedBox(width: 8,)
           ],
         ),
       ));

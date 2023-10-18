@@ -104,13 +104,15 @@ abstract class ComicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(appdata.settings[44] == "0"){
-      return _buildDetailedMode(context);
+      return _buildDetailedMode(context, 3, 10);
+    } else if(appdata.settings[44] == "3") {
+      return _buildDetailedMode(context, 5, 12);
     }else{
       return _buildBriefMode(context);
     }
   }
 
-  Widget _buildDetailedMode(BuildContext context){
+  Widget _buildDetailedMode(BuildContext context, int flexLeft, int flexRight){
     return Material(
       color: Colors.transparent,
       borderRadius: const BorderRadius.all(Radius.circular(16)),
@@ -124,7 +126,7 @@ abstract class ComicTile extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                    flex: 3,
+                    flex: flexLeft,
                     child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16)),
@@ -134,7 +136,7 @@ abstract class ComicTile extends StatelessWidget {
                   size: const Size(16, 5),
                 ),
                 Expanded(
-                  flex: 10,
+                  flex: flexRight,
                   child: _ComicDescription(
                     //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
                     title: pages == null ? title.replaceAll("\n", "") : "[${pages}P]${title.replaceAll("\n", "")}",

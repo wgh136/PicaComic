@@ -15,6 +15,7 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../base.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
+import '../../foundation/history.dart';
 import '../../foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -96,9 +97,14 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   FilledButton get readButton => FilledButton(
-        onPressed: () => readHitomiComic(data!, comic.cover),
-        child: Text("阅读".tl),
+        onPressed: () => readHitomiComic(data!, comic.cover, 1),
+        child: Text("从头开始".tl),
       );
+
+  @override
+  void continueRead(History history) {
+    readHitomiComic(data!, comic.cover, history.page);
+  }
 
   @override
   SliverGrid? recommendationBuilder(HitomiComic data) => SliverGrid(

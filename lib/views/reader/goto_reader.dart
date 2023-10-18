@@ -96,40 +96,52 @@ Future<void> addNhentaiHistory(NhentaiComic comic) async{
   await appdata.history.addHistory(history);
 }
 
-void readPicacgComic(ComicItem comic, List<String> epsStr) async{
+void readPicacgComic(ComicItem comic, List<String> epsStr, [bool? continueRead]) async{
   await addPicacgHistory(comic);
   var history = await appdata.history.find(comic.id);
   var id = comic.id;
   var name = comic.title;
 
-  if(history!=null){
-    if(history.ep!=0){
-      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tl),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
-          "ep": history.ep.toString(),
-          "page": history.page.toString()
-        })),
-        actions: [
-          TextButton(onPressed: (){
-            Get.back();
-            Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
-          }, child: Text("从头开始".tl)),
-          TextButton(onPressed: (){
-            Get.back();
-            Get.to(()=>ComicReadingPage.picacg(id, history.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
-          }, child: Text("继续阅读".tl)),
-        ],
-      ));
-    }else{
-      Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
-    }
-  }else {
+  void readFromBeginning(){
     Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
+  }
+
+  void readFromHistory(){
+    Get.to(()=>ComicReadingPage.picacg(id, history!.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
+  }
+
+  if(continueRead == true){
+    readFromHistory();
+  } else if(continueRead == false){
+    readFromBeginning();
+  } else {
+    if (history == null || history.ep == 0) {
+      readFromBeginning();
+    } else {
+      showDialog(context: Get.context!, builder: (dialogContext) =>
+          AlertDialog(
+            title: Text("继续阅读".tl),
+            content: Text(
+                "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
+                  "ep": history.ep.toString(),
+                  "page": history.page.toString()
+                })),
+            actions: [
+              TextButton(onPressed: () {
+                Get.back();
+                readFromBeginning();
+              }, child: Text("从头开始".tl)),
+              TextButton(onPressed: () {
+                Get.back();
+                readFromHistory();
+              }, child: Text("继续阅读".tl)),
+            ],
+          ));
+    }
   }
 }
 
-void readPicacgComic2(ComicItemBrief comic, List<String> epsStr) async{
+void readPicacgComic2(ComicItemBrief comic, List<String> epsStr, [bool? continueRead]) async{
   History? history = History(
       HistoryType.picacg,
       DateTime.now(),
@@ -145,30 +157,42 @@ void readPicacgComic2(ComicItemBrief comic, List<String> epsStr) async{
   var id = comic.id;
   var name = comic.title;
 
-  if(history!=null){
-    if(history.ep!=0){
-      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tl),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
-          "ep": history!.ep.toString(),
-          "page": history.page.toString()
-        })),
-        actions: [
-          TextButton(onPressed: (){
-            Get.back();
-            Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
-          }, child: Text("从头开始".tl)),
-          TextButton(onPressed: (){
-            Get.back();
-            Get.to(()=>ComicReadingPage.picacg(id, history!.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
-          }, child: Text("继续阅读".tl)),
-        ],
-      ));
-    }else{
-      Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
-    }
-  }else {
+  void readFromBeginning(){
     Get.to(()=>ComicReadingPage.picacg(id, 1, epsStr,name), preventDuplicates: false);
+  }
+
+  void readFromHistory(){
+    Get.to(()=>ComicReadingPage.picacg(id, history!.ep, epsStr, name, initialPage: history.page,), preventDuplicates: false);
+  }
+
+  if(continueRead == true){
+    readFromHistory();
+  } else if(continueRead == false){
+    readFromBeginning();
+  } else {
+    if (history == null || history.ep == 0) {
+      readFromBeginning();
+    } else {
+      showDialog(context: Get.context!, builder: (dialogContext) =>
+          AlertDialog(
+            title: Text("继续阅读".tl),
+            content: Text(
+                "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
+                  "ep": history!.ep.toString(),
+                  "page": history.page.toString()
+                })),
+            actions: [
+              TextButton(onPressed: () {
+                Get.back();
+                readFromBeginning();
+              }, child: Text("从头开始".tl)),
+              TextButton(onPressed: () {
+                Get.back();
+                readFromHistory();
+              }, child: Text("继续阅读".tl)),
+            ],
+          ));
+    }
   }
 }
 
@@ -206,36 +230,48 @@ void readEhGallery(Gallery gallery, [int? page]) async{
   }
 }
 
-void readJmComic(JmComicInfo comic, List<String> eps) async{
+void readJmComic(JmComicInfo comic, List<String> eps, [bool? continueRead]) async{
   await addJmHistory(comic);
   var id = comic.id;
   var name = comic.name;
   var history = await appdata.history.find(id);
 
-  if(history!=null){
-    if(history.ep!=0){
-      showDialog(context: Get.context!, builder: (dialogContext)=>AlertDialog(
-        title: Text("继续阅读".tl),
-        content: Text("上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
-          "ep": history.ep.toString(),
-          "page": history.page.toString()
-        })),
-        actions: [
-          TextButton(onPressed: (){
-            Get.back();
-            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
-          }, child: Text("从头开始".tl)),
-          TextButton(onPressed: (){
-            Get.back();
-            Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history.ep, initialPage: history.page,), preventDuplicates: false);
-          }, child: Text("继续阅读".tl)),
-        ],
-      ));
-    }else{
-      Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
-    }
-  }else {
+  void readFromBeginning(){
     Get.to(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
+  }
+
+  void readFromHistory(){
+    Get.to(()=>ComicReadingPage.jmComic(id, name, eps, history!.ep, initialPage: history.page,), preventDuplicates: false);
+  }
+
+  if(continueRead == true){
+    readFromHistory();
+  } else if(continueRead == false){
+    readFromBeginning();
+  } else {
+    if (history == null || history.ep == 0) {
+      readFromBeginning();
+    } else {
+      showDialog(context: Get.context!, builder: (dialogContext) =>
+          AlertDialog(
+            title: Text("继续阅读".tl),
+            content: Text(
+                "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?".tlParams({
+                  "ep": history.ep.toString(),
+                  "page": history.page.toString()
+                })),
+            actions: [
+              TextButton(onPressed: () {
+                Get.back();
+                readFromBeginning();
+              }, child: Text("从头开始".tl)),
+              TextButton(onPressed: () {
+                Get.back();
+                readFromHistory();
+              }, child: Text("继续阅读".tl)),
+            ],
+          ));
+    }
   }
 }
 

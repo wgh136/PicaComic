@@ -175,61 +175,61 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 Expanded(
-                    child: Center(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                    child: Card(
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: SizedBox(
-                          height: 300,
-                          width: 400,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Text(
-                                "选择应当如何显示漫画".tl,
-                                style: const TextStyle(fontSize: 20),
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              RadioListTile<String>(
-                                  title: Text("顺序显示".tl),
-                                  value: "0",
-                                  groupValue: appdata.settings[25],
-                                  onChanged: (s) {
-                                    setState(() {
-                                      appdata.settings[25] = s!;
-                                    });
-                                    appdata.updateSettings();
-                                  }),
-                              RadioListTile<String>(
-                                  title: Text("分页显示".tl),
-                                  value: "1",
-                                  groupValue: appdata.settings[25],
-                                  onChanged: (s) {
-                                    setState(() {
-                                      appdata.settings[25] = s!;
-                                    });
-                                    appdata.updateSettings();
-                                  }),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Text("探索页面不受此设置影响\n顺序显示时, 当下滑至顶部将自动加载下一页, 并且添加至页面底部;\n".tl +
-                                      "分页显示时, 将会在页面底部显示当前页面的序号和切换页面的按钮, 可以手动输入页数".tl)
-                            ],
+                  child: Center(
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(bottom: 60, left: 16, right: 16),
+                      child: Card(
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: SizedBox(
+                            width: 400,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                Text(
+                                  "选择应当如何显示漫画".tl,
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                RadioListTile<String>(
+                                    title: Text("顺序显示".tl),
+                                    value: "0",
+                                    groupValue: appdata.settings[25],
+                                    onChanged: (s) {
+                                      setState(() {
+                                        appdata.settings[25] = s!;
+                                      });
+                                      appdata.updateSettings();
+                                    }),
+                                RadioListTile<String>(
+                                    title: Text("分页显示".tl),
+                                    value: "1",
+                                    groupValue: appdata.settings[25],
+                                    onChanged: (s) {
+                                      setState(() {
+                                        appdata.settings[25] = s!;
+                                      });
+                                      appdata.updateSettings();
+                                    }),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                Text("探索页面不受此设置影响\n顺序显示时, 当下滑至顶部将自动加载下一页, 并且添加至页面底部;\n".tl +
+                                        "分页显示时, 将会在页面底部显示当前页面的序号和切换页面的按钮, 可以手动输入页数".tl)
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ))
               ],
             ),
@@ -347,7 +347,7 @@ class _GuidePageState extends State<GuidePage> {
                                     appdata.settings[44] = i.toString();
                                     appdata.updateSettings();
                                   },
-                                  values: ["详细".tl, "简略".tl, "最小".tl],
+                                  values: ["详细".tl, "简略".tl, "最小".tl, "详细(大) ".tl],
                                 ),
                               ),
                               const SizedBox(
