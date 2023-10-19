@@ -27,7 +27,7 @@ Future<String?> getProxy() async{
   if(res == "No Proxy") return null;
   //windows上部分代理工具会将代理设置为http=127.0.0.1:8888;https=127.0.0.1:8888;ftp=127.0.0.1:7890的形式
   //下面的代码从中提取正确的代理地址
-  if(res[0] == 'h'){
+  if(res.contains("https")){
     var proxies = res.split(";");
     for (String proxy in proxies) {
       proxy = proxy.removeAllWhitespace;
