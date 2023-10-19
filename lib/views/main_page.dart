@@ -262,8 +262,8 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     var titles = ["我".tl, "探索".tl, "分类".tl, "排行榜".tl];
 
-    return Scaffold(
-      body: CustomWillPopScope(
+    return Material(
+      child: CustomWillPopScope(
         action: () {
           if (MainPage.canPop()) {
             MainPage.back();
