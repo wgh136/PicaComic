@@ -54,6 +54,20 @@ class _EhSettingsState extends State<EhSettings> {
                 },
               ),
             ),
+            ListTile(
+              leading: Icon(Icons.notifications_off_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("忽略警告".tl),
+              trailing: Switch(
+                value: appdata.settings[47] == "1",
+                onChanged: (b){
+                  setState(() {
+                    appdata.settings[47] = b?"1":"0";
+                  });
+                  appdata.updateSettings();
+                },
+              ),
+            ),
           ],
         ));
   }

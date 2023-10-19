@@ -11,7 +11,6 @@ import 'package:html/parser.dart';
 import 'package:get/get.dart';
 import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -42,8 +41,6 @@ class EhNetwork{
   ///api url
   get ehApiUrl => _ehApiUrl;
 
-  final cookieJar = CookieJar(ignoreExpires: true);
-
   ///给图片加载使用的cookie
   String cookiesStr = "";
 
@@ -51,22 +48,23 @@ class EhNetwork{
   void updateUrl(){
     _ehBaseUrl = appdata.settings[20]=="0"?"https://e-hentai.org":"https://exhentai.org";
     _ehApiUrl = appdata.settings[20]=="0"?"https://api.e-hentai.org/api.php":"https://exhentai.org/api.php";
-    getCookies();
   }
 
   ///设置请求cookie
-  Future<String> getCookies() async{
+  Future<String> getCookies([bool setNW = true]) async{
     if(appdata.ehAccount == ""){
       return "";
     }
-    await cookieJar.saveFromResponse(Uri.parse(ehBaseUrl), [
-      Cookie("nw", "1"),
-      Cookie("ipb_member_id", appdata.ehId),
-      Cookie("ipb_pass_hash", appdata.ehPassHash),
+    var cookies = [
+      if(setNW)
+        Cookie("nw", "1"),
+      if(appdata.ehId != "")
+        Cookie("ipb_member_id", appdata.ehId),
+      if(appdata.ehPassHash != "")
+        Cookie("ipb_pass_hash", appdata.ehPassHash),
       if(appdata.igneous != "")
         Cookie("igneous", appdata.igneous),
-    ]);
-    var cookies = await cookieJar.loadForRequest(Uri.parse(ehBaseUrl));
+    ];
     var res = "";
     for(var cookie in cookies){
       res += "${cookie.name}=${cookie.value}; ";
@@ -76,27 +74,15 @@ class EhNetwork{
   }
 
   ///从url获取数据, 在请求时设置了cookie
-  Future<Res<String>> request(String url,
-      {Map<String,String>? headers, CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{
-    try{
-      if (appdata.ehId != "") {
-        await cookieJar.saveFromResponse(Uri.parse(url), [
-          Cookie("nw", "1"),
-          Cookie("ipb_member_id", appdata.ehId.removeAllWhitespace),
-          Cookie("ipb_pass_hash", appdata.ehPassHash),
-          if (appdata.igneous != "") Cookie("igneous", appdata.igneous),
-        ]);
-      }
-    }
-    catch(e){
-      return const Res(null, errorMessage: "Cookies is invalid");
-    }
+  Future<Res<String>> request(String url, {Map<String,String>? headers,
+    CacheExpiredTime expiredTime=CacheExpiredTime.short, bool setNW = true}) async{
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
         followRedirects: true,
         headers: {
+          "cookie": await getCookies(setNW),
           "user-agent": webUA,
           ...?headers
         }
@@ -106,10 +92,8 @@ class EhNetwork{
       var data = await dio.get(
           url,
           options,
-          cookieJar: cookieJar,
           expiredTime: expiredTime
         );
-      await getCookies();//确保cookie处于最新状态
       if((data.data).substring(0,4) == "Your"){
         return const Res(null, errorMessage: "Your IP address has been temporarily banned");
       }
@@ -173,18 +157,6 @@ class EhNetwork{
   }
 
   Future<Res<String>> post(String url, dynamic data, {Map<String,String>? headers,}) async{
-    try {
-      await cookieJar.saveFromResponse(Uri.parse(url), [
-        Cookie("nw", "1"),
-        Cookie("ipb_member_id", appdata.ehId),
-        Cookie("ipb_pass_hash", appdata.ehPassHash),
-        if(appdata.igneous != "")
-          Cookie("igneous", appdata.igneous),
-      ]);
-    }
-    catch(e){
-      return Res(null, errorMessage: e.toString());
-    }
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -193,14 +165,13 @@ class EhNetwork{
         receiveDataWhenStatusError: true,
         validateStatus: (status)=>status==200||status==302,
         headers: {
+          "cookie": await getCookies(),
           "user-agent": webUA,
           ...?headers
         }
     );
 
-    var dio =  logDio(options)
-      ..interceptors.add(LogInterceptor());
-    dio.interceptors.add(CookieManager(cookieJar));
+    var dio =  logDio(options);
     try{
       var res = await dio.post<String>(url, data: data);
       return Res(res.data ?? "");
@@ -227,8 +198,6 @@ class EhNetwork{
   ///获取用户名, 同时用于检测cookie是否有效
   Future<bool> getUserName() async{
     try {
-      await cookieJar.deleteAll();
-      cookiesStr = "";
       var res = await request("https://forums.e-hentai.org/", headers: {
         "referer": "https://forums.e-hentai.org/index.php?",
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -394,11 +363,14 @@ class EhNetwork{
   }
 
   ///从漫画详情页链接中获取漫画详细信息
-  Future<Res<Gallery>> getGalleryInfo(String link) async{
+  Future<Res<Gallery>> getGalleryInfo(String link, [bool setNW = true]) async{
     try{
-      var res = await request(link, expiredTime: CacheExpiredTime.no);
+      var res = await request(link, expiredTime: CacheExpiredTime.no, setNW: setNW);
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
+      }
+      if(res.data.contains("Content Warning")){
+        return const Res(null, errorMessage: "Content Warning");
       }
       var document = parse(res.data);
       //tags

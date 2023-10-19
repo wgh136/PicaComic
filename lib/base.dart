@@ -86,6 +86,7 @@ class Appdata{
     "0", //44 comic display type
     "", //45 webdav
     "0", //46 webdav version
+    "0", //47 eh warning
   ];
 
   ///屏蔽的关键词
@@ -337,7 +338,6 @@ Future<void> clearAppdata() async{
   await appdata.readData();
   await eraseCache();
   network.token = "";
-  await EhNetwork().cookieJar.deleteAll();
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
   await JmNetwork().cookieJar.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();

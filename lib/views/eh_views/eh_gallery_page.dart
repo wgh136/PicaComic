@@ -125,7 +125,32 @@ class EhGalleryPage extends ComicPage<Gallery> {
   String? get introduction => null;
 
   @override
-  Future<Res<Gallery>> loadData() => EhNetwork().getGalleryInfo(link);
+  Future<Res<Gallery>> loadData() async{
+    var res = await EhNetwork().getGalleryInfo(link, appdata.settings[47] == "1");
+    if(res.error && res.errorMessage == "Content Warning"){
+      bool shouldIgnore = false;
+      await showDialog(context: Get.context!, builder: (context) => AlertDialog(
+        title: Text("警告".tl),
+        content: const Text("此画廊存在令人不适的内容\n在设置中可以禁用此警告"),
+        actions: [
+          TextButton(onPressed: (){
+            Get.back();
+          }, child: Text("返回".tl)),
+          TextButton(onPressed: (){
+            shouldIgnore = true;
+            Get.back();
+          }, child: Text("忽略".tl))
+        ],
+      ));
+      if(shouldIgnore){
+        return await EhNetwork().getGalleryInfo(link, true);
+      }else{
+        MainPage.back();
+        return const Res(null, errorMessage: "Exit");
+      }
+    }
+    return res;
+  }
 
   @override
   int? get pages => null;

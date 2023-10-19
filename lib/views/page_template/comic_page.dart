@@ -73,6 +73,9 @@ class ComicPageLogic<T extends Object> extends GetxController {
   void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite, String id) async {
     var res = await loadData();
     if (res.error) {
+      if(res.errorMessage == "Exit"){
+        return;
+      }
       message = res.errorMessage;
     } else {
       data = res.data;
