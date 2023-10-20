@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_week_recommendation_page.dart';
 import 'package:pica_comic/tools/translations.dart';
-
+import 'package:pica_comic/views/page_template/category_page.dart';
 import '../main_page.dart';
 
-class JmDetailedCategoriesPage extends StatelessWidget {
+class JmDetailedCategoriesPage extends StatelessWidget with CategoryPageBuilder{
   const JmDetailedCategoriesPage({Key? key}) : super(key: key);
 
   @override
@@ -37,7 +37,6 @@ class JmDetailedCategoriesPage extends StatelessWidget {
               ),
             ),
           ),
-          const Divider(),
           buildTitle("主題A漫"),
           buildTags([
             '無修正',
@@ -59,11 +58,9 @@ class JmDetailedCategoriesPage extends StatelessWidget {
             '純愛',
             '禁漫漢化組'
           ]),
-          const Divider(),
           buildTitle("角色扮演"),
           buildTags(
               ['御姐', '熟女', '巨乳', '貧乳', '女性支配', '教師', '女僕', '護士', '泳裝', '眼鏡', '連褲襪', '其他制服', '兔女郎']),
-          const Divider(),
           buildTitle("特殊PLAY"),
           buildTags([
             '群交',
@@ -85,7 +82,6 @@ class JmDetailedCategoriesPage extends StatelessWidget {
             'ryona',
             '騎大車'
           ]),
-          const Divider(),
           buildTitle("其它"),
           buildTags(['CG', '重口', '獵奇', '非H', '血腥暴力', '站長推薦']),
           SizedBox(
@@ -96,36 +92,8 @@ class JmDetailedCategoriesPage extends StatelessWidget {
     );
   }
 
-  Widget buildTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 5, 10),
-      child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-    );
-  }
-
-  Widget buildTags(List<String> tags) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 16),
-      child: Wrap(
-        children: List<Widget>.generate(tags.length, (index) => buildTag(tags[index])),
-      ),
-    );
-  }
-
-  Widget buildTag(String tag) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        onTap: () => MainPage.to(() => JmSearchPage(tag)),
-        child: Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            child: Text(tag),
-          ),
-        ),
-      ),
-    );
+  @override
+  void handleClick(String tag, [String? namespace]) {
+    MainPage.to(() => JmSearchPage(tag));
   }
 }

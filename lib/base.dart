@@ -288,7 +288,8 @@ class Appdata{
     "jmPwd": jmPwd,
     "htName": htName,
     "htPwd": htPwd,
-    "history": history.toJson()
+    "history": history.toJson(),
+    "blockingKeywords": blockingKeyword
   };
 
   bool readDataFromJson(Map<String, dynamic> json){
@@ -316,6 +317,7 @@ class Appdata{
       htName = json["htName"];
       htPwd = json["htPwd"];
       history.readDataFromJson(json["history"]);
+      blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
       writeData();
       return true;
     }

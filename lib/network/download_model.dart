@@ -122,8 +122,11 @@ abstract class DownloadingItem{
     }
   }
 
+  void onStart(){}
+
   /// begin or continue downloading
   void start() async{
+    onStart();
     _runtimeKey++;
     var currentKey = _runtimeKey;
     try{

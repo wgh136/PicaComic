@@ -91,7 +91,7 @@ class Webdav{
       var res = await importData("$cachePath${Platform.pathSeparator}picadata");
       return res;
     } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "Sync", "Failed to upload data to webdav server.\n$s");
+      LogManager.addLog(LogLevel.error, "Sync", "Failed to download data from webdav server.\n$s");
       return false;
     }
   }

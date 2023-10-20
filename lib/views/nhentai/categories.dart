@@ -1,19 +1,22 @@
-import 'dart:ui';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/nhentai/search_page.dart';
+import 'package:pica_comic/views/page_template/category_page.dart';
 import '../../network/nhentai_network/tags.dart';
 import '../main_page.dart';
 
 
-class NhentaiCategories extends StatelessWidget {
+class NhentaiCategories extends StatefulWidget {
   const NhentaiCategories({super.key});
 
-  bool get enableTranslation => PlatformDispatcher.instance.locale.languageCode == 'zh';
+  @override
+  State<NhentaiCategories> createState() => _NhentaiCategoriesState();
+}
 
+class _NhentaiCategoriesState extends State<NhentaiCategories> with CategoryPageBuilder{
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -26,47 +29,26 @@ class NhentaiCategories extends StatelessWidget {
           buildTags(["chinese", "japanese", "english"]),
           buildTitle("长度".tl),
           buildTags(["1-25", "25-75", "75-150", "150-500", "500-1000", ">1000"]),
-          buildTitle("Tags".tl),
-          buildTags(nhentaiTags.values.toList().sublist(0,200)),
+          buildTitleWithRefresh("Tags".tl, () => setState((){})),
+          buildTags(generateTags()),
         ],
       ),
     );
   }
 
-  Widget buildTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 5, 10),
-      child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-    );
+  List<String> generateTags(){
+    var res = <String>[];
+    var tags = nhentaiTags.values.toList();
+    var start = Random().nextInt(tags.length - 100);
+    while(res.length < 100) {
+      res.add(tags[start]);
+      start++;
+    }
+    return res;
   }
 
-  Widget buildTags(List<String> tags) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 16),
-      child: Wrap(
-        children: List<Widget>.generate(tags.length, (index) => buildTag(tags[index])),
-      ),
-    );
-  }
-
-  Widget buildTag(String tag) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        onTap: () => handleClick(tag),
-        child: Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            child: Text(enableTranslation ? tag.translateTagsToCN : tag),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void handleClick(String tag){
+  @override
+  void handleClick(String tag, [String? namespace]){
     if(tag == "随机".tl) {
       MainPage.to(() => const NhentaiComicPage(""));
     }

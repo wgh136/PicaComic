@@ -6,6 +6,7 @@ import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
+import '../cache_network.dart';
 import 'eh_main_network.dart';
 import 'get_gallery_id.dart';
 
@@ -112,6 +113,15 @@ class EhDownloadingItem extends DownloadingItem{
     "gallery": gallery.toJson(),
     ...super.toBaseMap()
   };
+
+  @override
+  void onStart() async{
+    // clear showKey and imageKey
+    // imageKey is saved through the network cache mechanism
+    print("*****pass*****");
+    gallery.auth?.remove("showKey");
+    await CachedNetwork.clearCache();
+  }
 
   EhDownloadingItem.fromMap(
       Map<String, dynamic> map,

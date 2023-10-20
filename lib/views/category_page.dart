@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pica_comic/views/eh_views/category_page.dart';
 import 'package:pica_comic/views/ht_views/ht_categories_page.dart';
 import 'package:pica_comic/views/jm_views/detailed_categories.dart';
 import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
@@ -34,6 +35,8 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
           tabs: [
             if(appdata.settings[21][0] == "1")
               Tab(text: "Picacg".tl, key: const Key("Picacg分类"),),
+            if(appdata.settings[21][1] == "1")
+              Tab(text: "EHentai".tl, key: const Key("Ehentai"),),
             if(appdata.settings[21][2] == "1")
               Tab(text: "禁漫天堂".tl, key: const Key("禁漫分类"),),
             if(appdata.settings[21][2] == "1")
@@ -51,6 +54,8 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
             children: [
               if(appdata.settings[21][0] == "1")
                 const CategoriesPage(),
+              if(appdata.settings[21][1] == "1")
+                const EhCategoryPage(),
               if(appdata.settings[21][2] == "1")
                 const JmCategoriesPage(),
               if(appdata.settings[21][2] == "1")
@@ -75,8 +80,9 @@ class CategoryPageWithGetControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CategoryPageLogic>(builder: (logic){
-      int pages = int.parse(appdata.settings[21][0])*1 + int.parse(appdata.settings[21][2])*2
-          + int.parse(appdata.settings[21][4])*1 + int.parse(appdata.settings[21][5])*1;
+      int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1])
+          + int.parse(appdata.settings[21][2])*2
+          + int.parse(appdata.settings[21][4]) + int.parse(appdata.settings[21][5]);
       if(pages == 0){
         return Center(
           child: Text("无数据".tl),

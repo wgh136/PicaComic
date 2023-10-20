@@ -131,7 +131,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
       bool shouldIgnore = false;
       await showDialog(context: Get.context!, builder: (context) => AlertDialog(
         title: Text("警告".tl),
-        content: const Text("此画廊存在令人不适的内容\n在设置中可以禁用此警告"),
+        content: Text("此画廊存在令人不适的内容\n在设置中可以禁用此警告".tl),
         actions: [
           TextButton(onPressed: (){
             Get.back();

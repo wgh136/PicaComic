@@ -15,8 +15,7 @@ extension AppTranslation on String{
   String tlParams(Map<String, String> values){
     var res = _translate();
     for(var entry in values.entries){
-      res = res.replaceFirst(" @${entry.key} ", entry.value);
-      res = res.replaceFirst("@${entry.key} ", entry.value);
+      res = res.replaceFirst("@${entry.key}", entry.value);
     }
     return res;
   }
@@ -544,7 +543,7 @@ extension AppTranslation on String{
       " 倒序": "Reverse Order",
       "未知": "Unknown",
       "继续阅读": "Continue Reading",
-      "从头开始": "Start from the beginning",
+      "从头开始": "Start Reading",
       "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?": "Last read at Chapter @ep, Page @page. Do you want to continue reading?",
       "上次阅读到第 @ep 章第 @page 页": "Last read at Chapter @ep, Page @page.",
       "已经是第一页了": "Already on the first page",
@@ -562,7 +561,7 @@ extension AppTranslation on String{
       "从右至左": "Right to Left",
       "从上至下": "Top to Bottom",
       "从上至下(连续)": "Top to Bottom (Continuous)",
-      "本子妹/本子母推荐": "Recommendation by Bensimei/Bensimu",
+      "本子妹/本子母推荐": "Benzimei/Benzimu",
       "援助哔咔": "Support Picacg",
       "将在外部浏览器中打开哔咔官方的援助页面, 是否继续?": "This will open Picacg's official support page in an external browser. Continue?",
       "已被屏蔽": "Blocked",
@@ -868,7 +867,13 @@ extension AppTranslation on String{
       "立即执行:": "Run Now:",
       "上传数据": "Upload",
       "下载数据": "Download",
-      "将URL留空以禁用同步": "Leave the URL blank to disable sync"
+      "将URL留空以禁用同步": "Leave the URL blank to disable sync",
+      "详细(大)": "Detailed(Big)",
+      "忽略警告": "Ignore Warning",
+      "已收藏": "Added",
+      "忽略": "Ignore",
+      "此画廊存在令人不适的内容\n在设置中可以禁用此警告":
+        "This gallery contains objectionable content\nThis warning can be disabled in settings"
     }
   };
 }

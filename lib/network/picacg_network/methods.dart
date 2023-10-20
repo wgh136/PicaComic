@@ -26,7 +26,7 @@ class PicacgNetwork {
   PicacgNetwork._create([this.token = ""]);
 
   String apiUrl = appdata.settings[3] == "1" || GetPlatform.isWeb
-      ? "https://api.kokoiro.xyz/picaapi"
+      ? "$serverDomain/picaapi"
       : "https://picaapi.picacomic.com";
   InitData? initData;
   String token;
@@ -35,7 +35,7 @@ class PicacgNetwork {
 
   Future<void> updateApi() async {
     if (appdata.settings[3] == "1") {
-      apiUrl = "https://api.kokoiro.xyz/picaapi";
+      apiUrl = "$serverDomain/picaapi";
     } else {
       apiUrl = "https://picaapi.picacomic.com";
     }
@@ -89,7 +89,7 @@ class PicacgNetwork {
   Future<Res<Map<String, dynamic>>> post(
       String url, Map<String, String>? data) async {
     var api = appdata.settings[3] == "1"
-        ? "https://api.kokoiro.xyz/picaapi"
+        ? "$serverDomain/picaapi"
         : "https://picaapi.picacomic.com";
     if (token == "" &&
         url != '$api/auth/sign-in' &&
@@ -140,7 +140,7 @@ class PicacgNetwork {
   ///登录
   Future<Res<bool>> login(String email, String password) async {
     var api = appdata.settings[3] == "1"
-        ? "https://api.kokoiro.xyz/picaapi"
+        ? "$serverDomain/picaapi"
         : "https://picaapi.picacomic.com";
     var response = await post('$api/auth/sign-in', {
       "email": email,
@@ -409,17 +409,23 @@ class PicacgNetwork {
     var eps = <String>[];
     int i = 0;
     bool flag = true;
-    while (flag) {
-      i++;
-      var res = await get("$apiUrl/comics/$id/eps?page=$i");
-      if (res.error) {
-        return Res(null, errorMessage: res.errorMessage);
-      } else if (res.data["data"]["eps"]["pages"] == i) {
-        flag = false;
+    try {
+      while (flag) {
+        i++;
+        var res = await get("$apiUrl/comics/$id/eps?page=$i");
+        if (res.error) {
+          return Res(null, errorMessage: res.errorMessage);
+        } else if (res.data["data"]["eps"]["pages"] == i) {
+          flag = false;
+        }
+        for (int j = 0; j < res.data["data"]["eps"]["docs"].length; j++) {
+          eps.add(res.data["data"]["eps"]["docs"][j]["title"]);
+        }
       }
-      for (int j = 0; j < res.data["data"]["eps"]["docs"].length; j++) {
-        eps.add(res.data["data"]["eps"]["docs"][j]["title"]);
-      }
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$s\n$s");
+      return Res(null, errorMessage: e.toString());
     }
     return Res(eps.reversed.toList());
   }
@@ -1047,10 +1053,10 @@ class PicacgNetwork {
 }
 
 String getImageUrl(String url) {
-  if (url.contains("kokoiro")) return url;
+  if (url.contains(serverDomain)) return url;
   if (!url.contains("pica")) return url;
   return appdata.settings[3] == "1" || GetPlatform.isWeb
-      ? "https://api.kokoiro.xyz/storage/$url"
+      ? "$serverDomain/storage/$url"
       : url;
 }
 

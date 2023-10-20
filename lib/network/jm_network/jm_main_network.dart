@@ -39,7 +39,7 @@ class JmNetwork {
     "https://www.jmapinode.top",
     "https://www.jmapinode3.cc",
     "https://www.jmapinode6.cc",
-    "https://api.kokoiro.xyz/jmComic"
+    "$serverDomain/jmComic"
   ];
 
   String get baseUrl => urls[int.parse(appdata.settings[17])];

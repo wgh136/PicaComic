@@ -7,7 +7,7 @@ Future<bool?> checkUpdate() async{
   try {
     var version = appVersion;
     var dio = Dio();
-    var res = await dio.get("https://api.kokoiro.xyz/version");
+    var res = await dio.get("$serverDomain/version");
     var s = res.data;
     return compareSemVer(s, version); //有更新返回true
   }
@@ -37,7 +37,7 @@ bool compareSemVer(String ver1, String ver2) {
 Future<String?> getUpdatesInfo() async{
   try {
     var dio = Dio();
-    var res = await dio.get("https://api.kokoiro.xyz/updates");
+    var res = await dio.get("$serverDomain/updates");
     var s = res.data;
     return s;
   }
@@ -67,5 +67,5 @@ Future<String> getDownloadUrl() async{
   }else if(platform == "Linux" || platform == "iOS" || platform == "windows"){
     return "https://github.com/wgh136/PicaComic/releases";
   }
-  return "https://api.kokoiro.xyz/download/${appName[device]}";
+  return "$serverDomain/download/${appName[device]}";
 }
