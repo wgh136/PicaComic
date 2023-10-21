@@ -52,7 +52,7 @@ class EhNetwork{
 
   ///设置请求cookie
   Future<String> getCookies([bool setNW = true]) async{
-    if(appdata.ehAccount == ""){
+    if(appdata.ehId == ""){
       return "";
     }
     var cookies = [
