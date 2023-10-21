@@ -119,8 +119,7 @@ Widget buildComicView(ComicReadingPageLogic logic,
       itemCount: logic.urls.length,
       addSemanticIndexes: false,
       scrollController: logic.scrollController,
-      physics: (logic.noScroll ||
-          logic.currentScale > 1.05 || logic.isCtrlPressed || logic.mouseScroll)
+      physics: (logic.noScroll || logic.isCtrlPressed || logic.mouseScroll)
           ? const NeverScrollableScrollPhysics()
           : const ClampingScrollPhysics(),
       itemBuilder: (context, index) {

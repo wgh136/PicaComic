@@ -153,7 +153,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
   @override
   FilledButton get readButton => FilledButton(
     child: Text("从头开始".tl),
-    onPressed: () => readNhentai(data!, 0),
+    onPressed: () => readNhentai(data!, 1),
   );
 
   @override

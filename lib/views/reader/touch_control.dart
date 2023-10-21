@@ -2,36 +2,23 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
-import 'dart:math';
+import 'package:pica_comic/views/reader/reading_type.dart';
 import '../../base.dart';
 
-///Flutter并没有提供能够进行放缩的列表, 在InteractiveViewer放入任何可滚动的组件, InteractiveViewer的手势将会失效.
-///此类用于处理滚动事件
+/// Control scroll when readingMethod is [ReadingMethod.topToBottomContinuously]
+/// and the image has been enlarge
 class ScrollManager{
 
-  ///缓存滑动偏移值
-  double offset = 0;
-
-  ///滚动控制器
-  ScrollController scrollController;
-
-  ///小于此值的滑动判定为缓慢滑动
-  static const slowMove = 2.0;
-
-  final height = Get.height;
-
-  final maxScrollOnce = Get.height/8;
-
-  ///是否正在进行释放缓存的偏移值
-  bool runningRelease = false;
+  PhotoViewController controller;
 
   int fingers = 0;
 
-  bool touching = false;
+  ScrollManager(this.controller);
 
-  ScrollManager(this.scrollController);
+  Offset? tapLocation;
 
   void tapDown(PointerDownEvent details){
     fingers++;
@@ -54,81 +41,15 @@ class ScrollManager{
     if(temp != logic.noScroll){
       logic.update();
     }
+    tapLocation = null;
   }
 
   ///当滑动时调用此函数进行处理
-  void addOffset(double value){
-    if(value > 40){
-      value = 40;
-    }else if(value < -40){
-      value = -40;
-    }
-    if(value*offset < 0){
-      offset = 0;
-    }
-    moveScrollView(value);
-  }
-
-  ///响应滑动手势
-  void moveScrollView(double value){
-    //移动ScrollView
-    if(!scrollController.hasClients)  return;
-    scrollController.jumpTo(scrollController.position.pixels-value);
-    if(value*height/400>slowMove||value*height/400<0-slowMove){
-      if(offset < 2000) {
-        offset += value*( (value > 1 || value < -1) ? log(value>0?value:0-value) : value>0?value:0-value)*height/200;
-      }
-      if (!runningRelease) {
-        releaseOffset();
-      }
-    }else{
-      offset = 0;
-    }
-  }
-
-  ///异步函数, 释放缓存的滑动偏移值
-  void releaseOffset() async{
-    runningRelease = true;
-    var logic = Get.find<ComicReadingPageLogic>();
-    while(offset!=0){
-      //当手指离开时进行滚动
-      if(logic.currentScale < 1.05){
-        offset = 0;
-        break;
-      }
-      if(!scrollController.hasClients){
-        offset = 0;
-        runningRelease = false;
-        return;
-      }
-      touching = fingers != 0;
-      if(fingers==0){
-        if(scrollController.position.pixels<scrollController.position.minScrollExtent || scrollController.position.pixels>scrollController.position.maxScrollExtent){
-          offset = 0;
-          break;
-        }
-        if(offset < 3 &&offset > -3){
-          offset = 0;
-          break;
-        }
-        var p = offset / 400;
-        if(p > 4){
-          p = 4;
-        }else if(p < -4){
-          p = -4;
-        }
-        double value = log(offset>0?offset:0-offset) * p;
-        if(value > maxScrollOnce){
-          value = maxScrollOnce;
-        }else if(value < 0-maxScrollOnce){
-          value = 0-maxScrollOnce;
-        }
-        scrollController.jumpTo(scrollController.position.pixels - value);
-        offset -= value;
-      }
-      await Future.delayed(const Duration(milliseconds: 8));
-    }
-    runningRelease = false;
+  void addOffset(Offset value){
+    controller.updateMultiple(
+      position: controller.position + value
+    );
+    return;
   }
 }
 
@@ -139,6 +60,10 @@ class TapController{
 
   static void onTapDown(PointerDownEvent event){
     var logic = Get.find<ComicReadingPageLogic>();
+
+    if(appdata.settings[9] == "4"){
+      logic.data.scrollManager!.tapDown(event);
+    }
 
     if(logic.tools && (event.position.dy < MediaQuery.of(Get.context!).padding.top  + 50
         || MediaQuery.of(Get.context!).size.height - event.position.dy < 105 + MediaQuery.of(Get.context!).padding.bottom)){
@@ -161,9 +86,6 @@ class TapController{
       return;
     }
 
-    if(appdata.settings[9] == "4"){
-      logic.data.scrollManager!.tapDown(event);
-    }
     if(!logic.scrollController.hasClients){
       _tapOffset = event.position;
     }

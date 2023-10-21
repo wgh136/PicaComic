@@ -280,10 +280,8 @@ class ComicReadingPage extends StatelessWidget {
               data.listenVolume = null;
             }
 
-            //当使用自上而下(连续)方式阅读时, 使用ScrollManager管理滑动
             if (appdata.settings[9] == "4") {
-              //logic.cont = ScrollController();
-              data.scrollManager = ScrollManager(logic.scrollController);
+              data.scrollManager ??= ScrollManager(logic.photoViewController);
             }
 
             var body = Listener(
@@ -291,8 +289,7 @@ class ComicReadingPage extends StatelessWidget {
                 if (logic.currentScale < 1.05) return;
                 if (appdata.settings[9] == "4" &&
                     data.scrollManager!.fingers != 2) {
-                  data.scrollManager!.addOffset(details.delta.dy /
-                      (logic.photoViewController.scale ?? 1.0));
+                  data.scrollManager!.addOffset(details.delta);
                 }
               },
               onPointerUp: TapController.onTapUp,
