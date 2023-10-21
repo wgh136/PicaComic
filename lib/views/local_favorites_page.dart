@@ -66,7 +66,7 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                     onTap: () => MainPage.to(() => const AllLocalFavorites()),
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
                       child: Row(
                         children: [
                           Icon(
@@ -94,9 +94,6 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                           IconButton(
                             onPressed: () => MainPage.to(() => const AllLocalFavorites()),
                             icon: const Icon(Icons.open_in_new)),
-                          const SizedBox(
-                            width: 5,
-                          )
                         ],
                       ),
                     ),
@@ -161,7 +158,7 @@ class FolderTile extends StatelessWidget {
         onTap: () => MainPage.to(() => LocalFavoritesFolder(name)),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
           child: Row(
             children: [
               Icon(
@@ -217,9 +214,6 @@ class FolderTile extends StatelessWidget {
                   stateSetter();
                 },
               ),
-              const SizedBox(
-                width: 5,
-              )
             ],
           ),
         ),

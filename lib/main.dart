@@ -37,6 +37,7 @@ void main() {
       final appLinks = AppLinks();
       appLinks.allUriLinkStream.listen((uri) {
         handleAppLinks(uri);
+
       });
     }
     FlutterError.onError = (details) {

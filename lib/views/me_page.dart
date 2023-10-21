@@ -104,7 +104,10 @@ class MePage extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.subscriptions),
           title: Text("EH订阅".tl),
-          onTap: () => MainPage.to(() => const SubscriptionPage()),
+          onTap: () {
+            Get.back();
+            MainPage.to(() => const SubscriptionPage());
+          },
         ),
         ListTile(
           leading: const Icon(Icons.image_search_outlined),
