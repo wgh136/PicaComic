@@ -729,9 +729,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 const SizedBox(
                   width: 20,
                 ),
-                const Text(
-                  "预览",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+               Text(
+                  "预览".tl,
+                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 )
               ],
             )),

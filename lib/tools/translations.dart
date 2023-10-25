@@ -534,7 +534,7 @@ extension AppTranslation on String{
       "@minute 分钟前": "@minute minutes ago",
       "刚刚": "Just now",
       "没有其它章节": "No other chapters",
-      "切换章节": "Switch Chapter",
+      "切换章节": "Chapters",
       "章节": "Chapter",
       "(当前)": "(Current)",
       "退出": "Exit",
@@ -572,7 +572,7 @@ extension AppTranslation on String{
       "本子妹推荐": "Recommended by Bensimei",
       "本子母推荐": "Recommended by Bensimu",
       "简介": "Introduction",
-      "相关推荐": "Related Recommendations",
+      "相关推荐": "Related",
       "收藏": "Favorite",
       "要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键": "To copy or block these keywords, please long-press or right-click",
       "关闭": "Close",
@@ -795,7 +795,7 @@ extension AppTranslation on String{
       "禁用": "off",
       "API分流": "API Stream",
       "图片分流": "Image Stream",
-      "顺序显示": "Display in order",
+      "顺序显示": "In order",
       "分页显示": "Page break",
       "时间": "Time",
       "漫画名": "Title",
@@ -873,7 +873,8 @@ extension AppTranslation on String{
       "已收藏": "Added",
       "忽略": "Ignore",
       "此画廊存在令人不适的内容\n在设置中可以禁用此警告":
-        "This gallery contains objectionable content\nThis warning can be disabled in settings"
+        "This gallery contains objectionable content\nThis warning can be disabled in settings",
+      "预览": "Preview"
     }
   };
 }

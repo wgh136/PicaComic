@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -122,6 +123,9 @@ class _AppWebviewState extends State<AppWebview> {
           },
           onNavigationRequest: (request){
             var res = widget.onNavigation?.call(request.url) ?? false;
+            if(!request.url.isURL){
+              return NavigationDecision.prevent;
+            }
             if(res) {
               return NavigationDecision.prevent;
             } else {

@@ -8,25 +8,30 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 
 
 void login(void Function() whenFinish) async{
+  if(NhentaiNetwork().baseUrl.contains("xxx")){
+    showMessage(Get.context, "暂不支持");
+    return;
+  }
+
   if(GetPlatform.isWindows && (await FlutterWindowsWebview.isAvailable())){
     var webview = FlutterWindowsWebview();
-    webview.launchWebview("https://nhentai.net/login/?next=/", WebviewOptions(
+    webview.launchWebview("${NhentaiNetwork().baseUrl}/login/?next=/", WebviewOptions(
         messageReceiver: (s){
           if(s.substring(0, 2) == "UA"){
             NhentaiNetwork().ua  = s.replaceFirst("UA", "");
           }
         },
         onTitleChange: (title) async{
-          if(!title.contains("Login")) {
+          if(!title.contains("Login") && !title.contains("Register")) {
             webview.runScript("window.chrome.webview.postMessage(\"UA\" + navigator.userAgent)");
-            var cookies = await webview.getCookies("https://nhentai.net");
-            await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net"),
+            var cookies = await webview.getCookies(NhentaiNetwork().baseUrl);
+            await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl),
                 List<io.Cookie>.generate(cookies.length, (index){
                   var cookie = io.Cookie(cookies.keys.elementAt(index), cookies.values.elementAt(index));
                   if(cookie.name == "sessionid"){
                     NhentaiNetwork().logged = true;
                   }
-                  cookie.domain = ".nhentai.net";
+                  cookie.domain = NhentaiNetwork().baseUrl.replaceAll("https://", ".");
                   return cookie;
                 })
             );
@@ -37,10 +42,10 @@ void login(void Function() whenFinish) async{
     ));
   } else if(GetPlatform.isMobile) {
     Get.to(() => AppWebview(
-      initialUrl: "https://nhentai.net/login/?next=/",
+      initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       singlePage: true,
       onTitleChange: (title){
-        if (!title.contains("Login")) {
+        if (!title.contains("Login") && !title.contains("Register")) {
           Get.back();
         }
       },
@@ -49,17 +54,18 @@ void login(void Function() whenFinish) async{
         if(ua != null){
           NhentaiNetwork().ua = ua;
         }
-        var cookies = await controller.getCookies("https://nhentai.net/") ?? {};
+        var cookies = await controller.getCookies("${NhentaiNetwork().baseUrl}/") ?? {};
         List<io.Cookie> cookiesList = [];
         cookies.forEach((key, value) {
+          print("$key : $value");
           var cookie = io.Cookie(key, value);
-          if(key == "sessionid"){
+          if(key == "sessionid" || key == "XSRF-TOKEN"){
             NhentaiNetwork().logged = true;
           }
           cookie.domain = ".nhentai.net";
           cookiesList.add(cookie);
         });
-        await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net/"), cookiesList);
+        await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl), cookiesList);
         whenFinish();
       },
     ));
