@@ -247,7 +247,9 @@ Future<bool> runExportData(bool includeDownload) async{
   return true;
 }
 
+/// import data, filePath is used for webdav
 Future<bool> importData([String? filePath]) async{
+  final enableCheck = filePath != null;
   var path = (await getApplicationSupportDirectory()).path;
   if(filePath == null) {
     if (GetPlatform.isMobile) {
@@ -316,7 +318,7 @@ Future<bool> importData([String? filePath]) async{
   var json = const JsonDecoder().convert(data);
   int fileVersion = int.parse((json["settings"] as List).elementAtOrNull(46) ?? "1");
   int appVersion = int.parse(appdata.settings[46]);
-  if(fileVersion <= appVersion){
+  if(fileVersion <= appVersion && enableCheck){
     LogManager.addLog(LogLevel.info, "Appdata",
         "The data file version is $fileVersion, while the app data version is "
             "$appVersion\nStop importing data");
