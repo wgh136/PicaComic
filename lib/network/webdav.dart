@@ -101,17 +101,16 @@ class Webdav{
     if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
       return;
     }
-    showLoadingDialog(Get.context!, () {
+    var controller = showLoadingDialog(Get.context!, () {
       Get.back();
     }, false, true, "同步数据中".tl);
     var res = await Webdav.downloadData();
-    Get.closeAllSnackbars();
     if(!res){
-      Get.back();
+      controller.close();
       showMessage(Get.context, "Failed to download data",
           action: TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
     }else{
-      Get.back();
+      controller.close();
     }
   }
 }

@@ -50,12 +50,22 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
   }
 }
 
-void showLoadingDialog(BuildContext context, void Function() onCancel,
+class LoadingDialogController{
+  BuildContext? context;
+
+  void close(){
+    Navigator.of(context!).pop();
+  }
+}
+
+LoadingDialogController showLoadingDialog(BuildContext context, void Function() onCancel,
     [bool barrierDismissible = true, bool allowCancel = true, String? message]){
+  var controller = LoadingDialogController();
   showDialog(
     context: context,
     barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
+      controller.context = context;
       return WillPopScope(
         onWillPop: () async => false,
         child: Dialog(
@@ -84,4 +94,5 @@ void showLoadingDialog(BuildContext context, void Function() onCancel,
       );
     },
   );
+  return controller;
 }
