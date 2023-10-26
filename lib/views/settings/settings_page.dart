@@ -45,8 +45,9 @@ class _SettingsPageState extends State<SettingsPage> {
           const Divider(),
           HtSettings(widget.popUp),
           const Divider(),
-          buildNhentaiSettings(),
-          const Divider(),
+          // Encountering some issues, temporarily disable this option.
+          //buildNhentaiSettings(),
+          //const Divider(),
           buildAppearanceSettings(),
           const Divider(),
           buildAppSettings(),
