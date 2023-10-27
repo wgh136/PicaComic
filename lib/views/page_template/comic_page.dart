@@ -317,6 +317,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
         pinned: true,
         actions: [menu],
+        primary: UiMode.m1(context),
       ),
       SliverToBoxAdapter(
         child: Padding(

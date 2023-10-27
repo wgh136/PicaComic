@@ -3,7 +3,12 @@ import 'package:pica_comic/tools/translations.dart';
 import '../../foundation/ui_mode.dart';
 
 class CustomAppbar extends StatelessWidget {
-  const CustomAppbar({required this.title, this.leading, this.actions, this.backgroundColor, super.key});
+  const CustomAppbar(
+      {required this.title,
+      this.leading,
+      this.actions,
+      this.backgroundColor,
+      super.key});
 
   final Widget title;
 
@@ -15,24 +20,30 @@ class CustomAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(UiMode.m1(context)){
+    if (UiMode.m1(context)) {
       return AppBar(
         title: title,
         leading: leading,
         actions: actions,
         backgroundColor: backgroundColor,
       );
-    }else{
+    } else {
       return SizedBox(
         height: 56,
         child: Row(
           children: [
             const SizedBox(width: 8),
-            leading ?? Tooltip(message: "返回".tl, child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
-            ),),
-            const SizedBox(width: 24,),
+            leading ??
+                Tooltip(
+                  message: "返回".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+            const SizedBox(
+              width: 24,
+            ),
             Expanded(
               child: Material(
                 textStyle: Theme.of(context).textTheme.headlineSmall,
@@ -41,7 +52,9 @@ class CustomAppbar extends StatelessWidget {
             ),
             const Spacer(),
             ...?actions,
-            const SizedBox(width: 8,)
+            const SizedBox(
+              width: 8,
+            )
           ],
         ),
       );
@@ -49,8 +62,13 @@ class CustomAppbar extends StatelessWidget {
   }
 }
 
-class CustomSmallSliverAppbar extends StatelessWidget{
-  const CustomSmallSliverAppbar({required this.title, this.leading, this.actions, this.backgroundColor, super.key});
+class CustomSmallSliverAppbar extends StatelessWidget {
+  const CustomSmallSliverAppbar(
+      {required this.title,
+      this.leading,
+      this.actions,
+      this.backgroundColor,
+      super.key});
 
   final Widget title;
 
@@ -69,14 +87,18 @@ class CustomSmallSliverAppbar extends StatelessWidget{
       actions: actions,
       scrolledUnderElevation: UiMode.m1(context) ? null : 0.0,
       backgroundColor: backgroundColor,
+      primary: UiMode.m1(context),
     );
   }
-
 }
 
-class CustomSliverAppbar extends StatelessWidget{
-  const CustomSliverAppbar({required this.title, this.leading,
-    this.actions, super.key, required this.centerTitle});
+class CustomSliverAppbar extends StatelessWidget {
+  const CustomSliverAppbar(
+      {required this.title,
+      this.leading,
+      this.actions,
+      super.key,
+      required this.centerTitle});
 
   final Widget title;
 
@@ -94,6 +116,7 @@ class CustomSliverAppbar extends StatelessWidget{
       actions: actions,
       scrolledUnderElevation: UiMode.m1(context) ? null : 0,
       centerTitle: centerTitle,
+      primary: UiMode.m1(context),
     );
   }
 }
