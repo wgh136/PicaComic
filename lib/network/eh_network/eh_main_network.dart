@@ -63,6 +63,11 @@ class EhNetwork{
     cookieJar.delete(Uri.parse(ehBaseUrl), true);
     cookies.removeWhere((element) =>
         ["nw", "ipb_member_id", "ipb_pass_hash"].contains(element.name));
+    var igneousField = cookies.firstWhereOrNull((element) => element.name == "igneous");
+    if(igneousField != null && appdata.igneous != igneousField.value && igneousField.value != "mystery"){
+      appdata.igneous = igneousField.value;
+      appdata.writeData();
+    }
     var shouldAdd = [
       if(setNW)
         Cookie("nw", "1"),
@@ -70,7 +75,7 @@ class EhNetwork{
         Cookie("ipb_member_id", appdata.ehId),
       if(appdata.ehPassHash != "")
         Cookie("ipb_pass_hash", appdata.ehPassHash),
-      if(appdata.igneous != "" && cookies.firstWhereOrNull((element) => element.name == "igneous") == null)
+      if(appdata.igneous != "" && igneousField == null)
         Cookie("igneous", appdata.igneous),
     ];
     cookies.addAll(shouldAdd);
@@ -80,6 +85,7 @@ class EhNetwork{
       res += "${cookie.name}=${cookie.value}; ";
     }
     cookiesStr = res.substring(0,res.length-2);
+    print(cookiesStr);
     return cookiesStr;
   }
 
