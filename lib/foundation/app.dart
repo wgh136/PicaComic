@@ -90,7 +90,7 @@ class App{
     Navigator.of(globalContext!).push(AppPageRoute(page));
   }
 
-  static bool get enablePopGesture => true;
+  static bool get enablePopGesture => isIOS;
 
   static String? _currentRoute(){
     return ModalRoute.of(globalContext!)?.toString();

@@ -17,7 +17,7 @@ class LogManager{
     }
 
     if(kDebugMode){
-      //print(content);
+      print(content);
     }
 
     _logs.add(Log(lever, title, content));
