@@ -36,6 +36,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: [
+          SizedBox(height: MediaQuery.of(context).padding.top,),
           Container(
             height: 56,
             width: double.infinity,
@@ -180,6 +181,7 @@ class _SearchPageState extends State<SearchPage> {
       }
 
       body = ListView.builder(
+        padding: EdgeInsets.zero,
         itemCount: suggestions.length,
         itemBuilder: (context, index) => buildItem(suggestions[index]),
       );

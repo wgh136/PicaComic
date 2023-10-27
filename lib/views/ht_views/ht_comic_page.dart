@@ -16,79 +16,110 @@ import '../widgets/avatar.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class HtComicPage extends ComicPage<HtComicInfo>{
+class HtComicPage extends ComicPage<HtComicInfo> {
   const HtComicPage(this.comic, {super.key});
 
   final HtComicBrief comic;
 
+  Widget get buildButtons => SegmentedButton<int>(
+        segments: [
+          ButtonSegment(
+            icon: Icon(
+              Icons.bookmark_add_outlined,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text("收藏".tl),
+            value: 1,
+          ),
+          ButtonSegment(
+            icon: Icon(
+              Icons.pages,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text("页数: ${data!.pages}"),
+            value: 2,
+          ),
+        ],
+        onSelectionChanged: (set) {
+          void func1() {
+            favoriteComic(FavoriteComicWidget(
+              havePlatformFavorite: appdata.htName != "",
+              needLoadFolderData: true,
+              foldersLoader: () => HtmangaNetwork().getFolders(),
+              target: comic.id,
+              setFavorite: (b) {},
+              selectFolderCallback: (folder, page) async {
+                if (page == 0) {
+                  showMessage(context, "正在添加收藏".tl);
+                  var res =
+                      await HtmangaNetwork().addFavorite(comic.id, folder);
+                  if (res.error) {
+                    showMessage(App.globalContext, res.errorMessageWithoutNull);
+                  } else {
+                    showMessage(App.globalContext, "成功添加收藏".tl);
+                  }
+                } else {
+                  LocalFavoritesManager()
+                      .addComic(folder, FavoriteItem.fromHtcomic(comic));
+                  showMessage(App.globalContext, "成功添加收藏".tl);
+                }
+              },
+            ));
+          }
+
+          switch (set.first) {
+            case 1:
+              func1();
+              break;
+          }
+        },
+        selected: const {},
+        emptySelectionAllowed: true,
+      );
+
   @override
   Row? get actions => Row(
-    children: [
-      const Spacer(),
-      ActionChip(
-        label: Text("收藏".tl),
-        avatar: const Icon(Icons.bookmark_add_outlined),
-        onPressed: () => favoriteComic(FavoriteComicWidget(
-          havePlatformFavorite: appdata.htName != "",
-          needLoadFolderData: true,
-          foldersLoader: () => HtmangaNetwork().getFolders(),
-          target: comic.id,
-          setFavorite: (b){},
-          selectFolderCallback: (folder, page) async{
-            if(page == 0){
-              showMessage(context, "正在添加收藏".tl);
-              var res = await HtmangaNetwork().addFavorite(comic.id, folder);
-              if(res.error){
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              }else{
-                showMessage(App.globalContext, "成功添加收藏" .tl);
-              }
-            }else{
-              LocalFavoritesManager().addComic(folder, FavoriteItem.fromHtcomic(comic));
-              showMessage(App.globalContext, "成功添加收藏" .tl);
-            }
-          },
-        )),
-      ),
-      const Spacer(),
-      ActionChip(
-        label: Text("页数: ${data!.pages}"),
-        avatar: const Icon(Icons.pages),
-        onPressed: () {},
-      ),
-      const Spacer(),
-    ],
-  );
+        children: [
+          const SizedBox(
+            width: 16,
+          ),
+          Expanded(
+            child: buildButtons,
+          ),
+          const SizedBox(
+            width: 16,
+          ),
+        ],
+      );
 
   @override
   String get cover => comic.image;
 
   @override
   FilledButton get downloadButton => FilledButton(
-    onPressed: () {
-      final id = "Ht${data!.id}";
-      if (DownloadManager().downloadedHtComics.contains(id)) {
-        showMessage(context, "已下载".tl);
-        return;
-      }
-      for (var i in DownloadManager().downloading) {
-        if (i.id == id) {
-          showMessage(context, "下载中".tl);
-          return;
-        }
-      }
-      DownloadManager().addHtDownload(data!);
-      showMessage(context, "已加入下载队列".tl);
-    },
-    child:
-    DownloadManager().downloadedHtComics.contains("Ht${data!.id}")
-        ? Text("已下载".tl)
-        : Text("下载".tl),
-  );
+        onPressed: () {
+          final id = "Ht${data!.id}";
+          if (DownloadManager().downloadedHtComics.contains(id)) {
+            showMessage(context, "已下载".tl);
+            return;
+          }
+          for (var i in DownloadManager().downloading) {
+            if (i.id == id) {
+              showMessage(context, "下载中".tl);
+              return;
+            }
+          }
+          DownloadManager().addHtDownload(data!);
+          showMessage(context, "已加入下载队列".tl);
+        },
+        child: DownloadManager().downloadedHtComics.contains("Ht${data!.id}")
+            ? Text("已下载".tl)
+            : Text("下载".tl),
+      );
 
   @override
   void onThumbnailTapped(int index) {
-    readHtmangaComic(data!, index+1);
+    readHtmangaComic(data!, index + 1);
   }
 
   @override
@@ -98,16 +129,17 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   String? get introduction => data!.description;
 
   @override
-  Future<Res<HtComicInfo>> loadData() => HtmangaNetwork().getComicInfo(comic.id);
+  Future<Res<HtComicInfo>> loadData() =>
+      HtmangaNetwork().getComicInfo(comic.id);
 
   @override
   int? get pages => null;
 
   @override
   FilledButton get readButton => FilledButton(
-    onPressed: () => readHtmangaComic(data!, 1),
-    child: Text("从头开始".tl),
-  );
+        onPressed: () => readHtmangaComic(data!, 1),
+        child: Text("从头开始".tl),
+      );
 
   @override
   void continueRead(History history) {
@@ -121,17 +153,15 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   String get tag => "Ht ComicPage ${comic.id}";
 
   @override
-  Map<String, List<String>>? get tags => {
-    "分类".tl: data!.category.toList(),
-    "标签".tl: data!.tags.keys.toList()
-  };
+  Map<String, List<String>>? get tags =>
+      {"分类".tl: data!.category.toList(), "标签".tl: data!.tags.keys.toList()};
 
   @override
-  void tapOnTags(String tag) =>
-      MainPage.to(() => HtSearchPage(tag));
+  void tapOnTags(String tag) => MainPage.to(() => HtSearchPage(tag));
 
   @override
-  ThumbnailsData? get thumbnailsCreator => ThumbnailsData(data!.thumbnails,
+  ThumbnailsData? get thumbnailsCreator => ThumbnailsData(
+      data!.thumbnails,
       (page) => HtmangaNetwork().getThumbnails(data!.id, page),
       (data!.pages / 12).ceil());
 
@@ -140,42 +170,42 @@ class HtComicPage extends ComicPage<HtComicInfo>{
 
   @override
   Card? get uploaderInfo => Card(
-    elevation: 0,
-    color: Theme.of(context).colorScheme.inversePrimary,
-    child: SizedBox(
-      height: 60,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 0,
-            child: Avatar(
-              size: 50,
-              avatarUrl: data!.avatar,
-              couldBeShown: false,
-              name: data!.uploader,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data!.uploader,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                  Text("投稿作品${data!.uploadNum}部")
-                ],
+        elevation: 0,
+        color: Theme.of(context).colorScheme.inversePrimary,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            children: [
+              Expanded(
+                flex: 0,
+                child: Avatar(
+                  size: 50,
+                  avatarUrl: data!.avatar,
+                  couldBeShown: false,
+                  name: data!.uploader,
+                ),
               ),
-            ),
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data!.uploader,
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                      Text("投稿作品${data!.uploadNum}部")
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 
   @override
   Future<bool> loadFavorite(HtComicInfo data) => Future.value(false);

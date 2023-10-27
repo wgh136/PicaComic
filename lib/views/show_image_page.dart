@@ -53,55 +53,44 @@ class _ShowImagePageState extends State<ShowImagePage> {
               )),
               //顶部工具栏
               Positioned(
-                top: 0,
+                top: MediaQuery.of(context).padding.top,
+                left: 0,
+                right: 0,
+                height: 56,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.5),
-                    //borderRadius: const BorderRadius.only(bottomRight: Radius.circular(10),bottomLeft: Radius.circular(10))
                   ),
-                  width: MediaQuery.of(context).size.width+MediaQuery.of(context).padding.top,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                    child: Row(
-                      children: [
-                        Padding(padding: const EdgeInsets.fromLTRB(16, 0, 10, 0),child: Tooltip(
-                          message: "返回".tl,
-                          child: IconButton(
-                            iconSize: 25,
-                            icon: const Icon(Icons.arrow_back_outlined,color: Colors.white),
-                            onPressed: ()=>App.globalBack(),
-                          ),
-                        ),),
-                        Container(
-                          width: MediaQuery.of(context).size.width-166,
-                          height: 50,
-                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width-75),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text("图片".tl,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20,color: Colors.white70),),
-                          )
-                          ,),
-                        Tooltip(
-                          message: "保存图片".tl,
-                          child: IconButton(
-                            icon: const Icon(Icons.download,color: Colors.white,),
-                            onPressed: () async{
-                              saveImage(getImageUrl(url),"");
-                            },
-                          ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 8,),
+                      IconButton(
+                        iconSize: 25,
+                        icon: const Icon(Icons.arrow_back_outlined,color: Colors.white),
+                        onPressed: ()=>App.globalBack(),
+                      ),
+                      const SizedBox(width: 8,),
+                      Expanded(child: Text("图片".tl,overflow: TextOverflow.ellipsis,style: const TextStyle(fontSize: 20,color: Colors.white),),),
+                      Tooltip(
+                        message: "保存图片".tl,
+                        child: IconButton(
+                          icon: const Icon(Icons.download,color: Colors.white,),
+                          onPressed: () async{
+                            saveImage(getImageUrl(url),"");
+                          },
                         ),
-                        Tooltip(
-                          message: "分享".tl,
-                          child: IconButton(
-                            icon: const Icon(Icons.share,color: Colors.white),
-                            onPressed: () async{
-                              shareImageFromCache(url,"");
-                            },
-                          ),
+                      ),
+                      Tooltip(
+                        message: "分享".tl,
+                        child: IconButton(
+                          icon: const Icon(Icons.share,color: Colors.white),
+                          onPressed: () async{
+                            shareImageFromCache(url,"");
+                          },
                         ),
-                        const SizedBox(width: 16,),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 8,),
+                    ],
                   ),
                 ),),
             ],

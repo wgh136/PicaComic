@@ -22,8 +22,8 @@ import 'package:pica_comic/tools/translations.dart';
 class HitomiComicPage extends ComicPage<HitomiComic> {
   const HitomiComicPage(this.comic, {super.key});
 
-  HitomiComicPage.fromLink(String link, {super.key}):
-      comic = HitomiComicBrief("", "", "", [], "", "", link, "");
+  HitomiComicPage.fromLink(String link, {super.key})
+      : comic = HitomiComicBrief("", "", "", [], "", "", link, "");
 
   final HitomiComicBrief comic;
 
@@ -36,19 +36,24 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
           Expanded(
             child: ActionChip(
               label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-              avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
+              avatar: !favorite
+                  ? const Icon(Icons.bookmark_add_outlined)
+                  : const Icon(Icons.bookmark_add),
               onPressed: () => favoriteComic(FavoriteComicWidget(
                 havePlatformFavorite: false,
                 needLoadFolderData: false,
                 target: comic.link,
-                setFavorite: (b){
-                  if(favorite != b){
+                setFavorite: (b) {
+                  if (favorite != b) {
                     favorite = b;
                     update();
                   }
                 },
-                selectFolderCallback: (folder, page){
-                  LocalFavoritesManager().addComic(folder, FavoriteItem.fromHitomi(data!.toBrief(comic.link, cover)));
+                selectFolderCallback: (folder, page) {
+                  LocalFavoritesManager().addComic(
+                      folder,
+                      FavoriteItem.fromHitomi(
+                          data!.toBrief(comic.link, cover)));
                   showMessage(context, "成功添加收藏".tl);
                 },
               )),
@@ -73,13 +78,13 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   String? get introduction => null;
 
   @override
-  Future<Res<HitomiComic>> loadData() async{
-    if(comic.cover == ""){
+  Future<Res<HitomiComic>> loadData() async {
+    if (comic.cover == "") {
       var id = RegExp(r"\d+(?=\.html)").firstMatch(comic.link)![0]!;
       var res = await HiNetwork().getComicInfoBrief(id);
-      if(res.error){
+      if (res.error) {
         return Res.fromErrorRes(res);
-      }else{
+      } else {
         comic.cover = res.data.cover;
         comic.name = res.data.name;
         comic.tags = res.data.tags;
@@ -123,7 +128,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "Artists".categoryTextDynamic: data!.artists??["N/A"],
+        "Artists".categoryTextDynamic: data!.artists ?? ["N/A"],
         "Groups".categoryTextDynamic: data!.group,
         "Categories".categoryTextDynamic: data!.type.toList(),
         "Time".categoryTextDynamic: data!.time.toList(),
@@ -143,31 +148,28 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   }
 
   @override
-  Map<String, String> get headers => {
-    "User-Agent": webUA,
-    "Referer": "https://hitomi.la/"
-  };
+  Map<String, String> get headers =>
+      {"User-Agent": webUA, "Referer": "https://hitomi.la/"};
 
   @override
-  ThumbnailsData? get thumbnailsCreator => ThumbnailsData([], (page)async{
-    try {
-      var gg = GG();
-      var images = <String>[];
-      for (var file in data!.files) {
-        images.add(await gg.urlFromUrlFromHash(
-            data!.id, file, "webpsmallsmalltn", "webp", 'tn'));
-      }
-      return Res(images);
-    }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-      return Res(null, errorMessage: e.toString());
-    }
-  }, 2);
+  ThumbnailsData? get thumbnailsCreator => ThumbnailsData([], (page) async {
+        try {
+          var gg = GG();
+          var images = <String>[];
+          for (var file in data!.files) {
+            images.add(await gg.urlFromUrlFromHash(
+                data!.id, file, "webpsmallsmalltn", "webp", 'tn'));
+          }
+          return Res(images);
+        } catch (e, s) {
+          LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
+          return Res(null, errorMessage: e.toString());
+        }
+      }, 2);
 
   @override
   void onThumbnailTapped(int index) {
-    readHitomiComic(data!, cover, index+1);
+    readHitomiComic(data!, cover, index + 1);
   }
 
   @override
@@ -177,7 +179,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   Card? get uploaderInfo => null;
 
   @override
-  Future<bool> loadFavorite(HitomiComic data) async{
+  Future<bool> loadFavorite(HitomiComic data) async {
     return (await LocalFavoritesManager().find(data.id)).isNotEmpty;
   }
 
