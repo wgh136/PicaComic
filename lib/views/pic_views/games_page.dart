@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/pic_views/game_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
@@ -7,7 +7,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class GamesPageLogic extends GetxController{
+class GamesPageLogic extends StateController{
   bool isLoading = true;
   var games = Games([], 0, 1);
 
@@ -27,7 +27,7 @@ class GamesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<GamesPageLogic>(
+    return StateBuilder<GamesPageLogic>(
         builder: (logic){
           if(logic.isLoading){
             network.getGames().then((c) {
@@ -65,7 +65,7 @@ class GamesPage extends StatelessWidget {
                       const SliverToBoxAdapter(
                         child: ListLoadingIndicator(),
                       ),
-                    SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                    SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                   ],
                 ),
                 onRefresh: ()async => logic.refresh_(),

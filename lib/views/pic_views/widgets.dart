@@ -1,3 +1,4 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -10,7 +11,6 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import '../main_page.dart';
 import '../widgets/comic_tile.dart';
 import 'comic_page.dart';
-import 'package:get/get.dart';
 
 ///哔咔漫画块
 class PicComicTile extends ComicTile {
@@ -55,16 +55,16 @@ class PicComicTile extends ComicTile {
   @override
   ActionFunc? get read => () async{
     bool cancel = false;
-    showLoadingDialog(Get.context!, ()=>cancel=true);
+    showLoadingDialog(App.globalContext!, ()=>cancel=true);
     var res = await network.getEps(comic.id);
     if(cancel){
       return;
     }
     if(res.error){
-      Get.back();
-      showMessage(Get.context, res.errorMessageWithoutNull);
+      App.globalBack();
+      showMessage(App.globalContext, res.errorMessageWithoutNull);
     }else{
-      Get.back();
+      App.globalBack();
       readPicacgComic2(comic, res.data);
     }
   };

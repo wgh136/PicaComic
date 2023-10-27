@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -8,7 +7,7 @@ import '../widgets/list_loading.dart';
 import '../widgets/show_error.dart';
 import 'hi_widgets.dart';
 
-class HitomiLeaderboardPageLogic extends GetxController{
+class HitomiLeaderboardPageLogic extends StateController{
   var loading = <bool>[true, true, true, true];
   var comics = <ComicList>[
     ComicList(HitomiDataUrls.todayPopular),
@@ -57,7 +56,7 @@ class HitomiLeaderboardPage extends StatelessWidget {
           Tab(text: "今年".tl,),
         ],),
         Expanded(
-          child: GetBuilder<HitomiLeaderboardPageLogic>(
+          child: StateBuilder<HitomiLeaderboardPageLogic>(
             builder: (logic) => const TabBarView(
               children: [
                 OneLeaderboardPage(0),
@@ -80,7 +79,7 @@ class OneLeaderboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HitomiLeaderboardPageLogic>(builder: (logic){
+    return StateBuilder<HitomiLeaderboardPageLogic>(builder: (logic){
       if(logic.loading[index]){
         logic.load(index);
         return const Center(

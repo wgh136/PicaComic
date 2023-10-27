@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -11,8 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:image/image.dart' as image;
-
 import '../../foundation/ui_mode.dart';
+
 
 extension WebviewExtension on WebViewController{
   Future<Map<String, String>?> getCookies(String url) async{

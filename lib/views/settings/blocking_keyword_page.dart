@@ -1,10 +1,10 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class BlockingKeywordPageLogic extends GetxController{
+class BlockingKeywordPageLogic extends StateController{
   var keywords = appdata.blockingKeyword;
   bool down = true;
   final controller = TextEditingController();
@@ -12,7 +12,7 @@ class BlockingKeywordPageLogic extends GetxController{
 
 class BlockingKeywordPage extends StatelessWidget {
   BlockingKeywordPage({this.popUp = false,Key? key}) : super(key: key){
-    Get.put(BlockingKeywordPageLogic());
+    StateController.put(BlockingKeywordPageLogic());
   }
   final bool popUp;
 
@@ -24,7 +24,7 @@ class BlockingKeywordPage extends StatelessWidget {
         icon: const Icon(Icons.add),
         onPressed: (){
           showDialog(context: context,
-            builder: (dialogContext)=>GetBuilder<BlockingKeywordPageLogic>(builder: (logic)=>SimpleDialog(
+            builder: (dialogContext)=>StateBuilder<BlockingKeywordPageLogic>(builder: (logic)=>SimpleDialog(
               title: Text("添加屏蔽关键词".tl),
               children: [
                 const SizedBox(width: 400,),
@@ -39,7 +39,7 @@ class BlockingKeywordPage extends StatelessWidget {
                     onEditingComplete: (){
                       appdata.blockingKeyword.add(logic.controller.text);
                       logic.update();
-                      Get.back();
+                      App.globalBack();
                       logic.controller.text = "";
                       appdata.writeData();
                     },
@@ -51,7 +51,7 @@ class BlockingKeywordPage extends StatelessWidget {
                     onPressed: (){
                       appdata.blockingKeyword.add(logic.controller.text);
                       logic.update();
-                      Get.back();
+                      App.globalBack();
                       logic.controller.text = "";
                       appdata.writeData();
                     },
@@ -63,7 +63,7 @@ class BlockingKeywordPage extends StatelessWidget {
       ),
     );
 
-    var orderButton = GetBuilder<BlockingKeywordPageLogic>(
+    var orderButton = StateBuilder<BlockingKeywordPageLogic>(
       builder: (logic) {
         return Tooltip(
           message: "显示顺序",
@@ -78,7 +78,7 @@ class BlockingKeywordPage extends StatelessWidget {
       },
     );
 
-    var widget = GetBuilder<BlockingKeywordPageLogic>(
+    var widget = StateBuilder<BlockingKeywordPageLogic>(
       builder: (logic){
         var keywords = logic.down?appdata.blockingKeyword:appdata.blockingKeyword.reversed.toList();
         return ListView.builder(

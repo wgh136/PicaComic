@@ -1,3 +1,4 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -14,7 +15,6 @@ import '../jm_views/jm_image_provider/jm_cached_image.dart';
 import '../widgets/image.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:get/get.dart';
 import 'reading_type.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -230,14 +230,14 @@ Widget buildComicView(ComicReadingPageLogic logic,
         if (i == 0) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.pageController.jumpToPage(1);
-            showMessage(Get.context, "已经是第一页了".tl);
+            showMessage(App.globalContext, "已经是第一页了".tl);
             return;
           }
           logic.jumpToLastChapter();
         } else if (i == logic.urls.length + 1) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.pageController.jumpToPage(i - 1);
-            showMessage(Get.context, "已经是最后一页了".tl);
+            showMessage(App.globalContext, "已经是最后一页了".tl);
             return;
           }
           logic.jumpToNextChapter();
@@ -303,14 +303,14 @@ Widget buildComicView(ComicReadingPageLogic logic,
         if (i == 0) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.pageController.jumpToPage(1);
-            showMessage(Get.context, "已经是第一页了".tl);
+            showMessage(App.globalContext, "已经是第一页了".tl);
             return;
           }
           logic.jumpToLastChapter();
         } else if (i == (logic.urls.length / 2).ceil() + 1) {
           if (type == ReadingType.ehentai || type == ReadingType.hitomi || type == ReadingType.nhentai) {
             logic.pageController.jumpToPage(i-1);
-            showMessage(Get.context, "已经是最后一页了".tl);
+            showMessage(App.globalContext, "已经是最后一页了".tl);
             return;
           }
           logic.jumpToNextChapter();

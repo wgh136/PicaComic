@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../foundation/app.dart';
 import '../../network/picacg_network/methods.dart';
@@ -7,7 +6,7 @@ import '../../network/picacg_network/models.dart';
 import '../widgets/show_error.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class PicacgLeaderboardPageLogic extends GetxController{
+class PicacgLeaderboardPageLogic extends StateController{
   bool loading = true;
   List<ComicItemBrief>? comics;
   String? message;
@@ -37,7 +36,7 @@ class OnePicacgLeaderboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<PicacgLeaderboardPageLogic>(
+    return StateBuilder<PicacgLeaderboardPageLogic>(
         tag: time,
         builder: (logic){
           if(logic.loading){
@@ -102,8 +101,8 @@ class PicacgLeaderboardPage extends StatelessWidget{
   }
 
   static createState(){
-    Get.put(PicacgLeaderboardPageLogic(), tag: "H24");
-    Get.put(PicacgLeaderboardPageLogic(), tag: "D7");
-    Get.put(PicacgLeaderboardPageLogic(), tag: "D30");
+    StateController.put(PicacgLeaderboardPageLogic(), tag: "H24");
+    StateController.put(PicacgLeaderboardPageLogic(), tag: "D7");
+    StateController.put(PicacgLeaderboardPageLogic(), tag: "D30");
   }
 }

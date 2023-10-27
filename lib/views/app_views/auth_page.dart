@@ -1,7 +1,7 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../base.dart';
 
@@ -61,9 +61,9 @@ class _AuthPageState extends State<AuthPage> {
     var res = await LocalAuthentication().authenticate(localizedReason: "需要身份验证".tl);
     if(res){
       if(appdata.flag){
-        Get.offAll(()=>const MainPage());
+        App.offAll(()=>const MainPage());
       }else{
-        Get.back();
+        App.globalBack();
       }
     }
   }

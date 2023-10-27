@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/webdav.dart';
@@ -23,6 +22,7 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import '../foundation/app.dart';
 import '../network/htmanga_network/htmanga_main_network.dart';
 import '../network/update.dart';
 import '../foundation/ui_mode.dart';
@@ -50,24 +50,23 @@ class MainPage extends StatefulWidget {
   static bool overlayOpen = false;
 
   static void to(Widget Function() widget) async{
-    if(navigatorContext == null){
+    while(navigatorContext == null){
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    Get.to(widget,
-        id: navigateId, transition: Transition.fade, preventDuplicates: false);
+    App.to(navigatorContext!, widget);
   }
 
-  static canPop() => Navigator.of(navigatorContext ?? Get.context!).canPop();
+  static canPop() => Navigator.of(navigatorContext ?? App.globalContext!).canPop();
 
   static void back() {
-    Get.back(id: navigateId);
+    App.back(navigatorContext!);
   }
 
   static void Function()? toExplorePage;
 
   static void toExplorePageAt(int page) async{
     if(appdata.settings[24][page] != "1"){
-      showMessage(Get.context!, "探索页面被禁用".tl);
+      showMessage(App.globalContext!, "探索页面被禁用".tl);
       return;
     }
     if(toExplorePage == null){
@@ -99,7 +98,7 @@ class _MainPageState extends State<MainPage> {
 
   set i(int value) {
     _i = value;
-    Navigator.popUntil(Get.nestedKey(1)!.currentContext!, (route) => route.isFirst);
+    Navigator.popUntil(MainPage.navigatorContext!, (route) => route.isFirst);
   }
 
   final pages = [
@@ -112,17 +111,17 @@ class _MainPageState extends State<MainPage> {
   void login(){
     network.updateProfile().then((res){
       if(res.error){
-        showMessage(Get.context!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
+        showMessage(App.globalContext!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
     jmNetwork.loginFromAppdata().then((res){
       if(res.error){
-        showMessage(Get.context!, "登录禁漫时发生错误:".tl + res.errorMessageWithoutNull);
+        showMessage(App.globalContext!, "登录禁漫时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
     HtmangaNetwork().loginFromAppdata().then((res){
       if(res.error){
-        showMessage(Get.context!, "登录绅士漫画时发生错误:".tl + res.errorMessageWithoutNull);
+        showMessage(App.globalContext!, "登录绅士漫画时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
   }
@@ -143,15 +142,14 @@ class _MainPageState extends State<MainPage> {
                         actions: [
                           TextButton(
                               onPressed: () {
-                                Get.back();
+                                App.globalBack();
                                 appdata.settings[2] = "0";
                                 appdata.writeData();
                               },
                               child: const Text("关闭更新检查")),
                           TextButton(
-                              onPressed: () => Get.back(),
+                              onPressed: () => App.globalBack(),
                               child: Text("取消".tl)),
-                          if (!GetPlatform.isWeb)
                             TextButton(
                                 onPressed: () {
                                   getDownloadUrl().then((s) {
@@ -181,11 +179,11 @@ class _MainPageState extends State<MainPage> {
                 title: Text("下载管理器".tl),
                 content: Text("有未完成的下载, 是否继续?".tl),
                 actions: [
-                  TextButton(onPressed: () => Get.back(), child: Text("否".tl)),
+                  TextButton(onPressed: () => App.globalBack(), child: Text("否".tl)),
                   TextButton(
                       onPressed: () {
                         downloadManager.start();
-                        Get.back();
+                        App.globalBack();
                       },
                       child: Text("是".tl))
                 ],
@@ -196,17 +194,17 @@ class _MainPageState extends State<MainPage> {
   }
 
   void initLogic(){
-    Get.put(HomePageLogic());
-    Get.put(CategoriesPageLogic());
-    Get.put(GamesPageLogic());
-    Get.put(EhHomePageLogic());
-    Get.put(EhPopularPageLogic());
-    Get.put(JmHomePageLogic());
-    Get.put(JmLatestPageLogic());
-    Get.put(JmCategoriesPageLogic());
-    Get.put(ExplorePageLogic());
-    Get.put(CategoryPageLogic());
-    Get.put(HtHomePageLogic());
+    StateController.put(HomePageLogic());
+    StateController.put(CategoriesPageLogic());
+    StateController.put(GamesPageLogic());
+    StateController.put(EhHomePageLogic());
+    StateController.put(EhPopularPageLogic());
+    StateController.put(JmHomePageLogic());
+    StateController.put(JmLatestPageLogic());
+    StateController.put(JmCategoriesPageLogic());
+    StateController.put(ExplorePageLogic());
+    StateController.put(CategoryPageLogic());
+    StateController.put(HtHomePageLogic());
   }
 
   @override
@@ -234,13 +232,13 @@ class _MainPageState extends State<MainPage> {
     }
     //检查是否打卡
     if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
-      if (GetPlatform.isMobile) {
+      if (App.isMobile) {
         runBackgroundService();
       } else {
         appdata.user.isPunched = true;
         network.punchIn().then((b) {
           if (b) {
-            showMessage(Get.context, "打卡成功".tr, useGet: false);
+            showMessage(App.globalContext, "打卡成功".tl, useGet: false);
             appdata.user.exp += 10;
           }
         });
@@ -271,7 +269,7 @@ class _MainPageState extends State<MainPage> {
             SystemNavigator.pop();
           }
         },
-        popGesture: GetPlatform.isIOS && !UiMode.m1(context),
+        popGesture: App.isIOS && !UiMode.m1(context),
         child: Row(
           children: [
             NavigateBar(
@@ -289,7 +287,6 @@ class _MainPageState extends State<MainPage> {
                   Expanded(
                     child: ClipRect(
                       child: Navigator(
-                        key: Get.nestedKey(1),
                         onGenerateRoute: (settings) =>
                             MaterialPageRoute(builder: (context) {
                           MainPage.navigatorContext = context;
@@ -305,9 +302,7 @@ class _MainPageState extends State<MainPage> {
                                       message: "搜索".tl,
                                       child: IconButton(
                                         icon: const Icon(Icons.search),
-                                        onPressed: () {
-                                          MainPage.to(() => PreSearchPage());
-                                        },
+                                        onPressed: () => MainPage.to(() => PreSearchPage())
                                       ),
                                     ),
                                     Tooltip(
@@ -315,7 +310,7 @@ class _MainPageState extends State<MainPage> {
                                       child: IconButton(
                                         icon: const Icon(Icons.settings),
                                         onPressed: () {
-                                          Get.to(() => const SettingsPage());
+                                          App.globalTo(() => const SettingsPage());
                                         },
                                       ),
                                     ),
@@ -526,7 +521,7 @@ class _NavigateBarState extends State<NavigateBar> {
             const Divider(),
             const Spacer(),
             NavigatorItem(Icons.search, Icons.games, "搜索".tl, false,
-                () => MainPage.to(() => PreSearchPage())),
+                  () => MainPage.to(() => PreSearchPage())),
             NavigatorItem(
               Icons.settings,
               Icons.games,

@@ -3,8 +3,7 @@ import 'dart:math';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:get/get.dart';
-import 'package:pica_comic/foundation/def.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -240,7 +239,7 @@ class HtmangaNetwork {
       appdata.writeHistory();
     }
     Future.delayed(const Duration(milliseconds: 300),
-            () => Get.find<PreSearchController>().update())
+            () => StateController.find<PreSearchController>().update())
         .onError((error, stackTrace) => null);
     return getComicList(
         "$baseUrl/search/?q=${Uri.encodeComponent(keyword)}&f=_all&s=create_time_DESC&syn=yes",

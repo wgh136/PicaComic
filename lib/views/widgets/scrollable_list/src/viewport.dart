@@ -100,7 +100,6 @@ class UnboundedRenderViewport extends RenderViewport {
 
   @override
   set anchor(double value) {
-    assert(value != null);
     if (value == _anchor) return;
     _anchor = value;
     markNeedsLayout();
@@ -124,7 +123,6 @@ class UnboundedRenderViewport extends RenderViewport {
 
   @override
   Rect describeSemanticsClip(RenderSliver? child) {
-    assert(axis != null);
 
     if (_calculatedCacheExtent == null) {
       return semanticBounds;
@@ -178,7 +176,6 @@ class UnboundedRenderViewport extends RenderViewport {
     double correction;
     var count = 0;
     do {
-      assert(offset.pixels != null);
       correction = _attemptLayout(mainAxisExtent, crossAxisExtent,
           offset.pixels + centerOffsetAdjustment);
       if (correction != 0.0) {
@@ -189,8 +186,9 @@ class UnboundedRenderViewport extends RenderViewport {
         final bottom = _maxScrollExtent - mainAxisExtent * (1.0 - anchor);
         final maxScrollOffset = math.max(math.min(0.0, top), bottom);
         final minScrollOffset = math.min(top, maxScrollOffset);
-        if (offset.applyContentDimensions(minScrollOffset, maxScrollOffset))
+        if (offset.applyContentDimensions(minScrollOffset, maxScrollOffset)) {
           break;
+        }
         // *** End of difference from [RenderViewport].
       }
       count += 1;

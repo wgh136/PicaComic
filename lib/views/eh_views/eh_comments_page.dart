@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
+import '../../foundation/app.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/side_bar.dart';
 
-class CommentsPageLogic extends GetxController{
+class CommentsPageLogic extends StateController{
   bool isLoading = true;
   var comments = <Comment>[];
   bool sending = false;
@@ -39,7 +39,7 @@ class CommentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget body = GetBuilder<CommentsPageLogic>(
+    Widget body = StateBuilder<CommentsPageLogic>(
       init: CommentsPageLogic(),
       builder: (logic){
         if(logic.isLoading){
@@ -78,7 +78,7 @@ class CommentsPage extends StatelessWidget {
                                 );
                           }
                       )),
-                      SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                      SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                     ],
                   )),
               Container(
@@ -127,7 +127,7 @@ class CommentsPage extends StatelessWidget {
                               logic.comments.add(Comment(appdata.ehAccount, content, DateTime.now().toIso8601String()));
                               logic.update();
                             }else{
-                              showMessage(Get.context, b.errorMessageWithoutNull);
+                              showMessage(App.globalContext, b.errorMessageWithoutNull);
                               logic.sending = false;
                               logic.update();
                             }

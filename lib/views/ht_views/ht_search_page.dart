@@ -1,12 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/search.dart';
-import 'package:pica_comic/tools/translations.dart';
+import '../../foundation/app.dart';
 
 class SearchPageComicsList extends ComicsPage<HtComicBrief>{
   final String keyword;
@@ -51,53 +50,29 @@ class HtSearchPage extends StatefulWidget {
 class _HtSearchPageState extends State<HtSearchPage> {
   late String keyword = widget.keyword;
   var controller = TextEditingController();
-  bool _showFab = true;
 
   @override
   Widget build(BuildContext context) {
     controller.text = keyword;
     return Scaffold(
-      floatingActionButton: _showFab?FloatingActionButton(
-        child: const Icon(Icons.search),
-        onPressed: (){
-          var s = controller.text;
-          if(s=="") return;
-          setState(() {
-            keyword = s;
-          });
-        },
-      ):null,
-      body: NotificationListener<UserScrollNotification>(
-        onNotification: (notification) {
-          final ScrollDirection direction = notification.direction;
-          var showFab = _showFab;
-          if (direction == ScrollDirection.reverse) {
-            _showFab = false;
-          } else if (direction == ScrollDirection.forward) {
-            _showFab = true;
-          }
-          if(_showFab == showFab) return true;
-          setState(() {});
-          return true;
-        },
-        child: SearchPageComicsList(
-          keyword,
-          key: Key(keyword),
-          head_: SliverPersistentHeader(
-            floating: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 60,
-              maxHeight: 0,
-              child: FloatingSearchBar(
-                supportingText: '搜索'.tl,
-                f:(s){
-                  if(s=="") return;
-                  setState(() {
-                    keyword = s;
-                  });
-                },
-                controller: controller,),
-            ),
+      body: SearchPageComicsList(
+        keyword,
+        key: Key(keyword),
+        head_: SliverPersistentHeader(
+          floating: true,
+          delegate: _SliverAppBarDelegate(
+            minHeight: 60,
+            maxHeight: 0,
+            child: FloatingSearchBar(
+              onSearch:(s){
+                App.back(context);
+                if(s=="") return;
+                setState(() {
+                  keyword = s;
+                });
+              },
+              target: ComicType.htManga,
+              controller: controller,),
           ),
         ),
       ),

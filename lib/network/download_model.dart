@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:pica_comic/network/log_dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
-import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
 import 'download.dart';
@@ -101,7 +101,7 @@ abstract class DownloadingItem{
     if(file.existsSync()){
       return;
     }
-    var dio = await request();
+    var dio = logDio();
     var res = await dio.get<Uint8List>(
         cover, options: Options(responseType: ResponseType.bytes, headers: headers));
     if(file.existsSync()){

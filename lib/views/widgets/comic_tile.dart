@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../base.dart';
 export 'package:pica_comic/foundation/def.dart';
@@ -28,7 +28,7 @@ abstract class ComicTile extends StatelessWidget {
 
   void onLongTap_() {
     showDialog(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) => Dialog(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
@@ -48,7 +48,7 @@ abstract class ComicTile extends StatelessWidget {
                       leading: const Icon(Icons.article),
                       title: Text("查看详情".tl),
                       onTap: (){
-                        Get.back();
+                        App.globalBack();
                         onTap_();
                       },
                     ),
@@ -57,7 +57,7 @@ abstract class ComicTile extends StatelessWidget {
                         leading: const Icon(Icons.bookmark_rounded),
                         title: Text("收藏/取消收藏".tl),
                         onTap: () {
-                          Get.back();
+                          App.globalBack();
                           favorite!();
                         },
                       ),
@@ -66,7 +66,7 @@ abstract class ComicTile extends StatelessWidget {
                         leading: const Icon(Icons.chrome_reader_mode),
                         title: Text("阅读".tl),
                         onTap: () {
-                          Get.back();
+                          App.globalBack();
                           read!();
                         },
                       ),
@@ -82,7 +82,7 @@ abstract class ComicTile extends StatelessWidget {
   void onTap_();
   void onSecondaryTap_(TapDownDetails details) {
     showMenu(
-        context: Get.context!,
+        context: App.globalContext!,
         position: RelativeRect.fromLTRB(
             details.globalPosition.dx,
             details.globalPosition.dy,

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/proxy.dart';
 import '../../foundation/log.dart';
@@ -13,7 +14,6 @@ import 'jm_models.dart';
 import '../res.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pointycastle/export.dart';
-import 'package:get/get.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/base.dart';
@@ -366,7 +366,7 @@ class JmNetwork {
       }
       Future.delayed(const Duration(microseconds: 500), () {
         try {
-          Get.find<PreSearchController>().update();
+          StateController.find<PreSearchController>().update();
         } catch (e) {
           //跳过
         }
@@ -379,7 +379,7 @@ class JmNetwork {
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       Future.delayed(const Duration(microseconds: 500),
-          () => Get.find<PreSearchController>().update());
+          () => StateController.find<PreSearchController>().update());
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }

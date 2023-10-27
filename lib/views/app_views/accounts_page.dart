@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
@@ -17,27 +16,28 @@ import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import '../../foundation/app.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class AccountsPageLogic extends GetxController {}
+class AccountsPageLogic extends StateController {}
 
-class SloganLogic extends GetxController {
+class SloganLogic extends StateController {
   bool isUploading = false;
   bool status = false;
   bool status2 = false;
   var controller = TextEditingController();
 }
 
-class ChangeAvatarLogic extends GetxController {
+class ChangeAvatarLogic extends StateController {
   bool isUploading = false;
   String url = "";
   bool success = true;
 }
 
-class PasswordLogic extends GetxController {
+class PasswordLogic extends StateController {
   bool isLoading = false;
   var c1 = TextEditingController();
   var c2 = TextEditingController();
@@ -48,14 +48,14 @@ class PasswordLogic extends GetxController {
 
 class AccountsPage extends StatelessWidget {
   AccountsPage({required this.popUp, super.key}) {
-    Get.put(AccountsPageLogic());
+    StateController.put(AccountsPageLogic());
   }
 
   final bool popUp;
 
   @override
   Widget build(BuildContext context) {
-    var body = GetBuilder<AccountsPageLogic>(
+    var body = StateBuilder<AccountsPageLogic>(
       builder: (logic) {
         return CustomScrollView(
           slivers: [
@@ -121,7 +121,7 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.token == "")
                     ListTile(
                       title: Text("登录".tl),
-                      onTap: () => Get.to(() => const LoginPage())
+                      onTap: () => App.globalTo(() => const LoginPage())
                           ?.then((value) {
                         logic.update();
                         Webdav.uploadData();
@@ -138,7 +138,7 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.ehAccount == "")
                     ListTile(
                       title: Text("登录".tl),
-                      onTap: () => Get.to(() => const EhLoginPage())
+                      onTap: () => App.globalTo(() => const EhLoginPage())
                           ?.then((v) {
                         logic.update();
                         Webdav.uploadData();
@@ -210,7 +210,7 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.jmEmail == "")
                     ListTile(
                       title: Text("登录".tl),
-                      onTap: () => Get.to(() => const JmLoginPage())
+                      onTap: () => App.globalTo(() => const JmLoginPage())
                           ?.then((v) {
                         logic.update();
                         Webdav.uploadData();
@@ -221,12 +221,12 @@ class AccountsPage extends StatelessWidget {
                       title: Text("重新登录".tl),
                       subtitle: Text("如果登录失效点击此处".tl),
                       onTap: () async {
-                        showMessage(Get.context, "正在重新登录".tl, time: 8);
+                        showMessage(App.globalContext, "正在重新登录".tl, time: 8);
                         var res = await jmNetwork.loginFromAppdata();
                         if (res.error) {
-                          showMessage(Get.context, res.errorMessage!);
+                          showMessage(App.globalContext, res.errorMessage!);
                         } else {
-                          showMessage(Get.context, "重新登录成功".tl);
+                          showMessage(App.globalContext, "重新登录成功".tl);
                         }
                       },
                       trailing: const Icon(Icons.refresh),
@@ -272,12 +272,12 @@ class AccountsPage extends StatelessWidget {
                       title: Text("重新登录".tl),
                       subtitle: Text("如果登录失效点击此处".tl),
                       onTap: () async {
-                        showMessage(Get.context, "正在重新登录".tl, time: 8);
+                        showMessage(App.globalContext, "正在重新登录".tl, time: 8);
                         var res = await HtmangaNetwork().loginFromAppdata();
                         if (res.error) {
-                          showMessage(Get.context, res.errorMessage!);
+                          showMessage(App.globalContext, res.errorMessage!);
                         } else {
-                          showMessage(Get.context, "重新登录成功".tl);
+                          showMessage(App.globalContext, "重新登录成功".tl);
                         }
                       },
                       trailing: const Icon(Icons.refresh),
@@ -285,7 +285,7 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.htName == "")
                     ListTile(
                       title: Text("登录".tl),
-                      onTap: () => Get.to(() => const HtLoginPage())
+                      onTap: () => App.globalTo(() => const HtLoginPage())
                           ?.then((v) {
                         logic.update();
                         Webdav.uploadData();
@@ -343,7 +343,7 @@ class AccountsPage extends StatelessWidget {
     showDialog(
         context: context,
         builder: (dialogContext) {
-          return GetBuilder<SloganLogic>(
+          return StateBuilder<SloganLogic>(
             init: SloganLogic(),
             builder: (logic) {
               return SimpleDialog(
@@ -383,7 +383,7 @@ class AccountsPage extends StatelessWidget {
                                   if (t) {
                                     appdata.user.slogan = logic.controller.text;
                                     accountsPageLogic.update();
-                                    Get.back();
+                                    App.globalBack();
                                   } else {
                                     logic.isUploading = false;
                                     logic.status = true;
@@ -449,7 +449,7 @@ class AccountsPage extends StatelessWidget {
     showDialog(
         context: context,
         builder: (dialogContext) {
-          return GetBuilder<ChangeAvatarLogic>(
+          return StateBuilder<ChangeAvatarLogic>(
               init: ChangeAvatarLogic(),
               builder: (logic) {
                 return SimpleDialog(
@@ -482,7 +482,7 @@ class AccountsPage extends StatelessWidget {
                               ),
                             ),
                             onTap: () async {
-                              if (GetPlatform.isWindows) {
+                              if (App.isWindows) {
                                 const XTypeGroup typeGroup = XTypeGroup(
                                   label: 'images',
                                   extensions: <String>['jpg', 'png'],
@@ -527,7 +527,7 @@ class AccountsPage extends StatelessWidget {
                                           if (!t.error) {
                                             appdata.user = t.data;
                                             accountsPageLogic.update();
-                                            Get.back();
+                                            App.globalBack();
                                             showMessage(context, "上传成功".tl);
                                           } else {
                                             logic.success = false;
@@ -573,7 +573,7 @@ class AccountsPage extends StatelessWidget {
     showDialog(
         context: context,
         builder: (dialogContext) {
-          return GetBuilder<PasswordLogic>(
+          return StateBuilder<PasswordLogic>(
             init: PasswordLogic(),
             builder: (logic) {
               return SimpleDialog(
@@ -640,7 +640,7 @@ class AccountsPage extends StatelessWidget {
                                         logic.isLoading = !logic.isLoading;
                                         appdata.picacgPassword = logic.c2.text;
                                         appdata.writeData();
-                                        Get.back();
+                                        App.globalBack();
                                         showMessage(context, "密码修改成功".tl);
                                       } else {
                                         logic.status = 1;
@@ -696,7 +696,7 @@ class AccountsPage extends StatelessWidget {
             actionsAlignment: MainAxisAlignment.end,
             actions: [
               TextButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => App.globalBack(),
                   child: Text(
                     "取消".tl,
                     textAlign: TextAlign.end,
@@ -709,7 +709,7 @@ class AccountsPage extends StatelessWidget {
                         "", null, null, null);
                     appdata.writeData();
                     logic.update();
-                    Get.back();
+                    App.globalBack();
                   },
                   child: Text("确定".tl, textAlign: TextAlign.end))
             ],

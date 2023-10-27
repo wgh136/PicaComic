@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/pic_views/collections_page.dart';
 import 'package:pica_comic/views/pic_views/picacg_latest_page.dart';
@@ -11,7 +11,7 @@ import 'package:pica_comic/tools/translations.dart';
 import '../main_page.dart';
 
 
-class CategoriesPageLogic extends GetxController{
+class CategoriesPageLogic extends StateController{
   var categories = <CategoryItem>[];
   bool isLoading = true;
   String? message;
@@ -40,7 +40,7 @@ class CategoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CategoriesPageLogic>(
+    return StateBuilder<CategoriesPageLogic>(
         builder: (categoriesPageLogic){
       if(categoriesPageLogic.isLoading){
         categoriesPageLogic.get();
@@ -97,10 +97,10 @@ class CategoriesPage extends StatelessWidget {
                               title: Text("援助哔咔".tl),
                               content: Text("将在外部浏览器中打开哔咔官方的援助页面, 是否继续?".tl),
                               actions: [
-                                TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
+                                TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
                                 TextButton(onPressed: (){
                                   launchUrlString("https://donate.bidobido.xyz",mode: LaunchMode.externalApplication);
-                                  Get.back();
+                                  App.globalBack();
                                 }, child: Text("继续".tl)),
                               ],
                             )),
@@ -176,7 +176,7 @@ class CategoriesPage extends StatelessWidget {
                   childAspectRatio: 3,
                 ),
               ),
-              SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+              SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
             ],
           ),
           onRefresh: ()async => categoriesPageLogic.refresh_(),

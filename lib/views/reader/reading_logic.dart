@@ -1,6 +1,6 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart'
@@ -12,7 +12,7 @@ import '../widgets/scrollable_list/src/item_positions_listener.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
-class ComicReadingPageLogic extends GetxController{
+class ComicReadingPageLogic extends StateController{
   ///控制页面, 用于非从上至下(连续)阅读方式
   PageController pageController;
   ///用于从上至下(连续)阅读方式, 跳转至指定项目
@@ -26,7 +26,7 @@ class ComicReadingPageLogic extends GetxController{
 
   bool noScroll = false;
 
-  bool mouseScroll = GetPlatform.isDesktop;
+  bool mouseScroll = App.isDesktop;
 
   double currentScale = 1.0;
 
@@ -180,10 +180,10 @@ class ComicReadingPageLogic extends GetxController{
       }else if(readingMethod == ReadingMethod.twoPage){
         pageController.jumpToPage((urls.length % 2 + urls.length) ~/ 2);
       }
-      showMessage(Get.context, "已经是最后一章了".tl);
+      showMessage(App.globalContext, "已经是最后一章了".tl);
       return;
     }else if(!type.hasEps){
-      showMessage(Get.context, "已经是最后一章了".tl);
+      showMessage(App.globalContext, "已经是最后一章了".tl);
       return;
     }
     order += 1;
@@ -208,16 +208,16 @@ class ComicReadingPageLogic extends GetxController{
       if(appdata.settings[9] != "4") {
         pageController.jumpToPage(1);
       }
-      showMessage(Get.context, "已经是第一章了".tl);
+      showMessage(App.globalContext, "已经是第一章了".tl);
       return;
     }else if(order == 1 && type == ReadingType.jm){
       if(appdata.settings[9] != "4") {
         pageController.jumpToPage(1);
       }
-      showMessage(Get.context, "已经是第一章了".tl);
+      showMessage(App.globalContext, "已经是第一章了".tl);
       return;
     }else if(!type.hasEps){
-      showMessage(Get.context, "已经是第一章了".tl);
+      showMessage(App.globalContext, "已经是第一章了".tl);
       return;
     }
 

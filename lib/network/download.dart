@@ -1,9 +1,9 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -218,9 +218,6 @@ class DownloadManager{
   Future<void> init() async{
     if(_runInit) return;
     _runInit = true;
-    if(GetPlatform.isWeb){
-      return;
-    }
     await _getPath();
     await _getInfo();
   }
@@ -359,7 +356,7 @@ class DownloadManager{
     downloading.removeFirst();
     await _saveInfo();
     try{
-      Get.find<DownloadPageLogic>().fresh();
+      StateController.find<DownloadPageLogic>().fresh();
     }
     catch(e){
       // ignore

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/log_dio.dart';
@@ -8,7 +9,6 @@ import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
 import '../proxy.dart';
 import 'package:html/parser.dart';
-import 'package:get/get.dart';
 import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -85,7 +85,6 @@ class EhNetwork{
       res += "${cookie.name}=${cookie.value}; ";
     }
     cookiesStr = res.substring(0,res.length-2);
-    print(cookiesStr);
     return cookiesStr;
   }
 
@@ -448,7 +447,7 @@ class EhNetwork{
       }
       var title = document.querySelector("h1#gn")!.text;
       var subTitle = document.querySelector("h1#gj")?.text;
-      if(subTitle!=null && subTitle.removeAllWhitespace == ""){
+      if(subTitle!=null && subTitle.removeAllBlank == ""){
         subTitle = null;
       }
       var thumbnailDiv = document.querySelectorAll("div.gdtm > div").elementAtOrNull(0);
@@ -563,7 +562,7 @@ class EhNetwork{
     var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword&inline_set=dm_l");
     Future.delayed(const Duration(microseconds: 500),(){
       try{
-        Get.find<PreSearchController>().update();
+        StateController.find<PreSearchController>().update();
       }
       catch(e){
         //忽视

@@ -5,8 +5,8 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
 
 class EhLoginPage extends StatefulWidget {
@@ -92,16 +92,16 @@ class _EhLoginPageState extends State<EhLoginPage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    if (GetPlatform.isAndroid ||
-                        GetPlatform.isWindows ||
-                        GetPlatform.isIOS)
+                    if (App.isAndroid ||
+                        App.isWindows ||
+                        App.isIOS)
                       Center(
                         child: SizedBox(
                           width: 155,
                           height: 40,
                           child: TextButton(
                             onPressed: () async {
-                              if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+                              if (App.isAndroid || App.isIOS) {
                                 loginWithWebview();
                               } else {
                                 if (await FlutterWindowsWebview.isAvailable()) {
@@ -123,12 +123,12 @@ class _EhLoginPageState extends State<EhLoginPage> {
                                       } catch (e) {
                                         LogManager.addLog(LogLevel.error,
                                             "Network", e.toString());
-                                        showMessage(Get.context, "登录失败".tl);
+                                        showMessage(App.globalContext, "登录失败".tl);
                                       }
                                     }
                                   }));
                                 } else {
-                                  showMessage(Get.context, "Webview不可用");
+                                  showMessage(App.globalContext, "Webview不可用");
                                 }
                               }
                             },
@@ -144,7 +144,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                           ),
                         ),
                       ),
-                    if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                    if (App.isAndroid || App.isIOS)
                       const SizedBox(
                         height: 5,
                       ),
@@ -203,7 +203,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
       appdata.igneous = igneous;
       EhNetwork().getUserName().then((b) {
         if (b) {
-          Get.back();
+          App.globalBack();
           showMessage(context, "登录成功".tl);
         } else {
           showMessage(context, "登录失败".tl);
@@ -216,12 +216,12 @@ class _EhLoginPageState extends State<EhLoginPage> {
   }
 
   void loginWithWebview(){
-    Get.to(() => AppWebview(
+    App.globalTo(() => AppWebview(
       singlePage: true,
       initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
       onTitleChange: (title){
         if (title == "E-Hentai Forums") {
-          Get.back();
+          App.globalBack();
         }
       },
       onDestroy: (controller) async{
@@ -232,7 +232,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
         try {
           login(id!, hash!, igneous ?? "");
         } catch (e) {
-          showMessage(Get.context, "登录失败".tl);
+          showMessage(App.globalContext, "登录失败".tl);
         }
       },
     ));

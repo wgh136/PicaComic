@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -39,7 +38,7 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void dispose() {
     if(isModified){
-      appdata.history.saveDataAndClose();
+      appdata.history.saveData();
     }
     super.dispose();
   }
@@ -115,12 +114,12 @@ class _HistoryPageState extends State<HistoryPage> {
                       title: Text("清除记录".tl),
                       content: Text("要清除历史记录吗?".tl),
                       actions: [
-                        TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
+                        TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
                         TextButton(onPressed: (){
                           appdata.history.clearHistory();
                           setState(()=>comics.clear());
                           isModified = true;
-                          Get.back();
+                          App.globalBack();
                         }, child: Text("清除".tl)),
                       ],
                     )),
@@ -146,7 +145,7 @@ class _HistoryPageState extends State<HistoryPage> {
               buildComics(comics)
             else
               buildComics(results),
-            SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+            SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(context).padding.bottom))
           ],
         )
     );
@@ -174,7 +173,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     title: Text("删除".tl),
                     content: Text("要删除这条历史记录吗".tl),
                     actions: [
-                      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
+                      TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
                       TextButton(onPressed: (){
                         appdata.history.remove(comics_[i].target);
                         setState(() {
@@ -182,7 +181,7 @@ class _HistoryPageState extends State<HistoryPage> {
                           comics.removeWhere((element) =>
                             element.target == comics_[i].target);
                         });
-                        Get.back();
+                        App.globalBack();
                       }, child: Text("删除".tl)),
                     ],
                   );

@@ -40,6 +40,7 @@ class NhentaiDownloadedComic extends DownloadedItem{
   @override
   DownloadType get type => DownloadType.nhentai;
 
+  @override
   Map<String, dynamic> toJson() => {
     'comicID': comicID,
     'title': title,

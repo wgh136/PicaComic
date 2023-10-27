@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:get/get.dart';
+import '../../foundation/app.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
   final loading = Lottie.asset(
@@ -84,7 +84,7 @@ LoadingDialogController showLoadingDialog(BuildContext context, void Function() 
                 const Spacer(),
                 if(allowCancel)
                   TextButton(onPressed: () {
-                    Get.back();
+                    App.globalBack();
                     onCancel();
                   }, child: Text("取消".tl))
               ],

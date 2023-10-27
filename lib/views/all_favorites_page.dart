@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
 import 'package:pica_comic/views/ht_views/ht_favorites_page.dart';
 import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
@@ -25,8 +25,8 @@ class _AllFavoritesPageState extends State<AllFavoritesPage> with SingleTickerPr
   @override
   void initState() {
     controller = TabController(length: pages, vsync: this);
-    Get.put(JmFavoritePageLogic());
-    Get.put(HtFavoritePageLogic());
+    StateController.put(JmFavoritePageLogic());
+    StateController.put(HtFavoritePageLogic());
     super.initState();
   }
 

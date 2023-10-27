@@ -1,9 +1,9 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
@@ -47,21 +47,21 @@ class EhGalleryTile extends ComicTile{
   }
 
   @override
-  int get maxLines => MediaQuery.of(Get.context!).size.width < 430 ? 1 : 2;
+  int get maxLines => MediaQuery.of(App.globalContext!).size.width < 430 ? 1 : 2;
 
   @override
   ActionFunc? get read => () async{
     bool cancel = false;
-    showLoadingDialog(Get.context!, ()=>cancel=true);
+    showLoadingDialog(App.globalContext!, ()=>cancel=true);
     var res = await EhNetwork().getGalleryInfo(gallery.link);
     if(cancel){
       return;
     }
     if(res.error){
-      Get.back();
-      showMessage(Get.context, res.errorMessageWithoutNull);
+      App.globalBack();
+      showMessage(App.globalContext, res.errorMessageWithoutNull);
     }else{
-      Get.back();
+      App.globalBack();
       readEhGallery(res.data);
     }
   };

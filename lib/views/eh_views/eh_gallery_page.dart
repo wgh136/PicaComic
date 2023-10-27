@@ -1,7 +1,7 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -69,11 +69,11 @@ class EhGalleryPage extends ComicPage<Gallery> {
                         data!.auth!["gid"]!, data!.auth!["token"]!,
                         id: EhNetwork().folderNames.indexOf(folder).toString());
                     res?(data!.favorite=true):null;
-                    showMessage(Get.context, res?"成功添加收藏".tl:"网络错误".tl);
+                    showMessage(App.globalContext, res?"成功添加收藏".tl:"网络错误".tl);
                   }else{
                     LocalFavoritesManager().addComic(folder,
                         FavoriteItem.fromEhentai(data!.toBrief()));
-                    showMessage(Get.context, "成功添加收藏".tl);
+                    showMessage(App.globalContext, "成功添加收藏".tl);
                   }
                 },
                 cancelPlatformFavorite: (){
@@ -129,16 +129,16 @@ class EhGalleryPage extends ComicPage<Gallery> {
     var res = await EhNetwork().getGalleryInfo(link, appdata.settings[47] == "1");
     if(res.error && res.errorMessage == "Content Warning"){
       bool shouldIgnore = false;
-      await showDialog(context: Get.context!, builder: (context) => AlertDialog(
+      await showDialog(context: App.globalContext!, builder: (context) => AlertDialog(
         title: Text("警告".tl),
         content: Text("此画廊存在令人不适的内容\n在设置中可以禁用此警告".tl),
         actions: [
           TextButton(onPressed: (){
-            Get.back();
+            App.globalBack();
           }, child: Text("返回".tl)),
           TextButton(onPressed: (){
             shouldIgnore = true;
-            Get.back();
+            App.globalBack();
           }, child: Text("忽略".tl))
         ],
       ));
@@ -248,7 +248,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
     }
     showDialog(
         context: context,
-        builder: (dialogContext) => GetBuilder<RatingLogic>(
+        builder: (dialogContext) => StateBuilder<RatingLogic>(
             init: RatingLogic(),
             builder: (logic) => SimpleDialog(
                   title: const Text("评分"),
@@ -282,7 +282,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
                                               auth, logic.rating.toInt())
                                           .then((b) {
                                         if (b) {
-                                          Get.back();
+                                          App.globalBack();
                                           showMessage(context, "评分成功".tl);
                                         } else {
                                           logic.running = false;
@@ -342,12 +342,12 @@ class EhGalleryPage extends ComicPage<Gallery> {
   String get source => "EHentai";
 }
 
-class RatingLogic extends GetxController {
+class RatingLogic extends StateController {
   double rating = 0;
   bool running = false;
 }
 
-class CommentLogic extends GetxController {
+class CommentLogic extends StateController {
   final controller = TextEditingController();
   bool sending = false;
 }

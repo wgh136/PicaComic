@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
@@ -8,7 +7,7 @@ import '../widgets/list_loading.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class CategoryPageLogic extends GetxController{
+class CategoryPageLogic extends StateController{
   bool loading = true;
   CategoryComicsRes? comics;
   String? message;
@@ -43,17 +42,17 @@ class CategoryPageLogic extends GetxController{
 }
 
 void createLogic(){
-  Get.put(CategoryPageLogic(), tag: "mv");
-  Get.put(CategoryPageLogic(), tag: "mv_m");
-  Get.put(CategoryPageLogic(), tag: "mv_w");
-  Get.put(CategoryPageLogic(), tag: "mv_t");
+  StateController.put(CategoryPageLogic(), tag: "mv");
+  StateController.put(CategoryPageLogic(), tag: "mv_m");
+  StateController.put(CategoryPageLogic(), tag: "mv_w");
+  StateController.put(CategoryPageLogic(), tag: "mv_t");
 }
 
 void disposeLogic(){
-  Get.find<CategoryPageLogic>().dispose();
-  Get.find<CategoryPageLogic>().dispose();
-  Get.find<CategoryPageLogic>().dispose();
-  Get.find<CategoryPageLogic>().dispose();
+  StateController.remove<CategoryPageLogic>();
+  StateController.remove<CategoryPageLogic>();
+  StateController.remove<CategoryPageLogic>();
+  StateController.remove<CategoryPageLogic>();
 }
 
 class JmLeaderboardPage extends StatelessWidget {
@@ -91,7 +90,7 @@ class OneJmLeaderboardPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final category = Category("", "0", []);
-    return GetBuilder<CategoryPageLogic>(
+    return StateBuilder<CategoryPageLogic>(
       tag: order.toString(),
       builder: (logic){
         if(logic.loading){

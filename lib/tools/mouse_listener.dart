@@ -1,10 +1,10 @@
-import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/views/main_page.dart';
+import '../foundation/app.dart';
 
 void mouseSideButtonCallback(){
-  if((Get.routing.current != "/" && Get.routing.current != "/MainPage") || MainPage.overlayOpen){
-    Get.back();
+  if(App.canPop){
+    App.globalBack();
   }else{
     MainPage.back();
   }
@@ -12,7 +12,7 @@ void mouseSideButtonCallback(){
 
 ///监听鼠标侧键, 若为下键, 则调用返回
 void listenMouseSideButtonToBack() async{
-  if(! GetPlatform.isWindows){
+  if(!App.isWindows){
     return;
   }
   const channel = EventChannel("kokoiro.xyz.pica_comic/mouse");

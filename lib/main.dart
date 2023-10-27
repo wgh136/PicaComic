@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
@@ -33,7 +33,7 @@ void main() {
   runZonedGuarded(() {
     WidgetsFlutterBinding.ensureInitialized();
     startClearCache();
-    if(GetPlatform.isAndroid) {
+    if(App.isAndroid) {
       final appLinks = AppLinks();
       appLinks.allUriLinkStream.listen((uri) {
         handleAppLinks(uri);
@@ -45,7 +45,7 @@ void main() {
           "${details.exception}\n${details.stack}");
     };
     appdata.readData().then((b) async {
-      if (GetPlatform.isMobile) {
+      if (App.isMobile) {
         Workmanager().initialize(
           onStart,
         );
@@ -66,6 +66,8 @@ void main() {
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  static void Function()? updater;
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -75,7 +77,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
+    if(App.isAndroid && appdata.settings[38] == "1"){
       try {
         FlutterDisplayMode.setHighRefreshRate();
       }
@@ -87,7 +89,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       if (appdata.settings[13] == "1" && appdata.flag && !AuthPage.lock) {
         appdata.flag = false;
-        Get.to(() => const AuthPage());
+        App.to(App.globalContext!, () => const AuthPage());
       }
     } else if (state == AppLifecycleState.paused) {
 
@@ -105,9 +107,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    MyApp.updater = () => setState(() {});
     time = DateTime.now();
     TagsTranslation.readData();
-    if(GetPlatform.isAndroid && appdata.settings[38] == "1"){
+    if(App.isAndroid && appdata.settings[38] == "1"){
       try {
         FlutterDisplayMode.setHighRefreshRate();
       }
@@ -193,15 +196,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ColorScheme.fromSeed(
                 seedColor: Colors.pinkAccent, brightness: Brightness.dark);
       }
-      return GetMaterialApp(
+      return MaterialApp(
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: App.messageKey,
+        navigatorKey: App.navigatorKey,
         theme: ThemeData(
           colorScheme: (colorScheme ??
               lightColor ??
               ColorScheme.fromSeed(seedColor: Colors.pinkAccent)),
           useMaterial3: true,
-          fontFamily: GetPlatform.isWindows ? "font" : "",
+          fontFamily: App.isWindows ? "font" : "",
         ),
         darkTheme: ThemeData(
           colorScheme: (colorScheme ??
@@ -209,24 +214,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ColorScheme.fromSeed(
                   seedColor: Colors.pinkAccent, brightness: Brightness.dark)),
           useMaterial3: true,
-          fontFamily: GetPlatform.isWindows ? "font" : "",
+          fontFamily: App.isWindows ? "font" : "",
         ),
         home: notFirstUse ?
           (appdata.settings[13] == "1" ? const AuthPage() : const MainPage()) :
           const WelcomePage(),
-        fallbackLocale: const Locale('zh', 'CN'),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW'), Locale('en', 'US')],
-        logWriterCallback: (String s, {bool? isError}) {
-          LogManager.addLog(
-              (isError ?? false) ? LogLevel.warning : LogLevel.info,
-              "App Status",
-              s);
-        },
         builder: (context, widget) {
           if(Platform.isWindows){
             var channel = const MethodChannel("pica_comic/title_bar");
@@ -239,7 +237,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               child: Text(details.exception.toString()),
             );
           };
-          if (widget != null) return widget;
+          if (widget != null) {
+            return Overlay(
+              initialEntries: [
+                OverlayEntry(builder: (context) => widget)
+              ],
+          );
+          }
           throw ('widget is null');
         },
       );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
@@ -8,7 +7,7 @@ import '../../foundation/app.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class JWRPLogic extends GetxController{
+class JWRPLogic extends StateController{
   bool loading = true;
   Map<String, String>? rec;
   String? message;
@@ -39,7 +38,7 @@ class JWRPLogic extends GetxController{
 
 class JmWeekRecommendationPage extends StatelessWidget {
   JmWeekRecommendationPage({Key? key}) : super(key: key);
-  final logic = Get.put(JWRPLogic());
+  final logic = StateController.put(JWRPLogic());
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +50,7 @@ class JmWeekRecommendationPage extends StatelessWidget {
           CustomAppbar(
             title: Text("每周必看".tl),
             actions: [
-              GetBuilder<JWRPLogic>(builder: (logic)=>Container(
+              StateBuilder<JWRPLogic>(builder: (logic)=>Container(
                 key: key,
                 margin: const EdgeInsets.all(5),
                 padding: const EdgeInsets.all(5),
@@ -100,7 +99,7 @@ class JmWeekRecommendationPage extends StatelessWidget {
             ],
           ),
           Expanded(
-            child: GetBuilder<JWRPLogic>(
+            child: StateBuilder<JWRPLogic>(
               builder: (logic){
                 if(logic.loading){
                   logic.get();
@@ -124,7 +123,7 @@ class JmWeekRecommendationPage extends StatelessWidget {
   }
 }
 
-class WRLLogic extends GetxController{
+class WRLLogic extends StateController{
   var comics = <List<JmComicBrief>>[[],[],[]];
   var messages = <String?>[null, null, null];
   var loading = <bool>[true, true, true];
@@ -161,7 +160,7 @@ class WeekRecommendationList extends StatelessWidget {
           Tab(text: "日漫".tl,),
           Tab(text: "其它".tl,)
         ]),
-        Expanded(child: GetBuilder<WRLLogic>(
+        Expanded(child: StateBuilder<WRLLogic>(
             init: WRLLogic(),
             tag: id,
             builder: (logic){

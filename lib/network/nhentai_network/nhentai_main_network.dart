@@ -5,6 +5,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:html/dom.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/nhentai_network/tags.dart';
@@ -16,7 +17,6 @@ import 'package:pica_comic/views/pre_search_page.dart';
 import '../log_dio.dart';
 import 'models.dart';
 import 'package:html/parser.dart';
-import 'package:get/get.dart';
 
 export 'models.dart';
 
@@ -234,7 +234,7 @@ class NhentaiNetwork {
 
       Future.microtask(() {
         try{
-          Get.find<PreSearchController>().update();
+          StateController.find<PreSearchController>().update();
         }
         catch(e){
           //

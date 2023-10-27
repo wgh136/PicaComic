@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../foundation/app.dart';
 
 class ShowImagePage extends StatefulWidget {
   const ShowImagePage(this.url,{this.eh=false,Key? key}) : super(key: key);
@@ -69,7 +69,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
                           child: IconButton(
                             iconSize: 25,
                             icon: const Icon(Icons.arrow_back_outlined,color: Colors.white),
-                            onPressed: ()=>Get.back(),
+                            onPressed: ()=>App.globalBack(),
                           ),
                         ),),
                         Container(

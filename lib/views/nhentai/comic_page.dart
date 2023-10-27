@@ -15,7 +15,6 @@ import '../main_page.dart';
 import '../../foundation/local_favorites.dart';
 import '../widgets/show_message.dart';
 import 'comments.dart';
-import 'package:get/get.dart';
 
 
 class NhentaiComicPage extends ComicPage<NhentaiComic>{
@@ -72,11 +71,11 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
                 showMessage(context, "正在添加收藏".tl);
                 var res = await NhentaiNetwork().favoriteComic(id, data!.token);
                 if(res.error){
-                  showMessage(Get.context, res.errorMessageWithoutNull);
+                  showMessage(App.globalContext, res.errorMessageWithoutNull);
                   return;
                 }
                 data!.favorite = true;
-                showMessage(Get.context, "成功添加收藏".tl);
+                showMessage(App.globalContext, "成功添加收藏".tl);
               }else{
                 LocalFavoritesManager().addComic(folder, FavoriteItem.fromNhentai(NhentaiComicBrief(
                     data!.title,
@@ -84,13 +83,13 @@ class NhentaiComicPage extends ComicPage<NhentaiComic>{
                     id,"Unknown",
                     data!.tags["Tags"] ?? const <String>[]
                 )));
-                showMessage(Get.context, "成功添加收藏".tl);
+                showMessage(App.globalContext, "成功添加收藏".tl);
               }
             },
             cancelPlatformFavorite: ()async{
               showMessage(context, "正在取消收藏".tl);
               var res = await NhentaiNetwork().unfavoriteComic(id, data!.token);
-              showMessage(Get.context, !res.error?"成功取消收藏".tl:"网络错误".tl);
+              showMessage(App.globalContext, !res.error?"成功取消收藏".tl:"网络错误".tl);
               data!.favorite = false;
             },
           )),

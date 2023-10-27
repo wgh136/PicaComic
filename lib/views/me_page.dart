@@ -13,12 +13,13 @@ import 'package:pica_comic/views/eh_views/subscription.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
+import '../foundation/app.dart';
 import '../tools/debug.dart';
 import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:get/get.dart';
 import 'jm_views/jm_comic_page.dart';
 import 'main_page.dart';
+import 'package:pica_comic/tools/extensions.dart';
 
 class MePage extends StatelessWidget {
   const MePage({super.key});
@@ -53,8 +54,8 @@ class MePage extends StatelessWidget {
                       title: "账号管理".tl,
                       subTitle: "查看或修改账号信息".tl,
                       icon: Icons.switch_account,
-                      onTap: () => showAdaptiveWidget(Get.context!,
-                          AccountsPage(popUp: MediaQuery.of(Get.context!).size.width>600,)),
+                      onTap: () => showAdaptiveWidget(App.globalContext!,
+                          AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
                     ),
                     MePageButton(
                       title: "收藏夹".tl,
@@ -98,14 +99,14 @@ class MePage extends StatelessWidget {
   }
 
   void openTool(){
-    showModalBottomSheet(context: Get.context!, builder: (context) => Column(
+    showModalBottomSheet(context: App.globalContext!, builder: (context) => Column(
       children: [
         ListTile(title: Text("工具".tl),),
         ListTile(
           leading: const Icon(Icons.subscriptions),
           title: Text("EH订阅".tl),
           onTap: () {
-            Get.back();
+            App.globalBack();
             MainPage.to(() => const SubscriptionPage());
           },
         ),
@@ -113,7 +114,7 @@ class MePage extends StatelessWidget {
           leading: const Icon(Icons.image_search_outlined),
           title: Text("图片搜索 [搜图bot酱]".tl),
           onTap: () async{
-            Get.back();
+            App.globalBack();
             if(Platform.isAndroid || Platform.isIOS) {
               MainPage.to(() => AppWebview(
                 initialUrl: "https://soutubot.moe/",
@@ -142,7 +143,7 @@ class MePage extends StatelessWidget {
           leading: const Icon(Icons.image_search),
           title: Text("图片搜索 [SauceNAO]".tl),
           onTap: () async{
-            Get.back();
+            App.globalBack();
             if(Platform.isAndroid || Platform.isIOS) {
               MainPage.to(() => AppWebview(
                 initialUrl: "https://saucenao.com/",
@@ -171,8 +172,8 @@ class MePage extends StatelessWidget {
           leading: const Icon(Icons.web),
           title: Text("打开链接".tl),
           onTap: (){
-            Get.back();
-            showDialog(context: Get.context!, builder: (context) {
+            App.globalBack();
+            showDialog(context: App.globalContext!, builder: (context) {
               final controller = TextEditingController();
 
               validateText() {
@@ -202,7 +203,7 @@ class MePage extends StatelessWidget {
                 if(validateText() != null){
                   stateSetter?.call((){});
                 }else{
-                  Get.back();
+                  App.globalBack();
                   var text = controller.text;
                   if(!text.contains("http://") && !text.contains("https://")){
                     text = "https://$text";
@@ -236,7 +237,7 @@ class MePage extends StatelessWidget {
           leading: const Icon(Icons.insert_drive_file),
           title: Text("禁漫漫画ID".tl),
           onTap: (){
-            Get.back();
+            App.globalBack();
             var controller = TextEditingController();
             showDialog(context: context, builder: (context){
               return AlertDialog(
@@ -247,11 +248,11 @@ class MePage extends StatelessWidget {
                     keyboardType: TextInputType.number,
                     controller: controller,
                     onEditingComplete: () {
-                      Get.back();
+                      App.globalBack();
                       if(controller.text.isNum){
                         MainPage.to(()=>JmComicPage(controller.text));
                       }else{
-                        showMessage(Get.context, "输入的ID不是数字".tl);
+                        showMessage(App.globalContext, "输入的ID不是数字".tl);
                       }
                     },
                     inputFormatters: [
@@ -266,11 +267,11 @@ class MePage extends StatelessWidget {
                 ),
                 actions: [
                   TextButton(onPressed: (){
-                    Get.back();
+                    App.globalBack();
                     if(controller.text.isNum){
                       MainPage.to(()=>JmComicPage(controller.text));
                     }else{
-                      showMessage(Get.context, "输入的ID不是数字".tl);
+                      showMessage(App.globalContext, "输入的ID不是数字".tl);
                     }
                   }, child: Text("提交".tl))
                 ],

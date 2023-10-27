@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -39,13 +39,13 @@ class HtComicPage extends ComicPage<HtComicInfo>{
               showMessage(context, "正在添加收藏".tl);
               var res = await HtmangaNetwork().addFavorite(comic.id, folder);
               if(res.error){
-                showMessage(Get.context, res.errorMessageWithoutNull);
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
               }else{
-                showMessage(Get.context, "成功添加收藏" .tl);
+                showMessage(App.globalContext, "成功添加收藏" .tl);
               }
             }else{
               LocalFavoritesManager().addComic(folder, FavoriteItem.fromHtcomic(comic));
-              showMessage(Get.context, "成功添加收藏" .tl);
+              showMessage(App.globalContext, "成功添加收藏" .tl);
             }
           },
         )),
@@ -187,7 +187,7 @@ class HtComicPage extends ComicPage<HtComicInfo>{
   String get source => "绅士漫画".tl;
 }
 
-class HtComicPageLogic extends GetxController {
+class HtComicPageLogic extends StateController {
   bool loading = true;
   HtComicInfo? comic;
   String? message;

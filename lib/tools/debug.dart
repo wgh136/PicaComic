@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 ///用于测试函数
 void debug() async{
-
+  showMessage(null, "test");
 }
 
 ///保存网络请求数据, 用于Debug

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -8,7 +9,6 @@ import 'package:webdav_client/webdav_client.dart';
 import '../base.dart';
 import '../views/widgets/loading.dart';
 import '../views/widgets/show_message.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 class Webdav{
@@ -101,13 +101,13 @@ class Webdav{
     if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
       return;
     }
-    var controller = showLoadingDialog(Get.context!, () {
-      Get.back();
+    var controller = showLoadingDialog(App.globalContext!, () {
+      App.back(App.globalContext!);
     }, false, true, "同步数据中".tl);
     var res = await Webdav.downloadData();
     if(!res){
       controller.close();
-      showMessage(Get.context, "Failed to download data",
+      showMessage(App.globalContext, "Failed to download data",
           action: TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
     }else{
       controller.close();

@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../base.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -73,7 +73,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             },
           ),
         ),
-        if (!GetPlatform.isWeb && GetPlatform.isAndroid)
+        if (App.isAndroid)
           ListTile(
             leading: Icon(Icons.screenshot_outlined,
                 color: Theme.of(context).colorScheme.secondary),

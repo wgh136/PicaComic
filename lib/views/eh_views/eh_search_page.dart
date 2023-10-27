@@ -1,12 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';
 import '../widgets/search.dart';
-import 'package:pica_comic/tools/translations.dart';
 
 class PageData{
   Galleries? galleries;
@@ -83,57 +82,32 @@ class EhSearchPage extends StatefulWidget {
 class _SearchPageState extends State<EhSearchPage> {
   late String keyword = widget.keyword;
   var controller = TextEditingController();
-  bool _showFab = true;
   var data = PageData();
 
   @override
   Widget build(BuildContext context) {
     controller.text = keyword;
     return Scaffold(
-      floatingActionButton: _showFab?FloatingActionButton(
-        child: const Icon(Icons.search),
-        onPressed: (){
-          var s = controller.text;
-          if(s=="") return;
-          data = PageData();
-          setState(() {
-            keyword = s;
-          });
-        },
-      ):null,
-      body: NotificationListener<UserScrollNotification>(
-        onNotification: (notification) {
-          final ScrollDirection direction = notification.direction;
-          var showFab = _showFab;
-          if (direction == ScrollDirection.reverse) {
-            _showFab = false;
-          } else if (direction == ScrollDirection.forward) {
-            _showFab = true;
-          }
-          if(_showFab == showFab) return true;
-          setState(() {});
-          return true;
-        },
-        child: SearchPageComicsList(
-          keyword,
-          data,
-          key: Key(keyword),
-          head_: SliverPersistentHeader(
-            floating: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 60,
-              maxHeight: 0,
-              child: FloatingSearchBar(
-                supportingText: '搜索'.tl,
-                f:(s){
-                  if(s=="") return;
-                  data = PageData();
-                  setState(() {
-                    keyword = s;
-                  });
-                },
-                controller: controller,),
-            ),
+      body: SearchPageComicsList(
+        keyword,
+        data,
+        key: Key(keyword),
+        head_: SliverPersistentHeader(
+          floating: true,
+          delegate: _SliverAppBarDelegate(
+            minHeight: 60,
+            maxHeight: 0,
+            child: FloatingSearchBar(
+              onSearch:(s){
+                App.back(context);
+                if(s=="") return;
+                data = PageData();
+                setState(() {
+                  keyword = s;
+                });
+              },
+              target: ComicType.ehentai,
+              controller: controller,),
           ),
         ),
       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/main_page.dart';
@@ -9,6 +8,8 @@ import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
+import '../foundation/app.dart';
+import '../main.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -47,7 +48,7 @@ class WelcomePage extends StatelessWidget {
                 child: Center(
                   child: TextButton(
                     child: Text("开始使用".tl),
-                    onPressed: () => Get.off(() => const GuidePage()),
+                    onPressed: () => App.globalOff(() => const GuidePage()),
                   ),
                 ),
               )
@@ -84,7 +85,7 @@ class _GuidePageState extends State<GuidePage> {
               icon: const Icon(Icons.navigate_next),
             )
           : FloatingActionButton.extended(
-              onPressed: () => Get.offAll(() => const MainPage()),
+              onPressed: () => App.offAll(() => const MainPage()),
               label: Text("完成".tl),
               icon: const Icon(Icons.check),
             ),
@@ -314,7 +315,7 @@ class _GuidePageState extends State<GuidePage> {
                                   whenChange: (i) {
                                     appdata.settings[27] = i.toString();
                                     appdata.updateSettings();
-                                    Get.forceAppUpdate();
+                                    MyApp.updater?.call();
                                   },
                                   inPopUpWidget: false,
                                   width: 140,
@@ -331,7 +332,7 @@ class _GuidePageState extends State<GuidePage> {
                                   whenChange: (i) {
                                     appdata.settings[32] = i.toString();
                                     appdata.updateSettings();
-                                    Get.forceAppUpdate();
+                                    MyApp.updater?.call();
                                   },
                                   inPopUpWidget: false,
                                   width: 140,

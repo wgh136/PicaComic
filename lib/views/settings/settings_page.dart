@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/main.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/settings/explore_settings.dart';
@@ -10,6 +10,7 @@ import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import '../../foundation/app.dart';
 import '../app_views/logs_page.dart';
 import '../widgets/select.dart';
 import 'eh_settings.dart';
@@ -99,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 whenChange: (i) {
                   appdata.settings[27] = i.toString();
                   appdata.updateSettings();
-                  Get.forceAppUpdate();
+                  MyApp.updater?.call();
                 },
                 inPopUpWidget: widget.popUp,
                 width: 140,
@@ -115,13 +116,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 whenChange: (i) {
                   appdata.settings[32] = i.toString();
                   appdata.updateSettings();
-                  Get.forceAppUpdate();
+                  MyApp.updater?.call();
                 },
                 inPopUpWidget: widget.popUp,
                 width: 140,
               ),
             ),
-            if (GetPlatform.isAndroid)
+            if (App.isAndroid)
               ListTile(
                 leading: Icon(Icons.smart_screen_outlined,
                     color: Theme.of(context).colorScheme.secondary),
@@ -181,7 +182,6 @@ class _SettingsPageState extends State<SettingsPage> {
             const ListTile(
               title: Text("App"),
             ),
-            if (!GetPlatform.isWeb)
               ListTile(
                 leading: Icon(Icons.update,
                     color: Theme.of(context).colorScheme.secondary),
@@ -191,7 +191,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   findUpdate(context);
                 },
               ),
-            if (!GetPlatform.isWeb)
               ListTile(
                 leading: Icon(Icons.security_update,
                     color: Theme.of(context).colorScheme.secondary),
@@ -206,7 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 onTap: () {},
               ),
-            if (GetPlatform.isWindows || GetPlatform.isAndroid)
+            if (App.isWindows || App.isAndroid)
               ListTile(
                 leading: Icon(Icons.folder,
                     color: Theme.of(context).colorScheme.secondary),
@@ -214,8 +213,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 trailing: const Icon(Icons.arrow_right),
                 onTap: () => setDownloadFolder(),
               ),
-            if (!GetPlatform.isWeb)
-              GetBuilder<CalculateCacheLogic>(
+              StateBuilder<CalculateCacheLogic>(
                   init: CalculateCacheLogic(),
                   builder: (logic) {
                     if (logic.calculating) {
@@ -235,9 +233,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         subtitle: Text(
                             "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
                         onTap: () {
-                          if (GetPlatform.isAndroid ||
-                              GetPlatform.isIOS ||
-                              GetPlatform.isWindows) {
+                          if (App.isAndroid ||
+                              App.isIOS ||
+                              App.isWindows) {
                             showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl,
                                 () {
                               eraseCache();
@@ -261,7 +259,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Theme.of(context).colorScheme.secondary),
               title: const Text("Logs"),
               trailing: const Icon(Icons.arrow_right),
-              onTap: () => Get.to(() => const LogsPage()),
+              onTap: () => App.globalTo(() => const LogsPage()),
             ),
             ListTile(
               leading: Icon(Icons.delete,
@@ -302,7 +300,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ListTile(
               title: Text("隐私".tl),
             ),
-            if (GetPlatform.isAndroid)
+            if (App.isAndroid)
               ListTile(
                 leading: Icon(Icons.screenshot,
                     color: Theme.of(context).colorScheme.secondary),

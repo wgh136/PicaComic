@@ -1,6 +1,6 @@
 import 'dart:io' as io;
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/app_views/webview.dart';
@@ -9,11 +9,11 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 
 void login(void Function() whenFinish) async{
   if(NhentaiNetwork().baseUrl.contains("xxx")){
-    showMessage(Get.context, "暂不支持");
+    showMessage(App.globalContext, "暂不支持");
     return;
   }
 
-  if(GetPlatform.isWindows && (await FlutterWindowsWebview.isAvailable())){
+  if(App.isWindows && (await FlutterWindowsWebview.isAvailable())){
     var webview = FlutterWindowsWebview();
     webview.launchWebview("${NhentaiNetwork().baseUrl}/login/?next=/", WebviewOptions(
         messageReceiver: (s){
@@ -40,13 +40,13 @@ void login(void Function() whenFinish) async{
           }
         }
     ));
-  } else if(GetPlatform.isMobile) {
-    Get.to(() => AppWebview(
+  } else if(App.isMobile) {
+    App.globalTo(() => AppWebview(
       initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       singlePage: true,
       onTitleChange: (title){
         if (!title.contains("Login") && !title.contains("Register")) {
-          Get.back();
+          App.globalBack();
         }
       },
       onDestroy: (controller) async{
@@ -70,6 +70,6 @@ void login(void Function() whenFinish) async{
       },
     ));
   } else {
-    showMessage(Get.context, "当前设备不支持".tl);
+    showMessage(App.globalContext, "当前设备不支持".tl);
   }
 }

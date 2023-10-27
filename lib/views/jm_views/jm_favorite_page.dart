@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
@@ -10,7 +10,7 @@ import '../widgets/my_icons.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class JmFavoritePageLogic extends GetxController {
+class JmFavoritePageLogic extends StateController {
   bool loading = true;
 
   Map<String, String> folders = {};
@@ -42,7 +42,7 @@ class JmFavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<JmFavoritePageLogic>(
+    return StateBuilder<JmFavoritePageLogic>(
       builder: (logic) {
         if (logic.loading) {
           logic.get();
@@ -161,16 +161,16 @@ class JmFolderTile extends StatelessWidget {
                       title: Text("确认删除".tl),
                       content: Text("要删除这个收藏夹吗".tl),
                       actions: [
-                        TextButton(onPressed: () => Get.back(), child: const Text("取消")),
+                        TextButton(onPressed: () => App.globalBack(), child: const Text("取消")),
                         TextButton(onPressed: () async{
-                          Get.back();
+                          App.globalBack();
                           showMessage(context, "正在删除收藏夹".tl);
                           var res = await jmNetwork.deleteFolder(id);
-                          showMessage(Get.context, res.error?res.errorMessage!:"删除成功".tl);
+                          showMessage(App.globalContext, res.error?res.errorMessage!:"删除成功".tl);
                           if(! res.error){
-                            Get.find<JmFavoritePageLogic>().refresh_();
+                            StateController.find<JmFavoritePageLogic>().refresh_();
                           }else{
-                            showMessage(Get.context, res.error?res.errorMessage!:"删除失败".tl);
+                            showMessage(App.globalContext, res.error?res.errorMessage!:"删除失败".tl);
                           }
                         }, child: Text("确认".tl)),
                       ],
@@ -266,9 +266,9 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                         loading = false;
                       });
                     }else{
-                      Get.back();
+                      App.globalBack();
                       showMessage(context, "成功创建".tl);
-                      Get.find<JmFavoritePageLogic>().refresh_();
+                      StateController.find<JmFavoritePageLogic>().refresh_();
                     }
                   });
                 }, child: Text("提交".tl)),

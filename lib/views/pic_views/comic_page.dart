@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
@@ -70,7 +69,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
                     data!.isFavourite = true;
                     update();
                   }else{
-                    showMessage(Get.context, "已添加至收藏夹:".tl + name);
+                    showMessage(App.globalContext, "已添加至收藏夹:".tl + name);
                     LocalFavoritesManager().addComic(
                         name, FavoriteItem.fromPicacg(comic));
                   }
@@ -83,7 +82,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
               label: Text(data!.comments.toString()),
               avatar: const Icon(Icons.comment_outlined),
               onPressed: () {
-                showComments(Get.context!, comic.id);
+                showComments(App.globalContext!, comic.id);
               },
             ),
           ),
@@ -106,7 +105,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   @override
   EpsData? get eps => EpsData(data!.eps, (i) async{
         await addPicacgHistory(data!);
-        Get.to(() =>
+        App.globalTo(() =>
             ComicReadingPage.picacg(comic.id, i + 1, data!.eps, comic.title));
       });
 
@@ -225,7 +224,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   String get source => "Picacg";
 }
 
-class ComicPageLogic extends GetxController {
+class ComicPageLogic extends StateController {
   bool isLoading = true;
   ComicItem? comicItem;
   bool showAppbarTitle = false;
@@ -249,10 +248,6 @@ class ComicPageLogic extends GetxController {
 
 void downloadComic(
     ComicItem comic, BuildContext context, List<String> eps) async {
-  if (GetPlatform.isWeb) {
-    showMessage(context, "Web端不支持下载".tl);
-    return;
-  }
   for (var i in downloadManager.downloading) {
     if (i.id == comic.id) {
       showMessage(context, "下载中".tl);
@@ -264,22 +259,22 @@ void downloadComic(
     var downloadedComic = await DownloadManager().getComicFromId(comic.id);
     downloaded.addAll(downloadedComic.downloadedEps);
   }
-  if (UiMode.m1(Get.context!)) {
+  if (UiMode.m1(App.globalContext!)) {
     showModalBottomSheet(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addPicDownload(comic, selectedEps);
-            Get.back();
+            App.globalBack();
             showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
   } else {
     showSideBar(
-        Get.context!,
+        App.globalContext!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addPicDownload(comic, selectedEps);
-          Get.back();
+          App.globalBack();
           showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);

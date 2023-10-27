@@ -1,8 +1,8 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
-import 'package:get/get.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../../network/eh_network/eh_models.dart';
 import '../../network/res.dart';
@@ -26,12 +26,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               child: IconButton(
                 icon: const Icon(Icons.more_horiz),
                 onPressed: (){
-                  Future.microtask(() => showDialog(context: Get.context!, builder: (context){
+                  Future.microtask(() => showDialog(context: App.globalContext!, builder: (context){
                     return AlertDialog(
                       title: Text("订阅".tl),
                       content: Text("其它漫画源的订阅尚未完成\n如需管理EH订阅, 请前往EH网站".tl),
                       actions: [
-                        TextButton(onPressed: ()=>Get.back(), child: Text("返回".tl)),
+                        TextButton(onPressed: ()=>App.globalBack(), child: Text("返回".tl)),
                       ],
                     );
                   }));

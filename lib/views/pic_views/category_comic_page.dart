@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
@@ -7,7 +7,7 @@ import '../../base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class ModeRadioLogic1 extends GetxController{
+class ModeRadioLogic1 extends StateController{
   int value = appdata.getSearchMode();
   void change(int i){
     value = i;
@@ -56,11 +56,11 @@ class CategoryComicPage extends ComicsPage<ComicItemBrief>{
     child: IconButton(
       icon: const Icon(Icons.manage_search_rounded),
       onPressed: (){
-        showDialog(context: Get.context!, builder: (context){
-          Get.put(ModeRadioLogic1());
+        showDialog(context: App.globalContext!, builder: (context){
+          StateController.put(ModeRadioLogic1());
           return SimpleDialog(
               title: Text("选择漫画排序模式".tl),
-              children: [GetBuilder<ModeRadioLogic1>(builder: (radioLogic){
+              children: [StateBuilder<ModeRadioLogic1>(builder: (radioLogic){
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -69,52 +69,52 @@ class CategoryComicPage extends ComicsPage<ComicItemBrief>{
                       trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                         radioLogic.change(i!);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },),
                       title: Text("新到书".tl),
                       onTap: (){
                         radioLogic.change(0);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },
                     ),
                     ListTile(
                       trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
                         radioLogic.change(i!);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },),
                       title: Text("旧到新".tl),
                       onTap: (){
                         radioLogic.change(1);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },
                     ),
                     ListTile(
                       trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
                         radioLogic.change(i!);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },),
                       title: Text("最多喜欢".tl),
                       onTap: (){
                         radioLogic.change(2);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },
                     ),
                     ListTile(
                       trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
                         radioLogic.change(i!);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },),
                       title: Text("最多指名".tl),
                       onTap: (){
                         radioLogic.change(3);
                         super.refresh();
-                        Get.back();
+                        App.globalBack();
                       },
                     ),
                   ],

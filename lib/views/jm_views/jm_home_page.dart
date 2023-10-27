@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/jm_views/jm_category_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/jm_views/promote_list_page.dart';
@@ -10,7 +9,7 @@ import '../../network/jm_network/jm_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../main_page.dart';
 
-class JmHomePageLogic extends GetxController {
+class JmHomePageLogic extends StateController {
   bool loading = true;
   HomePageData? data;
   String? message;
@@ -43,7 +42,7 @@ class JmHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<JmHomePageLogic>(
+    return StateBuilder<JmHomePageLogic>(
       builder: (logic) {
         if (logic.loading) {
           logic.getData();

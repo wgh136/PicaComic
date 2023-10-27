@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
@@ -10,7 +9,9 @@ import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
-class ModeRadioLogic extends GetxController{
+import '../../foundation/app.dart';
+
+class ModeRadioLogic extends StateController{
   int value = appdata.getSearchMode();
   void change(int i){
     value = i;
@@ -100,17 +101,16 @@ class _SearchPageState extends State<SearchPage> {
               minHeight: 60,
               maxHeight: 0,
               child: FloatingSearchBar(
-                supportingText: '搜索'.tl,
                 trailing: Tooltip(
                   message: "选择搜索模式".tl,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_drop_down_rounded),
                     onPressed: (){
                       showDialog(context: context, builder: (context){
-                        Get.put(ModeRadioLogic());
+                        StateController.put(ModeRadioLogic());
                         return SimpleDialog(
                             title: Text("选择漫画排序模式".tl),
-                            children: [GetBuilder<ModeRadioLogic>(builder: (radioLogic){
+                            children: [StateBuilder<ModeRadioLogic>(builder: (radioLogic){
                               return Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -118,53 +118,53 @@ class _SearchPageState extends State<SearchPage> {
                                   ListTile(
                                     trailing: Radio<int>(value: 0,groupValue: radioLogic.value,onChanged: (i){
                                       radioLogic.change(i!);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },),
                                     title: Text("新到书".tl),
                                     onTap: (){
                                       radioLogic.change(0);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },
                                   ),
                                   ListTile(
                                     trailing: Radio<int>(value: 1,groupValue: radioLogic.value,onChanged: (i){
                                       radioLogic.change(i!);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },),
                                     title: Text("旧到新".tl),
                                     onTap: (){
                                       radioLogic.change(1);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },
                                   ),
                                   ListTile(
                                     trailing: Radio<int>(value: 2,groupValue: radioLogic.value,onChanged: (i){
                                       radioLogic.change(i!);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },),
                                     title: Text("最多喜欢".tl),
                                     onTap: (){
                                       radioLogic.change(2);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },
                                   ),
                                   ListTile(
                                     trailing: Radio<int>(value: 3,groupValue: radioLogic.value,onChanged: (i){
                                       radioLogic.change(i!);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },),
                                     title: Text("最多指名".tl),
                                     onTap: (){
                                       radioLogic.change(3);
-                                      Get.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
-                                      Get.back();
+                                      StateController.find<ComicsPageLogic<ComicItemBrief>>(tag: "Picacg search $keyword").refresh_();
+                                      App.globalBack();
                                     },
                                   ),
                                 ],
@@ -175,12 +175,14 @@ class _SearchPageState extends State<SearchPage> {
                     },
                   ),
                 ),
-                f:(s){
+                onSearch:(s){
+                  App.back(context);
                   if(s=="") return;
                   setState(() {
                     keyword = s;
                   });
                 },
+                target: ComicType.picacg,
                 controller: controller,),
             ),
           ),

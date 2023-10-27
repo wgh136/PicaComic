@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/res.dart';
@@ -78,18 +77,18 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                     showMessage(context, "正在添加收藏".tl);
                     var res = await jmNetwork.favorite(id);
                     if(res.error){
-                      showMessage(Get.context, res.errorMessageWithoutNull);
+                      showMessage(App.globalContext, res.errorMessageWithoutNull);
                       return;
                     }
                     if(folder != "-1") {
                       var res2 = await jmNetwork.moveToFolder(id, folder);
                       if (res2.error) {
-                        showMessage(Get.context, res2.errorMessageWithoutNull);
+                        showMessage(App.globalContext, res2.errorMessageWithoutNull);
                         return;
                       }
                     }
                     data!.favorite = true;
-                    showMessage(Get.context, "成功添加收藏".tl);
+                    showMessage(App.globalContext, "成功添加收藏".tl);
                   }else{
                     LocalFavoritesManager().addComic(folder, FavoriteItem.fromJmComic(JmComicBrief(
                       id,
@@ -100,13 +99,13 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                       [],
                       ignoreExamination: true
                     )));
-                    showMessage(Get.context, "成功添加收藏".tl);
+                    showMessage(App.globalContext, "成功添加收藏".tl);
                   }
                 },
                 cancelPlatformFavorite: ()async{
                   showMessage(context, "正在取消收藏".tl);
                   var res = await jmNetwork.favorite(id);
-                  showMessage(Get.context, !res.error?"成功取消收藏".tl:"网络错误".tl);
+                  showMessage(App.globalContext, !res.error?"成功取消收藏".tl:"网络错误".tl);
                   data!.favorite = false;
                 },
               )),
@@ -138,7 +137,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
               (index) => "第 @c 章".tlParams({"c": (index + 1).toString()})),
           (i) async{
         await addJmHistory(data!);
-        Get.to(() => ComicReadingPage.jmComic(
+        App.globalTo(() => ComicReadingPage.jmComic(
             data!.id, data!.name, data!.series.values.toList(), i + 1));
       });
 
@@ -230,22 +229,22 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
     downloaded.addAll(downloadedComic.downloadedEps);
   }
 
-  if (UiMode.m1(Get.context!)) {
+  if (UiMode.m1(App.globalContext!)) {
     showModalBottomSheet(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addJmDownload(comic, selectedEps);
-            Get.back();
+            App.globalBack();
             showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
   } else {
     showSideBar(
-        Get.context!,
+        App.globalContext!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addJmDownload(comic, selectedEps);
-          Get.back();
+          App.globalBack();
           showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);

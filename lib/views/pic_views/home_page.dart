@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
@@ -8,7 +7,7 @@ import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import '../widgets/show_message.dart';
 
-class HomePageLogic extends GetxController{
+class HomePageLogic extends StateController{
   bool isLoading = true;
   String? message;
   var comics = <ComicItemBrief>[];
@@ -19,7 +18,7 @@ class HomePageLogic extends GetxController{
       if(comics.isEmpty) {
         message = res.errorMessage;
       }else{
-        showMessage(Get.context, res.errorMessageWithoutNull);
+        showMessage(App.globalContext, res.errorMessageWithoutNull);
       }
     }else{
       comics.addAll(res.data);
@@ -41,7 +40,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HomePageLogic>(
+    return StateBuilder<HomePageLogic>(
         builder: (logic){
       if(logic.isLoading){
         logic.get();
@@ -71,7 +70,7 @@ class HomePage extends StatelessWidget {
                   const SliverToBoxAdapter(
                     child: ListLoadingIndicator(),
                   ),
-                  SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                  SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                 ],
               ),
               onRefresh: () async {

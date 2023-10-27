@@ -1,11 +1,11 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class DownloadingProgressController extends GetxController{
+class DownloadingProgressController extends StateController{
   double value = 0.0;
   int downloadPages = 0;
   int pagesCount = 1;
@@ -43,7 +43,7 @@ class DownloadingTile extends StatelessWidget {
           const SizedBox(width: 5,),
           Expanded(
             flex: 4,
-            child: GetBuilder(
+            child: StateBuilder(
               init: DownloadingProgressController(),
               tag: comic.id,
               builder: (controller){

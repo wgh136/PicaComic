@@ -62,37 +62,14 @@ class CustomSmallSliverAppbar extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    if(UiMode.m1(context)){
-      return SliverAppBar(
-        pinned: true,
-        title: title,
-        leading: leading,
-        actions: actions,
-        backgroundColor: backgroundColor,
-      );
-    }else{
-      return SliverToBoxAdapter(
-        child: Material(
-          textStyle: Theme.of(context).textTheme.headlineSmall,
-          child: SizedBox(
-            height: 56,
-            child: Row(
-              children: [
-                const SizedBox(width: 8),
-                leading ?? Tooltip(message: "返回".tl, child: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),),
-                const SizedBox(width: 24,),
-                Expanded(child: title),
-                ...?actions,
-                const SizedBox(width: 16,)
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    return SliverAppBar(
+      pinned: true,
+      title: title,
+      leading: leading,
+      actions: actions,
+      scrolledUnderElevation: UiMode.m1(context) ? null : 0.0,
+      backgroundColor: backgroundColor,
+    );
   }
 
 }
@@ -111,50 +88,12 @@ class CustomSliverAppbar extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    if(UiMode.m1(context)){
-      return SliverAppBar.large(
-        title: title,
-        leading: leading,
-        actions: actions,
-        centerTitle: centerTitle,
-      );
-    }else{
-      return SliverToBoxAdapter(
-        child: Material(
-          textStyle: Theme.of(context).textTheme.headlineMedium,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: SizedBox(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 40,
-                    child: Row(
-                      children: [
-                        leading ?? Tooltip(message: "返回".tl, child: IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () => Navigator.pop(context),
-                        ),),
-                        const Spacer(),
-                        ...?actions,
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32,),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: title,
-                  ),
-                  const SizedBox(height: 28,)
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+    return SliverAppBar.large(
+      title: title,
+      leading: leading,
+      actions: actions,
+      scrolledUnderElevation: UiMode.m1(context) ? null : 0,
+      centerTitle: centerTitle,
+    );
   }
 }
