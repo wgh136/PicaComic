@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/log_dio.dart';
 
-import '../tools/device_info.dart';
-
 Future<bool?> checkUpdate() async {
   try {
     var version = appVersion;

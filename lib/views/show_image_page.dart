@@ -1,36 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:flutter/services.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/tools/translations.dart';
-import '../foundation/app.dart';
 
-class ShowImagePage extends StatefulWidget {
-  const ShowImagePage(this.url, {this.eh = false, Key? key}) : super(key: key);
+class ShowImagePage extends StatelessWidget {
+  const ShowImagePage(this.url, {super.key});
+
   final String url;
-  final bool eh;
-
-  @override
-  State<ShowImagePage> createState() => _ShowImagePageState();
-}
-
-class _ShowImagePageState extends State<ShowImagePage> {
-  late final String url = widget.url;
-  _ShowImagePageState();
-
-  @override
-  initState() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    super.initState();
-  }
-
-  @override
-  dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +41,7 @@ class _ShowImagePageState extends State<ShowImagePage> {
       ),
       body: PhotoView(
         minScale: PhotoViewComputedScale.contained * 0.9,
-        imageProvider:
-            CachedNetworkImageProvider(widget.eh ? url : getImageUrl(url)),
+        imageProvider: CachedNetworkImageProvider(getImageUrl(url)),
         loadingBuilder: (context, event) {
           return Container(
             decoration: const BoxDecoration(color: Colors.black),
