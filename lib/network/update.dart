@@ -4,15 +4,14 @@ import 'package:pica_comic/network/log_dio.dart';
 
 import '../tools/device_info.dart';
 
-Future<bool?> checkUpdate() async{
+Future<bool?> checkUpdate() async {
   try {
     var version = appVersion;
     var dio = logDio();
     var res = await dio.get("$serverDomain/version");
     var s = res.data;
     return compareSemVer(s, version); //有更新返回true
-  }
-  catch(e){
+  } catch (e) {
     return null;
   }
 }
@@ -37,14 +36,14 @@ bool compareSemVer(String ver1, String ver2) {
   var v14 = v1.elementAtOrNull(3);
   var v24 = v2.elementAtOrNull(3);
 
-  if(v14 != v24){
-    if(v14 == null && v24 != "hotfix"){
+  if (v14 != v24) {
+    if (v14 == null && v24 != "hotfix") {
       return true;
-    } else if(v14 == null){
+    } else if (v14 == null) {
       return false;
     }
-    if(v24 == null){
-      if(v14 == "hotfix"){
+    if (v24 == null) {
+      if (v14 == "hotfix") {
         return true;
       }
       return false;
@@ -55,38 +54,17 @@ bool compareSemVer(String ver1, String ver2) {
   return false;
 }
 
-Future<String?> getUpdatesInfo() async{
+Future<String?> getUpdatesInfo() async {
   try {
     var dio = Dio();
     var res = await dio.get("$serverDomain/updates");
     var s = res.data;
     return s;
-  }
-  catch(e){
+  } catch (e) {
     return null;
   }
 }
 
-Future<String> getDownloadUrl() async{
-  var platform = await getDeviceInfo();
-  var appName = [
-    "app-arm64-v8a-release.apk",
-    "app-armeabi-v7a-release.apk",
-    "app-universal-release.apk",
-    "app-x86-release.apk",
-    "app-x86_64-release.apk"
-  ];
-  int device = 2;
-  if(platform == "arm64-v8a"){
-    device = 0;
-  }else if(platform == "armeabi-v7a"){
-    device = 1;
-  }else if(platform == "x86_64"){
-    device = 3;
-  }else if(platform == "x86"){
-    device = 4;
-  }else if(platform == "Linux" || platform == "iOS" || platform == "windows"){
-    return "https://github.com/wgh136/PicaComic/releases";
-  }
-  return "$serverDomain/download/${appName[device]}";
+Future<String> getDownloadUrl() async {
+  return "$serverDomain/download";
 }
