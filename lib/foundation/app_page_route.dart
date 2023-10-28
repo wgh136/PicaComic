@@ -9,7 +9,7 @@ const int _kMaxDroppedSwipePageForwardAnimationTime = 800;
 const int _kMaxPageBackAnimationTime = 300;
 const double _kMinFlingVelocity = 1.0;
 
-class AppPageRoute<T> extends PageRoute<T>{
+class AppPageRoute<T> extends PageRoute<T> {
   AppPageRoute(this.page);
 
   Widget Function() page;
@@ -21,19 +21,27 @@ class AppPageRoute<T> extends PageRoute<T>{
   String? get barrierLabel => null;
 
   static bool _isPopGestureEnabled<T>(PageRoute<T> route) {
-    if(route.isFirst || route.willHandlePopInternally || route.hasScopedWillPopCallback
-      || route.fullscreenDialog || route.animation!.status != AnimationStatus.completed
-      || route.secondaryAnimation!.status != AnimationStatus.dismissed
-      || route.navigator!.userGestureInProgress){
+    if (route.isFirst ||
+        route.willHandlePopInternally ||
+        route.hasScopedWillPopCallback ||
+        route.fullscreenDialog ||
+        route.animation!.status != AnimationStatus.completed ||
+        route.secondaryAnimation!.status != AnimationStatus.dismissed ||
+        route.navigator!.userGestureInProgress) {
       return false;
     }
 
     return true;
   }
 
+  Widget? _child;
+
+  Widget _getChild() => _child ?? (_child = page());
+
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    final child = page();
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    final child = _getChild();
     final Widget result = Semantics(
       scopesRoute: true,
       explicitChildNodes: true,
@@ -43,7 +51,8 @@ class AppPageRoute<T> extends PageRoute<T>{
   }
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
     return const FadeUpwardsPageTransitionsBuilder().buildTransitions(
         this,
         context,
@@ -51,10 +60,10 @@ class AppPageRoute<T> extends PageRoute<T>{
         secondaryAnimation,
         App.enablePopGesture
             ? IOSBackGestureDetector(
-              gestureWidth: _kBackGestureWidth,
-              enabledCallback: () => _isPopGestureEnabled<T>(this),
-              onStartPopGesture: () => _startPopGesture(this),
-              child: child)
+                gestureWidth: _kBackGestureWidth,
+                enabledCallback: () => _isPopGestureEnabled<T>(this),
+                onStartPopGesture: () => _startPopGesture(this),
+                child: child)
             : child);
   }
 
@@ -64,17 +73,17 @@ class AppPageRoute<T> extends PageRoute<T>{
   @override
   Duration get transitionDuration => const Duration(milliseconds: 300);
 
-  IOSBackGestureController _startPopGesture(PageRoute<T> route){
+  IOSBackGestureController _startPopGesture(PageRoute<T> route) {
     return IOSBackGestureController(route.controller!, route.navigator!);
   }
 }
 
-class IOSBackGestureController{
+class IOSBackGestureController {
   final AnimationController controller;
 
   final NavigatorState navigator;
 
-  IOSBackGestureController(this.controller, this.navigator){
+  IOSBackGestureController(this.controller, this.navigator) {
     navigator.didStartUserGesture();
   }
 
@@ -91,7 +100,7 @@ class IOSBackGestureController{
     if (animateForward) {
       final droppedPageForwardAnimationTime = min(
         lerpDouble(
-            _kMaxDroppedSwipePageForwardAnimationTime, 0, controller.value)!
+                _kMaxDroppedSwipePageForwardAnimationTime, 0, controller.value)!
             .floor(),
         _kMaxPageBackAnimationTime,
       );
@@ -102,7 +111,7 @@ class IOSBackGestureController{
       navigator.pop();
       if (controller.isAnimating) {
         final droppedPageBackAnimationTime = lerpDouble(
-            0, _kMaxDroppedSwipePageForwardAnimationTime, controller.value)!
+                0, _kMaxDroppedSwipePageForwardAnimationTime, controller.value)!
             .floor();
         controller.animateBack(0.0,
             duration: Duration(milliseconds: droppedPageBackAnimationTime),
@@ -128,8 +137,12 @@ class IOSBackGestureController{
 }
 
 class IOSBackGestureDetector extends StatefulWidget {
-  const IOSBackGestureDetector({required this.enabledCallback, required this.child,
-    required this.gestureWidth, required this.onStartPopGesture, super.key});
+  const IOSBackGestureDetector(
+      {required this.enabledCallback,
+      required this.child,
+      required this.gestureWidth,
+      required this.onStartPopGesture,
+      super.key});
 
   final double gestureWidth;
 

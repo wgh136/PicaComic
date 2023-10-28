@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
 export 'foundation/def.dart';
 
-
 //路径分隔符
 var pathSep = Platform.pathSeparator;
 
@@ -20,7 +19,7 @@ var downloadManager = DownloadManager();
 
 String? appdataPath;
 
-class Appdata{
+class Appdata {
   //哔咔相关信息
   late String token;
   late Profile user;
@@ -95,10 +94,10 @@ class Appdata{
 
   ///是否第一次使用的判定, 用于显示提示
   List<String> firstUse = [
-    "1",//屏蔽关键词1
-    "1",//屏蔽关键词2(已废弃)
-    "1",//漫画详情页
-    "0",//是否进入过app
+    "1", //屏蔽关键词1
+    "1", //屏蔽关键词2(已废弃)
+    "1", //漫画详情页
+    "0", //是否进入过app
   ];
 
   //哔咔
@@ -120,39 +119,46 @@ class Appdata{
   String htName = "";
   String htPwd = "";
 
-  final jmAuth = <String>[
-    "1",
-    "1.5.9",
-    "18comicAPP",
-    "Mozilla/5.0 (Linux; Android 13; JM114514 Build/TQ1A.230205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36"
-  ];
-
-  Appdata(){
+  Appdata() {
     token = "";
-    var temp = Profile("", defaultAvatarUrl, "", 0, 0, "", "",null,null,null);
+    var temp =
+        Profile("", defaultAvatarUrl, "", 0, 0, "", "", null, null, null);
     user = temp;
     appChannel = "3";
     searchHistory = [];
     imageQuality = "original";
   }
 
-  void setQuality(int i){
-    switch(i){
-      case 1: imageQuality="low";break;
-      case 2: imageQuality="middle";break;
-      case 3: imageQuality="high";break;
-      case 4: imageQuality="original";break;
+  void setQuality(int i) {
+    switch (i) {
+      case 1:
+        imageQuality = "low";
+        break;
+      case 2:
+        imageQuality = "middle";
+        break;
+      case 3:
+        imageQuality = "high";
+        break;
+      case 4:
+        imageQuality = "original";
+        break;
     }
     writeData();
   }
 
-  int getQuality(){
-    switch(imageQuality){
-      case "low": return 1;
-      case "middle": return 2;
-      case "high": return 3;
-      case "original": return 4;
-      default: return 4;
+  int getQuality() {
+    switch (imageQuality) {
+      case "low":
+        return 1;
+      case "middle":
+        return 2;
+      case "high":
+        return 3;
+      case "original":
+        return 4;
+      default:
+        return 4;
     }
   }
 
@@ -160,50 +166,50 @@ class Appdata{
     "Pica Comic", // ua
   ];
 
-  void updateNhentai() async{
+  void updateNhentai() async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("nhentaiData", nhentaiData);
   }
 
-  int getSearchMode(){
-    var modes = ["dd","da","ld","vd"];
+  int getSearchMode() {
+    var modes = ["dd", "da", "ld", "vd"];
     return modes.indexOf(settings[1]);
   }
 
-  void setSearchMode(int mode) async{
-    var modes = ["dd","da","ld","vd"];
+  void setSearchMode(int mode) async {
+    var modes = ["dd", "da", "ld", "vd"];
     settings[1] = modes[mode];
     var s = await SharedPreferences.getInstance();
     await s.setStringList("settings", settings);
   }
 
-  void updateSettings() async{
+  void updateSettings() async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("settings", settings);
   }
 
-  void writeFirstUse() async{
+  void writeFirstUse() async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("firstUse", firstUse);
   }
 
-  void writeHistory() async{
+  void writeHistory() async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("search", searchHistory);
     await s.setStringList("pinnedKeywords", pinnedKeyword.toList());
   }
 
-  Future<void> writeData() async{
+  Future<void> writeData() async {
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
     await s.setString("userName", user.name);
     await s.setString("userAvatar", user.avatarUrl);
     await s.setString("userId", user.id);
     await s.setString("userEmail", user.email);
-    await s.setInt("userLevel",user.level);
-    await s.setInt("userExp",user.exp);
+    await s.setInt("userLevel", user.level);
+    await s.setInt("userExp", user.exp);
     await s.setString("userTitle", user.title);
-    await s.setString("appChannel",appChannel);
+    await s.setString("appChannel", appChannel);
     await s.setStringList("settings", settings);
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
@@ -219,81 +225,80 @@ class Appdata{
     await s.setString("picacgPassword", picacgPassword);
     await s.setString("htName", htName);
     await s.setString("htPwd", htPwd);
-    await s.setStringList("jmAuth", jmAuth);
   }
-  Future<bool> readData() async{
+
+  Future<bool> readData() async {
     var s = await SharedPreferences.getInstance();
-    try{
-      token = (s.getString("token"))??"";
-      user.name = s.getString("userName")??"";
-      user.title = s.getString("userTitle")??"";
-      user.level = s.getInt("userLevel")??0;
-      user.email = s.getString("userEmail")??"";
-      user.avatarUrl = s.getString("userAvatar")??defaultAvatarUrl;
-      user.id = s.getString("userId")??"";
-      user.exp = s.getInt("userExp")??0;
-      if(s.getStringList("settings")!=null) {
+    try {
+      token = (s.getString("token")) ?? "";
+      user.name = s.getString("userName") ?? "";
+      user.title = s.getString("userTitle") ?? "";
+      user.level = s.getInt("userLevel") ?? 0;
+      user.email = s.getString("userEmail") ?? "";
+      user.avatarUrl = s.getString("userAvatar") ?? defaultAvatarUrl;
+      user.id = s.getString("userId") ?? "";
+      user.exp = s.getInt("userExp") ?? 0;
+      if (s.getStringList("settings") != null) {
         var st = s.getStringList("settings")!;
-        for(int i=0;i<st.length&&i<settings.length;i++){
+        for (int i = 0; i < st.length && i < settings.length; i++) {
           settings[i] = st[i];
         }
       }
-      while(settings[24].length < 10){
+      while (settings[24].length < 10) {
         settings[24] += "1";
       }
-      if(settings[26].length < 2){
+      if (settings[26].length < 2) {
         settings[26] += "0";
       }
-      appChannel = s.getString("appChannel")??"3";
-      searchHistory = s.getStringList("search")??[];
-      pinnedKeyword = (s.getStringList("pinnedKeyword")??[]).toSet();
-      blockingKeyword = s.getStringList("blockingKeyword")??[];
-      if(s.getStringList("firstUse")!=null) {
+      appChannel = s.getString("appChannel") ?? "3";
+      searchHistory = s.getStringList("search") ?? [];
+      pinnedKeyword = (s.getStringList("pinnedKeyword") ?? []).toSet();
+      blockingKeyword = s.getStringList("blockingKeyword") ?? [];
+      if (s.getStringList("firstUse") != null) {
         var st = s.getStringList("firstUse")!;
-        for(int i=0;i<st.length;i++){
+        for (int i = 0; i < st.length; i++) {
           firstUse[i] = st[i];
         }
       }
-      imageQuality = s.getString("image")??"original";
-      ehId = s.getString("ehId")??"";
-      ehAccount = s.getString("ehAccount")??"";
-      ehPassHash = s.getString("ehPassHash")??"";
-      igneous = s.getString("ehIgneous")??"";
-      jmName = s.getString("jmName")??"";
-      jmEmail = s.getString("jmEmail")??"";
-      jmPwd = s.getString("jmPwd")??"";
-      picacgAccount = s.getString("picacgAccount")??"";
-      picacgPassword = s.getString("picacgPassword")??"";
-      htName = s.getString("htName")??"";
-      htPwd = s.getString("htPwd")??"";
+      imageQuality = s.getString("image") ?? "original";
+      ehId = s.getString("ehId") ?? "";
+      ehAccount = s.getString("ehAccount") ?? "";
+      ehPassHash = s.getString("ehPassHash") ?? "";
+      igneous = s.getString("ehIgneous") ?? "";
+      jmName = s.getString("jmName") ?? "";
+      jmEmail = s.getString("jmEmail") ?? "";
+      jmPwd = s.getString("jmPwd") ?? "";
+      picacgAccount = s.getString("picacgAccount") ?? "";
+      picacgPassword = s.getString("picacgPassword") ?? "";
+      htName = s.getString("htName") ?? "";
+      htPwd = s.getString("htPwd") ?? "";
       nhentaiData = s.getStringList("nhentaiData") ?? nhentaiData;
-      return firstUse[3]=="1"||token!="";
-    }
-    catch(e){
+      return firstUse[3] == "1" || token != "";
+    } catch (e) {
       return false;
     }
   }
 
   Map<String, dynamic> toJson() => {
-    "settings": settings,
-    "firstUse": firstUse,
-    "picacgAccount": picacgAccount,
-    "picacgPassword": picacgPassword,
-    "token": token,
-    "ehId": ehId,
-    "ehPassHash": ehPassHash,
-    "ehAccount": ehAccount,
-    "igneous": igneous,
-    "jmName": jmName,
-    "jmEmail": jmEmail,
-    "jmPwd": jmPwd,
-    "htName": htName,
-    "htPwd": htPwd,
-    "history": history.toJson(),
-    "blockingKeywords": blockingKeyword
-  };
+        "settings": settings,
+        "firstUse": firstUse,
+        "picacgAccount": picacgAccount,
+        "picacgPassword": picacgPassword,
+        "token": token,
+        "ehId": ehId,
+        "ehPassHash": ehPassHash,
+        "ehAccount": ehAccount,
+        "igneous": igneous,
+        "jmName": jmName,
+        "jmEmail": jmEmail,
+        "jmPwd": jmPwd,
+        "htName": htName,
+        "htPwd": htPwd,
+        "history": history.toJson(),
+        "blockingKeywords": blockingKeyword
+      };
 
-  bool readDataFromJson(Map<String, dynamic> json){
+  bool readDataFromJson(Map<String, dynamic> json) {
     try {
       var newSettings = List<String>.from(json["settings"]);
       var downloadPath = settings[22];
@@ -321,8 +326,7 @@ class Appdata{
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
       writeData();
       return true;
-    }
-    catch(e){
+    } catch (e) {
       readData();
       return false;
     }
@@ -333,7 +337,7 @@ var appdata = Appdata();
 var notifications = Notifications();
 
 /// clear all data
-Future<void> clearAppdata() async{
+Future<void> clearAppdata() async {
   var s = await SharedPreferences.getInstance();
   await s.clear();
   appdata.history.clearHistory();

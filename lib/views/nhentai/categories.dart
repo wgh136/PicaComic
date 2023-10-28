@@ -8,7 +8,6 @@ import 'package:pica_comic/views/page_template/category_page.dart';
 import '../../network/nhentai_network/tags.dart';
 import '../main_page.dart';
 
-
 class NhentaiCategories extends StatefulWidget {
   const NhentaiCategories({super.key});
 
@@ -16,7 +15,8 @@ class NhentaiCategories extends StatefulWidget {
   State<NhentaiCategories> createState() => _NhentaiCategoriesState();
 }
 
-class _NhentaiCategoriesState extends State<NhentaiCategories> with CategoryPageBuilder{
+class _NhentaiCategoriesState extends State<NhentaiCategories>
+    with CategoryPageBuilder {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -28,19 +28,20 @@ class _NhentaiCategoriesState extends State<NhentaiCategories> with CategoryPage
           buildTitle("语言".tl),
           buildTags(["chinese", "japanese", "english"]),
           buildTitle("长度".tl),
-          buildTags(["1-25", "25-75", "75-150", "150-500", "500-1000", ">1000"]),
-          buildTitleWithRefresh("Tags".tl, () => setState((){})),
+          buildTags(
+              ["1-25", "25-75", "75-150", "150-500", "500-1000", ">1000"]),
+          buildTitleWithRefresh("Tags".tl, () => setState(() {})),
           buildTags(generateTags()),
         ],
       ),
     );
   }
 
-  List<String> generateTags(){
+  List<String> generateTags() {
     var res = <String>[];
     var tags = nhentaiTags.values.toList();
     var start = Random().nextInt(tags.length - 100);
-    while(res.length < 100) {
+    while (res.length < 100) {
       res.add(tags[start]);
       start++;
     }
@@ -48,20 +49,23 @@ class _NhentaiCategoriesState extends State<NhentaiCategories> with CategoryPage
   }
 
   @override
-  void handleClick(String tag, [String? namespace]){
-    if(tag == "随机".tl) {
+  void handleClick(String tag, [String? namespace]) {
+    if (tag == "随机".tl) {
       MainPage.to(() => const NhentaiComicPage(""));
-    }
-    else if(["chinese", "japanese", "english"].contains(tag)){
+    } else if (["chinese", "japanese", "english"].contains(tag)) {
       MainPage.to(() => NhentaiSearchPage("language:$tag"));
-    }else if(tag.nums.isNotEmpty){
-      if(tag.contains('>')){
+    } else if (tag.nums.isNotEmpty) {
+      if (tag.contains('>')) {
         MainPage.to(() => NhentaiSearchPage("pages:>${tag.nums}"));
-      }else{
+      } else {
         var splits = tag.split('-');
-        MainPage.to(() => NhentaiSearchPage("pages:>${splits[0]} pages:<${splits[1]}"));
+        MainPage.to(
+            () => NhentaiSearchPage("pages:>${splits[0]} pages:<${splits[1]}"));
       }
-    }else{
+    } else {
+      if (tag.contains(' ')) {
+        tag = "\"$tag\"";
+      }
       MainPage.to(() => NhentaiSearchPage(tag));
     }
   }
