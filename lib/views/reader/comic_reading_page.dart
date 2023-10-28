@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
@@ -17,6 +16,7 @@ import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
 import '../widgets/image.dart';
@@ -38,7 +38,8 @@ class ReadingPageData {
   ReadingType type;
   List<String> eps;
   Gallery? gallery;
-  ReadingPageData(this.initialPage, this.target, this.type, this.eps, this.gallery);
+  ReadingPageData(
+      this.initialPage, this.target, this.type, this.eps, this.gallery);
 }
 
 ///阅读器
@@ -69,7 +70,7 @@ class ComicReadingPage extends StatelessWidget {
   ///阅读类型
   final ReadingType type;
 
-  late final History? history;
+  late final History? history = HistoryManager().findSync(target);
 
   ///一些会发生变更的信息, 全放logic里面会很乱
   late final ReadingPageData data = ReadingPageData(
@@ -78,7 +79,8 @@ class ComicReadingPage extends StatelessWidget {
           ? eps.elementAtOrNull(order - 1) ?? eps[0]
           : target,
       type,
-      eps, gallery);
+      eps,
+      gallery);
 
   ///阅读Hitomi画廊时使用的图片数据
   ///
@@ -91,7 +93,7 @@ class ComicReadingPage extends StatelessWidget {
         type = ReadingType.picacg,
         images = null {
     data.initialPage = initialPage;
-    Get.put(ComicReadingPageLogic(order, data));
+    StateController.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.ehentai(this.target, this.gallery,
@@ -102,7 +104,7 @@ class ComicReadingPage extends StatelessWidget {
         type = ReadingType.ehentai,
         images = null {
     data.initialPage = initialPage;
-    Get.put(ComicReadingPageLogic(order, data));
+    StateController.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order,
@@ -111,7 +113,7 @@ class ComicReadingPage extends StatelessWidget {
         gallery = null,
         images = null {
     data.initialPage = initialPage;
-    Get.put(ComicReadingPageLogic(order, data));
+    StateController.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.hitomi(this.target, this.title, this.images,
@@ -121,7 +123,7 @@ class ComicReadingPage extends StatelessWidget {
         type = ReadingType.hitomi,
         gallery = null {
     data.initialPage = initialPage;
-    Get.put(ComicReadingPageLogic(order, data));
+    StateController.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.htmanga(this.target, this.title,
@@ -132,7 +134,7 @@ class ComicReadingPage extends StatelessWidget {
         type = ReadingType.htManga,
         images = null {
     data.initialPage = initialPage;
-    Get.put(ComicReadingPageLogic(order, data));
+    StateController.put(ComicReadingPageLogic(order, data));
   }
 
   ComicReadingPage.nhentai(this.target, this.title,
@@ -143,73 +145,71 @@ class ComicReadingPage extends StatelessWidget {
         type = ReadingType.nhentai,
         images = null {
     data.initialPage = initialPage;
-    Get.put(ComicReadingPageLogic(order, data));
+    StateController.put(ComicReadingPageLogic(order, data));
   }
 
-  _updateHistory(GetBuilderState<ComicReadingPageLogic> logic){
+  _updateHistory(ComicReadingPageLogic? logic) {
     if (type.hasEps) {
-      if (logic.controller!.order == 1 && logic.controller!.index == 1) {
-        history?.ep = 0; history?.page = 0;
+      if (logic!.order == 1 && logic.index == 1) {
+        history?.ep = 0;
+        history?.page = 0;
       } else {
-        if (logic.controller!.order == data.epsWidgets.length - 1 &&
-            logic.controller!.index == logic.controller!.length) {
-          history?.ep = 0; history?.page = 0;
+        if (logic.order == data.epsWidgets.length - 1 &&
+            logic.index == logic.length) {
+          history?.ep = 0;
+          history?.page = 0;
         } else {
-          history?.ep = logic.controller!.order; history?.page = logic.controller!.index;
+          history?.ep = logic.order;
+          history?.page = logic.index;
         }
       }
     } else {
-      if (logic.controller!.index == 1 ||
-          logic.controller!.index == logic.controller!.length) {
-        history?.ep = 0; history?.page = 0;
+      if (logic!.index == 1 || logic.index == logic.length) {
+        history?.ep = 0;
+        history?.page = 0;
       } else {
-        history?.ep = 1; history?.page = logic.controller!.index;
+        history?.ep = 1;
+        history?.page = logic.index;
       }
     }
-    HistoryManager().saveDataAndClose();
+    HistoryManager().saveData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ComicReadingPageLogic>(
-      initState: (logic) {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-        if (appdata.settings[14] == "1") {
-          setKeepScreenOn();
-        }
-        //进入阅读器时清除内存中的缓存, 并且增大限制
-        PaintingBinding.instance.imageCache.clear();
-        PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
-        history = HistoryManager().findSync(target);
-      },
+    return StateBuilder<ComicReadingPageLogic>(initState: (logic) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      if (appdata.settings[14] == "1") {
+        setKeepScreenOn();
+      }
+      //进入阅读器时清除内存中的缓存, 并且增大限制
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+    }, dispose: (logic) {
+      //清除缓存并减小最大缓存
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
+      //保存历史记录
+      _updateHistory(logic);
 
-      dispose: (logic) {
-        //清除缓存并减小最大缓存
-        PaintingBinding.instance.imageCache.clear();
-        PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
-        //保存历史记录
-        _updateHistory(logic);
-
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-        if (data.listenVolume != null) {
-          data.listenVolume!.stop();
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      if (data.listenVolume != null) {
+        data.listenVolume!.stop();
+      }
+      if (appdata.settings[14] == "1") {
+        cancelKeepScreenOn();
+      }
+      ImageManager().saveData();
+      logic.runningAutoPageTurning = false;
+      ComicImage.clear();
+      StateController.remove<ComicReadingPageLogic>();
+      Future.microtask(() {
+        if (ComicPage.tagsStack.isNotEmpty) {
+          ComicPage.tagsStack.last.updateHistory(history);
         }
-        if (appdata.settings[14] == "1") {
-          cancelKeepScreenOn();
-        }
-        ImageManager().saveData();
-        logic.controller?.runningAutoPageTurning = false;
-        ComicImage.clear();
-        Get.delete<ComicReadingPageLogic>();
-        Future.microtask((){
-          if(ComicPage.tagsStack.isNotEmpty) {
-            ComicPage.tagsStack.last.updateHistory(history);
-          }
-        });
-      },
-
-      builder: (logic) {
+      });
+    }, builder: (logic) {
       return Scaffold(
         backgroundColor: Colors.black,
         endDrawerEnableOpenDragGesture: false,
@@ -234,7 +234,7 @@ class ComicReadingPage extends StatelessWidget {
               );
           }
         }.call(),
-        body: GetBuilder<ComicReadingPageLogic>(builder: (logic) {
+        body: StateBuilder<ComicReadingPageLogic>(builder: (logic) {
           if (logic.isLoading) {
             history?.readEpisode.add(logic.order);
             //加载信息
@@ -246,9 +246,9 @@ class ComicReadingPage extends StatelessWidget {
               loadJmComicInfo(logic);
             } else if (type == ReadingType.hitomi) {
               loadHitomiData(logic);
-            } else if(type == ReadingType.htManga){
+            } else if (type == ReadingType.htManga) {
               loadHtmangaData(logic);
-            }else{
+            } else {
               loadNhentaiData(logic);
             }
             return const DecoratedBox(
@@ -258,8 +258,9 @@ class ComicReadingPage extends StatelessWidget {
               ),
             );
           } else if (logic.urls.isNotEmpty) {
-            if(logic.readingMethod == ReadingMethod.topToBottomContinuously && data.initialPage != 1){
-              Future.delayed(const Duration(milliseconds: 300), (){
+            if (logic.readingMethod == ReadingMethod.topToBottomContinuously &&
+                data.initialPage != 1) {
+              Future.delayed(const Duration(milliseconds: 300), () {
                 logic.jumpToPage(data.initialPage);
                 data.initialPage = 1;
               });
@@ -271,8 +272,10 @@ class ComicReadingPage extends StatelessWidget {
                     () => logic.jumpToLastPage(), () => logic.jumpToNextPage());
               } else {
                 data.listenVolume = ListenVolumeController(
-                    () => logic.scrollController.jumpTo(logic.scrollController.position.pixels - 400),
-                    () => logic.scrollController.jumpTo(logic.scrollController.position.pixels + 400));
+                    () => logic.scrollController
+                        .jumpTo(logic.scrollController.position.pixels - 400),
+                    () => logic.scrollController
+                        .jumpTo(logic.scrollController.position.pixels + 400));
               }
               data.listenVolume!.listenVolumeChange();
             } else if (data.listenVolume != null) {
@@ -305,7 +308,9 @@ class ComicReadingPage extends StatelessWidget {
                           : data.target,
                       eps,
                       context),
-                  if (Get.isDarkMode && appdata.settings[18] == "1")
+                  if (MediaQuery.of(context).platformBrightness ==
+                          Brightness.dark &&
+                      appdata.settings[18] == "1")
                     Positioned(
                       top: 0,
                       bottom: 0,
@@ -329,14 +334,13 @@ class ComicReadingPage extends StatelessWidget {
 
                   //顶部工具栏
                   buildTopToolBar(logic, context, title),
-
                 ],
               ),
             );
 
             // WillPopScope has a problem on IOS which is not been solved currently.
             // See https://github.com/flutter/flutter/issues/14203
-            if (GetPlatform.isIOS) {
+            if (App.isIOS) {
               return body;
             } else {
               return WillPopScope(
@@ -374,11 +378,11 @@ class ComicReadingPage extends StatelessWidget {
                   Icons.arrow_back,
                   color: Colors.white,
                 ),
-                onPressed: () => Get.back(),
+                onPressed: () => App.globalBack(),
               ),
             ),
             Positioned(
-              top: MediaQuery.of(Get.context!).size.height / 2 - 80,
+              top: MediaQuery.of(App.globalContext!).size.height / 2 - 80,
               left: 0,
               right: 0,
               child: const Align(
@@ -393,7 +397,7 @@ class ComicReadingPage extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              top: MediaQuery.of(Get.context!).size.height / 2 - 10,
+              top: MediaQuery.of(App.globalContext!).size.height / 2 - 10,
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Text(
@@ -407,7 +411,7 @@ class ComicReadingPage extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              top: MediaQuery.of(Get.context!).size.height / 2 + 30,
+              top: MediaQuery.of(App.globalContext!).size.height / 2 + 30,
               child: Align(
                   alignment: Alignment.topCenter,
                   child: SizedBox(
@@ -429,27 +433,27 @@ class ComicReadingPage extends StatelessWidget {
                         ),
                         Expanded(
                             child: FilledButton(
-                              onPressed: () {
-                                if (!type.hasEps) {
-                                  showMessage(context, "没有其它章节".tl);
-                                  return;
-                                }
-                                if (MediaQuery.of(context).size.width > 600) {
-                                  showSideBar(context, buildEpsView(),
-                                      title: null,
-                                      useSurfaceTintColor: true,
-                                      addTopPadding: true,
-                                      width: 400);
-                                } else {
-                                  showModalBottomSheet(
-                                      context: context,
-                                      useSafeArea: false,
-                                      builder: (context) {
-                                        return buildEpsView();
-                                      });
-                                }
-                              },
-                              child: Text("切换章节".tl),
+                          onPressed: () {
+                            if (!type.hasEps) {
+                              showMessage(context, "没有其它章节".tl);
+                              return;
+                            }
+                            if (MediaQuery.of(context).size.width > 600) {
+                              showSideBar(context, buildEpsView(),
+                                  title: null,
+                                  useSurfaceTintColor: true,
+                                  addTopPadding: true,
+                                  width: 400);
+                            } else {
+                              showModalBottomSheet(
+                                  context: context,
+                                  useSafeArea: false,
+                                  builder: (context) {
+                                    return buildEpsView();
+                                  });
+                            }
+                          },
+                          child: Text("切换章节".tl),
                         )),
                       ],
                     ),
@@ -478,7 +482,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画".tl);
+      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画".tl);
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.tools = false;
@@ -487,7 +491,8 @@ class ComicReadingPage extends StatelessWidget {
         ListTile(
           leading: Icon(
             Icons.library_books,
-            color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
+            color:
+                Theme.of(App.globalContext!).colorScheme.onSecondaryContainer,
           ),
           title: Text("章节".tl),
         ),
@@ -503,7 +508,7 @@ class ComicReadingPage extends StatelessWidget {
               comicReadingPageLogic.urls = [];
               comicReadingPageLogic.change();
             }
-            Navigator.pop(Get.context!);
+            Navigator.pop(App.globalContext!);
           },
         ));
       }
@@ -544,7 +549,7 @@ class ComicReadingPage extends StatelessWidget {
         return;
       }
     } catch (e) {
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画".tl);
+      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画".tl);
       logic.downloaded = false;
     }
     var maxPage = int.parse(gallery!.maxPage);
@@ -572,7 +577,7 @@ class ComicReadingPage extends StatelessWidget {
         comicReadingPageLogic.downloaded = false;
       }
     } catch (e) {
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画");
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.tools = false;
@@ -581,7 +586,8 @@ class ComicReadingPage extends StatelessWidget {
         ListTile(
           leading: Icon(
             Icons.library_books,
-            color: Theme.of(Get.context!).colorScheme.onSecondaryContainer,
+            color:
+                Theme.of(App.globalContext!).colorScheme.onSecondaryContainer,
           ),
           title: Text(
             "章节".tl,
@@ -604,7 +610,7 @@ class ComicReadingPage extends StatelessWidget {
               comicReadingPageLogic.urls.clear();
               comicReadingPageLogic.change();
             }
-            Navigator.pop(Get.context!);
+            Navigator.pop(App.globalContext!);
           },
         ));
       }
@@ -650,7 +656,7 @@ class ComicReadingPage extends StatelessWidget {
         return;
       }
     } catch (e) {
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画");
       logic.downloaded = false;
     }
     var res = await HtmangaNetwork().getImages(target);
@@ -663,20 +669,20 @@ class ComicReadingPage extends StatelessWidget {
     logic.update();
   }
 
-  void loadNhentaiData(ComicReadingPageLogic logic) async{
+  void loadNhentaiData(ComicReadingPageLogic logic) async {
     try {
       if (downloadManager.downloadedNhentaiComics.contains("nhentai$target")) {
         logic.downloaded = true;
         for (int i = 0;
-        i < await downloadManager.getComicLength("nhentai$target");
-        i++) {
+            i < await downloadManager.getComicLength("nhentai$target");
+            i++) {
           logic.urls.add("");
         }
         logic.change();
         return;
       }
     } catch (e) {
-      showMessage(Get.context, "数据丢失, 将从网络获取漫画");
+      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画");
       logic.downloaded = false;
     }
     var res = await NhentaiNetwork().getImages(target);
@@ -693,11 +699,14 @@ class ComicReadingPage extends StatelessWidget {
     return EpsView(type, eps, data);
   }
 
-  void openEpsDrawer(){
-    var context = Get.context!;
+  void openEpsDrawer() {
+    var context = App.globalContext!;
     if (MediaQuery.of(context).size.width > 600) {
       showSideBar(context, buildEpsView(),
-          title: null, useSurfaceTintColor: true, width: 400, addTopPadding: true);
+          title: null,
+          useSurfaceTintColor: true,
+          width: 400,
+          addTopPadding: true);
     } else {
       showModalBottomSheet(
           context: context,
@@ -711,58 +720,60 @@ class ComicReadingPage extends StatelessWidget {
   /// Used when [ComicReadingPageLogic.readingMethod] is [ReadingMethod.topToBottomContinuously].
   ///
   /// Select a image form screen, to share or download
-  Future<int?> selectImage() async{
-    var logic = Get.find<ComicReadingPageLogic>();
+  Future<int?> selectImage() async {
+    var logic = StateController.find<ComicReadingPageLogic>();
     var items = logic.itemScrollListener.itemPositions.value.toList();
-    if(items.length == 1){
+    if (items.length == 1) {
       return items[0].index;
     }
     int? res;
-    await showDialog(context: Get.context!, builder: (context){
-      return SimpleDialog(
-        title: Text("选择屏幕上的图片".tl),
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 400,
-            ),
-            child: Column(
-              children: [
-                for(var item in items)
-                  ListTile(
-                    title: Text((item.index + 1).toString()),
-                    onTap: (){
-                      res = item.index;
-                      Get.back();
-                    },
-                    trailing: const Icon(Icons.arrow_right),
-                  )
-              ],
-            ),
-          )
-        ],
-      );
-    });
+    await showDialog(
+        context: App.globalContext!,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("选择屏幕上的图片".tl),
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 400,
+                ),
+                child: Column(
+                  children: [
+                    for (var item in items)
+                      ListTile(
+                        title: Text((item.index + 1).toString()),
+                        onTap: () {
+                          res = item.index;
+                          App.globalBack();
+                        },
+                        trailing: const Icon(Icons.arrow_right),
+                      )
+                  ],
+                ),
+              )
+            ],
+          );
+        });
     return res;
   }
 
-  String getImageKey(int index){
-    var logic = Get.find<ComicReadingPageLogic>();
-    if(type == ComicType.ehentai){
-      return "${gallery!.link}${index+1}";
+  String getImageKey(int index) {
+    var logic = StateController.find<ComicReadingPageLogic>();
+    if (type == ComicType.ehentai) {
+      return "${gallery!.link}${index + 1}";
     }
     return type == ReadingType.hitomi
         ? logic.images[index].hash
         : logic.urls[index];
   }
 
-  void share() async{
-    var logic = Get.find<ComicReadingPageLogic>();
+  void share() async {
+    var logic = StateController.find<ComicReadingPageLogic>();
     int? index = logic.index - 1;
-    if(logic.readingMethod == ReadingMethod.topToBottomContinuously){
+    if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
       index = await selectImage();
     }
-    if(index == null){
+    if (index == null) {
       return;
     }
     if (logic.downloaded) {
@@ -776,27 +787,22 @@ class ComicReadingPage extends StatelessWidget {
         id = "hitomi$target";
       } else if (type == ReadingType.htManga) {
         id = "Ht$target";
-      } else if( type == ReadingType.nhentai) {
+      } else if (type == ReadingType.nhentai) {
         id = "nhentai$target";
       }
-      shareImageFromDisk(downloadManager
-          .getImage(id, logic.order, index)
-          .path);
+      shareImageFromDisk(downloadManager.getImage(id, logic.order, index).path);
     } else {
-      shareImageFromCache(
-          getImageKey(index),
-          data.target,
-          true);
+      shareImageFromCache(getImageKey(index), data.target, true);
     }
   }
 
-  void saveCurrentImage() async{
-    var logic = Get.find<ComicReadingPageLogic>();
+  void saveCurrentImage() async {
+    var logic = StateController.find<ComicReadingPageLogic>();
     int? index = logic.index - 1;
-    if(logic.readingMethod == ReadingMethod.topToBottomContinuously){
+    if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
       index = await selectImage();
     }
-    if(index == null){
+    if (index == null) {
       return;
     }
     if (logic.downloaded) {
@@ -810,17 +816,12 @@ class ComicReadingPage extends StatelessWidget {
         id = "hitomi$target";
       } else if (type == ReadingType.htManga) {
         id = "Ht$target";
-      } else if( type == ReadingType.nhentai) {
+      } else if (type == ReadingType.nhentai) {
         id = "nhentai$target";
       }
-      saveImageFromDisk(downloadManager
-          .getImage(id, logic.order, index)
-          .path);
+      saveImageFromDisk(downloadManager.getImage(id, logic.order, index).path);
     } else {
-      saveImage(
-          getImageKey(index),
-          data.target,
-          reading: true);
+      saveImage(getImageKey(index), data.target, reading: true);
     }
   }
 }

@@ -1,5 +1,7 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/main.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/views/category_page.dart';
@@ -12,7 +14,6 @@ import '../../tools/io_tools.dart';
 import '../../network/proxy.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import '../leaderboard_page.dart';
 import '../widgets/value_listenable_widget.dart';
@@ -35,12 +36,12 @@ void findUpdate(BuildContext context) {
                   actions: [
                     TextButton(
                         onPressed: () {
-                          Get.back();
+                          App.globalBack();
                           appdata.settings[2] = "0";
                           appdata.writeData();
                         },
                         child: Text("关闭更新检查".tl)),
-                    TextButton(onPressed: () => Get.back(), child: Text("取消".tl)),
+                    TextButton(onPressed: () => App.globalBack(), child: Text("取消".tl)),
                     TextButton(
                         onPressed: () {
                           getDownloadUrl().then((s) {
@@ -86,12 +87,19 @@ void giveComments(BuildContext context) {
                 launchUrlString("mailto:nyne19710@proton.me", mode: LaunchMode.externalApplication);
               },
             ),
+            ListTile(
+              leading: Icon(Icons.telegram, color: Theme.of(context).colorScheme.secondary),
+              title: const Text("Telegram"),
+              onTap: () {
+                launchUrlString("https://t.me/ny136_bot", mode: LaunchMode.externalApplication);
+              },
+            )
           ],
         );
       });
 }
 
-class ProxyController extends GetxController {
+class ProxyController extends StateController {
   bool value = appdata.settings[8] == "0";
   late var controller = TextEditingController(text: value ? "" : appdata.settings[8]);
 }
@@ -100,7 +108,7 @@ void setProxy(BuildContext context) {
   showDialog(
       context: context,
       builder: (dialogContext) {
-        return GetBuilder(
+        return StateBuilder(
             init: ProxyController(),
             builder: (controller) {
               return SimpleDialog(
@@ -153,12 +161,12 @@ void setProxy(BuildContext context) {
                             appdata.settings[8] = "0";
                             appdata.writeData();
                             setNetworkProxy();
-                            Get.back();
+                            App.globalBack();
                           } else {
                             appdata.settings[8] = controller.controller.text;
                             appdata.writeData();
                             setNetworkProxy();
-                            Get.back();
+                            App.globalBack();
                           }
                         },
                         child: Text("确认".tl)),
@@ -169,7 +177,7 @@ void setProxy(BuildContext context) {
       });
 }
 
-class CalculateCacheLogic extends GetxController {
+class CalculateCacheLogic extends StateController {
   bool calculating = true;
   double size = 0;
   void change() {
@@ -213,9 +221,9 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
     appdata.updateSettings();
     Future.delayed(const Duration(milliseconds: 500), () {
       try {
-        Get.find<CategoryPageLogic>().update();
-        Get.find<ExplorePageLogic>().update();
-        Get.find<LeaderboardPageLogic>().update();
+        StateController.find<CategoryPageLogic>().update();
+        StateController.find<ExplorePageLogic>().update();
+        StateController.find<LeaderboardPageLogic>().update();
       } catch (e) {
         //如果在test_network_page进行此操作将产生错误
       }
@@ -251,20 +259,20 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
 
 void setDownloadFolder() async {
   if(DownloadManager().downloading.isNotEmpty){
-    showMessage(Get.context!, "请在下载任务完成后进行操作".tl);
+    showMessage(App.globalContext!, "请在下载任务完成后进行操作".tl);
     return;
   }
-  if (GetPlatform.isAndroid) {
+  if (App.isAndroid) {
     var directories = await getExternalStorageDirectories();
     var paths =
         List<String>.generate(directories?.length ?? 0, (index) => directories?[index].path ?? "");
     showDialog(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) => SetDownloadFolderDialog(
               paths: paths,
             ));
   } else {
-    showDialog(context: Get.context!, builder: (context) => const SetDownloadFolderDialog());
+    showDialog(context: App.globalContext!, builder: (context) => const SetDownloadFolderDialog());
   }
 }
 
@@ -286,7 +294,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
     return SimpleDialog(
       title: Text("设置下载目录".tl),
       children: [
-        if (GetPlatform.isWindows || GetPlatform.isLinux)
+        if (App.isWindows || App.isLinux)
           SizedBox(
             width: 400,
             child: Column(
@@ -336,19 +344,19 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                         var oldPath = appdata.settings[22];
                         appdata.settings[22] = controller.text;
                         if (transform) {
-                          showMessage(Get.context, "正在复制文件".tl);
+                          showMessage(App.globalContext, "正在复制文件".tl);
                           await Future.delayed(const Duration(milliseconds: 200));
                         }
                         var res =
                             await downloadManager.updatePath(controller.text, transform: transform);
                         if (res == "ok") {
-                          Get.closeAllSnackbars();
-                          Navigator.of(Get.context!).pop();
-                          showMessage(Get.context, "更新成功".tl);
+                          hideMessage(App.globalContext!);
+                          Navigator.of(App.globalContext!).pop();
+                          showMessage(App.globalContext, "更新成功".tl);
                           appdata.updateSettings();
                         } else {
                           appdata.settings[22] = oldPath;
-                          showMessage(Get.context, res);
+                          showMessage(App.globalContext, res);
                         }
                       } else {
                         showMessage(context, "目录不存在".tl);
@@ -423,20 +431,20 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                           var oldPath = appdata.settings[22];
                           appdata.settings[22] = current;
                           if (transform) {
-                            showMessage(Get.context, "正在复制文件".tl);
+                            showMessage(App.globalContext, "正在复制文件".tl);
                             await Future.delayed(const Duration(milliseconds: 200));
                           }
                           var res = await downloadManager.updatePath(current, transform: transform);
                           if (res == "ok") {
-                            Get.back();
-                            showMessage(Get.context, "更新成功".tl);
+                            App.globalBack();
+                            showMessage(App.globalContext, "更新成功".tl);
                             appdata.updateSettings();
                           } else {
                             appdata.settings[22] = oldPath;
-                            showMessage(Get.context, res);
+                            showMessage(App.globalContext, res);
                           }
                         } else {
-                          Get.back();
+                          App.globalBack();
                         }
                       },
                     ),
@@ -472,7 +480,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
     appdata.updateSettings();
     Future.delayed(const Duration(milliseconds: 500), () {
       try {
-        Get.find<ExplorePageLogic>().update();
+        StateController.find<ExplorePageLogic>().update();
       } catch (e) {
         //如果在test_network_page进行此操作将产生错误
       }
@@ -619,11 +627,11 @@ void clearUserData(BuildContext context){
     title: Text("警告".tl),
     content: Text("此操作无法撤销, 是否继续".tl),
     actions: [
-      TextButton(onPressed: ()  => Get.back(), child: Text("取消".tl)),
+      TextButton(onPressed: ()  => App.globalBack(), child: Text("取消".tl)),
       TextButton(onPressed: () async{
         await clearAppdata();
-        Get.offAll(() => const WelcomePage());
-        Get.forceAppUpdate();
+        App.offAll(() => const WelcomePage());
+        MyApp.updater?.call();
       }, child: Text("继续".tl)),
     ],
   ));
@@ -634,9 +642,9 @@ void exportDataSetting(BuildContext context){
     title: Text("导出用户数据".tl),
     content: Text("将导出设置, 账号, 历史记录, 下载内容, 本地收藏等数据".tl),
     actions: [
-      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
+      TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
       TextButton(onPressed: (){
-        Get.back();
+        App.globalBack();
         showDialog(barrierDismissible: false, context: context, builder: (context) => const SimpleDialog(
           children: [
             SizedBox(
@@ -650,16 +658,16 @@ void exportDataSetting(BuildContext context){
         ));
         runExportData(false).then((v){
           if(v){
-            Get.back();
-            showMessage(Get.context, "成功导出");
+            App.globalBack();
+            showMessage(App.globalContext, "成功导出");
           }else{
-            Get.back();
-            showMessage(Get.context, "导出失败");
+            App.globalBack();
+            showMessage(App.globalContext, "导出失败");
           }
         });
-      }, child: Text("导出不含下载的数据".tr)),
+      }, child: Text("导出不含下载的数据".tl)),
       TextButton(onPressed: (){
-        Get.back();
+        App.globalBack();
         showDialog(barrierDismissible: false, context: context, builder: (context) => const SimpleDialog(
           children: [
             SizedBox(
@@ -673,14 +681,14 @@ void exportDataSetting(BuildContext context){
         ));
         runExportData(true).then((v){
           if(v){
-            Get.back();
-            showMessage(Get.context, "成功导出");
+            App.globalBack();
+            showMessage(App.globalContext, "成功导出");
           }else{
-            Get.back();
-            showMessage(Get.context, "导出失败");
+            App.globalBack();
+            showMessage(App.globalContext, "导出失败");
           }
         });
-      }, child: Text("导出所有数据".tr))
+      }, child: Text("导出所有数据".tl))
     ],
   ));
 }
@@ -691,9 +699,9 @@ void importDataSetting(BuildContext context){
     content: Text("将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl+
         "\n如果导入的数据中包含下载数据, 则当前的下载数据也将被覆盖".tl),
     actions: [
-      TextButton(onPressed: ()=>Get.back(), child: Text("取消".tl)),
+      TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
       TextButton(onPressed: (){
-        Get.back();
+        App.globalBack();
         showDialog(barrierDismissible: false, context: context, builder: (context) => const SimpleDialog(
           children: [
             SizedBox(
@@ -707,11 +715,11 @@ void importDataSetting(BuildContext context){
         ));
         importData().then((v){
           if(v){
-            Get.back();
-            showMessage(Get.context, "成功导入");
+            App.globalBack();
+            showMessage(App.globalContext, "成功导入");
           }else{
-            Get.back();
-            showMessage(Get.context, "导入失败");
+            App.globalBack();
+            showMessage(App.globalContext, "导入失败");
           }
         });
       }, child: Text("继续".tl))
@@ -793,20 +801,20 @@ void syncDataSettings(BuildContext context){
                   if(url.isEmpty){
                     appdata.settings[45] = "$url;$username;$pwd;$path";
                     appdata.updateSettings();
-                    Get.back();
+                    App.globalBack();
                     return;
                   }
                   showLoadingDialog(context, () {}, false, false, value == 0 ? "Uploading" : "Downloading");
                   var res = value == 0 ? await Webdav.uploadData("$url;$username;$pwd;$path")
                       : await Webdav.downloadData("$url;$username;$pwd;$path");
                   if(!res){
-                    Get.back();
-                    showMessage(Get.context, "Failed to sync data");
+                    App.globalBack();
+                    showMessage(App.globalContext, "Failed to sync data");
                   }else {
                     appdata.settings[45] = "$url;$username;$pwd;$path";
                     appdata.updateSettings();
-                    Get.back();
-                    Get.back();
+                    App.globalBack();
+                    App.globalBack();
                   }
                 },
               ),

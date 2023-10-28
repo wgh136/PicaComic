@@ -1,3 +1,4 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
@@ -7,7 +8,6 @@ import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../network/jm_network/jm_image.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 import '../main_page.dart';
@@ -40,9 +40,9 @@ class JmComicTile extends ComicTile {
   ActionFunc? get favorite => () {
     jmNetwork.favorite(comic.id).then((res){
       if(res.error){
-        showMessage(Get.context, res.errorMessage!);
+        showMessage(App.globalContext, res.errorMessage!);
       }else{
-        showMessage(Get.context, res.data?"添加收藏成功".tl:"取消收藏成功".tl);
+        showMessage(App.globalContext, res.data?"添加收藏成功".tl:"取消收藏成功".tl);
       }
     });
   };
@@ -61,16 +61,16 @@ class JmComicTile extends ComicTile {
   @override
   ActionFunc? get read => () async{
     bool cancel = false;
-    showLoadingDialog(Get.context!, ()=>cancel=true);
+    showLoadingDialog(App.globalContext!, ()=>cancel=true);
     var res = await JmNetwork().getComicInfo(comic.id);
     if(cancel){
       return;
     }
     if(res.error){
-      Get.back();
-      showMessage(Get.context, res.errorMessageWithoutNull);
+      App.globalBack();
+      showMessage(App.globalContext, res.errorMessageWithoutNull);
     }else{
-      Get.back();
+      App.globalBack();
       readJmComic(res.data, res.data.series.values.toList());
     }
   };

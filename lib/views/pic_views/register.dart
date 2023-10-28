@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/main_page.dart';
@@ -7,7 +7,7 @@ import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class RegisterPageLogic extends GetxController{
+class RegisterPageLogic extends StateController{
   var isRegistering = false;
   var nameController = TextEditingController();
   var account = TextEditingController();
@@ -29,7 +29,7 @@ class RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RegisterPageLogic>(
+    return StateBuilder<RegisterPageLogic>(
       init: RegisterPageLogic(),
         builder: (logic){
       return Scaffold(
@@ -40,7 +40,7 @@ class RegisterPage extends StatelessWidget {
               message: "转到登录".tl,
               child: TextButton(
                 child: Text("转到登录".tl),
-                onPressed: (){Get.off(()=>const LoginPage());},
+                onPressed: () => App.off(context, ()=>const LoginPage()),
               ),
             )
           ],
@@ -243,7 +243,7 @@ class RegisterPage extends StatelessWidget {
                                     logic.isRegistering = false;
                                     logic.update();
                                     if(res.error){
-                                      showMessage(Get.context, res.errorMessage??"未知错误");
+                                      showMessage(App.globalContext, res.errorMessage??"未知错误");
                                     }else{
                                       var res = await network.login(logic.account.text, logic.password.text);
                                       if(res.success){
@@ -252,12 +252,12 @@ class RegisterPage extends StatelessWidget {
                                           appdata.user = profile.data;
                                           appdata.token = network.token;
                                           appdata.writeData();
-                                          Get.offAll(()=>const MainPage());
+                                          App.offAll(()=>const MainPage());
                                         }else{
-                                          showMessage(Get.context, "登录时发生错误: ${profile.errorMessage??"未知错误".tl}");
+                                          showMessage(App.globalContext, "登录时发生错误: ${profile.errorMessage??"未知错误".tl}");
                                         }
                                       }else{
-                                        showMessage(Get.context, "登录时发生错误: ${res.errorMessageWithoutNull}");
+                                        showMessage(App.globalContext, "登录时发生错误: ${res.errorMessageWithoutNull}");
                                       }
                                     }
                                   }

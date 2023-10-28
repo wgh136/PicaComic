@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -12,18 +11,20 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../foundation/app.dart';
+
 ///保存图片
 void saveImage(String urlOrHash, String id, {bool reading=false}) async{
-  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
+  if(App.isAndroid || App.isIOS) {
       var url_ = getImageUrl(urlOrHash);
       var b = await saveImageFormCache(url_, id, reading: reading);
       if(b) {
-        showMessage(Get.context, "成功保存于Picture中".tl);
+        showMessage(App.globalContext, "成功保存于Picture中".tl);
       }
       else {
-        showMessage(Get.context, "保存失败".tl);
+        showMessage(App.globalContext, "保存失败".tl);
       }
-  }else if(GetPlatform.isWindows){
+  }else if(App.isWindows){
     try {
       File? file;
       if(reading){
@@ -85,10 +86,10 @@ Future<bool> saveImageFormCache(String urlOrHash, String id, {bool reading=false
 }
 
 void saveImageFromDisk(String image) async{
-  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
+  if(App.isAndroid || App.isIOS) {
     await ImageGallerySaver.saveFile(image);
-    showMessage(Get.context, "成功保存到Picture中".tl);
-  }else if(GetPlatform.isWindows){
+    showMessage(App.globalContext, "成功保存到Picture中".tl);
+  }else if(App.isWindows){
     var f = File(image);
     String name;
     int i;
@@ -121,7 +122,7 @@ void shareImageFromCache(String urlOrHash, String id, [bool reading=false]) asyn
   }
   catch(e, s){
     LogManager.addLog(LogLevel.error, "Share Image", "$e\n$s");
-    showMessage(Get.context, "分享失败".tl);
+    showMessage(App.globalContext, "分享失败".tl);
   }
 }
 
@@ -130,6 +131,6 @@ void shareImageFromDisk(String path) async{
     Share.shareXFiles([XFile(path)]);
   }
   catch(e){
-    showMessage(Get.context, "分享失败".tl);
+    showMessage(App.globalContext, "分享失败".tl);
   }
 }

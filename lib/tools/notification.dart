@@ -1,6 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/downloading_page.dart';
+import '../foundation/app.dart';
 
 class Notifications{
   FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
@@ -8,10 +8,10 @@ class Notifications{
 
   Future<bool?> requestPermission() async{
     try {
-      if(GetPlatform.isAndroid) {
+      if(App.isAndroid) {
         return await flutterLocalNotificationsPlugin!.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()!.requestPermission();
-      }else if(GetPlatform.isIOS) {
+      }else if(App.isIOS) {
         return await flutterLocalNotificationsPlugin
             ?.resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()
@@ -29,7 +29,7 @@ class Notifications{
   }
 
   Future<void> init() async{
-    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    if(!(App.isAndroid || App.isIOS))  return;
     flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -49,22 +49,22 @@ class Notifications{
   }
 
   void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
-    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    if(!(App.isAndroid || App.isIOS))  return;
     final String? payload = notificationResponse.payload;
     if(payload != "item y"){
-      Get.to(()=>const DownloadingPage());
+      App.globalTo(()=>const DownloadingPage());
     }
   }
 
   void onDidReceiveLocalNotification(
       int id, String? title, String? body, String? payload) async {
     if(payload != "item y"){
-      Get.to(()=>const DownloadingPage());
+      App.globalTo(()=>const DownloadingPage());
     }
   }
 
   void sendProgressNotification(int progress, int total, String title, String content) async{
-    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    if(!(App.isAndroid || App.isIOS))  return;
     AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails('download', '下载漫画',
       channelDescription: '显示下载进度',
@@ -90,12 +90,12 @@ class Notifications{
   }
 
   void endProgress() async{
-    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    if(!(App.isAndroid || App.isIOS))  return;
     await flutterLocalNotificationsPlugin!.cancel(progressId);
   }
 
   void sendNotification(String title, String content) async{
-    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    if(!(App.isAndroid || App.isIOS))  return;
     AndroidNotificationDetails androidNotificationDetails =
     const AndroidNotificationDetails('PicaComic', '通知',
         channelDescription: '通知',
@@ -111,7 +111,7 @@ class Notifications{
   }
 
   void sendUnimportantNotification(String title, String content) async{
-    if(!(GetPlatform.isAndroid || GetPlatform.isIOS))  return;
+    if(!(App.isAndroid || App.isIOS))  return;
     AndroidNotificationDetails androidNotificationDetails =
     const AndroidNotificationDetails('punchIN', '打卡',
       channelDescription: '打卡',

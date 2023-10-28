@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
@@ -9,7 +8,7 @@ import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../widgets/select.dart';
 
-class HitomiHomePageLogic extends GetxController{
+class HitomiHomePageLogic extends StateController{
   bool loading = true;
   String? message;
   int currentPage = 1;
@@ -29,7 +28,7 @@ class HitomiHomePageLogic extends GetxController{
   void loadNextPage(String url) async{
     var res = await HiNetwork().loadNextPage(comics!);
     if(res.error){
-      showMessage(Get.context, res.errorMessage!);
+      showMessage(App.globalContext, res.errorMessage!);
     }else{
       update();
     }
@@ -52,7 +51,7 @@ class HitomiHomePageComics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HitomiHomePageLogic>(
+    return StateBuilder<HitomiHomePageLogic>(
       tag: url,
       init: HitomiHomePageLogic(),
       builder: (logic){

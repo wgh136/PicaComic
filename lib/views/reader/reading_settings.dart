@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
@@ -48,7 +48,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
 
   @override
   Widget build(BuildContext context) {
-    var logic = Get.find<ComicReadingPageLogic>();
+    var logic = StateController.find<ComicReadingPageLogic>();
     var pages = <Widget>[
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
             onTap: () {},
           ),
-          if (!GetPlatform.isWeb && GetPlatform.isAndroid)
+          if (App.isAndroid)
             ListTile(
               leading: Icon(Icons.screenshot_outlined,
                   color: Theme.of(context).colorScheme.secondary),
@@ -315,8 +315,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   whenChange: (i) {
                     appdata.appChannel = (i + 1).toString();
                     appdata.writeData();
-                    showMessage(Get.context, "正在获取分流IP".tl, time: 8);
-                    network.updateApi().then((v) => Get.closeAllSnackbars());
+                    showMessage(App.globalContext, "正在获取分流IP".tl, time: 8);
+                    network.updateApi().then((v) => hideMessage(App.globalContext));
                   },
                 ),
               )
@@ -344,7 +344,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               child: FilledButton(
                 child: const Text("重启阅读器"),
                 onPressed: () {
-                  Get.back();
+                  App.globalBack();
                   logic.refresh_();
                 },
               ),
@@ -387,11 +387,11 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   }
 
   void setValue(int i) {
-    Get.back();
+    App.globalBack();
     value = i;
     appdata.settings[9] = value.toString();
     appdata.writeData();
-    var logic = Get.find<ComicReadingPageLogic>();
+    var logic = StateController.find<ComicReadingPageLogic>();
     logic.tools = false;
     logic.showSettings = false;
     logic.index = 1;

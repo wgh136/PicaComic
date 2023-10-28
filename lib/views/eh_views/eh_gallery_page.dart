@@ -1,7 +1,7 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -20,7 +20,7 @@ import '../reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 class EhGalleryPage extends ComicPage<Gallery> {
-  EhGalleryPage(EhGalleryBrief brief, {super.key}): link=brief.link;
+  EhGalleryPage(EhGalleryBrief brief, {super.key}) : link = brief.link;
 
   const EhGalleryPage.fromLink(this.link, {super.key});
 
@@ -28,66 +28,114 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   String get url => link;
-  
+
   @override
-  ActionFunc? get searchSimilar => (){
-    var title = data!.subTitle ?? data!.title;
-    title = title.replaceAll(RegExp(r"\[.*?\]"), "").replaceAll(RegExp(r"\(.*?\)"), "");
-    MainPage.to(() => EhSearchPage("\"$title\"".trim()));
-  };
+  ActionFunc? get searchSimilar => () {
+        var title = data!.subTitle ?? data!.title;
+        title = title
+            .replaceAll(RegExp(r"\[.*?\]"), "")
+            .replaceAll(RegExp(r"\(.*?\)"), "");
+        MainPage.to(() => EhSearchPage("\"$title\"".trim()));
+      };
+
+  Widget get buildButtons => SegmentedButton<int>(
+        segments: [
+          ButtonSegment(
+            icon: Icon(
+              Icons.star,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text("评分".tl),
+            value: 1,
+          ),
+          ButtonSegment(
+            icon: !favorite
+                ? Icon(
+                    Icons.bookmark_add_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : Icon(
+                    Icons.bookmark_add,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+            value: 2,
+          ),
+          ButtonSegment(
+            icon: Icon(
+              Icons.comment_outlined,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text("评论".tl),
+            value: 3,
+          ),
+        ],
+        onSelectionChanged: (set) {
+          void func1() {
+            starRating(context, data!.auth!);
+          }
+
+          void func2() {
+            favoriteComic(FavoriteComicWidget(
+              havePlatformFavorite: appdata.ehAccount != "",
+              needLoadFolderData: false,
+              folders: Map<String, String>.fromIterable(
+                EhNetwork().folderNames,
+              ),
+              favoriteOnPlatform: data!.favorite,
+              target: link,
+              setFavorite: (b) {
+                if (favorite != b) {
+                  favorite = b;
+                  update();
+                }
+              },
+              selectFolderCallback: (folder, page) async {
+                if (page == 0) {
+                  showMessage(context, "正在添加收藏".tl);
+                  var res = await EhNetwork().favorite(
+                      data!.auth!["gid"]!, data!.auth!["token"]!,
+                      id: EhNetwork().folderNames.indexOf(folder).toString());
+                  res ? (data!.favorite = true) : null;
+                  showMessage(App.globalContext, res ? "成功添加收藏".tl : "网络错误".tl);
+                } else {
+                  LocalFavoritesManager().addComic(
+                      folder, FavoriteItem.fromEhentai(data!.toBrief()));
+                  showMessage(App.globalContext, "成功添加收藏".tl);
+                }
+              },
+              cancelPlatformFavorite: () {
+                EhNetwork()
+                    .unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
+              },
+            ));
+          }
+
+          void func3() {
+            showComments(context, link, data!.uploader);
+          }
+
+          switch (set.first) {
+            case 1:
+              func1();
+              break;
+            case 2:
+              func2();
+              break;
+            case 3:
+              func3();
+              break;
+          }
+        },
+        selected: const {},
+        emptySelectionAllowed: true,
+      );
 
   @override
   Row get actions => Row(
         children: [
           Expanded(
-            child: ActionChip(
-              label: Text("评分".tl),
-              avatar: const Icon(Icons.star),
-              onPressed: () => starRating(context, data!.auth!),
-            ),
-          ),
-          Expanded(
-            child: ActionChip(
-                label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-                avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
-              onPressed: () => favoriteComic(FavoriteComicWidget(
-                havePlatformFavorite: appdata.ehAccount != "",
-                needLoadFolderData: false,
-                folders: Map<String, String>.fromIterable(EhNetwork().folderNames,),
-                favoriteOnPlatform: data!.favorite,
-                target: link,
-                setFavorite: (b){
-                  if(favorite != b){
-                    favorite = b;
-                    update();
-                  }
-                },
-                selectFolderCallback: (folder, page) async{
-                  if(page == 0){
-                    showMessage(context, "正在添加收藏".tl);
-                    var res = await EhNetwork().favorite(
-                        data!.auth!["gid"]!, data!.auth!["token"]!,
-                        id: EhNetwork().folderNames.indexOf(folder).toString());
-                    res?(data!.favorite=true):null;
-                    showMessage(Get.context, res?"成功添加收藏".tl:"网络错误".tl);
-                  }else{
-                    LocalFavoritesManager().addComic(folder,
-                        FavoriteItem.fromEhentai(data!.toBrief()));
-                    showMessage(Get.context, "成功添加收藏".tl);
-                  }
-                },
-                cancelPlatformFavorite: (){
-                  EhNetwork().unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
-                },
-              ))
-            ),
-          ),
-          Expanded(
-            child: ActionChip(
-                label: Text("评论".tl),
-                avatar: const Icon(Icons.comment_outlined),
-                onPressed: () =>
-                    showComments(context, link, data!.uploader)),
+            child: buildButtons,
           ),
         ],
       );
@@ -125,26 +173,33 @@ class EhGalleryPage extends ComicPage<Gallery> {
   String? get introduction => null;
 
   @override
-  Future<Res<Gallery>> loadData() async{
-    var res = await EhNetwork().getGalleryInfo(link, appdata.settings[47] == "1");
-    if(res.error && res.errorMessage == "Content Warning"){
+  Future<Res<Gallery>> loadData() async {
+    var res =
+        await EhNetwork().getGalleryInfo(link, appdata.settings[47] == "1");
+    if (res.error && res.errorMessage == "Content Warning") {
       bool shouldIgnore = false;
-      await showDialog(context: Get.context!, builder: (context) => AlertDialog(
-        title: Text("警告".tl),
-        content: Text("此画廊存在令人不适的内容\n在设置中可以禁用此警告".tl),
-        actions: [
-          TextButton(onPressed: (){
-            Get.back();
-          }, child: Text("返回".tl)),
-          TextButton(onPressed: (){
-            shouldIgnore = true;
-            Get.back();
-          }, child: Text("忽略".tl))
-        ],
-      ));
-      if(shouldIgnore){
+      await showDialog(
+          context: App.globalContext!,
+          builder: (context) => AlertDialog(
+                title: Text("警告".tl),
+                content: Text("此画廊存在令人不适的内容\n在设置中可以禁用此警告".tl),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        App.globalBack();
+                      },
+                      child: Text("返回".tl)),
+                  TextButton(
+                      onPressed: () {
+                        shouldIgnore = true;
+                        App.globalBack();
+                      },
+                      child: Text("忽略".tl))
+                ],
+              ));
+      if (shouldIgnore) {
         return await EhNetwork().getGalleryInfo(link, true);
-      }else{
+      } else {
         MainPage.back();
         return const Res(null, errorMessage: "Exit");
       }
@@ -156,8 +211,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
   int? get pages => null;
 
   @override
-  Future<bool> loadFavorite(Gallery data) async{
-    return data.favorite || (await LocalFavoritesManager().find(data.link)).isNotEmpty;
+  Future<bool> loadFavorite(Gallery data) async {
+    return data.favorite ||
+        (await LocalFavoritesManager().find(data.link)).isNotEmpty;
   }
 
   @override
@@ -190,22 +246,22 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   void onThumbnailTapped(int index) {
-    readEhGallery(data!, index+1);
+    readEhGallery(data!, index + 1);
   }
 
   @override
   void tapOnTags(String tag) {
     var namespace = "";
-    for(var entry in data!.tags.entries){
-      if(entry.value.contains(tag)){
+    for (var entry in data!.tags.entries) {
+      if (entry.value.contains(tag)) {
         namespace = entry.key;
         break;
       }
     }
-    if(tag.contains(" ")){
+    if (tag.contains(" ")) {
       tag = "\"$tag\"";
     }
-    if(namespace != ""){
+    if (namespace != "") {
       tag = "$namespace:$tag";
     }
     MainPage.to(() => EhSearchPage(tag));
@@ -213,16 +269,14 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   Map<String, String> get headers => {
-    "Cookie": EhNetwork().cookiesStr,
-    "User-Agent": webUA,
-    "Referer": EhNetwork().ehBaseUrl,
-  };
+        "Cookie": EhNetwork().cookiesStr,
+        "User-Agent": webUA,
+        "Referer": EhNetwork().ehBaseUrl,
+      };
 
   @override
-  ThumbnailsData? get thumbnailsCreator => ThumbnailsData(
-      [],
-      (page) => EhNetwork().getThumbnailUrls(data!),
-      2);
+  ThumbnailsData? get thumbnailsCreator =>
+      ThumbnailsData([], (page) => EhNetwork().getThumbnailUrls(data!), 2);
 
   @override
   String? get title => data!.title;
@@ -237,7 +291,8 @@ class EhGalleryPage extends ComicPage<Gallery> {
   Widget thumbnailImageBuilder(int index, String imageUrl) {
     return ColoredBox(
       color: Theme.of(context).colorScheme.surfaceVariant,
-      child: EhThumbnailLoader(image: CachedNetworkImageProvider(imageUrl), index: index),
+      child: EhThumbnailLoader(
+          image: CachedNetworkImageProvider(imageUrl), index: index),
     );
   }
 
@@ -248,7 +303,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
     }
     showDialog(
         context: context,
-        builder: (dialogContext) => GetBuilder<RatingLogic>(
+        builder: (dialogContext) => StateBuilder<RatingLogic>(
             init: RatingLogic(),
             builder: (logic) => SimpleDialog(
                   title: const Text("评分"),
@@ -282,7 +337,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
                                               auth, logic.rating.toInt())
                                           .then((b) {
                                         if (b) {
-                                          Get.back();
+                                          App.globalBack();
                                           showMessage(context, "评分成功".tl);
                                         } else {
                                           logic.running = false;
@@ -342,18 +397,19 @@ class EhGalleryPage extends ComicPage<Gallery> {
   String get source => "EHentai";
 }
 
-class RatingLogic extends GetxController {
+class RatingLogic extends StateController {
   double rating = 0;
   bool running = false;
 }
 
-class CommentLogic extends GetxController {
+class CommentLogic extends StateController {
   final controller = TextEditingController();
   bool sending = false;
 }
 
 class EhThumbnailLoader extends StatefulWidget {
-  const EhThumbnailLoader({required this.image, required this.index, super.key});
+  const EhThumbnailLoader(
+      {required this.image, required this.index, super.key});
 
   final ImageProvider image;
 
@@ -376,15 +432,15 @@ class _EhThumbnailLoaderState extends State<EhThumbnailLoader> {
 
   @override
   Widget build(BuildContext context) {
-    if(failed){
+    if (failed) {
       return const Center(
         child: Icon(Icons.error),
       );
     }
 
-    if(image == null){
+    if (image == null) {
       return const SizedBox();
-    }else{
+    } else {
       return CustomPaint(
         painter: _EhThumbnailPainter(widget.index, image!),
         child: const SizedBox(
@@ -395,16 +451,16 @@ class _EhThumbnailLoaderState extends State<EhThumbnailLoader> {
     }
   }
 
-  void _loadImage() async{
+  void _loadImage() async {
     final imageStream = widget.image.resolve(ImageConfiguration.empty);
 
     var listener = ImageStreamListener((imageInfo, _) {
-      if(mounted) {
+      if (mounted) {
         setState(() {
           image = imageInfo.image;
         });
       }
-    }, onError: (error, stack){
+    }, onError: (error, stack) {
       setState(() {
         failed = true;
       });
@@ -414,15 +470,14 @@ class _EhThumbnailLoaderState extends State<EhThumbnailLoader> {
   }
 }
 
-
-class _EhThumbnailPainter extends CustomPainter{
+class _EhThumbnailPainter extends CustomPainter {
   final int index;
   final ui.Image image;
 
   _EhThumbnailPainter(this.index, this.image);
 
   @override
-  void paint(Canvas canvas, Size size){
+  void paint(Canvas canvas, Size size) {
     final start = index % 20 * 100;
     final end = start + 100;
     final rect = Rect.fromLTRB(0, 0, size.width, size.height);

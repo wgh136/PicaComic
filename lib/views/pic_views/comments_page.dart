@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -10,7 +10,7 @@ import 'comment_reply_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class CommentsPageLogic extends GetxController{
+class CommentsPageLogic extends StateController{
   bool isLoading = true;
   var comments = Comments([],"",0,0);
   bool sending = false;
@@ -29,7 +29,7 @@ class CommentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget body = GetBuilder<CommentsPageLogic>(
+    Widget body = StateBuilder<CommentsPageLogic>(
       init: CommentsPageLogic(),
       builder: (logic){
         if(logic.isLoading){
@@ -81,7 +81,7 @@ class CommentsPage extends StatelessWidget {
                         const SliverToBoxAdapter(
                           child: ListLoadingIndicator(),
                         ),
-                      SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                      SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                     ],
               )),
               Container(
@@ -133,7 +133,7 @@ class CommentsPage extends StatelessWidget {
                               logic.comments = res;
                               logic.update();
                             }else{
-                              showMessage(Get.context, "网络错误".tl);
+                              showMessage(App.globalContext, "网络错误".tl);
                               logic.sending = false;
                               logic.update();
                             }

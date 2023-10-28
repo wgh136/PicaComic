@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 extension ListExtension<T> on List<T>{
   /// Remove all blank value and return the list.
   List<T> getNoBlankList(){
@@ -10,6 +8,15 @@ extension ListExtension<T> on List<T>{
       }
     }
     return newList;
+  }
+
+  T? firstWhereOrNull(bool Function(T element) test){
+    for(var element in this){
+      if(test(element)){
+        return element;
+      }
+    }
+    return null;
   }
 }
 
@@ -55,6 +62,24 @@ extension StringExtension on String{
     final after = substring(lastIndex + from.length);
     return '$before$to$after';
   }
+
+  static bool hasMatch(String? value, String pattern) {
+    return (value == null) ? false : RegExp(pattern).hasMatch(value);
+  }
+
+  bool _isURL(){
+    if(!(Uri.tryParse(this)?.hasScheme ?? false)){
+      return false;
+    }
+    if(indexOf("https://") > 0){
+      return false;
+    }
+    return true;
+  }
+
+  bool get isURL => _isURL();
+
+  bool get isNum => double.tryParse(this) != null;
 }
 
 extension MapExtension<S, T> on Map<S, List<T>>{

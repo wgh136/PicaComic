@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/log_dio.dart';
@@ -8,9 +9,9 @@ import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
 import '../proxy.dart';
 import 'package:html/parser.dart';
-import 'package:get/get.dart';
 import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -26,20 +27,22 @@ class EhNetwork{
 
   EhNetwork.create(){
     updateUrl();
-    getCookies();
+    getCookies(true);
   }
 
   ///e-hentai的url
   var _ehBaseUrl = "https://e-hentai.org";
 
   ///e-hentai的url
-  get ehBaseUrl => _ehBaseUrl;
+  String get ehBaseUrl => _ehBaseUrl;
 
   ///api url
   var _ehApiUrl = "https://api.e-hentai.org/api.php";
 
   ///api url
   get ehApiUrl => _ehApiUrl;
+
+  final cookieJar = CookieJar(ignoreExpires: true);
 
   ///给图片加载使用的cookie
   String cookiesStr = "";
@@ -48,23 +51,35 @@ class EhNetwork{
   void updateUrl(){
     _ehBaseUrl = appdata.settings[20]=="0"?"https://e-hentai.org":"https://exhentai.org";
     _ehApiUrl = appdata.settings[20]=="0"?"https://api.e-hentai.org/api.php":"https://exhentai.org/api.php";
+    getCookies(true);
   }
 
   ///设置请求cookie
-  Future<String> getCookies([bool setNW = true]) async{
+  Future<String> getCookies(bool setNW, [String? url]) async{
     if(appdata.ehId == ""){
       return "";
     }
-    var cookies = [
+    var cookies = await cookieJar.loadForRequest(Uri.parse(ehBaseUrl));
+    cookieJar.delete(Uri.parse(ehBaseUrl), true);
+    cookies.removeWhere((element) =>
+        ["nw", "ipb_member_id", "ipb_pass_hash"].contains(element.name));
+    var igneousField = cookies.firstWhereOrNull((element) => element.name == "igneous");
+    if(igneousField != null && appdata.igneous != igneousField.value && igneousField.value != "mystery"){
+      appdata.igneous = igneousField.value;
+      appdata.writeData();
+    }
+    var shouldAdd = [
       if(setNW)
         Cookie("nw", "1"),
       if(appdata.ehId != "")
         Cookie("ipb_member_id", appdata.ehId),
       if(appdata.ehPassHash != "")
         Cookie("ipb_pass_hash", appdata.ehPassHash),
-      if(appdata.igneous != "")
+      if(appdata.igneous != "" && igneousField == null)
         Cookie("igneous", appdata.igneous),
     ];
+    cookies.addAll(shouldAdd);
+    await cookieJar.saveFromResponse(Uri.parse(url ?? ehBaseUrl), cookies);
     var res = "";
     for(var cookie in cookies){
       res += "${cookie.name}=${cookie.value}; ";
@@ -76,13 +91,13 @@ class EhNetwork{
   ///从url获取数据, 在请求时设置了cookie
   Future<Res<String>> request(String url, {Map<String,String>? headers,
     CacheExpiredTime expiredTime=CacheExpiredTime.short, bool setNW = true}) async{
+    await getCookies(setNW, url);
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
         followRedirects: true,
         headers: {
-          "cookie": await getCookies(setNW),
           "user-agent": webUA,
           ...?headers
         }
@@ -92,8 +107,10 @@ class EhNetwork{
       var data = await dio.get(
           url,
           options,
+          cookieJar: cookieJar,
           expiredTime: expiredTime
-        );
+      );
+      await getCookies(true);
       if((data.data).substring(0,4) == "Your"){
         return const Res(null, errorMessage: "Your IP address has been temporarily banned");
       }
@@ -157,6 +174,7 @@ class EhNetwork{
   }
 
   Future<Res<String>> post(String url, dynamic data, {Map<String,String>? headers,}) async{
+    await getCookies(true, url);
     await setNetworkProxy();//更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -165,13 +183,14 @@ class EhNetwork{
         receiveDataWhenStatusError: true,
         validateStatus: (status)=>status==200||status==302,
         headers: {
-          "cookie": await getCookies(),
           "user-agent": webUA,
           ...?headers
         }
     );
 
-    var dio =  logDio(options);
+    var dio =  logDio(options)
+      ..interceptors.add(LogInterceptor());
+    dio.interceptors.add(CookieManager(cookieJar));
     try{
       var res = await dio.post<String>(url, data: data);
       return Res(res.data ?? "");
@@ -198,6 +217,8 @@ class EhNetwork{
   ///获取用户名, 同时用于检测cookie是否有效
   Future<bool> getUserName() async{
     try {
+      await cookieJar.deleteAll();
+      cookiesStr = "";
       var res = await request("https://forums.e-hentai.org/", headers: {
         "referer": "https://forums.e-hentai.org/index.php?",
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -369,9 +390,6 @@ class EhNetwork{
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
-      if(res.data.contains("Content Warning")){
-        return const Res(null, errorMessage: "Content Warning");
-      }
       var document = parse(res.data);
       //tags
       var tags = <String, List<String>>{};
@@ -410,7 +428,7 @@ class EhNetwork{
 
       //星星
       var stars =
-        getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
+      getStarsFromPosition(document.getElementById("rating_image")!.attributes["style"]!);
 
       //平均分数
       var rating = document.getElementById("rating_label")?.text;
@@ -429,7 +447,7 @@ class EhNetwork{
       }
       var title = document.querySelector("h1#gn")!.text;
       var subTitle = document.querySelector("h1#gj")?.text;
-      if(subTitle!=null && subTitle.removeAllWhitespace == ""){
+      if(subTitle!=null && subTitle.removeAllBlank == ""){
         subTitle = null;
       }
       var thumbnailDiv = document.querySelectorAll("div.gdtm > div").elementAtOrNull(0);
@@ -544,7 +562,7 @@ class EhNetwork{
     var res =  await getGalleries("$ehBaseUrl/?f_search=$keyword&inline_set=dm_l");
     Future.delayed(const Duration(microseconds: 500),(){
       try{
-        Get.find<PreSearchController>().update();
+        StateController.find<PreSearchController>().update();
       }
       catch(e){
         //忽视
@@ -589,11 +607,11 @@ class EhNetwork{
   ///收藏
   Future<bool> favorite(String gid, String token, {String id = "0"}) async{
     var res = await post(
-      "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
-      "favcat=$id&favnote=&apply=Add+to+Favorites&update=1",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
+        "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
+        "favcat=$id&favnote=&apply=Add+to+Favorites&update=1",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
     );
     if(res.error){
       return false;
@@ -608,11 +626,11 @@ class EhNetwork{
   ///取消收藏
   Future<bool> unfavorite(String gid, String token) async{
     var res = await post(
-      "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
-      "favcat=favdel&favnote=&apply=Apply+Changes&update=1",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
+        "https://e-hentai.org/gallerypopups.php?gid=$gid&t=$token&act=addfav",
+        "favcat=favdel&favnote=&apply=Apply+Changes&update=1",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
     );
     if(res.error || res.data[0] != "<"){
       return false;
@@ -624,11 +642,11 @@ class EhNetwork{
   ///发送评论
   Future<Res<bool>> comment(String content, String link) async{
     var res = await post(
-      link,
-      "commenttext_new=${Uri.encodeComponent(content)}",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
+        link,
+        "commenttext_new=${Uri.encodeComponent(content)}",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
     );
 
     if(res.error){

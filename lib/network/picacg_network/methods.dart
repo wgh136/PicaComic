@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
-import 'package:pica_comic/network/picacg_network/request.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../foundation/log.dart';
+import '../log_dio.dart';
 import '../res.dart';
 import 'models.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -25,7 +25,7 @@ class PicacgNetwork {
 
   PicacgNetwork._create([this.token = ""]);
 
-  String apiUrl = appdata.settings[3] == "1" || GetPlatform.isWeb
+  String apiUrl = appdata.settings[3] == "1"
       ? "$serverDomain/picaapi"
       : "https://picaapi.picacomic.com";
   InitData? initData;
@@ -97,7 +97,7 @@ class PicacgNetwork {
       await Future.delayed(const Duration(milliseconds: 500));
       return const Res(null, errorMessage: "未登录");
     }
-    var dio = await request();
+    var dio = logDio();
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     try {
       await setNetworkProxy();
@@ -317,7 +317,7 @@ class PicacgNetwork {
       if (addToHistory) {
         Future.delayed(const Duration(microseconds: 500), () {
           try {
-            Get.find<PreSearchController>().update();
+            StateController.find<PreSearchController>().update();
           } catch (e) {
             //忽视
           }
@@ -604,11 +604,11 @@ class PicacgNetwork {
   Future<bool> favouriteOrUnfavouriteComic(String id) async {
     var res = await post('$apiUrl/comics/$id/favourite', {});
     if (res.error) {
-      showMessage(Get.context, "网络错误".tl);
+      showMessage(App.globalContext, "网络错误".tl);
       return false;
     }
     showMessage(
-        Get.context,
+        App.globalContext,
         (res.data["data"]["action"] == "favourite")
             ? "添加收藏成功".tl
             : "取消收藏成功".tl);
@@ -700,7 +700,7 @@ class PicacgNetwork {
   Future<bool> uploadAvatar(String imageData) async {
     //数据仍然是json, 只有一条"avatar"数据, 数据内容为base64编码的图像, 例如{"avatar":"[在这里放图像数据]"}
     var url = "$apiUrl/users/avatar";
-    var dio = await request();
+    var dio = logDio();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"avatar": imageData});
@@ -712,7 +712,7 @@ class PicacgNetwork {
 
   Future<bool> changeSlogan(String slogan) async {
     var url = "$apiUrl/users/profile";
-    var dio = await request();
+    var dio = logDio();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url, data: {"slogan": slogan});
@@ -958,7 +958,7 @@ class PicacgNetwork {
   Future<Res<bool>> changePassword(
       String oldPassword, String newPassword) async {
     var url = "$apiUrl/users/password";
-    var dio = await request();
+    var dio = logDio();
     dio.options = getHeaders("put", token, url.replaceAll("$apiUrl/", ""));
     try {
       var res = await dio.put(url,
@@ -1055,7 +1055,7 @@ class PicacgNetwork {
 String getImageUrl(String url) {
   if (url.contains(serverDomain)) return url;
   if (!url.contains("pica")) return url;
-  return appdata.settings[3] == "1" || GetPlatform.isWeb
+  return appdata.settings[3] == "1"
       ? "$serverDomain/storage/$url"
       : url;
 }

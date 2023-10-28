@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/res.dart';
@@ -27,98 +26,137 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   const JmComicPage(this.id, {super.key});
   @override
   final String id;
+  Widget get buildButtons => SegmentedButton<int>(
+        segments: [
+          ButtonSegment(
+            icon: data!.liked
+                ? Icon(
+                    Icons.favorite,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : Icon(
+                    Icons.favorite_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            label: Text(data!.likes.toString()),
+            value: 1,
+          ),
+          ButtonSegment(
+            icon: !favorite
+                ? Icon(
+                    Icons.bookmark_add_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : Icon(
+                    Icons.bookmark_add,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
+            value: 2,
+          ),
+          ButtonSegment(
+            icon: Icon(
+              Icons.comment_outlined,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text(data!.comments.toString()),
+            value: 3,
+          ),
+        ],
+        onSelectionChanged: (set) {
+          void func1() {
+            if (data!.liked) {
+              showMessage(context, "已经喜欢了");
+              return;
+            }
+            jmNetwork.likeComic(data!.id);
+            data!.liked = true;
+            update();
+          }
+
+          void func2() {
+            favoriteComic(FavoriteComicWidget(
+              havePlatformFavorite: appdata.jmEmail != "",
+              needLoadFolderData: true,
+              setFavorite: (b) {
+                if (favorite != b) {
+                  favorite = b;
+                  update();
+                }
+              },
+              foldersLoader: () async {
+                var res = await jmNetwork.getFolders();
+                if (res.error) {
+                  return res;
+                } else {
+                  var resData = <String, String>{"-1": "全部收藏".tl};
+                  resData.addAll(res.data);
+                  return Res(resData);
+                }
+              },
+              target: id,
+              favoriteOnPlatform: data!.favorite,
+              selectFolderCallback: (folder, page) async {
+                if (page == 0) {
+                  showMessage(context, "正在添加收藏".tl);
+                  var res = await jmNetwork.favorite(id);
+                  if (res.error) {
+                    showMessage(App.globalContext, res.errorMessageWithoutNull);
+                    return;
+                  }
+                  if (folder != "-1") {
+                    var res2 = await jmNetwork.moveToFolder(id, folder);
+                    if (res2.error) {
+                      showMessage(
+                          App.globalContext, res2.errorMessageWithoutNull);
+                      return;
+                    }
+                  }
+                  data!.favorite = true;
+                  showMessage(App.globalContext, "成功添加收藏".tl);
+                } else {
+                  LocalFavoritesManager().addComic(
+                      folder,
+                      FavoriteItem.fromJmComic(JmComicBrief(
+                          id,
+                          data!.author.elementAtOrNull(0) ?? "",
+                          data!.name,
+                          data!.description,
+                          [],
+                          [],
+                          ignoreExamination: true)));
+                  showMessage(App.globalContext, "成功添加收藏".tl);
+                }
+              },
+              cancelPlatformFavorite: () async {
+                showMessage(context, "正在取消收藏".tl);
+                var res = await jmNetwork.favorite(id);
+                showMessage(
+                    App.globalContext, !res.error ? "成功取消收藏".tl : "网络错误".tl);
+                data!.favorite = false;
+              },
+            ));
+          }
+
+          switch (set.first) {
+            case 1:
+              func1();
+              break;
+            case 2:
+              func2();
+              break;
+            case 3:
+              showComments(context, id);
+              break;
+          }
+        },
+        selected: const {},
+        emptySelectionAllowed: true,
+      );
 
   @override
   Row get actions => Row(
-        children: [
-          Expanded(
-            child: ActionChip(
-              label: Text(data!.likes.toString()),
-              avatar: data!.liked
-                  ? const Icon(Icons.favorite)
-                  : const Icon(Icons.favorite_outline),
-              onPressed: () {
-                if (data!.liked) {
-                  showMessage(context, "已经喜欢了");
-                  return;
-                }
-                jmNetwork.likeComic(data!.id);
-                data!.liked = true;
-                update();
-              },
-            ),
-          ),
-          Expanded(
-            child: ActionChip(
-              label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-              avatar: !favorite ? const Icon(Icons.bookmark_add_outlined) : const Icon(Icons.bookmark_add),
-              onPressed: () => favoriteComic(FavoriteComicWidget(
-                havePlatformFavorite: appdata.jmEmail != "",
-                needLoadFolderData: true,
-                setFavorite: (b){
-                  if(favorite != b){
-                    favorite = b;
-                    update();
-                  }
-                },
-                foldersLoader: () async{
-                  var res = await jmNetwork.getFolders();
-                  if(res.error){
-                    return res;
-                  }else{
-                    var resData = <String, String>{"-1":"全部收藏".tl};
-                    resData.addAll(res.data);
-                    return Res(resData);
-                  }
-                },
-                target: id,
-                favoriteOnPlatform: data!.favorite,
-                selectFolderCallback: (folder, page) async{
-                  if(page == 0){
-                    showMessage(context, "正在添加收藏".tl);
-                    var res = await jmNetwork.favorite(id);
-                    if(res.error){
-                      showMessage(Get.context, res.errorMessageWithoutNull);
-                      return;
-                    }
-                    if(folder != "-1") {
-                      var res2 = await jmNetwork.moveToFolder(id, folder);
-                      if (res2.error) {
-                        showMessage(Get.context, res2.errorMessageWithoutNull);
-                        return;
-                      }
-                    }
-                    data!.favorite = true;
-                    showMessage(Get.context, "成功添加收藏".tl);
-                  }else{
-                    LocalFavoritesManager().addComic(folder, FavoriteItem.fromJmComic(JmComicBrief(
-                      id,
-                      data!.author.elementAtOrNull(0)??"",
-                      data!.name,
-                      data!.description,
-                      [],
-                      [],
-                      ignoreExamination: true
-                    )));
-                    showMessage(Get.context, "成功添加收藏".tl);
-                  }
-                },
-                cancelPlatformFavorite: ()async{
-                  showMessage(context, "正在取消收藏".tl);
-                  var res = await jmNetwork.favorite(id);
-                  showMessage(Get.context, !res.error?"成功取消收藏".tl:"网络错误".tl);
-                  data!.favorite = false;
-                },
-              )),
-            ),
-          ),
-          Expanded(
-            child: ActionChip(
-                label: Text(data!.comments.toString()),
-                avatar: const Icon(Icons.comment_outlined),
-                onPressed: () => showComments(context, id)),
-          ),
-        ],
+        children: [Expanded(child: buildButtons)],
       );
 
   @override
@@ -136,9 +174,9 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   EpsData? get eps => EpsData(
           List<String>.generate(data!.series.values.length,
               (index) => "第 @c 章".tlParams({"c": (index + 1).toString()})),
-          (i) async{
+          (i) async {
         await addJmHistory(data!);
-        Get.to(() => ComicReadingPage.jmComic(
+        App.globalTo(() => ComicReadingPage.jmComic(
             data!.id, data!.name, data!.series.values.toList(), i + 1));
       });
 
@@ -152,13 +190,15 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   int? get pages => null;
 
   @override
-  Future<bool> loadFavorite(JmComicInfo data) async{
-    return data.favorite || (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+  Future<bool> loadFavorite(JmComicInfo data) async {
+    return data.favorite ||
+        (await LocalFavoritesManager().find(data.id)).isNotEmpty;
   }
 
   @override
   FilledButton get readButton => FilledButton(
-        onPressed: () => readJmComic(data!, data!.series.values.toList(), false),
+        onPressed: () =>
+            readJmComic(data!, data!.series.values.toList(), false),
         child: Text("从头开始".tl),
       );
 
@@ -191,8 +231,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
       };
 
   @override
-  void tapOnTags(String tag) =>
-      MainPage.to(() => JmSearchPage(tag));
+  void tapOnTags(String tag) => MainPage.to(() => JmSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;
@@ -230,22 +269,22 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
     downloaded.addAll(downloadedComic.downloadedEps);
   }
 
-  if (UiMode.m1(Get.context!)) {
+  if (UiMode.m1(App.globalContext!)) {
     showModalBottomSheet(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) {
           return SelectDownloadChapter(eps, (selectedEps) {
             downloadManager.addJmDownload(comic, selectedEps);
-            Get.back();
+            App.globalBack();
             showMessage(context, "已加入下载".tl);
           }, downloaded);
         });
   } else {
     showSideBar(
-        Get.context!,
+        App.globalContext!,
         SelectDownloadChapter(eps, (selectedEps) {
           downloadManager.addJmDownload(comic, selectedEps);
-          Get.back();
+          App.globalBack();
           showMessage(context, "已加入下载".tl);
         }, downloaded),
         useSurfaceTintColor: true);

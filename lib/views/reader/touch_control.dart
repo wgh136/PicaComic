@@ -1,7 +1,7 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
@@ -22,7 +22,7 @@ class ScrollManager{
 
   void tapDown(PointerDownEvent details){
     fingers++;
-    var logic = Get.find<ComicReadingPageLogic>();
+    var logic = StateController.find<ComicReadingPageLogic>();
     var temp = logic.noScroll;
     logic.noScroll = fingers >= 2;
     if(temp != logic.noScroll){
@@ -35,7 +35,7 @@ class ScrollManager{
     if(fingers < 0){
       fingers = 0;
     }
-    var logic = Get.find<ComicReadingPageLogic>();
+    var logic = StateController.find<ComicReadingPageLogic>();
     var temp = logic.noScroll;
     logic.noScroll = fingers >= 2;
     if(temp != logic.noScroll){
@@ -59,14 +59,14 @@ class TapController{
   static DateTime lastScrollTime = DateTime(2023);
 
   static void onTapDown(PointerDownEvent event){
-    var logic = Get.find<ComicReadingPageLogic>();
+    var logic = StateController.find<ComicReadingPageLogic>();
 
     if(appdata.settings[9] == "4"){
       logic.data.scrollManager!.tapDown(event);
     }
 
-    if(logic.tools && (event.position.dy < MediaQuery.of(Get.context!).padding.top  + 50
-        || MediaQuery.of(Get.context!).size.height - event.position.dy < 105 + MediaQuery.of(Get.context!).padding.bottom)){
+    if(logic.tools && (event.position.dy < MediaQuery.of(App.globalContext!).padding.top  + 50
+        || MediaQuery.of(App.globalContext!).size.height - event.position.dy < 105 + MediaQuery.of(App.globalContext!).padding.bottom)){
       return;
     }
 
@@ -95,13 +95,13 @@ class TapController{
   }
 
   static void onTapUp(PointerUpEvent detail){
-    var logic = Get.find<ComicReadingPageLogic>();
+    var logic = StateController.find<ComicReadingPageLogic>();
 
     if(appdata.settings[9] == "4"){
       logic.data.scrollManager!.tapUp(detail);
     }
 
-    var context = Get.context!;
+    var context = App.globalContext!;
     if(_tapOffset != null){
       var distance = detail.position.dy - _tapOffset!.dy;
       if(distance > 0.1 || distance < -0.1){

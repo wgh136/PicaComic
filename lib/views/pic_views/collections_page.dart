@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
@@ -8,7 +7,7 @@ import 'package:pica_comic/tools/translations.dart';
 
 import '../../foundation/app.dart';
 
-class CollectionPageLogic extends GetxController{
+class CollectionPageLogic extends StateController{
   bool isLoading = true;
   var c1 = <ComicItemBrief>[];
   var c2 = <ComicItemBrief>[];
@@ -43,7 +42,7 @@ class CollectionsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("推荐".tl),
       ),
-      body: GetBuilder<CollectionPageLogic>(
+      body: StateBuilder<CollectionPageLogic>(
         init: CollectionPageLogic(),
         builder: (logic){
           if(logic.isLoading){
@@ -143,7 +142,7 @@ class CollectionsPage extends StatelessWidget {
                     childAspectRatio: App.comicTileAspectRatio,
                   ),
                 ),
-                SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
               ],
             );
           }else{

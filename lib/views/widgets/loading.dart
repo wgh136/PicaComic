@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:get/get.dart';
+import '../../foundation/app.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold=false}){
   final loading = Lottie.asset(
@@ -50,12 +50,22 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
   }
 }
 
-void showLoadingDialog(BuildContext context, void Function() onCancel,
+class LoadingDialogController{
+  BuildContext? context;
+
+  void close(){
+    Navigator.of(context!).pop();
+  }
+}
+
+LoadingDialogController showLoadingDialog(BuildContext context, void Function() onCancel,
     [bool barrierDismissible = true, bool allowCancel = true, String? message]){
+  var controller = LoadingDialogController();
   showDialog(
     context: context,
     barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
+      controller.context = context;
       return WillPopScope(
         onWillPop: () async => false,
         child: Dialog(
@@ -74,7 +84,7 @@ void showLoadingDialog(BuildContext context, void Function() onCancel,
                 const Spacer(),
                 if(allowCancel)
                   TextButton(onPressed: () {
-                    Get.back();
+                    App.globalBack();
                     onCancel();
                   }, child: Text("取消".tl))
               ],
@@ -84,4 +94,5 @@ void showLoadingDialog(BuildContext context, void Function() onCancel,
       );
     },
   );
+  return controller;
 }

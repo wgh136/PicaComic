@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
@@ -18,6 +17,8 @@ import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+
+import '../foundation/app.dart';
 
 Future<double> getFolderSize(Directory path) async{
   double total = 0;
@@ -37,10 +38,10 @@ Future<bool> exportComic(String id, String name) async{
     if(! res){
       return false;
     }
-    if(GetPlatform.isAndroid || GetPlatform.isIOS) {
+    if(App.isAndroid || App.isIOS) {
       var params = SaveFileDialogParams(sourceFilePath: '${data.path!}$pathSep$name.zip');
       await FlutterFileDialog.saveFile(params: params);
-    }else if(GetPlatform.isWindows){
+    }else if(App.isWindows){
       final String? directoryPath = await getDirectoryPath();
       if (directoryPath != null) {
         var file = File('${data.path!}$pathSep$name.zip');
@@ -81,10 +82,10 @@ Future<bool> runningExportComic(ExportComicData data) async{
 }
 
 Future<double> calculateCacheSize() async{
-  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
+  if(App.isAndroid || App.isIOS) {
     var path = await getTemporaryDirectory();
     return compute(getFolderSize, path);
-  }else if(GetPlatform.isWindows){
+  }else if(App.isWindows){
     var path = "${(await getTemporaryDirectory()).path}${pathSep}imageCache";
     var directory = Directory(path);
     if(directory.existsSync()){
@@ -98,12 +99,12 @@ Future<double> calculateCacheSize() async{
 }
 
 Future<void> eraseCache() async{
-  if(GetPlatform.isAndroid || GetPlatform.isIOS) {
+  if(App.isAndroid || App.isIOS) {
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
     await ImageManager().clear();
     await CachedNetwork.clearCache();
-  }else if(GetPlatform.isWindows){
+  }else if(App.isWindows){
     imageCache.clear();
     await DefaultCacheManager().emptyCache();
     await ImageManager().clear();
@@ -226,11 +227,11 @@ Future<bool> runExportData(bool includeDownload) async{
   try {
     var path = (await getApplicationSupportDirectory()).path;
     await exportDataToFile(includeDownload);
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+    if (App.isAndroid || App.isIOS) {
       var params = SaveFileDialogParams(
           sourceFilePath: "$path${pathSep}userData.picadata");
       await FlutterFileDialog.saveFile(params: params);
-    } else if (GetPlatform.isWindows) {
+    } else if (App.isWindows) {
       final String? directoryPath = await getDirectoryPath();
       if (directoryPath != null) {
         var file = File("$path${pathSep}userData.picadata");
@@ -247,13 +248,15 @@ Future<bool> runExportData(bool includeDownload) async{
   return true;
 }
 
+/// import data, filePath is used for webdav
 Future<bool> importData([String? filePath]) async{
+  final enableCheck = filePath != null;
   var path = (await getApplicationSupportDirectory()).path;
   if(filePath == null) {
-    if (GetPlatform.isMobile) {
+    if (App.isMobile) {
       var params = const OpenFileDialogParams();
       filePath = await FlutterFileDialog.pickFile(params: params);
-    } else if (GetPlatform.isWindows) {
+    } else if (App.isWindows) {
       const XTypeGroup typeGroup = XTypeGroup(
         label: 'data',
         extensions: <String>['picadata'],
@@ -316,7 +319,7 @@ Future<bool> importData([String? filePath]) async{
   var json = const JsonDecoder().convert(data);
   int fileVersion = int.parse((json["settings"] as List).elementAtOrNull(46) ?? "1");
   int appVersion = int.parse(appdata.settings[46]);
-  if(fileVersion <= appVersion){
+  if(fileVersion <= appVersion && enableCheck){
     LogManager.addLog(LogLevel.info, "Appdata",
         "The data file version is $fileVersion, while the app data version is "
             "$appVersion\nStop importing data");
@@ -344,11 +347,11 @@ void saveLog(String log) async{
   var path = (await getTemporaryDirectory()).path;
   var file = File("$path${pathSep}logs.txt");
   file.writeAsStringSync(log);
-  if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+  if (App.isAndroid || App.isIOS) {
     var params = SaveFileDialogParams(
         sourceFilePath: "$path${pathSep}logs.txt");
     await FlutterFileDialog.saveFile(params: params);
-  } else if (GetPlatform.isWindows) {
+  } else if (App.isWindows) {
     final String? directoryPath = await getDirectoryPath();
     if (directoryPath != null) {
       await file.copy("$directoryPath${pathSep}logs.txt");

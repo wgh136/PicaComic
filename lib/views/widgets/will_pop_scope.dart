@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CustomWillPopScope extends StatelessWidget {
   const CustomWillPopScope(
@@ -17,8 +17,8 @@ class CustomWillPopScope extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget res = GetPlatform.isIOS ? child : WillPopScope(
-        onWillPop: GetPlatform.isDesktop ? null : () async {
+    Widget res = App.isIOS ? child : WillPopScope(
+        onWillPop: App.isDesktop ? null : () async {
           action();
           return false;
         },

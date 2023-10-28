@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
@@ -42,7 +42,7 @@ class JmCategoryPage extends ComicsPage<JmComicBrief>{
     child: IconButton(
       icon: const Icon(Icons.manage_search_outlined),
       onPressed: () async{
-        var res = await setJmComicsOrder(Get.context!);
+        var res = await setJmComicsOrder(App.globalContext!);
         if(!res) {
           super.refresh();
         }

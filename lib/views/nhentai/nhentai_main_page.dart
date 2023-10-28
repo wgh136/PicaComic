@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
 
-class NhentaiHomePageController extends GetxController {
+class NhentaiHomePageController extends StateController {
   bool loading = true;
   NhentaiHomePageData? data;
   String? message;
@@ -36,7 +35,7 @@ class NhentaiHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<NhentaiHomePageController>(
+    return StateBuilder<NhentaiHomePageController>(
         builder: (logic) {
           if (logic.loading) {
             logic.get();
@@ -96,7 +95,7 @@ class NhentaiHomePage extends StatelessWidget {
                     if(index == logic.data!.latest.length-1){
                       NhentaiNetwork().loadMoreHomePageData(logic.data!).then((res){
                         if(res.error){
-                          showMessage(Get.context, res.errorMessageWithoutNull);
+                          showMessage(App.globalContext, res.errorMessageWithoutNull);
                         }else{
                           logic.update();
                         }

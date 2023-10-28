@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/res.dart';
@@ -10,7 +10,7 @@ import '../main_page.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class HtFavoritePageLogic extends GetxController {
+class HtFavoritePageLogic extends StateController {
   bool loading = true;
 
   Map<String, String> folders = {};
@@ -41,7 +41,7 @@ class HtFavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HtFavoritePageLogic>(
+    return StateBuilder<HtFavoritePageLogic>(
       builder: (logic) {
         if (appdata.htName == "") {
           return showNetworkError("未登录".tl, logic.refresh_, context,
@@ -174,19 +174,19 @@ class HtFolderTile extends StatelessWidget {
                             content: Text("要删除这个收藏夹吗".tl),
                             actions: [
                               TextButton(
-                                  onPressed: () => Get.back(),
+                                  onPressed: () => App.globalBack(),
                                   child: const Text("取消")),
                               TextButton(
                                   onPressed: () async {
-                                    Get.back();
+                                    App.globalBack();
                                     showMessage(context, "正在删除收藏夹".tl);
                                     var res =
                                         await HtmangaNetwork().deleteFolder(id);
                                     if (res) {
-                                      Get.find<HtFavoritePageLogic>()
+                                      StateController.find<HtFavoritePageLogic>()
                                           .refresh_();
                                     } else {
-                                      showMessage(Get.context, "删除失败".tl);
+                                      showMessage(App.globalContext, "删除失败".tl);
                                     }
                                   },
                                   child: Text("确认".tl)),
@@ -286,9 +286,9 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                             loading = false;
                           });
                         } else {
-                          Get.back();
+                          App.globalBack();
                           showMessage(context, "成功创建".tl);
-                          Get.find<HtFavoritePageLogic>().refresh_();
+                          StateController.find<HtFavoritePageLogic>().refresh_();
                         }
                       });
                     },

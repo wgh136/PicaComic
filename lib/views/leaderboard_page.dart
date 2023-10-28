@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_leaderboard_page.dart';
 import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
 import 'package:pica_comic/views/pic_views/picacg_leaderboard_page.dart';
 
-class LeaderboardPageLogic extends GetxController {}
+class LeaderboardPageLogic extends StateController {}
 
 class LeaderBoardPage extends StatefulWidget {
   const LeaderBoardPage({Key? key}) : super(key: key);
@@ -17,9 +17,9 @@ class LeaderBoardPage extends StatefulWidget {
 }
 
 class _LeaderBoardPageState extends State<LeaderBoardPage> {
-  final logic = Get.put(EhLeaderboardLogic());
-  final logic5 = Get.put(HitomiLeaderboardPageLogic());
-  final logic6 = Get.put(LeaderboardPageLogic());
+  final logic = StateController.put(EhLeaderboardLogic());
+  final logic5 = StateController.put(HitomiLeaderboardPageLogic());
+  final logic6 = StateController.put(LeaderboardPageLogic());
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
       );
     }
 
-    return GetBuilder<LeaderboardPageLogic>(
+    return StateBuilder<LeaderboardPageLogic>(
         builder: (logic) => DefaultTabController(
             length: pages,
             child: Column(

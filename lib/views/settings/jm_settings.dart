@@ -1,6 +1,6 @@
+import 'package:pica_comic/foundation/app.dart';
 import '../../base.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -14,7 +14,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
     return SimpleDialog(
       title: Text("设置漫画排序模式".tl),
       children: [
-        GetBuilder<SetJmComicsOrderController>(
+        StateBuilder<SetJmComicsOrderController>(
           init: SetJmComicsOrderController(settingOrder),
           builder: (logic){
             return SizedBox(
@@ -98,7 +98,7 @@ Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async
   return appdata.settings[settingOrder] == mode;
 }
 
-class SetJmComicsOrderController extends GetxController{
+class SetJmComicsOrderController extends StateController{
   int settingsOrder;
   SetJmComicsOrderController(this.settingsOrder);
   late String value = appdata.settings[settingsOrder];
@@ -107,7 +107,7 @@ class SetJmComicsOrderController extends GetxController{
     value = v;
     appdata.settings[settingsOrder] = v;
     appdata.writeData();
-    Get.back();
+    App.globalBack();
   }
 }
 

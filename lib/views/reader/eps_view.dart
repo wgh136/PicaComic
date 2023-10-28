@@ -1,9 +1,9 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/jm_views/jm_comments_page.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
-import 'package:get/get.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'comic_reading_page.dart'
   show ReadingPageData;
@@ -21,7 +21,7 @@ class EpsView extends StatefulWidget {
 
 class _EpsViewState extends State<EpsView> {
   var controller = ItemScrollController();
-  var logic = Get.find<ComicReadingPageLogic>();
+  var logic = StateController.find<ComicReadingPageLogic>();
   var value = false;
 
   @override
@@ -48,14 +48,14 @@ class _EpsViewState extends State<EpsView> {
                   logic.urls.clear();
                   logic.reload();
                 }
-                Navigator.pop(Get.context!);
+                Navigator.pop(App.globalContext!);
               }else if(type == ReadingType.picacg){
                 if (index+1 != logic.order) {
                   logic.order = index+1;
                   logic.urls = [];
                   logic.reload();
                 }
-                Navigator.pop(Get.context!);
+                Navigator.pop(App.globalContext!);
               }
             },
             child: SizedBox(

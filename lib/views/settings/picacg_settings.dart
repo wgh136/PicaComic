@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../base.dart';
 import '../../tools/background_service.dart';
 import '../widgets/select.dart';
@@ -29,7 +29,6 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ListTile(
               title: Text("哔咔漫画".tl),
             ),
-            if (!GetPlatform.isWeb)
               ListTile(
                 leading: Icon(Icons.change_circle,
                     color: Theme.of(context).colorScheme.secondary),
@@ -62,8 +61,8 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                 whenChange: (i){
                   appdata.appChannel = (i+1).toString();
                   appdata.writeData();
-                  showMessage(Get.context, "正在获取分流IP".tl,time: 8);
-                  network.updateApi().then((v)=>Get.closeAllSnackbars());
+                  showMessage(App.globalContext, "正在获取分流IP".tl,time: 8);
+                  network.updateApi().then((v)=>hideMessage(App.globalContext!));
                 },
                 inPopUpWidget: widget.popUp,
               ),
@@ -119,13 +118,13 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ListTile(
               leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
               title: Text("自动打卡".tl),
-              subtitle: GetPlatform.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tl): Text("启动时执行".tl),
+              subtitle: App.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tl): Text("启动时执行".tl),
               onTap: () {},
               trailing: Switch(
                 value: punchIn,
                 onChanged: (b) {
                   b ? appdata.settings[6] = "1" : appdata.settings[6] = "0";
-                  if(GetPlatform.isMobile) {
+                  if(App.isMobile) {
                     b ? runBackgroundService() : cancelBackgroundService();
                   }
                   setState(() {

@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class PopUpWidgetScaffold extends StatefulWidget {
   //为弹出的窗口提供的一个骨架
@@ -31,7 +31,7 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
                   message: "返回",
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back_sharp),
-                    onPressed:()=>Navigator.of(context).canPop()?Navigator.of(context).pop():Get.back()
+                    onPressed:()=>Navigator.of(context).canPop()?Navigator.of(context).pop():App.globalBack()
                   ),
                 ),
                 const SizedBox(width: 16,),

@@ -36,6 +36,7 @@ class DownloadedHtComic extends DownloadedItem{
   @override
   DownloadType get type => DownloadType.htmanga;
 
+  @override
   Map<String, dynamic> toJson() => {
     "comic": comic.toJson(),
     "size": size

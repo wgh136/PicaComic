@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
@@ -39,7 +38,7 @@ class _ExplorePageState extends State<ExplorePage>
     ExplorePage.jumpTo = (index) {
       controller.animateTo(index);
     };
-    Get.put(NhentaiHomePageController());
+    StateController.put(NhentaiHomePageController());
     super.initState();
   }
 
@@ -51,23 +50,23 @@ class _ExplorePageState extends State<ExplorePage>
       onPressed: () {
         int page = controller.index;
         var logics = [
-              () => Get.find<HomePageLogic>().refresh_(),
+              () => StateController.find<HomePageLogic>().refresh_(),
           if (appdata.settings[24][1] == "1")
-                () => Get.find<GamesPageLogic>().refresh_(),
+                () => StateController.find<GamesPageLogic>().refresh_(),
           if (appdata.settings[24][2] == "1")
-                () => Get.find<EhHomePageLogic>().refresh_(),
+                () => StateController.find<EhHomePageLogic>().refresh_(),
           if (appdata.settings[24][3] == "1")
-                () => Get.find<EhPopularPageLogic>().refresh_(),
+                () => StateController.find<EhPopularPageLogic>().refresh_(),
           if (appdata.settings[24][4] == "1")
-                () => Get.find<JmHomePageLogic>().refresh_(),
+                () => StateController.find<JmHomePageLogic>().refresh_(),
           if (appdata.settings[24][5] == "1")
-                () => Get.find<JmLatestPageLogic>().refresh_(),
+                () => StateController.find<JmLatestPageLogic>().refresh_(),
           if (appdata.settings[24][6] == "1")
                 () => HitomiHomePageComics.refresh(),
           if (appdata.settings[24][7] == "1")
-                () => Get.find<NhentaiHomePageController>().refresh_(),
+                () => StateController.find<NhentaiHomePageController>().refresh_(),
           if (appdata.settings[24][9] == "1")
-                () => Get.find<HtHomePageLogic>().refresh_(),
+                () => StateController.find<HtHomePageLogic>().refresh_(),
         ];
         logics[page]();
       },
@@ -270,14 +269,14 @@ class _ExplorePageState extends State<ExplorePage>
   }
 }
 
-class ExplorePageLogic extends GetxController {}
+class ExplorePageLogic extends StateController {}
 
 class ExplorePageWithGetControl extends StatelessWidget {
   const ExplorePageWithGetControl({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ExplorePageLogic>(builder: (logic) {
+    return StateBuilder<ExplorePageLogic>(builder: (logic) {
       int pages = 0;
       for (int i = 0; i < appdata.settings[24].length; i++) {
         if (i == 8) continue;

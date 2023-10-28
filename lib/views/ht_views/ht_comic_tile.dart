@@ -1,3 +1,4 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
@@ -5,7 +6,6 @@ import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../main_page.dart';
 import '../widgets/loading.dart';
@@ -39,16 +39,16 @@ class HtComicTile extends ComicTile {
   @override
   ActionFunc? get read => ()async{
     bool cancel = false;
-    showLoadingDialog(Get.context!, ()=>cancel=true);
+    showLoadingDialog(App.globalContext!, ()=>cancel=true);
     var res = await HtmangaNetwork().getComicInfo(comic.id);
     if(cancel){
       return;
     }
     if(res.error){
-      Get.back();
-      showMessage(Get.context, res.errorMessageWithoutNull);
+      App.globalBack();
+      showMessage(App.globalContext, res.errorMessageWithoutNull);
     }else{
-      Get.back();
+      App.globalBack();
       readHtmangaComic(res.data);
     }
   };
@@ -66,7 +66,7 @@ class HtComicTileInFavoritePage extends HtComicTile {
   @override
   void onLongTap_() {
     showDialog(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) => Dialog(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
@@ -86,7 +86,7 @@ class HtComicTileInFavoritePage extends HtComicTile {
                       leading: const Icon(Icons.article),
                       title: const Text("查看详情"),
                       onTap: (){
-                        Get.back();
+                        App.globalBack();
                         onTap_();
                       },
                     ),
@@ -94,14 +94,14 @@ class HtComicTileInFavoritePage extends HtComicTile {
                       leading: const Icon(Icons.bookmark_rounded),
                       title: const Text("取消收藏"),
                       onTap: () async {
-                        Get.back();
+                        App.globalBack();
                         showMessage(context, "正在取消收藏");
                         var res = await HtmangaNetwork()
                             .delFavorite(comic.favoriteId!);
                         if (res.error) {
-                          showMessage(Get.context, res.errorMessage.toString());
+                          showMessage(App.globalContext, res.errorMessage.toString());
                         } else {
-                          Get.closeCurrentSnackbar();
+                          hideMessage(App.globalContext);
                           refresh();
                         }
                       },
@@ -110,7 +110,7 @@ class HtComicTileInFavoritePage extends HtComicTile {
                       leading: const Icon(Icons.chrome_reader_mode),
                       title: const Text("阅读"),
                       onTap: () {
-                        Get.back();
+                        App.globalBack();
                         read!();
                       },
                     ),
@@ -126,7 +126,7 @@ class HtComicTileInFavoritePage extends HtComicTile {
   @override
   void onSecondaryTap_(TapDownDetails details) {
     showMenu(
-        context: Get.context!,
+        context: App.globalContext!,
         position: RelativeRect.fromLTRB(
             details.globalPosition.dx,
             details.globalPosition.dy,
@@ -140,13 +140,13 @@ class HtComicTileInFavoritePage extends HtComicTile {
           PopupMenuItem(
               onTap: () =>
                   Future.delayed(const Duration(milliseconds: 200), () async {
-                    showMessage(Get.context, "正在取消收藏");
+                    showMessage(App.globalContext, "正在取消收藏");
                     var res =
                         await HtmangaNetwork().delFavorite(comic.favoriteId!);
                     if (res.error) {
-                      showMessage(Get.context, res.errorMessage.toString());
+                      showMessage(App.globalContext, res.errorMessage.toString());
                     } else {
-                      Get.closeCurrentSnackbar();
+                      hideMessage(App.globalContext);
                       refresh();
                     }
                   }),

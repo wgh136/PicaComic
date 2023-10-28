@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/comment.dart';
@@ -9,7 +9,7 @@ import 'package:pica_comic/tools/translations.dart';
 import '../../network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
-class JmCommentsPageLogic extends GetxController {
+class JmCommentsPageLogic extends StateController {
   bool loading = true;
   List<Comment>? comments;
   String? message;
@@ -76,7 +76,7 @@ class JmCommentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget body = GetBuilder<JmCommentsPageLogic>(
+    Widget body = StateBuilder<JmCommentsPageLogic>(
         init: JmCommentsPageLogic(),
         builder: (logic) {
           if (logic.loading) {
@@ -112,7 +112,7 @@ class JmCommentsPage extends StatelessWidget {
                           const SliverToBoxAdapter(
                             child: ListLoadingIndicator(),
                           ),
-                        SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                        SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                       ],
                 )),
                 Container(
@@ -146,9 +146,9 @@ class JmCommentsPage extends StatelessWidget {
                                 showMessage(context, "正在发送评论".tl);
                                 var res = await JmNetwork().comment(id, logic.controller.text);
                                 if(res.error){
-                                  showMessage(Get.context, res.errorMessage!);
+                                  showMessage(App.globalContext, res.errorMessage!);
                                 }else{
-                                  showMessage(Get.context, res.data);
+                                  showMessage(App.globalContext, res.data);
                                   logic.refresh_();
                                 }
                               },

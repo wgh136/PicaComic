@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/proxy.dart';
+import 'package:pica_comic/tools/debug.dart';
 import '../../foundation/log.dart';
 import '../log_dio.dart';
 import 'headers.dart';
@@ -13,7 +15,6 @@ import 'jm_models.dart';
 import '../res.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pointycastle/export.dart';
-import 'package:get/get.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/base.dart';
@@ -27,7 +28,6 @@ class JmNetwork {
 
   var hotTags = <String>[];
 
-  ///工厂构造函数, 确保在App运行时仅有一个JmNetwork类
   factory JmNetwork() => cache == null ? (cache = JmNetwork.create()) : cache!;
 
   JmNetwork.create();
@@ -35,10 +35,10 @@ class JmNetwork {
   static JmNetwork? cache;
 
   static const urls = <String>[
-    "https://www.jmapinode2.cc",
-    "https://www.jmapinode.top",
-    "https://www.jmapinode3.cc",
-    "https://www.jmapinode6.cc",
+    "https://www.jmapinode1.top",
+    "https://www.jmapinode2.top",
+    "https://www.jmapinode3.top",
+    "https://www.jmapibranch2.cc",
     "$serverDomain/jmComic"
   ];
 
@@ -81,13 +81,18 @@ class JmNetwork {
     options.validateStatus = (i) => i == 200 || i == 401;
     try {
       var res = await dio.getJm(url, options, time,
-          cookieJar: cookieJar, expiredTime: expiredTime);
+          cookieJar: cookieJar, expiredTime: CacheExpiredTime.no);
       if (res.statusCode == 401) {
         return Res(null,
             errorMessage: const JsonDecoder().convert(res.data)["errorMsg"] ??
                 "未知错误".toString());
       }
-      return Res<dynamic>(const JsonDecoder().convert(res.data));
+
+      final data = const JsonDecoder().convert(res.data);
+
+      saveDebugData(res.data);
+
+      return Res<dynamic>(data);
     } on DioException catch (e) {
       if (kDebugMode) {
         print(e);
@@ -366,7 +371,7 @@ class JmNetwork {
       }
       Future.delayed(const Duration(microseconds: 500), () {
         try {
-          Get.find<PreSearchController>().update();
+          StateController.find<PreSearchController>().update();
         } catch (e) {
           //跳过
         }
@@ -379,7 +384,7 @@ class JmNetwork {
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       Future.delayed(const Duration(microseconds: 500),
-          () => Get.find<PreSearchController>().update());
+          () => StateController.find<PreSearchController>().update());
       return Res(null, errorMessage: "解析失败: ${e.toString()}");
     }
   }
@@ -524,7 +529,7 @@ class JmNetwork {
   }
 
   Future<Res<JmComicInfo>> getComicInfo(String id) async {
-    var res = await get("$baseUrl/album?$baseData&id=$id",
+    var res = await get("$baseUrl/album?comicName=&id=$id",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
@@ -550,7 +555,7 @@ class JmNetwork {
       }
       return Res(JmComicInfo(
           res.data["name"] ?? "未知",
-          res.data["id"].toString(),
+          id,
           author,
           res.data["description"] ?? "无",
           int.parse(res.data["likes"] ?? "0"),
@@ -620,7 +625,8 @@ class JmNetwork {
 
   Future<Res<List<JmComicBrief>>> getFolderComicsPage(
       String id, int page) async {
-    ComicsOrder order = appdata.settings[42] == "0" ? ComicsOrder.latest : ComicsOrder.update;
+    ComicsOrder order =
+        appdata.settings[42] == "0" ? ComicsOrder.latest : ComicsOrder.update;
     var res = await get(
         "$baseUrl/favorite?$baseData&page=$page&folder_id=$id&o=$order",
         expiredTime: CacheExpiredTime.no);
@@ -736,17 +742,19 @@ class JmNetwork {
   }
 
   /// 获取评论, 获取章节评论需要mode = all
-  Future<Res<List<Comment>>> getComment(String id, int page, [String mode = "manhua"]) async {
+  Future<Res<List<Comment>>> getComment(String id, int page,
+      [String mode = "manhua"]) async {
     var res = await get("$baseUrl/forum?mode=$mode&aid=$id&page=$page",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
     try {
-      String parseContent(String input){
+      String parseContent(String input) {
         var fragment = parseFragment(input);
-        return fragment.querySelector("div")?.text??"";
+        return fragment.querySelector("div")?.text ?? "";
       }
+
       var comments = <Comment>[];
       for (var c in res.data["list"]) {
         var reply = <Comment>[];

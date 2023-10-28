@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../foundation/app.dart';
@@ -7,7 +6,7 @@ import '../../network/eh_network/eh_main_network.dart';
 import '../widgets/list_loading.dart';
 import 'eh_widgets/eh_gallery_tile.dart';
 
-class EhLeaderboardLogic extends GetxController{
+class EhLeaderboardLogic extends StateController{
   var leaderboards = <EhLeaderboard>[
     EhLeaderboard(EhLeaderboardType.yesterday, [], 0),
     EhLeaderboard(EhLeaderboardType.month, [], 0),
@@ -57,7 +56,7 @@ class OneEhLeaderboardPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<EhLeaderboardLogic>(builder: (logic){
+    return StateBuilder<EhLeaderboardLogic>(builder: (logic){
       if(logic.leaderboards[index].galleries.isEmpty&&!logic.networkStatus[index]){
         EhNetwork().getLeaderboard(logic.leaderboards[index].type).then((board){
           if(board.success){

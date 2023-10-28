@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import '../../foundation/app.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
             message: "转到注册".tl,
             child: TextButton(
               child: Text("转到注册".tl),
-              onPressed: ()=>Get.off(()=>const RegisterPage()),
+              onPressed: ()=>App.off(context, ()=>const RegisterPage()),
             ),
           )
         ],
@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                Get.back(closeOverlays: true);
+                                App.globalBack();
                               }
                             });
                           } else {
@@ -121,12 +121,11 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 )),
                 SizedBox.fromSize(size: const Size(5,10),),
-                if(!GetPlatform.isWeb)
                   ListTile(
                     leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.secondary,),
                     title: const Text("设置"),
                     trailing: const Icon(Icons.arrow_right),
-                    onTap: () => Get.to(() => const SettingsPage()),
+                    onTap: () => App.globalTo(() => const SettingsPage()),
                   ),
                 SizedBox.fromSize(size: const Size(5,10),),
                 if(!isLogging)
@@ -156,8 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                                 appdata.picacgAccount = nameController.text;
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
-                                Get.closeAllSnackbars();
-                                Get.back(closeOverlays: true);
+                                App.globalBack();
                               }
                             });
                           } else{

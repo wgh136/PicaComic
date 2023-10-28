@@ -87,7 +87,7 @@ class HistoryManager{
     for(var h in json){
       history.add(History.fromMap((h as Map<String, dynamic>)));
     }
-    saveDataAndClose();
+    saveData();
   }
 
   /// remove repeated item
@@ -107,7 +107,7 @@ class HistoryManager{
     }
   }
 
-  void saveDataAndClose() async{
+  void saveData() async{
     check();
     final dataPath = await getApplicationSupportDirectory();
     var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
@@ -116,14 +116,6 @@ class HistoryManager{
     }
     file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
     Webdav.uploadData();
-    /*
-    _open = false;
-    history.clear();
-     */
-  }
-
-  void close() async{
-    saveDataAndClose();
   }
 
   Future<void> readData() async{
@@ -170,7 +162,7 @@ class HistoryManager{
       var p = history.firstWhere((element) => element.target == target);
       p.ep = ep;
       p.page = page;
-      saveDataAndClose();
+      saveData();
     }
     catch(e){
       //可能存在进入阅读器前添加历史记录失败情况, 此时忽略

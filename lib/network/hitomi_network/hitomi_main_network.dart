@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
 import 'package:html/parser.dart';
-import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/hitomi_network/search.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import '../../base.dart';
 import '../../foundation/log.dart';
 import '../proxy.dart';
@@ -85,7 +84,7 @@ class HiNetwork{
         cover = cover.substring(2);
         cover = "https://a$cover";
         cover = cover.replaceAll(RegExp(r"2x.*"), "");
-        cover = cover.removeAllWhitespace;
+        cover = cover.removeAllBlank;
         cover = cover.replaceFirst("avifbigtn", "webpbigtn");
         cover = cover.replaceFirst(".avif", ".webp");
       }

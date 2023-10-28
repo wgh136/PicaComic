@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../foundation/app.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 
-class JmLatestPageLogic extends GetxController{
+class JmLatestPageLogic extends StateController{
   bool loading = true;
   var comics = <JmComicBrief>[];
   String? message;
@@ -34,7 +33,7 @@ class JmLatestPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<JmLatestPageLogic>(
+    return StateBuilder<JmLatestPageLogic>(
       builder: (logic){
         if(logic.loading){
           logic.get();

@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
@@ -193,13 +192,13 @@ class FolderTile extends StatelessWidget {
                           content: Text("要删除这个收藏夹吗".tl),
                           actions: [
                             TextButton(
-                                onPressed: () => Get.back(),
+                                onPressed: () => App.globalBack(),
                                 child: Text("取消".tl)),
                             TextButton(
                                 onPressed: () async {
                                   LocalFavoritesManager().deleteFolder(name);
                                   stateSetter();
-                                  Get.back();
+                                  App.globalBack();
                                 },
                                 child: Text("确认".tl)),
                           ],
@@ -238,7 +237,7 @@ class CreateFolderDialog extends StatelessWidget {
             onEditingComplete: () {
               try {
                 LocalFavoritesManager().createFolder(controller.text);
-                Get.back();
+                App.globalBack();
               } catch (e) {
                 showMessage(context, e.toString());
               }
@@ -260,7 +259,7 @@ class CreateFolderDialog extends StatelessWidget {
                   onPressed: () {
                     try {
                       LocalFavoritesManager().createFolder(controller.text);
-                      Get.back();
+                      App.globalBack();
                     } catch (e) {
                       showMessage(context, e.toString());
                     }
@@ -290,7 +289,7 @@ class RenameFolderDialog extends StatelessWidget {
             onEditingComplete: () {
               try {
                 LocalFavoritesManager().rename(before, controller.text);
-                Get.back();
+                App.globalBack();
               } catch (e) {
                 showMessage(context, e.toString());
               }
@@ -312,7 +311,7 @@ class RenameFolderDialog extends StatelessWidget {
                   onPressed: () {
                     try {
                       LocalFavoritesManager().rename(before, controller.text);
-                      Get.back();
+                      App.globalBack();
                     } catch (e) {
                       showMessage(context, e.toString());
                     }
@@ -454,7 +453,7 @@ class LocalFavoriteTile extends ComicTile {
   @override
   void onSecondaryTap_(TapDownDetails details) {
     showMenu(
-        context: Get.context!,
+        context: App.globalContext!,
         position: RelativeRect.fromLTRB(
             details.globalPosition.dx,
             details.globalPosition.dy,
@@ -482,7 +481,7 @@ class LocalFavoriteTile extends ComicTile {
   @override
   void onLongTap_() {
     showDialog(
-        context: Get.context!,
+        context: App.globalContext!,
         builder: (context) => Dialog(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
@@ -507,7 +506,7 @@ class LocalFavoriteTile extends ComicTile {
                       leading: const Icon(Icons.bookmark_remove),
                       title: Text("取消收藏".tl),
                       onTap: () {
-                        Get.back();
+                        App.globalBack();
                         LocalFavoritesManager().deleteComic(folderName, comic);
                         onDelete();
                       },
@@ -516,7 +515,7 @@ class LocalFavoriteTile extends ComicTile {
                       leading: const Icon(Icons.chrome_reader_mode_rounded),
                       title: Text("阅读".tl),
                       onTap: (){
-                        Get.back();
+                        App.globalBack();
                         read();
                       },
                     ),
@@ -535,16 +534,16 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.picacg:
         {
           bool cancel = false;
-          showLoadingDialog(Get.context!, ()=>cancel=true);
+          showLoadingDialog(App.globalContext!, ()=>cancel=true);
           var res = await network.getEps(comic.target);
           if(cancel){
             return;
           }
           if(res.error){
-            Get.back();
-            showMessage(Get.context, res.errorMessageWithoutNull);
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
           }else{
-            Get.back();
+            App.globalBack();
             readPicacgComic2(ComicItemBrief(
                 comic.name, comic.author, 0, comic.coverPath, comic.target, [],
                 ignoreExamination: true), res.data);
@@ -553,80 +552,80 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.ehentai:
         {
           bool cancel = false;
-          showLoadingDialog(Get.context!, ()=>cancel=true);
+          showLoadingDialog(App.globalContext!, ()=>cancel=true);
           var res = await EhNetwork().getGalleryInfo(comic.target);
           if(cancel){
             return;
           }
           if(res.error){
-            Get.back();
-            showMessage(Get.context, res.errorMessageWithoutNull);
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
           }else{
-            Get.back();
+            App.globalBack();
             readEhGallery(res.data);
           }
         }
       case ComicType.jm:
         {
           bool cancel = false;
-          showLoadingDialog(Get.context!, ()=>cancel=true);
+          showLoadingDialog(App.globalContext!, ()=>cancel=true);
           var res = await JmNetwork().getComicInfo(comic.target);
           if(cancel){
             return;
           }
           if(res.error){
-            Get.back();
-            showMessage(Get.context, res.errorMessageWithoutNull);
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
           }else{
-            Get.back();
+            App.globalBack();
             readJmComic(res.data, res.data.series.values.toList());
           }
         }
       case ComicType.hitomi:
         {
           bool cancel = false;
-          showLoadingDialog(Get.context!, ()=>cancel=true);
+          showLoadingDialog(App.globalContext!, ()=>cancel=true);
           var res = await HiNetwork().getComicInfo(comic.target);
           if(cancel){
             return;
           }
           if(res.error){
-            Get.back();
-            showMessage(Get.context, res.errorMessageWithoutNull);
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
           }else{
-            Get.back();
+            App.globalBack();
             readHitomiComic(res.data, comic.coverPath);
           }
         }
       case ComicType.htManga:
         {
           bool cancel = false;
-          showLoadingDialog(Get.context!, ()=>cancel=true);
+          showLoadingDialog(App.globalContext!, ()=>cancel=true);
           var res = await HtmangaNetwork().getComicInfo(comic.target);
           if(cancel){
             return;
           }
           if(res.error){
-            Get.back();
-            showMessage(Get.context, res.errorMessageWithoutNull);
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
           }else{
-            Get.back();
+            App.globalBack();
             readHtmangaComic(res.data);
           }
         }
       case ComicType.nhentai:
         {
           bool cancel = false;
-          showLoadingDialog(Get.context!, ()=>cancel=true);
+          showLoadingDialog(App.globalContext!, ()=>cancel=true);
           var res = await NhentaiNetwork().getComicInfo(comic.target);
           if(cancel){
             return;
           }
           if(res.error){
-            Get.back();
-            showMessage(Get.context, res.errorMessageWithoutNull);
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
           }else{
-            Get.back();
+            App.globalBack();
             readNhentai(res.data);
           }
         }
@@ -787,7 +786,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
 
   @override
   void initState() {
-    width = MediaQuery.of(Get.context!).size.width;
+    width = MediaQuery.of(App.globalContext!).size.width;
     super.initState();
   }
 
@@ -863,7 +862,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
               key: reorderWidgetKey,
               scrollController: _scrollController,
               enableDraggable: enableSort,
-              longPressDelay: GetPlatform.isDesktop ? const Duration(milliseconds: 100) : const Duration(milliseconds: 500),
+              longPressDelay: App.isDesktop ? const Duration(milliseconds: 100) : const Duration(milliseconds: 500),
               onReorder: (reorderFunc){
                 changed = true;
                 setState(() {

@@ -4,17 +4,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
-import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../base.dart';
+import '../../foundation/app.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
 import '../show_image_page.dart';
@@ -58,7 +57,7 @@ class ThumbnailsData {
   ThumbnailsData(this.thumbnails, this.load, this.maxPage);
 }
 
-class ComicPageLogic<T extends Object> extends GetxController {
+class ComicPageLogic<T extends Object> extends StateController {
   bool loading = true;
   T? data;
   String? message;
@@ -106,7 +105,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// and allow user to download or read comic.
   const ComicPage({super.key});
 
-  ComicPageLogic<T> get _logic => Get.find<ComicPageLogic<T>>(tag: tag);
+  ComicPageLogic<T> get _logic => StateController.find<ComicPageLogic<T>>(tag: tag);
 
   /// title
   String? get title;
@@ -121,7 +120,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   @nonVirtual
   T? get data => _logic.data;
 
-  /// tag, used by Get, creating a GetxController.
+  /// tag, used by Get, creating a StateController.
   ///
   /// This should be a unique identifier,
   /// to prevent loading same data when user open more than one comic page.
@@ -167,7 +166,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   void update() => _logic.update();
 
   /// get context
-  BuildContext get context => Get.context!;
+  BuildContext get context => App.globalContext!;
 
   /// interface for building more info widget
   Widget? get buildMoreInfo => null;
@@ -232,11 +231,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints){
       return Scaffold(
-        body: GetBuilder<ComicPageLogic<T>>(
+        body: StateBuilder<ComicPageLogic<T>>(
           tag: tag,
+          init: ComicPageLogic<T>(),
           initState: (logic) {
-            var getState = Get.put(ComicPageLogic<T>(), tag: tag);
-            tagsStack.push(getState);
+            tagsStack.push(_logic);
           },
           dispose: (logic){
             tagsStack.pop();
@@ -252,9 +251,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             } else {
               _logic.thumbnailsData ??= thumbnailsCreator;
               logic.controller.removeListener(scrollListener);
-              if(UiMode.m1(context)) {
-                logic.controller.addListener(scrollListener);
-              }
+              logic.controller.addListener(scrollListener);
               return CustomScrollView(
                 controller: logic.controller,
                 slivers: [
@@ -308,20 +305,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     final finalTitle = "[$source] $title${pages == null ? "" : "(${pages}P)"}";
 
-    if(!UiMode.m1(context)){
-      return [CustomSliverAppbar(
-          title: CustomSelectableText(
-            text: finalTitle,
-            style: const TextStyle(fontSize: 28),
-            withAddToBlockKeywordButton: true,
-          ), actions: [menu], centerTitle: false
-      )];
-    }
-
     return [
       SliverAppBar(
         surfaceTintColor: logic.showAppbarTitle ? null : Colors.transparent,
         shadowColor: Colors.transparent,
+        scrolledUnderElevation: UiMode.m1(context) ? null : 0.0,
         title: AnimatedOpacity(
           opacity: logic.showAppbarTitle ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 200),
@@ -329,6 +317,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
         pinned: true,
         actions: [menu],
+        primary: UiMode.m1(context),
       ),
       SliverToBoxAdapter(
         child: Padding(
@@ -410,7 +399,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           ),),
         ),
       ),
-      onTap: () => Get.to(() => ShowImagePage(cover)),
+      onTap: () => App.globalTo(() => ShowImagePage(cover)),
     );
   }
 
@@ -433,7 +422,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     return GestureDetector(
       onLongPressStart: (details) {
         showMenu(
-            context: Get.context!,
+            context: App.globalContext!,
             position: RelativeRect.fromLTRB(
                 details.globalPosition.dx,
                 details.globalPosition.dy,
@@ -469,7 +458,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           onTap: title ? null : () => tapOnTags(text),
           onSecondaryTapDown: (details) {
             showMenu(
-                context: Get.context!,
+                context: App.globalContext!,
                 position: RelativeRect.fromLTRB(
                     details.globalPosition.dx,
                     details.globalPosition.dy,
@@ -729,9 +718,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 const SizedBox(
                   width: 20,
                 ),
-                const Text(
-                  "预览",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+               Text(
+                  "预览".tl,
+                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 )
               ],
             )),
@@ -967,10 +956,10 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       child: FilledButton(
         child: Text("收藏".tl),
         onPressed: (){
-          Get.closeAllSnackbars();
+          hideMessage(context);
           if(selectID != null){
             widget.setFavorite(true);
-            Get.back();
+            App.globalBack();
             widget.selectFolderCallback?.call(selectID!, page);
           }
         },
@@ -992,11 +981,11 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
           width: 120,
           child: FilledButton(
             onPressed: (){
-              Get.closeAllSnackbars();
+              hideMessage(context);
               if(addedFolders.isEmpty){
                 widget.setFavorite(false);
               }
-              Get.back();
+              App.globalBack();
               widget.cancelPlatformFavorite?.call();
             },
             child: const Text("取消收藏"),
@@ -1011,8 +1000,8 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         width: 120,
         child: FilledButton(
           onPressed: (){
-            Get.closeAllSnackbars();
-            Get.back();
+            hideMessage(context);
+            App.globalBack();
             if(addedFolders.length == 1 && !widget.favoriteOnPlatform){
               widget.setFavorite(false);
             }
@@ -1026,7 +1015,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
     else if(widget.havePlatformFavorite && widget.needLoadFolderData && !loadedData){
       widget.foldersLoader!.call().then((res){
         if(res.error){
-          showMessage(Get.context, res.errorMessageWithoutNull);
+          showMessage(App.globalContext, res.errorMessageWithoutNull);
         }else{
           setState(() {
             loadedData = true;

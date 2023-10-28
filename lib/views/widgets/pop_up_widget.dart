@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
+import '../../foundation/app.dart';
 
 class PopUpWidget<T> extends PopupRoute<T>{
   PopUpWidget(this.widget);
@@ -47,5 +48,6 @@ void showAdaptiveWidget(BuildContext context, Widget widget){
   //根据当前宽度显示页面
   //当页面宽度大于600, 显示弹窗
   //小于600, 跳转页面
-  MediaQuery.of(context).size.width>600?showPopUpWidget(context, widget):Get.to(()=>widget);
+  MediaQuery.of(context).size.width>600?showPopUpWidget(context, widget):
+    App.globalTo(()=>widget);
 }

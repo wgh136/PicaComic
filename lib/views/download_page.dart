@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
@@ -35,7 +34,7 @@ import 'package:pica_comic/tools/translations.dart';
 import 'main_page.dart';
 
 
-class DownloadPageLogic extends GetxController {
+class DownloadPageLogic extends StateController {
   ///是否正在加载
   bool loading = true;
 
@@ -106,7 +105,7 @@ class DownloadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<DownloadPageLogic>(
+    return StateBuilder<DownloadPageLogic>(
         init: DownloadPageLogic(),
         builder: (logic) {
           if (logic.loading) {
@@ -205,11 +204,11 @@ class DownloadPage extends StatelessWidget {
     for (int i = 0; i < logic.selected.length; i++) {
       if (logic.selected[i]) {
         var res = await exportComic(logic.comics[i].id, logic.comics[i].name);
-        Get.back();
+        App.globalBack();
         if (res) {
           //忽视
         } else {
-          showMessage(Get.context, "导出失败");
+          showMessage(App.globalContext, "导出失败");
         }
       }
     }
@@ -258,7 +257,7 @@ class DownloadPage extends StatelessWidget {
           },
           onSecondaryTap: (details) {
             showMenu(
-                context: Get.context!,
+                context: App.globalContext!,
                 position: RelativeRect.fromLTRB(
                     details.globalPosition.dx,
                     details.globalPosition.dy,
@@ -315,11 +314,11 @@ class DownloadPage extends StatelessWidget {
                           () async {
                         var res = await exportComic(
                             logic.comics[index].id, logic.comics[index].name);
-                        Get.back();
+                        App.globalBack();
                         if (res) {
                           //忽视
                         } else {
-                          showMessage(Get.context, "导出失败");
+                          showMessage(App.globalContext, "导出失败");
                         }
                       });
                     },
@@ -383,7 +382,7 @@ class DownloadPage extends StatelessWidget {
             return DownloadedComicInfoView(logic.comics[index], logic);
           });
     } else {
-      showSideBar(Get.context!, DownloadedComicInfoView(logic.comics[index], logic),
+      showSideBar(App.globalContext!, DownloadedComicInfoView(logic.comics[index], logic),
           useSurfaceTintColor: true);
     }
   }
@@ -405,11 +404,11 @@ class DownloadPage extends StatelessWidget {
                 content: Text("要删除已选择的项目吗? 此操作无法撤销".tl),
                 actions: [
                   TextButton(
-                      onPressed: () => Get.back(),
+                      onPressed: () => App.globalBack(),
                       child: const Text("取消")),
                   TextButton(
                       onPressed: () async {
-                        Get.back();
+                        App.globalBack();
                         var comics = <String>[];
                         for (int i = 0;
                         i < logic.selected.length;
@@ -544,10 +543,10 @@ class DownloadPage extends StatelessWidget {
               icon: const Icon(Icons.download_for_offline),
               onPressed: () {
                 showAdaptiveWidget(
-                    Get.context!,
+                    App.globalContext!,
                     DownloadingPage(
                       inPopupWidget:
-                      MediaQuery.of(Get.context!).size.width >
+                      MediaQuery.of(App.globalContext!).size.width >
                           600,
                     ));
               },
@@ -637,7 +636,7 @@ class DownloadPage extends StatelessWidget {
                             const Duration(milliseconds: 200),
                                 () {
                               if (logic.selectedNum != 1) {
-                                showMessage(Get.context, "请选择一个漫画".tl);
+                                showMessage(App.globalContext, "请选择一个漫画".tl);
                               } else {
                                 for (int i = 0; i < logic.selected.length; i++) {
                                   if (logic.selected[i]) {
@@ -692,7 +691,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
       if(message == null) {
         setState(() {});
       }else{
-        showMessage(Get.context, message);
+        showMessage(App.globalContext, message);
       }
     });
   }
@@ -772,7 +771,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                   Expanded(
                     child: FilledButton(
                         onPressed: () {
-                          Get.back();
+                          App.globalBack();
                           if (widget.item is DownloadedComic) {
                             MainPage.to(() => PicacgComicPage(
                                 (widget.item as DownloadedComic)
@@ -848,14 +847,14 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
   void readSpecifiedEps(int i) {
     if (comic.type == DownloadType.picacg) {
       addPicacgHistory((comic as DownloadedComic).comicItem);
-      Get.to(() => ComicReadingPage.picacg(
+      App.globalTo(() => ComicReadingPage.picacg(
           (comic as DownloadedComic).comicItem.id,
           i + 1,
           (comic as DownloadedComic).eps,
           (comic as DownloadedComic).comicItem.title));
     } else if (comic.type == DownloadType.jm) {
       addJmHistory((comic as DownloadedJmComic).comic);
-      Get.to(() => ComicReadingPage.jmComic(
+      App.globalTo(() => ComicReadingPage.jmComic(
           (comic as DownloadedJmComic).comic.id,
           (comic as DownloadedJmComic).comic.name,
           (comic as DownloadedJmComic).comic.series.values.toList(),

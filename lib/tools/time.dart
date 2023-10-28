@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 String timeToString(DateTime time){
@@ -9,7 +8,7 @@ String timeToString(DateTime time){
   if(current.difference(time).inDays > 360){
     return "@year 年前".tlParams({"year": (current.difference(time).inDays ~/ 360).toString()});
   }else if(current.difference(time).inDays > 30){
-    return "@month 个月前".trParams({"month": (current.difference(time).inDays ~/ 30).toString()});
+    return "@month 个月前".tlParams({"month": (current.difference(time).inDays ~/ 30).toString()});
   }else if(current.difference(time).inHours > 24){
     return "@day 天前".tlParams({"day": (current.difference(time).inDays).toString()});
   }else if(current.difference(time).inMinutes > 60){

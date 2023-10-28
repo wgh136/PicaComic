@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
@@ -10,7 +9,9 @@ import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-class GamePageLogic extends GetxController{
+import '../../foundation/app.dart';
+
+class GamePageLogic extends StateController{
   bool isLoading = true;
   GameInfo? gameInfo;
 
@@ -27,9 +28,9 @@ void gameDownload(BuildContext context, String url){
       title: Text("下载游戏".tl),
       content: Text("将前往哔咔游戏下载页面, 是否继续".tl),
       actions: [
-        TextButton(onPressed: () => Get.back(), child: Text("取消".tl)),
+        TextButton(onPressed: () => App.globalBack(), child: Text("取消".tl)),
         TextButton(onPressed: (){
-          Get.back();
+          App.globalBack();
           launchUrlString(url,mode: LaunchMode.externalApplication);
         }, child: Text("继续".tl))
       ],
@@ -43,7 +44,7 @@ class GamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<GamePageLogic>(
+    return StateBuilder<GamePageLogic>(
         init: GamePageLogic(),
         builder: (logic){
           if(logic.isLoading){
@@ -77,7 +78,7 @@ class GamePage extends StatelessWidget {
                                 height: 300,
                               ),
                               onTap: (){
-                                Get.to(()=>ShowImagePage(logic.gameInfo!.icon));
+                                App.globalTo(()=>ShowImagePage(logic.gameInfo!.icon));
                               },
                             ),
                             const SizedBox(height: 10,),
@@ -108,7 +109,7 @@ class GamePage extends StatelessWidget {
                                     avatar: const Icon(Icons.comment_outlined),
                                     label: Text(logic.gameInfo!.comments.toString()),
                                     onPressed: (){
-                                      Get.to(()=>CommentsPage(logic.gameInfo!.id,type: "games",));
+                                      App.globalTo(()=>CommentsPage(logic.gameInfo!.id,type: "games",));
                                     },
                                   ),
                                   const Spacer(),
@@ -176,7 +177,7 @@ class GamePage extends StatelessWidget {
                                             avatar: const Icon(Icons.comment_outlined),
                                             label: Text(logic.gameInfo!.comments.toString()),
                                             onPressed: (){
-                                              Get.to(()=>CommentsPage(logic.gameInfo!.id,type: "games",));
+                                              App.globalTo(()=>CommentsPage(logic.gameInfo!.id,type: "games",));
                                             },
                                           ),
                                         ),
@@ -246,7 +247,7 @@ class GamePage extends StatelessWidget {
                                       ),
                                     ),
                                     onTap: (){
-                                      Get.to(()=>ShowImagePage(s));
+                                      App.globalTo(()=>ShowImagePage(s));
                                     },
                                   )
                               ],
@@ -278,7 +279,7 @@ class GamePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SliverPadding(padding: EdgeInsets.only(top: Get.bottomBarHeight))
+                  SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                 ],
               ),
             );

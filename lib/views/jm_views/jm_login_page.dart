@@ -1,7 +1,7 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -54,12 +54,12 @@ class _JmLoginPageState extends State<JmLoginPage> {
                     });
                     var res = await jmNetwork.login(nameController.text, passwordController.text);
                     if(res.error){
-                      showMessage(Get.context, res.errorMessage!);
+                      showMessage(App.globalContext, res.errorMessage!);
                       setState(() {
                         logging = false;
                       });
                     }else{
-                      Get.back();
+                      App.globalBack();
                     }
                   },
                 ),
@@ -75,7 +75,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                         });
                         var res = await jmNetwork.login(nameController.text, passwordController.text);
                         if(res.error){
-                          showMessage(Get.context, res.errorMessage!);
+                          showMessage(App.globalContext, res.errorMessage!);
                           try {
                             setState(() {
                               logging = false;
@@ -85,7 +85,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                             //忽视
                           }
                         }else{
-                          Get.back();
+                          App.globalBack();
                         }
                       },
                     ),

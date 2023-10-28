@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:pica_comic/foundation/pair.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/extensions.dart';
@@ -19,13 +18,12 @@ import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/tools/tags_translation.dart';
 import 'jm_views/jm_comic_page.dart';
 import 'main_page.dart';
 
 typedef FilterChip = CustomFilterChip;
 
-class PreSearchController extends GetxController{
+class PreSearchController extends StateController{
   int target = 0;
   int picComicsOrder = appdata.getSearchMode();
   int jmComicsOrder = int.parse(appdata.settings[19]);
@@ -56,43 +54,52 @@ class PreSearchPage extends StatelessWidget{
 
   final controller = TextEditingController();
 
-  final searchController = Get.put(PreSearchController());
+  final searchController = StateController.put(PreSearchController());
 
-  final FocusNode _focusNode = FocusNode();
-
-  void search([String? s]){
+  void search(BuildContext context, [String? s]){
     final keyword = (s ?? controller.text).trim();
+    void toSearchPage(Widget Function() page){
+      if(s == null){
+        App.off(context, () => page());
+      }else{
+        App.to(context, () => page());
+      }
+    }
     switch(searchController.target){
-      case 0: MainPage.to(()=>SearchPage(keyword));break;
-      case 1: MainPage.to(()=>EhSearchPage(keyword));break;
-      case 2: MainPage.to(()=>JmSearchPage(keyword));break;
-      case 3: MainPage.to(()=>HitomiSearchPage(keyword));break;
-      case 4: MainPage.to(()=>HtSearchPage(keyword));break;
-      case 5: MainPage.to(()=>NhentaiSearchPage(keyword));break;
+      case 0: toSearchPage(()=>SearchPage(keyword));break;
+      case 1: toSearchPage(()=>EhSearchPage(keyword));break;
+      case 2: toSearchPage(()=>JmSearchPage(keyword));break;
+      case 3: toSearchPage(()=>HitomiSearchPage(keyword));break;
+      case 4: toSearchPage(()=>HtSearchPage(keyword));break;
+      case 5: toSearchPage(()=>NhentaiSearchPage(keyword));break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: search,
-        child: const Icon(Icons.search),
-      ),
-
       body: Column(
         children: [
           if(UiMode.m1(context))
             SizedBox(height: MediaQuery.of(context).padding.top,),
-          FloatingSearchBar(supportingText: '搜索'.tl,f:(s){
-            if(s=="") return;
-            search();
-          },
-            controller: controller,
-            onChanged: (s) => searchController.update([1, 100]),
-            showPinnedButton: false,
-            focusNode: _focusNode,
-          ),
+          StateBuilder<PreSearchController>(
+            builder: (logic) => FloatingSearchBar(
+              onSearch:(s){
+                if(s=="") return;
+                search(context);
+              },
+              controller: controller,
+              showPinnedButton: false,
+              target: switch(logic.target){
+                0 => ComicType.picacg,
+                1 => ComicType.ehentai,
+                2 => ComicType.jm,
+                3 => ComicType.hitomi,
+                4 => ComicType.htManga,
+                5 => ComicType.nhentai,
+                _ => null
+              },
+          ),),
           const SizedBox(height: 8,),
           buildBody(context)
         ],
@@ -101,18 +108,8 @@ class PreSearchPage extends StatelessWidget{
   }
 
   Widget buildBody(BuildContext context){
-    var widget = GetBuilder<PreSearchController>(
-      id: 100,
-      builder: (_){
-        if(controller.text.removeAllWhitespace.isEmpty || controller.text.endsWith(" ")){
-          return buildMainView(context);
-        }else{
-          return buildSuggestions(context);
-        }
-      },
-    );
     return Expanded(
-      child: widget,
+      child: buildMainView(context),
     );
   }
 
@@ -154,114 +151,6 @@ class PreSearchPage extends StatelessWidget{
     );
   }
 
-  Widget buildSuggestions(BuildContext context){
-    bool check(String text, String key, String value){
-      if(text.removeAllWhitespace == ""){
-        return false;
-      }
-      if(key.length >= text.length && key.substring(0, text.length) == text
-          || (key.contains(" ") && key.split(" ").last.length >= text.length
-              && key.split(" ").last.substring(0, text.length) == text)){
-        return true;
-      }else if(value.length >= text.length
-          && value.contains(text)){
-        return true;
-      }
-      return false;
-    }
-
-    return GetBuilder<PreSearchController>(builder: (logic){
-      void onSelected(String text, TranslationType? type, [bool? male]){
-        var words = controller.text.split(" ");
-        if(words.length >= 2 && check("${words[words.length-2]} ${words[words.length-1]}", text, text.translateTagsToCN)){
-          controller.text = controller.text.replaceLast("${words[words.length-2]} ${words[words.length-1]}", "");
-        }else{
-          controller.text = controller.text.replaceLast(words[words.length-1], "");
-        }
-        if(text.contains(" ")){
-          if(logic.target == 3){
-            text = text.replaceAll(" ", '_');
-          }else {
-            text = "\"$text\"";
-          }
-        }
-        if(logic.target == 1) {
-          if(type != null) {
-            controller.text += "${type.name}:$text ";
-          } else {
-            controller.text += "$text ";
-          }
-        }else{
-          controller.text += "$text ";
-        }
-        logic.update([1, 100]);
-        _focusNode.requestFocus();
-      }
-
-      Widget widget;
-
-      if(controller.text.removeAllWhitespace.isEmpty){
-        widget = const SizedBox(height: 0,);
-      }else{
-        var text = controller.text.split(" ").last;
-        var suggestions = <Pair<String, TranslationType>>[];
-
-        void find(Map<String, String> map, TranslationType type){
-          for (var element in map.entries) {
-            if(suggestions.length > 200){
-              break;
-            }
-            if(check(text, element.key, element.value)){
-              suggestions.add(Pair(element.key, type));
-            }
-          }
-        }
-
-        find(TagsTranslation.femaleTags, TranslationType.female);
-        find(TagsTranslation.maleTags, TranslationType.male);
-        find(TagsTranslation.parodyTags, TranslationType.parody);
-        find(TagsTranslation.characterTranslations, TranslationType.character);
-        find(TagsTranslation.otherTags, TranslationType.other);
-        find(TagsTranslation.mixedTags, TranslationType.mixed);
-        find(TagsTranslation.languageTranslations, TranslationType.language);
-        find(TagsTranslation.artistTags, TranslationType.artist);
-        find(TagsTranslation.groupTags, TranslationType.group);
-        find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
-
-        bool showMethod = MediaQuery.of(context).size.width < 600;
-        Widget buildItem(Pair<String, TranslationType> value){
-          var subTitle = TagsTranslation.translationTagWithNamespace(value.left, value.right.name);
-          return ListTile(
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(value.left),
-                if(!showMethod)
-                  const SizedBox(width: 12,),
-                if(!showMethod)
-                  Text(subTitle, style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.outline),
-                  )
-              ],
-            ),
-            subtitle: showMethod ? Text(subTitle) : null,
-            trailing: Text(value.right.name, style: const TextStyle(fontSize: 13),),
-            onTap: () => onSelected(value.left, value.right),
-          );
-        }
-
-        widget = ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: suggestions.length,
-          itemBuilder: (context, index) => buildItem(suggestions[index]),
-        );
-
-      }
-      return widget;
-    }, id: 1,);
-  }
-
   Widget buildTargetSelector(BuildContext context){
     buildItem(PreSearchController logic, int id, String text) => Padding(
       padding: const EdgeInsets.all(5),
@@ -291,11 +180,11 @@ class PreSearchPage extends StatelessWidget{
                       keyboardType: TextInputType.number,
                       controller: controller,
                       onEditingComplete: () {
-                        Get.back();
+                        App.globalBack();
                         if(controller.text.isNum){
                           MainPage.to(()=>JmComicPage(controller.text));
                         }else{
-                          showMessage(Get.context, "输入的ID不是数字".tl);
+                          showMessage(App.globalContext, "输入的ID不是数字".tl);
                         }
                       },
                       inputFormatters: [
@@ -310,11 +199,11 @@ class PreSearchPage extends StatelessWidget{
                   ),
                   actions: [
                     TextButton(onPressed: (){
-                      Get.back();
+                      App.globalBack();
                       if(controller.text.isNum){
                         MainPage.to(()=>JmComicPage(controller.text));
                       }else{
-                        showMessage(Get.context, "输入的ID不是数字".tl);
+                        showMessage(App.globalContext, "输入的ID不是数字".tl);
                       }
                     }, child: Text("提交".tl))
                   ],
@@ -335,7 +224,7 @@ class PreSearchPage extends StatelessWidget{
       );
     }
 
-    return GetBuilder<PreSearchController>(builder: (logic){
+    return StateBuilder<PreSearchController>(builder: (logic){
       return Card(
         margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
         elevation: 0,
@@ -431,7 +320,7 @@ class PreSearchPage extends StatelessWidget{
       ];
     }
 
-    return GetBuilder<PreSearchController>(
+    return StateBuilder<PreSearchController>(
       builder: (logic){
         if(![0,2,5].contains(searchController.target)){
           return const SizedBox();
@@ -556,7 +445,7 @@ class PreSearchPage extends StatelessWidget{
       }
     }
 
-    return GetBuilder<PreSearchController>(
+    return StateBuilder<PreSearchController>(
       builder: (controller){
         return Card(
           elevation: 0,
@@ -574,7 +463,7 @@ class PreSearchPage extends StatelessWidget{
                       color: Theme.of(context).colorScheme.surfaceVariant,
                       child: InkWell(
                         borderRadius: const BorderRadius.all(Radius.circular(16)),
-                        onTap: () => search(s),
+                        onTap: () => search(context, s),
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text(s),),
                       ),
@@ -632,7 +521,7 @@ class PreSearchPage extends StatelessWidget{
       }
     }
 
-    return GetBuilder<PreSearchController>(
+    return StateBuilder<PreSearchController>(
       builder: (controller){
         return Card(
           elevation: 0,
@@ -650,7 +539,7 @@ class PreSearchPage extends StatelessWidget{
                       color: Theme.of(context).colorScheme.surfaceVariant,
                       child: InkWell(
                         borderRadius: const BorderRadius.all(Radius.circular(16)),
-                        onTap: () => search(s),
+                        onTap: () => search(context, s),
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8), child: Text(s),),
                       ),
@@ -666,7 +555,7 @@ class PreSearchPage extends StatelessWidget{
   }
 
   Widget buildHistorySideBar(BuildContext context){
-    return GetBuilder<PreSearchController>(builder: (logic)=>ListView.builder(
+    return StateBuilder<PreSearchController>(builder: (logic)=>ListView.builder(
       padding: EdgeInsets.zero,
       itemCount: appdata.searchHistory.length + 1,
       itemBuilder: (context, index){
@@ -686,7 +575,7 @@ class PreSearchPage extends StatelessWidget{
         } else {
           return ListTile(
             title: Text(appdata.searchHistory[appdata.searchHistory.length - index]),
-            onTap: () => search(appdata.searchHistory[appdata.searchHistory.length - index]),
+            onTap: () => search(context, appdata.searchHistory[appdata.searchHistory.length - index]),
           );
         }
       },
@@ -694,7 +583,7 @@ class PreSearchPage extends StatelessWidget{
   }
 
   Widget buildPinnedSideBar(){
-    return GetBuilder<PreSearchController>(builder: (logic) => ListView.builder(
+    return StateBuilder<PreSearchController>(builder: (logic) => ListView.builder(
       padding: EdgeInsets.zero,
       itemCount: appdata.pinnedKeyword.length + 1,
       itemBuilder: (context, index){
@@ -714,7 +603,7 @@ class PreSearchPage extends StatelessWidget{
         } else {
           return ListTile(
             title: Text(appdata.pinnedKeyword.elementAt(index-1)),
-            onTap: () => search(appdata.pinnedKeyword.elementAt(index-1)),
+            onTap: () => search(context, appdata.pinnedKeyword.elementAt(index-1)),
           );
         }
       },

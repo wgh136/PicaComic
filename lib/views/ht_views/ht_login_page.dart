@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -57,12 +57,12 @@ class _HtLoginPageState extends State<HtLoginPage> {
                     var res =
                         await HtmangaNetwork().login(nameController.text, passwordController.text);
                     if (res.error) {
-                      showMessage(Get.context, res.errorMessage!);
+                      showMessage(App.globalContext, res.errorMessage!);
                       setState(() {
                         logging = false;
                       });
                     } else {
-                      Get.back();
+                      App.globalBack();
                     }
                   },
                 ),
@@ -81,7 +81,7 @@ class _HtLoginPageState extends State<HtLoginPage> {
                         var res = await HtmangaNetwork()
                             .login(nameController.text, passwordController.text);
                         if (res.error) {
-                          showMessage(Get.context, res.errorMessage!);
+                          showMessage(App.globalContext, res.errorMessage!);
                           try {
                             setState(() {
                               logging = false;
@@ -90,7 +90,7 @@ class _HtLoginPageState extends State<HtLoginPage> {
                             //忽视
                           }
                         } else {
-                          Get.back();
+                          App.globalBack();
                         }
                       },
                     ),

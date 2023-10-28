@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
@@ -9,7 +8,7 @@ import 'jm_widgets.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 
-class JmPromoteListPageLogic extends GetxController{
+class JmPromoteListPageLogic extends StateController{
   bool loading = true;
   String? message;
 
@@ -50,7 +49,7 @@ class JmPromoteListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GetBuilder<JmPromoteListPageLogic>(
+      body: StateBuilder<JmPromoteListPageLogic>(
         init: JmPromoteListPageLogic(),
         builder: (logic){
           if(logic.loading){

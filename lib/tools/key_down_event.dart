@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/foundation/app.dart';
 
 class ListenVolumeController{
   void Function() whenUp;
@@ -11,7 +11,7 @@ class ListenVolumeController{
   ListenVolumeController(this.whenUp,this.whenDown);
 
   void listenVolumeChange(){
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(App.isWindows)  return;
     _streamSubscription = channel.receiveBroadcastStream().listen((event) {
       if(event == 1){
         whenUp();
@@ -22,7 +22,7 @@ class ListenVolumeController{
   }
 
   void stop(){
-    if(GetPlatform.isWeb||GetPlatform.isWindows)  return;
+    if(App.isWindows)  return;
     _streamSubscription?.cancel();
   }
 }

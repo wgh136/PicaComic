@@ -1,6 +1,6 @@
 # Pica Comic
 
-[![flutter](https://img.shields.io/badge/flutter-3.13.7-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.13.9-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
@@ -103,12 +103,11 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 ### dependencies
 - [flutter](https://flutter.dev/)
 - [dio](https://pub.dev/packages/dio): 网络请求
-- [get](https://pub.dev/packages/get): 路由管理
 - [shared_preferences](https://pub.dev/packages/shared_preferences): 数据储存
 - [dynamic_color](https://pub.dev/packages/dynamic_color): 动态颜色
 - [cached_network_image](https://pub.dev/packages/cached_network_image)&[flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager): 图片缓存
 - [uuid](https://pub.dev/packages/uuid): 创建uuid
-- [photo_view](https://pub.dev/packages/photo_view): 图片查看
+- [photo_view](https://pub.dev/packages/photo_view): 图片查看(经我修改的版本)
 - [url_launcher](https://pub.dev/packages/url_launcher): 打开网页
 - [file_selector](https://pub.dev/packages/file_selector)&[image_picker](https://pub.dev/packages/image_picker): 选择文件
 - [image_gallery_saver](https://pub.dev/packages/image_gallery_saver): 将图片保存至相册
@@ -117,10 +116,13 @@ Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
 - [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications): 发送通知
 - [share_plus](https://pub.dev/packages/share_plus): 分享
 - [local_auth](https://pub.dev/packages/local_auth): 身份认证
-- [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list): 能够跳转到指定项目的列表(为了解决手势冲突, 我对其做出了一些修改)
-- [flutter_inappwebview](https://pub.flutter-io.cn/packages/flutter_inappwebview): 用于e-hentai在webview中登录
-- [dio_cookie_manager](https://pub.flutter-io.cn/packages/dio_cookie_manager): cookie管理
-- [image](https://pub.flutter-io.cn/packages/image): 对禁漫图片进行切割并重新组合
+- [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list): 能够跳转到指定项目的列表(经我修改的版本)
+- [dio_cookie_manager](https://pub.dev/packages/dio_cookie_manager): cookie管理
+- [image](https://pub.dev/packages/image): 对禁漫图片进行切割并重新组合
+- [webdav_client](https://pub.dev/packages/webdav_client): 使用Webdav进行数据同步(经我修改的版本)
+- [flutter_reorderable_grid_view](https://pub.dev/packages/flutter_reorderable_grid_view): 能够由用户调整项目顺序的GridView
+- [app_links](https://pub.dev/packages/app_links): 应用链接
+- [workmanager](https://pub.dev/packages/workmanager): 后台任务(签到)
 
 ### 感谢以下项目
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=tonquer&repo=JMComic-qt)](https://github.com/tonquer/JMComic-qt)

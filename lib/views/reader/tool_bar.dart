@@ -1,8 +1,8 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/reader/reading_settings.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import 'package:pica_comic/views/widgets/custom_slider.dart';
@@ -36,7 +36,7 @@ Widget buildTopToolBar(ComicReadingPageLogic comicReadingPageLogic,
                       child: IconButton(
                         iconSize: 25,
                         icon: const Icon(Icons.arrow_back_outlined),
-                        onPressed: () => Get.back(),
+                        onPressed: () => App.globalBack(),
                       ),
                     ),
                   ),
@@ -187,7 +187,7 @@ Widget buildBottomToolBar(
                         child: Text(text),
                       ),
                       const Spacer(),
-                      if (GetPlatform.isAndroid)
+                      if (App.isAndroid)
                         Tooltip(
                           message: "屏幕方向".tl,
                           child: IconButton(
@@ -287,7 +287,7 @@ Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic,
     epsText = eps.elementAtOrNull(comicReadingPageLogic.order - 1) ?? "";
   }
   if (jm) {
-    epsText = "第 @c 章".trParams({"c": comicReadingPageLogic.order.toString()});
+    epsText = "第 @c 章".tlParams({"c": comicReadingPageLogic.order.toString()});
   }
 
   return Positioned(
@@ -364,7 +364,7 @@ List<Widget> buildButtons(
             child: IconButton(
               iconSize: 30,
               icon: const Icon(Icons.close),
-              onPressed: () => Get.back(),
+              onPressed: () => App.globalBack(),
             ),
           ),
         ]

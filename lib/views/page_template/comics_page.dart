@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
@@ -7,6 +6,7 @@ import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
@@ -25,7 +25,7 @@ import 'package:pica_comic/tools/translations.dart';
 
 export 'package:pica_comic/foundation/def.dart';
 
-class ComicsPageLogic<T> extends GetxController {
+class ComicsPageLogic<T> extends StateController {
   bool loading = true;
 
   ///用于正常模式下的漫画数据储存
@@ -86,7 +86,7 @@ class ComicsPageLogic<T> extends GetxController {
     loadingData = true;
     var res = await getComics(current + 1);
     if (res.error) {
-      showMessage(Get.context, res.errorMessage!);
+      showMessage(App.globalContext, res.errorMessage!);
     } else {
       if (res.data.isEmpty) {
         maxPage = current;
@@ -155,7 +155,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
 
   ///刷新页面
   void refresh() {
-    Get.find<ComicsPageLogic<T>>(tag: tag).refresh_();
+    StateController.find<ComicsPageLogic<T>>(tag: tag).refresh_();
   }
 
   @override
@@ -173,7 +173,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
         return body;
       }
     }
-    Widget body = GetBuilder<ComicsPageLogic<T>>(
+    Widget body = StateBuilder<ComicsPageLogic<T>>(
         init: ComicsPageLogic<T>(),
         tag: tag,
         builder: (logic) {
@@ -375,7 +375,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                                   controller: controller,
                                                   onSubmitted: (s) {
                                                     res = s;
-                                                    Get.back();
+                                                    App.globalBack();
                                                   },
                                                 ),
                                               ),
@@ -384,7 +384,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                                   child: Text("提交".tl),
                                                   onPressed: () {
                                                     res = controller.text;
-                                                    Get.back();
+                                                    App.globalBack();
                                                   },
                                                 ),
                                               )
@@ -401,7 +401,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                       }
                                     }
                                     if (res != "") {
-                                      showMessage(Get.context, "输入的数字不正确");
+                                      showMessage(App.globalContext, "输入的数字不正确");
                                     }
                                   },
                                   elevation: 1,

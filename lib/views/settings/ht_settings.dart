@@ -1,5 +1,6 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
@@ -41,7 +42,7 @@ class _HtSettingsState extends State<HtSettings> {
       if(!text.contains("https://")){
         text = "https://$text";
       }
-      Get.back();
+      App.globalBack();
       if(!text.isURL){
         showMessage(context, "Invalid URL");
       }else {

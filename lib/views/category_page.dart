@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/eh_views/category_page.dart';
 import 'package:pica_comic/views/ht_views/ht_categories_page.dart';
 import 'package:pica_comic/views/jm_views/detailed_categories.dart';
@@ -72,14 +72,14 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
   }
 }
 
-class CategoryPageLogic extends GetxController{}
+class CategoryPageLogic extends StateController{}
 
 class CategoryPageWithGetControl extends StatelessWidget {
   const CategoryPageWithGetControl({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CategoryPageLogic>(builder: (logic){
+    return StateBuilder<CategoryPageLogic>(builder: (logic){
       int pages = int.parse(appdata.settings[21][0]) + int.parse(appdata.settings[21][1])
           + int.parse(appdata.settings[21][2])*2
           + int.parse(appdata.settings[21][4]) + int.parse(appdata.settings[21][5]);

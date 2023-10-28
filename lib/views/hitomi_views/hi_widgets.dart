@@ -8,8 +8,8 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+import '../../foundation/app.dart';
 import '../main_page.dart';
 import '../widgets/comic_tile.dart';
 import '../widgets/loading.dart';
@@ -46,16 +46,16 @@ class HiComicTile extends ComicTile {
   @override
   ActionFunc? get read => () async{
     bool cancel = false;
-    showLoadingDialog(Get.context!, ()=>cancel=true);
+    showLoadingDialog(App.globalContext!, ()=>cancel=true);
     var res = await HiNetwork().getComicInfo(comic.link);
     if(cancel){
       return;
     }
     if(res.error){
-      Get.back();
-      showMessage(Get.context, res.errorMessageWithoutNull);
+      App.globalBack();
+      showMessage(App.globalContext, res.errorMessageWithoutNull);
     }else{
-      Get.back();
+      App.globalBack();
       readHitomiComic(res.data, comic.cover);
     }
   };

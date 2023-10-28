@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
@@ -8,13 +7,13 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
 
-class EhHomePageLogic extends GetxController{
+class EhHomePageLogic extends StateController{
   bool loading = true;
   Galleries? galleries;
   String? message;
 
   void getGallery() async{
-    var res = await EhNetwork().getGalleries(EhNetwork().ehBaseUrl + "?inline_set=dm_l");
+    var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}?inline_set=dm_l");
     if(res.error){
       message = res.errorMessage;
     }else{
@@ -42,7 +41,7 @@ class EhHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<EhHomePageLogic>(
+    return StateBuilder<EhHomePageLogic>(
       builder: (logic){
         if(logic.loading){
           logic.getGallery();

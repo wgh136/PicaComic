@@ -1,5 +1,5 @@
+import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/views/jm_views/jm_category_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../network/jm_network/jm_main_network.dart';
@@ -7,7 +7,7 @@ import '../../network/jm_network/jm_models.dart';
 import '../main_page.dart';
 
 
-class JmCategoriesPageLogic extends GetxController{
+class JmCategoriesPageLogic extends StateController{
   bool loading = true;
   List<Category>? categories;
   String? message;
@@ -46,7 +46,7 @@ class JmCategoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<JmCategoriesPageLogic>(builder: (logic){
+    return StateBuilder<JmCategoriesPageLogic>(builder: (logic){
       if(logic.loading){
         logic.get();
         return const Center(

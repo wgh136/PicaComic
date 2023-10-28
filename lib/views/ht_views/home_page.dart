@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_list.dart';
@@ -10,7 +9,7 @@ import 'package:pica_comic/tools/translations.dart';
 
 import '../../foundation/app.dart';
 
-class HtHomePageLogic extends GetxController {
+class HtHomePageLogic extends StateController {
   bool loading = true;
   HtHomePageData? data;
   String? message;
@@ -39,7 +38,7 @@ class HtHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HtHomePageLogic>(
+    return StateBuilder<HtHomePageLogic>(
       builder: (logic) {
         if (logic.loading) {
           logic.get();

@@ -1,34 +1,64 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-///显示消息
+OverlayEntry? entry;
+
+/// show message
 void showMessage(BuildContext? context, String message, {int time=2, bool useGet=true, Widget? action}){
-  Get.closeCurrentSnackbar();
-  if(useGet) {
-    Get.showSnackbar(GetSnackBar(
-      message: message,
-      maxWidth: 350,
-      snackStyle: SnackStyle.FLOATING,
-      margin: const EdgeInsets.fromLTRB(5, 5, 5, 16),
-      animationDuration: const Duration(microseconds: 400),
-      borderRadius: 10,
-      duration: Duration(seconds: time),
-      mainButton: action,
-    ));
-  }else{
-    var padding = MediaQuery.of(Get.context!).size.width - 350;
-    padding = padding>0?padding:0;
-    ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-      content: Text(message),
-      behavior: SnackBarBehavior.floating,
-      margin: EdgeInsets.fromLTRB(padding/2, 0, padding/2, 0),
-    ));
+  var padding = MediaQuery.of(App.globalContext!).size.width - 400;
+  if(padding < 32){
+    padding = 32;
   }
+
+  if(entry != null && entry!.mounted){
+    entry!.remove();
+  }
+
+  var newEntry = OverlayEntry(builder: (context) => Positioned(
+    bottom: 24,
+    left: padding/2,
+    right: padding/2,
+    height: 48,
+    child: Material(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.inverseSurface,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16,),
+            Expanded(
+              child: Text(message, style: TextStyle(
+                color: Theme.of(context).colorScheme.onInverseSurface,
+                fontSize: 14,
+                fontWeight: FontWeight.w500
+              ),),
+            ),
+            if(action != null)
+              action,
+            const SizedBox(width: 8,)
+          ],
+        ),
+      ),
+    ),
+  ));
+
+  Future.delayed(Duration(seconds: time), () {
+    if(newEntry.mounted){
+      newEntry.remove();
+    }
+  });
+
+  Overlay.of(App.globalContext!).insert(newEntry);
+  entry = newEntry;
 }
 
-void hideMessage(BuildContext context){
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+void hideMessage(BuildContext? context){
+  if(entry?.mounted ?? false) {
+    entry?.remove();
+  }
 }
 
 void showDialogMessage(BuildContext context, String title, String message){
@@ -36,7 +66,7 @@ void showDialogMessage(BuildContext context, String title, String message){
     title: Text(title),
     content: Text(message),
     actions: [
-      TextButton(onPressed: () => Get.back(), child: Text("了解".tl))
+      TextButton(onPressed: () => App.back(context), child: Text("了解".tl))
     ],
   ));
 }
@@ -46,9 +76,9 @@ void showConfirmDialog(BuildContext context, String title, String content, void 
     title: Text(title),
     content: Text(content),
     actions: [
-      TextButton(onPressed: () => Get.back(), child: Text("取消".tl)),
+      TextButton(onPressed: () => App.back(context), child: Text("取消".tl)),
       TextButton(onPressed: (){
-        Get.back();
+        App.back(context);
         onConfirm();
       }, child: Text("确认".tl)),
     ],
