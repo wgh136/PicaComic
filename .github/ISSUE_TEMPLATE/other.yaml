@@ -1,6 +1,14 @@
 name: 其它/other
 description: 其它内容
 body:
+  - type: markdown
+    attributes:
+      value: |
+        如果你想报告App运行时出现的问题(无法查看某个漫画源, 无法登录, 某个功能无法使用等情况), 请切换到报告Bug模板;
+
+        如果你想提出功能建议或者优化建议, 请切换到功能建议模板;
+
+        对于其它情况, 填写并提交此处的内容
   - type: textarea
     id: what-happened
     attributes:
