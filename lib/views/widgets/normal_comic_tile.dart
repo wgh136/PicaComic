@@ -11,6 +11,7 @@ class NormalComicTile extends ComicTile {
       required this.onTap,
       this.onLongTap,
       this.badgeName,
+      this.headers = const {},
       super.key});
   final String description_;
   final String coverPath;
@@ -19,12 +20,13 @@ class NormalComicTile extends ComicTile {
   final String name;
   final void Function()? onLongTap;
   final String? badgeName;
+  final Map<String, String> headers;
 
   @override
   String get description => description_;
 
   @override
-  void onLongTap_() => onLongTap!=null?onLongTap!.call():null;
+  void onLongTap_() => onLongTap != null ? onLongTap!.call() : null;
 
   @override
   String? get badge => badgeName;
@@ -36,6 +38,7 @@ class NormalComicTile extends ComicTile {
         errorWidget: (context, url, error) => const Icon(Icons.error),
         height: double.infinity,
         useOldImageOnUrlChange: true,
+        httpHeaders: headers,
         progressIndicatorBuilder: (context, s, p) =>
             ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
       );
