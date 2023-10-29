@@ -42,7 +42,8 @@ class PicacgNetwork {
   }
 
   Future<Res<Map<String, dynamic>>> get(String url,
-      {CacheExpiredTime expiredTime = CacheExpiredTime.short, bool log=true}) async {
+      {CacheExpiredTime expiredTime = CacheExpiredTime.short,
+      bool log = true}) async {
     if (token == "") {
       await Future.delayed(const Duration(milliseconds: 500));
       return const Res(null, errorMessage: "未登录");
@@ -62,9 +63,9 @@ class PicacgNetwork {
         return Res(null, errorMessage: jsonResponse["message"]);
       } else if (res.statusCode == 401) {
         var reLogin = await loginFromAppdata();
-        if(reLogin.error){
+        if (reLogin.error) {
           return const Res(null, errorMessage: "登录失效且重新登录失败");
-        }else{
+        } else {
           return get(url, expiredTime: expiredTime);
         }
       } else {
@@ -101,21 +102,31 @@ class PicacgNetwork {
     dio.options = getHeaders("post", token, url.replaceAll("$apiUrl/", ""));
     try {
       await setNetworkProxy();
-      var res =
-          await dio.post(url, data: data, options: Options(validateStatus: (i) {
-        return i == 200 || i == 400 || i == 401;
-      }));
+      var res = await dio.post<String>(url,
+          data: data,
+          options: Options(
+              responseType: ResponseType.plain,
+              validateStatus: (i) {
+                return i == 200 || i == 400 || i == 401;
+              }));
+
+      if (res.data == null) {
+        throw Exception("Empty data");
+      }
+
       if (res.statusCode == 200) {
         var jsonResponse =
-            convert.jsonDecode(res.toString()) as Map<String, dynamic>;
+            convert.jsonDecode(res.data!) as Map<String, dynamic>;
         return Res(jsonResponse);
       } else if (res.statusCode == 400) {
-        return Res(null, errorMessage: res.data["message"]);
+        var jsonResponse =
+            convert.jsonDecode(res.data!) as Map<String, dynamic>;
+        return Res(null, errorMessage: jsonResponse["message"]);
       } else if (res.statusCode == 401) {
         var reLogin = await loginFromAppdata();
-        if(reLogin.error){
+        if (reLogin.error) {
           return const Res(null, errorMessage: "登录失效且重新登录失败");
-        }else{
+        } else {
           return post(url, data);
         }
       } else {
@@ -165,17 +176,17 @@ class PicacgNetwork {
     }
   }
 
-  Future<Res<bool>> loginFromAppdata() async{
-    if(appdata.picacgAccount == ""){
+  Future<Res<bool>> loginFromAppdata() async {
+    if (appdata.picacgAccount == "") {
       return const Res(null, errorMessage: "No account data");
     }
     return login(appdata.picacgAccount, appdata.picacgPassword);
   }
 
   ///获取用户信息
-  Future<Res<Profile>> getProfile([bool log=true]) async {
-    var response =
-        await get("$apiUrl/users/profile", expiredTime: CacheExpiredTime.no, log: log);
+  Future<Res<Profile>> getProfile([bool log = true]) async {
+    var response = await get("$apiUrl/users/profile",
+        expiredTime: CacheExpiredTime.no, log: log);
     if (response.error) {
       return Res(null, errorMessage: response.errorMessage);
     }
@@ -201,12 +212,12 @@ class PicacgNetwork {
     return Res(p);
   }
 
-  Future<Res<bool>> updateProfile() async{
-    if(token == ""){
+  Future<Res<bool>> updateProfile() async {
+    if (token == "") {
       return const Res(true);
     }
     var res = await getProfile();
-    if(res.error){
+    if (res.error) {
       return Res.fromErrorRes(res);
     }
     appdata.user = res.data;
@@ -231,7 +242,8 @@ class PicacgNetwork {
 
   ///获取分类
   Future<Res<List<CategoryItem>>> getCategories() async {
-    var response = await get("$apiUrl/categories", expiredTime: CacheExpiredTime.no);
+    var response =
+        await get("$apiUrl/categories", expiredTime: CacheExpiredTime.no);
     if (response.error) {
       return Res(null, errorMessage: response.errorMessage);
     }
@@ -395,8 +407,7 @@ class PicacgNetwork {
           res["data"]["comic"]["pagesCount"],
           res["data"]["comic"]["updated_at"],
           epsRes.data,
-          recommendationRes.data
-      );
+          recommendationRes.data);
       return Res(ci);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
@@ -422,8 +433,7 @@ class PicacgNetwork {
           eps.add(res.data["data"]["eps"]["docs"][j]["title"]);
         }
       }
-    }
-    catch(e, s){
+    } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$s\n$s");
       return Res(null, errorMessage: e.toString());
     }
@@ -437,7 +447,8 @@ class PicacgNetwork {
     bool flag = true;
     while (flag) {
       i++;
-      var res = await get("$apiUrl/comics/$id/order/$order/pages?page=$i", expiredTime: CacheExpiredTime.no);
+      var res = await get("$apiUrl/comics/$id/order/$order/pages?page=$i",
+          expiredTime: CacheExpiredTime.no);
       if (res.error) {
         return Res(null, errorMessage: res.errorMessage);
       } else if (res.data["data"]["pages"]["pages"] == i) {
@@ -571,22 +582,21 @@ class PicacgNetwork {
           tags.addAll(
               List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
-            res["data"]["comics"][i]["title"] ?? "Unknown",
-            res["data"]["comics"][i]["author"] ?? "Unknown",
-            res["data"]["comics"][i]["totalLikes"] ?? 0,
-            res["data"]["comics"][i]["thumb"]["fileServer"] +
-                "/static/" +
-                res["data"]["comics"][i]["thumb"]["path"],
-            res["data"]["comics"][i]["_id"],
-            tags,
-            pages: res["data"]["comics"][i]["pagesCount"]
-          );
+              res["data"]["comics"][i]["title"] ?? "Unknown",
+              res["data"]["comics"][i]["author"] ?? "Unknown",
+              res["data"]["comics"][i]["totalLikes"] ?? 0,
+              res["data"]["comics"][i]["thumb"]["fileServer"] +
+                  "/static/" +
+                  res["data"]["comics"][i]["thumb"]["path"],
+              res["data"]["comics"][i]["_id"],
+              tags,
+              pages: res["data"]["comics"][i]["pagesCount"]);
           comics.add(si);
         } catch (e) {
           //出现错误跳过
         }
       }
-    }else{
+    } else {
       return Res.fromErrorRes(response);
     }
     return Res(comics);
@@ -634,15 +644,16 @@ class PicacgNetwork {
         tags.addAll(
             List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
         var si = ComicItemBrief(
-            res["data"]["comics"][i]["title"] ?? "Unknown",
-            res["data"]["comics"][i]["author"] ?? "Unknown",
-            res["data"]["comics"][i]["totalLikes"] ?? 0,
-            res["data"]["comics"][i]["thumb"]["fileServer"] +
-                "/static/" +
-                res["data"]["comics"][i]["thumb"]["path"],
-            res["data"]["comics"][i]["_id"],
-            tags,
-            pages: res["data"]["comics"][i]["pagesCount"],);
+          res["data"]["comics"][i]["title"] ?? "Unknown",
+          res["data"]["comics"][i]["author"] ?? "Unknown",
+          res["data"]["comics"][i]["totalLikes"] ?? 0,
+          res["data"]["comics"][i]["thumb"]["fileServer"] +
+              "/static/" +
+              res["data"]["comics"][i]["thumb"]["path"],
+          res["data"]["comics"][i]["_id"],
+          tags,
+          pages: res["data"]["comics"][i]["pagesCount"],
+        );
         comics.add(si);
       } catch (e) {
         //出现错误跳过
@@ -830,7 +841,7 @@ class PicacgNetwork {
           //出现错误跳过
         }
       }
-    }else{
+    } else {
       return Res.fromErrorRes(response);
     }
     return Res(comics);
@@ -849,17 +860,17 @@ class PicacgNetwork {
       for (int i = 0; i < res["data"]["collections"][0]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["collections"][0]["comics"][i]["title"] ?? "Unknown",
-              res["data"]["collections"][0]["comics"][i]["author"] ?? "Unknown",
-              res["data"]["collections"][0]["comics"][i]["totalLikes"] ?? 0,
-              res["data"]["collections"][0]["comics"][i]["thumb"]
-                      ["fileServer"] +
-                  "/static/" +
-                  res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
-              res["data"]["collections"][0]["comics"][i]["_id"],
-              [],
-              ignoreExamination: true,
-              pages: res["data"]["collections"][0]["comics"][i]["pagesCount"],);
+            res["data"]["collections"][0]["comics"][i]["title"] ?? "Unknown",
+            res["data"]["collections"][0]["comics"][i]["author"] ?? "Unknown",
+            res["data"]["collections"][0]["comics"][i]["totalLikes"] ?? 0,
+            res["data"]["collections"][0]["comics"][i]["thumb"]["fileServer"] +
+                "/static/" +
+                res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
+            res["data"]["collections"][0]["comics"][i]["_id"],
+            [],
+            ignoreExamination: true,
+            pages: res["data"]["collections"][0]["comics"][i]["pagesCount"],
+          );
           comics[0].add(si);
         } catch (e) {
           //出现错误跳过
@@ -872,17 +883,17 @@ class PicacgNetwork {
       for (int i = 0; i < res["data"]["collections"][1]["comics"].length; i++) {
         try {
           var si = ComicItemBrief(
-              res["data"]["collections"][1]["comics"][i]["title"] ?? "Unknown",
-              res["data"]["collections"][1]["comics"][i]["author"] ?? "Unknown",
-              res["data"]["collections"][1]["comics"][i]["totalLikes"] ?? 0,
-              res["data"]["collections"][1]["comics"][i]["thumb"]
-                      ["fileServer"] +
-                  "/static/" +
-                  res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
-              res["data"]["collections"][1]["comics"][i]["_id"],
-              [],
-              ignoreExamination: true,
-              pages: res["data"]["collections"][1]["comics"][i]["pagesCount"],);
+            res["data"]["collections"][1]["comics"][i]["title"] ?? "Unknown",
+            res["data"]["collections"][1]["comics"][i]["author"] ?? "Unknown",
+            res["data"]["collections"][1]["comics"][i]["totalLikes"] ?? 0,
+            res["data"]["collections"][1]["comics"][i]["thumb"]["fileServer"] +
+                "/static/" +
+                res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
+            res["data"]["collections"][1]["comics"][i]["_id"],
+            [],
+            ignoreExamination: true,
+            pages: res["data"]["collections"][1]["comics"][i]["pagesCount"],
+          );
           comics[1].add(si);
         } catch (e) {
           //出现错误跳过}
@@ -979,7 +990,8 @@ class PicacgNetwork {
 
   /// 获取分类中的漫画
   Future<Res<List<ComicItemBrief>>> getCategoryComics(
-      String keyWord, int page, String sort, [String type = "c"]) async {
+      String keyWord, int page, String sort,
+      [String type = "c"]) async {
     var response = await get(
         '$apiUrl/comics?page=$page&$type=${Uri.encodeComponent(keyWord)}&s=$sort',
         expiredTime: CacheExpiredTime.no);
@@ -997,16 +1009,16 @@ class PicacgNetwork {
         tags.addAll(List<String>.from(
             res["data"]["comics"]["docs"][i]["categories"] ?? []));
         var si = ComicItemBrief(
-            res["data"]["comics"]["docs"][i]["title"] ?? "Unknown",
-            res["data"]["comics"]["docs"][i]["author"] ?? "Unknown",
-            int.parse(
-                res["data"]["comics"]["docs"][i]["likesCount"].toString()),
-            res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
-                "/static/" +
-                res["data"]["comics"]["docs"][i]["thumb"]["path"],
-            res["data"]["comics"]["docs"][i]["_id"],
-            tags,
-            pages: res["data"]["comics"]["docs"][i]["pagesCount"],);
+          res["data"]["comics"]["docs"][i]["title"] ?? "Unknown",
+          res["data"]["comics"]["docs"][i]["author"] ?? "Unknown",
+          int.parse(res["data"]["comics"]["docs"][i]["likesCount"].toString()),
+          res["data"]["comics"]["docs"][i]["thumb"]["fileServer"] +
+              "/static/" +
+              res["data"]["comics"]["docs"][i]["thumb"]["path"],
+          res["data"]["comics"]["docs"][i]["_id"],
+          tags,
+          pages: res["data"]["comics"]["docs"][i]["pagesCount"],
+        );
         comics.add(si);
       } catch (e) {
         continue;
@@ -1055,9 +1067,7 @@ class PicacgNetwork {
 String getImageUrl(String url) {
   if (url.contains(serverDomain)) return url;
   if (!url.contains("pica")) return url;
-  return appdata.settings[3] == "1"
-      ? "$serverDomain/storage/$url"
-      : url;
+  return appdata.settings[3] == "1" ? "$serverDomain/storage/$url" : url;
 }
 
 var network = PicacgNetwork();
