@@ -18,7 +18,6 @@ import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
@@ -49,14 +48,15 @@ class MainPage extends StatefulWidget {
 
   static bool overlayOpen = false;
 
-  static void to(Widget Function() widget) async{
-    while(navigatorContext == null){
+  static void to(Widget Function() widget) async {
+    while (navigatorContext == null) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     App.to(navigatorContext!, widget);
   }
 
-  static canPop() => Navigator.of(navigatorContext ?? App.globalContext!).canPop();
+  static canPop() =>
+      Navigator.of(navigatorContext ?? App.globalContext!).canPop();
 
   static void back() {
     App.back(navigatorContext!);
@@ -64,23 +64,23 @@ class MainPage extends StatefulWidget {
 
   static void Function()? toExplorePage;
 
-  static void toExplorePageAt(int page) async{
-    if(appdata.settings[24][page] != "1"){
+  static void toExplorePageAt(int page) async {
+    if (appdata.settings[24][page] != "1") {
       showMessage(App.globalContext!, "探索页面被禁用".tl);
       return;
     }
-    if(toExplorePage == null){
+    if (toExplorePage == null) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     toExplorePage?.call();
-    Future.microtask(() async{
+    Future.microtask(() async {
       int index = 0;
-      for(int i=0; i<page; i++){
-        if(appdata.settings[24][i] == "1"){
+      for (int i = 0; i < page; i++) {
+        if (appdata.settings[24][i] == "1") {
           index++;
         }
       }
-      if(ExplorePage.jumpTo == null){
+      if (ExplorePage.jumpTo == null) {
         await Future.delayed(const Duration(milliseconds: 100));
       }
       ExplorePage.jumpTo?.call(index);
@@ -108,25 +108,28 @@ class _MainPageState extends State<MainPage> {
     const LeaderBoardPage(),
   ];
 
-  void login(){
-    network.updateProfile().then((res){
-      if(res.error){
-        showMessage(App.globalContext!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
+  void login() {
+    network.updateProfile().then((res) {
+      if (res.error) {
+        showMessage(
+            App.globalContext!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
-    jmNetwork.loginFromAppdata().then((res){
-      if(res.error){
-        showMessage(App.globalContext!, "登录禁漫时发生错误:".tl + res.errorMessageWithoutNull);
+    jmNetwork.loginFromAppdata().then((res) {
+      if (res.error) {
+        showMessage(
+            App.globalContext!, "登录禁漫时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
-    HtmangaNetwork().loginFromAppdata().then((res){
-      if(res.error){
-        showMessage(App.globalContext!, "登录绅士漫画时发生错误:".tl + res.errorMessageWithoutNull);
+    HtmangaNetwork().loginFromAppdata().then((res) {
+      if (res.error) {
+        showMessage(App.globalContext!,
+            "登录绅士漫画时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
   }
 
-  void checkUpdates(){
+  void checkUpdates() {
     if (appdata.settings[2] == "1") {
       checkUpdate().then((b) {
         if (b != null) {
@@ -150,14 +153,14 @@ class _MainPageState extends State<MainPage> {
                           TextButton(
                               onPressed: () => App.globalBack(),
                               child: Text("取消".tl)),
-                            TextButton(
-                                onPressed: () {
-                                  getDownloadUrl().then((s) {
-                                    launchUrlString(s,
-                                        mode: LaunchMode.externalApplication);
-                                  });
-                                },
-                                child: Text("下载".tl))
+                          TextButton(
+                              onPressed: () {
+                                getDownloadUrl().then((s) {
+                                  launchUrlString(s,
+                                      mode: LaunchMode.externalApplication);
+                                });
+                              },
+                              child: Text("下载".tl))
                         ],
                       );
                     });
@@ -169,7 +172,7 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  void checkDownload(){
+  void checkDownload() {
     if (downloadManager.downloading.isNotEmpty) {
       Future.delayed(const Duration(microseconds: 500), () {
         showDialog(
@@ -179,7 +182,8 @@ class _MainPageState extends State<MainPage> {
                 title: Text("下载管理器".tl),
                 content: Text("有未完成的下载, 是否继续?".tl),
                 actions: [
-                  TextButton(onPressed: () => App.globalBack(), child: Text("否".tl)),
+                  TextButton(
+                      onPressed: () => App.globalBack(), child: Text("否".tl)),
                   TextButton(
                       onPressed: () {
                         downloadManager.start();
@@ -193,7 +197,7 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  void initLogic(){
+  void initLogic() {
     StateController.put(HomePageLogic());
     StateController.put(CategoriesPageLogic());
     StateController.put(GamesPageLogic());
@@ -215,9 +219,9 @@ class _MainPageState extends State<MainPage> {
 
     notifications.requestPermission();
 
-    if(appdata.ehAccount != "") {
+    if (appdata.ehAccount != "") {
       EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/favorites.php",
-        favoritePage: true);
+          favoritePage: true);
     }
 
     if (appdata.firstUse[3] == "0") {
@@ -301,17 +305,15 @@ class _MainPageState extends State<MainPage> {
                                     Tooltip(
                                       message: "搜索".tl,
                                       child: IconButton(
-                                        icon: const Icon(Icons.search),
-                                        onPressed: () => MainPage.to(() => PreSearchPage())
-                                      ),
+                                          icon: const Icon(Icons.search),
+                                          onPressed: () => MainPage.to(
+                                              () => PreSearchPage())),
                                     ),
                                     Tooltip(
                                       message: "设置".tl,
                                       child: IconButton(
                                         icon: const Icon(Icons.settings),
-                                        onPressed: () {
-                                          App.globalTo(() => const SettingsPage());
-                                        },
+                                        onPressed: () => NewSettingsPage.open(),
                                       ),
                                     ),
                                   ],
@@ -436,11 +438,11 @@ class _AnimatedMainPageState extends State<AnimatedMainPage> {
 
   @override
   void initState() {
-    if(!initial) {
+    if (!initial) {
       Future.microtask(() => setState(() {
-          offset = const Offset(0, 0);
-        }));
-    }else{
+            offset = const Offset(0, 0);
+          }));
+    } else {
       offset = const Offset(0, 0);
     }
     initial = false;
@@ -521,17 +523,13 @@ class _NavigateBarState extends State<NavigateBar> {
             const Divider(),
             const Spacer(),
             NavigatorItem(Icons.search, Icons.games, "搜索".tl, false,
-                  () => MainPage.to(() => PreSearchPage())),
+                () => MainPage.to(() => PreSearchPage())),
             NavigatorItem(
               Icons.settings,
               Icons.games,
               "设置".tl,
               false,
-              () => showAdaptiveWidget(
-                  context,
-                  SettingsPage(
-                    popUp: MediaQuery.of(context).size.width > 600,
-                  )),
+              () => NewSettingsPage.open(),
             ),
           ],
         ),
@@ -560,10 +558,7 @@ class _NavigateBarState extends State<NavigateBar> {
                 Flexible(
                   child: IconButton(
                     icon: const Icon(Icons.settings),
-                    onPressed: () => showAdaptiveWidget(
-                        context,
-                        SettingsPage(
-                            popUp: MediaQuery.of(context).size.width > 600)),
+                    onPressed: () => NewSettingsPage.open(),
                   ),
                 ),
               ],

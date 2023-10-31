@@ -115,30 +115,30 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 600),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "感谢使用本软件, 请注意:\n".tl,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tl +
-                                  "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系"
-                                      .tl,
-                              style: const TextStyle(fontSize: 16),
-                            )
-                          ],
-                        ),
+                    child: Center(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 60, left: 16, right: 16),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "感谢使用本软件, 请注意:\n".tl,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tl +
+                                "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系"
+                                    .tl,
+                            style: const TextStyle(fontSize: 16),
+                          )
+                        ],
                       ),
                     ),
+                  ),
                 ))
               ],
             ),
@@ -153,15 +153,15 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                      child: Text(
-                        "下面将进行一些基本设置, 所有的设置在之后均可进行更改".tl,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                    child: Center(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 60, left: 16, right: 16),
+                    child: Text(
+                      "下面将进行一些基本设置, 所有的设置在之后均可进行更改".tl,
+                      style: const TextStyle(fontSize: 16),
                     ),
+                  ),
                 ))
               ],
             ),
@@ -176,61 +176,63 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                      child: Card(
-                        elevation: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            width: 400,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(
-                                  height: 8,
-                                ),
-                                Text(
-                                  "选择应当如何显示漫画".tl,
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
-                                RadioListTile<String>(
-                                    title: Text("顺序显示".tl),
-                                    value: "0",
-                                    groupValue: appdata.settings[25],
-                                    onChanged: (s) {
-                                      setState(() {
-                                        appdata.settings[25] = s!;
-                                      });
-                                      appdata.updateSettings();
-                                    }),
-                                RadioListTile<String>(
-                                    title: Text("分页显示".tl),
-                                    value: "1",
-                                    groupValue: appdata.settings[25],
-                                    onChanged: (s) {
-                                      setState(() {
-                                        appdata.settings[25] = s!;
-                                      });
-                                      appdata.updateSettings();
-                                    }),
-                                const SizedBox(
-                                  height: 8,
-                                ),
-                                Text("探索页面不受此设置影响\n顺序显示时, 当下滑至顶部将自动加载下一页, 并且添加至页面底部;\n".tl +
-                                        "分页显示时, 将会在页面底部显示当前页面的序号和切换页面的按钮, 可以手动输入页数".tl)
-                              ],
-                            ),
+                    child: Center(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 60, left: 16, right: 16),
+                    child: Card(
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SizedBox(
+                          width: 400,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                "选择应当如何显示漫画".tl,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              RadioListTile<String>(
+                                  title: Text("顺序显示".tl),
+                                  value: "0",
+                                  groupValue: appdata.settings[25],
+                                  onChanged: (s) {
+                                    setState(() {
+                                      appdata.settings[25] = s!;
+                                    });
+                                    appdata.updateSettings();
+                                  }),
+                              RadioListTile<String>(
+                                  title: Text("分页显示".tl),
+                                  value: "1",
+                                  groupValue: appdata.settings[25],
+                                  onChanged: (s) {
+                                    setState(() {
+                                      appdata.settings[25] = s!;
+                                    });
+                                    appdata.updateSettings();
+                                  }),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              Text("探索页面不受此设置影响\n顺序显示时, 当下滑至顶部将自动加载下一页, 并且添加至页面底部;\n"
+                                      .tl +
+                                  "分页显示时, 将会在页面底部显示当前页面的序号和切换页面的按钮, 可以手动输入页数"
+                                      .tl)
+                            ],
                           ),
                         ),
                       ),
                     ),
+                  ),
                 ))
               ],
             ),
@@ -245,20 +247,20 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 const Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                      child: Card(
-                        elevation: 5,
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: SizedBox(
-                            width: 400,
-                            child: ReadingSettings(false),
-                          ),
+                    child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 60, left: 16, right: 16),
+                    child: Card(
+                      elevation: 5,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: SizedBox(
+                          width: 400,
+                          child: ReadingSettings(false),
                         ),
                       ),
                     ),
+                  ),
                 ))
               ],
             ),
@@ -273,92 +275,98 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 60, left: 16, right: 16),
-                      child: Card(
-                        elevation: 5,
-                        child: SizedBox(
-                          width: 400,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 16, top: 16, bottom: 8),
-                                child: Text(
-                                  "设置App外观".tl,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
+                    child: Center(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 60, left: 16, right: 16),
+                    child: Card(
+                      elevation: 5,
+                      child: SizedBox(
+                        width: 400,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16, top: 16, bottom: 8),
+                              child: Text(
+                                "设置App外观".tl,
+                                style: const TextStyle(fontSize: 18),
                               ),
-                              ListTile(
-                                leading: Icon(Icons.color_lens,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary),
-                                title: Text("主题选择".tl),
-                                trailing: Select(
-                                  initialValue: int.parse(appdata.settings[27]),
-                                  values: const [
-                                    "dynamic",
-                                    "Blue",
-                                    "Light Blue",
-                                    "Indigo",
-                                    "Purple",
-                                    "Pink",
-                                    "Cyan",
-                                    "Teal",
-                                    "Yellow",
-                                    "Brown"
-                                  ],
-                                  whenChange: (i) {
-                                    appdata.settings[27] = i.toString();
-                                    appdata.updateSettings();
-                                    MyApp.updater?.call();
-                                  },
-                                  inPopUpWidget: false,
-                                  width: 140,
-                                ),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.color_lens,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
+                              title: Text("主题选择".tl),
+                              trailing: Select(
+                                initialValue: int.parse(appdata.settings[27]),
+                                values: const [
+                                  "dynamic",
+                                  "Blue",
+                                  "Light Blue",
+                                  "Indigo",
+                                  "Purple",
+                                  "Pink",
+                                  "Cyan",
+                                  "Teal",
+                                  "Yellow",
+                                  "Brown"
+                                ],
+                                whenChange: (i) {
+                                  appdata.settings[27] = i.toString();
+                                  appdata.updateSettings();
+                                  MyApp.updater?.call();
+                                },
+                                inPopUpWidget: false,
+                                width: 140,
                               ),
-                              ListTile(
-                                leading: Icon(Icons.dark_mode,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary),
-                                title: Text("深色模式".tl),
-                                trailing: Select(
-                                  initialValue: int.parse(appdata.settings[32]),
-                                  values: ["跟随系统".tl, "禁用".tl, "启用".tl],
-                                  whenChange: (i) {
-                                    appdata.settings[32] = i.toString();
-                                    appdata.updateSettings();
-                                    MyApp.updater?.call();
-                                  },
-                                  inPopUpWidget: false,
-                                  width: 140,
-                                ),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.dark_mode,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
+                              title: Text("深色模式".tl),
+                              trailing: Select(
+                                initialValue: int.parse(appdata.settings[32]),
+                                values: ["跟随系统".tl, "禁用".tl, "启用".tl],
+                                whenChange: (i) {
+                                  appdata.settings[32] = i.toString();
+                                  appdata.updateSettings();
+                                  MyApp.updater?.call();
+                                },
+                                inPopUpWidget: false,
+                                width: 140,
                               ),
-                              ListTile(
-                                leading: Icon(Icons.crop_square,
-                                    color: Theme.of(context).colorScheme.secondary),
-                                title: Text("漫画块显示模式".tl),
-                                trailing: Select(
-                                  initialValue: int.parse(appdata.settings[44]),
-                                  whenChange: (i){
-                                    appdata.settings[44] = i.toString();
-                                    appdata.updateSettings();
-                                  },
-                                  values: ["详细".tl, "简略".tl, "最小".tl, "详细(大) ".tl],
-                                ),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.crop_square,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
+                              title: Text("漫画块显示模式".tl),
+                              trailing: Select(
+                                initialValue: int.parse(appdata.settings[44]),
+                                whenChange: (i) {
+                                  appdata.settings[44] = i.toString();
+                                  appdata.updateSettings();
+                                },
+                                values: [
+                                  "详细".tl,
+                                  "简略".tl,
+                                  "最小".tl,
+                                  "详细(大) ".tl
+                                ],
                               ),
-                              const SizedBox(
-                                height: 8,
-                              )
-                            ],
-                          ),
+                            ),
+                            const SizedBox(
+                              height: 8,
+                            )
+                          ],
                         ),
                       ),
                     ),
+                  ),
                 ))
               ],
             ),
@@ -400,12 +408,7 @@ class _GuidePageState extends State<GuidePage> {
                               ),
                               title: Text("设置".tl),
                               trailing: const Icon(Icons.arrow_right),
-                              onTap: () => showAdaptiveWidget(
-                                  context,
-                                  SettingsPage(
-                                    popUp:
-                                        MediaQuery.of(context).size.width > 600,
-                                  )),
+                              onTap: () => NewSettingsPage.open(),
                             ),
                             const SizedBox(
                               height: 8,

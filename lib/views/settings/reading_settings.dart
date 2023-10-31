@@ -26,9 +26,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          title: Text("阅读".tl),
-        ),
-        ListTile(
           leading: Icon(Icons.touch_app_outlined,
               color: Theme.of(context).colorScheme.secondary),
           title: Text("点按翻页".tl),
@@ -42,25 +39,25 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           onTap: () {},
         ),
-        ListTile(
-          leading: Icon(Icons.volume_mute,
-              color: Theme.of(context).colorScheme.secondary),
-          title: Text("使用音量键翻页".tl),
-          subtitle: Text("仅安卓端有效".tl),
-          trailing: Switch(
-            value: useVolumeKeyChangePage,
-            onChanged: (b) {
-              b ? appdata.settings[7] = "1" : appdata.settings[7] = "0";
-              setState(() => useVolumeKeyChangePage = b);
-              appdata.writeData();
-            },
+        if (App.isAndroid)
+          ListTile(
+            leading: Icon(Icons.volume_mute,
+                color: Theme.of(context).colorScheme.secondary),
+            title: Text("使用音量键翻页".tl),
+            trailing: Switch(
+              value: useVolumeKeyChangePage,
+              onChanged: (b) {
+                b ? appdata.settings[7] = "1" : appdata.settings[7] = "0";
+                setState(() => useVolumeKeyChangePage = b);
+                appdata.writeData();
+              },
+            ),
+            onTap: () {},
           ),
-          onTap: () {},
-        ),
         ListTile(
           leading: Icon(Icons.control_camera,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("宽屏时显示前进后退关闭按钮".tl),
+          title: Text("宽屏时显示控制按钮".tl),
           onTap: () {},
           trailing: Switch(
             value: showThreeButton,
@@ -112,7 +109,14 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           title: Text("选择阅读模式".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[9]) - 1,
-            values: ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl, "双页".tl, "双页(反向)".tl],
+            values: [
+              "从左至右".tl,
+              "从右至左".tl,
+              "从上至下".tl,
+              "从上至下(连续)".tl,
+              "双页".tl,
+              "双页(反向)".tl
+            ],
             whenChange: (i) {
               appdata.settings[9] = (i + 1).toString();
               appdata.updateSettings();
@@ -171,7 +175,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.transparent),
                       onChanged: (v) {
-                        if(v == 0)  return;
+                        if (v == 0) return;
                         appdata.settings[33] = v.toInt().toString();
                         appdata.updateSettings();
                         setState(() {});
