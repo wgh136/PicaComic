@@ -26,8 +26,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          leading: Icon(Icons.touch_app_outlined,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.touch_app_outlined),
           title: Text("点按翻页".tl),
           trailing: Switch(
             value: pageChangeValue,
@@ -41,8 +40,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ),
         if (App.isAndroid)
           ListTile(
-            leading: Icon(Icons.volume_mute,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.volume_mute),
             title: Text("使用音量键翻页".tl),
             trailing: Switch(
               value: useVolumeKeyChangePage,
@@ -55,8 +53,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             onTap: () {},
           ),
         ListTile(
-          leading: Icon(Icons.control_camera,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.control_camera),
           title: Text("宽屏时显示控制按钮".tl),
           onTap: () {},
           trailing: Switch(
@@ -72,8 +69,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ),
         if (App.isAndroid)
           ListTile(
-            leading: Icon(Icons.screenshot_outlined,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.screenshot_outlined),
             title: Text("保持屏幕常亮".tl),
             onTap: () {},
             trailing: Switch(
@@ -88,8 +84,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
         ListTile(
-          leading: Icon(Icons.brightness_4,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.brightness_4),
           title: Text("夜间模式降低图片亮度".tl),
           onTap: () {},
           trailing: Switch(
@@ -104,8 +99,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.chrome_reader_mode,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.chrome_reader_mode),
           title: Text("选择阅读模式".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[9]) - 1,
@@ -126,8 +120,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.image_outlined,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.image_outlined),
           title: Text("图片预加载".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[28]),
@@ -141,8 +134,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.animation,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.animation),
           title: Text("翻页动画".tl),
           onTap: () {},
           trailing: Switch(
@@ -156,8 +148,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.timer_sharp,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.timer_sharp),
           subtitle: SizedBox(
             height: 25,
             child: Stack(

@@ -11,7 +11,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
     children: [
       ListTile(
         leading:
-            Icon(Icons.block, color: Theme.of(context).colorScheme.secondary),
+            const Icon(Icons.block),
         title: Text("关键词屏蔽".tl),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => BlockingKeywordPage(
@@ -20,8 +20,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         trailing: const Icon(Icons.arrow_right),
       ),
       ListTile(
-        leading: Icon(Icons.network_ping,
-            color: Theme.of(context).colorScheme.secondary),
+        leading: const Icon(Icons.network_ping),
         title: Text("设置代理".tl),
         trailing: const Icon(
           Icons.arrow_right,
@@ -31,8 +30,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         },
       ),
       ListTile(
-        leading: Icon(Icons.article_outlined,
-            color: Theme.of(context).colorScheme.secondary),
+        leading: const Icon(Icons.article_outlined),
         title: Text("初始页面".tl),
         trailing: Select(
           initialValue: int.parse(appdata.settings[23]),
@@ -46,21 +44,21 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
       ),
       ListTile(
         leading:
-            Icon(Icons.source, color: Theme.of(context).colorScheme.secondary),
+            const Icon(Icons.source),
         title: Text("漫画源(非探索页面)".tl),
         trailing: const Icon(Icons.arrow_right),
         onTap: () => setComicSource(context),
       ),
       ListTile(
         leading:
-            Icon(Icons.pages, color: Theme.of(context).colorScheme.secondary),
+            const Icon(Icons.pages),
         title: Text("显示的探索页面".tl),
         trailing: const Icon(Icons.arrow_right),
         onTap: () => setExplorePages(context),
       ),
       ListTile(
         leading:
-            Icon(Icons.list, color: Theme.of(context).colorScheme.secondary),
+            const Icon(Icons.list),
         title: Text("漫画列表显示方式".tl),
         trailing: Select(
           initialValue: int.parse(appdata.settings[25]),
@@ -73,8 +71,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         ),
       ),
       ListTile(
-        leading: Icon(Icons.file_download_outlined,
-            color: Theme.of(context).colorScheme.secondary),
+        leading: const Icon(Icons.file_download_outlined),
         title: Text("已下载的漫画排序方式".tl),
         trailing: Select(
           initialValue: int.parse(appdata.settings[26][0]),
@@ -87,8 +84,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         ),
       ),
       ListTile(
-        leading: Icon(Icons.crop_square,
-            color: Theme.of(context).colorScheme.secondary),
+        leading: const Icon(Icons.crop_square),
         title: Text("漫画块显示模式".tl),
         subtitle: Text("需要重新加载页面".tl),
         trailing: Select(

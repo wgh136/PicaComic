@@ -197,6 +197,9 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
       child: Column(
         children: [
           SizedBox(
+            height: MediaQuery.of(context).padding.top,
+          ),
+          SizedBox(
             height: 56,
             child: Row(children: [
               const SizedBox(
@@ -296,8 +299,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
   Widget buildAppearanceSettings() => Column(
         children: [
           ListTile(
-            leading: Icon(Icons.color_lens,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.color_lens),
             title: Text("主题选择".tl),
             trailing: Select(
               initialValue: int.parse(appdata.settings[27]),
@@ -322,8 +324,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.dark_mode,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.dark_mode),
             title: Text("深色模式".tl),
             trailing: Select(
               initialValue: int.parse(appdata.settings[32]),
@@ -338,8 +339,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
           ),
           if (App.isAndroid)
             ListTile(
-              leading: Icon(Icons.smart_screen_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.smart_screen_outlined),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -395,8 +395,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
           title: Text("日志".tl),
         ),
         ListTile(
-          leading: Icon(Icons.bug_report,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.bug_report),
           title: const Text("Logs"),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => App.globalTo(() => const LogsPage()),
@@ -405,8 +404,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
           title: Text("更新".tl),
         ),
         ListTile(
-          leading: Icon(Icons.update,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.update),
           title: Text("检查更新".tl),
           subtitle: Text("${"当前:".tl} $appVersion"),
           onTap: () {
@@ -414,8 +412,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
           },
         ),
         ListTile(
-          leading: Icon(Icons.security_update,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.security_update),
           title: Text("启动时检查更新".tl),
           trailing: Switch(
             value: appdata.settings[2] == "1",
@@ -432,8 +429,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
         ),
         if (App.isWindows || App.isAndroid)
           ListTile(
-            leading: Icon(Icons.folder,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.folder),
             title: Text("设置下载目录".tl),
             trailing: const Icon(Icons.arrow_right),
             onTap: () => setDownloadFolder(),
@@ -444,16 +440,14 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               if (logic.calculating) {
                 logic.get();
                 return ListTile(
-                  leading: Icon(Icons.storage,
-                      color: Theme.of(context).colorScheme.secondary),
+                  leading: const Icon(Icons.storage),
                   title: Text("缓存大小".tl),
                   subtitle: Text("计算中".tl),
                   onTap: () {},
                 );
               } else {
                 return ListTile(
-                  leading: Icon(Icons.storage,
-                      color: Theme.of(context).colorScheme.secondary),
+                  leading: const Icon(Icons.storage),
                   title: Text("清除缓存".tl),
                   subtitle: Text(
                       "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
@@ -470,36 +464,31 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               }
             }),
         ListTile(
-          leading: Icon(Icons.chrome_reader_mode,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.chrome_reader_mode),
           title: Text("阅读器缓存限制".tl),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => setCacheLimit(context),
         ),
         ListTile(
-          leading: Icon(Icons.delete,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.delete),
           title: Text("清除所有数据".tl),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => clearUserData(context),
         ),
         ListTile(
-          leading: Icon(Icons.sim_card_download,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.sim_card_download),
           title: Text("导出用户数据".tl),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => exportDataSetting(context),
         ),
         ListTile(
-          leading: Icon(Icons.data_object,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.data_object),
           title: Text("导入用户数据".tl),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => importDataSetting(context),
         ),
         ListTile(
-          leading:
-              Icon(Icons.sync, color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.sync),
           title: Text("数据同步".tl),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => syncDataSettings(context),
@@ -509,8 +498,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
         ),
         if (App.isAndroid)
           ListTile(
-            leading: Icon(Icons.screenshot,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.screenshot),
             title: Text("阻止屏幕截图".tl),
             subtitle: Text("需要重启App以应用更改".tl),
             trailing: Switch(
@@ -523,8 +511,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
             ),
           ),
         ListTile(
-            leading: Icon(Icons.security,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.security),
             title: Text("需要身份验证".tl),
             subtitle: Text("如果系统中未设置任何认证方法请勿开启".tl),
             trailing: Switch(

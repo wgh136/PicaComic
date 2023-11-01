@@ -23,7 +23,7 @@ class _EhSettingsState extends State<EhSettings> {
               title: Text("E-Hentai"),
             ),
             ListTile(
-              leading: Icon(Icons.domain, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.domain),
               title: Text("画廊站点".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[20]),
@@ -55,8 +55,7 @@ class _EhSettingsState extends State<EhSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.notifications_off_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.notifications_off_outlined),
               title: Text("忽略警告".tl),
               trailing: Switch(
                 value: appdata.settings[47] == "1",

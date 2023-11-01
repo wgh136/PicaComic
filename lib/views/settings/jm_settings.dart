@@ -131,7 +131,7 @@ class _JmSettingsState extends State<JmSettings> {
               title: Text("禁漫天堂".tl),
             ),
             ListTile(
-              leading: Icon(Icons.sort, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.sort),
               title: Text("分类中漫画排序模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[16]),
@@ -146,7 +146,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.manage_search_outlined, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.manage_search_outlined),
               title: Text("搜索中漫画排序模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[19]),
@@ -162,7 +162,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.favorite_border),
               title: Text("收藏夹中漫画排序模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[42]),
@@ -177,8 +177,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.account_tree_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.account_tree_outlined),
               title: Text("API分流".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[17]),
@@ -194,8 +193,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.image,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.image),
               title: Text("图片分流".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[37]),
@@ -210,7 +208,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.logout),
               title: Text("清除登录状态".tl),
               onTap: () => jmNetwork.logout(),
             ),

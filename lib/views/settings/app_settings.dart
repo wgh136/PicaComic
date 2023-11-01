@@ -81,14 +81,14 @@ void giveComments(BuildContext context) {
               },
             ),
             ListTile(
-              leading: Icon(Icons.mail, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.mail),
               title: const Text("Email"),
               onTap: () {
                 launchUrlString("mailto:nyne19710@proton.me", mode: LaunchMode.externalApplication);
               },
             ),
             ListTile(
-              leading: Icon(Icons.telegram, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.telegram),
               title: const Text("Telegram"),
               onTap: () {
                 launchUrlString("https://t.me/ny136_bot", mode: LaunchMode.externalApplication);
