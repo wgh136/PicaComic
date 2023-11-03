@@ -7,6 +7,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'package:pica_comic/tools/debug.dart';
+import 'package:pica_comic/tools/time.dart';
 import '../../foundation/log.dart';
 import '../log_dio.dart';
 import 'headers.dart';
@@ -38,8 +39,12 @@ class JmNetwork {
     "https://www.jmapinode1.top",
     "https://www.jmapinode2.top",
     "https://www.jmapinode3.top",
+    "https://www.jmapinode4.top",
+    "https://www.jmapibranch1.cc",
     "https://www.jmapibranch2.cc",
-    "$serverDomain/jmComic"
+    "https://www.jmapinode.top",
+    "https://wwwjmapinode2.cc",
+    "https://wwwjmapinode3.cc",
   ];
 
   String get baseUrl => urls[int.parse(appdata.settings[17])];
@@ -148,6 +153,16 @@ class JmNetwork {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return const Res<String>(null, errorMessage: "网络错误");
     }
+  }
+
+  Future<String> ping(int urlIndex) async{
+    var start = DateTime.now();
+    var res = await get("${urls[urlIndex]}/promote?$baseData&page=0");
+    if(res.error){
+      return "Error";
+    }
+    var end = DateTime.now();
+    return "${(end-start).inMilliseconds}ms";
   }
 
   ///获取主页

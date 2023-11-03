@@ -178,12 +178,27 @@ class _JmSettingsState extends State<JmSettings> {
             ),
             ListTile(
               leading: const Icon(Icons.account_tree_outlined),
-              title: Text("API分流".tl),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("API分流".tl),
+                  const SizedBox(width: 4,),
+                  InkWell(
+                    onTap: _testJmNetwork,
+                    borderRadius: BorderRadius.circular(12.5),
+                    child: const SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: Center(
+                        child: Icon(Icons.speed, size: 20,),
+                      ),
+                    ),
+                  )
+                ],
+              ),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[17]),
-                values: [
-                  "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "转发服务器".tl
-                ],
+                values: List.generate(JmNetwork.urls.length, (index) => "分流".tl + (index+1).toString()),
                 whenChange: (i){
                   appdata.settings[17] = i.toString();
                   appdata.updateSettings();
@@ -215,4 +230,28 @@ class _JmSettingsState extends State<JmSettings> {
           ],
         ));
   }
+}
+
+void _testJmNetwork(){
+  Widget buildItem(int index){
+    String res = "testing";
+    return StatefulBuilder(builder: (context, updater) {
+      if(res == "testing"){
+        JmNetwork().ping(index).then((value) => updater(() => res=value));
+      }
+
+      return ListTile(
+        title: Text("分流".tl + (index+1).toString()),
+        trailing: Text(res),
+      );
+    });
+  }
+
+  showDialog(context: App.globalContext!, builder: (context) => SimpleDialog(
+    title: const Text("Network Test"),
+    children: [
+      const SizedBox(width: 400,),
+      ...List.generate(JmNetwork.urls.length, (index) => buildItem(index)),
+    ],
+  ));
 }
