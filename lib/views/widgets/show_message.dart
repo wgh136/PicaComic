@@ -22,6 +22,7 @@ void showMessage(BuildContext? context, String message,
             left: padding / 2,
             right: padding / 2,
             child: Material(
+              color: Colors.transparent,
               child: Container(
                 constraints:
                     const BoxConstraints(minHeight: 48, maxHeight: 104),
@@ -29,7 +30,7 @@ void showMessage(BuildContext? context, String message,
                   color: Theme.of(context).colorScheme.inverseSurface,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                padding: const EdgeInsets.only(top: 4, bottom: 4),
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Row(
                   children: [
                     const SizedBox(

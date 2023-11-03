@@ -284,7 +284,7 @@ class ComicReadingPage extends StatelessWidget {
             }
 
             if (appdata.settings[9] == "4") {
-              data.scrollManager ??= ScrollManager(logic.photoViewController);
+              data.scrollManager ??= ScrollManager(logic);
             }
 
             var body = Listener(

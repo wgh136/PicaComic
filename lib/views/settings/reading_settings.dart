@@ -184,6 +184,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           title: Text("自动翻页时间间隔".tl),
         ),
+        ListTile(
+          leading: Icon(Icons.zoom_out_map,
+              color: Theme.of(context).colorScheme.secondary),
+          title: Text("双击放缩".tl),
+          onTap: () {},
+          trailing: Switch(
+            value: appdata.settings[49] == "1",
+            onChanged: (value) {
+              setState(() {
+                appdata.settings[49] = value ? "1" : "0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        ),
       ],
     );
   }

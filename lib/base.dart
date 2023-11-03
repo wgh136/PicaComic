@@ -87,6 +87,7 @@ class Appdata {
     "0", //46 webdav version
     "0", //47 eh warning
     "https://nhentai.net", //48 nhentai domain
+    "0", //49 阅读器中双击放缩
   ];
 
   ///屏蔽的关键词

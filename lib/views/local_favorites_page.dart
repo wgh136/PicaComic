@@ -359,6 +359,7 @@ class LocalFavoriteTile extends ComicTile {
           future: LocalFavoritesManager().getCover(comic),
           builder: (context, file) {
             if (file.hasError) {
+              print(file.error);
               return ColoredBox(
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: const Center(child: Icon(Icons.error)));

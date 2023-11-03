@@ -257,7 +257,7 @@ class LocalFavoritesManager {
         if (item.type == ComicType.hitomi) "Referer": "https://hitomi.la/"
       }, responseType: ResponseType.bytes));
       var res = await dio.get<Uint8List>(item.coverPath);
-      file.createSync();
+      file.createSync(recursive: true);
       file.writeAsBytesSync(res.data!);
       return file;
     }
