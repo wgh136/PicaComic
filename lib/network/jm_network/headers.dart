@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 
 const jmAuth = <String>[
   "1",
@@ -11,7 +10,7 @@ const jmAuth = <String>[
 ];
 
 BaseOptions getHeader(int time,
-    {bool post = false, Map<String, String>? headers, bool byte = true}) {
+    {bool post = false, Map<String, String>? headers, bool byte = true, required String host}) {
   var token = md5.convert(const Utf8Encoder().convert("$time${jmAuth[2]}"));
 
   return BaseOptions(
@@ -23,7 +22,7 @@ BaseOptions getHeader(int time,
         "tokenparam": "$time,${jmAuth[1]}",
         "user-agent": jmAuth[3],
         "accept-encoding": "gzip",
-        "Host": JmNetwork().baseUrl.replaceFirst("https://", ""),
+        "Host": host.replaceFirst("https://", ""),
         ...headers ?? {},
         if (post) "Content-Type": "application/x-www-form-urlencoded"
       });

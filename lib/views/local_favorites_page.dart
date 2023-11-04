@@ -108,7 +108,7 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
               }
             }),
             maxCrossAxisExtent: 500,
-            itemHeight: 56,
+            itemHeight: 64,
           ),
           SliverToBoxAdapter(
             child: SizedBox(

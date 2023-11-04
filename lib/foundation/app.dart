@@ -119,6 +119,11 @@ class App {
           _ => PlatformDispatcher.instance.locale,
         };
       }.call();
+
+  /// This function will be called when app life circle state changed.
+  /// 
+  /// Page can change this, and must set this to null when user exit the page.
+  static void Function()? onAppLifeCircleChanged;
 }
 
 enum UiModes {

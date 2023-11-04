@@ -101,6 +101,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       Webdav.syncData();
       time = DateTime.now();
     }
+
+    App.onAppLifeCircleChanged?.call();
   }
 
   @override

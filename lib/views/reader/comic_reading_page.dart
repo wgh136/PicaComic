@@ -185,6 +185,7 @@ class ComicReadingPage extends StatelessWidget {
       //进入阅读器时清除内存中的缓存, 并且增大限制
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+      App.onAppLifeCircleChanged = () => logic.data.scrollManager?.fingers = 0;
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -204,6 +205,7 @@ class ComicReadingPage extends StatelessWidget {
       logic.runningAutoPageTurning = false;
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
+      App.onAppLifeCircleChanged = null;
       Future.microtask(() {
         if (ComicPage.tagsStack.isNotEmpty) {
           ComicPage.tagsStack.last.updateHistory(history);

@@ -76,7 +76,7 @@ class JmFavoritePage extends StatelessWidget {
                           name: logic.folders.values.elementAt(i))));
                 }),
                 maxCrossAxisExtent: 500,
-                itemHeight: 56,
+                itemHeight: 64,
               ),
               SliverToBoxAdapter(
                 child: SizedBox(

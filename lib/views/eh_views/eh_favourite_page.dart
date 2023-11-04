@@ -31,7 +31,7 @@ class EhFavoritePage extends StatelessWidget {
             );
           }),
           maxCrossAxisExtent: 500,
-          itemHeight: 56,
+          itemHeight: 64,
         ),
       ],
     );
