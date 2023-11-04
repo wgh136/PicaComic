@@ -4,16 +4,14 @@
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
+[![Telegram Discussion](https://img.shields.io/static/v1?label=Discussion&message=Telegram&color=blue&logo=telegram)]([https://t.me/Icalinguapp](https://t.me/pica_group))
 
 使用flutter构建的漫画App, 支持查看Picacg, E-hentai, 禁漫天堂, Hitomi, 绅士漫画, Nhentai
 
 目前支持Android, Windows, IOS;
 linux端存在较多问题, 如有需要请自行构建使用
 
-本App目标为中文漫画, 因此App界面语言仅支持中文, 漫画源仅限于有中文漫画的漫画源
-
-Web端已被放弃, 仅支持哔咔, 目前部署在Vercel上
-地址: [https://comic.kokoiro.xyz/](https://comic.kokoiro.xyz/)
+本App目前的目标为中文漫画, 漫画源仅限于有中文漫画的漫画源
 
 欢迎提出问题和功能建议
 
