@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/proxy.dart';
-import 'package:pica_comic/tools/debug.dart';
+import 'package:pica_comic/tools/time.dart';
 import '../../foundation/log.dart';
 import '../log_dio.dart';
 import 'headers.dart';
@@ -38,8 +38,12 @@ class JmNetwork {
     "https://www.jmapinode1.top",
     "https://www.jmapinode2.top",
     "https://www.jmapinode3.top",
+    "https://www.jmapinode4.top",
+    "https://www.jmapibranch1.cc",
     "https://www.jmapibranch2.cc",
-    "$serverDomain/jmComic"
+    "https://www.jmapinode.top",
+    "https://wwwjmapinode2.cc",
+    "https://wwwjmapinode3.cc",
   ];
 
   String get baseUrl => urls[int.parse(appdata.settings[17])];
@@ -77,7 +81,7 @@ class JmNetwork {
       CacheExpiredTime expiredTime = CacheExpiredTime.long}) async {
     int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     var dio = CachedNetwork();
-    var options = getHeader(time);
+    var options = getHeader(time, host: Uri.parse(url).host);
     options.validateStatus = (i) => i == 200 || i == 401;
     try {
       var res = await dio.getJm(url, options, time,
@@ -89,8 +93,6 @@ class JmNetwork {
       }
 
       final data = const JsonDecoder().convert(res.data);
-
-      saveDebugData(res.data);
 
       return Res<dynamic>(data);
     } on DioException catch (e) {
@@ -116,7 +118,7 @@ class JmNetwork {
     try {
       await setNetworkProxy();
       int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      var dio = logDio(getHeader(time, post: true));
+      var dio = logDio(getHeader(time, post: true, host: Uri.parse(url).host));
       dio.interceptors.add(CookieManager(cookieJar));
       var res = await dio.post(url,
           options: Options(validateStatus: (i) => i == 200 || i == 401),
@@ -148,6 +150,16 @@ class JmNetwork {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       return const Res<String>(null, errorMessage: "网络错误");
     }
+  }
+
+  Future<String> ping(int urlIndex) async {
+    var start = DateTime.now();
+    var res = await get("${urls[urlIndex]}/promote?$baseData&page=0");
+    if (res.error) {
+      return "Error";
+    }
+    var end = DateTime.now();
+    return "${(end - start).inMilliseconds}ms";
   }
 
   ///获取主页
@@ -711,7 +723,7 @@ class JmNetwork {
 
   ///获取漫画图片
   Future<Res<List<String>>> getChapter(String id) async {
-    var res = await get("$baseUrl/chapter?$baseData&id=$id");
+    var res = await get("$baseUrl/chapter?comicName=skip=&id=$id");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -731,8 +743,8 @@ class JmNetwork {
   ///
   /// 此函数未使用, 因为似乎所有漫画的scramble都一样
   Future<String?> getScramble(String id) async {
-    var dio = Dio(
-        getHeader(DateTime.now().millisecondsSinceEpoch ~/ 1000, byte: false))
+    var dio = Dio(getHeader(DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        byte: false, host: baseUrl))
       ..interceptors.add(LogInterceptor());
     dio.interceptors.add(CookieManager(cookieJar));
     var res = await dio.get(

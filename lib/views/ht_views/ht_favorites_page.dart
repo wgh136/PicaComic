@@ -4,6 +4,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
+import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
 import '../main_page.dart';
@@ -58,7 +59,7 @@ class HtFavoritePage extends StatelessWidget {
         } else {
           return CustomScrollView(
             slivers: [
-              SliverGrid(
+              SliverGridViewWithFixedItemHeight(
                 delegate: SliverChildBuilderDelegate(
                     childCount: logic.folders.length + 1, (context, i) {
                   if (i == 0) {
@@ -77,10 +78,8 @@ class HtFavoritePage extends StatelessWidget {
                           folderId: logic.folders.keys.elementAt(i),
                           name: logic.folders.values.elementAt(i))));
                 }),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 500,
-                  childAspectRatio: 5,
-                ),
+                maxCrossAxisExtent: 500,
+                itemHeight: 64,
               ),
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -92,13 +91,18 @@ class HtFavoritePage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text("创建收藏夹".tl),
-                          const Icon(Icons.add, size: 18,),
+                          const Icon(
+                            Icons.add,
+                            size: 18,
+                          ),
                         ],
                       ),
-                      onPressed: (){
-                        showDialog(context: context, builder: (context){
-                          return const CreateFolderDialog();
-                        });
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const CreateFolderDialog();
+                            });
                       },
                     ),
                   ),
@@ -127,7 +131,7 @@ class HtFolderTile extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: onTap,
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
           child: Row(
@@ -183,7 +187,8 @@ class HtFolderTile extends StatelessWidget {
                                     var res =
                                         await HtmangaNetwork().deleteFolder(id);
                                     if (res) {
-                                      StateController.find<HtFavoritePageLogic>()
+                                      StateController.find<
+                                              HtFavoritePageLogic>()
                                           .refresh_();
                                     } else {
                                       showMessage(App.globalContext, "删除失败".tl);
@@ -288,7 +293,8 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                         } else {
                           App.globalBack();
                           showMessage(context, "成功创建".tl);
-                          StateController.find<HtFavoritePageLogic>().refresh_();
+                          StateController.find<HtFavoritePageLogic>()
+                              .refresh_();
                         }
                       });
                     },

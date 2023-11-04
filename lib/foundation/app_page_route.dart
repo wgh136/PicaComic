@@ -10,9 +10,11 @@ const int _kMaxPageBackAnimationTime = 300;
 const double _kMinFlingVelocity = 1.0;
 
 class AppPageRoute<T> extends PageRoute<T> {
-  AppPageRoute(this.page);
+  AppPageRoute(this.page, [this.enableIOSGesture = true]);
 
   Widget Function() page;
+
+  final bool enableIOSGesture;
 
   @override
   Color? get barrierColor => null;
@@ -27,7 +29,8 @@ class AppPageRoute<T> extends PageRoute<T> {
         route.fullscreenDialog ||
         route.animation!.status != AnimationStatus.completed ||
         route.secondaryAnimation!.status != AnimationStatus.dismissed ||
-        route.navigator!.userGestureInProgress) {
+        route.navigator!.userGestureInProgress ||
+        App.temporaryDisablePopGesture) {
       return false;
     }
 
@@ -50,15 +53,22 @@ class AppPageRoute<T> extends PageRoute<T> {
     return result;
   }
 
+  PageTransitionsBuilder getTransition() {
+    if (App.uiMode() != UiModes.m1) {
+      return FadePageTransitionBuilder();
+    }
+    return SlidePageTransitionBuilder();
+  }
+
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
-    return const FadeUpwardsPageTransitionsBuilder().buildTransitions(
+    return getTransition().buildTransitions(
         this,
         context,
         animation,
         secondaryAnimation,
-        App.enablePopGesture
+        App.enablePopGesture && enableIOSGesture
             ? IOSBackGestureDetector(
                 gestureWidth: _kBackGestureWidth,
                 enabledCallback: () => _isPopGestureEnabled<T>(this),
@@ -239,5 +249,38 @@ class _IOSBackGestureDetectorState extends State<IOSBackGestureDetector> {
     assert(_backGestureController != null);
     _backGestureController!.dragUpdate(
         _convertToLogical(details.primaryDelta! / context.size!.width));
+  }
+}
+
+class FadePageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
+    return FadeTransition(
+      opacity: animation.drive(Tween(begin: 0.0, end: 1.0)
+          .chain(CurveTween(curve: Curves.fastOutSlowIn))),
+      child: child,
+    );
+  }
+}
+
+class SlidePageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
+    return SlideTransition(
+      position: animation.drive(
+          Tween(begin: const Offset(1, 0), end: Offset.zero)
+              .chain(CurveTween(curve: Curves.fastOutSlowIn))),
+      child: child,
+    );
   }
 }

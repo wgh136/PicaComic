@@ -3,33 +3,31 @@ import 'package:lottie/lottie.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../foundation/app.dart';
 
-Widget showLoading(BuildContext context, {bool withScaffold=false}){
-  final loading = Lottie.asset(
-    "images/loading.json",
-    width: 180,
-    height: 180,
-    delegates: LottieDelegates(
-      values: [
-        ValueDelegate.strokeColor(
-          const ['**'],
-          value: Theme.of(context).colorScheme.primary,
-        ),
-        ValueDelegate.color(
-          const ['**'],
-          value: Theme.of(context).colorScheme.primary,
-        )
-      ],
-    )
-  );
+Widget showLoading(BuildContext context, {bool withScaffold = false}) {
+  final loading = Lottie.asset("images/loading.json",
+      width: 180,
+      height: 180,
+      delegates: LottieDelegates(
+        values: [
+          ValueDelegate.strokeColor(
+            const ['**'],
+            value: Theme.of(context).colorScheme.primary,
+          ),
+          ValueDelegate.color(
+            const ['**'],
+            value: Theme.of(context).colorScheme.primary,
+          )
+        ],
+      ));
 
-  if(withScaffold){
+  if (withScaffold) {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
         child: loading,
       ),
     );
-  }else{
+  } else {
     return Center(
       child: SizedBox(
         width: 250,
@@ -37,12 +35,17 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
           mainAxisSize: MainAxisSize.min,
           children: [
             loading,
-            const SizedBox(height: 16,),
+            const SizedBox(
+              height: 16,
+            ),
             Center(
               child: Text("加载中".tl),
             ),
-            const SizedBox(height: 4,),
-            TextButton(onPressed: () => Navigator.pop(context), child: Text("取消".tl))
+            const SizedBox(
+              height: 4,
+            ),
+            TextButton(
+                onPressed: () => Navigator.pop(context), child: Text("取消".tl))
           ],
         ),
       ),
@@ -50,16 +53,23 @@ Widget showLoading(BuildContext context, {bool withScaffold=false}){
   }
 }
 
-class LoadingDialogController{
+class LoadingDialogController {
   BuildContext? context;
 
-  void close(){
-    Navigator.of(context!).pop();
+  void close() {
+    if (context == null) {
+      Future.microtask(() => Navigator.of(context!).pop());
+    } else {
+      Navigator.of(context!).pop();
+    }
   }
 }
 
-LoadingDialogController showLoadingDialog(BuildContext context, void Function() onCancel,
-    [bool barrierDismissible = true, bool allowCancel = true, String? message]){
+LoadingDialogController showLoadingDialog(
+    BuildContext context, void Function() onCancel,
+    [bool barrierDismissible = true,
+    bool allowCancel = true,
+    String? message]) {
   var controller = LoadingDialogController();
   showDialog(
     context: context,
@@ -79,14 +89,21 @@ LoadingDialogController showLoadingDialog(BuildContext context, void Function() 
                   height: 30,
                   child: CircularProgressIndicator(),
                 ),
-                const SizedBox(width: 16,),
-                Text(message ?? 'Loading', style: const TextStyle(fontSize: 16),),
+                const SizedBox(
+                  width: 16,
+                ),
+                Text(
+                  message ?? 'Loading',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const Spacer(),
-                if(allowCancel)
-                  TextButton(onPressed: () {
-                    App.globalBack();
-                    onCancel();
-                  }, child: Text("取消".tl))
+                if (allowCancel)
+                  TextButton(
+                      onPressed: () {
+                        App.globalBack();
+                        onCancel();
+                      },
+                      child: Text("取消".tl))
               ],
             ),
           ),

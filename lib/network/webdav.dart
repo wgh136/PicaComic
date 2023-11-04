@@ -11,32 +11,33 @@ import '../views/widgets/loading.dart';
 import '../views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 
-class Webdav{
-  static bool _isUploading = false;
+class Webdav {
+  static bool _isOperating = false;
 
   static bool _haveWaitingTask = false;
 
   /// Sync current data to webdav server. Return true if success.
-  static Future<bool> uploadData([String? config]) async{
-    if(_haveWaitingTask){
+  static Future<bool> uploadData([String? config]) async {
+    if (_haveWaitingTask) {
       return true;
     }
-    if(_isUploading){
+    if (_isOperating) {
       _haveWaitingTask = true;
-      while(_isUploading) {
+      while (_isOperating) {
         await Future.delayed(const Duration(milliseconds: 100));
       }
     }
     _haveWaitingTask = false;
-    _isUploading = true;
-    appdata.settings[46] = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
+    _isOperating = true;
+    appdata.settings[46] =
+        (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
     config ??= appdata.settings[45];
     var configs = config.split(';');
-    if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
-      _isUploading = false;
+    if (configs.length != 4 || configs.elementAtOrNull(0) == "") {
+      _isOperating = false;
       return true;
     }
-    if(!configs[3].endsWith('/') && !configs[3].endsWith('\\')){
+    if (!configs[3].endsWith('/') && !configs[3].endsWith('\\')) {
       configs[3] += '/';
     }
     var client = newClient(
@@ -49,67 +50,80 @@ class Webdav{
     try {
       await client.ping();
     } catch (e) {
-      LogManager.addLog(LogLevel.error, "Sync", "Failed to connect to webdav server.");
-      _isUploading = false;
+      LogManager.addLog(
+          LogLevel.error, "Sync", "Failed to connect to webdav server.");
+      _isOperating = false;
       return false;
     }
     try {
-      await client.writeFromFile(await exportDataToFile(false), "${configs[3]}picadata");
+      await client.writeFromFile(
+          await exportDataToFile(false), "${configs[3]}picadata");
     } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "Sync", "Failed to upload data to webdav server.\n$s");
-      _isUploading = false;
+      LogManager.addLog(LogLevel.error, "Sync",
+          "Failed to upload data to webdav server.\n$s");
+      _isOperating = false;
       return false;
     }
-    _isUploading = false;
+    _isOperating = false;
     return true;
   }
 
-  static Future<bool> downloadData([String? config]) async{
-    config ??= appdata.settings[45];
-    var configs = config.split(';');
-    if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
-      return true;
-    }
-    if(!configs[3].endsWith('/') && !configs[3].endsWith('\\')){
-      configs[3] += '/';
-    }
-    var client = newClient(
-      configs[0],
-      user: configs[1],
-      password: configs[2],
-      debug: kDebugMode,
-    );
+  static Future<bool> downloadData([String? config]) async {
+    _isOperating = true;
     try {
-      await client.ping();
-    } catch (e) {
-      LogManager.addLog(LogLevel.error, "Sync", "Failed to connect to webdav server.");
-      return false;
-    }
-    try {
-      var cachePath = (await getApplicationCacheDirectory()).path;
-      await client.read2File("${configs[3]}picadata", "$cachePath${Platform.pathSeparator}picadata");
-      var res = await importData("$cachePath${Platform.pathSeparator}picadata");
-      return res;
-    } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "Sync", "Failed to download data from webdav server.\n$s");
-      return false;
+      config ??= appdata.settings[45];
+      var configs = config.split(';');
+      if (configs.length != 4 || configs.elementAtOrNull(0) == "") {
+        return true;
+      }
+      if (!configs[3].endsWith('/') && !configs[3].endsWith('\\')) {
+        configs[3] += '/';
+      }
+      var client = newClient(
+        configs[0],
+        user: configs[1],
+        password: configs[2],
+        debug: kDebugMode,
+      );
+      try {
+        await client.ping();
+      } catch (e) {
+        LogManager.addLog(
+            LogLevel.error, "Sync", "Failed to connect to webdav server.");
+        return false;
+      }
+      try {
+        var cachePath = (await getApplicationCacheDirectory()).path;
+        await client.read2File("${configs[3]}picadata",
+            "$cachePath${Platform.pathSeparator}picadata");
+        var res =
+            await importData("$cachePath${Platform.pathSeparator}picadata");
+        return res;
+      } catch (e, s) {
+        LogManager.addLog(LogLevel.error, "Sync",
+            "Failed to download data from webdav server.\n$s");
+        return false;
+      }
+    } finally {
+      _isOperating = false;
     }
   }
 
-  static void syncData() async{
+  static void syncData() async {
     var configs = appdata.settings[45].split(';');
-    if(configs.length != 4 || configs.elementAtOrNull(0) == ""){
+    if (configs.length != 4 || configs.elementAtOrNull(0) == "") {
       return;
     }
     var controller = showLoadingDialog(App.globalContext!, () {
       App.back(App.globalContext!);
     }, false, true, "同步数据中".tl);
     var res = await Webdav.downloadData();
-    if(!res){
+    if (!res) {
       controller.close();
       showMessage(App.globalContext, "Failed to download data",
-          action: TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
-    }else{
+          action:
+              TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
+    } else {
       controller.close();
     }
   }

@@ -30,8 +30,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               title: Text("哔咔漫画".tl),
             ),
               ListTile(
-                leading: Icon(Icons.change_circle,
-                    color: Theme.of(context).colorScheme.secondary),
+                leading: const Icon(Icons.change_circle),
                 title: Text("使用转发服务器".tl),
                 subtitle: Text("同时使用网络代理工具会减慢速度".tl),
                 trailing: Switch(
@@ -48,8 +47,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                 onTap: () {},
               ),
             ListTile(
-              leading: Icon(Icons.hub_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.hub_outlined),
               title: Text("设置分流".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.appChannel)-1,
@@ -68,7 +66,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.image, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.image),
               title: Text("设置图片质量".tl),
               trailing: Select(
                 initialValue: appdata.getQuality()-1,
@@ -85,8 +83,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.manage_search_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.manage_search_outlined),
               trailing: Select(
                 initialValue: appdata.getSearchMode(),
                 values: [
@@ -100,8 +97,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               title: Text("设置搜索及分类排序模式".tl),
             ),
             ListTile(
-              leading: Icon(Icons.circle_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.circle_outlined),
               title: Text("显示头像框".tl),
               trailing: Switch(
                 value: showFrame,
@@ -116,7 +112,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               onTap: () {},
             ),
             ListTile(
-              leading: Icon(Icons.today, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.today),
               title: Text("自动打卡".tl),
               subtitle: App.isMobile?Text("APP启动或是距离上次打卡间隔一天时执行".tl): Text("启动时执行".tl),
               onTap: () {},
@@ -135,8 +131,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.collections_bookmark_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.collections_bookmark_outlined),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[30]),
                 values: [

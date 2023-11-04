@@ -33,11 +33,10 @@ void main() {
   runZonedGuarded(() {
     WidgetsFlutterBinding.ensureInitialized();
     startClearCache();
-    if(App.isAndroid) {
+    if (App.isAndroid) {
       final appLinks = AppLinks();
       appLinks.allUriLinkStream.listen((uri) {
         handleAppLinks(uri);
-
       });
     }
     FlutterError.onError = (details) {
@@ -75,13 +74,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   DateTime time = DateTime.fromMillisecondsSinceEpoch(0);
 
+  bool forceRebuild = false;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if(App.isAndroid && appdata.settings[38] == "1"){
+    if (App.isAndroid && appdata.settings[38] == "1") {
       try {
         FlutterDisplayMode.setHighRefreshRate();
-      }
-      catch(e){
+      } catch (e) {
         // ignore
       }
     }
@@ -92,29 +92,30 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         App.to(App.globalContext!, () => const AuthPage());
       }
     } else if (state == AppLifecycleState.paused) {
-
       appdata.flag = true;
     }
 
-    if(DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch > 7200000) {
+    if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
+        7200000) {
       jmNetwork.loginFromAppdata();
       Webdav.syncData();
       time = DateTime.now();
     }
+
+    App.onAppLifeCircleChanged?.call();
   }
-
-
 
   @override
   void initState() {
-    MyApp.updater = () => setState(() {});
+    MyApp.updater = () => setState(() {
+          forceRebuild = true;
+        });
     time = DateTime.now();
     TagsTranslation.readData();
-    if(App.isAndroid && appdata.settings[38] == "1"){
+    if (App.isAndroid && appdata.settings[38] == "1") {
       try {
         FlutterDisplayMode.setHighRefreshRate();
-      }
-      catch(e){
+      } catch (e) {
         // ignore
       }
     }
@@ -127,13 +128,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }
-    (() async => appdataPath = (await getApplicationSupportDirectory()).path).call();
+    (() async => appdataPath = (await getApplicationSupportDirectory()).path)
+        .call();
     super.initState();
   }
 
   @override
   void didChangePlatformBrightness() {
-    final Brightness brightness = View.of(context).platformDispatcher.platformBrightness;
+    final Brightness brightness =
+        View.of(context).platformDispatcher.platformBrightness;
     if (brightness == Brightness.light) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
@@ -155,7 +158,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final Brightness brightness = View.of(context).platformDispatcher.platformBrightness;
+    if (forceRebuild) {
+      forceRebuild = false;
+      void rebuild(Element el) {
+        el.markNeedsBuild();
+        el.visitChildren(rebuild);
+      }
+
+      (context as Element).visitChildren(rebuild);
+    }
+
+    final Brightness brightness =
+        View.of(context).platformDispatcher.platformBrightness;
     if (brightness == Brightness.light) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
@@ -216,19 +230,26 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: App.isWindows ? "font" : "",
         ),
-        home: notFirstUse ?
-          (appdata.settings[13] == "1" ? const AuthPage() : const MainPage()) :
-          const WelcomePage(),
+        home: notFirstUse
+            ? (appdata.settings[13] == "1"
+                ? const AuthPage()
+                : const MainPage())
+            : const WelcomePage(),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [Locale('zh', 'CN'), Locale('zh', 'TW'), Locale('en', 'US')],
+        supportedLocales: const [
+          Locale('zh', 'CN'),
+          Locale('zh', 'TW'),
+          Locale('en', 'US')
+        ],
         builder: (context, widget) {
-          if(Platform.isWindows){
+          if (Platform.isWindows) {
             var channel = const MethodChannel("pica_comic/title_bar");
-            channel.invokeMethod("color", Theme.of(context).colorScheme.surface.value);
+            channel.invokeMethod(
+                "color", Theme.of(context).colorScheme.surface.value);
           }
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
@@ -239,10 +260,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           };
           if (widget != null) {
             return Overlay(
-              initialEntries: [
-                OverlayEntry(builder: (context) => widget)
-              ],
-          );
+              initialEntries: [OverlayEntry(builder: (context) => widget)],
+            );
           }
           throw ('widget is null');
         },

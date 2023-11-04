@@ -12,21 +12,22 @@ import '../widgets/show_message.dart';
 import 'reading_logic.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-void showSettings(BuildContext context){
-  if(UiMode.m1(context)){
-    showModalBottomSheet(context: context, builder: (context) => SizedBox(
-      height: MediaQuery.of(context).size.height*0.6,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-          child: const ReadingSettings(),
+void showSettings(BuildContext context) {
+  if (UiMode.m1(context)) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) => AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              child: const ReadingSettings(),
+            ));
+  } else {
+    showSideBar(
+        context,
+        const SingleChildScrollView(
+          child: ReadingSettings(),
         ),
-      ),
-    ));
-  }else{
-    showSideBar(context, const SingleChildScrollView(
-      child: ReadingSettings(),
-    ), useSurfaceTintColor: true, width: 450);
+        useSurfaceTintColor: true,
+        width: 450);
   }
 }
 
@@ -96,7 +97,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                         divisions: 50,
                         value: int.parse(appdata.settings[40]).toDouble(),
                         overlayColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.transparent),
+                            (states) => Colors.transparent),
                         onChanged: (v) {
                           if (v == 0) return;
                           appdata.settings[40] = v.toInt().toString();
@@ -182,7 +183,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               },
             ),
           ),
-          if(logic.readingMethod != ReadingMethod.topToBottomContinuously)
+          if (logic.readingMethod != ReadingMethod.topToBottomContinuously)
             ListTile(
               leading: Icon(Icons.fit_screen_outlined,
                   color: Theme.of(context).colorScheme.secondary),
@@ -198,6 +199,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 },
               ),
             ),
+          ListTile(
+            leading: Icon(Icons.zoom_out_map,
+                color: Theme.of(context).colorScheme.secondary),
+            title: Text("双击缩放".tl),
+            onTap: () {},
+            trailing: Switch(
+              value: appdata.settings[49] == "1",
+              onChanged: (value) {
+                appdata.settings[49] = value ? "1" : "0";
+                logic.update();
+                appdata.updateSettings();
+                setState(() {});
+              },
+            ),
+          ),
           ListTile(
             leading: Icon(Icons.timer_sharp,
                 color: Theme.of(context).colorScheme.secondary),
@@ -237,7 +253,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
             title: Text("自动翻页时间间隔".tl),
           ),
-          if(logic.readingMethod == ReadingMethod.topToBottomContinuously)
+          if (logic.readingMethod == ReadingMethod.topToBottomContinuously)
             ListTile(
               leading: Icon(Icons.width_normal_sharp,
                   color: Theme.of(context).colorScheme.secondary),
@@ -274,86 +290,88 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
         ],
       ),
-
       buildReadingMethodSetting(),
-
-      SizedBox(
-        width: 400,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 60,
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 6,
+      Column(
+        children: [
+          SizedBox(
+            height: 60,
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 6,
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_outlined,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    onPressed: () => setState(() {
-                      i = 0;
-                    }),
-                  ),
-                  Text(
-                    "设置分流".tl,
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  onPressed: () => setState(() {
+                    i = 0;
+                  }),
+                ),
+                Text(
+                  "设置分流".tl,
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+          if (logic.data.type == ReadingType.picacg)
+            ListTile(
+              leading: Icon(Icons.hub_outlined,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("设置分流".tl),
+              trailing: Select(
+                initialValue: int.parse(appdata.appChannel) - 1,
+                values: ["分流1".tl, "分流2".tl, "分流3".tl],
+                whenChange: (i) {
+                  appdata.appChannel = (i + 1).toString();
+                  appdata.writeData();
+                  showMessage(App.globalContext, "正在获取分流IP".tl, time: 8);
+                  network
+                      .updateApi()
+                      .then((v) => hideMessage(App.globalContext));
+                },
+              ),
+            )
+          else
+            ListTile(
+              leading: Icon(Icons.image,
+                  color: Theme.of(context).colorScheme.secondary),
+              title: Text("图片分流".tl),
+              trailing: Select(
+                initialValue: int.parse(appdata.settings[37]),
+                values: [
+                  "分流1".tl,
+                  "分流2".tl,
+                  "分流3".tl,
+                  "分流4".tl,
+                  "分流5".tl,
+                  "分流6".tl,
                 ],
-              ),
-            ),
-            if (logic.data.type == ReadingType.picacg)
-              ListTile(
-                leading: Icon(Icons.hub_outlined,
-                    color: Theme.of(context).colorScheme.secondary),
-                title: Text("设置分流".tl),
-                trailing: Select(
-                  initialValue: int.parse(appdata.appChannel) - 1,
-                  values: ["分流1".tl, "分流2".tl, "分流3".tl],
-                  whenChange: (i) {
-                    appdata.appChannel = (i + 1).toString();
-                    appdata.writeData();
-                    showMessage(App.globalContext, "正在获取分流IP".tl, time: 8);
-                    network.updateApi().then((v) => hideMessage(App.globalContext));
-                  },
-                ),
-              )
-            else
-              ListTile(
-                leading: Icon(Icons.image,
-                    color: Theme.of(context).colorScheme.secondary),
-                title: Text("图片分流".tl),
-                trailing: Select(
-                  initialValue: int.parse(appdata.settings[37]),
-                  values: [
-                    "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl,
-                  ],
-                  whenChange: (i) {
-                    ImageManager.loadingItems.clear();
-                    appdata.settings[37] = i.toString();
-                    appdata.updateSettings();
-                  },
-                ),
-              ),
-            const SizedBox(
-              height: 40,
-            ),
-            Center(
-              child: FilledButton(
-                child: const Text("重启阅读器"),
-                onPressed: () {
-                  App.globalBack();
-                  logic.refresh_();
+                whenChange: (i) {
+                  ImageManager.loadingItems.clear();
+                  appdata.settings[37] = i.toString();
+                  appdata.updateSettings();
                 },
               ),
             ),
-            const SizedBox(
-              height: 20,
+          const SizedBox(
+            height: 40,
+          ),
+          Center(
+            child: FilledButton(
+              child: const Text("重启阅读器"),
+              onPressed: () {
+                App.globalBack();
+                logic.refresh_();
+              },
             ),
-          ],
-        ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
       ),
     ];
 
@@ -377,9 +395,11 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             child: child,
           );
         },
-        child: SizedBox(
+        child: SingleChildScrollView(
+          primary: false,
           key: Key(i.toString()),
-          width: double.infinity,
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
           child: pages[i],
         ),
       ),
@@ -399,14 +419,17 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.update();
   }
 
-  Widget buildReadingMethodSetting(){
-    var options = ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl,
-      "双页".tl, "双页(反向)".tl];
+  Widget buildReadingMethodSetting() {
+    var options = [
+      "从左至右".tl,
+      "从右至左".tl,
+      "从上至下".tl,
+      "从上至下(连续)".tl,
+      "双页".tl,
+      "双页(反向)".tl
+    ];
     return Column(
       children: [
-        const SizedBox(
-          width: 400,
-        ),
         SizedBox(
           height: 60,
           child: Row(
@@ -430,19 +453,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ],
           ),
         ),
-        ...List.generate(6, (index) => ListTile(
-          trailing: Radio<int>(
-            value: index+1,
-            groupValue: value,
-            onChanged: (i) {
-              setValue(i!);
-            },
-          ),
-          title: Text(options[index]),
-          onTap: () {
-            setValue(index+1);
-          },
-        ))
+        ...List.generate(
+            6,
+            (index) => ListTile(
+                  trailing: Radio<int>(
+                    value: index + 1,
+                    groupValue: value,
+                    onChanged: (i) {
+                      setValue(i!);
+                    },
+                  ),
+                  title: Text(options[index]),
+                  onTap: () {
+                    setValue(index + 1);
+                  },
+                ))
       ],
     );
   }

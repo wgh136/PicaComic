@@ -26,11 +26,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          title: Text("阅读".tl),
-        ),
-        ListTile(
-          leading: Icon(Icons.touch_app_outlined,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.touch_app_outlined),
           title: Text("点按翻页".tl),
           trailing: Switch(
             value: pageChangeValue,
@@ -42,25 +38,23 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           onTap: () {},
         ),
-        ListTile(
-          leading: Icon(Icons.volume_mute,
-              color: Theme.of(context).colorScheme.secondary),
-          title: Text("使用音量键翻页".tl),
-          subtitle: Text("仅安卓端有效".tl),
-          trailing: Switch(
-            value: useVolumeKeyChangePage,
-            onChanged: (b) {
-              b ? appdata.settings[7] = "1" : appdata.settings[7] = "0";
-              setState(() => useVolumeKeyChangePage = b);
-              appdata.writeData();
-            },
+        if (App.isAndroid)
+          ListTile(
+            leading: const Icon(Icons.volume_mute),
+            title: Text("使用音量键翻页".tl),
+            trailing: Switch(
+              value: useVolumeKeyChangePage,
+              onChanged: (b) {
+                b ? appdata.settings[7] = "1" : appdata.settings[7] = "0";
+                setState(() => useVolumeKeyChangePage = b);
+                appdata.writeData();
+              },
+            ),
+            onTap: () {},
           ),
-          onTap: () {},
-        ),
         ListTile(
-          leading: Icon(Icons.control_camera,
-              color: Theme.of(context).colorScheme.secondary),
-          title: Text("宽屏时显示前进后退关闭按钮".tl),
+          leading: const Icon(Icons.control_camera),
+          title: Text("宽屏时显示控制按钮".tl),
           onTap: () {},
           trailing: Switch(
             value: showThreeButton,
@@ -75,8 +69,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ),
         if (App.isAndroid)
           ListTile(
-            leading: Icon(Icons.screenshot_outlined,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const Icon(Icons.screenshot_outlined),
             title: Text("保持屏幕常亮".tl),
             onTap: () {},
             trailing: Switch(
@@ -91,9 +84,8 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
         ListTile(
-          leading: Icon(Icons.brightness_4,
-              color: Theme.of(context).colorScheme.secondary),
-          title: Text("夜间模式降低图片亮度".tl),
+          leading: const Icon(Icons.brightness_4),
+          title: Text("深色模式下降低图片亮度".tl),
           onTap: () {},
           trailing: Switch(
             value: lowBrightness,
@@ -107,12 +99,18 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.chrome_reader_mode,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.chrome_reader_mode),
           title: Text("选择阅读模式".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[9]) - 1,
-            values: ["从左至右".tl, "从右至左".tl, "从上至下".tl, "从上至下(连续)".tl, "双页".tl, "双页(反向)".tl],
+            values: [
+              "从左至右".tl,
+              "从右至左".tl,
+              "从上至下".tl,
+              "从上至下(连续)".tl,
+              "双页".tl,
+              "双页(反向)".tl
+            ],
             whenChange: (i) {
               appdata.settings[9] = (i + 1).toString();
               appdata.updateSettings();
@@ -122,8 +120,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.image_outlined,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.image_outlined),
           title: Text("图片预加载".tl),
           trailing: Select(
             initialValue: int.parse(appdata.settings[28]),
@@ -137,8 +134,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.animation,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.animation),
           title: Text("翻页动画".tl),
           onTap: () {},
           trailing: Switch(
@@ -152,8 +148,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.timer_sharp,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.timer_sharp),
           subtitle: SizedBox(
             height: 25,
             child: Stack(
@@ -171,7 +166,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                       overlayColor: MaterialStateColor.resolveWith(
                           (states) => Colors.transparent),
                       onChanged: (v) {
-                        if(v == 0)  return;
+                        if (v == 0) return;
                         appdata.settings[33] = v.toInt().toString();
                         appdata.updateSettings();
                         setState(() {});
@@ -188,6 +183,21 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             ),
           ),
           title: Text("自动翻页时间间隔".tl),
+        ),
+        ListTile(
+          leading: Icon(Icons.zoom_out_map,
+              color: Theme.of(context).colorScheme.secondary),
+          title: Text("双击缩放".tl),
+          onTap: () {},
+          trailing: Switch(
+            value: appdata.settings[49] == "1",
+            onChanged: (value) {
+              setState(() {
+                appdata.settings[49] = value ? "1" : "0";
+              });
+              appdata.updateSettings();
+            },
+          ),
         ),
       ],
     );

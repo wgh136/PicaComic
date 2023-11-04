@@ -22,7 +22,7 @@ class HiComicTile extends ComicTile {
     var res = <String>[];
     for(var tag in tags){
       var name = tag.name;
-      if(PlatformDispatcher.instance.locale.languageCode == "zh") {
+      if(App.locale.languageCode == "zh") {
         if (name.contains('♀')) {
           name = "${name
               .replaceFirst(" ♀", "")

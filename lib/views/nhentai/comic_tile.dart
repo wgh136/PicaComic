@@ -41,7 +41,7 @@ class NhentaiComicTile extends ComicTile{
   String get title => comic.title;
 
   List<String> _generateTags(List<String> tags){
-    if(PlatformDispatcher.instance.locale.languageCode != "zh") {
+    if(App.locale.languageCode != "zh") {
       return tags;
     }
     var res = <String>[];

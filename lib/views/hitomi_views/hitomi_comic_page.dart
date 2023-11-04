@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
@@ -139,7 +138,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   bool get enableTranslationToCN =>
-      PlatformDispatcher.instance.locale.languageCode == "zh";
+      App.locale.languageCode == "zh";
 
   @override
   void tapOnTags(String tag) {

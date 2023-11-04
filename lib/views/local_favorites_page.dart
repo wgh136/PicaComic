@@ -16,6 +16,7 @@ import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
@@ -29,7 +30,6 @@ import '../network/jm_network/jm_main_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
 import '../network/picacg_network/methods.dart';
 import 'main_page.dart';
-
 
 class LocalFavoritesPage extends StatefulWidget {
   const LocalFavoritesPage({super.key});
@@ -56,10 +56,10 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
       var names = LocalFavoritesManager().folderNames!;
       return CustomScrollView(
         slivers: [
-          SliverGrid(
+          SliverGridViewWithFixedItemHeight(
             delegate: SliverChildBuilderDelegate(childCount: names.length + 1,
                 (context, i) {
-              if(i == 0){
+              if (i == 0) {
                 return Material(
                   child: InkWell(
                     onTap: () => MainPage.to(() => const AllLocalFavorites()),
@@ -91,23 +91,24 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () => MainPage.to(() => const AllLocalFavorites()),
-                            icon: const Icon(Icons.open_in_new)),
+                              onPressed: () =>
+                                  MainPage.to(() => const AllLocalFavorites()),
+                              icon: const Icon(Icons.open_in_new)),
                         ],
                       ),
                     ),
                   ),
                 );
-              }else {
+              } else {
                 i--;
                 return FolderTile(
-                    name: names[i], stateSetter: () => setState(() {}),);
+                  name: names[i],
+                  stateSetter: () => setState(() {}),
+                );
               }
             }),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 500,
-              childAspectRatio: 5,
-            ),
+            maxCrossAxisExtent: 500,
+            itemHeight: 64,
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -155,7 +156,7 @@ class FolderTile extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () => MainPage.to(() => LocalFavoritesFolder(name)),
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
           child: Row(
@@ -208,8 +209,10 @@ class FolderTile extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.drive_file_rename_outline),
-                onPressed: () async{
-                  await showDialog(context: context, builder: (context) => RenameFolderDialog(name));
+                onPressed: () async {
+                  await showDialog(
+                      context: context,
+                      builder: (context) => RenameFolderDialog(name));
                   stateSetter();
                 },
               ),
@@ -324,7 +327,8 @@ class RenameFolderDialog extends StatelessWidget {
 }
 
 class LocalFavoriteTile extends ComicTile {
-  const LocalFavoriteTile(this.comic, this.folderName, this.onDelete, this._enableLongPressed,
+  const LocalFavoriteTile(
+      this.comic, this.folderName, this.onDelete, this._enableLongPressed,
       {this.showFolderInfo = false, super.key});
 
   final FavoriteItem comic;
@@ -349,28 +353,40 @@ class LocalFavoriteTile extends ComicTile {
   String get description => "${comic.time} | ${comic.type.name}";
 
   @override
-  Widget get image => cache[comic.target] == null ? FutureBuilder<File>(
-        future: LocalFavoritesManager().getCover(comic.coverPath),
-        builder: (context, file) {
-          if (file.data == null) {
-            return ColoredBox(
-                color: Theme.of(context).colorScheme.secondaryContainer);
-          } else {
-            cache[comic.target] = file.data!;
-            return Image.file(
-              file.data!,
-              fit: BoxFit.cover,
-              height: double.infinity,
-              filterQuality: FilterQuality.medium,
-            );
-          }
-        },
-      ) : Image.file(
-        cache[comic.target]!,
-        fit: BoxFit.cover,
-        height: double.infinity,
-        filterQuality: FilterQuality.medium,
-      );
+  Widget get image => cache[comic.target] == null
+      ? FutureBuilder<File>(
+          future: LocalFavoritesManager().getCover(comic),
+          builder: (context, file) {
+            if (file.hasError) {
+              print(file.error);
+              return ColoredBox(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  child: const Center(child: Icon(Icons.error)));
+            }
+            if (file.data == null) {
+              return ColoredBox(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  child: const SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                  ));
+            } else {
+              cache[comic.target] = file.data!;
+              return Image.file(
+                file.data!,
+                fit: BoxFit.cover,
+                height: double.infinity,
+                filterQuality: FilterQuality.medium,
+              );
+            }
+          },
+        )
+      : Image.file(
+          cache[comic.target]!,
+          fit: BoxFit.cover,
+          height: double.infinity,
+          filterQuality: FilterQuality.medium,
+        );
 
   @override
   void onTap_() {
@@ -398,8 +414,12 @@ class LocalFavoriteTile extends ComicTile {
               comic.coverPath,
             )));
       case ComicType.htManga:
-        MainPage.to(() => HtComicPage(HtComicBrief(comic.name, "", comic.coverPath,
-            comic.target, int.parse(comic.author.replaceFirst("Pages", "")),
+        MainPage.to(() => HtComicPage(HtComicBrief(
+            comic.name,
+            "",
+            comic.coverPath,
+            comic.target,
+            int.parse(comic.author.replaceFirst("Pages", "")),
             ignoreExamination: true)));
       case ComicType.nhentai:
         MainPage.to(() => NhentaiComicPage(comic.target));
@@ -415,7 +435,7 @@ class LocalFavoriteTile extends ComicTile {
   String get title => comic.name;
 
   List<String> _generateTags(List<String> tags) {
-    if (PlatformDispatcher.instance.locale.languageCode != "zh") {
+    if (App.locale.languageCode != "zh") {
       return tags;
     }
     List<String> res = [];
@@ -514,7 +534,7 @@ class LocalFavoriteTile extends ComicTile {
                     ListTile(
                       leading: const Icon(Icons.chrome_reader_mode_rounded),
                       title: Text("阅读".tl),
-                      onTap: (){
+                      onTap: () {
                         App.globalBack();
                         read();
                       },
@@ -529,110 +549,112 @@ class LocalFavoriteTile extends ComicTile {
   }
 
   @override
-  ActionFunc get read => () async{
-    switch (comic.type) {
-      case ComicType.picacg:
-        {
-          bool cancel = false;
-          showLoadingDialog(App.globalContext!, ()=>cancel=true);
-          var res = await network.getEps(comic.target);
-          if(cancel){
-            return;
-          }
-          if(res.error){
-            App.globalBack();
-            showMessage(App.globalContext, res.errorMessageWithoutNull);
-          }else{
-            App.globalBack();
-            readPicacgComic2(ComicItemBrief(
-                comic.name, comic.author, 0, comic.coverPath, comic.target, [],
-                ignoreExamination: true), res.data);
-          }
+  ActionFunc get read => () async {
+        switch (comic.type) {
+          case ComicType.picacg:
+            {
+              bool cancel = false;
+              showLoadingDialog(App.globalContext!, () => cancel = true);
+              var res = await network.getEps(comic.target);
+              if (cancel) {
+                return;
+              }
+              if (res.error) {
+                App.globalBack();
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
+              } else {
+                App.globalBack();
+                readPicacgComic2(
+                    ComicItemBrief(comic.name, comic.author, 0, comic.coverPath,
+                        comic.target, [],
+                        ignoreExamination: true),
+                    res.data);
+              }
+            }
+          case ComicType.ehentai:
+            {
+              bool cancel = false;
+              showLoadingDialog(App.globalContext!, () => cancel = true);
+              var res = await EhNetwork().getGalleryInfo(comic.target);
+              if (cancel) {
+                return;
+              }
+              if (res.error) {
+                App.globalBack();
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
+              } else {
+                App.globalBack();
+                readEhGallery(res.data);
+              }
+            }
+          case ComicType.jm:
+            {
+              bool cancel = false;
+              showLoadingDialog(App.globalContext!, () => cancel = true);
+              var res = await JmNetwork().getComicInfo(comic.target);
+              if (cancel) {
+                return;
+              }
+              if (res.error) {
+                App.globalBack();
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
+              } else {
+                App.globalBack();
+                readJmComic(res.data, res.data.series.values.toList());
+              }
+            }
+          case ComicType.hitomi:
+            {
+              bool cancel = false;
+              showLoadingDialog(App.globalContext!, () => cancel = true);
+              var res = await HiNetwork().getComicInfo(comic.target);
+              if (cancel) {
+                return;
+              }
+              if (res.error) {
+                App.globalBack();
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
+              } else {
+                App.globalBack();
+                readHitomiComic(res.data, comic.coverPath);
+              }
+            }
+          case ComicType.htManga:
+            {
+              bool cancel = false;
+              showLoadingDialog(App.globalContext!, () => cancel = true);
+              var res = await HtmangaNetwork().getComicInfo(comic.target);
+              if (cancel) {
+                return;
+              }
+              if (res.error) {
+                App.globalBack();
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
+              } else {
+                App.globalBack();
+                readHtmangaComic(res.data);
+              }
+            }
+          case ComicType.nhentai:
+            {
+              bool cancel = false;
+              showLoadingDialog(App.globalContext!, () => cancel = true);
+              var res = await NhentaiNetwork().getComicInfo(comic.target);
+              if (cancel) {
+                return;
+              }
+              if (res.error) {
+                App.globalBack();
+                showMessage(App.globalContext, res.errorMessageWithoutNull);
+              } else {
+                App.globalBack();
+                readNhentai(res.data);
+              }
+            }
+          case ComicType.htFavorite:
+            throw UnimplementedError();
         }
-      case ComicType.ehentai:
-        {
-          bool cancel = false;
-          showLoadingDialog(App.globalContext!, ()=>cancel=true);
-          var res = await EhNetwork().getGalleryInfo(comic.target);
-          if(cancel){
-            return;
-          }
-          if(res.error){
-            App.globalBack();
-            showMessage(App.globalContext, res.errorMessageWithoutNull);
-          }else{
-            App.globalBack();
-            readEhGallery(res.data);
-          }
-        }
-      case ComicType.jm:
-        {
-          bool cancel = false;
-          showLoadingDialog(App.globalContext!, ()=>cancel=true);
-          var res = await JmNetwork().getComicInfo(comic.target);
-          if(cancel){
-            return;
-          }
-          if(res.error){
-            App.globalBack();
-            showMessage(App.globalContext, res.errorMessageWithoutNull);
-          }else{
-            App.globalBack();
-            readJmComic(res.data, res.data.series.values.toList());
-          }
-        }
-      case ComicType.hitomi:
-        {
-          bool cancel = false;
-          showLoadingDialog(App.globalContext!, ()=>cancel=true);
-          var res = await HiNetwork().getComicInfo(comic.target);
-          if(cancel){
-            return;
-          }
-          if(res.error){
-            App.globalBack();
-            showMessage(App.globalContext, res.errorMessageWithoutNull);
-          }else{
-            App.globalBack();
-            readHitomiComic(res.data, comic.coverPath);
-          }
-        }
-      case ComicType.htManga:
-        {
-          bool cancel = false;
-          showLoadingDialog(App.globalContext!, ()=>cancel=true);
-          var res = await HtmangaNetwork().getComicInfo(comic.target);
-          if(cancel){
-            return;
-          }
-          if(res.error){
-            App.globalBack();
-            showMessage(App.globalContext, res.errorMessageWithoutNull);
-          }else{
-            App.globalBack();
-            readHtmangaComic(res.data);
-          }
-        }
-      case ComicType.nhentai:
-        {
-          bool cancel = false;
-          showLoadingDialog(App.globalContext!, ()=>cancel=true);
-          var res = await NhentaiNetwork().getComicInfo(comic.target);
-          if(cancel){
-            return;
-          }
-          if(res.error){
-            App.globalBack();
-            showMessage(App.globalContext, res.errorMessageWithoutNull);
-          }else{
-            App.globalBack();
-            readNhentai(res.data);
-          }
-        }
-      case ComicType.htFavorite:
-        throw UnimplementedError();
-    }
-  };
+      };
 }
 
 class AllLocalFavorites extends StatefulWidget {
@@ -648,8 +670,8 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
   String keyword = "";
   var results = <FavoriteItemWithFolderInfo>[];
 
-  Widget buildTitle(){
-    if(searchMode){
+  Widget buildTitle() {
+    if (searchMode) {
       return Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top / 2),
         child: Center(
@@ -657,11 +679,9 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
             height: 42,
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 6),
             child: TextField(
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "搜索".tl
-              ),
-              onChanged: (s){
+              decoration:
+                  InputDecoration(border: InputBorder.none, hintText: "搜索".tl),
+              onChanged: (s) {
                 setState(() {
                   keyword = s.toLowerCase();
                 });
@@ -670,32 +690,34 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
           ),
         ),
       );
-    }else{
+    } else {
       return const Text("ALL");
     }
   }
 
-  void find(){
+  void find() {
     results.clear();
-    if(keyword == ""){
+    if (keyword == "") {
       results.addAll(comics);
-    }else{
-      bool findTag(FavoriteItemWithFolderInfo comic){
-        for(var element in comic.comic.tags){
-          if(element.contains(':')){
+    } else {
+      bool findTag(FavoriteItemWithFolderInfo comic) {
+        for (var element in comic.comic.tags) {
+          if (element.contains(':')) {
             element = element.split(':').elementAtOrNull(1) ?? element;
           }
-          if(element.contains(keyword) || element.translateTagsToCN.contains(keyword)){
+          if (element.contains(keyword) ||
+              element.translateTagsToCN.contains(keyword)) {
             return true;
           }
         }
         return false;
       }
+
       for (var element in comics) {
-        if(element.comic.name.toLowerCase().contains(keyword)
-            || element.comic.author.toLowerCase().contains(keyword)
-            || element.folder.toLowerCase() == keyword
-            || findTag(element)){
+        if (element.comic.name.toLowerCase().contains(keyword) ||
+            element.comic.author.toLowerCase().contains(keyword) ||
+            element.folder.toLowerCase() == keyword ||
+            findTag(element)) {
           results.add(element);
         }
       }
@@ -704,38 +726,38 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
 
   @override
   Widget build(BuildContext context) {
-    if(searchMode){
+    if (searchMode) {
       find();
     }
     return Scaffold(
       body: Column(
         children: [
-          CustomAppbar(title: buildTitle(),actions: [
-            Tooltip(
-              message: "搜索".tl,
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  setState(() {
-                    searchMode = !searchMode;
-                    if(!searchMode){
-                      keyword = "";
-                    }
-                  });
-                },
-              ),
-            )
-          ],),
-          if(searchMode)
-            buildComics(results)
-          else
-            buildComics(comics)
+          CustomAppbar(
+            title: buildTitle(),
+            actions: [
+              Tooltip(
+                message: "搜索".tl,
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      searchMode = !searchMode;
+                      if (!searchMode) {
+                        keyword = "";
+                      }
+                    });
+                  },
+                ),
+              )
+            ],
+          ),
+          if (searchMode) buildComics(results) else buildComics(comics)
         ],
       ),
     );
   }
 
-  Widget buildComics(List<FavoriteItemWithFolderInfo> comics){
+  Widget buildComics(List<FavoriteItemWithFolderInfo> comics) {
     return Expanded(
       child: GridView.builder(
         padding: EdgeInsets.zero,
@@ -745,18 +767,23 @@ class _AllLocalFavoritesState extends State<AllLocalFavorites> {
         ),
         itemCount: comics.length,
         itemBuilder: (BuildContext context, int index) {
-          return LocalFavoriteTile(comics[index].comic, comics[index].folder, () {
-            comics.clear();
-            setState(() {
-              comics = LocalFavoritesManager().allComics();
-            });
-          }, true, showFolderInfo: true,);
+          return LocalFavoriteTile(
+            comics[index].comic,
+            comics[index].folder,
+            () {
+              comics.clear();
+              setState(() {
+                comics = LocalFavoritesManager().allComics();
+              });
+            },
+            true,
+            showFolderInfo: true,
+          );
         },
       ),
     );
   }
 }
-
 
 class LocalFavoritesFolder extends StatefulWidget {
   const LocalFavoritesFolder(this.name, {super.key});
@@ -792,7 +819,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
 
   @override
   void dispose() {
-    if(changed){
+    if (changed) {
       LocalFavoritesManager().reorder(comics!, widget.name);
     }
     LocalFavoriteTile.cache.clear();
@@ -801,41 +828,22 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
 
   @override
   Widget build(BuildContext context) {
-    var tiles = List.generate(comics!.length, (index) => LocalFavoriteTile(
-        comics![index], widget.name, () {
-          setState(() {
-            comics = LocalFavoritesManager().getAllComics(widget.name);
-          });
-    }, !enableSort, key: Key(comics![index].target),));
+    var tiles = List.generate(
+        comics!.length,
+        (index) => LocalFavoriteTile(
+              comics![index],
+              widget.name,
+              () {
+                setState(() {
+                  comics = LocalFavoritesManager().getAllComics(widget.name);
+                });
+              },
+              !enableSort,
+              key: Key(comics![index].target),
+            ));
     return Scaffold(
-      appBar: UiMode.m1(context) ? AppBar(
-        title: Text(widget.name), actions: [
-        SizedBox(
-          width: 90,
-          height: 56,
-          child: Row(
-            children: [
-              Text("排序".tl),
-              Transform.scale(
-                scale: 0.6,
-                child: Switch(value: enableSort, onChanged: (value) {
-                  var currentWidth = MediaQuery.of(context).size.width;
-                  if(currentWidth != width){
-                    width = currentWidth;
-                    reorderWidgetKey = UniqueKey();
-                  }
-                  setState(() => enableSort = value);
-                }),
-              )
-            ],
-          ),
-        )
-      ]
-      ) : null,
-      body: Column(
-        children: [
-          if(!UiMode.m1(context))
-            CustomAppbar(title: Text(widget.name), actions: [
+      appBar: UiMode.m1(context)
+          ? AppBar(title: Text(widget.name), actions: [
               SizedBox(
                 width: 90,
                 height: 56,
@@ -844,36 +852,73 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
                     Text("排序".tl),
                     Transform.scale(
                       scale: 0.6,
-                      child: Switch(value: enableSort, onChanged: (value) {
-                        var currentWidth = MediaQuery.of(context).size.width;
-                        if(currentWidth != width){
-                          width = currentWidth;
-                          reorderWidgetKey = UniqueKey();
-                        }
-                        setState(() => enableSort = value);
-                      }),
+                      child: Switch(
+                          value: enableSort,
+                          onChanged: (value) {
+                            var currentWidth =
+                                MediaQuery.of(context).size.width;
+                            if (currentWidth != width) {
+                              width = currentWidth;
+                              reorderWidgetKey = UniqueKey();
+                            }
+                            setState(() => enableSort = value);
+                          }),
                     )
                   ],
                 ),
               )
-            ],),
+            ])
+          : null,
+      body: Column(
+        children: [
+          if (!UiMode.m1(context))
+            CustomAppbar(
+              title: Text(widget.name),
+              actions: [
+                SizedBox(
+                  width: 90,
+                  height: 56,
+                  child: Row(
+                    children: [
+                      Text("排序".tl),
+                      Transform.scale(
+                        scale: 0.6,
+                        child: Switch(
+                            value: enableSort,
+                            onChanged: (value) {
+                              var currentWidth =
+                                  MediaQuery.of(context).size.width;
+                              if (currentWidth != width) {
+                                width = currentWidth;
+                                reorderWidgetKey = UniqueKey();
+                              }
+                              setState(() => enableSort = value);
+                            }),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           Expanded(
             child: ReorderableBuilder(
               key: reorderWidgetKey,
               scrollController: _scrollController,
               enableDraggable: enableSort,
-              longPressDelay: App.isDesktop ? const Duration(milliseconds: 100) : const Duration(milliseconds: 500),
-              onReorder: (reorderFunc){
+              longPressDelay: App.isDesktop
+                  ? const Duration(milliseconds: 100)
+                  : const Duration(milliseconds: 500),
+              onReorder: (reorderFunc) {
                 changed = true;
                 setState(() {
                   comics = reorderFunc(comics!) as List<FavoriteItem>;
                 });
               },
               dragChildBoxDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: lightenColor(Theme.of(context).splashColor.withOpacity(1), 0.2)
-              ),
-              builder: (children){
+                  borderRadius: BorderRadius.circular(16),
+                  color: lightenColor(
+                      Theme.of(context).splashColor.withOpacity(1), 0.2)),
+              builder: (children) {
                 return GridView(
                   key: _key,
                   controller: _scrollController,

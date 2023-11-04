@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                     leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.secondary,),
                     title: const Text("设置"),
                     trailing: const Icon(Icons.arrow_right),
-                    onTap: () => App.globalTo(() => const SettingsPage()),
+                    onTap: () => NewSettingsPage.open(),
                   ),
                 SizedBox.fromSize(size: const Size(5,10),),
                 if(!isLogging)

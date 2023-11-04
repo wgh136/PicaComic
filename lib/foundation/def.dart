@@ -16,7 +16,7 @@ const String webUA =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
 
 //App版本
-const appVersion = "2.2.4";
+const appVersion = "2.2.5";
 
 //定义宽屏设备的临界值
 const changePoint = 600;
@@ -34,4 +34,4 @@ const List<int> colors = [
   0X8D6E63
 ];
 
-const serverDomain = "https://api.kokoiro.xyz";
+const serverDomain = "https://api.wgh136.xyz";

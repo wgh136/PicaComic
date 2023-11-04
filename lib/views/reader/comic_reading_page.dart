@@ -185,6 +185,7 @@ class ComicReadingPage extends StatelessWidget {
       //进入阅读器时清除内存中的缓存, 并且增大限制
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+      App.onAppLifeCircleChanged = () => logic.data.scrollManager?.fingers = 0;
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -204,6 +205,7 @@ class ComicReadingPage extends StatelessWidget {
       logic.runningAutoPageTurning = false;
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
+      App.onAppLifeCircleChanged = null;
       Future.microtask(() {
         if (ComicPage.tagsStack.isNotEmpty) {
           ComicPage.tagsStack.last.updateHistory(history);
@@ -217,23 +219,7 @@ class ComicReadingPage extends StatelessWidget {
         endDrawer: Drawer(
           child: buildEpsView(),
         ),
-        floatingActionButton: () {
-          if (!type.hasEps) return null;
-          switch (logic.showFloatingButtonValue) {
-            case -1:
-              return FloatingActionButton(
-                onPressed: () => logic.jumpToLastChapter(),
-                child: const Icon(Icons.arrow_back_ios_outlined),
-              );
-            case 0:
-              return null;
-            case 1:
-              return FloatingActionButton(
-                onPressed: () => logic.jumpToNextChapter(),
-                child: const Icon(Icons.arrow_forward_ios_outlined),
-              );
-          }
-        }.call(),
+        floatingActionButton: buildEpChangeButton(logic),
         body: StateBuilder<ComicReadingPageLogic>(builder: (logic) {
           if (logic.isLoading) {
             history?.readEpisode.add(logic.order);
@@ -284,12 +270,11 @@ class ComicReadingPage extends StatelessWidget {
             }
 
             if (appdata.settings[9] == "4") {
-              data.scrollManager ??= ScrollManager(logic.photoViewController);
+              data.scrollManager ??= ScrollManager(logic);
             }
 
             var body = Listener(
               onPointerMove: (details) {
-                if (logic.currentScale < 1.05) return;
                 if (appdata.settings[9] == "4" &&
                     data.scrollManager!.fingers != 2) {
                   data.scrollManager!.addOffset(details.delta);
@@ -823,5 +808,70 @@ class ComicReadingPage extends StatelessWidget {
     } else {
       saveImage(getImageKey(index), data.target, reading: true);
     }
+  }
+
+  Widget? buildEpChangeButton(ComicReadingPageLogic logic) {
+    if (!type.hasEps) return null;
+    switch (logic.showFloatingButtonValue) {
+      case -1:
+        return FloatingActionButton(
+          onPressed: () => logic.jumpToLastChapter(),
+          child: const Icon(Icons.arrow_back_ios_outlined),
+        );
+      case 0:
+        return null;
+      case 1:
+        return Hero(
+            tag: "FAB",
+            child: StateBuilder<ComicReadingPageLogic>(
+              id: "FAB",
+              builder: (logic) {
+                return Container(
+                  width: 58,
+                  height: 58,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                      color: Theme.of(App.globalContext!)
+                          .colorScheme
+                          .primaryContainer,
+                      borderRadius: BorderRadius.circular(16)),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                          child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => logic.jumpToNextChapter(),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Center(
+                              child: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 24,
+                            color: Theme.of(App.globalContext!)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          )),
+                        ),
+                      )),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: logic.fABValue,
+                        child: ColoredBox(
+                          color: Theme.of(App.globalContext!)
+                              .colorScheme
+                              .surfaceTint
+                              .withOpacity(0.2),
+                          child: const SizedBox.expand(),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              },
+            ));
+    }
+    return null;
   }
 }

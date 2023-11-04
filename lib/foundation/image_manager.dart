@@ -469,7 +469,7 @@ class ImageManager {
         var res = await dio.get<ResponseBody>(url,
             options: Options(responseType: ResponseType.stream, headers: {
               "User-Agent":
-                  "Mozilla/5.0 (Linux; Android 13; JM114514 Build/TQ1A.230205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36",
+                  "Mozilla/5.0 (Linux; Android 13; WD5DDE5 Build/TQ1A.230205.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36",
               "x-requested-with": "com.jiaohua_browser",
               "referer": "https://www.jmapibranch2.cc/"
             }));

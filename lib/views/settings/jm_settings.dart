@@ -131,7 +131,7 @@ class _JmSettingsState extends State<JmSettings> {
               title: Text("禁漫天堂".tl),
             ),
             ListTile(
-              leading: Icon(Icons.sort, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.sort),
               title: Text("分类中漫画排序模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[16]),
@@ -146,7 +146,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.manage_search_outlined, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.manage_search_outlined),
               title: Text("搜索中漫画排序模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[19]),
@@ -162,7 +162,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.favorite_border),
               title: Text("收藏夹中漫画排序模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[42]),
@@ -177,14 +177,28 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.account_tree_outlined,
-                  color: Theme.of(context).colorScheme.secondary),
-              title: Text("API分流".tl),
+              leading: const Icon(Icons.account_tree_outlined),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("API分流".tl),
+                  const SizedBox(width: 4,),
+                  InkWell(
+                    onTap: _testJmNetwork,
+                    borderRadius: BorderRadius.circular(12.5),
+                    child: const SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: Center(
+                        child: Icon(Icons.speed, size: 20,),
+                      ),
+                    ),
+                  )
+                ],
+              ),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[17]),
-                values: [
-                  "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "转发服务器".tl
-                ],
+                values: List.generate(JmNetwork.urls.length, (index) => "分流".tl + (index+1).toString()),
                 whenChange: (i){
                   appdata.settings[17] = i.toString();
                   appdata.updateSettings();
@@ -194,8 +208,7 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.image,
-                  color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.image),
               title: Text("图片分流".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[37]),
@@ -210,11 +223,35 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary),
+              leading: const Icon(Icons.logout),
               title: Text("清除登录状态".tl),
               onTap: () => jmNetwork.logout(),
             ),
           ],
         ));
   }
+}
+
+void _testJmNetwork(){
+  Widget buildItem(int index){
+    String res = "testing";
+    return StatefulBuilder(builder: (context, updater) {
+      if(res == "testing"){
+        JmNetwork().ping(index).then((value) => updater(() => res=value));
+      }
+
+      return ListTile(
+        title: Text("分流".tl + (index+1).toString()),
+        trailing: Text(res),
+      );
+    });
+  }
+
+  showDialog(context: App.globalContext!, builder: (context) => SimpleDialog(
+    title: const Text("Network Test"),
+    children: [
+      const SizedBox(width: 400,),
+      ...List.generate(JmNetwork.urls.length, (index) => buildItem(index)),
+    ],
+  ));
 }
