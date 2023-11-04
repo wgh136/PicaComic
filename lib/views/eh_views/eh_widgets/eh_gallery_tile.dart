@@ -22,7 +22,7 @@ class EhGalleryTile extends ComicTile{
   const EhGalleryTile(this.gallery,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
 
   List<String> _generateTags(List<String> tags){
-    if(PlatformDispatcher.instance.locale.languageCode != "zh") {
+    if(App.locale.languageCode != "zh") {
       return tags;
     }
     List<String> res = [];
@@ -80,7 +80,7 @@ class EhGalleryTile extends ComicTile{
     }else if(gallery.tags.length > 1 && gallery.tags.isNotEmpty&&gallery.tags[1].substring(0,4) == "lang"){
       lang = gallery.tags[1].substring(9);
     }
-    if(PlatformDispatcher.instance.locale.languageCode == "zh" && lang != null){
+    if(App.locale.languageCode == "zh" && lang != null){
       lang = lang.translateTagsToCN;
     }
     return lang;

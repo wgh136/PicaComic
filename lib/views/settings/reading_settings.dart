@@ -85,7 +85,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ListTile(
           leading: const Icon(Icons.brightness_4),
-          title: Text("夜间模式降低图片亮度".tl),
+          title: Text("深色模式下降低图片亮度".tl),
           onTap: () {},
           trailing: Switch(
             value: lowBrightness,
@@ -187,7 +187,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         ListTile(
           leading: Icon(Icons.zoom_out_map,
               color: Theme.of(context).colorScheme.secondary),
-          title: Text("双击放缩".tl),
+          title: Text("双击缩放".tl),
           onTap: () {},
           trailing: Switch(
             value: appdata.settings[49] == "1",

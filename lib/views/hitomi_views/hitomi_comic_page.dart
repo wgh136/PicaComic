@@ -139,7 +139,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   bool get enableTranslationToCN =>
-      PlatformDispatcher.instance.locale.languageCode == "zh";
+      App.locale.languageCode == "zh";
 
   @override
   void tapOnTags(String tag) {

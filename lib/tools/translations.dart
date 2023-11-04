@@ -1,38 +1,36 @@
-import 'dart:ui';
+import 'package:pica_comic/foundation/app.dart';
 
-extension AppTranslation on String{
-  String _translate(){
-    var locale = PlatformDispatcher.instance.locale;
+extension AppTranslation on String {
+  String _translate() {
+    var locale = App.locale;
     var key = "${locale.languageCode}_${locale.countryCode}";
-    if(locale.languageCode == "en"){
+    if (locale.languageCode == "en") {
       key = "en_US";
     }
-    return (translations[key]?[this])??this;
+    return (translations[key]?[this]) ?? this;
   }
 
   String get tl => _translate();
 
-  String tlParams(Map<String, String> values){
+  String tlParams(Map<String, String> values) {
     var res = _translate();
-    for(var entry in values.entries){
+    for (var entry in values.entries) {
       res = res.replaceFirst("@${entry.key}", entry.value);
     }
     return res;
   }
 
   static const Map<String, Map<String, String>> translations = {
-    'zh_CN': {
-      "新到书": "新到旧",
-      "need Cloudflare Challenge": "需要进行安全挑战"
-    },
+    'zh_CN': {"新到书": "新到旧", "need Cloudflare Challenge": "需要进行安全挑战"},
     "zh_TW": {
       '有可用更新': '有可用更新',
       "下载管理器": "下載管理器",
       "有未完成的下载, 是否继续?": "有未完成的下載, 是否繼續?",
       "欢迎": "歡迎",
       "感谢使用本软件, 请注意:\n\n": "感謝使用本軟件, 請注意:\n\n",
-      "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n": "本App的開發目的僅為學習交流與個人興趣, 無任何獲利\n\n",
-      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系": "此項目與Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫無任何關係",
+      "本App的开发目的仅为学习交流与个人兴趣\n\n": "本App的開發目的僅為學習交流與個人興趣\n\n",
+      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系":
+          "此項目與Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫無任何關係",
       "需要身份验证": "需要身份驗證",
       "否": "否",
       "是": "是",
@@ -353,15 +351,15 @@ extension AppTranslation on String{
       "添加屏蔽关键词": "添加屏蔽關鍵詞",
       "添加关键词": "添加關鍵詞",
       "关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息":
-      "關鍵詞屏蔽不會生效於收藏夾和歷史記錄, 屏蔽的依據僅限加載漫畫列表時能夠獲取到的資訊",
+          "關鍵詞屏蔽不會生效於收藏夾和歷史記錄, 屏蔽的依據僅限加載漫畫列表時能夠獲取到的資訊",
       "画廊站点": "畫廊站點",
       "分类中漫画排序模式": "分類中漫畫排序模式",
       "搜索中漫画排序模式": "搜索中漫畫排序模式",
       "设置分流": "設置分流",
-      "分流1":"分流1",
-      "分流2":"分流2",
-      "分流3":"分流3",
-      "分流4":"分流4",
+      "分流1": "分流1",
+      "分流2": "分流2",
+      "分流3": "分流3",
+      "分流4": "分流4",
       "清除登录状态": "清除登錄狀態",
       "不使用": "不使用",
       "使用哔咔官方提供的IP": "使用哔咔官方提供的IP",
@@ -397,7 +395,7 @@ extension AppTranslation on String{
       "将导出设置, 账号, 历史记录, 下载内容, 本地收藏等数据": "將導出設置, 賬號, 歷史記錄, 下載內容, 本地收藏等數據",
       "导入用户数据": "導入用戶數據",
       "将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖":
-        "將導入設置, 賬號, 歷史記錄, 下載內容, 本地收藏等數據, 現在的所有數據將會被覆蓋",
+          "將導入設置, 賬號, 歷史記錄, 下載內容, 本地收藏等數據, 現在的所有數據將會被覆蓋",
       "订阅": "訂閱",
       "浏览订阅的漫画": "瀏覽訂閱的漫畫",
       "建议": "建議",
@@ -412,9 +410,12 @@ extension AppTranslation on String{
       "下载管理器": "Download manager",
       "有未完成的下载, 是否继续?": "There are unfinished downloads, continue?",
       "欢迎": "Welcome",
-      "感谢使用本软件, 请注意:\n\n": "Thank you for using this software, please note:\n\n",
-      "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n": "The development purpose of this App is solely for learning, communication, and personal interest, without any profit\n\n",
-      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系": "This project has no affiliation with Picacg, e-hentai.org, JmComic, hitomi.la",
+      "感谢使用本软件, 请注意:\n\n":
+          "Thank you for using this software, please note:\n\n",
+      "本App的开发目的仅为学习交流与个人兴趣\n\n":
+          "The development purpose of this App is solely for learning, communication, and personal interest\n\n",
+      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系":
+          "This project has no affiliation with Picacg, e-hentai.org, JmComic, hitomi.la",
       "需要身份验证": "Authentication required",
       "否": "No",
       "是": "Yes",
@@ -468,8 +469,10 @@ extension AppTranslation on String{
       '30天': '30 Days',
       "图片": "Image",
       "下载未完成": "Download Incomplete",
-      "有未完成的下载, 确定退出?": "There are unfinished downloads, are you sure you want to exit?",
-      "要删除已选择的项目吗? 此操作无法撤销": "Do you want to delete the selected items? This operation cannot be undone",
+      "有未完成的下载, 确定退出?":
+          "There are unfinished downloads, are you sure you want to exit?",
+      "要删除已选择的项目吗? 此操作无法撤销":
+          "Do you want to delete the selected items? This operation cannot be undone",
       "浏览模式": "Browsing Mode",
       "选择浏览方式(仅哔咔)": "Select browsing mode (Bilibili Comics only)",
       "顺序浏览": "Sequential Browsing",
@@ -544,7 +547,8 @@ extension AppTranslation on String{
       "未知": "Unknown",
       "继续阅读": "Continue Reading",
       "从头开始": "Start Reading",
-      "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?": "Last read at Chapter @ep, Page @page. Do you want to continue reading?",
+      "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?":
+          "Last read at Chapter @ep, Page @page. Do you want to continue reading?",
       "上次阅读到第 @ep 章第 @page 页": "Last read at Chapter @ep, Page @page.",
       "已经是第一页了": "Already on the first page",
       "已经是最后一页了": "Already on the last page",
@@ -563,7 +567,8 @@ extension AppTranslation on String{
       "从上至下(连续)": "Top to Bottom (Continuous)",
       "本子妹/本子母推荐": "Benzimei/Benzimu",
       "援助哔咔": "Support Picacg",
-      "将在外部浏览器中打开哔咔官方的援助页面, 是否继续?": "This will open Picacg's official support page in an external browser. Continue?",
+      "将在外部浏览器中打开哔咔官方的援助页面, 是否继续?":
+          "This will open Picacg's official support page in an external browser. Continue?",
       "已被屏蔽": "Blocked",
       "选择漫画排序模式": "Select Comic Sorting Mode",
       "没有任何结果": "No results found",
@@ -574,7 +579,8 @@ extension AppTranslation on String{
       "简介": "Introduction",
       "相关推荐": "Related",
       "收藏": "Favorite",
-      "要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键": "To copy or block these keywords, please long-press or right-click",
+      "要复制或者屏蔽这些关键词, 请长按或者使用鼠标右键":
+          "To copy or block these keywords, please long-press or right-click",
       "关闭": "Close",
       " 作者": " Author",
       " 汉化组": " Translation Team",
@@ -589,7 +595,8 @@ extension AppTranslation on String{
       "输入的数字不合法": "Invalid input for numbers",
       "下一页": "Next Page",
       "下载游戏": "Download Game",
-      "将前往哔咔游戏下载页面, 是否继续": "You will be redirected to the Picacg Games download page, do you want to continue?",
+      "将前往哔咔游戏下载页面, 是否继续":
+          "You will be redirected to the Picacg Games download page, do you want to continue?",
       "屏幕截图": "Screenshot",
       "登录哔咔账号": "Log in to Picacg Account",
       "转到注册": "Go to Registration",
@@ -623,7 +630,8 @@ extension AppTranslation on String{
       "确定": "Confirm",
       "注册哔咔账号": "Register Picacg Account",
       "转到登录": "Go to Login",
-      "为防止滥用, 不能使用中转服务器进行注册": "To prevent abuse, registration through a relay server is not allowed",
+      "为防止滥用, 不能使用中转服务器进行注册":
+          "To prevent abuse, registration through a relay server is not allowed",
       "再输一次密码": "Re-enter password",
       "问题1": "Question 1",
       "问题2": "Question 2",
@@ -634,7 +642,8 @@ extension AppTranslation on String{
       "出生日期": "Date of Birth",
       "请输入完整信息": "Please enter complete information",
       "注册成功": "Registration successful",
-      "注册成功,但在登录时发生网络错误": "Registration successful, but a network error occurred during login",
+      "注册成功,但在登录时发生网络错误":
+          "Registration successful, but a network error occurred during login",
       "选择搜索模式": "Choose search mode",
       "每周必看": "Must-See Weekly",
       "作者": "Author",
@@ -685,7 +694,8 @@ extension AppTranslation on String{
       "igneous(非必要)": "igneous (optional)",
       "请填写完整": "Please fill in completely",
       "在Webview中登录": "Login in Webview",
-      "由于需要captcha响应, 暂不支持直接密码登录": "Direct password login is not supported due to the need for captcha response",
+      "由于需要captcha响应, 暂不支持直接密码登录":
+          "Direct password login is not supported due to the need for captcha response",
       "无": "None",
       "下载全部": "Download all",
       "下载选择": "Download selection",
@@ -711,7 +721,8 @@ extension AppTranslation on String{
       "隐私": "Privacy",
       "阻止屏幕截图": "Block screen capture",
       "需要重启App以应用更改": "App needs to be restarted to apply changes",
-      "如果系统中未设置任何认证方法请勿开启": "Do not enable if no authentication methods are set in the system",
+      "如果系统中未设置任何认证方法请勿开启":
+          "Do not enable if no authentication methods are set in the system",
       "本软件仅用于学习交流": "This software is for learning and communication only",
       "项目地址": "Project address",
       "提出建议": "Submit suggestions",
@@ -719,7 +730,8 @@ extension AppTranslation on String{
       "关闭更新检查": "Turn off update check",
       "已是最新版本": "Already the latest version",
       "使用系统代理": "Use system proxy",
-      "使用系统代理时无法手动设置": "Manual settings are not available when using system proxy",
+      "使用系统代理时无法手动设置":
+          "Manual settings are not available when using system proxy",
       "设置代理, 例如127.0.0.1:7890": "Set proxy, e.g., 127.0.0.1:7890",
       "设置漫画源": "Set comic source",
       "禁漫天堂": "JMComic",
@@ -733,7 +745,8 @@ extension AppTranslation on String{
       "添加": "Add",
       "添加屏蔽关键词": "Add blocked keywords",
       "添加关键词": "Add keywords",
-      "关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息": "Keyword blocking does not affect favorites and history. It is based on information available only when loading the comic list.",
+      "关键词屏蔽不会生效于收藏夹和历史记录, 屏蔽的依据仅限加载漫画列表时能够获取到的信息":
+          "Keyword blocking does not affect favorites and history. It is based on information available only when loading the comic list.",
       "画廊站点": "Gallery site",
       "分类中漫画排序模式": "Comic sorting mode in categories",
       "搜索中漫画排序模式": "Comic sorting mode in searches",
@@ -771,9 +784,11 @@ extension AppTranslation on String{
       "本地": "Local",
       "网络": "Network",
       "导出用户数据": "Export user data",
-      "将导出设置, 账号, 历史记录, 下载内容, 本地收藏等数据": "Export settings, accounts, history, downloaded content, local favorites, and other data",
+      "将导出设置, 账号, 历史记录, 下载内容, 本地收藏等数据":
+          "Export settings, accounts, history, downloaded content, local favorites, and other data",
       "导入用户数据": "Import user data",
-      "将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖": "Import settings, accounts, history, downloaded content, local favorites, and other data. All existing data will be overwritten.",
+      "将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖":
+          "Import settings, accounts, history, downloaded content, local favorites, and other data. All existing data will be overwritten.",
       "订阅": "Subscribe",
       "浏览订阅的漫画": "Browse subscribed comics",
       "建议": "Suggestions",
@@ -781,7 +796,8 @@ extension AppTranslation on String{
       "禁用长度限制": "Disable length limit",
       "确认清除缓存": "Confirm clearing cache",
       "警告": "Warning",
-      "此操作无法撤销, 是否继续": "This operation cannot be undone. Do you want to continue?",
+      "此操作无法撤销, 是否继续":
+          "This operation cannot be undone. Do you want to continue?",
       "显示的探索页面": "Displayed explore Pages",
       "漫画源(非探索页面)": "Comic Source(not explore pages)",
       "双页": "Two page",
@@ -804,7 +820,8 @@ extension AppTranslation on String{
       "关于": "About",
       "收藏夹漫画排序模式": "Comic sorting mode in favorites",
       "启动时执行": "Execute at startup",
-      "APP启动或是距离上次打卡间隔一天时执行": "Executed when the APP is started or one day after the last check-in",
+      "APP启动或是距离上次打卡间隔一天时执行":
+          "Executed when the APP is started or one day after the last check-in",
       "如果登录失效点击此处": "Click here if login expires",
       "已登录": "Logged in",
       "查看": "View",
@@ -833,14 +850,14 @@ extension AppTranslation on String{
       "使用前须知": "Instructions before use",
       "感谢使用本软件, 请注意:\n": "Thanks for using this software, please note:\n",
       "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系":
-        "This project has no connection with Picacg, e-hentai.org, JmComic, hitomi.la, wnacg.com, nhentai",
+          "This project has no connection with Picacg, e-hentai.org, JmComic, hitomi.la, wnacg.com, nhentai",
       "下面将进行一些基本设置, 所有的设置在之后均可进行更改":
-        "We will make some basic settings, all of which can be changed later.",
+          "We will make some basic settings, all of which can be changed later.",
       "选择应当如何显示漫画": "Choose how the comic should be displayed",
       "探索页面不受此设置影响\n顺序显示时, 当下滑至顶部将自动加载下一页, 并且添加至页面底部;\n":
-        "The exploration page is not affected by this setting\nWhen displayed sequentially, the next page will be automatically loaded when scrolling to the top;\n",
+          "The exploration page is not affected by this setting\nWhen displayed sequentially, the next page will be automatically loaded when scrolling to the top;\n",
       "分页显示时, 将会在页面底部显示当前页面的序号和切换页面的按钮, 可以手动输入页数":
-        "When displayed in pages, the serial number of the current page and the button to switch pages will be displayed at the bottom of the page.",
+          "When displayed in pages, the serial number of the current page and the button to switch pages will be displayed at the bottom of the page.",
       "设置App外观": "Set App appearance",
       "在设置中更改更多选项": "Change more options in settings page",
       "在账号管理页面登录账号": "Log in to your accounts",
@@ -873,14 +890,25 @@ extension AppTranslation on String{
       "已收藏": "Added",
       "忽略": "Ignore",
       "此画廊存在令人不适的内容\n在设置中可以禁用此警告":
-        "This gallery contains objectionable content\nThis warning can be disabled in settings",
-      "预览": "Preview"
+          "This gallery contains objectionable content\nThis warning can be disabled in settings",
+      "预览": "Preview",
+      "漫画源": "Comic Source",
+      "双击缩放": "Double tap to zoom",
+      "日志": "Logs",
+      "更新": "Update",
+      "数据": "Data",
+      "提出建议(Github)": "Make a suggestion(Github)",
+      "通过电子邮件联系我": "Contact me via email",
+      "支持开发": "Support Development",
+      "Pica Comic是一个完全免费的漫画阅读APP": "Pica Comic is a free comic reading APP",
+      "仅用于学习交流": "For learning and communication",
+      "加入Telegram群": "Join Telegram Group"
     }
   };
 }
 
-extension ListTranslation on List<String>{
-  List<String> _translate(){
+extension ListTranslation on List<String> {
+  List<String> _translate() {
     return List.generate(length, (index) => this[index].tl);
   }
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/app_page_route.dart';
@@ -109,6 +110,15 @@ class App {
   static bool get canPop => Navigator.of(globalContext!).canPop();
 
   static bool temporaryDisablePopGesture = false;
+
+  static Locale get locale => () {
+        return switch (appdata.settings[50]) {
+          "cn" => const Locale("zh", "CN"),
+          "tw" => const Locale("zh", "TW"),
+          "en" => const Locale("en", "US"),
+          _ => PlatformDispatcher.instance.locale,
+        };
+      }.call();
 }
 
 enum UiModes {

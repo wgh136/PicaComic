@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 
 abstract mixin class CategoryPageBuilder {
@@ -78,5 +79,5 @@ abstract mixin class CategoryPageBuilder {
   }
 
   bool get enableTranslation =>
-      PlatformDispatcher.instance.locale.languageCode == 'zh';
+      App.locale.languageCode == 'zh';
 }

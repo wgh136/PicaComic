@@ -88,6 +88,7 @@ class Appdata {
     "0", //47 eh warning
     "https://nhentai.net", //48 nhentai domain
     "0", //49 阅读器中双击放缩
+    "", //50 language, empty=system
   ];
 
   ///屏蔽的关键词

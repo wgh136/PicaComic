@@ -169,8 +169,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
   String? get introduction => null;
 
   @override
-  bool get enableTranslationToCN =>
-      PlatformDispatcher.instance.locale.languageCode == "zh";
+  bool get enableTranslationToCN => App.locale.languageCode == "zh";
 
   @override
   Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(_id);

@@ -10,12 +10,9 @@
 // https://nhentai.net/tags/
 // https://github.com/EhTagTranslation/Database/tree/master/database
 
-// 此翻译的目标是实现 **常见** tags的翻译, 冷门词语, 画师名, 团队名和角色名不在考虑之中
-// 为了确保UI布局良好, 翻译会尽可能简短, 可能导致表意不准确
-
 import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/extensions.dart';
 
 extension TagsTranslation on String{
@@ -73,7 +70,7 @@ extension TagsTranslation on String{
   }
 
   String _categoryTextDynamic(String c){
-    if(PlatformDispatcher.instance.locale.languageCode == "zh"){
+    if(App.locale.languageCode == "zh"){
       return translateTagsCategoryToCN;
     }else{
       return this;

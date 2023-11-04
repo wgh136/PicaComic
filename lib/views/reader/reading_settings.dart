@@ -202,7 +202,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ListTile(
             leading: Icon(Icons.zoom_out_map,
                 color: Theme.of(context).colorScheme.secondary),
-            title: Text("双击放缩".tl),
+            title: Text("双击缩放".tl),
             onTap: () {},
             trailing: Switch(
               value: appdata.settings[49] == "1",

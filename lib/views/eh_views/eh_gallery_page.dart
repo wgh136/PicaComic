@@ -242,7 +242,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   bool get enableTranslationToCN =>
-      ui.PlatformDispatcher.instance.locale.languageCode == "zh";
+      App.locale.languageCode == "zh";
 
   @override
   void onThumbnailTapped(int index) {

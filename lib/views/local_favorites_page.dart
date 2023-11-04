@@ -16,6 +16,7 @@ import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
@@ -55,7 +56,7 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
       var names = LocalFavoritesManager().folderNames!;
       return CustomScrollView(
         slivers: [
-          SliverGrid(
+          SliverGridViewWithFixedItemHeight(
             delegate: SliverChildBuilderDelegate(childCount: names.length + 1,
                 (context, i) {
               if (i == 0) {
@@ -106,10 +107,8 @@ class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
                 );
               }
             }),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 500,
-              childAspectRatio: 5,
-            ),
+            maxCrossAxisExtent: 500,
+            itemHeight: 56,
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -157,7 +156,7 @@ class FolderTile extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () => MainPage.to(() => LocalFavoritesFolder(name)),
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
           child: Row(
@@ -436,7 +435,7 @@ class LocalFavoriteTile extends ComicTile {
   String get title => comic.name;
 
   List<String> _generateTags(List<String> tags) {
-    if (PlatformDispatcher.instance.locale.languageCode != "zh") {
+    if (App.locale.languageCode != "zh") {
       return tags;
     }
     List<String> res = [];

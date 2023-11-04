@@ -130,7 +130,7 @@ class _GuidePageState extends State<GuidePage> {
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            "本App的开发目的仅为学习交流与个人兴趣, 无任何获利\n\n".tl +
+                            "本App的开发目的仅为学习交流与个人兴趣\n\n".tl +
                                 "此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系"
                                     .tl,
                             style: const TextStyle(fontSize: 16),

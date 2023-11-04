@@ -37,14 +37,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
   bool get enableTwoViews => !UiMode.m1(context);
 
-  final categories = <String>[
-    "浏览".tl,
-    "漫画源".tl,
-    "阅读".tl,
-    "外观".tl,
-    "APP".tl,
-    "关于".tl
-  ];
+  final categories = <String>["浏览", "漫画源", "阅读", "外观", "APP", "关于"];
 
   final icons = <IconData>[
     Icons.explore,
@@ -270,7 +263,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
     return ListView.builder(
       padding: EdgeInsets.zero,
       itemCount: categories.length,
-      itemBuilder: (context, index) => buildItem(categories[index], index),
+      itemBuilder: (context, index) => buildItem(categories[index].tl, index),
     );
   }
 
@@ -522,6 +515,22 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
                 appdata.writeData();
               },
             )),
+        ListTile(
+          title: Text("语言".tl),
+        ),
+        ListTile(
+          title: Text("语言".tl),
+          leading: const Icon(Icons.language),
+          trailing: Select(
+            initialValue: ["", "cn", "tw", "en"].indexOf(appdata.settings[50]),
+            values: const ["System", "中文(简体)", "中文(繁體)", "English"],
+            whenChange: (value) {
+              appdata.settings[50] = ["", "cn", "tw", "en"][value];
+              appdata.updateSettings();
+              MyApp.updater?.call();
+            },
+          ),
+        ),
       ],
     );
   }
@@ -530,7 +539,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
     return Column(
       children: [
         const SizedBox(
-          height: 150,
+          height: 130,
           width: double.infinity,
           child: Center(
             child: SizedBox(
@@ -542,8 +551,12 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
             ),
           ),
         ),
-        const Text("Pica Comic是一个完全免费的漫画阅读APP"),
-        const Text("仅用于学习交流"),
+        const Text(
+          "V$appVersion",
+          style: TextStyle(fontSize: 16),
+        ),
+        Text("Pica Comic是一个完全免费的漫画阅读APP".tl),
+        Text("仅用于学习交流".tl),
         const SizedBox(
           height: 16,
         ),
@@ -576,6 +589,13 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               mode: LaunchMode.externalApplication),
           trailing: const Icon(Icons.arrow_right),
         ),
+                ListTile(
+          leading: const Icon(Icons.telegram),
+          title: Text("加入Telegram群".tl),
+          onTap: () => launchUrlString("https://t.me/pica_group",
+              mode: LaunchMode.externalApplication),
+          trailing: const Icon(Icons.arrow_right),
+        ),
       ],
     );
   }
@@ -598,7 +618,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
           primary: false,
           slivers: [
             SliverAppBar.medium(
-                title: Text(categories[currentPage]),
+                title: Text(categories[currentPage].tl),
                 automaticallyImplyLeading: false,
                 scrolledUnderElevation: enableTwoViews ? 0 : null,
                 leading: enableTwoViews
