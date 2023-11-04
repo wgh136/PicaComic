@@ -18,7 +18,13 @@ class ScrollManager {
 
   Offset? tapLocation;
 
+  int? startTime;
+
+  Offset? moveOffset;
+
   void tapDown(PointerDownEvent details) {
+    moveOffset = Offset.zero;
+    startTime = DateTime.now().millisecondsSinceEpoch;
     fingers++;
     var logic = StateController.find<ComicReadingPageLogic>();
     var temp = logic.noScroll;
@@ -40,11 +46,53 @@ class ScrollManager {
       logic.update();
     }
     tapLocation = null;
+
+    if (moveOffset != null && moveOffset != Offset.zero) {
+      if (moveOffset!.dx * moveOffset!.dx + moveOffset!.dy * moveOffset!.dy >
+          400) {
+        final offset = moveOffset! /
+            (DateTime.now().millisecondsSinceEpoch - startTime!).toDouble() *
+            100;
+        logic.photoViewController.animatePosition?.call(
+            logic.photoViewController.position,
+            logic.photoViewController.position + offset);
+      }
+    }
+    moveOffset = null;
+    startTime = null;
+    if (logic.fABValue < 58) {
+      logic.fABValue = 0;
+      logic.update(["FAB"]);
+    } else if (logic.fABValue >= 58) {
+      logic.fABValue = 0;
+      logic.jumpToNextChapter();
+    }
   }
 
-  ///当滑动时调用此函数进行处理
+  /// handle pointer move event
   void addOffset(Offset value) {
-    logic.photoViewController.updateMultiple(position: logic.photoViewController.position + value);
+    if (logic.scrollController.offset ==
+            logic.scrollController.position.maxScrollExtent &&
+        logic.photoViewController.scale == 1 &&
+        logic.showFloatingButtonValue == 1) {
+      logic.fABValue -= value.dy / 5;
+      logic.update(["FAB"]);
+      return;
+    }
+    if (logic.photoViewController.scale == 1) {
+      return;
+    }
+    if (moveOffset != null) {
+      moveOffset = moveOffset! + value;
+    }
+    if (logic.scrollController.offset !=
+            logic.scrollController.position.maxScrollExtent &&
+        logic.scrollController.offset !=
+            logic.scrollController.position.minScrollExtent) {
+      value = Offset(value.dx, 0);
+    }
+    logic.photoViewController
+        .updateMultiple(position: logic.photoViewController.position + value);
     return;
   }
 }
@@ -192,18 +240,18 @@ class TapController {
     }
   }
 
-  static void _handleDoubleClick(Offset location) async{
+  static void _handleDoubleClick(Offset location) async {
     var logic = StateController.find<ComicReadingPageLogic>();
     var controller = logic.photoViewController;
-    if(logic.readingMethod == ReadingMethod.topToBottomContinuously){
+    if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
       final current = controller.scale;
       double target;
-      if(controller.scale == null){
+      if (controller.scale == null) {
         return;
       }
-      if(current == 1){
+      if (current == 1) {
         target = 1.5;
-      } else if(current == 1.5){
+      } else if (current == 1.5) {
         target = 2.5;
       } else {
         target = 1;
@@ -211,7 +259,7 @@ class TapController {
       const animationTime = 120;
       int operationTimes = animationTime ~/ 8;
       final perScale = (target - controller.scale!) / operationTimes;
-      while(operationTimes != 0){
+      while (operationTimes != 0) {
         controller.scale = controller.scale! + perScale;
         await Future.delayed(const Duration(milliseconds: 8));
         operationTimes--;
