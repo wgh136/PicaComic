@@ -102,6 +102,14 @@ class TapController {
 
   static DateTime lastScrollTime = DateTime(2023);
 
+  static void onTapCancel(PointerCancelEvent event){
+    var logic = StateController.find<ComicReadingPageLogic>();
+
+    if (appdata.settings[9] == "4") {
+      logic.data.scrollManager!.fingers--;
+    }
+  }
+
   static void onTapDown(PointerDownEvent event) {
     var logic = StateController.find<ComicReadingPageLogic>();
 

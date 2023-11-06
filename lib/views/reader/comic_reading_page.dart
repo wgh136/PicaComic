@@ -283,6 +283,7 @@ class ComicReadingPage extends StatelessWidget {
               onPointerUp: TapController.onTapUp,
               onPointerDown: TapController.onTapDown,
               behavior: HitTestBehavior.translucent,
+              onPointerCancel: TapController.onTapCancel,
               child: Stack(
                 children: [
                   buildComicView(
