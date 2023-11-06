@@ -106,6 +106,8 @@ class PreSearchController extends StateController {
   int jmComicsOrder = int.parse(appdata.settings[19]);
   NhentaiSort nhentaiSort = NhentaiSort.values[int.parse(appdata.settings[39])];
 
+  var suggestions = <Pair<String, TranslationType>>[];
+
   void updateTarget(int i) {
     target = i;
     update();
@@ -158,6 +160,50 @@ class PreSearchPage extends StatelessWidget {
     }
   }
 
+  void findSuggestions() {
+    var text = controller.text.split(" ").last;
+    var suggestions = searchController.suggestions;
+
+    suggestions.clear();
+
+    bool check(String text, String key, String value) {
+      if (text.removeAllBlank == "") {
+        return false;
+      }
+      if (key.length >= text.length && key.substring(0, text.length) == text ||
+          (key.contains(" ") &&
+              key.split(" ").last.length >= text.length &&
+              key.split(" ").last.substring(0, text.length) == text)) {
+        return true;
+      } else if (value.length >= text.length && value.contains(text)) {
+        return true;
+      }
+      return false;
+    }
+
+    void find(Map<String, String> map, TranslationType type) {
+      for (var element in map.entries) {
+        if (suggestions.length > 200) {
+          break;
+        }
+        if (check(text, element.key, element.value)) {
+          suggestions.add(Pair(element.key, type));
+        }
+      }
+    }
+
+    find(TagsTranslation.femaleTags, TranslationType.female);
+    find(TagsTranslation.maleTags, TranslationType.male);
+    find(TagsTranslation.parodyTags, TranslationType.parody);
+    find(TagsTranslation.characterTranslations, TranslationType.character);
+    find(TagsTranslation.otherTags, TranslationType.other);
+    find(TagsTranslation.mixedTags, TranslationType.mixed);
+    find(TagsTranslation.languageTranslations, TranslationType.language);
+    find(TagsTranslation.artistTags, TranslationType.artist);
+    find(TagsTranslation.groupTags, TranslationType.group);
+    find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,7 +224,10 @@ class PreSearchPage extends StatelessWidget {
               search();
             },
             controller: controller,
-            onChanged: (s) => searchController.update([1, 100]),
+            onChanged: (s) {
+              findSuggestions();
+              searchController.update([1, 100]);
+            },
             focusNode: _focusNode,
           ),
           const SizedBox(
@@ -195,7 +244,8 @@ class PreSearchPage extends StatelessWidget {
       id: 100,
       builder: (_) {
         if (controller.text.removeAllBlank.isEmpty ||
-            controller.text.endsWith(" ")) {
+            controller.text.endsWith(" ") ||
+            searchController.suggestions.isEmpty) {
           return buildMainView(context);
         } else {
           return buildSuggestions(context);
@@ -220,26 +270,27 @@ class PreSearchPage extends StatelessWidget {
           ),
         if (showSideBar) const VerticalDivider(),
         Expanded(
-            child: SingleChildScrollView(
-          padding: showSideBar
-              ? EdgeInsets.zero
-              : const EdgeInsets.fromLTRB(12, 0, 12, 0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (showSideBar)
-                ListTile(
-                  leading: const Icon(Icons.select_all),
-                  title: Text("搜索选项".tl),
-                ),
-              buildTargetSelector(context),
-              buildModeSelector(context),
-              buildHotSearch(context),
-              if (!showSideBar) buildPinned(context),
-              if (!showSideBar) buildHistory(context)
-            ],
-          ),
+          child: SingleChildScrollView(
+            padding: showSideBar
+                ? EdgeInsets.zero
+                : const EdgeInsets.fromLTRB(12, 0, 12, 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showSideBar)
+                  ListTile(
+                    leading: const Icon(Icons.select_all),
+                    title: Text("搜索选项".tl),
+                  ),
+                buildTargetSelector(context),
+                buildModeSelector(context),
+                buildHotSearch(context),
+                if (!showSideBar) buildPinned(context),
+                if (!showSideBar) buildHistory(context),
+                SizedBox(height: MediaQuery.of(context).padding.bottom,),
+              ],
+            ),
         )),
         if (showSideBar) const VerticalDivider(),
         if (showSideBar)
@@ -304,36 +355,8 @@ class PreSearchPage extends StatelessWidget {
         Widget widget;
 
         if (controller.text.removeAllBlank.isEmpty) {
-          widget = const SizedBox(
-            height: 0,
-          );
+          widget = buildMainView(context);
         } else {
-          var text = controller.text.split(" ").last;
-          var suggestions = <Pair<String, TranslationType>>[];
-
-          void find(Map<String, String> map, TranslationType type) {
-            for (var element in map.entries) {
-              if (suggestions.length > 200) {
-                break;
-              }
-              if (check(text, element.key, element.value)) {
-                suggestions.add(Pair(element.key, type));
-              }
-            }
-          }
-
-          find(TagsTranslation.femaleTags, TranslationType.female);
-          find(TagsTranslation.maleTags, TranslationType.male);
-          find(TagsTranslation.parodyTags, TranslationType.parody);
-          find(
-              TagsTranslation.characterTranslations, TranslationType.character);
-          find(TagsTranslation.otherTags, TranslationType.other);
-          find(TagsTranslation.mixedTags, TranslationType.mixed);
-          find(TagsTranslation.languageTranslations, TranslationType.language);
-          find(TagsTranslation.artistTags, TranslationType.artist);
-          find(TagsTranslation.groupTags, TranslationType.group);
-          find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
-
           bool showMethod = MediaQuery.of(context).size.width < 600;
           Widget buildItem(Pair<String, TranslationType> value) {
             var subTitle = TagsTranslation.translationTagWithNamespace(
@@ -365,10 +388,39 @@ class PreSearchPage extends StatelessWidget {
             );
           }
 
-          widget = ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: suggestions.length,
-            itemBuilder: (context, index) => buildItem(suggestions[index]),
+          widget = Column(
+            children: [
+              SizedBox(
+                height: 32,
+                child: Row(
+                  children: [
+                    const SizedBox(width: 32,),
+                    Text("建议".tl),
+                    const Spacer(),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () {
+                        searchController.suggestions.clear();
+                        logic.update([100]);
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(Icons.close, size: 20,),
+                      ),
+                    ),
+                    const SizedBox(width: 32,),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: searchController.suggestions.length,
+                  itemBuilder: (context, index) =>
+                      buildItem(searchController.suggestions[index]),
+                ),
+              )
+            ],
           );
         }
         return widget;
