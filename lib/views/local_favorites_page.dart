@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
@@ -358,7 +357,6 @@ class LocalFavoriteTile extends ComicTile {
           future: LocalFavoritesManager().getCover(comic),
           builder: (context, file) {
             if (file.hasError) {
-              print(file.error);
               return ColoredBox(
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: const Center(child: Icon(Icons.error)));
@@ -820,7 +818,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
   @override
   void dispose() {
     if (changed) {
-      LocalFavoritesManager().reorder(comics!, widget.name);
+      LocalFavoritesManager().saveData();
     }
     LocalFavoriteTile.cache.clear();
     super.dispose();
@@ -834,6 +832,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
               comics![index],
               widget.name,
               () {
+                changed = true;
                 setState(() {
                   comics = LocalFavoritesManager().getAllComics(widget.name);
                 });
@@ -913,6 +912,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
                 setState(() {
                   comics = reorderFunc(comics!) as List<FavoriteItem>;
                 });
+                LocalFavoritesManager().reorder(comics!, widget.name);
               },
               dragChildBoxDecoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),

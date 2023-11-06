@@ -297,6 +297,8 @@ class LocalFavoritesManager {
     await saveData();
   }
 
+  /// This function doesn't call [saveData].
+  /// Remember call [saveData] when operation finished.
   void reorder(List<FavoriteItem> newFolder, String folder) async {
     if (_data == null) {
       await readData();
@@ -305,12 +307,11 @@ class LocalFavoritesManager {
       throw Exception("Failed to reorder: folder not found");
     }
     _data![folder] = newFolder;
-    await saveData();
   }
 
   void rename(String before, String after) {
     if (_data![after] != null) {
-      throw "收藏夹名称被占用";
+      throw "Name already exists!";
     }
     _data![after] = _data![before]!;
     _data!.remove(before);
