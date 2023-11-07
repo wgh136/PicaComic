@@ -8,6 +8,9 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
+import android.content.Intent
+import android.provider.Settings
+import android.net.Uri
 
 class MainActivity: FlutterFragmentActivity() {
     var volumeListen = VolumeListen()
@@ -58,6 +61,17 @@ class MainActivity: FlutterFragmentActivity() {
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             else
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"pica_comic/settings").setMethodCallHandler{
+                call, _ ->
+            if(call.method == "link") {
+                val intent = Intent(
+                    android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                    Uri.parse("package:com.github.wgh136.pica_comic"),
+                )
+                startActivity(intent)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
@@ -516,7 +517,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               },
             )),
         ListTile(
-          title: Text("语言".tl),
+          title: Text("其它".tl),
         ),
         ListTile(
           title: Text("语言".tl),
@@ -531,6 +532,16 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
             },
           ),
         ),
+        if(App.isAndroid)
+          ListTile(
+            title: Text("应用链接".tl),
+            subtitle: Text("在系统设置中管理APP支持的链接".tl),
+            leading: const Icon(Icons.link),
+            trailing: const Icon(Icons.arrow_right),
+            onTap: (){
+              const MethodChannel("pica_comic/settings").invokeMethod("link");
+            },
+          ),
       ],
     );
   }
