@@ -19,7 +19,7 @@ import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
-import '../widgets/image.dart';
+import 'image.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';

@@ -102,6 +102,8 @@ class TapController {
 
   static DateTime lastScrollTime = DateTime(2023);
 
+  static bool ignoreNextTap = false;
+
   static void onTapCancel(PointerCancelEvent event){
     var logic = StateController.find<ComicReadingPageLogic>();
 
@@ -111,6 +113,10 @@ class TapController {
   }
 
   static void onTapDown(PointerDownEvent event) {
+    if(ignoreNextTap){
+      ignoreNextTap = false;
+      return;
+    }
     var logic = StateController.find<ComicReadingPageLogic>();
 
     if (appdata.settings[9] == "4") {
