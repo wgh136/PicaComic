@@ -1,11 +1,8 @@
-import 'package:pica_comic/foundation/app.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/search_page.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 
 
@@ -21,12 +18,25 @@ class FloatingSearchBar extends StatefulWidget {
     this.target
   }) : super(key: key);
 
+  /// height of search bar
   final double height;
+
+  /// end of search bar
   final Widget? trailing;
+
+  /// callback when user do search
   final void Function(String) onSearch;
+
+  /// controller of [TextField]
   final TextEditingController controller;
+
+  /// callback when text changed
   final void Function(String)? onChanged;
+
+  /// Deprecated
   final bool showPinnedButton;
+
+  /// search target
   final ComicType? target;
 
   @override
@@ -80,24 +90,6 @@ class _FloatingSearchBarState extends State<FloatingSearchBar> {
                   child: Text(text),
                 ),
               ),
-              if(widget.showPinnedButton)
-                Tooltip(
-                  message: "固定".tl,
-                  child: IconButton(
-                    icon: const Icon(Icons.sell_outlined),
-                    onPressed: (){
-                      appdata.pinnedKeyword.add(widget.controller.text);
-                      appdata.writeHistory();
-                      try {
-                        StateController.find<PreSearchController>().update();
-                      }
-                      catch(e){
-                        // ignore
-                      }
-                      showMessage(App.globalContext, "已固定".tl);
-                    },
-                  ),
-                ),
               if(widget.trailing!=null)
                 widget.trailing!
             ]),

@@ -12,6 +12,8 @@ extension AppTranslation on String {
 
   String get tl => _translate();
 
+  String get tlEN => translations["en_US"]![this] ?? this;
+
   String tlParams(Map<String, String> values) {
     var res = _translate();
     for (var entry in values.entries) {
@@ -902,7 +904,8 @@ extension AppTranslation on String {
       "支持开发": "Support Development",
       "Pica Comic是一个完全免费的漫画阅读APP": "Pica Comic is a free comic reading APP",
       "仅用于学习交流": "For learning and communication",
-      "加入Telegram群": "Join Telegram Group"
+      "加入Telegram群": "Join Telegram Group",
+      "绅士漫画": "HtComic",
     }
   };
 }

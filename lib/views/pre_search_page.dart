@@ -50,7 +50,7 @@ class _FloatingSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    var padding = 16.0;
+    var padding = 12.0;
     return Container(
       padding: EdgeInsets.fromLTRB(padding, 9, padding, 0),
       width: double.infinity,
@@ -136,9 +136,9 @@ class PreSearchPage extends StatelessWidget {
 
   final FocusNode _focusNode = FocusNode();
 
-  void search([String? s]) {
+  void search([String? s, int? type]) {
     final keyword = (s ?? controller.text).trim();
-    switch (searchController.target) {
+    switch (type ?? searchController.target) {
       case 0:
         MainPage.to(() => SearchPage(keyword));
         break;
@@ -259,12 +259,14 @@ class PreSearchPage extends StatelessWidget {
 
   Widget buildMainView(BuildContext context) {
     final showSideBar = MediaQuery.of(context).size.width > 900;
+    var addWidth = (MediaQuery.of(context).size.width - 900) * 0.25;
+    addWidth = addWidth.clamp(0, 50);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showSideBar)
           SizedBox(
-            width: 250,
+            width: 250 + addWidth,
             height: double.infinity,
             child: buildHistorySideBar(context),
           ),
@@ -273,7 +275,7 @@ class PreSearchPage extends StatelessWidget {
           child: SingleChildScrollView(
             padding: showSideBar
                 ? EdgeInsets.zero
-                : const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                : const EdgeInsets.fromLTRB(8, 0, 8, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,7 +288,7 @@ class PreSearchPage extends StatelessWidget {
                 buildTargetSelector(context),
                 buildModeSelector(context),
                 buildHotSearch(context),
-                if (!showSideBar) buildPinned(context),
+                if (!showSideBar) buildFavorite(context),
                 if (!showSideBar) buildHistory(context),
                 SizedBox(height: MediaQuery.of(context).padding.bottom,),
               ],
@@ -295,9 +297,9 @@ class PreSearchPage extends StatelessWidget {
         if (showSideBar) const VerticalDivider(),
         if (showSideBar)
           SizedBox(
-            width: 250,
+            width: 250 + addWidth,
             height: double.infinity,
-            child: buildPinnedSideBar(),
+            child: buildFavoriteSideBar(),
           ),
       ],
     );
@@ -431,7 +433,7 @@ class PreSearchPage extends StatelessWidget {
 
   Widget buildTargetSelector(BuildContext context) {
     buildItem(PreSearchController logic, int id, String text) => Padding(
-          padding: const EdgeInsets.all(5),
+          padding: const EdgeInsets.all(4),
           child: FilterChip(
             label: Text(text),
             selected: logic.target == id,
@@ -443,7 +445,7 @@ class PreSearchPage extends StatelessWidget {
 
     buildJMID() {
       return Padding(
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(4),
         child: Material(
           textStyle: Theme.of(context).textTheme.labelLarge,
           child: InkWell(
@@ -508,11 +510,11 @@ class PreSearchPage extends StatelessWidget {
 
     return StateBuilder<PreSearchController>(
       builder: (logic) {
-        return Card(
-          margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-          elevation: 0,
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text("目标".tl),
               Wrap(
@@ -609,11 +611,11 @@ class PreSearchPage extends StatelessWidget {
           return const SizedBox();
         }
 
-        return Card(
-          margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          elevation: 0,
+        return Padding(
+          padding: const EdgeInsets.all(8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text("漫画排序模式".tl),
               Wrap(
@@ -754,17 +756,21 @@ class PreSearchPage extends StatelessWidget {
               Wrap(
                 children: [
                   for (var s in appdata.searchHistory.reversed)
-                    Card(
-                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                      elevation: 0,
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      child: InkWell(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(16)),
-                        onTap: () => search(s),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                          child: Text(s),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceVariant,
+                          borderRadius: const BorderRadius.all(Radius.circular(8))
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                          onTap: () => search(s),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                            child: Text(s),
+                          ),
                         ),
                       ),
                     ),
@@ -778,84 +784,77 @@ class PreSearchPage extends StatelessWidget {
     );
   }
 
-  Widget buildPinned(BuildContext context) {
-    if (appdata.pinnedKeyword.isEmpty) {
+  Widget buildFavorite(BuildContext context) {
+    if (appdata.favoriteTags.isEmpty) {
       return const SizedBox();
-    }
-
-    buildClearButton() {
-      if (appdata.pinnedKeyword.isNotEmpty) {
-        return Row(children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 8, left: 4),
-            child: InkWell(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(10),
-              ),
-              onTap: () {
-                appdata.pinnedKeyword.clear();
-                appdata.writeHistory();
-                searchController.update();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    color: Theme.of(context).colorScheme.secondaryContainer),
-                width: 75,
-                height: 28,
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    const Icon(
-                      Icons.clear_all,
-                      color: Colors.indigo,
-                    ),
-                    const SizedBox(
-                      width: 4,
-                    ),
-                    Text("清除".tl)
-                  ],
-                ),
-              ),
-            ),
-          )
-        ]);
-      } else {
-        return const SizedBox();
-      }
     }
 
     return StateBuilder<PreSearchController>(
       builder: (controller) {
+        var items = <Widget>[];
+        for (var s in appdata.favoriteTags){
+          var display = s.replaceAll(":", " : ");
+          items.add(Container(
+            margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.all(Radius.circular(8))
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius:
+                const BorderRadius.all(Radius.circular(8)),
+                onTap: () {
+                  int type = switch(s.split(':').first){
+                    "Picacg" => 0,
+                    "EHentai" => 1,
+                    "JMComic" => 2,
+                    "hitomi" => 3,
+                    "HtComic" => 4,
+                    "Nhentai" => 5,
+                    _ => 0
+                  };
+                  final keyword = s.substring(s.indexOf(':')+1);
+                  search(keyword, type);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(display),
+                      const SizedBox(width: 4,),
+                      InkWell(
+                        onTap: (){
+                          appdata.favoriteTags.remove(s);
+                          searchController.update();
+                          appdata.writeHistory();
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: const Padding(
+                          padding: EdgeInsets.all(3),
+                          child: Icon(Icons.close, size: 16,),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ));
+        }
+
         return Card(
           elevation: 0,
           margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("已固定".tl),
+              Text("收藏".tl),
               Wrap(
-                children: [
-                  for (var s in appdata.pinnedKeyword)
-                    Card(
-                      margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                      elevation: 0,
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      child: InkWell(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(16)),
-                        onTap: () => search(s),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                          child: Text(s),
-                        ),
-                      ),
-                    ),
-                ],
+                children: items,
               ),
-              buildClearButton(),
             ],
           ),
         );
@@ -894,19 +893,19 @@ class PreSearchPage extends StatelessWidget {
             ));
   }
 
-  Widget buildPinnedSideBar() {
+  Widget buildFavoriteSideBar() {
     return StateBuilder<PreSearchController>(
         builder: (logic) => ListView.builder(
               padding: EdgeInsets.zero,
-              itemCount: appdata.pinnedKeyword.length + 1,
+              itemCount: appdata.favoriteTags.length + 1,
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return ListTile(
-                    leading: const Icon(Icons.sell_outlined),
-                    title: Text("已固定".tl),
+                    leading: const Icon(Icons.favorite_border),
+                    title: Text("收藏".tl),
                     trailing: TextButton(
                       onPressed: () {
-                        appdata.pinnedKeyword.clear();
+                        appdata.favoriteTags.clear();
                         appdata.writeHistory();
                         searchController.update();
                       },
@@ -914,10 +913,31 @@ class PreSearchPage extends StatelessWidget {
                     ),
                   );
                 } else {
+                  final s = appdata.favoriteTags.elementAt(index - 1);
                   return ListTile(
-                    title: Text(appdata.pinnedKeyword.elementAt(index - 1)),
-                    onTap: () =>
-                        search(appdata.pinnedKeyword.elementAt(index - 1)),
+                    title: Text(s.substring(s.indexOf(':')+1)),
+                    subtitle: Text(s.split(':').first),
+                    onTap: () {
+                      int type = switch(s.split(':').first){
+                        "Picacg" => 0,
+                        "EHentai" => 1,
+                        "JMComic" => 2,
+                        "hitomi" => 3,
+                        "HtComic" => 4,
+                        "Nhentai" => 5,
+                        _ => 0
+                      };
+                      final keyword = s.substring(s.indexOf(':')+1);
+                      search(keyword, type);
+                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: (){
+                        appdata.favoriteTags.remove(s);
+                        searchController.update();
+                        appdata.writeHistory();
+                      },
+                    ),
                   );
                 }
               },

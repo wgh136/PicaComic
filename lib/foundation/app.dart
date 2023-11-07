@@ -30,7 +30,7 @@ class App {
     if (MediaQuery.of(context!).size.shortestSide < 600) {
       return UiModes.m1;
     } else if (!(MediaQuery.of(context).size.shortestSide < 600) &&
-        !(MediaQuery.of(context).size.width > 1300)) {
+        !(MediaQuery.of(context).size.width > 1400)) {
       return UiModes.m2;
     } else {
       return UiModes.m3;

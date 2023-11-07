@@ -198,7 +198,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Widget thumbnailImageBuilder(int index, String imageUrl) => _thumbnailImageBuilder(index);
 
-  /// source of this comic
+  /// The source of this comic, displayed at the beginning of the [title],
+  /// can be translated into the user's language.
   String get source;
 
   /// continue reading from history
@@ -419,6 +420,46 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       text = "未知".tl;
     }
 
+    List<PopupMenuEntry<dynamic>> buildPopMenus(){
+      return [
+        PopupMenuItem(
+          child: Text("复制".tl),
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: (text)));
+            showMessage(context, "已复制".tl);
+          },
+        ),
+        if (!title)
+          PopupMenuItem(
+            child: Text("添加到屏蔽词".tl),
+            onTap: () {
+              appdata.blockingKeyword.add(text);
+              appdata.writeData();
+            },
+          ),
+        if (!title)
+          PopupMenuItem(
+            child: Text("收藏".tl),
+            onTap: () {
+              var res = source.tlEN;
+              if(source == "EHentai"){
+                res += ":$key";
+              }
+              if(source == "Nhentai" && key == "Artists"){
+                res += ":Artist";
+              }
+              if(text.contains(" ")){
+                res += ":\"$text\"";
+              } else {
+                res += ":$text";
+              }
+              appdata.favoriteTags.add(res);
+              appdata.writeData();
+            },
+          )
+      ];
+    }
+
     return GestureDetector(
       onLongPressStart: (details) {
         showMenu(
@@ -428,23 +469,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 details.globalPosition.dy,
                 details.globalPosition.dx,
                 details.globalPosition.dy),
-            items: [
-              PopupMenuItem(
-                child: Text("复制".tl),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: (text)));
-                  showMessage(context, "已复制".tl);
-                },
-              ),
-              if (!title)
-                PopupMenuItem(
-                  child: Text("添加到屏蔽词".tl),
-                  onTap: () {
-                    appdata.blockingKeyword.add(text);
-                    appdata.writeData();
-                  },
-                ),
-            ]);
+            items: buildPopMenus());
       },
       child: Container(
         decoration: BoxDecoration(
@@ -464,23 +489,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     details.globalPosition.dy,
                     details.globalPosition.dx,
                     details.globalPosition.dy),
-                items: [
-                  PopupMenuItem(
-                    child: Text("复制".tl),
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: (text)));
-                      showMessage(context, "已复制".tl);
-                    },
-                  ),
-                  if (!title)
-                    PopupMenuItem(
-                      child: Text("添加到屏蔽词".tl),
-                      onTap: () {
-                        appdata.blockingKeyword.add(text);
-                        appdata.writeData();
-                      },
-                    ),
-                ]);
+                items: buildPopMenus());
           },
           child: Padding(
             padding:

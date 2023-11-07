@@ -28,7 +28,7 @@ class Appdata {
 
   ///搜索历史
   late List<String> searchHistory;
-  Set<String> pinnedKeyword = {};
+  Set<String> favoriteTags = {};
 
   ///用于身份认证页面判断当前状态
   bool flag = true;
@@ -198,7 +198,7 @@ class Appdata {
   void writeHistory() async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("search", searchHistory);
-    await s.setStringList("pinnedKeywords", pinnedKeyword.toList());
+    await s.setStringList("favoriteTags", favoriteTags.toList());
   }
 
   Future<void> writeData() async {
@@ -254,7 +254,7 @@ class Appdata {
       }
       appChannel = s.getString("appChannel") ?? "3";
       searchHistory = s.getStringList("search") ?? [];
-      pinnedKeyword = (s.getStringList("pinnedKeyword") ?? []).toSet();
+      favoriteTags = (s.getStringList("favoriteTags") ?? []).toSet();
       blockingKeyword = s.getStringList("blockingKeyword") ?? [];
       if (s.getStringList("firstUse") != null) {
         var st = s.getStringList("firstUse")!;

@@ -231,6 +231,9 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
     if (tag.contains(" ")) {
       tag = "\"$tag\"";
     }
+    if((data!.tags["Artists"] ?? []).contains(tag.replaceAll("\"", ""))){
+      tag = "Artist:$tag";
+    }
     MainPage.to(() => NhentaiSearchPage(tag));
   }
 
