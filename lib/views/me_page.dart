@@ -41,10 +41,10 @@ class _SliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 107.5;
+  double get maxExtent => 107;
 
   @override
-  double get minExtent => 49.5;
+  double get minExtent => 49;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
@@ -165,6 +165,9 @@ class _NewMePageState extends State<NewMePage>{
           buildItem(const Icon(Icons.delete), "删除".tl, () {
             isModified = true;
             LocalFavoritesManager().deleteFolder(name);
+            if(name == folderName){
+              folderName = null;
+            }
             App.globalBack();
           }),
           buildItem(const Icon(Icons.reorder), "排序".tl, () async{
@@ -337,10 +340,7 @@ class _NewMePageState extends State<NewMePage>{
         return LocalFavoriteTile(
           comics[index],
           folderName!,
-              () {
-            comics.clear();
-            setState(() {});
-          },
+          () => setState(() {}),
           true,
           showFolderInfo: true,
         );

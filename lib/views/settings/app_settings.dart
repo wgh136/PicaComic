@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -262,14 +263,17 @@ void setDownloadFolder() async {
     showMessage(App.globalContext!, "请在下载任务完成后进行操作".tl);
     return;
   }
+
   if (App.isAndroid) {
     var directories = await getExternalStorageDirectories();
     var paths =
         List<String>.generate(directories?.length ?? 0, (index) => directories?[index].path ?? "");
+    var havePermission = await const MethodChannel("pica_comic/settings").invokeMethod("files_check");
     showDialog(
         context: App.globalContext!,
         builder: (context) => SetDownloadFolderDialog(
-              paths: paths,
+          paths: paths,
+          haveManageFilesPermission: havePermission,
             ));
   } else {
     showDialog(context: App.globalContext!, builder: (context) => const SetDownloadFolderDialog());
@@ -277,8 +281,9 @@ void setDownloadFolder() async {
 }
 
 class SetDownloadFolderDialog extends StatefulWidget {
-  const SetDownloadFolderDialog({this.paths, Key? key}) : super(key: key);
+  const SetDownloadFolderDialog({this.paths, this.haveManageFilesPermission=false, Key? key}) : super(key: key);
   final List<String>? paths;
+  final bool haveManageFilesPermission;
 
   @override
   State<SetDownloadFolderDialog> createState() => _SetDownloadFolderDialogState();
@@ -294,7 +299,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
     return SimpleDialog(
       title: Text("设置下载目录".tl),
       children: [
-        if (App.isWindows || App.isLinux)
+        if (App.isDesktop || widget.haveManageFilesPermission)
           SizedBox(
             width: 400,
             child: Column(
@@ -396,6 +401,17 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                       onChanged: (value) => setState(() {
                             current = value!;
                           })),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: ListTile(
+                    title: Text("允许储存权限".tl),
+                    subtitle: Text("需要储存权限以选取任意目录".tl),
+                    onTap: (){
+                      const MethodChannel("pica_comic/settings").invokeMethod("files");
+                      App.globalBack();
+                    },
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: CheckboxListTile(

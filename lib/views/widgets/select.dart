@@ -30,7 +30,8 @@ class _SelectState extends State<Select> {
 
   @override
   Widget build(BuildContext context) {
-    if(value != null && value! <= 0) value = null;
+    print(value);
+    if(value != null && value! < 0) value = null;
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: (){

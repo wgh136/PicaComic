@@ -284,6 +284,7 @@ class LocalFavoritesManager {
   void deleteComic(String folder, FavoriteItem comic) {
     _data![folder]!.removeWhere((element) => element.target == comic.target);
     checkAndDeleteCover(comic);
+    saveData();
   }
 
   void deleteComicWithTarget(String folder, String target) {
@@ -307,6 +308,7 @@ class LocalFavoritesManager {
       throw Exception("Failed to reorder: folder not found");
     }
     _data![folder] = newFolder;
+    saveData();
   }
 
   void rename(String before, String after) {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,7 @@ import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../foundation/app.dart';
+import '../../tools/debug.dart';
 import '../app_views/logs_page.dart';
 import '../widgets/select.dart';
 import 'eh_settings.dart';
@@ -424,7 +426,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
         ListTile(
           title: Text("数据".tl),
         ),
-        if (App.isWindows || App.isAndroid)
+        if (App.isDesktop || App.isAndroid)
           ListTile(
             leading: const Icon(Icons.folder),
             title: Text("设置下载目录".tl),
@@ -545,6 +547,11 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               const MethodChannel("pica_comic/settings").invokeMethod("link");
             },
           ),
+        if(kDebugMode)
+          const ListTile(
+            title: Text("Debug"),
+            onTap: debug,
+          )
       ],
     );
   }

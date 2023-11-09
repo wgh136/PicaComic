@@ -11,10 +11,12 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 import android.content.Intent
 import android.provider.Settings
 import android.net.Uri
+import android.os.Environment
 
 class MainActivity: FlutterFragmentActivity() {
     var volumeListen = VolumeListen()
     var listening = false
+
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
@@ -64,13 +66,23 @@ class MainActivity: FlutterFragmentActivity() {
         }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"pica_comic/settings").setMethodCallHandler{
-                call, _ ->
+                call, res ->
             if(call.method == "link") {
                 val intent = Intent(
                     android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
                     Uri.parse("package:com.github.wgh136.pica_comic"),
                 )
                 startActivity(intent)
+            } else if(call.method == "files") {
+                val intent = Intent(
+                    android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                    Uri.parse("package:com.github.wgh136.pica_comic"),
+                )
+                startActivity(intent)
+            } else if(call.method == "files_check") {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    res.success(Environment.isExternalStorageManager())
+                }
             }
         }
     }
