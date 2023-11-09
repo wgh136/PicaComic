@@ -89,6 +89,7 @@ class Appdata {
     "https://nhentai.net", //48 nhentai domain
     "0", //49 阅读器中双击放缩
     "", //50 language, empty=system
+    "", //51 默认收藏夹
   ];
 
   ///屏蔽的关键词
@@ -100,6 +101,7 @@ class Appdata {
     "1", //屏蔽关键词2(已废弃)
     "1", //漫画详情页
     "0", //是否进入过app
+    "1", //显示本地收藏夹的管理提示
   ];
 
   //哔咔

@@ -31,6 +31,8 @@ import 'me_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+typedef MePage = NewMePage;
+
 class Destination {
   const Destination(this.label, this.icon, this.selectedIcon);
 

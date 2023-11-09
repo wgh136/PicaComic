@@ -21,11 +21,13 @@ import 'app_settings.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class NewSettingsPage extends StatefulWidget {
-  static void open() {
-    App.to(App.globalContext!, () => const NewSettingsPage());
+  static void open([int initialPage = -1]) {
+    App.to(App.globalContext!, () => NewSettingsPage(initialPage: initialPage,));
   }
 
-  const NewSettingsPage({super.key});
+  const NewSettingsPage({this.initialPage = -1, super.key});
+
+  final int initialPage;
 
   @override
   State<NewSettingsPage> createState() => _NewSettingsPageState();
@@ -55,6 +57,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
   @override
   void initState() {
+    currentPage = widget.initialPage;
     gestureRecognizer = HorizontalDragGestureRecognizer(debugOwner: this)
       ..onUpdate = ((details) => setState(() => offset += details.delta.dx))
       ..onEnd = (details) async {

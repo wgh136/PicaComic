@@ -177,13 +177,15 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           }
         }
 
-        logic.photoViewController = PhotoViewController();
+        if(index == logic.index) {
+          logic.photoViewController = PhotoViewController();
+        }
 
         return PhotoViewGalleryPageOptions(
           filterQuality: FilterQuality.medium,
           imageProvider: imageProvider,
           fit: getFit(),
-          controller: logic.photoViewController,
+          controller: index == logic.index ? logic.photoViewController : null,
           errorBuilder: (_, error, s, retry) {
             return Center(
               child: SizedBox(

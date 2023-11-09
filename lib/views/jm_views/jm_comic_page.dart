@@ -244,6 +244,16 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   String get source => "禁漫天堂".tl;
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromJmComic(JmComicBrief(
+      id,
+      data!.author.elementAtOrNull(0) ?? "",
+      data!.name,
+      data!.description,
+      [],
+      [],
+      ignoreExamination: true));
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context) async {

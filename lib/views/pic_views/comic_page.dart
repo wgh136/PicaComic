@@ -237,6 +237,9 @@ class PicacgComicPage extends ComicPage<ComicItem> {
 
   @override
   String get source => "Picacg";
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromPicacg(comic);
 }
 
 class ComicPageLogic extends StateController {

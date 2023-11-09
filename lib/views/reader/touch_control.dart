@@ -75,7 +75,7 @@ class ScrollManager {
             logic.scrollController.position.maxScrollExtent &&
         logic.photoViewController.scale == 1 &&
         logic.showFloatingButtonValue == 1) {
-      logic.fABValue -= value.dy / 5;
+      logic.fABValue -= value.dy / 3;
       logic.update(["FAB"]);
       return;
     }

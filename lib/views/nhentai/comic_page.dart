@@ -249,4 +249,12 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
 
   @override
   String get source => "Nhentai";
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromNhentai(NhentaiComicBrief(
+      data!.title,
+      data!.cover,
+      id,
+      "Unknown",
+      data!.tags["Tags"] ?? const <String>[]));
 }

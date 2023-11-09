@@ -22,7 +22,7 @@ void login(void Function() whenFinish) async{
           }
         },
         onTitleChange: (title) async{
-          if(!title.contains("Login") && !title.contains("Register")) {
+          if(!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
             webview.runScript("window.chrome.webview.postMessage(\"UA\" + navigator.userAgent)");
             var cookies = await webview.getCookies(NhentaiNetwork().baseUrl);
             await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl),
@@ -45,7 +45,11 @@ void login(void Function() whenFinish) async{
       initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       singlePage: true,
       onTitleChange: (title){
-        if (!title.contains("Login") && !title.contains("Register")) {
+        // fix https://github.com/wgh136/PicaComic/issues/250.
+        // If the title does not contain "nhentai",
+        // it means that we are currently on the Cloudflare challenge page.
+        // So we couldn't exit Webview.
+        if (!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
           App.globalBack();
         }
       },

@@ -187,6 +187,10 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   String get source => "hitomi";
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromHitomi(
+      data!.toBrief(comic.link, cover));
 }
 
 void downloadComic(

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
@@ -205,6 +206,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// continue reading from history
   void continueRead(History history);
 
+  FavoriteItem toLocalFavoriteItem();
+
   void scrollListener(){
     try {
       var logic = _logic;
@@ -304,6 +307,37 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       ),
     );
 
+    final favoriteShortcut = Tooltip(
+      message: "收藏".tl,
+      child: IconButton(
+        icon: const Icon(Icons.book_outlined),
+        onPressed: () async{
+          if(LocalFavoritesManager().folderNames == null){
+            await LocalFavoritesManager().readData();
+          }
+          if(!LocalFavoritesManager().folderNames!.contains(appdata.settings[51])){
+            showDialog(context: App.globalContext!, builder: (context) => AlertDialog(
+              title: Text("无效的默认收藏夹".tl),
+              content: Text("必须设置一个有效的收藏夹才能使用快速收藏".tl),
+              actions: [
+                TextButton(onPressed: (){
+                  App.globalBack();
+                  NewSettingsPage.open(0);
+                }, child: Text("前往设置".tl))
+              ],
+            ));
+          } else {
+            LocalFavoritesManager().addComic(appdata.settings[51], toLocalFavoriteItem());
+            showMessage(App.globalContext!, "成功添加到默认收藏夹".tl);
+            if(!_logic.favorite) {
+              _logic.favorite = true;
+              logic.update();
+            }
+          }
+        },
+      ),
+    );
+
     final finalTitle = "[$source] $title${pages == null ? "" : "(${pages}P)"}";
 
     return [
@@ -317,7 +351,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Text(finalTitle),
         ),
         pinned: true,
-        actions: [menu],
+        actions: [favoriteShortcut, menu],
         primary: UiMode.m1(context),
       ),
       SliverToBoxAdapter(

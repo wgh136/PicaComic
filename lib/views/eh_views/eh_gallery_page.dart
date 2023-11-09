@@ -395,6 +395,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   String get source => "EHentai";
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromEhentai(data!.toBrief());
 }
 
 class RatingLogic extends StateController {

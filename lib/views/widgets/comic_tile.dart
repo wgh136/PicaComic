@@ -167,20 +167,20 @@ abstract class ComicTile extends StatelessWidget {
           onLongPress: enableLongPressed ? onLongTap_ : null,
           onSecondaryTapDown: onSecondaryTap_,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             child: Column(
               children: [
                 Expanded(
                   child: Container(
                     width: double.infinity,
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16)),
+                          borderRadius: BorderRadius.circular(12)),
                       clipBehavior: Clip.antiAlias,
                       child: image),
                 ),
                 const SizedBox(height: 2,),
-                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, ),
-                Text(subTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11),)
+                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12),),
+                Text(subTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10),)
               ],
             ),
           )),

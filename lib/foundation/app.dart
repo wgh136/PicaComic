@@ -54,10 +54,10 @@ class App {
 
   //ComicTile的最大宽度
   static double get comicTileMaxWidth =>
-      [680.0, 200.0, 150.0, 720.0][int.parse(appdata.settings[44])];
+      [680.0, 200.0, 120.0, 720.0][int.parse(appdata.settings[44])];
   //ComicTile的宽高比
   static double get comicTileAspectRatio =>
-      [3.0, 0.68, 0.68, 2.5][int.parse(appdata.settings[44])];
+      [3.0, 0.62, 0.62, 2.5][int.parse(appdata.settings[44])];
 
   static back(BuildContext context) {
     if (Navigator.canPop(context)) {
@@ -88,15 +88,15 @@ class App {
         .pushAndRemoveUntil(AppPageRoute(page), (route) => false);
   }
 
-  static to(BuildContext context, Widget Function() page,
+  static Future<T?> to<T extends Object?>(BuildContext context, Widget Function() page,
       [bool enableIOSGesture = true]) {
     LogManager.addLog(LogLevel.info, "App Status",
         "Going to Page /${page.runtimeType.toString().replaceFirst("() => ", "")}");
-    Navigator.of(context).push(AppPageRoute(page, enableIOSGesture));
+    return Navigator.of(context).push<T>(AppPageRoute(page, enableIOSGesture));
   }
 
-  static globalTo(Widget Function() page, {bool preventDuplicates = false}) {
-    Navigator.of(globalContext!).push(AppPageRoute(page));
+  static Future<T?> globalTo<T extends Object?>(Widget Function() page, {bool preventDuplicates = false}) {
+    return Navigator.of(globalContext!).push<T>(AppPageRoute(page));
   }
 
   static bool get enablePopGesture => isIOS;
@@ -124,6 +124,11 @@ class App {
   /// 
   /// Page can change this, and must set this to null when user exit the page.
   static void Function()? onAppLifeCircleChanged;
+
+  /// size of screen
+  static Size get screenSize => MediaQuery.of(globalContext!).size;
+
+  static ColorScheme get colors => Theme.of(globalContext!).colorScheme;
 }
 
 enum UiModes {
