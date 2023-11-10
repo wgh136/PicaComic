@@ -19,7 +19,7 @@ import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
-import '../widgets/image.dart';
+import 'image.dart';
 import 'eps_view.dart';
 import 'image_view.dart';
 import 'touch_control.dart';
@@ -29,15 +29,26 @@ import 'package:pica_comic/tools/translations.dart';
 
 class ReadingPageData {
   int initialPage;
-  var epsWidgets = <Widget>[];
+
+  var epNames = <String>[];
+
   ListenVolumeController? listenVolume;
+
   ScrollManager? scrollManager;
+
   String? message;
+
   String target;
+
   List<int> downloadedEps = [];
+
   ReadingType type;
-  List<String> eps;
+
+  /// mirror to [ComicReadingPage.eps]
+  final List<String> eps;
+
   Gallery? gallery;
+
   ReadingPageData(
       this.initialPage, this.target, this.type, this.eps, this.gallery);
 }
@@ -51,6 +62,9 @@ class ComicReadingPage extends StatelessWidget {
 
   ///章节信息, picacg为各章节名称 ,ehentai, hitomi此数组为空, jm为各章节id
   final List<String> eps;
+
+  /// 仅用于禁漫, 各章节的名称, 添加于v2.2.6
+  final List<String> jmEpNames;
 
   ///标题
   final String title;
@@ -91,6 +105,7 @@ class ComicReadingPage extends StatelessWidget {
       {super.key, int initialPage = 1})
       : gallery = null,
         type = ReadingType.picacg,
+        jmEpNames = [],
         images = null {
     data.initialPage = initialPage;
     StateController.put(ComicReadingPageLogic(order, data));
@@ -102,12 +117,13 @@ class ComicReadingPage extends StatelessWidget {
         title = gallery!.title,
         order = 0,
         type = ReadingType.ehentai,
+        jmEpNames = [],
         images = null {
     data.initialPage = initialPage;
     StateController.put(ComicReadingPageLogic(order, data));
   }
 
-  ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order,
+  ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order, this.jmEpNames,
       {super.key, int initialPage = 1})
       : type = ReadingType.jm,
         gallery = null,
@@ -120,6 +136,7 @@ class ComicReadingPage extends StatelessWidget {
       {super.key, int initialPage = 1})
       : eps = [],
         order = 0,
+        jmEpNames = [],
         type = ReadingType.hitomi,
         gallery = null {
     data.initialPage = initialPage;
@@ -130,6 +147,7 @@ class ComicReadingPage extends StatelessWidget {
       {super.key, int initialPage = 1})
       : eps = [],
         order = 0,
+        jmEpNames = [],
         gallery = null,
         type = ReadingType.htManga,
         images = null {
@@ -142,6 +160,7 @@ class ComicReadingPage extends StatelessWidget {
       : eps = [],
         order = 0,
         gallery = null,
+        jmEpNames = [],
         type = ReadingType.nhentai,
         images = null {
     data.initialPage = initialPage;
@@ -154,7 +173,7 @@ class ComicReadingPage extends StatelessWidget {
         history?.ep = 0;
         history?.page = 0;
       } else {
-        if (logic.order == data.epsWidgets.length - 1 &&
+        if (logic.order == eps.length &&
             logic.index == logic.length) {
           history?.ep = 0;
           history?.page = 0;
@@ -283,6 +302,7 @@ class ComicReadingPage extends StatelessWidget {
               onPointerUp: TapController.onTapUp,
               onPointerDown: TapController.onTapDown,
               behavior: HitTestBehavior.translucent,
+              onPointerCancel: TapController.onTapCancel,
               child: Stack(
                 children: [
                   buildComicView(
@@ -407,7 +427,6 @@ class ComicReadingPage extends StatelessWidget {
                         Expanded(
                           child: FilledButton(
                             onPressed: () {
-                              data.epsWidgets.clear();
                               comicReadingPageLogic.change();
                             },
                             child: Text("重试".tl),
@@ -470,34 +489,10 @@ class ComicReadingPage extends StatelessWidget {
       showMessage(App.globalContext, "数据丢失, 将从网络获取漫画".tl);
       comicReadingPageLogic.downloaded = false;
     }
+    if(data.epNames.isEmpty){
+      data.epNames.addAll(eps);
+    }
     comicReadingPageLogic.tools = false;
-    if (data.epsWidgets.isEmpty) {
-      data.epsWidgets.add(
-        ListTile(
-          leading: Icon(
-            Icons.library_books,
-            color:
-                Theme.of(App.globalContext!).colorScheme.onSecondaryContainer,
-          ),
-          title: Text("章节".tl),
-        ),
-      );
-    }
-    if (data.epsWidgets.length == 1) {
-      for (int i = 1; i < eps.length; i++) {
-        data.epsWidgets.add(ListTile(
-          title: Text(eps[i]),
-          onTap: () {
-            if (i != comicReadingPageLogic.order) {
-              comicReadingPageLogic.order = i;
-              comicReadingPageLogic.urls = [];
-              comicReadingPageLogic.change();
-            }
-            Navigator.pop(App.globalContext!);
-          },
-        ));
-      }
-    }
     if (comicReadingPageLogic.downloaded && epLength != null) {
       for (int p = 0; p < epLength; p++) {
         comicReadingPageLogic.urls.add("");
@@ -566,40 +561,18 @@ class ComicReadingPage extends StatelessWidget {
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.tools = false;
-    if (data.epsWidgets.isEmpty) {
-      data.epsWidgets.add(
-        ListTile(
-          leading: Icon(
-            Icons.library_books,
-            color:
-                Theme.of(App.globalContext!).colorScheme.onSecondaryContainer,
-          ),
-          title: Text(
-            "章节".tl,
-            style: const TextStyle(fontSize: 18),
-          ),
-        ),
-      );
-    }
-    if (data.epsWidgets.length == 1) {
-      for (int i = 0; i < eps.length; i++) {
-        data.epsWidgets.add(ListTile(
-          title: Text("${"第 @c 章".tlParams({
-                "c": (i + 1).toString()
-              })}${(comicReadingPageLogic.order == i + 1) ? "(当前)".tl : ""}"),
-          onTap: () {
-            if (comicReadingPageLogic.order != i + 1) {
-              comicReadingPageLogic.order = i + 1;
-              data.target = eps[i];
-              data.epsWidgets.clear();
-              comicReadingPageLogic.urls.clear();
-              comicReadingPageLogic.change();
-            }
-            Navigator.pop(App.globalContext!);
-          },
-        ));
+
+    String getEpName(int index){
+      var name = "第 @c 章".tlParams({"c": (index + 1).toString()});
+      final epName = jmEpNames.elementAtOrNull(index);
+      if(epName != null && epName != ""){
+        name += ": $epName";
       }
+      return name;
     }
+
+    data.epNames.addAll(List.generate(eps.length, (index) => getEpName(index)));
+
     if (comicReadingPageLogic.downloaded && epLength != null) {
       for (int p = 0; p < epLength; p++) {
         comicReadingPageLogic.urls.add("");

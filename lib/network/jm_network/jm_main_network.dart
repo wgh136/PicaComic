@@ -552,8 +552,10 @@ class JmNetwork {
         author.add(s);
       }
       var series = <int, String>{};
+      var epNames = <String>[];
       for (var s in res.data["series"] ?? []) {
         series[int.parse(s["sort"])] = s["id"];
+        epNames.add(s["name"]);
       }
       var tags = <String>[];
       for (var s in res.data["tags"] ?? []) {
@@ -577,7 +579,8 @@ class JmNetwork {
           related,
           res.data["liked"] ?? false,
           res.data["is_favorite"] ?? false,
-          int.parse(res.data["comment_total"] ?? "0")));
+          int.parse(res.data["comment_total"] ?? "0"),
+          epNames));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: "解析失败: ${e.toString()}");

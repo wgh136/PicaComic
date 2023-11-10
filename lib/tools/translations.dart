@@ -12,6 +12,8 @@ extension AppTranslation on String {
 
   String get tl => _translate();
 
+  String get tlEN => translations["en_US"]![this] ?? this;
+
   String tlParams(Map<String, String> values) {
     var res = _translate();
     for (var entry in values.entries) {
@@ -404,6 +406,20 @@ extension AppTranslation on String {
       "确认清除缓存": "確認清除緩存",
       "警告": "警告",
       "此操作无法撤销, 是否继续": "此操作無法撤銷，是否繼續",
+      //v2.2.6
+      "新建": "新增",
+      "排序": "排序",
+      "重命名": "重命名",
+      "切换源": "更改來源",
+      "默认收藏夹": "預設資料夾",
+      "用于快速收藏": "用於快速收藏",
+      "无效的默认收藏夹": "無效的預設資料夾",
+      "必须设置一个有效的收藏夹才能使用快速收藏": "必須設置一個有效的收藏夾才能使用快速收藏",
+      "前往设置": "前往設定",
+      "应用链接": "應用程式連結",
+      "在系统设置中管理APP支持的链接": "在系統設定中管理APP支援的鏈接",
+      "网络收藏": "網路收藏",
+      "取消收藏": "取消收藏",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -902,7 +918,24 @@ extension AppTranslation on String {
       "支持开发": "Support Development",
       "Pica Comic是一个完全免费的漫画阅读APP": "Pica Comic is a free comic reading APP",
       "仅用于学习交流": "For learning and communication",
-      "加入Telegram群": "Join Telegram Group"
+      "加入Telegram群": "Join Telegram Group",
+      "绅士漫画": "HtComic",
+      "上一页": "Last Page",
+      "页面": "Page",
+      // v2.2.6
+      "新建": "New",
+      "排序": "Reorder",
+      "重命名": "Rename",
+      "切换源": "Change Source",
+      "默认收藏夹": "Default Folder",
+      "用于快速收藏": "Used to quickly add favorites",
+      "无效的默认收藏夹": "Invalid Default Folder",
+      "必须设置一个有效的收藏夹才能使用快速收藏": "A valid favorite must be set up to use this feature.",
+      "前往设置": "settings",
+      "应用链接": "App Links",
+      "在系统设置中管理APP支持的链接": "Manage APP links in system settings",
+      "网络收藏": "Network collection",
+      "取消收藏": "Unfavorite"
     }
   };
 }

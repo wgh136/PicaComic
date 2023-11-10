@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 ///用于测试函数
 void debug() async{
-  showMessage(null, "test");
+  print(await getLibraryDirectory());
 }
 
 ///保存网络请求数据, 用于Debug

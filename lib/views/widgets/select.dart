@@ -11,7 +11,7 @@ class Select extends StatefulWidget {
     this.disabledValues=const []
   }) : super(key: key);
   ///初始值, 提供values的下标
-  final int initialValue;
+  final int? initialValue;
   ///可供选取的值
   final List<String> values;
   ///宽度
@@ -26,13 +26,17 @@ class Select extends StatefulWidget {
 }
 
 class _SelectState extends State<Select> {
-  late int value = widget.initialValue;
+  late int? value = widget.initialValue;
 
   @override
   Widget build(BuildContext context) {
+    if(value != null && value! < 0) value = null;
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: (){
+        if(widget.values.isEmpty){
+          return;
+        }
         final renderBox = context.findRenderObject() as RenderBox;
         var offset = renderBox.localToGlobal(Offset.zero);
         var size = widget.inPopUpWidget?Size(550, MediaQuery.of(context).size.height*0.9):MediaQuery.of(context).size;
@@ -76,7 +80,7 @@ class _SelectState extends State<Select> {
           child: Row(
             children: [
               const SizedBox(width: 16,),
-              Expanded(child: Text(widget.values[value], overflow: TextOverflow.fade,),),
+              Expanded(child: Text(value == null ? "" : widget.values[value!], overflow: TextOverflow.fade,),),
               const Icon(Icons.arrow_drop_down_sharp)
             ],
           ),

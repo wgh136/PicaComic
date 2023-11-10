@@ -170,14 +170,23 @@ class JmComicPage extends ComicPage<JmComicInfo> {
             : Text("下载".tl),
       );
 
+  String _getEpName(int index){
+    var name = "第 @c 章".tlParams({"c": (index + 1).toString()});
+    final epName = data!.epNames.elementAtOrNull(index);
+    if(epName != null && epName != ""){
+      name += ": $epName";
+    }
+    return name;
+  }
+
   @override
   EpsData? get eps => EpsData(
           List<String>.generate(data!.series.values.length,
-              (index) => "第 @c 章".tlParams({"c": (index + 1).toString()})),
+              (index) => _getEpName(index)),
           (i) async {
         await addJmHistory(data!);
         App.globalTo(() => ComicReadingPage.jmComic(
-            data!.id, data!.name, data!.series.values.toList(), i + 1));
+            data!.id, data!.name, data!.series.values.toList(), i + 1, data!.epNames));
       });
 
   @override
@@ -244,6 +253,16 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
   @override
   String get source => "禁漫天堂".tl;
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromJmComic(JmComicBrief(
+      id,
+      data!.author.elementAtOrNull(0) ?? "",
+      data!.name,
+      data!.description,
+      [],
+      [],
+      ignoreExamination: true));
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context) async {

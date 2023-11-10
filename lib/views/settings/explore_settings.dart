@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/settings/app_settings.dart';
@@ -63,7 +64,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         trailing: Select(
           initialValue: int.parse(appdata.settings[25]),
           whenChange: (i) {
-            appdata.settings[26] = appdata.settings[25] = i.toString();
+            appdata.settings[25] = i.toString();
             appdata.updateSettings();
           },
           values: ["顺序显示".tl, "分页显示".tl],
@@ -97,6 +98,26 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           inPopUpWidget: popUp,
         ),
       ),
+      FutureBuilder(future: LocalFavoritesManager().readData(), builder: (context, data){
+        if(LocalFavoritesManager().folderNames == null){
+          return const SizedBox();
+        } else {
+          return ListTile(
+            leading: const Icon(Icons.book),
+            title: Text("默认收藏夹".tl),
+            subtitle: Text("用于快速收藏".tl),
+            trailing: Select(
+              initialValue: LocalFavoritesManager().folderNames!.indexOf(appdata.settings[51]),
+              whenChange: (i) {
+                appdata.settings[51] = LocalFavoritesManager().folderNames![i];
+                appdata.updateSettings();
+              },
+              values: LocalFavoritesManager().folderNames!,
+              inPopUpWidget: popUp,
+            ),
+          );
+        }
+      }),
     ],
   );
 }

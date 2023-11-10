@@ -75,7 +75,7 @@ class ScrollManager {
             logic.scrollController.position.maxScrollExtent &&
         logic.photoViewController.scale == 1 &&
         logic.showFloatingButtonValue == 1) {
-      logic.fABValue -= value.dy / 5;
+      logic.fABValue -= value.dy / 3;
       logic.update(["FAB"]);
       return;
     }
@@ -102,7 +102,21 @@ class TapController {
 
   static DateTime lastScrollTime = DateTime(2023);
 
+  static bool ignoreNextTap = false;
+
+  static void onTapCancel(PointerCancelEvent event){
+    var logic = StateController.find<ComicReadingPageLogic>();
+
+    if (appdata.settings[9] == "4") {
+      logic.data.scrollManager!.fingers--;
+    }
+  }
+
   static void onTapDown(PointerDownEvent event) {
+    if(ignoreNextTap){
+      ignoreNextTap = false;
+      return;
+    }
     var logic = StateController.find<ComicReadingPageLogic>();
 
     if (appdata.settings[9] == "4") {

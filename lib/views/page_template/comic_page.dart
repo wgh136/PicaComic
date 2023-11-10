@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/views/local_favorites_page.dart';
+import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
@@ -198,11 +200,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Widget thumbnailImageBuilder(int index, String imageUrl) => _thumbnailImageBuilder(index);
 
-  /// source of this comic
+  /// The source of this comic, displayed at the beginning of the [title],
+  /// can be translated into the user's language.
   String get source;
 
   /// continue reading from history
   void continueRead(History history);
+
+  FavoriteItem toLocalFavoriteItem();
 
   void scrollListener(){
     try {
@@ -303,6 +308,37 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       ),
     );
 
+    final favoriteShortcut = Tooltip(
+      message: "收藏".tl,
+      child: IconButton(
+        icon: const Icon(Icons.book_outlined),
+        onPressed: () async{
+          if(LocalFavoritesManager().folderNames == null){
+            await LocalFavoritesManager().readData();
+          }
+          if(!LocalFavoritesManager().folderNames!.contains(appdata.settings[51])){
+            showDialog(context: App.globalContext!, builder: (context) => AlertDialog(
+              title: Text("无效的默认收藏夹".tl),
+              content: Text("必须设置一个有效的收藏夹才能使用快速收藏".tl),
+              actions: [
+                TextButton(onPressed: (){
+                  App.globalBack();
+                  NewSettingsPage.open(0);
+                }, child: Text("前往设置".tl))
+              ],
+            ));
+          } else {
+            LocalFavoritesManager().addComic(appdata.settings[51], toLocalFavoriteItem());
+            showMessage(App.globalContext!, "成功添加到默认收藏夹".tl);
+            if(!_logic.favorite) {
+              _logic.favorite = true;
+              logic.update();
+            }
+          }
+        },
+      ),
+    );
+
     final finalTitle = "[$source] $title${pages == null ? "" : "(${pages}P)"}";
 
     return [
@@ -316,7 +352,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Text(finalTitle),
         ),
         pinned: true,
-        actions: [menu],
+        actions: [favoriteShortcut, menu],
         primary: UiMode.m1(context),
       ),
       SliverToBoxAdapter(
@@ -419,6 +455,46 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       text = "未知".tl;
     }
 
+    List<PopupMenuEntry<dynamic>> buildPopMenus(){
+      return [
+        PopupMenuItem(
+          child: Text("复制".tl),
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: (text)));
+            showMessage(context, "已复制".tl);
+          },
+        ),
+        if (!title)
+          PopupMenuItem(
+            child: Text("添加到屏蔽词".tl),
+            onTap: () {
+              appdata.blockingKeyword.add(text);
+              appdata.writeData();
+            },
+          ),
+        if (!title)
+          PopupMenuItem(
+            child: Text("收藏".tl),
+            onTap: () {
+              var res = source.tlEN;
+              if(source == "EHentai"){
+                res += ":$key";
+              }
+              if(source == "Nhentai" && key == "Artists"){
+                res += ":Artist";
+              }
+              if(text.contains(" ")){
+                res += ":\"$text\"";
+              } else {
+                res += ":$text";
+              }
+              appdata.favoriteTags.add(res);
+              appdata.writeData();
+            },
+          )
+      ];
+    }
+
     return GestureDetector(
       onLongPressStart: (details) {
         showMenu(
@@ -428,23 +504,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 details.globalPosition.dy,
                 details.globalPosition.dx,
                 details.globalPosition.dy),
-            items: [
-              PopupMenuItem(
-                child: Text("复制".tl),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: (text)));
-                  showMessage(context, "已复制".tl);
-                },
-              ),
-              if (!title)
-                PopupMenuItem(
-                  child: Text("添加到屏蔽词".tl),
-                  onTap: () {
-                    appdata.blockingKeyword.add(text);
-                    appdata.writeData();
-                  },
-                ),
-            ]);
+            items: buildPopMenus());
       },
       child: Container(
         decoration: BoxDecoration(
@@ -464,23 +524,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     details.globalPosition.dy,
                     details.globalPosition.dx,
                     details.globalPosition.dy),
-                items: [
-                  PopupMenuItem(
-                    child: Text("复制".tl),
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: (text)));
-                      showMessage(context, "已复制".tl);
-                    },
-                  ),
-                  if (!title)
-                    PopupMenuItem(
-                      child: Text("添加到屏蔽词".tl),
-                      onTap: () {
-                        appdata.blockingKeyword.add(text);
-                        appdata.writeData();
-                      },
-                    ),
-                ]);
+                items: buildPopMenus());
           },
           child: Padding(
             padding:
@@ -1036,9 +1080,28 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       LocalFavoritesManager().readData().then((value) => setState(()=>{}));
       local = const SizedBox();
     }else{
+      var children = List.generate(localFolders.length, (index) =>
+          buildFolder(localFolders[index], localFolders[index], 1));
+      children.add(SizedBox(
+        height: 56,
+        width: double.infinity,
+        child: Center(
+          child: TextButton(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("新建".tl),
+                const SizedBox(width: 4,),
+                const Icon(Icons.add),
+              ],
+            ),
+            onPressed: () => showDialog(context: App.globalContext!,
+                builder: (_) => const CreateFolderDialog()).then((value) => setState((){})),
+          ),
+        ),
+      ));
       local = SingleChildScrollView(child: Column(
-        children: List.generate(localFolders.length, (index) =>
-            buildFolder(localFolders[index], localFolders[index], 1)),
+        children: children,
       ),);
     }
 

@@ -18,7 +18,7 @@ void showMessage(BuildContext? context, String message,
 
   var newEntry = OverlayEntry(
       builder: (context) => Positioned(
-            bottom: 24,
+            bottom: 24 + MediaQuery.of(context).viewInsets.bottom,
             left: padding / 2,
             right: padding / 2,
             child: Material(

@@ -231,6 +231,9 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
     if (tag.contains(" ")) {
       tag = "\"$tag\"";
     }
+    if((data!.tags["Artists"] ?? []).contains(tag.replaceAll("\"", ""))){
+      tag = "Artist:$tag";
+    }
     MainPage.to(() => NhentaiSearchPage(tag));
   }
 
@@ -246,4 +249,12 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
 
   @override
   String get source => "Nhentai";
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromNhentai(NhentaiComicBrief(
+      data!.title,
+      data!.cover,
+      id,
+      "Unknown",
+      data!.tags["Tags"] ?? const <String>[]));
 }

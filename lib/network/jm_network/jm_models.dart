@@ -107,9 +107,10 @@ class JmComicInfo{
   List<JmComicBrief> relatedComics;
   bool liked;
   bool favorite;
+  List<String> epNames;
 
   JmComicInfo(this.name, this.id, this.author, this.description, this.likes, this.views,
-      this.series, this.tags, this.relatedComics, this.liked, this.favorite, this.comments);
+      this.series, this.tags, this.relatedComics, this.liked, this.favorite, this.comments, this.epNames);
   
   static Map<String, String> seriesToJsonMap(Map<int, String> map){
     var res = <String, String>{};
@@ -140,6 +141,7 @@ class JmComicInfo{
       "relatedComics": [],
       "liked": "",
       "favorite": "",
+      "epNames": epNames
     };
   }
 
@@ -155,7 +157,8 @@ class JmComicInfo{
     relatedComics = [],
     liked = false,
     favorite = false,
-    comments = 0;
+    comments = 0,
+    epNames = List.from(map["epNames"] ?? []);
 }
 
 

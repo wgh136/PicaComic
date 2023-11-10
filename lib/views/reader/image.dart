@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'touch_control.dart';
 
 class ComicImage extends StatefulWidget {
   /// Modified from flutter Image
@@ -260,11 +261,35 @@ class _ComicImageState extends State<ComicImage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     if (_lastException != null) {
-      // display error on screen
+      // display error and retry button on screen
       return SizedBox(
         height: 300,
-        child: Center(
-          child: Text(_lastException.toString(), style: const TextStyle(color: Colors.white),),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Text(_lastException.toString(), style: const TextStyle(color: Colors.white), maxLines: 3,),
+              ),
+            ),
+            const SizedBox(height: 4,),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Listener(
+                onPointerDown: (details){
+                  TapController.ignoreNextTap = true;
+                  _resolveImage();
+                },
+                child: const SizedBox(
+                  width: 84,
+                  height: 36,
+                  child: Center(
+                    child: Text("Retry", style: TextStyle(color: Colors.blue),),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16,),
+          ],
         ),
       );
     }

@@ -215,6 +215,9 @@ class HtComicPage extends ComicPage<HtComicInfo> {
 
   @override
   String get source => "绅士漫画".tl;
+
+  @override
+  FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromHtcomic(comic);
 }
 
 class HtComicPageLogic extends StateController {

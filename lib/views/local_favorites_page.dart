@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +13,11 @@ import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
-import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
-import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
 import '../foundation/app.dart';
-import '../foundation/ui_mode.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/hitomi_network/hitomi_models.dart';
@@ -31,198 +27,6 @@ import '../network/nhentai_network/nhentai_main_network.dart';
 import '../network/picacg_network/methods.dart';
 import 'main_page.dart';
 
-class LocalFavoritesPage extends StatefulWidget {
-  const LocalFavoritesPage({super.key});
-
-  @override
-  State<LocalFavoritesPage> createState() => _LocalFavoritesPageState();
-}
-
-class _LocalFavoritesPageState extends State<LocalFavoritesPage> {
-  @override
-  void dispose() {
-    LocalFavoritesManager().saveData();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (LocalFavoritesManager().folderNames == null) {
-      LocalFavoritesManager().readData().then((v) => setState(() => {}));
-      return Center(
-        child: Text("加载中".tl),
-      );
-    } else {
-      var names = LocalFavoritesManager().folderNames!;
-      return CustomScrollView(
-        slivers: [
-          SliverGridViewWithFixedItemHeight(
-            delegate: SliverChildBuilderDelegate(childCount: names.length + 1,
-                (context, i) {
-              if (i == 0) {
-                return Material(
-                  child: InkWell(
-                    onTap: () => MainPage.to(() => const AllLocalFavorites()),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.folder,
-                            size: 35,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                          const SizedBox(
-                            width: 16,
-                          ),
-                          const SizedBox(
-                            width: 2.5,
-                          ),
-                          Expanded(
-                            flex: 4,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "全部".tl,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                              onPressed: () =>
-                                  MainPage.to(() => const AllLocalFavorites()),
-                              icon: const Icon(Icons.open_in_new)),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              } else {
-                i--;
-                return FolderTile(
-                  name: names[i],
-                  stateSetter: () => setState(() {}),
-                );
-              }
-            }),
-            maxCrossAxisExtent: 500,
-            itemHeight: 64,
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 60,
-              width: double.infinity,
-              child: Center(
-                child: TextButton(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("创建收藏夹".tl),
-                      const Icon(
-                        Icons.add,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                  onPressed: () async {
-                    await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const CreateFolderDialog();
-                        });
-                    setState(() {});
-                  },
-                ),
-              ),
-            ),
-          )
-        ],
-      );
-    }
-  }
-}
-
-class FolderTile extends StatelessWidget {
-  const FolderTile({required this.name, required this.stateSetter, super.key});
-
-  final String name;
-
-  final void Function() stateSetter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: InkWell(
-        onTap: () => MainPage.to(() => LocalFavoritesFolder(name)),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.folder,
-                size: 35,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              const SizedBox(
-                width: 16,
-              ),
-              const SizedBox(
-                width: 2.5,
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_forever_outlined),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("确认删除".tl),
-                          content: Text("要删除这个收藏夹吗".tl),
-                          actions: [
-                            TextButton(
-                                onPressed: () => App.globalBack(),
-                                child: Text("取消".tl)),
-                            TextButton(
-                                onPressed: () async {
-                                  LocalFavoritesManager().deleteFolder(name);
-                                  stateSetter();
-                                  App.globalBack();
-                                },
-                                child: Text("确认".tl)),
-                          ],
-                        );
-                      });
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.drive_file_rename_outline),
-                onPressed: () async {
-                  await showDialog(
-                      context: context,
-                      builder: (context) => RenameFolderDialog(name));
-                  stateSetter();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class CreateFolderDialog extends StatelessWidget {
   const CreateFolderDialog({Key? key}) : super(key: key);
@@ -358,7 +162,6 @@ class LocalFavoriteTile extends ComicTile {
           future: LocalFavoritesManager().getCover(comic),
           builder: (context, file) {
             if (file.hasError) {
-              print(file.error);
               return ColoredBox(
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: const Center(child: Icon(Icons.error)));
@@ -511,7 +314,7 @@ class LocalFavoriteTile extends ComicTile {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
+                      child: SelectableText(
                         title.replaceAll("\n", ""),
                         style: const TextStyle(fontSize: 22),
                       ),
@@ -657,134 +460,6 @@ class LocalFavoriteTile extends ComicTile {
       };
 }
 
-class AllLocalFavorites extends StatefulWidget {
-  const AllLocalFavorites({super.key});
-
-  @override
-  State<AllLocalFavorites> createState() => _AllLocalFavoritesState();
-}
-
-class _AllLocalFavoritesState extends State<AllLocalFavorites> {
-  late final comics = LocalFavoritesManager().allComics();
-  bool searchMode = false;
-  String keyword = "";
-  var results = <FavoriteItemWithFolderInfo>[];
-
-  Widget buildTitle() {
-    if (searchMode) {
-      return Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top / 2),
-        child: Center(
-          child: Container(
-            height: 42,
-            padding: const EdgeInsets.fromLTRB(0, 0, 8, 6),
-            child: TextField(
-              decoration:
-                  InputDecoration(border: InputBorder.none, hintText: "搜索".tl),
-              onChanged: (s) {
-                setState(() {
-                  keyword = s.toLowerCase();
-                });
-              },
-            ),
-          ),
-        ),
-      );
-    } else {
-      return const Text("ALL");
-    }
-  }
-
-  void find() {
-    results.clear();
-    if (keyword == "") {
-      results.addAll(comics);
-    } else {
-      bool findTag(FavoriteItemWithFolderInfo comic) {
-        for (var element in comic.comic.tags) {
-          if (element.contains(':')) {
-            element = element.split(':').elementAtOrNull(1) ?? element;
-          }
-          if (element.contains(keyword) ||
-              element.translateTagsToCN.contains(keyword)) {
-            return true;
-          }
-        }
-        return false;
-      }
-
-      for (var element in comics) {
-        if (element.comic.name.toLowerCase().contains(keyword) ||
-            element.comic.author.toLowerCase().contains(keyword) ||
-            element.folder.toLowerCase() == keyword ||
-            findTag(element)) {
-          results.add(element);
-        }
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (searchMode) {
-      find();
-    }
-    return Scaffold(
-      body: Column(
-        children: [
-          CustomAppbar(
-            title: buildTitle(),
-            actions: [
-              Tooltip(
-                message: "搜索".tl,
-                child: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      searchMode = !searchMode;
-                      if (!searchMode) {
-                        keyword = "";
-                      }
-                    });
-                  },
-                ),
-              )
-            ],
-          ),
-          if (searchMode) buildComics(results) else buildComics(comics)
-        ],
-      ),
-    );
-  }
-
-  Widget buildComics(List<FavoriteItemWithFolderInfo> comics) {
-    return Expanded(
-      child: GridView.builder(
-        padding: EdgeInsets.zero,
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: App.comicTileMaxWidth,
-          childAspectRatio: App.comicTileAspectRatio,
-        ),
-        itemCount: comics.length,
-        itemBuilder: (BuildContext context, int index) {
-          return LocalFavoriteTile(
-            comics[index].comic,
-            comics[index].folder,
-            () {
-              comics.clear();
-              setState(() {
-                comics = LocalFavoritesManager().allComics();
-              });
-            },
-            true,
-            showFolderInfo: true,
-          );
-        },
-      ),
-    );
-  }
-}
-
 class LocalFavoritesFolder extends StatefulWidget {
   const LocalFavoritesFolder(this.name, {super.key});
 
@@ -801,7 +476,6 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
   late var comics = LocalFavoritesManager().getAllComics(widget.name);
   double? width;
   bool changed = false;
-  bool enableSort = false;
 
   Color lightenColor(Color color, double lightenValue) {
     int red = (color.red + ((255 - color.red) * lightenValue)).round();
@@ -820,7 +494,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
   @override
   void dispose() {
     if (changed) {
-      LocalFavoritesManager().reorder(comics!, widget.name);
+      LocalFavoritesManager().saveData();
     }
     LocalFavoriteTile.cache.clear();
     super.dispose();
@@ -834,77 +508,22 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
               comics![index],
               widget.name,
               () {
+                changed = true;
                 setState(() {
                   comics = LocalFavoritesManager().getAllComics(widget.name);
                 });
               },
-              !enableSort,
+              false,
               key: Key(comics![index].target),
             ));
     return Scaffold(
-      appBar: UiMode.m1(context)
-          ? AppBar(title: Text(widget.name), actions: [
-              SizedBox(
-                width: 90,
-                height: 56,
-                child: Row(
-                  children: [
-                    Text("排序".tl),
-                    Transform.scale(
-                      scale: 0.6,
-                      child: Switch(
-                          value: enableSort,
-                          onChanged: (value) {
-                            var currentWidth =
-                                MediaQuery.of(context).size.width;
-                            if (currentWidth != width) {
-                              width = currentWidth;
-                              reorderWidgetKey = UniqueKey();
-                            }
-                            setState(() => enableSort = value);
-                          }),
-                    )
-                  ],
-                ),
-              )
-            ])
-          : null,
+      appBar: AppBar(title: Text(widget.name)),
       body: Column(
         children: [
-          if (!UiMode.m1(context))
-            CustomAppbar(
-              title: Text(widget.name),
-              actions: [
-                SizedBox(
-                  width: 90,
-                  height: 56,
-                  child: Row(
-                    children: [
-                      Text("排序".tl),
-                      Transform.scale(
-                        scale: 0.6,
-                        child: Switch(
-                            value: enableSort,
-                            onChanged: (value) {
-                              var currentWidth =
-                                  MediaQuery.of(context).size.width;
-                              if (currentWidth != width) {
-                                width = currentWidth;
-                                reorderWidgetKey = UniqueKey();
-                              }
-                              setState(() => enableSort = value);
-                            }),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
           Expanded(
             child: ReorderableBuilder(
               key: reorderWidgetKey,
               scrollController: _scrollController,
-              enableDraggable: enableSort,
               longPressDelay: App.isDesktop
                   ? const Duration(milliseconds: 100)
                   : const Duration(milliseconds: 500),
@@ -913,6 +532,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
                 setState(() {
                   comics = reorderFunc(comics!) as List<FavoriteItem>;
                 });
+                LocalFavoritesManager().reorder(comics!, widget.name);
               },
               dragChildBoxDecoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),

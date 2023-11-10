@@ -12,7 +12,7 @@ import '../../network/eh_network/get_gallery_id.dart';
 import '../../network/picacg_network/methods.dart';
 import '../eh_views/eh_widgets/eh_image_provider/eh_cached_image.dart';
 import '../jm_views/jm_image_provider/jm_cached_image.dart';
-import '../widgets/image.dart';
+import 'image.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'reading_type.dart';
@@ -177,33 +177,45 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           }
         }
 
-        logic.photoViewController = PhotoViewController();
+        if(index == logic.index) {
+          logic.photoViewController = PhotoViewController();
+        }
 
         return PhotoViewGalleryPageOptions(
           filterQuality: FilterQuality.medium,
           imageProvider: imageProvider,
           fit: getFit(),
-          controller: logic.photoViewController,
-          errorBuilder: (w, o, s) {
+          controller: index == logic.index ? logic.photoViewController : null,
+          errorBuilder: (_, error, s, retry) {
             return Center(
               child: SizedBox(
-                height: 80,
-                width: 300,
+                height: 300,
+                width: 400,
                 child: Column(
                   children: [
-                    const Icon(
-                      Icons.error,
-                      color: Colors.white,
-                      size: 30,
+                    Expanded(
+                      child: Center(
+                        child: Text(error.toString(), style: const TextStyle(color: Colors.white), maxLines: 3,),
+                      ),
                     ),
-                    const SizedBox(
-                      height: 10,
+                    const SizedBox(height: 4,),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Listener(
+                        onPointerDown: (details){
+                          TapController.ignoreNextTap = true;
+                          retry();
+                        },
+                        child: const SizedBox(
+                          width: 84,
+                          height: 36,
+                          child: Center(
+                            child: Text("Retry", style: TextStyle(color: Colors.blue),),
+                          ),
+                        ),
+                      ),
                     ),
-                    Text(
-                      o.toString(),
-                      style: const TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    )
+                    const SizedBox(height: 16,),
                   ],
                 ),
               ),

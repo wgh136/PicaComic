@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
@@ -12,6 +14,7 @@ import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../foundation/app.dart';
+import '../../tools/debug.dart';
 import '../app_views/logs_page.dart';
 import '../widgets/select.dart';
 import 'eh_settings.dart';
@@ -20,11 +23,13 @@ import 'app_settings.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class NewSettingsPage extends StatefulWidget {
-  static void open() {
-    App.to(App.globalContext!, () => const NewSettingsPage());
+  static void open([int initialPage = -1]) {
+    App.to(App.globalContext!, () => NewSettingsPage(initialPage: initialPage,));
   }
 
-  const NewSettingsPage({super.key});
+  const NewSettingsPage({this.initialPage = -1, super.key});
+
+  final int initialPage;
 
   @override
   State<NewSettingsPage> createState() => _NewSettingsPageState();
@@ -54,6 +59,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
   @override
   void initState() {
+    currentPage = widget.initialPage;
     gestureRecognizer = HorizontalDragGestureRecognizer(debugOwner: this)
       ..onUpdate = ((details) => setState(() => offset += details.delta.dx))
       ..onEnd = (details) async {
@@ -420,7 +426,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
         ListTile(
           title: Text("数据".tl),
         ),
-        if (App.isWindows || App.isAndroid)
+        if (App.isDesktop || App.isAndroid)
           ListTile(
             leading: const Icon(Icons.folder),
             title: Text("设置下载目录".tl),
@@ -516,7 +522,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               },
             )),
         ListTile(
-          title: Text("语言".tl),
+          title: Text("其它".tl),
         ),
         ListTile(
           title: Text("语言".tl),
@@ -531,6 +537,21 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
             },
           ),
         ),
+        if(App.isAndroid)
+          ListTile(
+            title: Text("应用链接".tl),
+            subtitle: Text("在系统设置中管理APP支持的链接".tl),
+            leading: const Icon(Icons.link),
+            trailing: const Icon(Icons.arrow_right),
+            onTap: (){
+              const MethodChannel("pica_comic/settings").invokeMethod("link");
+            },
+          ),
+        if(kDebugMode)
+          const ListTile(
+            title: Text("Debug"),
+            onTap: debug,
+          )
       ],
     );
   }

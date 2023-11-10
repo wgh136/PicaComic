@@ -73,6 +73,7 @@ class ComicReadingPageLogic extends StateController {
     if (value == 0) {
       if (showFloatingButtonValue != 0) {
         showFloatingButtonValue = 0;
+        fABValue = 0;
         update();
       }
     }
