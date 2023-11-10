@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/views/local_favorites_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
@@ -1079,9 +1080,28 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       LocalFavoritesManager().readData().then((value) => setState(()=>{}));
       local = const SizedBox();
     }else{
+      var children = List.generate(localFolders.length, (index) =>
+          buildFolder(localFolders[index], localFolders[index], 1));
+      children.add(SizedBox(
+        height: 56,
+        width: double.infinity,
+        child: Center(
+          child: TextButton(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("新建".tl),
+                const SizedBox(width: 4,),
+                const Icon(Icons.add),
+              ],
+            ),
+            onPressed: () => showDialog(context: App.globalContext!,
+                builder: (_) => const CreateFolderDialog()).then((value) => setState((){})),
+          ),
+        ),
+      ));
       local = SingleChildScrollView(child: Column(
-        children: List.generate(localFolders.length, (index) =>
-            buildFolder(localFolders[index], localFolders[index], 1)),
+        children: children,
       ),);
     }
 

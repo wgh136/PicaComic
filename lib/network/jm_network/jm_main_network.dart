@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/proxy.dart';
-import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/time.dart';
 import '../../foundation/log.dart';
 import '../log_dio.dart';
@@ -87,7 +86,6 @@ class JmNetwork {
     try {
       var res = await dio.getJm(url, options, time,
           cookieJar: cookieJar, expiredTime: CacheExpiredTime.no);
-      saveDebugData(res.data);
       if (res.statusCode == 401) {
         return Res(null,
             errorMessage: const JsonDecoder().convert(res.data)["errorMsg"] ??

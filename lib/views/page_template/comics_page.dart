@@ -342,11 +342,11 @@ abstract class ComicsPage<T> extends StatelessWidget {
                                         logic.update();
                                       }
                                     },
-                                    child: const Text("上一页")),
+                                    child: Text("上一页".tl)),
                                 const Spacer(),
                                 ActionChip(
                                   label: Text(
-                                      "页面: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
+                                      "${"页面".tl}: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
                                   onPressed: () async {
                                     String res = "";
                                     await showDialog(
