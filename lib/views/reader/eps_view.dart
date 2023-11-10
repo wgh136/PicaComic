@@ -33,7 +33,7 @@ class _EpsViewState extends State<EpsView> {
     for(int index = 0;index<eps.length;index++){
       String title = "";
       if(type == ReadingType.jm){
-        title = "第 @c 章".tlParams({"c": (index+1).toString()});
+        title = data.epNames[index];
       }else{
         title = eps[index];
       }
@@ -44,7 +44,6 @@ class _EpsViewState extends State<EpsView> {
                 if (logic.order != index+1) {
                   logic.order = index+1;
                   data.target = eps[index];
-                  data.epsWidgets.clear();
                   logic.urls.clear();
                   logic.reload();
                 }

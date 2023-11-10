@@ -17,6 +17,7 @@ import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
+import 'package:pica_comic/views/tools.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
 import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -305,6 +306,12 @@ class _MainPageState extends State<MainPage> {
                                       notifications.context?.widget is MePage,
                                   actions: [
                                     Tooltip(
+                                      message: "工具".tl,
+                                      child: const IconButton(
+                                          icon: Icon(Icons.construction),
+                                          onPressed: openTool),
+                                    ),
+                                    Tooltip(
                                       message: "搜索".tl,
                                       child: IconButton(
                                           icon: const Icon(Icons.search),
@@ -524,11 +531,13 @@ class _NavigateBarState extends State<NavigateBar> {
                 "排行榜".tl, i == 3, () => setState(() => i = 3)),
             const Divider(),
             const Spacer(),
-            NavigatorItem(Icons.search, Icons.games, "搜索".tl, false,
+            NavigatorItem(Icons.construction, Icons.construction, "工具".tl, false,
+                    openTool),
+            NavigatorItem(Icons.search, Icons.search, "搜索".tl, false,
                 () => MainPage.to(() => PreSearchPage())),
             NavigatorItem(
               Icons.settings,
-              Icons.games,
+              Icons.settings,
               "设置".tl,
               false,
               () => NewSettingsPage.open(),
@@ -551,6 +560,11 @@ class _NavigateBarState extends State<NavigateBar> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                const Flexible(
+                  child: IconButton(
+                      icon: Icon(Icons.construction),
+                      onPressed: openTool),
+                ),
                 Flexible(
                   child: IconButton(
                     icon: const Icon(Icons.search),

@@ -390,6 +390,9 @@ class EhNetwork{
       if (res.error){
         return Res(null, errorMessage: res.errorMessage);
       }
+      if(res.data.contains("Content Warning")){
+        return const Res(null, errorMessage: "Content Warning");
+      }
       var document = parse(res.data);
       //tags
       var tags = <String, List<String>>{};

@@ -126,9 +126,9 @@ class App {
   static void Function()? onAppLifeCircleChanged;
 
   /// size of screen
-  static Size get screenSize => MediaQuery.of(globalContext!).size;
+  static Size screenSize(BuildContext context) => MediaQuery.of(context).size;
 
-  static ColorScheme get colors => Theme.of(globalContext!).colorScheme;
+  static ColorScheme colors(BuildContext context) => Theme.of(context).colorScheme;
 }
 
 enum UiModes {

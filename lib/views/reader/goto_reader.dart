@@ -237,11 +237,11 @@ void readJmComic(JmComicInfo comic, List<String> eps, [bool? continueRead]) asyn
   var history = await appdata.history.find(id);
 
   void readFromBeginning(){
-    App.globalTo(()=>ComicReadingPage.jmComic(id, name, eps, 1), preventDuplicates: false);
+    App.globalTo(()=>ComicReadingPage.jmComic(id, name, eps, 1, comic.epNames), preventDuplicates: false);
   }
 
   void readFromHistory(){
-    App.globalTo(()=>ComicReadingPage.jmComic(id, name, eps, history!.ep, initialPage: history.page,), preventDuplicates: false);
+    App.globalTo(()=>ComicReadingPage.jmComic(id, name, eps, history!.ep, comic.epNames, initialPage: history.page,), preventDuplicates: false);
   }
 
   if(continueRead == true){

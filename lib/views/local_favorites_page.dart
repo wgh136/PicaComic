@@ -314,7 +314,7 @@ class LocalFavoriteTile extends ComicTile {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
+                      child: SelectableText(
                         title.replaceAll("\n", ""),
                         style: const TextStyle(fontSize: 22),
                       ),

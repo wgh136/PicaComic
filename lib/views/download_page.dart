@@ -858,7 +858,8 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
           (comic as DownloadedJmComic).comic.id,
           (comic as DownloadedJmComic).comic.name,
           (comic as DownloadedJmComic).comic.series.values.toList(),
-          i + 1));
+          i + 1,
+          (comic as DownloadedJmComic).comic.epNames));
     } else if (comic.type == DownloadType.ehentai) {
       readEhGallery((comic as DownloadedGallery).gallery);
     } else if (comic.type == DownloadType.hitomi) {

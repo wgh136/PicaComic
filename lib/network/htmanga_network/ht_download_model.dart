@@ -57,8 +57,16 @@ class DownloadingHtComic extends DownloadingItem{
 
   final HtComicInfo comic;
 
+  String _getCover(){
+    var uri = comic.coverPath;
+    if(uri.contains("https:") && !uri.contains("https://")){
+      uri = uri.replaceFirst("https:", "https://");
+    }
+    return uri;
+  }
+
   @override
-  String get cover => comic.coverPath;
+  String get cover => _getCover();
 
   @override
   Future<Uint8List> getImage(String link) async{

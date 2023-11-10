@@ -66,6 +66,8 @@ class SideBarRoute<T> extends PopupRoute<T> {
 
     bool shouldPop = true;
 
+    final sideBarWidth = min(width, MediaQuery.of(context).size.width);
+
     return Stack(
       alignment: Alignment.centerRight,
       children: [
@@ -82,7 +84,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
                   color: Theme.of(context).colorScheme.surfaceTint),
               clipBehavior: Clip.antiAlias,
               constraints: BoxConstraints(
-                  maxWidth: min(width, MediaQuery.of(context).size.width)
+                  maxWidth: sideBarWidth
               ),
               height: MediaQuery.of(context).size.height,
               child: GestureDetector(
@@ -95,7 +97,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
                   stateUpdater((){});
                 },
                 onHorizontalDragEnd: (details){
-                  if(location != 0 && shouldPop){
+                  if(location != 0 && shouldPop && location < 0 - sideBarWidth/2){
                     Navigator.of(context).pop();
                   } else {
                     () async{

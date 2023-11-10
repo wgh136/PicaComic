@@ -1,6 +1,8 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import '../../base.dart';
 export 'package:pica_comic/foundation/def.dart';
 
@@ -38,7 +40,7 @@ abstract class ComicTile extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
+                      child: SelectableText(
                         title.replaceAll("\n", ""),
                         style: const TextStyle(fontSize: 22),
                       ),
@@ -70,6 +72,14 @@ abstract class ComicTile extends StatelessWidget {
                           read!();
                         },
                       ),
+                    ListTile(
+                      leading: const Icon(Icons.search),
+                      title: Text("搜索".tl),
+                      onTap: () {
+                        App.globalBack();
+                        MainPage.to(() => PreSearchPage(initialValue: title,));
+                      },
+                    ),
                     const SizedBox(
                       height: 16,
                     ),
@@ -98,6 +108,11 @@ abstract class ComicTile extends StatelessWidget {
               onTap: () => Future.delayed(
                   const Duration(milliseconds: 200), () => read!()),
               child: Text("阅读".tl)),
+          PopupMenuItem(
+              onTap: () => Future.delayed(
+                  const Duration(milliseconds: 200),
+                      () => MainPage.to(() => PreSearchPage(initialValue: title,))),
+              child: Text("搜索".tl)),
         ]);
   }
 

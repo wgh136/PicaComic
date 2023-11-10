@@ -128,9 +128,10 @@ class PreSearchController extends StateController {
 }
 
 class PreSearchPage extends StatelessWidget {
-  PreSearchPage({super.key});
+  PreSearchPage({String initialValue = "", super.key}):
+        controller = TextEditingController(text: initialValue);
 
-  final controller = TextEditingController();
+  final TextEditingController controller;
 
   final searchController = StateController.put(PreSearchController());
 
