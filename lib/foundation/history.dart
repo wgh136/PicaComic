@@ -77,15 +77,14 @@ class HistoryManager{
 
   factory HistoryManager() => cache==null?(cache=HistoryManager.create()):cache!;
 
-  var history = LinkedList<History>();
-  bool _open = false;
+  LinkedList<History>? history;
 
-  List<dynamic> toJson() => history.map((h)=>h.toMap()).toList();
+  List<dynamic> toJson() => history!.map((h)=>h.toMap()).toList();
 
   void readDataFromJson(List<dynamic> json){
-    history.clear();
+    history = LinkedList<History>();
     for(var h in json){
-      history.add(History.fromMap((h as Map<String, dynamic>)));
+      history!.add(History.fromMap((h as Map<String, dynamic>)));
     }
     saveData();
   }
@@ -94,7 +93,7 @@ class HistoryManager{
   void check(){
     Set<String> keys = {};
     var shouldRemove = <History>[];
-    for(var value in history){
+    for(var value in history!){
       if(keys.contains(value.target)){
         shouldRemove.add(value);
         continue;
@@ -103,24 +102,27 @@ class HistoryManager{
       }
     }
     for(var value in shouldRemove){
-      history.remove(value);
+      history!.remove(value);
     }
   }
 
   void saveData() async{
+    if(history == null){
+      return;
+    }
     check();
     final dataPath = await getApplicationSupportDirectory();
     var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
     if(!(await file.exists())){
       await file.create();
     }
-    file.writeAsStringSync(const JsonEncoder().convert(history.map((h)=>h.toMap()).toList()));
+    file.writeAsStringSync(const JsonEncoder().convert(history!.map((h)=>h.toMap()).toList()));
     Webdav.uploadData();
   }
 
   Future<void> readData() async{
-    if(_open) return;
-    _open = true;
+    if(history != null) return;
+    history = LinkedList<History>();
     final dataPath = await getApplicationSupportDirectory();
     var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
     if(!(await file.exists())){
@@ -128,38 +130,38 @@ class HistoryManager{
     }
     var data = const JsonDecoder().convert(file.readAsStringSync());
     for(var h in data){
-      history.add(History.fromMap((h as Map<String, dynamic>)));
+      history!.add(History.fromMap((h as Map<String, dynamic>)));
     }
   }
 
   ///搜索是否存在, 存在则移至最前, 并且转移历史记录
   ///调用此方法不会记录阅读数据, 只是添加历史记录
   Future<void> addHistory(History newItem) async{
-    if(!_open) {
+    if(history == null) {
       await readData();
     }
     try {
-      var p = history.firstWhere((element) => element.target == newItem.target);
-      history.remove(p);
-      history.addFirst(p);
+      var p = history!.firstWhere((element) => element.target == newItem.target);
+      history!.remove(p);
+      history!.addFirst(p);
     }
     catch(e){
       //没有之前的历史记录
-      history.addFirst(History.fromMap(newItem.toMap()));
+      history!.addFirst(History.fromMap(newItem.toMap()));
       //做一个限制, 避免极端情况
-      if(history.length >= 10000){
-        history.remove(history.last);
+      if(history!.length >= 10000){
+        history!.remove(history!.last);
       }
     }
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
   Future<void> saveReadHistory(String target, int ep, int page) async{
-    if(!_open) {
+    if(history == null) {
       await readData();
     }
     try {
-      var p = history.firstWhere((element) => element.target == target);
+      var p = history!.firstWhere((element) => element.target == target);
       p.ep = ep;
       p.page = page;
       saveData();
@@ -176,20 +178,18 @@ class HistoryManager{
     if(file.existsSync()){
       await file.delete();
     }
-    history.clear();
+    history = null;
   }
 
   void remove(String id) async{
     await readData();
-    history.remove(history.firstWhere((element) => element.target==id));
+    history!.remove(history!.firstWhere((element) => element.target==id));
   }
 
   Future<History?> find(String target) async{
-    if(!_open) {
-      await readData();
-    }
+    await readData();
     try {
-      return history.firstWhere((element) => element.target == target);
+      return history!.firstWhere((element) => element.target == target);
     }
     catch(e){
       return null;
@@ -198,7 +198,7 @@ class HistoryManager{
 
   History? findSync(String target){
     try {
-      return history.firstWhere((element) => element.target == target);
+      return history!.firstWhere((element) => element.target == target);
     }
     catch(e){
       return null;

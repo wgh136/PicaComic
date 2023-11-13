@@ -502,6 +502,11 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
 
   @override
   Widget build(BuildContext context) {
+    if(comics == null){
+      LocalFavoritesManager().readData();
+      Future.delayed(const Duration(milliseconds: 200)).then((value) => setState((){}));
+      return const Material();
+    }
     var tiles = List.generate(
         comics!.length,
         (index) => LocalFavoriteTile(

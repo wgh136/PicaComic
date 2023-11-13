@@ -90,6 +90,7 @@ class Appdata {
     "0", //49 阅读器中双击放缩
     "", //50 language, empty=system
     "", //51 默认收藏夹
+    "0", //52 me page
   ];
 
   ///屏蔽的关键词

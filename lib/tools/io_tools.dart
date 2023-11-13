@@ -8,6 +8,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
@@ -206,6 +207,9 @@ Future<String> exportDataToFile(bool includeDownload) async{
   try {
     if (DownloadManager().path == null) {
       DownloadManager().init();
+    }
+    if(HistoryManager().history == null){
+      await HistoryManager().readData();
     }
     var appdataString = const JsonEncoder().convert(appdata.toJson());
     var downloadPath = includeDownload?DownloadManager().path:null;
