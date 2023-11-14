@@ -84,6 +84,9 @@ class EhNetwork{
     for(var cookie in cookies){
       res += "${cookie.name}=${cookie.value}; ";
     }
+    if(res.length < 2){
+      return "";
+    }
     cookiesStr = res.substring(0,res.length-2);
     return cookiesStr;
   }
@@ -110,6 +113,9 @@ class EhNetwork{
           cookieJar: cookieJar,
           expiredTime: expiredTime
       );
+      if(data.data.isEmpty){
+        throw Exception("Empty Data");
+      }
       await getCookies(true);
       if((data.data).substring(0,4) == "Your"){
         return const Res(null, errorMessage: "Your IP address has been temporarily banned");
