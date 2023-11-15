@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/pair.dart';
 
+class SimpleController extends StateController{}
+
 abstract class StateController{
   static final _controllers = <StateControllerWrapped>[];
 
@@ -27,6 +29,13 @@ abstract class StateController{
     }
   }
 
+  static SimpleController putSimpleController(void Function() onUpdate, Object? tag){
+    var controller = SimpleController();
+    controller.stateUpdaters.add(Pair(null, onUpdate));
+    _controllers.add(StateControllerWrapped(controller, false, tag));
+    return controller;
+  }
+
   List<Pair<Object?, void Function()>> stateUpdaters = [];
 
   void update([List<Object>? ids]){
@@ -41,6 +50,10 @@ abstract class StateController{
         }
       }
     }
+  }
+
+  void dispose(){
+    _controllers.removeWhere((element) => element.controller == this);
   }
 }
 
@@ -117,4 +130,28 @@ class _StateBuilderState<T extends StateController> extends State<StateBuilder> 
 
   @override
   Widget build(BuildContext context) => widget.builderWrapped(controller);
+}
+
+abstract class StateWithController<T extends StatefulWidget> extends State<T>{
+  late final SimpleController _controller;
+
+  @override
+  @mustCallSuper
+  void initState() {
+    _controller = StateController.putSimpleController(() {setState(() {});}, tag);
+    super.initState();
+  }
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void update(){
+    _controller.update();
+  }
+
+  Object? get tag;
 }

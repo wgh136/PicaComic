@@ -85,6 +85,7 @@ dependencies:
     git:
       url: https://github.com/wgh136/webdav_client
       ref: main
+  sliver_tools: any
 
 dev_dependencies:
   flutter_test:

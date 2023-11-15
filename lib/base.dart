@@ -91,6 +91,8 @@ class Appdata {
     "", //50 language, empty=system
     "", //51 默认收藏夹
     "0", //52 me page
+    "0", //53 本地收藏添加位置(尾/首)
+    "0", //54 阅读后移动本地收藏(否/尾/首)
   ];
 
   ///屏蔽的关键词
@@ -300,7 +302,8 @@ class Appdata {
         "htName": htName,
         "htPwd": htPwd,
         "history": history.toJson(),
-        "blockingKeywords": blockingKeyword
+        "blockingKeywords": blockingKeyword,
+        "favoriteTags": favoriteTags.toList()
       };
 
   bool readDataFromJson(Map<String, dynamic> json) {
@@ -329,6 +332,7 @@ class Appdata {
       htPwd = json["htPwd"];
       history.readDataFromJson(json["history"]);
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
+      favoriteTags = Set.from(json["favoriteTags"] ?? favoriteTags);
       writeData();
       return true;
     } catch (e) {

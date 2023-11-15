@@ -15,6 +15,7 @@ import 'package:pica_comic/views/pic_views/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
+import 'package:pica_comic/views/widgets/select.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'dart:io';
 import '../foundation/app.dart';
@@ -25,6 +26,7 @@ import '../network/htmanga_network/htmanga_main_network.dart';
 import '../network/jm_network/jm_main_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
 import '../network/picacg_network/methods.dart';
+import '../tools/io_tools.dart';
 import 'main_page.dart';
 
 
@@ -56,13 +58,33 @@ class CreateFolderDialog extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          width: 200,
-          height: 10,
+          height: 8,
+        ),
+        Center(
+          child: TextButton(
+            child: Text("从文件导入".tl),
+            onPressed: () async{
+              App.globalBack();
+              var data = await getDataFromUserSelectedFile(["json"]);
+              if(data == null){
+                return;
+              }
+              var(error, message) = LocalFavoritesManager().loadFolderData(data);
+              if(error){
+                showMessage(App.globalContext!, message);
+              } else {
+                StateController.find(tag: "me page").update();
+              }
+            },
+          ),
+        ),
+        const SizedBox(
+          height: 8,
         ),
         SizedBox(
             height: 35,
             child: Center(
-              child: TextButton(
+              child: FilledButton(
                   onPressed: () {
                     try {
                       LocalFavoritesManager().createFolder(controller.text);
@@ -298,6 +320,10 @@ class LocalFavoriteTile extends ComicTile {
             onTap: read,
             child: Text("阅读".tl),
           ),
+          PopupMenuItem(
+            onTap: copyTo,
+            child: Text("复制到".tl),
+          ),
         ]);
   }
 
@@ -340,6 +366,14 @@ class LocalFavoriteTile extends ComicTile {
                       onTap: () {
                         App.globalBack();
                         read();
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.copy),
+                      title: Text("复制到".tl),
+                      onTap: () {
+                        App.globalBack();
+                        copyTo();
                       },
                     ),
                     const SizedBox(
@@ -458,6 +492,46 @@ class LocalFavoriteTile extends ComicTile {
             throw UnimplementedError();
         }
       };
+
+  void copyTo(){
+    String? folder;
+    showDialog(
+      context: App.globalContext!,
+      builder: (context) => SimpleDialog(
+        title: const Text("复制到..."),
+        children: [
+          SizedBox(
+            width: 400,
+            height: 132,
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text("收藏夹".tl),
+                  trailing: Select(
+                    width: 156,
+                    values: LocalFavoritesManager().folderNames!,
+                    initialValue: null,
+                    whenChange:
+                        (i) => folder = LocalFavoritesManager().folderNames![i],
+                  ),
+                ),
+                const Spacer(),
+                Center(
+                  child: FilledButton(
+                    child: const Text("确认"),
+                    onPressed: (){
+                      LocalFavoritesManager().addComic(folder!, comic);
+                      App.globalBack();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16,),
+              ],
+            ),
+          )
+        ],
+    ));
+  }
 }
 
 class LocalFavoritesFolder extends StatefulWidget {

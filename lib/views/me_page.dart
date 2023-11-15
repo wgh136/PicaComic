@@ -1,9 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/all_favorites_page.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
@@ -13,6 +17,7 @@ import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'local_favorites_page.dart';
 import 'main_page.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 class _SliverPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
   _SliverPersistentHeaderDelegate(this.child);
@@ -53,7 +58,7 @@ class NewMePage extends StatefulWidget {
   State<NewMePage> createState() => _NewMePageState();
 }
 
-class _NewMePageState extends State<NewMePage>{
+class _NewMePageState extends StateWithController<NewMePage>{
   String? folderName;
   final controller = ScrollController();
   final tabController = ScrollController();
@@ -61,7 +66,8 @@ class _NewMePageState extends State<NewMePage>{
 
   @override
   void initState() {
-    Future.microtask(() => LocalFavoritesManager().readData()).then((value) => setState((){}));
+    Future.microtask(() => LocalFavoritesManager().readData())
+        .then((value){if(value) setState((){});});
     super.initState();
   }
 
@@ -212,7 +218,10 @@ class _NewMePageState extends State<NewMePage>{
               ),
             ),
           ),
-        buildComics(),
+        SliverAnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          child: buildComics(),
+        ),
       ],
     );
   }
@@ -263,7 +272,28 @@ class _NewMePageState extends State<NewMePage>{
             App.globalBack();
             showDialog(context: context, builder: (context) => RenameFolderDialog(name))
                 .then((value) => setState((){}));
-          })
+          }),
+          buildItem(const Icon(Icons.text_snippet_outlined), "生成文本并复制".tl, () async{
+            App.globalBack();
+            var res = await LocalFavoritesManager().folderToString(name);
+            Clipboard.setData(ClipboardData(text: res));
+            showMessage(App.globalContext, "已复制".tl);
+          }),
+          buildItem(const Icon(Icons.import_export), "导出".tl, () async{
+            App.globalBack();
+            var controller = showLoadingDialog(App.globalContext!, () {}, true, false, "正在导出".tl);
+            try {
+              await exportStringDataAsFile(
+                  LocalFavoritesManager().folderToJsonString(name),
+                  "comics.json");
+              controller.close();
+            }
+            catch(e, s){
+              controller.close();
+              showMessage(App.globalContext, e.toString());
+              LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+            }
+          }),
         ],
       ));
 
@@ -446,6 +476,7 @@ class _NewMePageState extends State<NewMePage>{
       return buildEmptyView();
     }
     return SliverGrid.builder(
+      key: const Key("_pica_comic_"),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: App.comicTileMaxWidth,
         childAspectRatio: App.comicTileAspectRatio,
@@ -474,6 +505,7 @@ class _NewMePageState extends State<NewMePage>{
       return buildEmptyView();
     }
     return SliverGrid.builder(
+      key: Key(folderName!),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: App.comicTileMaxWidth,
         childAspectRatio: App.comicTileAspectRatio,
@@ -490,6 +522,9 @@ class _NewMePageState extends State<NewMePage>{
       },
     );
   }
+
+  @override
+  Object? get tag => "me page";
 }
 
 class NewMePageButton extends StatelessWidget {

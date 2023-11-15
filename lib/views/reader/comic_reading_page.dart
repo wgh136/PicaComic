@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
@@ -205,6 +206,7 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
       App.onAppLifeCircleChanged = () => logic.data.scrollManager?.fingers = 0;
+      LocalFavoritesManager().readData();
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -225,6 +227,7 @@ class ComicReadingPage extends StatelessWidget {
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
       App.onAppLifeCircleChanged = null;
+      LocalFavoritesManager().onReadEnd(target);
       Future.microtask(() {
         if (ComicPage.tagsStack.isNotEmpty) {
           ComicPage.tagsStack.last.updateHistory(history);

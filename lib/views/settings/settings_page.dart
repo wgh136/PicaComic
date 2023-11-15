@@ -7,6 +7,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/main.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/views/settings/local_favorite_settings.dart';
 import 'package:pica_comic/views/settings/reading_settings.dart';
 import 'package:pica_comic/views/settings/explore_settings.dart';
 import 'package:pica_comic/views/settings/ht_settings.dart';
@@ -42,13 +43,14 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
   bool get enableTwoViews => !UiMode.m1(context);
 
-  final categories = <String>["浏览", "漫画源", "阅读", "外观", "APP", "关于"];
+  final categories = <String>["浏览", "漫画源", "阅读", "外观", "本地收藏", "APP", "关于"];
 
   final icons = <IconData>[
     Icons.explore,
     Icons.source,
     Icons.book,
     Icons.color_lens,
+    Icons.collections_bookmark_rounded,
     Icons.apps,
     Icons.info
   ];
@@ -610,7 +612,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               mode: LaunchMode.externalApplication),
           trailing: const Icon(Icons.arrow_right),
         ),
-                ListTile(
+        ListTile(
           leading: const Icon(Icons.telegram),
           title: Text("加入Telegram群".tl),
           onTap: () => launchUrlString("https://t.me/pica_group",
@@ -628,8 +630,9 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
       1 => buildComicSourceSettings(),
       2 => const ReadingSettings(false),
       3 => buildAppearanceSettings(),
-      4 => buildAppSettings(),
-      5 => buildAbout(),
+      4 => const LocalFavoritesSettings(),
+      5 => buildAppSettings(),
+      6 => buildAbout(),
       _ => throw UnimplementedError()
     };
 

@@ -362,3 +362,43 @@ void saveLog(String log) async{
     }
   }
 }
+
+Future<void> exportStringDataAsFile(String data, String fileName) async{
+  var cachePath = (await getApplicationCacheDirectory()).path;
+  var file = File("$cachePath$pathSep$fileName");
+  if(!file.existsSync()){
+    file.createSync();
+  }
+  file.writeAsStringSync(data);
+  if(App.isAndroid || App.isIOS) {
+    var params = SaveFileDialogParams(sourceFilePath: file.path);
+    await FlutterFileDialog.saveFile(params: params);
+  }else if(App.isWindows){
+    final String? directoryPath = await getDirectoryPath();
+    if (directoryPath != null) {
+      await file.copy("$directoryPath$pathSep$fileName");
+    }
+  }
+}
+
+Future<String?> getDataFromUserSelectedFile(List<String> extensions) async{
+  String? filePath;
+  if (App.isMobile) {
+    var params = const OpenFileDialogParams();
+    filePath = await FlutterFileDialog.pickFile(params: params);
+  } else if (App.isWindows) {
+    XTypeGroup typeGroup = XTypeGroup(
+      label: 'data',
+      extensions: extensions,
+    );
+    final XFile? file = await openFile(
+        acceptedTypeGroups: <XTypeGroup>[
+          typeGroup
+        ]);
+    filePath = file?.path;
+  }
+  if(filePath == null){
+    return null;
+  }
+  return File(filePath).readAsStringSync();
+}

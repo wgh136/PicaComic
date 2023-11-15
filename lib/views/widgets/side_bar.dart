@@ -1,7 +1,5 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/main_page.dart';
 
 ///显示侧边栏的变换
 ///
@@ -177,18 +175,6 @@ class SidebarBody extends StatefulWidget {
 
 class _SidebarBodyState extends State<SidebarBody> {
   bool top = true;
-
-  @override
-  void initState() {
-    MainPage.overlayOpen = true;
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    MainPage.overlayOpen = false;
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
