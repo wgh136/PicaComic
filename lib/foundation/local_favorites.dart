@@ -119,6 +119,15 @@ class LocalFavoritesManager {
 
   bool saving = false;
 
+  void updateUI(){
+    try {
+      StateController.find(tag: "me page").update();
+    }
+    catch(e){
+      // ignore
+    }
+  }
+
   Future<List<String>> find(String target) async {
     if (_data == null) {
       await readData();

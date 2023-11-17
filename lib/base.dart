@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
@@ -13,7 +12,7 @@ import 'network/picacg_network/models.dart';
 export 'foundation/def.dart';
 
 //路径分隔符
-var pathSep = Platform.pathSeparator;
+const pathSep = '/';
 
 var downloadManager = DownloadManager();
 
@@ -93,6 +92,7 @@ class Appdata {
     "0", //52 me page
     "0", //53 本地收藏添加位置(尾/首)
     "0", //54 阅读后移动本地收藏(否/尾/首)
+    "0", //55 长按缩放
   ];
 
   ///屏蔽的关键词

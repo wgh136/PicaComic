@@ -271,7 +271,12 @@ class _NewMePageState extends StateWithController<NewMePage>{
           buildItem(const Icon(Icons.drive_file_rename_outline), "重命名".tl, () async{
             App.globalBack();
             showDialog(context: context, builder: (context) => RenameFolderDialog(name))
-                .then((value) => setState((){}));
+                .then((value) {
+                  if(folderName == name && LocalFavoritesManager().getAllComics(name) == null){
+                    folderName = null;
+                  }
+                  setState((){});
+            });
           }),
           buildItem(const Icon(Icons.text_snippet_outlined), "生成文本并复制".tl, () async{
             App.globalBack();
@@ -281,7 +286,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
           }),
           buildItem(const Icon(Icons.import_export), "导出".tl, () async{
             App.globalBack();
-            var controller = showLoadingDialog(App.globalContext!, () {}, true, false, "正在导出".tl);
+            var controller = showLoadingDialog(App.globalContext!, () {}, true, true, "正在导出".tl);
             try {
               await exportStringDataAsFile(
                   LocalFavoritesManager().folderToJsonString(name),

@@ -48,14 +48,6 @@ class Webdav {
     );
     client.setHeaders({'content-type': 'text/plain'});
     try {
-      await client.ping();
-    } catch (e) {
-      LogManager.addLog(
-          LogLevel.error, "Sync", "Failed to connect to webdav server.");
-      _isOperating = false;
-      return false;
-    }
-    try {
       await client.writeFromFile(
           await exportDataToFile(false), "${configs[3]}picadata");
     } catch (e, s) {
@@ -85,13 +77,6 @@ class Webdav {
         password: configs[2],
         debug: kDebugMode,
       );
-      try {
-        await client.ping();
-      } catch (e) {
-        LogManager.addLog(
-            LogLevel.error, "Sync", "Failed to connect to webdav server.");
-        return false;
-      }
       try {
         var cachePath = (await getApplicationCacheDirectory()).path;
         await client.read2File("${configs[3]}picadata",

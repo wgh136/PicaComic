@@ -12,8 +12,14 @@ abstract class StateController{
   }
 
   static T find<T extends StateController>({Object? tag}){
-    return _controllers.lastWhere((element) => element.controller is T
-        && (tag == null || tag == element.tag)).controller as T;
+    try {
+      return _controllers.lastWhere((element) =>
+      element.controller is T
+          && (tag == null || tag == element.tag)).controller as T;
+    }
+    catch(e){
+      throw StateError("${T.runtimeType} with tag $tag Not Found");
+    }
   }
 
   static void remove<T>([Object? tag, bool check = false]){
