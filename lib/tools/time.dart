@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 String timeToString(DateTime time){
@@ -24,4 +25,11 @@ extension TimeExtension on DateTime{
   Duration operator-(DateTime other){
     return Duration(microseconds: microsecondsSinceEpoch - other.microsecondsSinceEpoch);
   }
+  static DateTime parseEhTime(String dateString){
+    final format = DateFormat('d MMMM yyyy, HH:mm', 'en_US');
+    final dateTime = format.parse(dateString);
+    return dateTime;
+  }
+
+  String get toCompareString => timeToString(this);
 }

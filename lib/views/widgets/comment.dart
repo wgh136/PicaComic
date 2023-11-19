@@ -38,14 +38,14 @@ class CommentTile extends StatelessWidget {
     return InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+        padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
         child: SizedBox(
           width: double.infinity,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Avatar(
-                size: 50,
+                size: 58,
                 avatarUrl: avatarUrl,
                 frame: frameUrl,
                 slogan: slogan,
@@ -57,7 +57,6 @@ class CommentTile extends StatelessWidget {
                 width: 8,
               ),
               Expanded(
-                flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

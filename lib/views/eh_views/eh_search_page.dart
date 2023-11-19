@@ -17,12 +17,18 @@ class SearchPageComicsList extends ComicsPage<EhGalleryBrief>{
   final String keyword;
   final Widget? head_;
   final PageData data;
-  const SearchPageComicsList(this.keyword, this.data, {this.head_, super.key});
+  final int? fCats;
+  final int? startPages;
+  final int? endPages;
+  final int? minStars;
+  const SearchPageComicsList(this.keyword, this.data,
+      {this.fCats, this.startPages, this.endPages, this.minStars, this.head_, super.key});
 
   @override
   Future<Res<List<EhGalleryBrief>>> getComics(int i) async{
     if(data.galleries == null){
-      var res = await EhNetwork().search(keyword);
+      var res = await EhNetwork().search(keyword, fCats: fCats,
+          startPages: startPages, endPages: endPages, minStars: minStars);
       if(res.error){
         return Res(null, errorMessage: res.errorMessage);
       }else{
@@ -73,7 +79,12 @@ class SearchPageComicsList extends ComicsPage<EhGalleryBrief>{
 
 class EhSearchPage extends StatefulWidget {
   final String keyword;
-  const EhSearchPage(this.keyword, {Key? key}) : super(key: key);
+  final int? fCats;
+  final int? startPages;
+  final int? endPages;
+  final int? minStars;
+  const EhSearchPage(this.keyword, {this.fCats, this.startPages, this.endPages
+    , this.minStars, Key? key}) : super(key: key);
 
   @override
   State<EhSearchPage> createState() => _SearchPageState();
@@ -92,6 +103,10 @@ class _SearchPageState extends State<EhSearchPage> {
         keyword,
         data,
         key: Key(keyword),
+        fCats: widget.fCats,
+        startPages: widget.startPages,
+        endPages: widget.endPages,
+        minStars: widget.minStars,
         head_: SliverPersistentHeader(
           floating: true,
           delegate: _SliverAppBarDelegate(

@@ -59,7 +59,7 @@ class MainPage extends StatefulWidget {
       Navigator.of(navigatorKey?.currentContext ?? App.globalContext!).canPop();
 
   static void back() {
-    if(canPop()) {
+    if (canPop()) {
       navigatorKey?.currentState?.pop();
     }
   }
@@ -100,7 +100,8 @@ class _MainPageState extends State<MainPage> {
 
   set i(int value) {
     _i = value;
-    Navigator.popUntil(MainPage.navigatorKey!.currentContext!, (route) => route.isFirst);
+    Navigator.popUntil(
+        MainPage.navigatorKey!.currentContext!, (route) => route.isFirst);
   }
 
   final pages = [
@@ -231,11 +232,7 @@ class _MainPageState extends State<MainPage> {
       appdata.writeData();
     }
     //清除未正常退出时的下载通知
-    try {
-      notifications.endProgress();
-    } catch (e) {
-      //不清楚清除一个不存在的通知会不会引发错误
-    }
+    notifications.cancelAll();
     //检查是否打卡
     if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
       if (App.isMobile) {
@@ -293,7 +290,8 @@ class _MainPageState extends State<MainPage> {
                   Expanded(
                     child: ClipRect(
                       child: Navigator(
-                        key: (MainPage.navigatorKey ?? (MainPage.navigatorKey = GlobalKey())),
+                        key: (MainPage.navigatorKey ??
+                            (MainPage.navigatorKey = GlobalKey())),
                         onGenerateRoute: (settings) =>
                             MaterialPageRoute(builder: (context) {
                           return Column(
@@ -530,8 +528,8 @@ class _NavigateBarState extends State<NavigateBar> {
                 "排行榜".tl, i == 3, () => setState(() => i = 3)),
             const Divider(),
             const Spacer(),
-            NavigatorItem(Icons.construction, Icons.construction, "工具".tl, false,
-                    openTool),
+            NavigatorItem(Icons.construction, Icons.construction, "工具".tl,
+                false, openTool),
             NavigatorItem(Icons.search, Icons.search, "搜索".tl, false,
                 () => MainPage.to(() => PreSearchPage())),
             NavigatorItem(
@@ -561,8 +559,7 @@ class _NavigateBarState extends State<NavigateBar> {
               children: [
                 const Flexible(
                   child: IconButton(
-                      icon: Icon(Icons.construction),
-                      onPressed: openTool),
+                      icon: Icon(Icons.construction), onPressed: openTool),
                 ),
                 Flexible(
                   child: IconButton(

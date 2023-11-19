@@ -1,5 +1,5 @@
 name: 其它/other
-description: 其它内容
+description: 其它内容/Other contents
 body:
   - type: markdown
     attributes:
@@ -8,7 +8,13 @@ body:
 
         如果你想提出功能建议或者优化建议, 请切换到功能建议模板;
 
-        对于其它情况, 填写并提交此处的内容
+        对于其它情况, 填写并提交此处的内容.
+
+        If you wish to report issues occurring during the app's runtime (such as the inability to view a particular comic source, login issues, non-functional features, etc.), please switch to the Bug Report template.
+
+        If you would like to make feature requests or optimization suggestions, please switch to the Feature Request template.
+
+        For any other situations, please fill out and submit the content here.
   - type: textarea
     id: what-happened
     attributes:

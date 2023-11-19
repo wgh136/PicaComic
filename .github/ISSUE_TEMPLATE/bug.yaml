@@ -1,31 +1,33 @@
-name: 报告Bug
-description: 报告APP运行时出现的问题
+name: 报告Bug/Report a bug
+description: 报告APP出现的问题/Reporting problems with the APP
 title: "[Bug]: "
 labels: ["bug🐞"]
 body:
   - type: markdown
     attributes:
       value: |
-        感谢报告问题, 请先补全标题后填写以下信息
+        感谢报告问题, 请先补全标题后填写以下信息.
+        
+        Thank you for reporting a problem, please complete the title and fill in the following information.
   - type: textarea
     id: what-happened
     attributes:
-      label: 描述
-      description: 描述问题
+      label: 描述/Description
+      description: 描述问题/Describe the problem
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: Version
-      description: 使用的APP版本
+      description: 使用的APP版本/App version
       value: "latest"
     validations:
       required: true
   - type: dropdown
     id: platform
     attributes:
-      label: 使用的操作系统
+      label: 使用的操作系统/Operating system
       multiple: true
       options:
         - Android
@@ -37,10 +39,10 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: 日志
+      label: 日志/logs
       description: 上传日志, 在设置-logs中, 点击右上角的菜单后, 点击导出日志; 或者将错误相关日志粘贴到这里
   - type: textarea
     id: screenshotOrVideo
     attributes:
-      label: 截图或视频
-      description: 在这里上传相关的屏幕截图或者视频
+      label: 截图或视频/Screenshot or video
+      description: 在这里上传相关的屏幕截图或者视频/Upload relevant screenshots or videos here

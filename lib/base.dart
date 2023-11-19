@@ -3,6 +3,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/foundation/history.dart';
@@ -86,13 +87,13 @@ class Appdata {
     "0", //46 webdav version
     "0", //47 eh warning
     "https://nhentai.net", //48 nhentai domain
-    "0", //49 阅读器中双击放缩
+    "1", //49 阅读器中双击放缩
     "", //50 language, empty=system
     "", //51 默认收藏夹
     "0", //52 me page
     "0", //53 本地收藏添加位置(尾/首)
     "0", //54 阅读后移动本地收藏(否/尾/首)
-    "0", //55 长按缩放
+    "1", //55 长按缩放
   ];
 
   ///屏蔽的关键词
@@ -207,6 +208,7 @@ class Appdata {
   }
 
   Future<void> writeData() async {
+    Webdav.uploadData();
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
     await s.setString("userName", user.name);

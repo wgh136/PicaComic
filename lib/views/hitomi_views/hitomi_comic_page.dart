@@ -142,7 +142,6 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   void tapOnTags(String tag) {
-    tag = tag.replaceAll(" ", "_");
     MainPage.to(() => HitomiSearchPage(tag));
   }
 

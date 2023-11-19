@@ -1,24 +1,26 @@
-name: 功能建议
-description: 提出改进APP的建议
+name: 功能建议/Feature Request
+description: 提出改进APP的建议/Suggest improvements to the APP
 title: "[Enhancement]: "
 labels: ["enhancement🚀"]
 body:
   - type: markdown
     attributes:
       value: |
-        欢迎提出功能建议, 请先补全标题后填写以下信息
+        欢迎提出功能建议, 请先补全标题后填写以下信息.
+        
+        Welcome to make a feature request, please fill in the following information after completing the title.
   - type: textarea
     id: what-happened
     attributes:
-      label: 描述
-      description: 描述具体的建议
+      label: 描述/Description
+      description: 描述具体的建议/Describe your suggestion.
     validations:
       required: true
   - type: dropdown
     id: platform
     attributes:
-      label: 操作系统
-      description: 如果建议针对某个平台, 请在此选择
+      label: 操作系统/Operating System
+      description: 如果建议针对某个平台, 请在此选择/If the feature is for a particular platform, please select here
       multiple: true
       options:
         - Android
@@ -30,5 +32,5 @@ body:
   - type: textarea
     id: screenshotOrVideo
     attributes:
-      label: 图片
-      description: 如果需要图片描述, 请在这里上传
+      label: 图片/picture
+      description: 如果需要图片描述, 请在这里上传/If you need a picture description, please upload it here.

@@ -122,7 +122,7 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => App.globalTo(() => const LoginPage())
-                          ?.then((value) {
+                          .then((value) {
                         logic.update();
                         Webdav.uploadData();
                       }),
@@ -139,7 +139,7 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => App.globalTo(() => const EhLoginPage())
-                          ?.then((v) {
+                          .then((v) {
                         logic.update();
                         Webdav.uploadData();
                       }),
@@ -211,7 +211,7 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => App.globalTo(() => const JmLoginPage())
-                          ?.then((v) {
+                          .then((v) {
                         logic.update();
                         Webdav.uploadData();
                       }),
@@ -286,7 +286,7 @@ class AccountsPage extends StatelessWidget {
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => App.globalTo(() => const HtLoginPage())
-                          ?.then((v) {
+                          .then((v) {
                         logic.update();
                         Webdav.uploadData();
                       }),

@@ -21,7 +21,6 @@ class ShowImagePage extends StatelessWidget {
             child: IconButton(
               icon: const Icon(
                 Icons.download,
-                color: Colors.white,
               ),
               onPressed: () async {
                 saveImage(getImageUrl(url), "");
@@ -31,7 +30,7 @@ class ShowImagePage extends StatelessWidget {
           Tooltip(
             message: "分享".tl,
             child: IconButton(
-              icon: const Icon(Icons.share, color: Colors.white),
+              icon: const Icon(Icons.share),
               onPressed: () async {
                 shareImageFromCache(url, "");
               },
