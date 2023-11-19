@@ -162,9 +162,9 @@ flutter:
   fonts:
     # 这是在windows端使用的字体, 由于系统字体(微软雅黑)在Flutter App上显示效果极差, 因此使用此字体
     # 仅在打包windows时取消注释
-    - family: font
-      fonts:
-        - asset: fonts/NotoSansSC-Regular.otf
+    #- family: font
+    #  fonts:
+    #    - asset: fonts/NotoSansSC-Regular.otf
 
     # 这是一个英文字体, 文件很小, 无需担心体积, 用于显示Pica Comic
     - family: font2
