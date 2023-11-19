@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../foundation/app.dart';
+
 class Select extends StatefulWidget {
   const Select({
     required this.initialValue,
@@ -7,8 +9,9 @@ class Select extends StatefulWidget {
     required this.whenChange,
     Key? key,
     required this.values,
-    this.inPopUpWidget=false,
-    this.disabledValues=const []
+    bool? inPopUpWidget,
+    this.disabledValues=const [],
+    this.outline = false,
   }) : super(key: key);
   ///初始值, 提供values的下标
   final int? initialValue;
@@ -18,8 +21,8 @@ class Select extends StatefulWidget {
   final double width;
   ///发生改变时的回调
   final void Function(int) whenChange;
-  final bool inPopUpWidget;
   final List<int> disabledValues;
+  final bool outline;
 
   @override
   State<Select> createState() => _SelectState();
@@ -39,17 +42,11 @@ class _SelectState extends State<Select> {
         }
         final renderBox = context.findRenderObject() as RenderBox;
         var offset = renderBox.localToGlobal(Offset.zero);
-        var size = widget.inPopUpWidget?Size(550, MediaQuery.of(context).size.height*0.9):MediaQuery.of(context).size;
-        if(widget.inPopUpWidget){
-          offset = Offset(
-            offset.dx - (MediaQuery.of(context).size.width-size.width)/2,
-            offset.dy - MediaQuery.of(context).size.height*0.05
-          );
-        }
+        var size = MediaQuery.of(context).size;
         showMenu<int>(
-            context: context,
+            context: App.globalContext!,
             initialValue: value,
-            position: RelativeRect.fromLTRB(offset.dx+widget.width, offset.dy+20, size.width-offset.dx-widget.width, size.height-offset.dy-20),
+            position: RelativeRect.fromLTRB(offset.dx, offset.dy+20, offset.dx+widget.width, size.height-offset.dy-20),
             constraints: BoxConstraints(
               maxWidth: widget.width,
               minWidth: widget.width,
@@ -70,20 +67,26 @@ class _SelectState extends State<Select> {
             ]
         );
       },
-      child: SizedBox(
+      child: Container(
+        margin: EdgeInsets.zero,
         width: widget.width,
         height: 38,
-        child: Card(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          child: Row(
-            children: [
-              const SizedBox(width: 16,),
-              Expanded(child: Text(value == null ? "" : widget.values[value!], overflow: TextOverflow.fade,),),
-              const Icon(Icons.arrow_drop_down_sharp)
-            ],
-          ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(widget.outline ? 4 : 8),
+          color: widget.outline ? null : Theme.of(context).colorScheme.secondaryContainer,
+          border: widget.outline ? Border.all(color: Theme.of(context).colorScheme.outline) : null
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16,),
+            Expanded(
+              child: Text(value == null ? "" : widget.values[value!],
+                overflow: TextOverflow.fade,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down_sharp)
+          ],
         ),
       ),
     );

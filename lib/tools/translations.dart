@@ -420,6 +420,20 @@ extension AppTranslation on String {
       "在系统设置中管理APP支持的链接": "在系統設定中管理APP支援的鏈接",
       "网络收藏": "網路收藏",
       "取消收藏": "取消收藏",
+      //v2.2.7
+      "本地收藏": "本地收藏",
+      "新收藏添加至": "新收藏新增至",
+      "阅读后移动本地收藏至": "閱讀後移動本地收藏至",
+      "最前": "最前",
+      "最后": "最後",
+      "无操作": "無操作",
+      "长按缩放": "長按縮放",
+      "同步数据中": "同步資料中",
+      "最少星星": "最少星星",
+      "高级选项": "進階選項",
+      "热搜": "熱搜",
+      "隐藏": "隱藏",
+      "显示收藏": "顯示收藏",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -930,12 +944,27 @@ extension AppTranslation on String {
       "默认收藏夹": "Default Folder",
       "用于快速收藏": "Used to quickly add favorites",
       "无效的默认收藏夹": "Invalid Default Folder",
-      "必须设置一个有效的收藏夹才能使用快速收藏": "A valid favorite must be set up to use this feature.",
+      "必须设置一个有效的收藏夹才能使用快速收藏":
+          "A valid favorite must be set up to use this feature.",
       "前往设置": "settings",
       "应用链接": "App Links",
       "在系统设置中管理APP支持的链接": "Manage APP links in system settings",
       "网络收藏": "Network collection",
-      "取消收藏": "Unfavorite"
+      "取消收藏": "Unfavorite",
+      // v2.2.7
+      "本地收藏": "Local Favorites",
+      "新收藏添加至": "Add new favorite to",
+      "阅读后移动本地收藏至": "After reading, move local favorite to",
+      "最前": "front",
+      "最后": "end",
+      "无操作": "no",
+      "长按缩放": "Long press to zoom",
+      "同步数据中": "Synchronizing data",
+      "最少星星": "Min Stars",
+      "高级选项": "Advanced Options",
+      "热搜": "Hot Search",
+      "隐藏": "Hide",
+      "显示收藏": "Show Favorites",
     }
   };
 }

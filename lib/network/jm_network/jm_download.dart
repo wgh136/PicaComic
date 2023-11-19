@@ -46,9 +46,9 @@ class DownloadedJmComic extends DownloadedItem {
   List<int> get downloadedEps => downloadedChapters;
 
   @override
-  List<String> get eps => List<String>.generate(
+  List<String> get eps => comic.epNames.isEmpty ? (List<String>.generate(
       comic.series.isEmpty ? 1 : comic.series.length,
-      (index) => "第${index + 1}章");
+      (index) => "第${index + 1}章")) : comic.epNames;
 
   @override
   String get name => comic.name;

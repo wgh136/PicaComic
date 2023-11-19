@@ -32,6 +32,7 @@ class _AllCategoryPageState extends State<AllCategoryPage> with TickerProviderSt
         TabBar(
           splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
           isScrollable: true,
+          tabAlignment: TabAlignment.center,
           tabs: [
             if(appdata.settings[21][0] == "1")
               Tab(text: "Picacg".tl, key: const Key("Picacg分类"),),

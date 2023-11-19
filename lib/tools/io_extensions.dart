@@ -22,4 +22,11 @@ extension DirectoryExtension on Directory{
     }
     return total;
   }
+
+  Directory renameX(String newName){
+    var dirName = path.substring(0, path.lastIndexOf(Platform.pathSeparator)+1);
+    return renameSync(dirName + newName);
+  }
+
+  String get name => path.substring(path.lastIndexOf(Platform.pathSeparator)+1);
 }

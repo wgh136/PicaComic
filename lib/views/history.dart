@@ -88,7 +88,7 @@ class _HistoryPageState extends State<HistoryPage> {
       appdata.history.readData().then((v) {
         setState(() {
           appdata.history.check();
-          for (var c in appdata.history.history) {
+          for (var c in appdata.history.history!) {
             comics.add(c);
           }
           loading = false;

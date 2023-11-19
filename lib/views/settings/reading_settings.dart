@@ -199,6 +199,18 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             },
           ),
         ),
+        ListTile(
+          leading: Icon(Icons.zoom_in,
+              color: Theme.of(context).colorScheme.secondary),
+          title: Text("长按缩放".tl),
+          trailing: Switch(
+            value: appdata.settings[55] == "1",
+            onChanged: (b) => setState(() {
+              appdata.settings[55] = b ? "1" : "0";
+              appdata.updateSettings();
+            }),
+          ),
+        ),
       ],
     );
   }

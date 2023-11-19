@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/foundation/history.dart';
@@ -13,7 +13,7 @@ import 'network/picacg_network/models.dart';
 export 'foundation/def.dart';
 
 //路径分隔符
-var pathSep = Platform.pathSeparator;
+const pathSep = '/';
 
 var downloadManager = DownloadManager();
 
@@ -87,9 +87,13 @@ class Appdata {
     "0", //46 webdav version
     "0", //47 eh warning
     "https://nhentai.net", //48 nhentai domain
-    "0", //49 阅读器中双击放缩
+    "1", //49 阅读器中双击放缩
     "", //50 language, empty=system
     "", //51 默认收藏夹
+    "0", //52 me page
+    "0", //53 本地收藏添加位置(尾/首)
+    "0", //54 阅读后移动本地收藏(否/尾/首)
+    "1", //55 长按缩放
   ];
 
   ///屏蔽的关键词
@@ -204,6 +208,7 @@ class Appdata {
   }
 
   Future<void> writeData() async {
+    Webdav.uploadData();
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
     await s.setString("userName", user.name);
@@ -299,7 +304,8 @@ class Appdata {
         "htName": htName,
         "htPwd": htPwd,
         "history": history.toJson(),
-        "blockingKeywords": blockingKeyword
+        "blockingKeywords": blockingKeyword,
+        "favoriteTags": favoriteTags.toList()
       };
 
   bool readDataFromJson(Map<String, dynamic> json) {
@@ -328,6 +334,7 @@ class Appdata {
       htPwd = json["htPwd"];
       history.readDataFromJson(json["history"]);
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
+      favoriteTags = Set.from(json["favoriteTags"] ?? favoriteTags);
       writeData();
       return true;
     } catch (e) {

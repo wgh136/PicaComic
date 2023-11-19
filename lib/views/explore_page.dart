@@ -10,7 +10,6 @@ import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import 'package:pica_comic/tools/translations.dart';
-
 import '../foundation/app.dart';
 import '../foundation/ui_mode.dart';
 
@@ -43,35 +42,36 @@ class _ExplorePageState extends State<ExplorePage>
   }
 
   Widget buildFAB() => Material(
-    color: Colors.transparent,
-    child: FloatingActionButton(
-      key: const Key("FAB"),
-      child: const Icon(Icons.refresh),
-      onPressed: () {
-        int page = controller.index;
-        var logics = [
+        color: Colors.transparent,
+        child: FloatingActionButton(
+          key: const Key("FAB"),
+          child: const Icon(Icons.refresh),
+          onPressed: () {
+            int page = controller.index;
+            var logics = [
               () => StateController.find<HomePageLogic>().refresh_(),
-          if (appdata.settings[24][1] == "1")
+              if (appdata.settings[24][1] == "1")
                 () => StateController.find<GamesPageLogic>().refresh_(),
-          if (appdata.settings[24][2] == "1")
+              if (appdata.settings[24][2] == "1")
                 () => StateController.find<EhHomePageLogic>().refresh_(),
-          if (appdata.settings[24][3] == "1")
+              if (appdata.settings[24][3] == "1")
                 () => StateController.find<EhPopularPageLogic>().refresh_(),
-          if (appdata.settings[24][4] == "1")
+              if (appdata.settings[24][4] == "1")
                 () => StateController.find<JmHomePageLogic>().refresh_(),
-          if (appdata.settings[24][5] == "1")
+              if (appdata.settings[24][5] == "1")
                 () => StateController.find<JmLatestPageLogic>().refresh_(),
-          if (appdata.settings[24][6] == "1")
+              if (appdata.settings[24][6] == "1")
                 () => HitomiHomePageComics.refresh(),
-          if (appdata.settings[24][7] == "1")
-                () => StateController.find<NhentaiHomePageController>().refresh_(),
-          if (appdata.settings[24][9] == "1")
+              if (appdata.settings[24][7] == "1")
+                () => StateController.find<NhentaiHomePageController>()
+                    .refresh_(),
+              if (appdata.settings[24][9] == "1")
                 () => StateController.find<HtHomePageLogic>().refresh_(),
-        ];
-        logics[page]();
-      },
-    ),
-  );
+            ];
+            logics[page]();
+          },
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +80,7 @@ class _ExplorePageState extends State<ExplorePage>
     Widget tabBar = TabBar(
       splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
       isScrollable: true,
+      tabAlignment: TabAlignment.center,
       tabs: [
         if (appdata.settings[24][0] == "1")
           Tab(
@@ -191,14 +192,15 @@ class _ExplorePageState extends State<ExplorePage>
 
     return Stack(
       children: [
-        Positioned.fill(child: Column(
+        Positioned.fill(
+            child: Column(
           children: [
             tabBar,
             Expanded(
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notifications) {
-                  if(notifications.metrics.axis == Axis.horizontal){
-                    if(!showFB){
+                  if (notifications.metrics.axis == Axis.horizontal) {
+                    if (!showFB) {
                       setState(() {
                         showFB = true;
                       });
@@ -208,11 +210,11 @@ class _ExplorePageState extends State<ExplorePage>
 
                   var current = notifications.metrics.pixels;
 
-                  if((current > location && current != 0) && showFB){
+                  if ((current > location && current != 0) && showFB) {
                     setState(() {
                       showFB = false;
                     });
-                  }else if((current < location || current == 0) && !showFB){
+                  } else if ((current < location || current == 0) && !showFB) {
                     setState(() {
                       showFB = true;
                     });
@@ -224,24 +226,15 @@ class _ExplorePageState extends State<ExplorePage>
                 child: TabBarView(
                   controller: controller,
                   children: [
-                    if(appdata.settings[24][0] == "1")
-                      const HomePage(),
-                    if(appdata.settings[24][1] == "1")
-                      const GamesPage(),
-                    if(appdata.settings[24][2] == "1")
-                      const EhHomePage(),
-                    if(appdata.settings[24][3] == "1")
-                      const EhPopularPage(),
-                    if(appdata.settings[24][4] == "1")
-                      const JmHomePage(),
-                    if(appdata.settings[24][5] == "1")
-                      const JmLatestPage(),
-                    if(appdata.settings[24][6] == "1")
-                      const HitomiHomePage(),
-                    if(appdata.settings[24][7] == "1")
-                      const NhentaiHomePage(),
-                    if(appdata.settings[24][9] == "1")
-                      const HtHomePage()
+                    if (appdata.settings[24][0] == "1") const HomePage(),
+                    if (appdata.settings[24][1] == "1") const GamesPage(),
+                    if (appdata.settings[24][2] == "1") const EhHomePage(),
+                    if (appdata.settings[24][3] == "1") const EhPopularPage(),
+                    if (appdata.settings[24][4] == "1") const JmHomePage(),
+                    if (appdata.settings[24][5] == "1") const JmLatestPage(),
+                    if (appdata.settings[24][6] == "1") const HitomiHomePage(),
+                    if (appdata.settings[24][7] == "1") const NhentaiHomePage(),
+                    if (appdata.settings[24][9] == "1") const HtHomePage()
                   ],
                 ),
               ),
@@ -255,8 +248,9 @@ class _ExplorePageState extends State<ExplorePage>
             duration: const Duration(milliseconds: 150),
             reverseDuration: const Duration(milliseconds: 150),
             child: showFB ? buildFAB() : const SizedBox(),
-            transitionBuilder: (widget, animation){
-              var tween = Tween<Offset>(begin: const Offset(0,1), end: const Offset(0,0));
+            transitionBuilder: (widget, animation) {
+              var tween = Tween<Offset>(
+                  begin: const Offset(0, 1), end: const Offset(0, 0));
               return SlideTransition(
                 position: tween.animate(animation),
                 child: widget,

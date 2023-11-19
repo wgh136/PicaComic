@@ -203,7 +203,7 @@ class DownloadPage extends StatelessWidget {
   Future<void> export(DownloadPageLogic logic) async {
     for (int i = 0; i < logic.selected.length; i++) {
       if (logic.selected[i]) {
-        var res = await exportComic(logic.comics[i].id, logic.comics[i].name);
+        var res = await exportComic(logic.comics[i].id, logic.comics[i].name, logic.comics[i].eps);
         App.globalBack();
         if (res) {
           //忽视
@@ -313,7 +313,7 @@ class DownloadPage extends StatelessWidget {
                       Future<void>.delayed(const Duration(milliseconds: 500),
                           () async {
                         var res = await exportComic(
-                            logic.comics[index].id, logic.comics[index].name);
+                            logic.comics[index].id, logic.comics[index].name, logic.comics[index].eps);
                         App.globalBack();
                         if (res) {
                           //忽视

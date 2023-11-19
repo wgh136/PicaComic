@@ -8,6 +8,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
@@ -30,10 +31,10 @@ Future<double> getFolderSize(Directory path) async{
   return total;
 }
 
-Future<bool> exportComic(String id, String name) async{
+Future<bool> exportComic(String id, String name, [List<String>? epNames]) async{
   try{
     name = sanitizeFileName(name);
-    var data = ExportComicData(id, downloadManager.path, name);
+    var data = ExportComicData(id, downloadManager.path, name, epNames);
     var res = await compute(runningExportComic, data);
     if(! res){
       return false;
@@ -61,22 +62,45 @@ class ExportComicData{
   String id;
   String? path;
   String name;
+  List<String>? epNames;
 
-  ExportComicData(this.id, this.path, this.name);
+  ExportComicData(this.id, this.path, this.name, this.epNames);
 }
 
 Future<bool> runningExportComic(ExportComicData data) async{
   var id = data.id;
   try{
-    var path = Directory(data.path! + pathSep + id);
+    final path = Directory(data.path! + pathSep + id);
+    bool isModifiedNames = false;
+    if(Directory("${path.path}${pathSep}1").existsSync() && data.epNames != null){
+      for(var entry in path.listSync()){
+        if(entry is Directory){
+          isModifiedNames = true;
+          var index = int.parse(entry.name) - 1;
+          if(index < data.epNames!.length) {
+            entry.renameX(data.epNames![index]);
+          }
+        }
+      }
+    }
     var encode = ZipFileEncoder();
     encode.create('${data.path!}$pathSep${data.name}.zip');
     await encode.addDirectory(path);
     encode.close();
-
+    if(isModifiedNames) {
+      for (var entry in path.listSync()) {
+        if (entry is Directory) {
+          var index = data.epNames!.indexOf(entry.name) + 1;
+          if (index > 0) {
+            entry.renameX(index.toString());
+          }
+        }
+      }
+    }
     return true;
   }
-  catch(e){
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
     return false;
   }
 }
@@ -206,6 +230,9 @@ Future<String> exportDataToFile(bool includeDownload) async{
   try {
     if (DownloadManager().path == null) {
       DownloadManager().init();
+    }
+    if(HistoryManager().history == null){
+      await HistoryManager().readData();
     }
     var appdataString = const JsonEncoder().convert(appdata.toJson());
     var downloadPath = includeDownload?DownloadManager().path:null;
@@ -340,6 +367,8 @@ Future<bool> importData([String? filePath]) async{
     await HtmangaNetwork().loginFromAppdata();
   }
   LocalFavoritesManager().close();
+  await LocalFavoritesManager().readData();
+  LocalFavoritesManager().updateUI();
   return true;
 }
 
@@ -357,4 +386,44 @@ void saveLog(String log) async{
       await file.copy("$directoryPath${pathSep}logs.txt");
     }
   }
+}
+
+Future<void> exportStringDataAsFile(String data, String fileName) async{
+  var cachePath = (await getApplicationCacheDirectory()).path;
+  var file = File("$cachePath$pathSep$fileName");
+  if(!file.existsSync()){
+    file.createSync();
+  }
+  file.writeAsStringSync(data);
+  if(App.isAndroid || App.isIOS) {
+    var params = SaveFileDialogParams(sourceFilePath: file.path);
+    await FlutterFileDialog.saveFile(params: params);
+  }else if(App.isWindows){
+    final String? directoryPath = await getDirectoryPath();
+    if (directoryPath != null) {
+      await file.copy("$directoryPath$pathSep$fileName");
+    }
+  }
+}
+
+Future<String?> getDataFromUserSelectedFile(List<String> extensions) async{
+  String? filePath;
+  if (App.isMobile) {
+    var params = const OpenFileDialogParams();
+    filePath = await FlutterFileDialog.pickFile(params: params);
+  } else if (App.isWindows) {
+    XTypeGroup typeGroup = XTypeGroup(
+      label: 'data',
+      extensions: extensions,
+    );
+    final XFile? file = await openFile(
+        acceptedTypeGroups: <XTypeGroup>[
+          typeGroup
+        ]);
+    filePath = file?.path;
+  }
+  if(filePath == null){
+    return null;
+  }
+  return File(filePath).readAsStringSync();
 }

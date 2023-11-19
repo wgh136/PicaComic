@@ -281,9 +281,13 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
               child: const SizedBox());
         }
         precacheComicImage(logic, type, context, index * 2 + 1, target);
-        logic.photoViewController = PhotoViewController();
+
+        if(index * 2 - 1 == logic.index) {
+          logic.photoViewController = PhotoViewController();
+        }
+
         return PhotoViewGalleryPageOptions.customChild(
-            controller: logic.photoViewController,
+            controller: index * 2 - 1 == logic.index ? logic.photoViewController : null,
             child: Row(
               children: logic.readingMethod == ReadingMethod.twoPage
                   ? [

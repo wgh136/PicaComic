@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 import '../../foundation/app.dart';
-import '../widgets/selectable_text.dart';
 import '../widgets/side_bar.dart';
 
 class CommentsPageLogic extends StateController{
@@ -61,17 +61,22 @@ class CommentsPage extends StatelessWidget {
                               (context,index){
                                 var comment = logic.comments[index];
                                 return Card(
-                                  margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                                  margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
                                   elevation: 0,
                                   color: Theme.of(context).colorScheme.surfaceVariant,
                                   child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text("${uploader==comment.name?"(上传者)":""}${comment.name}",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
                                         const SizedBox(height: 2,),
-                                        CustomSelectableText(text: comment.content)
+                                        SelectableText(comment.content),
+                                        const SizedBox(height: 4,),
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(TimeExtension.parseEhTime(comment.time).toCompareString, style: const TextStyle(fontSize: 12),),
+                                        )
                                       ],
                                     ),
                                   ),

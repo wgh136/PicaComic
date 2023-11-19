@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.2.6+226
+version: 2.2.7+227
 environment:
   sdk: '>=3.0.0'
 
@@ -52,7 +52,7 @@ dependencies:
       ref: master
   flutter_file_dialog: 3.0.1
   archive: any
-  flutter_local_notifications: ^15.1.0+1
+  flutter_local_notifications: ^16.1.0
   share_plus: ^7.0.0
   local_auth: ^2.1.6
   html: any
@@ -85,6 +85,7 @@ dependencies:
     git:
       url: https://github.com/wgh136/webdav_client
       ref: main
+  sliver_tools: any
 
 dev_dependencies:
   flutter_test:

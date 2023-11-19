@@ -106,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
 
     final comicType = widget.type;
 
-    void onSelected(String text, TranslationType? type, [bool? male]) {
+    void onSelected(String text, TranslationType? type) {
       var words = controller.text.split(" ");
       if (words.length >= 2 &&
           check("${words[words.length - 2]} ${words[words.length - 1]}", text,
@@ -118,8 +118,9 @@ class _SearchPageState extends State<SearchPage> {
             controller.text.replaceLast(words[words.length - 1], "");
       }
       if (text.contains(" ")) {
-        if (comicType == ComicType.hitomi) {
+        if (comicType == ComicType.hitomi && ["male", "female", "language"].contains(type?.name)) {
           text = text.replaceAll(" ", '_');
+          text = "${type?.name}:$text";
         } else {
           text = "\"$text\"";
         }

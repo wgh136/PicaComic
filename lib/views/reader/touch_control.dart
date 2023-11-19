@@ -12,8 +12,6 @@ import '../../base.dart';
 class ScrollManager {
   ComicReadingPageLogic logic;
 
-  int fingers = 0;
-
   ScrollManager(this.logic);
 
   Offset? tapLocation;
@@ -22,10 +20,11 @@ class ScrollManager {
 
   Offset? moveOffset;
 
+  int get fingers => TapController.fingers;
+
   void tapDown(PointerDownEvent details) {
     moveOffset = Offset.zero;
     startTime = DateTime.now().millisecondsSinceEpoch;
-    fingers++;
     var logic = StateController.find<ComicReadingPageLogic>();
     var temp = logic.noScroll;
     logic.noScroll = fingers >= 2;
@@ -35,10 +34,6 @@ class ScrollManager {
   }
 
   void tapUp(PointerUpEvent details) {
-    fingers--;
-    if (fingers < 0) {
-      fingers = 0;
-    }
     var logic = StateController.find<ComicReadingPageLogic>();
     var temp = logic.noScroll;
     logic.noScroll = fingers >= 2;
@@ -104,20 +99,35 @@ class TapController {
 
   static bool ignoreNextTap = false;
 
-  static void onTapCancel(PointerCancelEvent event){
-    var logic = StateController.find<ComicReadingPageLogic>();
+  static bool longTimePressScale = false;
 
-    if (appdata.settings[9] == "4") {
-      logic.data.scrollManager!.fingers--;
-    }
+  static int? tapDownPointerID;
+
+  static void Function(PointerUpEvent event)? onTapUpReplacement;
+
+  static int fingers = 0;
+
+  static void onTapCancel(PointerCancelEvent event){
+    fingers--;
   }
 
   static void onTapDown(PointerDownEvent event) {
+    fingers++;
     if(ignoreNextTap){
       ignoreNextTap = false;
       return;
     }
     var logic = StateController.find<ComicReadingPageLogic>();
+
+    if(appdata.settings[55] == "1") {
+      tapDownPointerID = event.pointer;
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (event.pointer == tapDownPointerID) {
+          onTapUpReplacement = _handleLongPressEnd;
+          _handleLongPressStart(event.position);
+        }
+      });
+    }
 
     if (appdata.settings[9] == "4") {
       logic.data.scrollManager!.tapDown(event);
@@ -158,7 +168,16 @@ class TapController {
   static void Function(PointerUpEvent detail)? _doubleClickRecognizer;
 
   static void onTapUp(PointerUpEvent detail) async {
+    fingers--;
+    if(onTapUpReplacement != null){
+      onTapUpReplacement!(detail);
+      onTapUpReplacement = null;
+      return;
+    }
+
     var logic = StateController.find<ComicReadingPageLogic>();
+
+    tapDownPointerID = null;
 
     if (appdata.settings[9] == "4") {
       logic.data.scrollManager!.tapUp(detail);
@@ -186,7 +205,7 @@ class TapController {
         await Future.delayed(const Duration(milliseconds: 200));
         _doubleClickRecognizer = null;
         if (flag) {
-          _handleDoubleClick(detail.delta);
+          _handleDoubleClick(detail.position);
           return;
         }
       } else {
@@ -196,6 +215,17 @@ class TapController {
     }
 
     _handleClick(detail, logic, App.globalContext!);
+  }
+
+  static void onPointerMove(PointerMoveEvent event){
+    final data = StateController.find<ComicReadingPageLogic>().data;
+    if(event.pointer == tapDownPointerID){
+      tapDownPointerID = null;
+    }
+    if (appdata.settings[9] == "4" &&
+        data.scrollManager!.fingers != 2) {
+      data.scrollManager!.addOffset(event.delta);
+    }
   }
 
   static void _handleClick(PointerUpEvent detail, ComicReadingPageLogic logic,
@@ -254,33 +284,44 @@ class TapController {
     }
   }
 
-  static void _handleDoubleClick(Offset location) async {
+  static void _handleDoubleClick(Offset position) async {
     var logic = StateController.find<ComicReadingPageLogic>();
     var controller = logic.photoViewController;
-    if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
-      final current = controller.scale;
-      double target;
-      if (controller.scale == null) {
-        return;
-      }
-      if (current == 1) {
-        target = 1.5;
-      } else if (current == 1.5) {
-        target = 2.5;
-      } else {
-        target = 1;
-      }
-      const animationTime = 120;
-      int operationTimes = animationTime ~/ 8;
-      final perScale = (target - controller.scale!) / operationTimes;
-      while (operationTimes != 0) {
-        controller.scale = controller.scale! + perScale;
-        await Future.delayed(const Duration(milliseconds: 8));
-        operationTimes--;
-      }
-      controller.scale = target;
-    } else {
-      controller.onDoubleClick?.call();
+    double target;
+    if (controller.scale == null || controller.getInitialScale?.call() == null) {
+      return;
     }
+    if(controller.scale != controller.getInitialScale?.call()){
+      target = controller.getInitialScale!.call()!;
+    } else {
+      target = controller.getInitialScale!.call()! * 2;
+    }
+    var size = MediaQuery.of(App.globalContext!).size;
+    print(Offset(size.width/2 - position.dx, size.height/2 - position.dy));
+    controller.animateScale?.call(target, Offset(size.width/2 - position.dx, size.height/2 - position.dy));
+  }
+
+  static void _handleLongPressStart(Offset position){
+    var logic = StateController.find<ComicReadingPageLogic>();
+    var controller = logic.photoViewController;
+    if(controller.scale != controller.getInitialScale?.call() || controller.scale == null
+        || controller.getInitialScale?.call() == null){
+      return;
+    }
+    final target = controller.getInitialScale!.call()! * 2;
+    var size = MediaQuery.of(App.globalContext!).size;
+    controller.animateScale?.call(target, Offset(size.width/2 - position.dx, size.height/2 - position.dy));
+    controller.updateState?.call(null);
+  }
+
+  static void _handleLongPressEnd(PointerUpEvent event){
+    var logic = StateController.find<ComicReadingPageLogic>();
+    var controller = logic.photoViewController;
+    if(controller.scale == controller.getInitialScale?.call() || controller.scale == null){
+      return;
+    }
+    final target = controller.getInitialScale?.call();
+    controller.animateScale?.call(target ?? 1);
+    controller.updateState?.call(null);
   }
 }

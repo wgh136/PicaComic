@@ -45,24 +45,23 @@ class Destination {
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
-  static const int navigateId = 1;
-
-  static BuildContext? navigatorContext;
-
-  static bool overlayOpen = false;
+  @protected
+  static GlobalKey<NavigatorState>? navigatorKey;
 
   static void to(Widget Function() widget) async {
-    while (navigatorContext == null) {
+    while (navigatorKey == null) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    App.to(navigatorContext!, widget);
+    App.to(navigatorKey!.currentContext!, widget);
   }
 
   static canPop() =>
-      Navigator.of(navigatorContext ?? App.globalContext!).canPop();
+      Navigator.of(navigatorKey?.currentContext ?? App.globalContext!).canPop();
 
   static void back() {
-    App.back(navigatorContext!);
+    if (canPop()) {
+      navigatorKey?.currentState?.pop();
+    }
   }
 
   static void Function()? toExplorePage;
@@ -101,7 +100,8 @@ class _MainPageState extends State<MainPage> {
 
   set i(int value) {
     _i = value;
-    Navigator.popUntil(MainPage.navigatorContext!, (route) => route.isFirst);
+    Navigator.popUntil(
+        MainPage.navigatorKey!.currentContext!, (route) => route.isFirst);
   }
 
   final pages = [
@@ -232,11 +232,7 @@ class _MainPageState extends State<MainPage> {
       appdata.writeData();
     }
     //清除未正常退出时的下载通知
-    try {
-      notifications.endProgress();
-    } catch (e) {
-      //不清楚清除一个不存在的通知会不会引发错误
-    }
+    notifications.cancelAll();
     //检查是否打卡
     if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
       if (App.isMobile) {
@@ -294,9 +290,10 @@ class _MainPageState extends State<MainPage> {
                   Expanded(
                     child: ClipRect(
                       child: Navigator(
+                        key: (MainPage.navigatorKey ??
+                            (MainPage.navigatorKey = GlobalKey())),
                         onGenerateRoute: (settings) =>
                             MaterialPageRoute(builder: (context) {
-                          MainPage.navigatorContext = context;
                           return Column(
                             children: [
                               if (UiMode.m1(context))
@@ -531,8 +528,8 @@ class _NavigateBarState extends State<NavigateBar> {
                 "排行榜".tl, i == 3, () => setState(() => i = 3)),
             const Divider(),
             const Spacer(),
-            NavigatorItem(Icons.construction, Icons.construction, "工具".tl, false,
-                    openTool),
+            NavigatorItem(Icons.construction, Icons.construction, "工具".tl,
+                false, openTool),
             NavigatorItem(Icons.search, Icons.search, "搜索".tl, false,
                 () => MainPage.to(() => PreSearchPage())),
             NavigatorItem(
@@ -562,8 +559,7 @@ class _NavigateBarState extends State<NavigateBar> {
               children: [
                 const Flexible(
                   child: IconButton(
-                      icon: Icon(Icons.construction),
-                      onPressed: openTool),
+                      icon: Icon(Icons.construction), onPressed: openTool),
                 ),
                 Flexible(
                   child: IconButton(

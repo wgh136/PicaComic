@@ -71,10 +71,11 @@ class ComicPageLogic<T extends Object> extends StateController {
   bool favorite = false;
   History? history;
 
-  void get(Future<Res<T>> Function() loadData, Future<bool> Function(T) loadFavorite, String id) async {
+  void get(Future<Res<T>> Function() loadData,
+      Future<bool> Function(T) loadFavorite, String id) async {
     var res = await loadData();
     if (res.error) {
-      if(res.errorMessage == "Exit"){
+      if (res.errorMessage == "Exit") {
         return;
       }
       message = res.errorMessage;
@@ -94,8 +95,8 @@ class ComicPageLogic<T extends Object> extends StateController {
     update();
   }
 
-  updateHistory(History? newHistory){
-    if(newHistory != null) {
+  updateHistory(History? newHistory) {
+    if (newHistory != null) {
       history = newHistory;
       update();
     }
@@ -107,7 +108,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   /// and allow user to download or read comic.
   const ComicPage({super.key});
 
-  ComicPageLogic<T> get _logic => StateController.find<ComicPageLogic<T>>(tag: tag);
+  ComicPageLogic<T> get _logic =>
+      StateController.find<ComicPageLogic<T>>(tag: tag);
 
   /// title
   String? get title;
@@ -194,11 +196,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   String? get url => null;
 
   /// callback when a thumbnail is tapped
-  void onThumbnailTapped(int index){}
+  void onThumbnailTapped(int index) {}
 
   ActionFunc? get searchSimilar => null;
 
-  Widget thumbnailImageBuilder(int index, String imageUrl) => _thumbnailImageBuilder(index);
+  Widget thumbnailImageBuilder(int index, String imageUrl) =>
+      _thumbnailImageBuilder(index);
 
   /// The source of this comic, displayed at the beginning of the [title],
   /// can be translated into the user's language.
@@ -209,7 +212,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   FavoriteItem toLocalFavoriteItem();
 
-  void scrollListener(){
+  void scrollListener() {
     try {
       var logic = _logic;
       bool temp = logic.showAppbarTitle;
@@ -218,14 +221,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       }
       logic.showAppbarTitle = logic.controller.position.pixels >
           boundingTextSize(title!, const TextStyle(fontSize: 22),
-              maxWidth: logic.width!)
-              .height +
+                      maxWidth: logic.width!)
+                  .height +
               50;
       if (temp != logic.showAppbarTitle) {
         logic.update();
       }
-    }
-    catch(e){
+    } catch (e) {
       return;
     }
   }
@@ -234,7 +236,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints){
+    return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: StateBuilder<ComicPageLogic<T>>(
           tag: tag,
@@ -242,7 +244,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           initState: (logic) {
             tagsStack.push(_logic);
           },
-          dispose: (logic){
+          dispose: (logic) {
             tagsStack.pop();
           },
           builder: (logic) {
@@ -284,25 +286,32 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       message: "更多".tl,
       child: IconButton(
         icon: const Icon(Icons.more_horiz),
-        onPressed: (){
+        onPressed: () {
           showMenu(
               context: context,
-              position: RelativeRect.fromLTRB(
-                  MediaQuery.of(context).size.width, 0,
-                  MediaQuery.of(context).size.width, 0),
+              position: RelativeRect.fromLTRB(MediaQuery.of(context).size.width,
+                  0, MediaQuery.of(context).size.width, 0),
               items: [
-                PopupMenuItem(child: Text("分享".tl),
-                  onTap: ()=>Share.share(title! + (url??"")),),
-                PopupMenuItem(child: Text("复制标题".tl),
-                  onTap: ()=>Clipboard.setData(ClipboardData(text: title!)),),
-                if(url != null)
-                  PopupMenuItem(child: Text("复制链接".tl),
-                    onTap: ()=>Clipboard.setData(ClipboardData(text: url!)),),
-                if(url != null)
-                  PopupMenuItem(child: Text("在浏览器中打开".tl),
-                    onTap: ()=>launchUrlString(url!)),
-                if(searchSimilar != null)
-                  PopupMenuItem(onTap: searchSimilar!,child: Text("搜索相似画廊".tl)),
+                PopupMenuItem(
+                  child: Text("分享".tl),
+                  onTap: () => Share.share(title! + (url ?? "")),
+                ),
+                PopupMenuItem(
+                  child: Text("复制标题".tl),
+                  onTap: () => Clipboard.setData(ClipboardData(text: title!)),
+                ),
+                if (url != null)
+                  PopupMenuItem(
+                    child: Text("复制链接".tl),
+                    onTap: () => Clipboard.setData(ClipboardData(text: url!)),
+                  ),
+                if (url != null)
+                  PopupMenuItem(
+                      child: Text("在浏览器中打开".tl),
+                      onTap: () => launchUrlString(url!)),
+                if (searchSimilar != null)
+                  PopupMenuItem(
+                      onTap: searchSimilar!, child: Text("搜索相似画廊".tl)),
               ]);
         },
       ),
@@ -312,25 +321,32 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       message: "收藏".tl,
       child: IconButton(
         icon: const Icon(Icons.book_outlined),
-        onPressed: () async{
-          if(LocalFavoritesManager().folderNames == null){
+        onPressed: () async {
+          if (LocalFavoritesManager().folderNames == null) {
             await LocalFavoritesManager().readData();
           }
-          if(!LocalFavoritesManager().folderNames!.contains(appdata.settings[51])){
-            showDialog(context: App.globalContext!, builder: (context) => AlertDialog(
-              title: Text("无效的默认收藏夹".tl),
-              content: Text("必须设置一个有效的收藏夹才能使用快速收藏".tl),
-              actions: [
-                TextButton(onPressed: (){
-                  App.globalBack();
-                  NewSettingsPage.open(0);
-                }, child: Text("前往设置".tl))
-              ],
-            ));
+          if (!LocalFavoritesManager()
+              .folderNames!
+              .contains(appdata.settings[51])) {
+            showDialog(
+                context: App.globalContext!,
+                builder: (context) => AlertDialog(
+                      title: Text("无效的默认收藏夹".tl),
+                      content: Text("必须设置一个有效的收藏夹才能使用快速收藏".tl),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              App.globalBack();
+                              NewSettingsPage.open(0);
+                            },
+                            child: Text("前往设置".tl))
+                      ],
+                    ));
           } else {
-            LocalFavoritesManager().addComic(appdata.settings[51], toLocalFavoriteItem());
+            LocalFavoritesManager()
+                .addComic(appdata.settings[51], toLocalFavoriteItem());
             showMessage(App.globalContext!, "成功添加到默认收藏夹".tl);
-            if(!_logic.favorite) {
+            if (!_logic.favorite) {
               _logic.favorite = true;
               logic.update();
             }
@@ -372,12 +388,23 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget buildSubTitle(BuildContext context) {
-    if(subTitle == null || subTitle == ""){
-      return const SliverToBoxAdapter(child: SizedBox(height: 0,),);
+    if (subTitle == null || subTitle == "") {
+      return const SliverToBoxAdapter(
+        child: SizedBox(
+          height: 0,
+        ),
+      );
     }
     return SliverPadding(
-      padding: UiMode.m1(context) ? const EdgeInsets.fromLTRB(10, 0, 10, 8) : const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      sliver: SliverToBoxAdapter(child: SelectableText(subTitle!, style: const TextStyle(fontSize: 18),),),
+      padding: UiMode.m1(context)
+          ? const EdgeInsets.fromLTRB(10, 0, 10, 8)
+          : const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      sliver: SliverToBoxAdapter(
+        child: SelectableText(
+          subTitle!,
+          style: const TextStyle(fontSize: 18),
+        ),
+      ),
     );
   }
 
@@ -389,8 +416,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildCover(
-                  context, logic, 350, _logic.width!),
+              buildCover(context, logic, 350, _logic.width!),
               const SizedBox(
                 height: 20,
               ),
@@ -405,8 +431,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           width: _logic.width!,
           child: Row(
             children: [
-              buildCover(
-                  context, logic, 550, _logic.width! / 2),
+              buildCover(context, logic, 550, _logic.width! / 2),
               SizedBox(
                 width: _logic.width! / 2,
                 child: Column(
@@ -427,12 +452,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
-          width: width-32,
+          width: width - 32,
           height: height - 32,
-          child: RoundedImage(image: CachedNetworkImageProvider(
-            cover,
-            headers: headers
-          ),),
+          child: RoundedImage(
+            image: CachedNetworkImageProvider(cover, headers: headers),
+          ),
         ),
       ),
       onTap: () => App.globalTo(() => ShowImagePage(cover)),
@@ -455,7 +479,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       text = "未知".tl;
     }
 
-    List<PopupMenuEntry<dynamic>> buildPopMenus(){
+    List<PopupMenuEntry<dynamic>> buildPopMenus() {
       return [
         PopupMenuItem(
           child: Text("复制".tl),
@@ -477,13 +501,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: Text("收藏".tl),
             onTap: () {
               var res = source.tlEN;
-              if(source == "EHentai"){
+              if (source == "EHentai") {
                 res += ":$key";
               }
-              if(source == "Nhentai" && key == "Artists"){
+              if (source == "Nhentai" && key == "Artists") {
                 res += ":Artist";
               }
-              if(text.contains(" ")){
+              if (text.contains(" ")) {
                 res += ":\"$text\"";
               } else {
                 res += ":$text";
@@ -512,7 +536,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 ? colorScheme.primaryContainer
                 : colorScheme.surfaceVariant,
             borderRadius: const BorderRadius.all(Radius.circular(12))),
-        margin: EdgeInsets.fromLTRB(3*size, 3*size, 3*size, 3*size),
+        margin: EdgeInsets.fromLTRB(3 * size, 3 * size, 3 * size, 3 * size),
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           onTap: title ? null : () => tapOnTags(text),
@@ -532,7 +556,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: enableTranslationToCN
                 ? (title
                     ? Text(text.translateTagsCategoryToCN)
-                    : Text(TagsTranslation.translationTagWithNamespace(text, key)))
+                    : Text(
+                        TagsTranslation.translationTagWithNamespace(text, key)))
                 : Text(text),
           ),
         ),
@@ -575,27 +600,36 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       ),
     ));
 
-    if(logic.history != null && logic.history!.ep != 0) {
+    if (logic.history != null && logic.history!.ep != 0) {
       res2.add(Container(
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         height: 38,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.tertiaryContainer,
-          borderRadius: const BorderRadius.all(Radius.circular(8))
-        ),
+            color: Theme.of(context).colorScheme.tertiaryContainer,
+            borderRadius: const BorderRadius.all(Radius.circular(8))),
         child: Row(
           children: [
-            const SizedBox(width: 8,),
-            const Icon(Icons.history, size: 24,),
-            const SizedBox(width: 4,),
+            const SizedBox(
+              width: 8,
+            ),
+            const Icon(
+              Icons.history,
+              size: 24,
+            ),
+            const SizedBox(
+              width: 4,
+            ),
             Text("上次阅读到第 @ep 章第 @page 页".tlParams({
               "ep": logic.history!.ep.toString(),
               "page": logic.history!.page.toString()
             })),
             const Spacer(),
-            TextButton(onPressed: () => continueRead(logic.history!),
+            TextButton(
+                onPressed: () => continueRead(logic.history!),
                 child: Text("继续阅读".tl)),
-            const SizedBox(width: 8,)
+            const SizedBox(
+              width: 8,
+            )
           ],
         ),
       ));
@@ -664,16 +698,20 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 child: Card(
                   elevation: 1,
-                  color: (_logic.history?.readEpisode ?? const {}).contains(i+1) ?
-                    colorScheme.secondaryContainer.withOpacity(0.8)
-                        : colorScheme.secondaryContainer,
+                  color:
+                      (_logic.history?.readEpisode ?? const {}).contains(i + 1)
+                          ? colorScheme.secondaryContainer.withOpacity(0.8)
+                          : colorScheme.secondaryContainer,
                   margin: EdgeInsets.zero,
                   child: Center(
-                    child: Text(eps!.eps[i],
-                      style: TextStyle(color:
-                        (_logic.history?.readEpisode ?? const {}).contains(i+1) ?
-                          colorScheme.outline
-                              : null),),
+                    child: Text(
+                      eps!.eps[i],
+                      style: TextStyle(
+                          color: (_logic.history?.readEpisode ?? const {})
+                                  .contains(i + 1)
+                              ? colorScheme.outline
+                              : null),
+                    ),
                   ),
                 ),
                 onTap: () => eps!.onTap(i),
@@ -728,20 +766,23 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     ];
   }
 
-  Widget _thumbnailImageBuilder(int index){
+  Widget _thumbnailImageBuilder(int index) {
     return CachedNetworkImage(
       imageUrl: thumbnails!.thumbnails[index],
       httpHeaders: headers,
       fit: BoxFit.contain,
-      placeholder: (context, s) => ColoredBox(
-          color: Theme.of(context).colorScheme.surfaceVariant),
+      placeholder: (context, s) =>
+          ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
       errorWidget: (context, s, d) => const Icon(Icons.error),
     );
   }
 
   List<Widget> buildThumbnails(BuildContext context) {
-    if (thumbnails == null || (thumbnails!.thumbnails.isEmpty && !tag.contains("Hitomi") && !tag.contains("Eh"))) return [];
-    if(thumbnails!.thumbnails.isEmpty){
+    if (thumbnails == null ||
+        (thumbnails!.thumbnails.isEmpty &&
+            !tag.contains("Hitomi") &&
+            !tag.contains("Eh"))) return [];
+    if (thumbnails!.thumbnails.isEmpty) {
       thumbnails!.get(update);
     }
     return [
@@ -762,9 +803,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 const SizedBox(
                   width: 20,
                 ),
-               Text(
+                Text(
                   "预览".tl,
-                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 16),
                 )
               ],
             )),
@@ -785,12 +827,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(child: InkWell(
+                    Expanded(
+                        child: InkWell(
                       onTap: () => onThumbnailTapped(index),
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(16)),
                           border: Border.all(
                             color: Theme.of(context).colorScheme.outline,
                           ),
@@ -798,13 +842,17 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                         width: double.infinity,
                         height: double.infinity,
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.all(Radius.circular(16)),
-                          child: thumbnailImageBuilder(index, thumbnails!.thumbnails[index]),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(16)),
+                          child: thumbnailImageBuilder(
+                              index, thumbnails!.thumbnails[index]),
                         ),
                       ),
                     )),
-                    const SizedBox(height: 4,),
-                    Text((index+1).toString()),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Text((index + 1).toString()),
                   ],
                 ),
               );
@@ -869,12 +917,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   void favoriteComic(FavoriteComicWidget widget) {
-    if(UiMode.m1(context)){
-      showModalBottomSheet(
-        context: context,
-        builder: (context) => widget
-      );
-    }else{
+    if (UiMode.m1(context)) {
+      showModalBottomSheet(context: context, builder: (context) => widget);
+    } else {
       showSideBar(context, widget, title: "收藏漫画".tl, useSurfaceTintColor: true);
     }
   }
@@ -889,7 +934,7 @@ class FavoriteComicWidget extends StatefulWidget {
       this.foldersLoader,
       this.selectFolderCallback,
       this.initialFolder,
-      this.favoriteOnPlatform=false,
+      this.favoriteOnPlatform = false,
       this.cancelPlatformFavorite,
       required this.setFavorite,
       super.key});
@@ -939,11 +984,11 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
   @override
   void initState() {
-    LocalFavoritesManager().find(widget.target).then((folder){
-      Future.microtask(() => setState(()=>addedFolders = folder));
+    LocalFavoritesManager().find(widget.target).then((folder) {
+      Future.microtask(() => setState(() => addedFolders = folder));
     });
     selectID = widget.initialFolder;
-    if(!widget.havePlatformFavorite){
+    if (!widget.havePlatformFavorite) {
       page = 1;
     }
     folders = widget.folders;
@@ -952,41 +997,48 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
   @override
   Widget build(BuildContext context) {
-    assert(widget.havePlatformFavorite || page!=0);
+    assert(widget.havePlatformFavorite || page != 0);
 
-    Widget buildFolder(String name, String id, int p){
+    Widget buildFolder(String name, String id, int p) {
       return InkWell(
         onTap: () => setState(() {
-          selectID=id;
-          page=p;
+          selectID = id;
+          page = p;
         }),
         child: SizedBox(
-          height: 80,
+          height: 56,
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Row(
               children: [
-                Icon(Icons.folder, size: 30, color: Theme.of(context).colorScheme.secondary,),
-                const SizedBox(width: 12,),
+                Icon(
+                  Icons.folder,
+                  size: 30,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                const SizedBox(
+                  width: 12,
+                ),
                 Text(name),
-                if(addedFolders.contains(name) && p == 1)
-                  const SizedBox(width: 12,),
-                if(addedFolders.contains(name) && p == 1)
-                Container(
+                if (addedFolders.contains(name) && p == 1)
+                  const SizedBox(
+                    width: 12,
+                  ),
+                if (addedFolders.contains(name) && p == 1)
+                  Container(
                     width: 60,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                      borderRadius: const BorderRadius.all(Radius.circular(8))
-                    ),
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(8))),
                     child: Center(
                       child: Text("已收藏".tl),
                     ),
                   ),
                 const Spacer(),
-                if(selectID == id)
-                  const AnimatedCheckIcon()
+                if (selectID == id) const AnimatedCheckIcon()
               ],
             ),
           ),
@@ -999,9 +1051,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       width: 120,
       child: FilledButton(
         child: Text("收藏".tl),
-        onPressed: (){
+        onPressed: () {
           hideMessage(context);
-          if(selectID != null){
+          if (selectID != null) {
             widget.setFavorite(true);
             App.globalBack();
             widget.selectFolderCallback?.call(selectID!, page);
@@ -1012,21 +1064,25 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
     Widget platform = SingleChildScrollView(
       child: Column(
-        children: List.generate(folders.length, (index) =>
-            buildFolder(folders.values.elementAt(index), folders.keys.elementAt(index), 0)),
+        children: List.generate(
+            folders.length,
+            (index) => buildFolder(folders.values.elementAt(index),
+                folders.keys.elementAt(index), 0)),
       ),
     );
 
-    if(widget.favoriteOnPlatform){
-      platform = Center(child: Text("已收藏".tl),);
-      if(page == 0) {
+    if (widget.favoriteOnPlatform) {
+      platform = Center(
+        child: Text("已收藏".tl),
+      );
+      if (page == 0) {
         button = SizedBox(
           height: 35,
           width: 120,
           child: FilledButton(
-            onPressed: (){
+            onPressed: () {
               hideMessage(context);
-              if(addedFolders.isEmpty){
+              if (addedFolders.isEmpty) {
                 widget.setFavorite(false);
               }
               App.globalBack();
@@ -1038,36 +1094,37 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       }
     }
 
-    if(page == 1 && addedFolders.contains(selectID)){
+    if (page == 1 && addedFolders.contains(selectID)) {
       button = SizedBox(
         height: 35,
         width: 120,
         child: FilledButton(
-          onPressed: (){
+          onPressed: () {
             hideMessage(context);
             App.globalBack();
-            if(addedFolders.length == 1 && !widget.favoriteOnPlatform){
+            if (addedFolders.length == 1 && !widget.favoriteOnPlatform) {
               widget.setFavorite(false);
             }
-            LocalFavoritesManager().deleteComicWithTarget(selectID!, widget.target);
+            LocalFavoritesManager()
+                .deleteComicWithTarget(selectID!, widget.target);
           },
           child: const Text("取消收藏"),
         ),
       );
-    }
-
-    else if(widget.havePlatformFavorite && widget.needLoadFolderData && !loadedData){
-      widget.foldersLoader!.call().then((res){
-        if(res.error){
+    } else if (widget.havePlatformFavorite &&
+        widget.needLoadFolderData &&
+        !loadedData) {
+      widget.foldersLoader!.call().then((res) {
+        if (res.error) {
           showMessage(App.globalContext, res.errorMessageWithoutNull);
-        }else{
+        } else {
           setState(() {
             loadedData = true;
             folders = res.data;
           });
         }
       });
-      platform =  const Center(
+      platform = const Center(
         child: CircularProgressIndicator(),
       );
     }
@@ -1076,12 +1133,12 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
     var localFolders = LocalFavoritesManager().folderNames;
 
-    if(localFolders == null){
-      LocalFavoritesManager().readData().then((value) => setState(()=>{}));
+    if (localFolders == null) {
+      LocalFavoritesManager().readData().then((value) => setState(() => {}));
       local = const SizedBox();
-    }else{
-      var children = List.generate(localFolders.length, (index) =>
-          buildFolder(localFolders[index], localFolders[index], 1));
+    } else {
+      var children = List.generate(localFolders.length,
+          (index) => buildFolder(localFolders[index], localFolders[index], 1));
       children.add(SizedBox(
         height: 56,
         width: double.infinity,
@@ -1091,18 +1148,24 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text("新建".tl),
-                const SizedBox(width: 4,),
+                const SizedBox(
+                  width: 4,
+                ),
                 const Icon(Icons.add),
               ],
             ),
-            onPressed: () => showDialog(context: App.globalContext!,
-                builder: (_) => const CreateFolderDialog()).then((value) => setState((){})),
+            onPressed: () => showDialog(
+                    context: App.globalContext!,
+                    builder: (_) => const CreateFolderDialog())
+                .then((value) => setState(() {})),
           ),
         ),
       ));
-      local = SingleChildScrollView(child: Column(
-        children: children,
-      ),);
+      local = SingleChildScrollView(
+        child: Column(
+          children: children,
+        ),
+      );
     }
 
     return DefaultTabController(
@@ -1110,34 +1173,32 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         child: Column(
           children: [
             TabBar(
-              onTap: (i){
-                setState(() {
-                  if(i == 0){
-                    selectID = widget.initialFolder;
-                  }else{
-                    selectID = null;
-                  }
-                  page = i;
-                  if(!widget.havePlatformFavorite){
-                    page = 1;
-                  }
-                });
-              },
-              tabs: [
-                if (widget.havePlatformFavorite)
+                onTap: (i) {
+                  setState(() {
+                    if (i == 0) {
+                      selectID = widget.initialFolder;
+                    } else {
+                      selectID = null;
+                    }
+                    page = i;
+                    if (!widget.havePlatformFavorite) {
+                      page = 1;
+                    }
+                  });
+                },
+                tabs: [
+                  if (widget.havePlatformFavorite)
+                    Tab(
+                      text: "网络".tl,
+                    ),
                   Tab(
-                    text: "网络".tl,
+                    text: "本地".tl,
                   ),
-                Tab(
-                  text: "本地".tl,
-                ),
-
-            ]),
+                ]),
             Expanded(
               child: TabBarView(
                 children: [
-                  if(widget.havePlatformFavorite)
-                    platform,
+                  if (widget.havePlatformFavorite) platform,
                   local,
                 ],
               ),
@@ -1158,7 +1219,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
 class RoundedImage extends StatefulWidget {
   const RoundedImage({required this.image, super.key});
-  
+
   final ImageProvider image;
 
   @override
@@ -1178,19 +1239,19 @@ class _RoundedImageState extends State<RoundedImage> {
 
   @override
   Widget build(BuildContext context) {
-    if(failed){
+    if (failed) {
       return const Center(
         child: Icon(Icons.error),
       );
     }
 
-    if(image == null){
+    if (image == null) {
       return const SizedBox(
         child: Center(
           child: CircularProgressIndicator(),
         ),
       );
-    }else{
+    } else {
       return CustomPaint(
         painter: _RoundedImagePainter(image: image!, borderRadius: 16),
         child: const SizedBox(
@@ -1200,18 +1261,18 @@ class _RoundedImageState extends State<RoundedImage> {
       );
     }
   }
-  
-  void _loadImage() async{
+
+  void _loadImage() async {
     final imageStream = widget.image.resolve(ImageConfiguration.empty);
 
     var listener = ImageStreamListener((imageInfo, _) {
-      if(mounted) {
+      if (mounted) {
         setState(() {
           image = imageInfo.image;
         });
       }
-    }, onError: (error, stack){
-      if(kDebugMode){
+    }, onError: (error, stack) {
+      if (kDebugMode) {
         print("$error\n$stack");
       }
       setState(() {
@@ -1222,7 +1283,6 @@ class _RoundedImageState extends State<RoundedImage> {
     imageStream.addListener(listener);
   }
 }
-
 
 class _RoundedImagePainter extends CustomPainter {
   final ui.Image image;
@@ -1253,19 +1313,22 @@ class _RoundedImagePainter extends CustomPainter {
     Rect drawRect = Offset(xOffset, yOffset) & Size(drawWidth, drawHeight);
 
     // Create a rounded rectangle path
-    RRect roundedRect = RRect.fromRectAndRadius(drawRect, Radius.circular(borderRadius));
+    RRect roundedRect =
+        RRect.fromRectAndRadius(drawRect, Radius.circular(borderRadius));
     Path clipPath = Path()..addRRect(roundedRect);
 
     // Clip the canvas with the rounded rectangle path
     canvas.clipPath(clipPath);
 
     // Draw the image within the clipped area
-    Rect srcRect = Rect.fromLTRB(0, 0, image.width.toDouble(), image.height.toDouble());
+    Rect srcRect =
+        Rect.fromLTRB(0, 0, image.width.toDouble(), image.height.toDouble());
     canvas.drawImageRect(image, srcRect, drawRect, Paint());
   }
 
   @override
   bool shouldRepaint(_RoundedImagePainter oldDelegate) {
-    return image != oldDelegate.image || borderRadius != oldDelegate.borderRadius;
+    return image != oldDelegate.image ||
+        borderRadius != oldDelegate.borderRadius;
   }
 }
