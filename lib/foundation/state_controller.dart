@@ -22,6 +22,17 @@ abstract class StateController{
     }
   }
 
+  static T? findOrNull<T extends StateController>({Object? tag}){
+    try {
+      return _controllers.lastWhere((element) =>
+      element.controller is T
+          && (tag == null || tag == element.tag)).controller as T;
+    }
+    catch(e){
+      return null;
+    }
+  }
+
   static void remove<T>([Object? tag, bool check = false]){
     for(int i=_controllers.length-1; i>=0; i--){
       var element = _controllers[i];
