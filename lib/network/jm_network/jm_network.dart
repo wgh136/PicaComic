@@ -314,7 +314,7 @@ class JmNetwork {
       final likes = int.tryParse(document.querySelector("li.list-style-none.d-inline-block.p-r-15 > a")!.id.nums) ?? 0;
       var series = <int, String>{};
       var epNames = <String>[];
-      for(var element in document.querySelectorAll("div.episode > ul > a")){
+      for(var element in document.querySelectorAll("div.nav-tab-content div.episode > ul > a")){
         series[series.length+1] = element.attributes["data-album"]!;
         epNames.add(element.children[0].nodes[0].text!.replaceAll("\n", " ").replaceAll("\t", "").trim());
       }
