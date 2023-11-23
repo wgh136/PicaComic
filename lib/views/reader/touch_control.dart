@@ -291,13 +291,16 @@ class TapController {
     if (controller.scale == null || controller.getInitialScale?.call() == null) {
       return;
     }
+    if(!logic.readingMethod.useComicImage){
+      controller.onDoubleClick?.call();
+      return;
+    }
     if(controller.scale != controller.getInitialScale?.call()){
       target = controller.getInitialScale!.call()!;
     } else {
-      target = controller.getInitialScale!.call()! * 2;
+      target = controller.getInitialScale!.call()! * 1.75;
     }
     var size = MediaQuery.of(App.globalContext!).size;
-    print(Offset(size.width/2 - position.dx, size.height/2 - position.dy));
     controller.animateScale?.call(target, Offset(size.width/2 - position.dx, size.height/2 - position.dy));
   }
 
@@ -308,7 +311,7 @@ class TapController {
         || controller.getInitialScale?.call() == null){
       return;
     }
-    final target = controller.getInitialScale!.call()! * 2;
+    final target = controller.getInitialScale!.call()! * 1.75;
     var size = MediaQuery.of(App.globalContext!).size;
     controller.animateScale?.call(target, Offset(size.width/2 - position.dx, size.height/2 - position.dy));
     controller.updateState?.call(null);

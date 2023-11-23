@@ -106,12 +106,12 @@ class _EpsViewState extends State<EpsView> {
                 Text("章节".tl, style: const TextStyle(fontSize: 18),),
                 const Spacer(),
                 if(type == ReadingType.jm)
-                IconButton(
-                  icon: Icon(Icons.comment_outlined, color: Theme.of(context).colorScheme.secondary,),
-                  onPressed: (){
-                    showComments(context, data.target, "all");
-                  },
-                ),
+                  IconButton(
+                    icon: Icon(Icons.comment_outlined, color: Theme.of(context).colorScheme.secondary,),
+                    onPressed: (){
+                      showComments(context, data.target, 9999999999999);
+                    },
+                  ),
                 IconButton(
                   icon: Icon(Icons.my_location_outlined, color: Theme.of(context).colorScheme.secondary,size: 23,),
                   onPressed: (){

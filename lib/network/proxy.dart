@@ -72,6 +72,9 @@ Future<void> setNetworkProxy() async{
 class ProxyHttpOverrides extends HttpOverrides {
   String? proxy;
   ProxyHttpOverrides(this.proxy);
+
+  String? get proxyStr => proxy?.replaceAll("PROXY", "").replaceAll(" ", "").replaceAll(";", "");
+
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);

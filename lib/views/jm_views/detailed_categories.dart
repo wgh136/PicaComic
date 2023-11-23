@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/views/jm_views/jm_comics_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_week_recommendation_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/page_template/category_page.dart';
 import '../main_page.dart';
 
-class JmDetailedCategoriesPage extends StatelessWidget with CategoryPageBuilder{
+class JmDetailedCategoriesPage extends StatelessWidget
+    with CategoryPageBuilder {
   const JmDetailedCategoriesPage({Key? key}) : super(key: key);
+
+  static const mainCategories = {
+    "同人": "/albums/doujin",
+    "單本": "/albums/single",
+    "短篇": "/albums/short",
+    "其他類": "/albums/another",
+    "韓漫": "/albums/hanman",
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +37,13 @@ class JmDetailedCategoriesPage extends StatelessWidget with CategoryPageBuilder{
                   margin: EdgeInsets.zero,
                   child: Row(
                     children: [
-                      const SizedBox(width: 8,),
+                      const SizedBox(
+                        width: 8,
+                      ),
                       const Icon(Icons.book_outlined),
-                      const SizedBox(width: 16,),
+                      const SizedBox(
+                        width: 16,
+                      ),
                       Text("每周必看".tl),
                     ],
                   ),
@@ -37,6 +51,8 @@ class JmDetailedCategoriesPage extends StatelessWidget with CategoryPageBuilder{
               ),
             ),
           ),
+          buildTitle("成人A漫"),
+          buildTags(mainCategories.keys.toList()),
           buildTitle("主題A漫"),
           buildTags([
             '無修正',
@@ -59,8 +75,21 @@ class JmDetailedCategoriesPage extends StatelessWidget with CategoryPageBuilder{
             '禁漫漢化組'
           ]),
           buildTitle("角色扮演"),
-          buildTags(
-              ['御姐', '熟女', '巨乳', '貧乳', '女性支配', '教師', '女僕', '護士', '泳裝', '眼鏡', '連褲襪', '其他制服', '兔女郎']),
+          buildTags([
+            '御姐',
+            '熟女',
+            '巨乳',
+            '貧乳',
+            '女性支配',
+            '教師',
+            '女僕',
+            '護士',
+            '泳裝',
+            '眼鏡',
+            '連褲襪',
+            '其他制服',
+            '兔女郎'
+          ]),
           buildTitle("特殊PLAY"),
           buildTags([
             '群交',
@@ -94,6 +123,10 @@ class JmDetailedCategoriesPage extends StatelessWidget with CategoryPageBuilder{
 
   @override
   void handleClick(String tag, [String? namespace]) {
-    MainPage.to(() => JmSearchPage(tag));
+    if(mainCategories[tag] != null){
+      MainPage.to(() => JmComicsPage(tag, mainCategories[tag]!));
+    } else {
+      MainPage.to(() => JmSearchPage(tag));
+    }
   }
 }

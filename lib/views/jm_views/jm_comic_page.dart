@@ -11,7 +11,7 @@ import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import '../../foundation/app.dart';
 import '../../foundation/history.dart';
-import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
@@ -89,7 +89,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                 if (res.error) {
                   return res;
                 } else {
-                  var resData = <String, String>{"-1": "全部收藏".tl};
+                  var resData = <String, String>{"0": "全部收藏".tl};
                   resData.addAll(res.data);
                   return Res(resData);
                 }
@@ -99,18 +99,10 @@ class JmComicPage extends ComicPage<JmComicInfo> {
               selectFolderCallback: (folder, page) async {
                 if (page == 0) {
                   showMessage(context, "正在添加收藏".tl);
-                  var res = await jmNetwork.favorite(id);
+                  var res = await jmNetwork.favorite(id, folder);
                   if (res.error) {
                     showMessage(App.globalContext, res.errorMessageWithoutNull);
                     return;
-                  }
-                  if (folder != "-1") {
-                    var res2 = await jmNetwork.moveToFolder(id, folder);
-                    if (res2.error) {
-                      showMessage(
-                          App.globalContext, res2.errorMessageWithoutNull);
-                      return;
-                    }
                   }
                   data!.favorite = true;
                   showMessage(App.globalContext, "成功添加收藏".tl);
@@ -130,7 +122,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
               },
               cancelPlatformFavorite: () async {
                 showMessage(context, "正在取消收藏".tl);
-                var res = await jmNetwork.favorite(id);
+                var res = await jmNetwork.favorite(id, null);
                 showMessage(
                     App.globalContext, !res.error ? "成功取消收藏".tl : "网络错误".tl);
                 data!.favorite = false;
@@ -146,7 +138,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
               func2();
               break;
             case 3:
-              showComments(context, id);
+              showComments(context, id, data!.comments);
               break;
           }
         },
@@ -171,11 +163,11 @@ class JmComicPage extends ComicPage<JmComicInfo> {
       );
 
   String _getEpName(int index){
-    var name = "第 @c 章".tlParams({"c": (index + 1).toString()});
     final epName = data!.epNames.elementAtOrNull(index);
-    if(epName != null && epName != ""){
-      name += ": $epName";
+    if(epName != null){
+      return epName;
     }
+    var name = "第 @c 章".tlParams({"c": (index + 1).toString()});
     return name;
   }
 
@@ -235,7 +227,6 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   Map<String, List<String>>? get tags => {
         "作者".tl: (data!.author.isEmpty) ? "未知".tl.toList() : data!.author,
         "ID": "JM${data!.id}".toList(),
-        "查看".tl: "${data!.views}".toList(),
         "标签".tl: data!.tags
       };
 

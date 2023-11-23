@@ -4,7 +4,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
-import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import '../main_page.dart';
 import '../widgets/my_icons.dart';
@@ -229,11 +229,11 @@ class JmFavoriteFolder extends ComicsPage<JmComicBrief> {
 
   @override
   Future<Res<List<JmComicBrief>>> getComics(int i) {
-    return JmNetwork().getFolderComicsPage(folderId, i);
+    return JmNetwork().getFolderComicsWithPage(folderId, i);
   }
 
   @override
-  String? get tag => "EhFavoritePageFolder $folderId";
+  String? get tag => "Jm FavoritePageFolder $folderId";
 
   @override
   String get title => name;
@@ -289,7 +289,7 @@ class _CreateFolderDialogState extends State<CreateFolderDialog> {
                       setState(() {
                         loading = true;
                       });
-                      jmNetwork.createFolder(controller.text).then((b) {
+                      JmNetwork().createFolder(controller.text).then((b) {
                         if (b.error) {
                           showMessage(context, b.errorMessage!);
                           setState(() {

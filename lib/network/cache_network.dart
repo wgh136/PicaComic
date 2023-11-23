@@ -4,9 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import 'package:pica_comic/network/proxy.dart';
 import 'log_dio.dart';
 
@@ -33,7 +31,7 @@ class CachedNetwork {
 
   Future<CachedNetworkRes<String>> get(String url, BaseOptions options,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
-      CookieJar? cookieJar, bool log = true}) async {
+      CookieJar? cookieJar, bool log = true, bool http2 = false}) async {
     await setNetworkProxy();
     await init();
     var fileName = md5
@@ -53,7 +51,7 @@ class CachedNetwork {
       }
     }
     options.responseType = ResponseType.plain;
-    var dio = log?logDio(options):Dio(options);
+    var dio = log?logDio(options, http2):Dio(options);
     if (cookieJar != null) {
       dio.interceptors.add(CookieManager(cookieJar));
     }
@@ -70,53 +68,6 @@ class CachedNetwork {
       file.writeAsStringSync(res.data);
     }
     return CachedNetworkRes(res.data ?? "", res.statusCode, res.headers.map);
-  }
-
-  Future<CachedNetworkRes<String>> getJm(
-      String url, BaseOptions options, int time,
-      {CacheExpiredTime expiredTime = CacheExpiredTime.short,
-      CookieJar? cookieJar}) async {
-    await setNetworkProxy();
-    await init();
-    var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-    if (fileName.length > 20) {
-      fileName = fileName.substring(0, 21);
-    }
-    var file = File(_path! + Platform.pathSeparator + fileName);
-    if (file.existsSync()) {
-      var time = file.lastModifiedSync();
-      if (expiredTime == CacheExpiredTime.persistent ||
-          DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch <
-              expiredTime.time) {
-        return CachedNetworkRes(file.readAsStringSync(), 200);
-      }
-    }
-    options.responseType = ResponseType.bytes;
-    var dio = logDio(options);
-    if (cookieJar != null) {
-      dio.interceptors.add(CookieManager(cookieJar));
-    }
-    var res = await dio.get<Uint8List>(url);
-    var str = const Utf8Decoder().convert(res.data ?? []);
-    if (res.statusCode != 200) {
-      return CachedNetworkRes(str, res.statusCode);
-    }
-    var json = const JsonDecoder().convert(str);
-    var data = json["data"];
-    if (data is List && data.isEmpty) {
-      throw Exception("Empty data");
-    } else if (data is List) {
-      throw Exception("Data parsing error");
-    }
-    var decodedData = JmNetwork.convertData(data, time);
-    if (expiredTime != CacheExpiredTime.no) {
-      if (file.existsSync()) {
-        file.deleteSync();
-      }
-      file.createSync();
-      file.writeAsStringSync(decodedData);
-    }
-    return CachedNetworkRes(decodedData, res.statusCode);
   }
 }
 

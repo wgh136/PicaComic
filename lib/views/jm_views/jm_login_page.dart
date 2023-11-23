@@ -2,7 +2,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class JmLoginPage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
                     setState(() {
                       logging = true;
                     });
-                    var res = await jmNetwork.login(nameController.text, passwordController.text);
+                    var res = await JmNetwork().login(nameController.text, passwordController.text);
                     if(res.error){
                       showMessage(App.globalContext, res.errorMessage!);
                       setState(() {

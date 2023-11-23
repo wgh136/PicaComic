@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/jm_views/jm_category_page.dart';
+import 'package:pica_comic/views/jm_views/jm_comics_page.dart';
 import 'package:pica_comic/views/jm_views/jm_widgets.dart';
-import 'package:pica_comic/views/jm_views/promote_list_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../foundation/app.dart';
-import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../main_page.dart';
@@ -20,7 +19,7 @@ class JmHomePageLogic extends StateController {
   }
 
   void getData() async {
-    var res = await jmNetwork.getHomePage();
+    var res = await JmNetwork().getHomePage();
     if (!res.error) {
       data = res.data;
     } else {
@@ -54,7 +53,8 @@ class JmHomePage extends StatelessWidget {
             slivers: [for (var item in logic.data!.items) ...buildItem(item)],
           );
         } else {
-          return showNetworkError(logic.message!, logic.refresh_, context, showBack: false);
+          return showNetworkError(logic.message!, logic.refresh_, context,
+              showBack: false);
         }
       },
     );
@@ -71,16 +71,13 @@ class JmHomePage extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 const Spacer(),
                 TextButton(
-                    onPressed: (){
-                      if(item.category){
-                        MainPage.to(()=>JmCategoryPage(Category(item.name, item.id, []), fromHomePage: true,));
-                      }else{
-                        MainPage.to(() => JmPromoteListPage(item.name, item.id));
-                      }
+                    onPressed: () {
+                      MainPage.to(() => JmComicsPage(item.name, item.id));
                     },
                     child: Text("查看更多".tl))
               ],

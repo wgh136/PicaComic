@@ -1,20 +1,21 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/settings/jm_settings.dart';
 import '../../foundation/app.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';
 import '../widgets/search.dart';
 
-class SearchPageComicsList extends ComicsPage{
+class SearchPageComicsList extends ComicsPage {
   final String keyword;
   final Widget? head_;
-  const SearchPageComicsList(this.keyword, {this.head_, super.key});
+  final ComicsOrder order;
+  const SearchPageComicsList(this.keyword, this.order, {this.head_, super.key});
 
   @override
   Future<Res<List>> getComics(int i) {
-    return JmNetwork().searchNew(keyword, i);
+    return JmNetwork().searchNew(keyword, i, order);
   }
 
   @override
@@ -41,7 +42,9 @@ class SearchPageComicsList extends ComicsPage{
 
 class JmSearchPage extends StatefulWidget {
   final String keyword;
-  const JmSearchPage(this.keyword, {Key? key}) : super(key: key);
+  final ComicsOrder order;
+  const JmSearchPage(this.keyword, {this.order = ComicsOrder.latest, Key? key})
+      : super(key: key);
 
   @override
   State<JmSearchPage> createState() => _SearchPageState();
@@ -62,6 +65,7 @@ class _SearchPageState extends State<JmSearchPage> {
     return Scaffold(
       body: SearchPageComicsList(
         keyword,
+        widget.order,
         key: Key(keyword),
         head_: SliverPersistentHeader(
           floating: true,
@@ -71,21 +75,25 @@ class _SearchPageState extends State<JmSearchPage> {
             child: FloatingSearchBar(
               trailing: IconButton(
                 icon: const Icon(Icons.arrow_drop_down_sharp),
-                onPressed: ()=>setJmComicsOrder(context, search: true).then((b){
-                  if(!b){
-                    StateController.find<ComicsPageLogic>(tag: "Jm search $keyword").refresh_();
+                onPressed: () =>
+                    setJmComicsOrder(context, search: true).then((b) {
+                  if (!b) {
+                    StateController.find<ComicsPageLogic>(
+                            tag: "Jm search $keyword")
+                        .refresh_();
                   }
                 }),
               ),
-              onSearch:(s){
+              onSearch: (s) {
                 App.back(context);
-                if(s=="") return;
+                if (s == "") return;
                 setState(() {
                   keyword = s;
                 });
               },
               target: ComicType.jm,
-              controller: controller,),
+              controller: controller,
+            ),
           ),
         ),
       ),
@@ -93,26 +101,30 @@ class _SearchPageState extends State<JmSearchPage> {
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate{
-  _SliverAppBarDelegate({required this.child,required this.maxHeight,required this.minHeight});
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate(
+      {required this.child, required this.maxHeight, required this.minHeight});
   final double minHeight;
   final double maxHeight;
   final Widget child;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child,);
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(
+      child: child,
+    );
   }
 
   @override
   double get maxExtent => minHeight;
 
   @override
-  double get minExtent => max(maxHeight,minHeight);
+  double get minExtent => max(maxHeight, minHeight);
 
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxExtent || minHeight != oldDelegate.minExtent;
+    return maxHeight != oldDelegate.maxExtent ||
+        minHeight != oldDelegate.minExtent;
   }
-
 }

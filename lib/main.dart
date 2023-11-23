@@ -22,7 +22,7 @@ import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:workmanager/workmanager.dart';
 import 'network/picacg_network/methods.dart';
 import 'network/webdav.dart';
@@ -97,7 +97,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
         7200000) {
-      jmNetwork.loginFromAppdata();
+      JmNetwork().loginFromAppdata();
       Webdav.syncData();
       time = DateTime.now();
     }
@@ -125,6 +125,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     downloadManager.init(); //初始化下载管理器
     notifications.init(); //初始化通知管理器
     NhentaiNetwork().init();
+    JmNetwork().init();
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }

@@ -1,12 +1,12 @@
 import '../../base.dart';
 
-class HomePageData{
+class HomePageData {
   List<HomePageItem> items;
 
   HomePageData(this.items);
 }
 
-class HomePageItem{
+class HomePageItem {
   String name;
   String id;
   bool category;
@@ -15,43 +15,47 @@ class HomePageItem{
   HomePageItem(this.name, this.id, this.comics, this.category);
 }
 
-class JmComicBrief{
+class JmComicBrief {
   String id;
   String author;
   String name;
   String description;
   List<ComicCategoryInfo> categories;
+  List<String> tags;
 
-  JmComicBrief(this.id, this.author, this.name, this.description, this.categories, List<String> tags, {bool ignoreExamination=false}){
-    if(ignoreExamination) return;
+  JmComicBrief(this.id, this.author, this.name, this.description,
+      this.categories, this.tags,
+      {bool ignoreExamination = false}) {
+    if (ignoreExamination) return;
     bool block = false;
-    for(var key in appdata.blockingKeyword){
-      block = block || name.contains(key) || author==key || tags.contains(key);
+    for (var key in appdata.blockingKeyword) {
+      block =
+          block || name.contains(key) || author == key || tags.contains(key);
     }
-    if(block){
+    if (block) {
       throw Error();
     }
   }
 }
 
-class ComicCategoryInfo{
+class ComicCategoryInfo {
   String id;
   String name;
 
   ComicCategoryInfo(this.id, this.name);
 }
 
-class PromoteList{
+class PromoteList {
   String id;
   List<JmComicBrief> comics;
-  int loaded=0;
-  int total=1;
+  int loaded = 0;
+  int total = 1;
   int page = 0;
 
   PromoteList(this.id, this.comics);
 }
 
-class SearchRes{
+class SearchRes {
   String keyword;
   int loaded;
   int total;
@@ -61,19 +65,19 @@ class SearchRes{
   SearchRes(this.keyword, this.loaded, this.total, this.comics);
 }
 
-class Category{
+class Category {
   String name;
   String slug;
   List<SubCategory> subCategories;
 
-  Category(this.name, this.slug, this.subCategories){
-    if(slug == ""){
+  Category(this.name, this.slug, this.subCategories) {
+    if (slug == "") {
       slug = "0";
     }
   }
 }
 
-class SubCategory{
+class SubCategory {
   String cid;
   String name;
   String slug;
@@ -81,7 +85,7 @@ class SubCategory{
   SubCategory(this.cid, this.name, this.slug);
 }
 
-class CategoryComicsRes{
+class CategoryComicsRes {
   String category;
   String sort;
   int loaded;
@@ -89,11 +93,11 @@ class CategoryComicsRes{
   int loadedPage = 1;
   List<JmComicBrief> comics;
 
-  CategoryComicsRes(
-      this.category, this.sort, this.loaded, this.total, this.loadedPage, this.comics);
+  CategoryComicsRes(this.category, this.sort, this.loaded, this.total,
+      this.loadedPage, this.comics);
 }
 
-class JmComicInfo{
+class JmComicInfo {
   String name;
   String id;
   List<String> author;
@@ -101,6 +105,7 @@ class JmComicInfo{
   int likes;
   int views;
   int comments;
+
   ///章节信息, 键为章节序号, 值为漫画ID
   Map<int, String> series;
   List<String> tags;
@@ -109,20 +114,32 @@ class JmComicInfo{
   bool favorite;
   List<String> epNames;
 
-  JmComicInfo(this.name, this.id, this.author, this.description, this.likes, this.views,
-      this.series, this.tags, this.relatedComics, this.liked, this.favorite, this.comments, this.epNames);
-  
-  static Map<String, String> seriesToJsonMap(Map<int, String> map){
+  JmComicInfo(
+      this.name,
+      this.id,
+      this.author,
+      this.description,
+      this.likes,
+      this.views,
+      this.series,
+      this.tags,
+      this.relatedComics,
+      this.liked,
+      this.favorite,
+      this.comments,
+      this.epNames);
+
+  static Map<String, String> seriesToJsonMap(Map<int, String> map) {
     var res = <String, String>{};
-    for(var i in map.entries){
+    for (var i in map.entries) {
       res[i.key.toString()] = i.value;
     }
     return res;
   }
-  
-  static Map<int, String> jsonMapToSeries(Map<String, dynamic> map){
+
+  static Map<int, String> jsonMapToSeries(Map<String, dynamic> map) {
     var res = <int, String>{};
-    for(var i in map.entries){
+    for (var i in map.entries) {
       res[int.parse(i.key)] = i.value;
     }
     return res;
@@ -145,24 +162,23 @@ class JmComicInfo{
     };
   }
 
-  JmComicInfo.fromMap(Map<String, dynamic> map):
-    name = map["name"],
-    id = map["id"],
-    author = List<String>.from(map["author"]),
-    description = map["description"],
-    likes = 0,
-    views = 0,
-    series = jsonMapToSeries(map["series"]),
-    tags = List<String>.from(map["tags"]),
-    relatedComics = [],
-    liked = false,
-    favorite = false,
-    comments = 0,
-    epNames = List.from(map["epNames"] ?? []);
+  JmComicInfo.fromMap(Map<String, dynamic> map)
+      : name = map["name"],
+        id = map["id"],
+        author = List<String>.from(map["author"]),
+        description = map["description"],
+        likes = 0,
+        views = 0,
+        series = jsonMapToSeries(map["series"]),
+        tags = List<String>.from(map["tags"]),
+        relatedComics = [],
+        liked = false,
+        favorite = false,
+        comments = 0,
+        epNames = List.from(map["epNames"] ?? []);
 }
 
-
-class Comment{
+class Comment {
   String id;
   String avatar;
   String name;

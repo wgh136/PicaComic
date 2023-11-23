@@ -17,7 +17,7 @@ import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
-import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_network.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/tools/translations.dart';

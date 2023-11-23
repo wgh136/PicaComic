@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../foundation/app.dart';
 import 'jm_widgets.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 
-class JmLatestPageLogic extends StateController{
+class JmLatestPageLogic extends StateController {
   bool loading = true;
   var comics = <JmComicBrief>[];
   String? message;
 
-  void get() async{
-    var res = await jmNetwork.getLatest();
-    if(!res.error){
+  void get() async {
+    var res = await jmNetwork.getLatest(1);
+    if (!res.error) {
       comics.addAll(res.data);
-    }else{
+    } else {
       message = res.errorMessage;
     }
     loading = false;
     update();
   }
 
-  void refresh_(){
+  void refresh_() {
     comics.clear();
     loading = true;
     update();
@@ -34,22 +34,19 @@ class JmLatestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StateBuilder<JmLatestPageLogic>(
-      builder: (logic){
-        if(logic.loading){
+      builder: (logic) {
+        if (logic.loading) {
           logic.get();
           return const Center(
             child: CircularProgressIndicator(),
           );
-        }else if(logic.comics.isNotEmpty){
+        } else if (logic.comics.isNotEmpty) {
           return CustomScrollView(
             slivers: [
               SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                        (context, index){
-                      return JmComicTile(logic.comics[index]);
-                    },
-                    childCount: logic.comics.length
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return JmComicTile(logic.comics[index]);
+                }, childCount: logic.comics.length),
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: App.comicTileMaxWidth,
                   childAspectRatio: App.comicTileAspectRatio,
@@ -57,8 +54,9 @@ class JmLatestPage extends StatelessWidget {
               ),
             ],
           );
-        }else{
-          return showNetworkError(logic.message!, logic.refresh_, context, showBack: false);
+        } else {
+          return showNetworkError(logic.message!, logic.refresh_, context,
+              showBack: false);
         }
       },
     );

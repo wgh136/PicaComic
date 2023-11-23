@@ -1,9 +1,12 @@
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import '../../base.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import '../widgets/select.dart';
 import 'package:pica_comic/tools/translations.dart';
+
+import '../widgets/show_message.dart';
 
 ///设置分类中漫画排序模式, 返回设置是否发生变化
 Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async{
@@ -177,35 +180,9 @@ class _JmSettingsState extends State<JmSettings> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.account_tree_outlined),
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("API分流".tl),
-                  const SizedBox(width: 4,),
-                  InkWell(
-                    onTap: _testJmNetwork,
-                    borderRadius: BorderRadius.circular(12.5),
-                    child: const SizedBox(
-                      width: 25,
-                      height: 25,
-                      child: Center(
-                        child: Icon(Icons.speed, size: 20,),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              trailing: Select(
-                initialValue: int.parse(appdata.settings[17]),
-                values: List.generate(JmNetwork.urls.length, (index) => "分流".tl + (index+1).toString()),
-                whenChange: (i){
-                  appdata.settings[17] = i.toString();
-                  appdata.updateSettings();
-                  JmNetwork().loginFromAppdata();
-                },
-                inPopUpWidget: widget.popUp,
-              ),
+              leading: const Icon(Icons.domain_rounded),
+              title: Text("Domain: ${appdata.settings[56].replaceFirst("https://", "")}"),
+              trailing: IconButton(onPressed: () => changeDomain(context), icon: const Icon(Icons.edit)),
             ),
             ListTile(
               leading: const Icon(Icons.image),
@@ -230,28 +207,51 @@ class _JmSettingsState extends State<JmSettings> {
           ],
         ));
   }
-}
 
-void _testJmNetwork(){
-  Widget buildItem(int index){
-    String res = "testing";
-    return StatefulBuilder(builder: (context, updater) {
-      if(res == "testing"){
-        JmNetwork().ping(index).then((value) => updater(() => res=value));
+  void changeDomain(BuildContext context){
+    var controller = TextEditingController();
+
+    void onFinished() {
+      var text = controller.text;
+      if(!text.contains("https://")){
+        text = "https://$text";
       }
+      App.globalBack();
+      if(!text.isURL){
+        showMessage(context, "Invalid URL");
+      }else {
+        appdata.settings[56] = text;
+        appdata.updateSettings();
+        setState(() {});
+        JmNetwork().loginFromAppdata();
+      }
+    }
 
-      return ListTile(
-        title: Text("分流".tl + (index+1).toString()),
-        trailing: Text(res),
+    showDialog(context: context, builder: (context){
+      return SimpleDialog(
+        title: const Text("Change Domain"),
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            width: 400,
+            child: TextField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  label: Text("Domain")
+              ),
+              controller: controller,
+              onEditingComplete: onFinished,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(onPressed: onFinished, child: Text("完成".tl)),
+              const SizedBox(width: 16,),
+            ],
+          )
+        ],
       );
     });
   }
-
-  showDialog(context: App.globalContext!, builder: (context) => SimpleDialog(
-    title: const Text("Network Test"),
-    children: [
-      const SizedBox(width: 400,),
-      ...List.generate(JmNetwork.urls.length, (index) => buildItem(index)),
-    ],
-  ));
 }

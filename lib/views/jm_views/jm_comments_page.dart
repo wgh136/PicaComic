@@ -6,14 +6,16 @@ import 'package:pica_comic/views/widgets/comment.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/tools/translations.dart';
-import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 class JmCommentsPageLogic extends StateController {
+  JmCommentsPageLogic(this.totalComments);
+
   bool loading = true;
   List<Comment>? comments;
   String? message;
-  int totalComments = 0;
+  final int totalComments;
   int page = 1;
   var controller = TextEditingController();
 
@@ -23,13 +25,12 @@ class JmCommentsPageLogic extends StateController {
   }
 
   void get(String id, [String? mode]) async {
-    var res = await jmNetwork.getComment(id, 1, mode??"manhua");
+    var res = await jmNetwork.getComment(id, 1);
     if (res.error) {
       message = res.errorMessage;
       change();
     } else {
       comments = res.data;
-      totalComments = res.subData;
       change();
     }
   }
@@ -37,7 +38,6 @@ class JmCommentsPageLogic extends StateController {
   void retry() async {
     message = null;
     comments = null;
-    totalComments = 0;
     loading = true;
     page = 1;
     update();
@@ -60,7 +60,6 @@ class JmCommentsPageLogic extends StateController {
   void refresh_(){
     comments = null;
     message = null;
-    totalComments = 0;
     page = 1;
     controller.text = "";
     loading = true;
@@ -69,15 +68,16 @@ class JmCommentsPageLogic extends StateController {
 }
 
 class JmCommentsPage extends StatelessWidget {
-  const JmCommentsPage(this.id, {this.mode,this.popUp = false, Key? key}) : super(key: key);
+  const JmCommentsPage(this.id, this.totalComments, {this.mode,this.popUp = false, Key? key}) : super(key: key);
   final String id;
   final bool popUp;
   final String? mode;
+  final int totalComments;
 
   @override
   Widget build(BuildContext context) {
     Widget body = StateBuilder<JmCommentsPageLogic>(
-        init: JmCommentsPageLogic(),
+        init: JmCommentsPageLogic(totalComments),
         builder: (logic) {
           if (logic.loading) {
             logic.get(id, mode);
@@ -148,7 +148,7 @@ class JmCommentsPage extends StatelessWidget {
                                 if(res.error){
                                   showMessage(App.globalContext, res.errorMessage!);
                                 }else{
-                                  showMessage(App.globalContext, res.data);
+                                  showMessage(App.globalContext, "成功发表评论".tl);
                                   logic.refresh_();
                                 }
                               },
@@ -206,11 +206,12 @@ void showReply(BuildContext context, List<Comment> comments, Comment replyTo) {
       showBarrier: false);
 }
 
-void showComments(BuildContext context, String id, [String? mode]) {
+void showComments(BuildContext context, String id, int totalComments, [String? mode]) {
   showSideBar(
       context,
       JmCommentsPage(
         id,
+        totalComments,
         popUp: true,
         mode: mode,
       ),
