@@ -8,7 +8,6 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
-import 'package:pica_comic/views/jm_views/jm_categories_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
@@ -21,7 +20,6 @@ import 'package:pica_comic/views/tools.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
 import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
 import '../foundation/app.dart';
 import '../network/htmanga_network/htmanga_main_network.dart';
 import '../network/update.dart';
@@ -118,12 +116,6 @@ class _MainPageState extends State<MainPage> {
             App.globalContext!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
       }
     });
-    jmNetwork.loginFromAppdata().then((res) {
-      if (res.error) {
-        showMessage(
-            App.globalContext!, "登录禁漫时发生错误:".tl + res.errorMessageWithoutNull);
-      }
-    });
     HtmangaNetwork().loginFromAppdata().then((res) {
       if (res.error) {
         showMessage(App.globalContext!,
@@ -208,7 +200,6 @@ class _MainPageState extends State<MainPage> {
     StateController.put(EhPopularPageLogic());
     StateController.put(JmHomePageLogic());
     StateController.put(JmLatestPageLogic());
-    StateController.put(JmCategoriesPageLogic());
     StateController.put(ExplorePageLogic());
     StateController.put(CategoryPageLogic());
     StateController.put(HtHomePageLogic());

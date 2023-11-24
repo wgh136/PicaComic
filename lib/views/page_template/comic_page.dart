@@ -703,14 +703,19 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                           ? colorScheme.secondaryContainer.withOpacity(0.8)
                           : colorScheme.secondaryContainer,
                   margin: EdgeInsets.zero,
-                  child: Center(
-                    child: Text(
-                      eps!.eps[i],
-                      style: TextStyle(
-                          color: (_logic.history?.readEpisode ?? const {})
-                                  .contains(i + 1)
-                              ? colorScheme.outline
-                              : null),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Center(
+                      child: Text(
+                        eps!.eps[i],
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: (_logic.history?.readEpisode ?? const {})
+                                .contains(i + 1)
+                                ? colorScheme.outline
+                                : null),
+                      ),
                     ),
                   ),
                 ),

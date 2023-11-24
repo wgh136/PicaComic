@@ -16,7 +16,7 @@ import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
@@ -341,20 +341,21 @@ class ComicReadingPage extends StatelessWidget {
               ),
             );
 
-            // WillPopScope has a problem on IOS which is not been solved currently.
-            // See https://github.com/flutter/flutter/issues/14203
             if (App.isIOS) {
               return body;
             } else {
-              return WillPopScope(
-                  onWillPop: () async {
+              return PopScope(
+                canPop: false,
+                  onPopInvoked: (didPop) async {
+                    if (didPop) {
+                      return;
+                    }
                     if (logic.tools) {
-                      return true;
+                      Navigator.of(context).pop();
                     } else {
                       logic.tools = true;
                       logic.update(["ToolBar"]);
                       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-                      return false;
                     }
                   },
                   child: body);
@@ -579,7 +580,7 @@ class ComicReadingPage extends StatelessWidget {
       comicReadingPageLogic.change();
       return;
     }
-    var res = await jmNetwork.getChapter(data.target);
+    var res = await JmNetwork().getChapter(data.target);
     if (res.error) {
       data.message = res.errorMessage ?? "网络错误".tl;
     } else {

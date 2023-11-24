@@ -14,11 +14,10 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
-
 import '../foundation/app.dart';
 
 Future<double> getFolderSize(Directory path) async{
@@ -352,7 +351,7 @@ Future<bool> importData([String? filePath]) async{
             "$appVersion\nStop importing data");
     return true;
   }
-  var prevAccounts = [appdata.picacgAccount, appdata.jmEmail, appdata.htName];
+  var prevAccounts = [appdata.picacgAccount, appdata.jmName, appdata.htName];
   var dataReadRes = appdata.readDataFromJson(json);
   if(!dataReadRes){
     return false;
@@ -360,8 +359,8 @@ Future<bool> importData([String? filePath]) async{
   if(appdata.picacgAccount != prevAccounts[0]) {
     await network.loginFromAppdata();
   }
-  if(appdata.jmEmail != prevAccounts[1]) {
-    await jmNetwork.loginFromAppdata();
+  if(appdata.jmName != prevAccounts[1]) {
+    await JmNetwork().loginFromAppdata();
   }
   if(appdata.htName != prevAccounts[2]) {
     await HtmangaNetwork().loginFromAppdata();

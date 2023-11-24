@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
@@ -14,10 +13,9 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/select.dart';
-import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
@@ -92,7 +90,7 @@ class _FloatingSearchBar extends StatelessWidget {
                 onSubmitted: f,
               ),
             ),
-            if(MediaQuery.of(context).size.width <= 950)
+            if (MediaQuery.of(context).size.width <= 950)
               Tooltip(
                 message: "menu",
                 child: IconButton(
@@ -143,8 +141,8 @@ class PreSearchController extends StateController {
 }
 
 class PreSearchPage extends StatelessWidget {
-  PreSearchPage({String initialValue = "", super.key}):
-        controller = TextEditingController(text: initialValue);
+  PreSearchPage({String initialValue = "", super.key})
+      : controller = TextEditingController(text: initialValue);
 
   final TextEditingController controller;
 
@@ -154,7 +152,8 @@ class PreSearchPage extends StatelessWidget {
 
   void search([String? s, int? type]) {
     var keyword = (s ?? controller.text).trim();
-    if(searchController.language != null && [1,5].contains(searchController.target)){
+    if (searchController.language != null &&
+        [1, 5].contains(searchController.target)) {
       keyword += " language:${searchController.language}";
     }
     switch (type ?? searchController.target) {
@@ -162,12 +161,19 @@ class PreSearchPage extends StatelessWidget {
         MainPage.to(() => SearchPage(keyword));
         break;
       case 1:
-        MainPage.to(() => EhSearchPage(keyword, fCats: searchController.ehFCats,
-          startPages: searchController.ehStartPage, endPages: searchController.ehEndPage,
-          minStars: searchController.ehMinStars,));
+        MainPage.to(() => EhSearchPage(
+              keyword,
+              fCats: searchController.ehFCats,
+              startPages: searchController.ehStartPage,
+              endPages: searchController.ehEndPage,
+              minStars: searchController.ehMinStars,
+            ));
         break;
       case 2:
-        MainPage.to(() => JmSearchPage(keyword));
+        MainPage.to(() => JmSearchPage(
+              keyword,
+              order: ComicsOrder.values[searchController.jmComicsOrder],
+            ));
         break;
       case 3:
         MainPage.to(() => HitomiSearchPage(keyword));
@@ -225,7 +231,7 @@ class PreSearchPage extends StatelessWidget {
     find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
   }
 
-  void showMenu(){
+  void showMenu() {
     scaffoldKey.currentState!.openEndDrawer();
   }
 
@@ -272,24 +278,30 @@ class PreSearchPage extends StatelessWidget {
     );
   }
 
-  Widget buildDrawer(){
-    return DefaultTabController(length: 2, child: Column(
-      children: [
-        SizedBox(
-          height: MediaQuery.of(App.globalContext!).padding.top,
-        ),
-        const TabBar(tabs: [
-          Tab(icon: Icon(Icons.favorite), key: Key("1"),),
-          Tab(icon: Icon(Icons.history), key: Key("1"),),
-        ]),
-        Expanded(
-          child: TabBarView(children: [
-            buildFavoriteSideBar(),
-            buildHistorySideBar()
-          ]),
-        ),
-      ],
-    ));
+  Widget buildDrawer() {
+    return DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(App.globalContext!).padding.top,
+            ),
+            const TabBar(tabs: [
+              Tab(
+                icon: Icon(Icons.favorite),
+                key: Key("1"),
+              ),
+              Tab(
+                icon: Icon(Icons.history),
+                key: Key("1"),
+              ),
+            ]),
+            Expanded(
+              child: TabBarView(
+                  children: [buildFavoriteSideBar(), buildHistorySideBar()]),
+            ),
+          ],
+        ));
   }
 
   Widget buildBody(BuildContext context) {
@@ -325,25 +337,26 @@ class PreSearchPage extends StatelessWidget {
           ),
         if (showSideBar) const VerticalDivider(),
         Expanded(
-          child: SingleChildScrollView(
-            padding: showSideBar
-                ? EdgeInsets.zero
-                : const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (showSideBar)
-                  ListTile(
-                    leading: const Icon(Icons.select_all),
-                    title: Text("搜索选项".tl),
-                  ),
-                buildTargetSelector(context),
-                buildSearchOptions(context),
-                buildHotSearch(context),
-                SizedBox(height: MediaQuery.of(context).padding.bottom,),
-              ],
-            ),
+            child: SingleChildScrollView(
+          padding: showSideBar
+              ? EdgeInsets.zero
+              : const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showSideBar)
+                ListTile(
+                  leading: const Icon(Icons.select_all),
+                  title: Text("搜索选项".tl),
+                ),
+              buildTargetSelector(context),
+              buildSearchOptions(context),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom,
+              ),
+            ],
+          ),
         )),
         if (showSideBar) const VerticalDivider(),
         if (showSideBar)
@@ -386,7 +399,8 @@ class PreSearchPage extends StatelessWidget {
                 controller.text.replaceLast(words[words.length - 1], "");
           }
           if (text.contains(" ")) {
-            if (logic.target == 3 && ["male", "female", "language"].contains(type?.name)) {
+            if (logic.target == 3 &&
+                ["male", "female", "language"].contains(type?.name)) {
               text = text.replaceAll(" ", '_');
               text = "${type?.name}:$text";
             } else {
@@ -448,7 +462,9 @@ class PreSearchPage extends StatelessWidget {
                 height: 32,
                 child: Row(
                   children: [
-                    const SizedBox(width: 32,),
+                    const SizedBox(
+                      width: 32,
+                    ),
                     Text("建议".tl),
                     const Spacer(),
                     InkWell(
@@ -459,10 +475,15 @@ class PreSearchPage extends StatelessWidget {
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(4),
-                        child: Icon(Icons.close, size: 20,),
+                        child: Icon(
+                          Icons.close,
+                          size: 20,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 32,),
+                    const SizedBox(
+                      width: 32,
+                    ),
                   ],
                 ),
               ),
@@ -568,7 +589,10 @@ class PreSearchPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("目标".tl, style: Theme.of(context).textTheme.bodyLarge,),
+              Text(
+                "目标".tl,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
               Wrap(
                 children: [
                   buildItem(logic, 0, "Picacg"),
@@ -585,7 +609,9 @@ class PreSearchPage extends StatelessWidget {
                     buildItem(logic, 5, "Nhentai"),
                 ],
               ),
-              const SizedBox(height: 8,)
+              const SizedBox(
+                height: 8,
+              )
             ],
           ),
         );
@@ -658,15 +684,19 @@ class PreSearchPage extends StatelessWidget {
       ];
     }
 
-    Widget buildLangSelector(){
+    Widget buildLangSelector() {
       const languages = ["chinese", "japanese", "english"];
       return Padding(
         padding: const EdgeInsets.only(top: 8),
         child: Row(
           children: [
-            const SizedBox(width: 8,),
+            const SizedBox(
+              width: 8,
+            ),
             Text("语言".tl),
-            const SizedBox(width: 16,),
+            const SizedBox(
+              width: 16,
+            ),
             Select(
               initialValue: languages.indexOf(searchController.language ?? ""),
               whenChange: (i) => searchController.language = languages[i],
@@ -678,8 +708,8 @@ class PreSearchPage extends StatelessWidget {
       );
     }
 
-    Widget buildEH(){
-      Widget buildCategoryItem(String title, int value, double width){
+    Widget buildEH() {
+      Widget buildCategoryItem(String title, int value, double width) {
         bool disabled = searchController.ehFCats & (1 << value) == 1 << value;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 120),
@@ -687,26 +717,40 @@ class PreSearchPage extends StatelessWidget {
           width: width,
           height: 38,
           decoration: BoxDecoration(
-            color: !disabled ? App.colors(context).tertiaryContainer : App.colors(context).tertiaryContainer.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8)
-          ),
+              color: !disabled
+                  ? App.colors(context).tertiaryContainer
+                  : App.colors(context).tertiaryContainer.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8)),
           child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-            onTap: (){
-              disabled ?
-                searchController.ehFCats -= (1 << value) :
-                searchController.ehFCats += (1 << value);
+            borderRadius: BorderRadius.circular(8),
+            onTap: () {
+              disabled
+                  ? searchController.ehFCats -= (1 << value)
+                  : searchController.ehFCats += (1 << value);
               searchController.update(["mode"]);
             },
             child: Center(
-              child: Text(title, style: const TextStyle(fontSize: 14),),
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
           ),
         );
       }
 
-      const categories = ["Misc", "Doujinshi", "Manga", "Artist CG", "Game CG",
-        "Image Set", "Cosplay", "Asian Porn", "Non-H", "Western"];
+      const categories = [
+        "Misc",
+        "Doujinshi",
+        "Manga",
+        "Artist CG",
+        "Game CG",
+        "Image Set",
+        "Cosplay",
+        "Asian Porn",
+        "Non-H",
+        "Western"
+      ];
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -714,39 +758,56 @@ class PreSearchPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("高级选项".tl, style: Theme.of(context).textTheme.bodyLarge,),
-            LayoutBuilder(builder: (context, constrains) => Wrap(
-              children: List.generate(categories.length, (index){
-                const minWidth = 86;
-                var items = constrains.maxWidth ~/ minWidth;
-                return buildCategoryItem(categories[index], index, constrains.maxWidth/items-items);
-              }),
-            )),
-            const SizedBox(height: 8,),
+            Text(
+              "高级选项".tl,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            LayoutBuilder(
+                builder: (context, constrains) => Wrap(
+                      children: List.generate(categories.length, (index) {
+                        const minWidth = 86;
+                        var items = constrains.maxWidth ~/ minWidth;
+                        return buildCategoryItem(categories[index], index,
+                            constrains.maxWidth / items - items);
+                      }),
+                    )),
+            const SizedBox(
+              height: 8,
+            ),
             Row(
               children: [
-                const SizedBox(width: 8,),
+                const SizedBox(
+                  width: 8,
+                ),
                 const Text("Pages From"),
-                const SizedBox(width: 16,),
+                const SizedBox(
+                  width: 16,
+                ),
                 SizedBox(
                   width: 84,
                   //height: 38,
                   child: TextField(
-                    onChanged: (s) => searchController.ehStartPage = int.tryParse(s),
+                    onChanged: (s) =>
+                        searchController.ehStartPage = int.tryParse(s),
                     keyboardType: TextInputType.number,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp("[0-9]"))
                     ],
                   ),
                 ),
-                const SizedBox(width: 16,),
+                const SizedBox(
+                  width: 16,
+                ),
                 const Text("To"),
-                const SizedBox(width: 16,),
+                const SizedBox(
+                  width: 16,
+                ),
                 SizedBox(
                   width: 84,
                   //height: 38,
                   child: TextField(
-                    onChanged: (s) => searchController.ehEndPage = int.tryParse(s),
+                    onChanged: (s) =>
+                        searchController.ehEndPage = int.tryParse(s),
                     keyboardType: TextInputType.number,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp("[0-9]"))
@@ -755,12 +816,18 @@ class PreSearchPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12,),
+            const SizedBox(
+              height: 12,
+            ),
             Row(
               children: [
-                const SizedBox(width: 8,),
+                const SizedBox(
+                  width: 8,
+                ),
                 Text("最少星星".tl),
-                const SizedBox(width: 16,),
+                const SizedBox(
+                  width: 16,
+                ),
                 Select(
                   initialValue: searchController.ehMinStars,
                   whenChange: (i) => searchController.ehMinStars = i,
@@ -770,7 +837,9 @@ class PreSearchPage extends StatelessWidget {
               ],
             ),
             buildLangSelector(),
-            const SizedBox(height: 8,)
+            const SizedBox(
+              height: 8,
+            )
           ],
         ),
       );
@@ -783,7 +852,7 @@ class PreSearchPage extends StatelessWidget {
           return const SizedBox();
         }
 
-        if(searchController.target == 1){
+        if (searchController.target == 1) {
           return buildEH();
         }
 
@@ -793,7 +862,10 @@ class PreSearchPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("漫画排序模式".tl, style: Theme.of(context).textTheme.bodyLarge,),
+              Text(
+                "漫画排序模式".tl,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
               Wrap(
                 children: switch (logic.target) {
                   0 => buildPicacg(logic),
@@ -802,83 +874,15 @@ class PreSearchPage extends StatelessWidget {
                   _ => throw UnimplementedError()
                 },
               ),
-              if(logic.target == 5)
-                buildLangSelector(),
-              const SizedBox(height: 8,)
+              if (logic.target == 5) buildLangSelector(),
+              const SizedBox(
+                height: 8,
+              )
             ],
           ),
         );
       },
     );
-  }
-
-  List<Widget> buildHotSearchTags(BuildContext context) {
-    return [
-      const SizedBox(
-        height: 8,
-      ),
-      Container(
-        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("哔咔热搜".tl),
-            Wrap(
-              children: [
-                for (var s in network.hotTags.getNoBlankList())
-                  Card(
-                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    elevation: 0,
-                    color:
-                        Theme.of(context).colorScheme.surfaceTint.withAlpha(40),
-                    child: InkWell(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      onTap: () => MainPage.to(() => SearchPage(s)),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                        child: Text(s),
-                      ),
-                    ),
-                  )
-              ],
-            )
-          ],
-        ),
-      ),
-      Container(
-        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("禁漫热搜".tl),
-            Wrap(
-              children: [
-                for (var s in jmNetwork.hotTags.getNoBlankList())
-                  Card(
-                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    elevation: 0,
-                    color:
-                        Theme.of(context).colorScheme.surfaceTint.withAlpha(40),
-                    child: InkWell(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      onTap: () => MainPage.to(() => JmSearchPage(s)),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                        child: Text(s),
-                      ),
-                    ),
-                  )
-              ],
-            )
-          ],
-        ),
-      ),
-      SizedBox(
-        height: MediaQuery.of(context).padding.bottom,
-      )
-    ];
   }
 
   Widget buildHistorySideBar() {
@@ -934,10 +938,10 @@ class PreSearchPage extends StatelessWidget {
                 } else {
                   final s = appdata.favoriteTags.elementAt(index - 1);
                   return ListTile(
-                    title: Text(s.substring(s.indexOf(':')+1)),
+                    title: Text(s.substring(s.indexOf(':') + 1)),
                     subtitle: Text(s.split(':').first),
                     onTap: () {
-                      int type = switch(s.split(':').first){
+                      int type = switch (s.split(':').first) {
                         "Picacg" => 0,
                         "EHentai" => 1,
                         "JMComic" => 2,
@@ -946,12 +950,12 @@ class PreSearchPage extends StatelessWidget {
                         "Nhentai" => 5,
                         _ => 0
                       };
-                      final keyword = s.substring(s.indexOf(':')+1);
+                      final keyword = s.substring(s.indexOf(':') + 1);
                       search(keyword, type);
                     },
                     trailing: IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: (){
+                      onPressed: () {
                         appdata.favoriteTags.remove(s);
                         searchController.update();
                         appdata.writeHistory();
@@ -961,81 +965,5 @@ class PreSearchPage extends StatelessWidget {
                 }
               },
             ));
-  }
-
-  Widget buildHotSearch(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        showModalBottomSheet(
-            context: context,
-            builder: (context) => buildStatefulHotSearch(context));
-      },
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-        child: Row(
-          children: [
-            const SizedBox(
-              width: 8,
-            ),
-            Text("热搜".tl, style: Theme.of(context).textTheme.bodyLarge,),
-            const Spacer(),
-            const Icon(Icons.arrow_right),
-            const SizedBox(
-              width: 8,
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildStatefulHotSearch(BuildContext context) {
-    int loading = 2;
-    String? message;
-    bool flag = true;
-    return StatefulBuilder(builder: (context, stateUpdater) {
-      if (flag) {
-        flag = false;
-        if (jmNetwork.hotTags.isEmpty) {
-          jmNetwork.getHotTags().then((value) => stateUpdater(() {
-                loading--;
-                if (value.error) {
-                  message = value.errorMessageWithoutNull;
-                }
-              }));
-        } else {
-          loading--;
-        }
-        if (network.hotTags.isEmpty) {
-          network.getKeyWords().then((value) => stateUpdater(() {
-                loading--;
-                if (value.error) {
-                  message = value.errorMessageWithoutNull;
-                }
-              }));
-        } else {
-          loading--;
-        }
-      }
-      if (loading != 0) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      } else if (message != null) {
-        return showNetworkError(message, () {
-          stateUpdater(() {
-            loading = 2;
-            message = null;
-            flag = true;
-          });
-        }, context);
-      } else {
-        return SingleChildScrollView(
-          child: Column(
-            children: buildHotSearchTags(context),
-          ),
-        );
-      }
-    });
   }
 }

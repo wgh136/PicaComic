@@ -17,7 +17,6 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/views/main_page.dart';
 import 'dart:io';
 import '../network/webdav.dart';
 
@@ -120,12 +119,7 @@ class LocalFavoritesManager {
   bool saving = false;
 
   void updateUI(){
-    try {
-      StateController.find(tag: "me page").update();
-    }
-    catch(e){
-      // ignore
-    }
+    StateController.findOrNull(tag: "me page")?.update();
   }
 
   Future<List<String>> find(String target) async {
@@ -221,9 +215,7 @@ class LocalFavoritesManager {
       throw Exception("Folder is existing");
     }
     _data![name] = [];
-    if(MainPage.canPop()){
-      StateController.find(tag: "me page").update();
-    }
+    updateUI();
     saveData();
   }
 
@@ -244,9 +236,7 @@ class LocalFavoritesManager {
     } else {
       _data![folder]!.insert(0, comic);
     }
-    if(MainPage.canPop()){
-      StateController.find(tag: "me page").update();
-    }
+    updateUI();
     saveData();
     try {
       var file = await DefaultCacheManager().getSingleFile(comic.coverPath);
@@ -362,9 +352,7 @@ class LocalFavoritesManager {
       }
     }
     if(isModified) {
-      if (MainPage.canPop()) {
-        StateController.find(tag: "me page").update();
-      }
+      updateUI();
       saveData();
     }
   }

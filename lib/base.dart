@@ -1,6 +1,6 @@
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/webdav.dart';
@@ -94,6 +94,7 @@ class Appdata {
     "0", //53 本地收藏添加位置(尾/首)
     "0", //54 阅读后移动本地收藏(否/尾/首)
     "1", //55 长按缩放
+    "https://18comic.vip", //56 jm domain
   ];
 
   ///屏蔽的关键词
@@ -120,7 +121,6 @@ class Appdata {
 
   //jm相关信息
   String jmName = "";
-  String jmEmail = "";
   String jmPwd = "";
 
   //绅士漫画
@@ -227,7 +227,6 @@ class Appdata {
     await s.setString("ehAccount", ehAccount);
     await s.setString("ehPassHash", ehPassHash);
     await s.setString("jmName", jmName);
-    await s.setString("jmEmail", jmEmail);
     await s.setString("jmPwd", jmPwd);
     await s.setString("ehIgneous", igneous);
     await s.setString("picacgAccount", picacgAccount);
@@ -275,7 +274,6 @@ class Appdata {
       ehPassHash = s.getString("ehPassHash") ?? "";
       igneous = s.getString("ehIgneous") ?? "";
       jmName = s.getString("jmName") ?? "";
-      jmEmail = s.getString("jmEmail") ?? "";
       jmPwd = s.getString("jmPwd") ?? "";
       picacgAccount = s.getString("picacgAccount") ?? "";
       picacgPassword = s.getString("picacgPassword") ?? "";
@@ -299,7 +297,6 @@ class Appdata {
         "ehAccount": ehAccount,
         "igneous": igneous,
         "jmName": jmName,
-        "jmEmail": jmEmail,
         "jmPwd": jmPwd,
         "htName": htName,
         "htPwd": htPwd,
@@ -328,7 +325,6 @@ class Appdata {
       ehAccount = json["ehAccount"];
       igneous = json["igneous"];
       jmName = json["jmName"];
-      jmEmail = json["jmEmail"];
       jmPwd = json["jmPwd"];
       htName = json["htName"];
       htPwd = json["htPwd"];
@@ -357,7 +353,7 @@ Future<void> clearAppdata() async {
   await eraseCache();
   network.token = "";
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
-  await JmNetwork().cookieJar.deleteAll();
+  await JmNetwork().cookieJar?.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
 }

@@ -17,7 +17,7 @@ import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
-import '../../network/jm_network/jm_main_network.dart';
+import '../../network/jm_network/jm_network.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -193,21 +193,14 @@ class AccountsPage extends StatelessWidget {
                       style: const TextStyle(fontSize: 20),
                     ),
                   ),
-                  if (appdata.jmEmail != "")
+                  if (appdata.jmName != "")
                     ListTile(
                       title: Text("用户名".tl),
                       subtitle: Text(appdata.jmName),
                       onTap: () =>
                           Clipboard.setData(ClipboardData(text: appdata.jmName)),
                     ),
-                  if (appdata.jmEmail != "")
-                    ListTile(
-                      title: const Text("Email"),
-                      subtitle: Text(appdata.jmEmail),
-                      onTap: () =>
-                          Clipboard.setData(ClipboardData(text: appdata.jmEmail)),
-                    ),
-                  if (appdata.jmEmail == "")
+                  if (appdata.jmName == "")
                     ListTile(
                       title: Text("登录".tl),
                       onTap: () => App.globalTo(() => const JmLoginPage())
@@ -216,7 +209,7 @@ class AccountsPage extends StatelessWidget {
                         Webdav.uploadData();
                       }),
                     ),
-                  if (appdata.jmEmail != "")
+                  if (appdata.jmName != "")
                     ListTile(
                       title: Text("重新登录".tl),
                       subtitle: Text("如果登录失效点击此处".tl),
@@ -231,7 +224,7 @@ class AccountsPage extends StatelessWidget {
                       },
                       trailing: const Icon(Icons.refresh),
                     ),
-                  if (appdata.jmEmail != "")
+                  if (appdata.jmName != "")
                     ListTile(
                       title: Text("退出登录".tl),
                       onTap: () {

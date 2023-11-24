@@ -23,7 +23,6 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 
   @override
   void initState() {
-    createLogic();
     PicacgLeaderboardPage.createState();
     super.initState();
   }

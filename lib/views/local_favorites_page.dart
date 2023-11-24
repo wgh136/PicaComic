@@ -23,7 +23,7 @@ import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
 import '../network/hitomi_network/hitomi_models.dart';
 import '../network/htmanga_network/htmanga_main_network.dart';
-import '../network/jm_network/jm_main_network.dart';
+import '../network/jm_network/jm_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
 import '../network/picacg_network/methods.dart';
 import '../tools/io_tools.dart';

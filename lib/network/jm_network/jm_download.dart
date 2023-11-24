@@ -8,7 +8,7 @@ import 'jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'dart:io';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'jm_main_network.dart';
+import 'jm_network.dart';
 
 class DownloadedJmComic extends DownloadedItem {
   JmComicInfo comic;

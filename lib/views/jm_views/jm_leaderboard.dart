@@ -1,59 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_main_network.dart';
-import 'package:pica_comic/network/jm_network/jm_models.dart';
-import 'package:pica_comic/views/widgets/show_error.dart';
-import '../../foundation/app.dart';
-import '../widgets/list_loading.dart';
-import 'jm_widgets.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
+import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/tools/translations.dart';
-
-class CategoryPageLogic extends StateController{
-  bool loading = true;
-  CategoryComicsRes? comics;
-  String? message;
-
-  void change(){
-    loading = !loading;
-    update();
-  }
-
-  void get(Category category, ComicsOrder order) async{
-    var res = await jmNetwork.getCategoryComics(category.slug, order);
-    if(res.error){
-      message = res.errorMessage;
-      change();
-    }else{
-      comics = res.data;
-      change();
-    }
-  }
-
-  void refresh_(){
-    comics = null;
-    message = null;
-    loading = true;
-    update();
-  }
-
-  void loadMore() async{
-    await jmNetwork.getCategoriesComicNextPage(comics!);
-    update();
-  }
-}
-
-void createLogic(){
-  StateController.put(CategoryPageLogic(), tag: "mv");
-  StateController.put(CategoryPageLogic(), tag: "mv_m");
-  StateController.put(CategoryPageLogic(), tag: "mv_w");
-  StateController.put(CategoryPageLogic(), tag: "mv_t");
-}
-
-void disposeLogic(){
-  StateController.remove<CategoryPageLogic>();
-  StateController.remove<CategoryPageLogic>();
-  StateController.remove<CategoryPageLogic>();
-  StateController.remove<CategoryPageLogic>();
-}
 
 class JmLeaderboardPage extends StatelessWidget {
   const JmLeaderboardPage({Key? key}) : super(key: key);
@@ -83,49 +32,33 @@ class JmLeaderboardPage extends StatelessWidget {
   }
 }
 
-class OneJmLeaderboardPage extends StatelessWidget{
+class OneJmLeaderboardPage extends ComicsPage{
   const OneJmLeaderboardPage(this.order,{super.key});
   final ComicsOrder order;
 
   @override
-  Widget build(BuildContext context) {
-    final category = Category("", "0", []);
-    return StateBuilder<CategoryPageLogic>(
-      tag: order.toString(),
-      builder: (logic){
-        if(logic.loading){
-          logic.get(category, order);
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }else if(logic.comics != null){
-          return CustomScrollView(
-            slivers: [
-              SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                        (context, index){
-                      if(index == logic.comics!.comics.length-1){
-                        logic.loadMore();
-                      }
-                      return JmComicTile(logic.comics!.comics[index]);
-                    },
-                    childCount: logic.comics!.comics.length
-                ),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: App.comicTileMaxWidth,
-                  childAspectRatio: App.comicTileAspectRatio,
-                ),
-              ),
-              if(logic.comics!.loaded < logic.comics!.total)
-                const SliverToBoxAdapter(
-                  child: ListLoadingIndicator(),
-                )
-            ],
-          );
-        }else{
-          return showNetworkError(logic.message!, logic.refresh_, context, showBack: false);
-        }
-      },
-    );
+  Future<Res<List>> getComics(int i) {
+    return JmNetwork().getLeaderBoard(order, i);
   }
+
+  @override
+  String? get tag => "Jm leaderboard $order";
+
+  @override
+  String get title => throw UnimplementedError();
+
+  @override
+  ComicType get type => ComicType.jm;
+
+  @override
+  bool get withScaffold => false;
+
+  @override
+  bool get showTitle => false;
+
+  @override
+  bool get showBackWhenError => false;
+
+  @override
+  bool get showBackWhenLoading => false;
 }
