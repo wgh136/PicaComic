@@ -64,7 +64,8 @@ class JmNetwork {
             "Accept-Language":
                 "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
             "Referer": baseUrl
-          }, validateStatus: (i) => i==200 || i==403, responseType: ResponseType.plain),
+          }, validateStatus: (i) => i==200 || i==403 || i==301, responseType: ResponseType.plain,
+          followRedirects: true),
           expiredTime: CacheExpiredTime.no,
           http2: true,
           cookieJar: cookieJar);
@@ -74,6 +75,11 @@ class JmNetwork {
           throw cloudflareChallenge;
         }
       }
+
+      if(res.statusCode == 301){
+        return get(res.headers["location"]!.first);
+      }
+
       if (res.statusCode != 200) {
         return Res(null,
             errorMessage: "Invalid Status Code: ${res.statusCode}");
@@ -156,7 +162,7 @@ class JmNetwork {
           .split("/")
           .firstWhere((element) => element.isNum);
       return JmComicBrief(id, author, name, "",
-          categories.map((e) => ComicCategoryInfo("", e)).toList(), tags);
+          categories.map((e) => ComicCategoryInfo("", e)).toList(), tags.toSet().toList());
     } catch (e) {
       return null;
     }
@@ -304,6 +310,9 @@ class JmNetwork {
         if(element.children.length < 2){
           break;
         }
+        if(element.className.contains("hot")){
+          continue;
+        }
         if(element.firstChild!.text!.contains("作者")){
           author.addAll(element.querySelectorAll("a").map((e) => e.text));
         } else {
@@ -323,7 +332,7 @@ class JmNetwork {
       }
       var favorite = document.querySelector("i.far.fa-bookmark.fa-2x") == null;
       var liked = document.querySelector("i.glyphicon.glyphicon-heart.fa-2x")!.attributes["style"] != null;
-      final comments = int.parse(document.querySelector("div#total_video_comments")!.text);
+      final comments = int.parse(document.querySelector("div#total_video_comments")?.text ?? "0");
       return Res(JmComicInfo(name, id, author, description, likes, 0, series,
           tags, _parsePageComics(document).$1, liked, favorite, comments, epNames));
     }
@@ -359,6 +368,9 @@ class JmNetwork {
       return Res.fromErrorRes(res);
     }
     if(res.data == "Redirect"){
+      appdata.jmName = account;
+      appdata.jmPwd = pwd;
+      appdata.writeData();
       return const Res(true);
     }
     return const Res(null, errorMessage: "Failed to login");
@@ -366,10 +378,11 @@ class JmNetwork {
 
   Future<void> logout() async {
     var cookies = await cookieJar!.loadForRequest(Uri.parse(baseUrl));
-    var cookie = cookies.firstWhere((element) => element.name == "cf_clearance");
+    var cookie = cookies.firstWhereOrNull((element) => element.name == "cf_clearance");
     await cookieJar!.deleteAll();
-    cookieJar!.saveFromResponse(Uri.parse(baseUrl), [cookie]);
-    appdata.jmEmail = "";
+    if(cookie != null) {
+      cookieJar!.saveFromResponse(Uri.parse(baseUrl), [cookie]);
+    }
     appdata.jmName = "";
     appdata.jmPwd = "";
     await appdata.writeData();

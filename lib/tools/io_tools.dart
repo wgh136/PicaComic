@@ -351,7 +351,7 @@ Future<bool> importData([String? filePath]) async{
             "$appVersion\nStop importing data");
     return true;
   }
-  var prevAccounts = [appdata.picacgAccount, appdata.jmEmail, appdata.htName];
+  var prevAccounts = [appdata.picacgAccount, appdata.jmName, appdata.htName];
   var dataReadRes = appdata.readDataFromJson(json);
   if(!dataReadRes){
     return false;
@@ -359,7 +359,7 @@ Future<bool> importData([String? filePath]) async{
   if(appdata.picacgAccount != prevAccounts[0]) {
     await network.loginFromAppdata();
   }
-  if(appdata.jmEmail != prevAccounts[1]) {
+  if(appdata.jmName != prevAccounts[1]) {
     await JmNetwork().loginFromAppdata();
   }
   if(appdata.htName != prevAccounts[2]) {

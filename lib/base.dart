@@ -121,7 +121,6 @@ class Appdata {
 
   //jm相关信息
   String jmName = "";
-  String jmEmail = "";
   String jmPwd = "";
 
   //绅士漫画
@@ -228,7 +227,6 @@ class Appdata {
     await s.setString("ehAccount", ehAccount);
     await s.setString("ehPassHash", ehPassHash);
     await s.setString("jmName", jmName);
-    await s.setString("jmEmail", jmEmail);
     await s.setString("jmPwd", jmPwd);
     await s.setString("ehIgneous", igneous);
     await s.setString("picacgAccount", picacgAccount);
@@ -276,7 +274,6 @@ class Appdata {
       ehPassHash = s.getString("ehPassHash") ?? "";
       igneous = s.getString("ehIgneous") ?? "";
       jmName = s.getString("jmName") ?? "";
-      jmEmail = s.getString("jmEmail") ?? "";
       jmPwd = s.getString("jmPwd") ?? "";
       picacgAccount = s.getString("picacgAccount") ?? "";
       picacgPassword = s.getString("picacgPassword") ?? "";
@@ -300,7 +297,6 @@ class Appdata {
         "ehAccount": ehAccount,
         "igneous": igneous,
         "jmName": jmName,
-        "jmEmail": jmEmail,
         "jmPwd": jmPwd,
         "htName": htName,
         "htPwd": htPwd,
@@ -329,7 +325,6 @@ class Appdata {
       ehAccount = json["ehAccount"];
       igneous = json["igneous"];
       jmName = json["jmName"];
-      jmEmail = json["jmEmail"];
       jmPwd = json["jmPwd"];
       htName = json["htName"];
       htPwd = json["htPwd"];

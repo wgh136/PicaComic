@@ -76,7 +76,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
 
           void func2() {
             favoriteComic(FavoriteComicWidget(
-              havePlatformFavorite: appdata.jmEmail != "",
+              havePlatformFavorite: appdata.jmName != "",
               needLoadFolderData: true,
               setFavorite: (b) {
                 if (favorite != b) {

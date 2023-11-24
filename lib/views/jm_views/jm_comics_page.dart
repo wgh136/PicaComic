@@ -63,7 +63,13 @@ class _JmComicsPageState extends State<JmComicsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
+    return Scaffold(
+      body: buildBody(context),
+    );
+  }
+
+  Widget buildBody(BuildContext context) {
     if (loading) {
       load();
       return showLoading(context);
