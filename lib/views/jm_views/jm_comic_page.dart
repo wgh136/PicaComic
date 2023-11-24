@@ -38,7 +38,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
                     Icons.favorite_outline,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-            label: Text(data!.likes.toString()),
+            label: Text(data!.likes.toString().replaceLast("000", "K")),
             value: 1,
           ),
           ButtonSegment(

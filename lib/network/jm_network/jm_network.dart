@@ -320,7 +320,8 @@ class JmNetwork {
         }
       }
       final description = document.querySelectorAll("div.col-lg-7 > div > div.p-t-5.p-b-5")[1].text;
-      final likes = int.tryParse(document.querySelector("li.list-style-none.d-inline-block.p-r-15 > a")!.id.nums) ?? 0;
+      final likes = int.tryParse(document.querySelector("span#albim_likes_$id")!
+          .text.toLowerCase().replaceAll("k", "000")) ?? 0;
       var series = <int, String>{};
       var epNames = <String>[];
       for(var element in document.querySelectorAll("div.nav-tab-content div.episode > ul > a")){
