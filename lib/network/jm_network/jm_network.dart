@@ -235,8 +235,8 @@ class JmNetwork {
         return Res.fromErrorRes(res);
       }
       var document = parse(res.data);
-      var (comics, _) = _parsePageComics(document);
-      return Res(comics);
+      var (comics, maxPage) = _parsePageComics(document);
+      return Res(comics, subData: maxPage);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());

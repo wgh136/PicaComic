@@ -1,64 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/views/widgets/show_error.dart';
-import '../../foundation/app.dart';
-import 'jm_widgets.dart';
+import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 
-class JmLatestPageLogic extends StateController {
-  bool loading = true;
-  var comics = <JmComicBrief>[];
-  String? message;
-
-  void get() async {
-    var res = await jmNetwork.getLatest(1);
-    if (!res.error) {
-      comics.addAll(res.data);
-    } else {
-      message = res.errorMessage;
-    }
-    loading = false;
-    update();
-  }
-
-  void refresh_() {
-    comics.clear();
-    loading = true;
-    update();
-  }
-}
-
-class JmLatestPage extends StatelessWidget {
-  const JmLatestPage({Key? key}) : super(key: key);
+class JmLatestPage extends ComicsPage<JmComicBrief>{
+  const JmLatestPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return StateBuilder<JmLatestPageLogic>(
-      builder: (logic) {
-        if (logic.loading) {
-          logic.get();
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (logic.comics.isNotEmpty) {
-          return CustomScrollView(
-            slivers: [
-              SliverGrid(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return JmComicTile(logic.comics[index]);
-                }, childCount: logic.comics.length),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: App.comicTileMaxWidth,
-                  childAspectRatio: App.comicTileAspectRatio,
-                ),
-              ),
-            ],
-          );
-        } else {
-          return showNetworkError(logic.message!, logic.refresh_, context,
-              showBack: false);
-        }
-      },
-    );
+  Future<Res<List<JmComicBrief>>> getComics(int i) {
+    return JmNetwork().getLatest(i);
   }
+
+  static const stateTag = "JM latest page";
+
+  @override
+  String? get tag => stateTag;
+
+  @override
+  String get title => throw UnimplementedError();
+
+  @override
+  ComicType get type => ComicType.jm;
+
+  @override
+  bool get withScaffold => false;
+
+  @override
+  bool get showTitle => false;
+
+  @override
+  bool get showBackWhenError => false;
+
+  @override
+  bool get showBackWhenLoading => false;
 }

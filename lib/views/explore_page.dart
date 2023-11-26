@@ -7,6 +7,7 @@ import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -59,7 +60,7 @@ class _ExplorePageState extends State<ExplorePage>
               if (appdata.settings[24][4] == "1")
                 () => StateController.find<JmHomePageLogic>().refresh_(),
               if (appdata.settings[24][5] == "1")
-                () => StateController.find<JmLatestPageLogic>().refresh_(),
+                () => StateController.find<ComicsPageLogic>(tag: JmLatestPage.stateTag).refresh_(),
               if (appdata.settings[24][6] == "1")
                 () => HitomiHomePageComics.refresh(),
               if (appdata.settings[24][7] == "1")
