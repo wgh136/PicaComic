@@ -343,8 +343,8 @@ class JmNetwork {
     }
   }
 
-  Future<Res<List<String>>> getChapter(String id) async{
-    var res = await get("$baseUrl/photo/$id");
+  Future<Res<List<String>>> getChapter(String id, [int? page]) async{
+    var res = await get("$baseUrl/photo/$id${page == null ? "" : "?page=$page"}");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -353,6 +353,23 @@ class JmNetwork {
       var images = <String>[];
       for (var s in document.querySelectorAll("div.center.scramble-page")) {
         images.add(getJmImageUrl(s.id, id));
+      }
+      if(page == null) {
+        if (document.querySelector("ul.pagination-lg") != null) {
+          var maxPage = int.tryParse((document
+              .querySelectorAll("ul.pagination-lg > li")
+              .last.firstChild
+              ?.attributes["href"]
+              ?.split("=")
+              .last) ?? "1");
+          for (int i = 2; i <= (maxPage ?? 1); i++) {
+            var res = await getChapter(id, i);
+            if(res.error){
+              return Res.fromErrorRes(res);
+            }
+            images.addAll(res.data);
+          }
+        }
       }
       return Res(images);
     } catch (e, s) {
