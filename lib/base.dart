@@ -95,6 +95,7 @@ class Appdata {
     "0", //54 阅读后移动本地收藏(否/尾/首)
     "1", //55 长按缩放
     "https://18comic.vip", //56 jm domain
+    "1", //57 show page ifo in reader
   ];
 
   ///屏蔽的关键词

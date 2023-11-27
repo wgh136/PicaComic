@@ -329,8 +329,9 @@ class ComicReadingPage extends StatelessWidget {
                       ),
                     ),
 
-                  buildPageInfoText(logic, type.hasEps, eps, context,
-                      jm: type == ReadingType.jm),
+                  if(appdata.settings[57] == "1")
+                    buildPageInfoText(logic, type.hasEps, eps, context,
+                        jm: type == ReadingType.jm),
 
                   //底部工具栏
                   buildBottomToolBar(logic, context, type.hasEps, openEpsDrawer,
