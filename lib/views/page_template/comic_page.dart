@@ -322,11 +322,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       child: IconButton(
         icon: const Icon(Icons.book_outlined),
         onPressed: () async {
-          if (LocalFavoritesManager().folderNames == null) {
-            await LocalFavoritesManager().readData();
-          }
           if (!LocalFavoritesManager()
-              .folderNames!
+              .folderNames
               .contains(appdata.settings[51])) {
             showDialog(
                 context: App.globalContext!,
@@ -1138,40 +1135,35 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
     var localFolders = LocalFavoritesManager().folderNames;
 
-    if (localFolders == null) {
-      LocalFavoritesManager().readData().then((value) => setState(() => {}));
-      local = const SizedBox();
-    } else {
-      var children = List.generate(localFolders.length,
-          (index) => buildFolder(localFolders[index], localFolders[index], 1));
-      children.add(SizedBox(
-        height: 56,
-        width: double.infinity,
-        child: Center(
-          child: TextButton(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("新建".tl),
-                const SizedBox(
-                  width: 4,
-                ),
-                const Icon(Icons.add),
-              ],
-            ),
-            onPressed: () => showDialog(
-                    context: App.globalContext!,
-                    builder: (_) => const CreateFolderDialog())
-                .then((value) => setState(() {})),
+    var children = List.generate(localFolders.length,
+            (index) => buildFolder(localFolders[index], localFolders[index], 1));
+    children.add(SizedBox(
+      height: 56,
+      width: double.infinity,
+      child: Center(
+        child: TextButton(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("新建".tl),
+              const SizedBox(
+                width: 4,
+              ),
+              const Icon(Icons.add),
+            ],
           ),
+          onPressed: () => showDialog(
+              context: App.globalContext!,
+              builder: (_) => const CreateFolderDialog())
+              .then((value) => setState(() {})),
         ),
-      ));
-      local = SingleChildScrollView(
-        child: Column(
-          children: children,
-        ),
-      );
-    }
+      ),
+    ));
+    local = SingleChildScrollView(
+      child: Column(
+        children: children,
+      ),
+    );
 
     return DefaultTabController(
         length: widget.havePlatformFavorite ? 2 : 1,

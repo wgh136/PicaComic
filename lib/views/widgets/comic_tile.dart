@@ -28,6 +28,8 @@ abstract class ComicTile extends StatelessWidget {
 
   int? get pages => null;
 
+  String? get badgeOnImage => null;
+
   void onLongTap_() {
     showDialog(
         context: App.globalContext!,
@@ -130,9 +132,9 @@ abstract class ComicTile extends StatelessWidget {
   Widget _buildDetailedMode(BuildContext context, int flexLeft, int flexRight){
     return Material(
       color: Colors.transparent,
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      borderRadius: const BorderRadius.all(Radius.circular(12)),
       child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           onTap: onTap_,
           onLongPress: enableLongPressed ? onLongTap_ : null,
           onSecondaryTapDown: onSecondaryTap_,
@@ -144,7 +146,8 @@ abstract class ComicTile extends StatelessWidget {
                     flex: flexLeft,
                     child: Container(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16)),
+                          color: Theme.of(context).colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(8)),
                         clipBehavior: Clip.antiAlias,
                         child: image)),
                 SizedBox.fromSize(
@@ -318,7 +321,7 @@ class _ComicDescription extends StatelessWidget {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8)),
                         ),
-                        child: Text(badge!, style: const TextStyle(fontSize: 13),),
+                        child: Text(badge!, style: const TextStyle(fontSize: 12),),
                       )
                   ],
                 )

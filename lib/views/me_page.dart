@@ -64,13 +64,6 @@ class _NewMePageState extends StateWithController<NewMePage>{
   final tabController = ScrollController();
   bool shouldScrollTabBar = false;
 
-  @override
-  void initState() {
-    Future.microtask(() => LocalFavoritesManager().readData())
-        .then((value){if(value) setState((){});});
-    super.initState();
-  }
-
   void hideLocalFavorites(){
     setState(() {
       appdata.settings[52] = "1";
@@ -272,7 +265,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
             App.globalBack();
             showDialog(context: context, builder: (context) => RenameFolderDialog(name))
                 .then((value) {
-                  if(folderName == name && LocalFavoritesManager().getAllComics(name) == null){
+                  if(folderName == name && !LocalFavoritesManager().folderNames.contains(folderName)){
                     folderName = null;
                   }
                   setState((){});
@@ -350,11 +343,6 @@ class _NewMePageState extends StateWithController<NewMePage>{
     }
 
     final folders = LocalFavoritesManager().folderNames;
-    if(folders == null) {
-      Future.microtask(() => LocalFavoritesManager().readData())
-          .then((value) => setState(() {}));
-      return const SizedBox();
-    }
     return Material(
       child: MouseRegion(
         onEnter: (details) => setState(() => shouldScrollTabBar = true),
@@ -505,7 +493,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
   }
 
   Widget buildFolderComics(){
-    var comics = LocalFavoritesManager().getAllComics(folderName!)!;
+    var comics = LocalFavoritesManager().getAllComics(folderName!);
     if(comics.isEmpty){
       return buildEmptyView();
     }

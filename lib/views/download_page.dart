@@ -33,6 +33,27 @@ import 'dart:io';
 import 'package:pica_comic/tools/translations.dart';
 import 'main_page.dart';
 
+extension ReadComic on DownloadedItem{
+  void read(){
+    final comic = this;
+    if (comic.type == DownloadType.picacg) {
+      readPicacgComic((comic as DownloadedComic).comicItem, [...comic.eps]);
+    } else if (comic.type == DownloadType.ehentai) {
+      readEhGallery((comic as DownloadedGallery).gallery);
+    } else if (comic.type == DownloadType.jm) {
+      readJmComic((comic as DownloadedJmComic).comic,
+          (comic).comic.series.values.toList());
+    } else if (comic.type == DownloadType.hitomi) {
+      readHitomiComic((comic as DownloadedHitomiComic).comic,
+          (comic).cover);
+    } else if (comic.type == DownloadType.htmanga) {
+      readHtmangaComic((comic as DownloadedHtComic).comic);
+    } else if (comic.type == DownloadType.nhentai){
+      readNhentai(NhentaiComic(comic.id.replaceFirst("nhentai", ""), comic.name, comic.subTitle,
+          (comic as NhentaiDownloadedComic).cover, {}, false, [], [], ""));
+    }
+  }
+}
 
 class DownloadPageLogic extends StateController {
   ///是否正在加载
@@ -150,33 +171,8 @@ class DownloadPage extends StatelessWidget {
   }
 
   Future<void> getComics(DownloadPageLogic logic) async {
-    try {
-      for (var comic in (downloadManager.downloaded)) {
-        logic.comics.add(await downloadManager.getComicFromId(comic));
-      }
-
-      for (var gallery in (downloadManager.downloadedGalleries)) {
-        logic.comics.add(await downloadManager.getGalleryFormId(gallery));
-      }
-
-      for (var comic in (downloadManager.downloadedJmComics)) {
-        logic.comics.add(await downloadManager.getJmComicFormId(comic));
-      }
-
-      for (var comic in downloadManager.downloadedHitomiComics) {
-        logic.comics.add(await downloadManager.getHitomiComicFromId(comic));
-      }
-
-      for (var comic in downloadManager.downloadedHtComics) {
-        logic.comics.add(await downloadManager.getHtComicFromId(comic));
-      }
-
-      for(var comic in downloadManager.downloadedNhentaiComics){
-        logic.comics.add(await downloadManager.getNhentaiComic(comic));
-      }
-    } catch (e) {
-      logic.comics.clear();
-      await getComics(logic);
+    for (var comic in (downloadManager.allComics)) {
+      logic.comics.addIfNotNull(await downloadManager.getComicOrNull(comic));
     }
     logic.comics.sort((a, b) {
       int res;
@@ -197,7 +193,7 @@ class DownloadPage extends StatelessWidget {
       }
       return res;
     });
-    logic.baseComics = logic.comics.map((e) => e).toList();
+    logic.baseComics = logic.comics.toList();
   }
 
   Future<void> export(DownloadPageLogic logic) async {
@@ -826,22 +822,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
   }
 
   void read() {
-    if (comic.type == DownloadType.picacg) {
-      readPicacgComic((comic as DownloadedComic).comicItem, [...comic.eps]);
-    } else if (comic.type == DownloadType.ehentai) {
-      readEhGallery((comic as DownloadedGallery).gallery);
-    } else if (comic.type == DownloadType.jm) {
-      readJmComic((comic as DownloadedJmComic).comic,
-          (comic as DownloadedJmComic).comic.series.values.toList());
-    } else if (comic.type == DownloadType.hitomi) {
-      readHitomiComic((comic as DownloadedHitomiComic).comic,
-          (comic as DownloadedHitomiComic).cover);
-    } else if (comic.type == DownloadType.htmanga) {
-      readHtmangaComic((comic as DownloadedHtComic).comic);
-    } else if (comic.type == DownloadType.nhentai){
-      readNhentai(NhentaiComic(comic.id.replaceFirst("nhentai", ""), comic.name, comic.subTitle,
-          (comic as NhentaiDownloadedComic).cover, {}, false, [], [], ""));
-    }
+    comic.read();
   }
 
   void readSpecifiedEps(int i) {

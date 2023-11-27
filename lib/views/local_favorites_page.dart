@@ -1,10 +1,12 @@
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
@@ -28,7 +30,6 @@ import '../network/nhentai_network/nhentai_main_network.dart';
 import '../network/picacg_network/methods.dart';
 import '../tools/io_tools.dart';
 import 'main_page.dart';
-
 
 class CreateFolderDialog extends StatelessWidget {
   const CreateFolderDialog({Key? key}) : super(key: key);
@@ -63,14 +64,15 @@ class CreateFolderDialog extends StatelessWidget {
         Center(
           child: TextButton(
             child: Text("从文件导入".tl),
-            onPressed: () async{
+            onPressed: () async {
               App.globalBack();
               var data = await getDataFromUserSelectedFile(["json"]);
-              if(data == null){
+              if (data == null) {
                 return;
               }
-              var(error, message) = LocalFavoritesManager().loadFolderData(data);
-              if(error){
+              var (error, message) =
+                  LocalFavoritesManager().loadFolderData(data);
+              if (error) {
                 showMessage(App.globalContext!, message);
               } else {
                 StateController.find(tag: "me page").update();
@@ -170,7 +172,7 @@ class LocalFavoriteTile extends ComicTile {
   static Map<String, File> cache = {};
 
   @override
-  String? get badge => showFolderInfo ? folderName : null;
+  String? get badge => DownloadManager().allComics.contains(comic.toDownloadId()) ? "已下载".tl : null;
 
   @override
   bool get enableLongPressed => _enableLongPressed;
@@ -385,152 +387,163 @@ class LocalFavoriteTile extends ComicTile {
             ));
   }
 
-  @override
-  ActionFunc get read => () async {
-        switch (comic.type) {
-          case ComicType.picacg:
-            {
-              bool cancel = false;
-              showLoadingDialog(App.globalContext!, () => cancel = true);
-              var res = await network.getEps(comic.target);
-              if (cancel) {
-                return;
-              }
-              if (res.error) {
-                App.globalBack();
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              } else {
-                App.globalBack();
-                readPicacgComic2(
-                    ComicItemBrief(comic.name, comic.author, 0, comic.coverPath,
-                        comic.target, [],
-                        ignoreExamination: true),
-                    res.data);
-              }
-            }
-          case ComicType.ehentai:
-            {
-              bool cancel = false;
-              showLoadingDialog(App.globalContext!, () => cancel = true);
-              var res = await EhNetwork().getGalleryInfo(comic.target);
-              if (cancel) {
-                return;
-              }
-              if (res.error) {
-                App.globalBack();
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              } else {
-                App.globalBack();
-                readEhGallery(res.data);
-              }
-            }
-          case ComicType.jm:
-            {
-              bool cancel = false;
-              showLoadingDialog(App.globalContext!, () => cancel = true);
-              var res = await JmNetwork().getComicInfo(comic.target);
-              if (cancel) {
-                return;
-              }
-              if (res.error) {
-                App.globalBack();
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              } else {
-                App.globalBack();
-                readJmComic(res.data, res.data.series.values.toList());
-              }
-            }
-          case ComicType.hitomi:
-            {
-              bool cancel = false;
-              showLoadingDialog(App.globalContext!, () => cancel = true);
-              var res = await HiNetwork().getComicInfo(comic.target);
-              if (cancel) {
-                return;
-              }
-              if (res.error) {
-                App.globalBack();
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              } else {
-                App.globalBack();
-                readHitomiComic(res.data, comic.coverPath);
-              }
-            }
-          case ComicType.htManga:
-            {
-              bool cancel = false;
-              showLoadingDialog(App.globalContext!, () => cancel = true);
-              var res = await HtmangaNetwork().getComicInfo(comic.target);
-              if (cancel) {
-                return;
-              }
-              if (res.error) {
-                App.globalBack();
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              } else {
-                App.globalBack();
-                readHtmangaComic(res.data);
-              }
-            }
-          case ComicType.nhentai:
-            {
-              bool cancel = false;
-              showLoadingDialog(App.globalContext!, () => cancel = true);
-              var res = await NhentaiNetwork().getComicInfo(comic.target);
-              if (cancel) {
-                return;
-              }
-              if (res.error) {
-                App.globalBack();
-                showMessage(App.globalContext, res.errorMessageWithoutNull);
-              } else {
-                App.globalBack();
-                readNhentai(res.data);
-              }
-            }
-          case ComicType.htFavorite:
-            throw UnimplementedError();
+  void readComic() async{
+    if(DownloadManager().allComics.contains(comic.toDownloadId())){
+      var download = await DownloadManager().getComicOrNull(comic.toDownloadId());
+      if(download != null){
+        download.read();
+        return;
+      }
+    }
+    switch (comic.type) {
+      case ComicType.picacg:
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true);
+          var res = await network.getEps(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            readPicacgComic2(
+                ComicItemBrief(comic.name, comic.author, 0, comic.coverPath,
+                    comic.target, [],
+                    ignoreExamination: true),
+                res.data);
+          }
         }
-      };
+      case ComicType.ehentai:
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true);
+          var res = await EhNetwork().getGalleryInfo(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            readEhGallery(res.data);
+          }
+        }
+      case ComicType.jm:
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true);
+          var res = await JmNetwork().getComicInfo(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            readJmComic(res.data, res.data.series.values.toList());
+          }
+        }
+      case ComicType.hitomi:
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true);
+          var res = await HiNetwork().getComicInfo(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            readHitomiComic(res.data, comic.coverPath);
+          }
+        }
+      case ComicType.htManga:
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true);
+          var res = await HtmangaNetwork().getComicInfo(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            readHtmangaComic(res.data);
+          }
+        }
+      case ComicType.nhentai:
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true);
+          var res = await NhentaiNetwork().getComicInfo(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            readNhentai(res.data);
+          }
+        }
+      case ComicType.htFavorite:
+        throw UnimplementedError();
+    }
+  }
 
-  void copyTo(){
+  @override
+  ActionFunc get read => readComic;
+
+  void copyTo() {
     String? folder;
     showDialog(
-      context: App.globalContext!,
-      builder: (context) => SimpleDialog(
-        title: const Text("复制到..."),
-        children: [
-          SizedBox(
-            width: 400,
-            height: 132,
-            child: Column(
+        context: App.globalContext!,
+        builder: (context) => SimpleDialog(
+              title: const Text("复制到..."),
               children: [
-                ListTile(
-                  title: Text("收藏夹".tl),
-                  trailing: Select(
-                    width: 156,
-                    values: LocalFavoritesManager().folderNames!,
-                    initialValue: null,
-                    whenChange:
-                        (i) => folder = LocalFavoritesManager().folderNames![i],
+                SizedBox(
+                  width: 400,
+                  height: 132,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text("收藏夹".tl),
+                        trailing: Select(
+                          width: 156,
+                          values: LocalFavoritesManager().folderNames,
+                          initialValue: null,
+                          whenChange: (i) =>
+                              folder = LocalFavoritesManager().folderNames[i],
+                        ),
+                      ),
+                      const Spacer(),
+                      Center(
+                        child: FilledButton(
+                          child: const Text("确认"),
+                          onPressed: () {
+                            LocalFavoritesManager().addComic(folder!, comic);
+                            App.globalBack();
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                    ],
                   ),
-                ),
-                const Spacer(),
-                Center(
-                  child: FilledButton(
-                    child: const Text("确认"),
-                    onPressed: (){
-                      LocalFavoritesManager().addComic(folder!, comic);
-                      App.globalBack();
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16,),
+                )
               ],
-            ),
-          )
-        ],
-    ));
+            ));
   }
 }
 
@@ -568,7 +581,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
   @override
   void dispose() {
     if (changed) {
-      LocalFavoritesManager().saveData();
+      LocalFavoritesManager().reorder(comics, widget.name);
     }
     LocalFavoriteTile.cache.clear();
     super.dispose();
@@ -576,15 +589,10 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
 
   @override
   Widget build(BuildContext context) {
-    if(comics == null){
-      LocalFavoritesManager().readData();
-      Future.delayed(const Duration(milliseconds: 200)).then((value) => setState((){}));
-      return const Material();
-    }
     var tiles = List.generate(
-        comics!.length,
+        comics.length,
         (index) => LocalFavoriteTile(
-              comics![index],
+              comics[index],
               widget.name,
               () {
                 changed = true;
@@ -593,7 +601,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
                 });
               },
               false,
-              key: Key(comics![index].target),
+              key: Key(comics[index].target),
             ));
     return Scaffold(
       appBar: AppBar(title: Text(widget.name)),
@@ -609,9 +617,8 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
               onReorder: (reorderFunc) {
                 changed = true;
                 setState(() {
-                  comics = reorderFunc(comics!) as List<FavoriteItem>;
+                  comics = reorderFunc(comics) as List<FavoriteItem>;
                 });
-                LocalFavoritesManager().reorder(comics!, widget.name);
               },
               dragChildBoxDecoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),

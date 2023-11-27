@@ -30,7 +30,7 @@ class JmNetwork {
 
   static String get baseUrl => appdata.settings[56];
 
-  static const cloudflareChallenge = "JM: need cloudflare challenge";
+  static const cloudflareChallenge = "JM: Cloudflare Challenge";
 
   set ua(String value) {
     appdata.nhentaiData[0] = value;
@@ -137,7 +137,7 @@ class JmNetwork {
     if (account == "") {
       return const Res(true);
     }
-    return login(account, pwd);
+    return login(account, pwd, false);
   }
 
   JmComicBrief? _parseComic(dom.Element element) {
@@ -378,7 +378,7 @@ class JmNetwork {
     }
   }
 
-  Future<Res<bool>> login(String account, String pwd) async {
+  Future<Res<bool>> login(String account, String pwd, [bool saveData = true]) async {
     var res = await post("$baseUrl/login",
         "username=$account&password=${Uri.encodeComponent(pwd)}&login_remember=on&submit_login="
         , "application/x-www-form-urlencoded");
@@ -386,9 +386,11 @@ class JmNetwork {
       return Res.fromErrorRes(res);
     }
     if(res.data == "Redirect"){
-      appdata.jmName = account;
-      appdata.jmPwd = pwd;
-      appdata.writeData();
+      if(saveData) {
+        appdata.jmName = account;
+        appdata.jmPwd = pwd;
+        appdata.writeData();
+      }
       return const Res(true);
     }
     return const Res(null, errorMessage: "Failed to login");

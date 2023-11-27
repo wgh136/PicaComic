@@ -207,8 +207,10 @@ class Appdata {
     await s.setStringList("favoriteTags", favoriteTags.toList());
   }
 
-  Future<void> writeData() async {
-    Webdav.uploadData();
+  Future<void> writeData([bool sync = true]) async {
+    if(sync) {
+      Webdav.uploadData();
+    }
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
     await s.setString("userName", user.name);
@@ -331,7 +333,7 @@ class Appdata {
       history.readDataFromJson(json["history"]);
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
       favoriteTags = Set.from(json["favoriteTags"] ?? favoriteTags);
-      writeData();
+      writeData(false);
       return true;
     } catch (e) {
       readData();

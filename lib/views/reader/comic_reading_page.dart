@@ -206,7 +206,6 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
       App.onAppLifeCircleChanged = () => TapController.fingers = 0;
-      LocalFavoritesManager().readData();
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -228,6 +227,10 @@ class ComicReadingPage extends StatelessWidget {
       StateController.remove<ComicReadingPageLogic>();
       App.onAppLifeCircleChanged = null;
       LocalFavoritesManager().onReadEnd(target);
+      if(history != null) {
+        HistoryManager().saveReadHistory(
+            history!.target, history!.ep, history!.page);
+      }
       Future.microtask(() {
         if (ComicPage.tagsStack.isNotEmpty) {
           ComicPage.tagsStack.last.updateHistory(history);
@@ -515,7 +518,7 @@ class ComicReadingPage extends StatelessWidget {
 
   void loadGalleryInfo(ComicReadingPageLogic logic) async {
     try {
-      if (downloadManager.downloadedGalleries
+      if (downloadManager.downloaded
           .contains(getGalleryId(gallery!.link))) {
         logic.downloaded = true;
         for (int i = 0;
@@ -541,7 +544,7 @@ class ComicReadingPage extends StatelessWidget {
   void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
     int? epLength;
     try {
-      if (downloadManager.downloadedJmComics.contains("jm$target")) {
+      if (downloadManager.downloaded.contains("jm$target")) {
         var downloadedItem =
             await downloadManager.getJmComicFormId("jm$target");
         if (downloadedItem.downloadedChapters
@@ -593,7 +596,7 @@ class ComicReadingPage extends StatelessWidget {
   void loadHitomiData(ComicReadingPageLogic logic) async {
     logic.images = images!;
     logic.urls = images!.map<String>((e) => "").toList();
-    if (downloadManager.downloadedHitomiComics.contains("hitomi$target")) {
+    if (downloadManager.downloaded.contains("hitomi$target")) {
       logic.downloaded = true;
     }
     await Future.delayed(const Duration(milliseconds: 200));
@@ -603,7 +606,7 @@ class ComicReadingPage extends StatelessWidget {
 
   void loadHtmangaData(ComicReadingPageLogic logic) async {
     try {
-      if (downloadManager.downloadedHtComics.contains("Ht$target")) {
+      if (downloadManager.downloaded.contains("Ht$target")) {
         logic.downloaded = true;
         for (int i = 0;
             i < await downloadManager.getComicLength("Ht$target");
@@ -629,7 +632,7 @@ class ComicReadingPage extends StatelessWidget {
 
   void loadNhentaiData(ComicReadingPageLogic logic) async {
     try {
-      if (downloadManager.downloadedNhentaiComics.contains("nhentai$target")) {
+      if (downloadManager.downloaded.contains("nhentai$target")) {
         logic.downloaded = true;
         for (int i = 0;
             i < await downloadManager.getComicLength("nhentai$target");

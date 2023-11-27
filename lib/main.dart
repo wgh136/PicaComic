@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_links/app_links.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,12 +8,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
-import 'package:pica_comic/tools/app_links.dart';
-import 'package:pica_comic/tools/background_service.dart';
+import 'package:pica_comic/init.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
-import 'package:pica_comic/tools/cache_auto_clear.dart';
-import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/proxy.dart';
@@ -23,40 +18,23 @@ import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
-import 'package:workmanager/workmanager.dart';
 import 'network/picacg_network/methods.dart';
 import 'network/webdav.dart';
 
 bool notFirstUse = false;
 
-void main() {
-  runZonedGuarded(() {
+void main(){
+  runZonedGuarded(() async{
     WidgetsFlutterBinding.ensureInitialized();
-    startClearCache();
-    if (App.isAndroid) {
-      final appLinks = AppLinks();
-      appLinks.allUriLinkStream.listen((uri) {
-        handleAppLinks(uri);
-      });
-    }
+    await init();
     FlutterError.onError = (details) {
       LogManager.addLog(LogLevel.error, "Unhandled Exception",
           "${details.exception}\n${details.stack}");
     };
-    appdata.readData().then((b) async {
-      if (App.isMobile) {
-        Workmanager().initialize(
-          onStart,
-        );
-      }
-      await checkDownloadPath();
-      notFirstUse = appdata.firstUse[3] == "1";
-      if (b) {
-        network = PicacgNetwork(appdata.token);
-      }
-      setNetworkProxy(); //设置代理
-      runApp(const MyApp());
-    });
+    notFirstUse = appdata.firstUse[3] == "1";
+    network = PicacgNetwork(appdata.token);
+    setNetworkProxy();
+    runApp(const MyApp());
   }, (error, stack) {
     LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
   });
@@ -122,10 +100,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     WidgetsBinding.instance.addObserver(this);
-    downloadManager.init(); //初始化下载管理器
-    notifications.init(); //初始化通知管理器
-    NhentaiNetwork().init();
-    JmNetwork().init();
+    notifications.init();
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }

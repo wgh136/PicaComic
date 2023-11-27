@@ -1,11 +1,11 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/webdav.dart';
+import 'package:sqlite3/sqlite3.dart';
 
-
-enum HistoryType{
+enum HistoryType {
   picacg(0),
   ehentai(1),
   jmComic(2),
@@ -17,7 +17,7 @@ enum HistoryType{
   const HistoryType(this.value);
 }
 
-base class History extends LinkedListEntry<History>{
+base class History extends LinkedListEntry<History> {
   HistoryType type;
 
   DateTime time;
@@ -37,171 +37,181 @@ base class History extends LinkedListEntry<History>{
 
   Set<int> readEpisode;
 
-  History(this.type,this.time,this.title,this.subtitle,this.cover,this.ep,
-      this.page,this.target,[this.readEpisode=const <int>{}]);
+  History(this.type, this.time, this.title, this.subtitle, this.cover, this.ep,
+      this.page, this.target,
+      [this.readEpisode = const <int>{}]);
 
+  Map<String, dynamic> toMap() => {
+        "type": type.value,
+        "time": time.millisecondsSinceEpoch,
+        "title": title,
+        "subtitle": subtitle,
+        "cover": cover,
+        "ep": ep,
+        "page": page,
+        "target": target,
+        "readEpisode": readEpisode.toList()
+      };
 
-  Map<String, dynamic> toMap()=>{
-    "type": type.value,
-    "time": time.millisecondsSinceEpoch,
-    "title": title,
-    "subtitle": subtitle,
-    "cover": cover,
-    "ep": ep,
-    "page": page,
-    "target": target,
-    "readEpisode": readEpisode.toList()
-  };
-
-  History.fromMap(Map<String, dynamic> map):
-    type=HistoryType.values[map["type"]],
-    time=DateTime.fromMillisecondsSinceEpoch(map["time"]),
-    title=map["title"],
-    subtitle=map["subtitle"],
-    cover=map["cover"],
-    ep=map["ep"],
-    page=map["page"],
-    target=map["target"],
-    readEpisode=Set<int>.from((map["readEpisode"] as List<dynamic>?)?.toSet() ?? const <int>{});
+  History.fromMap(Map<String, dynamic> map)
+      : type = HistoryType.values[map["type"]],
+        time = DateTime.fromMillisecondsSinceEpoch(map["time"]),
+        title = map["title"],
+        subtitle = map["subtitle"],
+        cover = map["cover"],
+        ep = map["ep"],
+        page = map["page"],
+        target = map["target"],
+        readEpisode = Set<int>.from(
+            (map["readEpisode"] as List<dynamic>?)?.toSet() ?? const <int>{});
 
   @override
   String toString() {
     return 'NewHistory{type: $type, time: $time, title: $title, subtitle: $subtitle, cover: $cover, ep: $ep, page: $page, target: $target}';
   }
+
+  History.fromRow(Row row)
+      : type = HistoryType.values[row["type"]],
+        time = DateTime.fromMillisecondsSinceEpoch(row["time"]),
+        title = row["title"],
+        subtitle = row["subtitle"],
+        cover = row["cover"],
+        ep = row["ep"],
+        page = row["page"],
+        target = row["target"],
+        readEpisode = Set<int>.from(
+            (row["readEpisode"] as String).split(',').where((element) => element != "")
+                .map((e) => int.parse(e)));
 }
 
-class HistoryManager{
+extension SQL on String{
+  String get toParam => replaceAll('\'', "''").replaceAll('"', "\"\"");
+}
+
+class HistoryManager {
   static HistoryManager? cache;
 
   HistoryManager.create();
 
-  factory HistoryManager() => cache==null?(cache=HistoryManager.create()):cache!;
+  factory HistoryManager() =>
+      cache == null ? (cache = HistoryManager.create()) : cache!;
 
-  LinkedList<History>? history;
+  List<dynamic> toJson() => getAll().map((h) => h.toMap()).toList();
 
-  List<dynamic> toJson() => history!.map((h)=>h.toMap()).toList();
+  late Database _db;
 
-  void readDataFromJson(List<dynamic> json){
-    history = LinkedList<History>();
-    for(var h in json){
-      history!.add(History.fromMap((h as Map<String, dynamic>)));
+  Future<void> init() async {
+    _db = sqlite3.open("${App.dataPath}/history.db");
+    var res = _db.select(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='history';");
+    if (res.isEmpty) {
+      var file = File("${App.dataPath}/history.json");
+      _db.execute("""
+        create table history (
+          target text primary key,
+          title text,
+          subtitle text,
+          cover text,
+          time int,
+          type int,
+          ep int,
+          page int,
+          readEpisode text
+        );
+      """);
+      if(file.existsSync()){
+        readDataFromJson(jsonDecode(file.readAsStringSync()));
+        file.deleteSync();
+      }
+    }
+  }
+
+  void readDataFromJson(List<dynamic> json) {
+    var history = LinkedList<History>();
+    for (var h in json) {
+      history.add(History.fromMap((h as Map<String, dynamic>)));
+    }
+    clearHistory();
+    for(var element in history){
+      addHistory(element);
+    }
+  }
+
+  void saveData() async {
+    Webdav.uploadData();
+  }
+
+  Future<void> readData() async {
+
+  }
+
+  /// add history. if exists, update read history.
+  Future<void> addHistory(History newItem) async {
+    print("add");
+    var res = _db.select("""
+      select * from history
+      where target == '${newItem.target.toParam}';
+    """);
+    if(res.isEmpty){
+      _db.execute("""
+        insert into history (target, title, subtitle, cover, time, type, ep, page, readEpisode)
+        values ('${newItem.target.toParam}', '${newItem.title.toParam}', 
+        '${newItem.subtitle.toParam}', '${newItem.cover.toParam}', 
+        ${newItem.time.millisecondsSinceEpoch}, ${newItem.type.index}, 
+        ${newItem.ep}, ${newItem.page}, '${newItem.readEpisode.join(',')}');
+      """);
+    } else {
+      _db.execute("""
+        update history
+        set time = ${DateTime.now().millisecondsSinceEpoch}
+        where target == '${newItem.target.toParam}';
+      """);
     }
     saveData();
   }
 
-  /// remove repeated item
-  void check(){
-    Set<String> keys = {};
-    var shouldRemove = <History>[];
-    for(var value in history!){
-      if(keys.contains(value.target)){
-        shouldRemove.add(value);
-        continue;
-      }else{
-        keys.add(value.target);
-      }
-    }
-    for(var value in shouldRemove){
-      history!.remove(value);
-    }
-  }
-
-  void saveData() async{
-    if(history == null){
-      return;
-    }
-    check();
-    final dataPath = await getApplicationSupportDirectory();
-    var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
-    if(!(await file.exists())){
-      await file.create();
-    }
-    file.writeAsStringSync(const JsonEncoder().convert(history!.map((h)=>h.toMap()).toList()));
-    Webdav.uploadData();
-  }
-
-  Future<void> readData() async{
-    if(history != null) return;
-    history = LinkedList<History>();
-    final dataPath = await getApplicationSupportDirectory();
-    var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
-    if(!(await file.exists())){
-      return;
-    }
-    var data = const JsonDecoder().convert(file.readAsStringSync());
-    for(var h in data){
-      history!.add(History.fromMap((h as Map<String, dynamic>)));
-    }
-  }
-
-  ///搜索是否存在, 存在则移至最前, 并且转移历史记录
-  ///调用此方法不会记录阅读数据, 只是添加历史记录
-  Future<void> addHistory(History newItem) async{
-    if(history == null) {
-      await readData();
-    }
-    try {
-      var p = history!.firstWhere((element) => element.target == newItem.target);
-      history!.remove(p);
-      history!.addFirst(p);
-    }
-    catch(e){
-      //没有之前的历史记录
-      history!.addFirst(History.fromMap(newItem.toMap()));
-      //做一个限制, 避免极端情况
-      if(history!.length >= 10000){
-        history!.remove(history!.last);
-      }
-    }
-  }
-
   ///退出阅读器时调用此函数, 修改阅读位置
-  Future<void> saveReadHistory(String target, int ep, int page) async{
-    if(history == null) {
-      await readData();
-    }
-    try {
-      var p = history!.firstWhere((element) => element.target == target);
-      p.ep = ep;
-      p.page = page;
-      saveData();
-    }
-    catch(e){
-      //可能存在进入阅读器前添加历史记录失败情况, 此时忽略
-    }
+  Future<void> saveReadHistory(String target, int ep, int page) async {
+    print("save $ep $page");
+    _db.execute("""
+        update history
+        set time = ${DateTime.now().millisecondsSinceEpoch}, ep = $ep, page = $page
+        where target == '${target.toParam}';
+    """);
   }
 
-  void clearHistory() async{
-    //清除历史记录
-    final dataPath = await getApplicationSupportDirectory();
-    var file = File("${dataPath.path}${Platform.pathSeparator}history.json");
-    if(file.existsSync()){
-      await file.delete();
-    }
-    history = null;
+  void clearHistory() {
+    _db.execute("delete from history;");
   }
 
-  void remove(String id) async{
-    await readData();
-    history!.remove(history!.firstWhere((element) => element.target==id));
+  void remove(String id) async {
+    _db.execute("""
+      delete from history
+      where target == '$id';
+    """);
   }
 
-  Future<History?> find(String target) async{
-    await readData();
-    try {
-      return history!.firstWhere((element) => element.target == target);
-    }
-    catch(e){
+  Future<History?> find(String target) async {
+    return findSync(target);
+  }
+
+  History? findSync(String target) {
+    print("find");
+    var res = _db.select("""
+      select * from history
+      where target == '${target.toParam}';
+    """);
+    if(res.isEmpty){
       return null;
     }
+    return History.fromRow(res.first);
   }
 
-  History? findSync(String target){
-    try {
-      return history!.firstWhere((element) => element.target == target);
-    }
-    catch(e){
-      return null;
-    }
+  List<History> getAll(){
+    var res = _db.select("""
+      select * from history
+      order by time DESC;
+    """);
+    return res.map((element) => History.fromRow(element)).toList();
   }
 }

@@ -16,31 +16,23 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FutureBuilder(
-            future: LocalFavoritesManager().readData(),
-            builder: (context, data) {
-              if (LocalFavoritesManager().folderNames == null) {
-                return const SizedBox();
-              } else {
-                return ListTile(
-                  leading: const Icon(Icons.book),
-                  title: Text("默认收藏夹".tl),
-                  subtitle: Text("用于快速收藏".tl),
-                  trailing: Select(
-                    initialValue: LocalFavoritesManager()
-                        .folderNames!
-                        .indexOf(appdata.settings[51]),
-                    whenChange: (i) {
-                      appdata.settings[51] =
-                          LocalFavoritesManager().folderNames![i];
-                      appdata.updateSettings();
-                    },
-                    values: LocalFavoritesManager().folderNames!,
-                    inPopUpWidget: false,
-                  ),
-                );
-              }
-            }),
+        ListTile(
+          leading: const Icon(Icons.book),
+          title: Text("默认收藏夹".tl),
+          subtitle: Text("用于快速收藏".tl),
+          trailing: Select(
+            initialValue: LocalFavoritesManager()
+                .folderNames
+                .indexOf(appdata.settings[51]),
+            whenChange: (i) {
+              appdata.settings[51] =
+              LocalFavoritesManager().folderNames[i];
+              appdata.updateSettings();
+            },
+            values: LocalFavoritesManager().folderNames,
+            inPopUpWidget: false,
+          ),
+        ),
         ListTile(
           leading: const Icon(Icons.bookmark_add),
           title: Text("新收藏添加至".tl),

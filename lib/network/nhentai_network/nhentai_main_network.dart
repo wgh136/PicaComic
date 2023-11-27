@@ -40,7 +40,7 @@ class NhentaiNetwork {
   String get baseUrl => appdata.settings[48];
 
   static const String needCloudflareChallengeMessage =
-      "need Cloudflare Challenge";
+      "Cloudflare Challenge";
 
   Future<void> init() async {
     var path = (await getApplicationSupportDirectory()).path;

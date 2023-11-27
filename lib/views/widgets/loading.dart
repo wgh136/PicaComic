@@ -69,43 +69,41 @@ LoadingDialogController showLoadingDialog(
     BuildContext context, void Function() onCancel,
     [bool barrierDismissible = true,
     bool allowCancel = true,
-    String? message]) {
+    String? message,
+    String cancelButtonText = "取消"]) {
   var controller = LoadingDialogController();
   showDialog(
     context: context,
     barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
       controller.context = context;
-      return WillPopScope(
-        onWillPop: () async => false,
-        child: Dialog(
-          child: Container(
-            width: 100,
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: CircularProgressIndicator(),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                Text(
-                  message ?? 'Loading',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const Spacer(),
-                if (allowCancel)
-                  TextButton(
-                      onPressed: () {
-                        App.globalBack();
-                        onCancel();
-                      },
-                      child: Text("取消".tl))
-              ],
-            ),
+      return Dialog(
+        child: Container(
+          width: 100,
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 30,
+                height: 30,
+                child: CircularProgressIndicator(),
+              ),
+              const SizedBox(
+                width: 16,
+              ),
+              Text(
+                message ?? 'Loading',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const Spacer(),
+              if (allowCancel)
+                TextButton(
+                    onPressed: () {
+                      App.globalBack();
+                      onCancel();
+                    },
+                    child: Text(cancelButtonText.tl))
+            ],
           ),
         ),
       );

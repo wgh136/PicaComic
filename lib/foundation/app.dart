@@ -47,7 +47,7 @@ class App {
   /// **Warning: The end of String is not '/'**
   static late final String dataPath;
 
-  static init() async {
+  static Future<void> init() async {
     cachePath = (await getApplicationCacheDirectory()).path;
     dataPath = (await getApplicationSupportDirectory()).path;
   }

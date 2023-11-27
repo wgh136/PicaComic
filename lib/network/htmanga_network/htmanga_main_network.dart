@@ -77,7 +77,7 @@ class HtmangaNetwork {
   }
 
   ///登录
-  Future<Res<String>> login(String account, String pwd) async {
+  Future<Res<String>> login(String account, String pwd, [bool saveData = true]) async {
     var res = await post("$baseUrl/users-check_login.html",
         "login_name=${Uri.encodeComponent(account)}&login_pass=${Uri.encodeComponent(pwd)}");
     if (res.error) {
@@ -86,9 +86,11 @@ class HtmangaNetwork {
     try {
       var json = const JsonDecoder().convert(res.data);
       if (json["html"].contains("登錄成功")) {
-        appdata.htName = account;
-        appdata.htPwd = pwd;
-        appdata.writeData();
+        if(saveData) {
+          appdata.htName = account;
+          appdata.htPwd = pwd;
+          appdata.writeData();
+        }
         return const Res("ok");
       }
       return Res(null, errorMessage: json["html"]);
@@ -99,7 +101,7 @@ class HtmangaNetwork {
 
   Future<Res<String>> loginFromAppdata() async {
     if (appdata.htName == "") return const Res("ok");
-    return login(appdata.htName, appdata.htPwd);
+    return login(appdata.htName, appdata.htPwd, false);
   }
 
   Future<Res<HtHomePageData>> getHomePage() async {
@@ -315,14 +317,12 @@ class HtmangaNetwork {
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
-    print(res.data);
     try {
       var urls = RegExp(r"(?<=//)[\w./\[\]()-]+").allMatches(res.data);
       var images = <String>[];
       for (var url in urls) {
         images.add("https://${url[0]!}");
       }
-      print(images);
       return Res(images);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");

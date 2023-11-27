@@ -147,7 +147,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   FilledButton get downloadButton => FilledButton(
         onPressed: () {
           final id = getGalleryId(data!.link);
-          if (downloadManager.downloadedGalleries.contains(id)) {
+          if (downloadManager.downloaded.contains(id)) {
             showMessage(context, "已下载".tl);
             return;
           }
@@ -160,7 +160,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
           downloadManager.addEhDownload(data!);
           showMessage(context, "已加入下载队列".tl);
         },
-        child: (downloadManager.downloadedGalleries
+        child: (downloadManager.downloaded
                 .contains(getGalleryId(data!.link)))
             ? Text("已下载".tl)
             : Text("下载".tl),

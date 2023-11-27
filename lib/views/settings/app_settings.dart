@@ -356,7 +356,9 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                             await downloadManager.updatePath(controller.text, transform: transform);
                         if (res == "ok") {
                           hideMessage(App.globalContext!);
-                          Navigator.of(App.globalContext!).pop();
+                          if(mounted){
+                            Navigator.of(context).pop();
+                          }
                           showMessage(App.globalContext, "更新成功".tl);
                           appdata.updateSettings();
                         } else {
