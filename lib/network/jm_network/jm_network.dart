@@ -435,7 +435,10 @@ class JmNetwork {
       for(final element in document.querySelectorAll("div.col-xs-6.col-sm-3.col-md-3.m-b-15.list-col")){
         final id = element.querySelector("a")!.attributes["href"]!.nums;
         final title = element.querySelector("div.video-title")!.text;
-        comics.add(JmComicBrief(id, "", title, "", [], []));
+        try {
+          comics.add(JmComicBrief(id, "", title, "", [], []));
+        }
+        catch(e){/**/}
       }
       try {
         var pageLis = document.querySelectorAll(
@@ -493,7 +496,10 @@ class JmNetwork {
     if(res.error){
       return Res.fromErrorRes(res);
     }
-    return const Res(true);
+    if(jsonDecode(res.data)["status"] == 1){
+      return const Res(true);
+    }
+    return const Res(null, errorMessage: "Failed to add comic.");
   }
 
   Future<Res<List<Comment>>> getComment(String id, int page) async {
@@ -578,8 +584,11 @@ class JmNetwork {
         final author = element.querySelectorAll("p.title-truncate > a").map((e) => e.text);
         final category = element.querySelector("div.label-category")!.text;
         final tags = element.querySelectorAll("a.label-category").map((e) => e.text);
-        comics.add(JmComicBrief(id, author.first, name, "",
-            [ComicCategoryInfo("", category)], tags.toList()));
+        try {
+          comics.add(JmComicBrief(id, author.first, name, "",
+              [ComicCategoryInfo("", category)], tags.toList()));
+        }
+        catch(e){/**/}
       }
       return Res(comics, subData: 1);
     }

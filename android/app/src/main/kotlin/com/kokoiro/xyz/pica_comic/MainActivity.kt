@@ -71,6 +71,7 @@ class MainActivity: FlutterFragmentActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "pica_comic/settings").setMethodCallHandler { call, res ->
             if (call.method == "link" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val intent = Intent(android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS)
+                intent.data = Uri.parse("package:com.github.wgh136.pica_comic")
                 startActivity(intent)
             } else if (call.method == "files") {
                 val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

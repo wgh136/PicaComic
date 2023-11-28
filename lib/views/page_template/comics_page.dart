@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -317,126 +316,13 @@ abstract class ComicsPage<T> extends StatelessWidget {
                     ),
                   ),
                   if(showPageIndicator)
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 80,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width > 600
-                                ? 600
-                                : MediaQuery.of(context).size.width,
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                FilledButton(
-                                    onPressed: () {
-                                      if (logic.current == 1 ||
-                                          logic.current == 0) {
-                                        showMessage(context, "已经是第一页了".tl);
-                                      } else {
-                                        logic.current--;
-                                        logic.update();
-                                      }
-                                    },
-                                    child: Text("上一页".tl)),
-                                const Spacer(),
-                                ActionChip(
-                                  label: Text(
-                                      "${"页面".tl}: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
-                                  onPressed: () async {
-                                    String res = "";
-                                    await showDialog(
-                                        context: context,
-                                        builder: (dialogContext) {
-                                          var controller =
-                                              TextEditingController();
-                                          return SimpleDialog(
-                                            title: const Text("切换页面"),
-                                            children: [
-                                              const SizedBox(
-                                                width: 300,
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16, 10, 16, 20),
-                                                child: TextField(
-                                                  decoration: InputDecoration(
-                                                    border:
-                                                        const OutlineInputBorder(),
-                                                    labelText: "页码".tl,
-                                                    suffixText:
-                                                        "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
-                                                  ),
-                                                  controller: controller,
-                                                  onSubmitted: (s) {
-                                                    res = s;
-                                                    App.globalBack();
-                                                  },
-                                                ),
-                                              ),
-                                              Center(
-                                                child: FilledButton(
-                                                  child: Text("提交".tl),
-                                                  onPressed: () {
-                                                    res = controller.text;
-                                                    App.globalBack();
-                                                  },
-                                                ),
-                                              )
-                                            ],
-                                          );
-                                        });
-                                    if (res.isNum) {
-                                      int i = int.parse(res);
-                                      if (logic.maxPage == null ||
-                                          (i > 0 && i <= logic.maxPage!)) {
-                                        logic.current = i;
-                                        logic.update();
-                                        return;
-                                      }
-                                    }
-                                    if (res != "") {
-                                      showMessage(App.globalContext, "输入的数字不正确");
-                                    }
-                                  },
-                                  elevation: 1,
-                                  side: BorderSide.none,
-                                ),
-                                const Spacer(),
-                                FilledButton(
-                                    onPressed: () {
-                                      if (logic.current == logic.maxPage ||
-                                          logic.current == 0) {
-                                        showMessage(context, "已经是最后一页了".tl);
-                                      } else {
-                                        logic.current++;
-                                        logic.update();
-                                      }
-                                    },
-                                    child: Text("下一页".tl)),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
+                    buildPageSelector(context, logic),
+                  SliverPadding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
                 ],
               );
             }
           }
         });
-    if(head != null && UiMode.m1(context)) {
-      body = SafeArea(child: body);
-    }
 
     if (withScaffold) {
       return Scaffold(
@@ -453,5 +339,120 @@ abstract class ComicsPage<T> extends StatelessWidget {
     } else {
       return body;
     }
+  }
+
+  Widget buildPageSelector(BuildContext context, ComicsPageLogic logic){
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 80,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width > 600
+                  ? 600
+                  : MediaQuery.of(context).size.width,
+              child: Row(
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  FilledButton(
+                      onPressed: () {
+                        if (logic.current == 1 ||
+                            logic.current == 0) {
+                          showMessage(context, "已经是第一页了".tl);
+                        } else {
+                          logic.current--;
+                          logic.update();
+                        }
+                      },
+                      child: Text("上一页".tl)),
+                  const Spacer(),
+                  ActionChip(
+                    label: Text(
+                        "${"页面".tl}: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
+                    onPressed: () async {
+                      String res = "";
+                      await showDialog(
+                          context: context,
+                          builder: (dialogContext) {
+                            var controller =
+                            TextEditingController();
+                            return SimpleDialog(
+                              title: const Text("切换页面"),
+                              children: [
+                                const SizedBox(
+                                  width: 300,
+                                ),
+                                Padding(
+                                  padding:
+                                  const EdgeInsets.fromLTRB(
+                                      16, 10, 16, 20),
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      border:
+                                      const OutlineInputBorder(),
+                                      labelText: "页码".tl,
+                                      suffixText:
+                                      "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
+                                    ),
+                                    controller: controller,
+                                    onSubmitted: (s) {
+                                      res = s;
+                                      App.globalBack();
+                                    },
+                                  ),
+                                ),
+                                Center(
+                                  child: FilledButton(
+                                    child: Text("提交".tl),
+                                    onPressed: () {
+                                      res = controller.text;
+                                      App.globalBack();
+                                    },
+                                  ),
+                                )
+                              ],
+                            );
+                          });
+                      if (res.isNum) {
+                        int i = int.parse(res);
+                        if (logic.maxPage == null ||
+                            (i > 0 && i <= logic.maxPage!)) {
+                          logic.current = i;
+                          logic.update();
+                          return;
+                        }
+                      }
+                      if (res != "") {
+                        showMessage(App.globalContext, "输入的数字不正确");
+                      }
+                    },
+                    elevation: 1,
+                    side: BorderSide.none,
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                      onPressed: () {
+                        if (logic.current == logic.maxPage ||
+                            logic.current == 0) {
+                          showMessage(context, "已经是最后一页了".tl);
+                        } else {
+                          logic.current++;
+                          logic.update();
+                        }
+                      },
+                      child: Text("下一页".tl)),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
