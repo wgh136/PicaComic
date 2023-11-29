@@ -219,8 +219,8 @@ class _NewMePageState extends StateWithController<NewMePage>{
     );
   }
 
-  void showFolderManageDialog(String name) async{
-    if(name == "全部".tl){
+  void showFolderManageDialog(String name, [bool all = false]) async{
+    if(all){
       showMessage(context, "不能管理\"全部\"收藏".tl);
     } else {
       Widget buildItem(Icon icon, String title, void Function() onTap){
@@ -302,14 +302,14 @@ class _NewMePageState extends StateWithController<NewMePage>{
   }
 
   Widget buildTabBar() {
-    Widget buildTab(String name){
-      bool selected = folderName == name || (name == "全部".tl && folderName == null);
+    Widget buildTab(String name, [bool all=false]){
+      bool selected = (!all && folderName == name) || (all && folderName == null);
       return InkWell(
-        key: Key(name),
+        key: all? UniqueKey() : Key(name),
         borderRadius: BorderRadius.circular(8),
         splashColor: App.colors(context).primary.withOpacity(0.2),
         onTap: (){
-          if(name == "全部".tl){
+          if(all){
             setState(() {
               folderName = null;
             });
@@ -322,8 +322,8 @@ class _NewMePageState extends StateWithController<NewMePage>{
             controller.jumpTo(controller.position.minScrollExtent + 58);
           }
         },
-        onLongPress: () => showFolderManageDialog(name),
-        onSecondaryTapDown: (details) => showFolderManageDialog(name),
+        onLongPress: () => showFolderManageDialog(name, all),
+        onSecondaryTapDown: (details) => showFolderManageDialog(name, all),
         child: Container(
           constraints: const BoxConstraints(minWidth: 64),
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -367,7 +367,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
               child: Row(
                 children: [
                   const SizedBox(width: 8,),
-                  buildTab("全部".tl),
+                  buildTab("全部".tl, true),
                   for(var name in folders)
                     buildTab(name),
                   const SizedBox(width: 8,),

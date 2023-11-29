@@ -7,6 +7,8 @@ import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../base.dart';
+import '../../foundation/local_favorites.dart';
+import '../../network/net_fav_to_local.dart';
 import '../main_page.dart';
 import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -238,6 +240,15 @@ class HtFavoriteFolder extends ComicsPage<HtComicBrief> {
 
   @override
   bool get withScaffold => true;
+
+  @override
+  Widget? get tailing => IconButton(
+    icon: const Icon(Icons.save),
+    onPressed: (){
+      startConvert((page) => getComics(page), null, App.globalContext!, name,
+              (comic) => FavoriteItem.fromHtcomic(comic));
+    },
+  );
 }
 
 class CreateFolderDialog extends StatefulWidget {

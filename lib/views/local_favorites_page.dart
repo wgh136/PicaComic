@@ -1,5 +1,7 @@
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -61,23 +63,39 @@ class CreateFolderDialog extends StatelessWidget {
         const SizedBox(
           height: 8,
         ),
-        Center(
-          child: TextButton(
-            child: Text("从文件导入".tl),
-            onPressed: () async {
-              App.globalBack();
-              var data = await getDataFromUserSelectedFile(["json"]);
-              if (data == null) {
-                return;
-              }
-              var (error, message) =
+        SizedBox(
+          width: 260,
+          child: Row(
+            children: [
+              const Spacer(),
+              TextButton(
+                child: Text("从文件导入".tl),
+                onPressed: () async {
+                  App.globalBack();
+                  var data = await getDataFromUserSelectedFile(["json"]);
+                  if (data == null) {
+                    return;
+                  }
+                  var (error, message) =
                   LocalFavoritesManager().loadFolderData(data);
-              if (error) {
-                showMessage(App.globalContext!, message);
-              } else {
-                StateController.find(tag: "me page").update();
-              }
-            },
+                  if (error) {
+                    showMessage(App.globalContext!, message);
+                  } else {
+                    StateController.find(tag: "me page").update();
+                  }
+                },
+              ),
+              const Spacer(),
+              TextButton(
+                child: Text("从网络导入".tl),
+                onPressed: () async {
+                  App.globalBack();
+                  await Future.delayed(const Duration(milliseconds: 200));
+                  showNetworkSourceDialog(App.globalContext!);
+                },
+              ),
+              const Spacer(),
+            ],
           ),
         ),
         const SizedBox(
@@ -642,4 +660,67 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
       ),
     );
   }
+}
+
+void showNetworkSourceDialog(BuildContext context){
+  showDialog(context: context, builder: (context) {
+    return SimpleDialog(
+      title: Text("源".tl),
+      children: [
+        const SizedBox(width: 300,),
+        ListTile(
+          title: const Text("Picacg"),
+          onTap: (){
+            if(PicacgNetwork().token == ""){
+              showMessage(context, "未登录".tl);
+              return;
+            }
+            startConvert((page) => PicacgNetwork().getFavorites(page, true),
+                null, context, "Picacg", (comic) => FavoriteItem.fromPicacg(comic));
+          },
+        ),
+        ListTile(
+          title: const Text("ehentai"),
+          onTap: (){
+            if(appdata.ehAccount == ""){
+              showMessage(context, "未登录".tl);
+              return;
+            }
+            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+          },
+        ),
+        ListTile(
+          title: const Text("JmComic"),
+          onTap: (){
+            if(appdata.jmName == ""){
+              showMessage(context, "未登录".tl);
+              return;
+            }
+            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+          },
+        ),
+        ListTile(
+          title: Text("绅士漫画".tl),
+          onTap: (){
+            if(appdata.htName == ""){
+              showMessage(context, "未登录".tl);
+              return;
+            }
+            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+          },
+        ),
+        ListTile(
+          title: const Text("nhentai"),
+          onTap: (){
+            if(appdata.htName == ""){
+              showMessage(context, "未登录".tl);
+              return;
+            }
+            startConvert((page) => NhentaiNetwork().getFavorites(page),
+                null, context, "Picacg", (comic) => FavoriteItem.fromNhentai(comic));
+          },
+        ),
+      ],
+    );
+  });
 }

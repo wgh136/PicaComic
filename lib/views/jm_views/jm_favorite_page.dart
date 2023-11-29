@@ -4,8 +4,10 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
+import '../../foundation/local_favorites.dart';
 import '../../network/jm_network/jm_network.dart';
 import '../../network/jm_network/jm_models.dart';
+import '../../network/net_fav_to_local.dart';
 import '../main_page.dart';
 import '../widgets/my_icons.dart';
 import '../widgets/show_message.dart';
@@ -243,6 +245,15 @@ class JmFavoriteFolder extends ComicsPage<JmComicBrief> {
 
   @override
   bool get withScaffold => true;
+
+  @override
+  Widget? get tailing => IconButton(
+    icon: const Icon(Icons.save),
+    onPressed: (){
+      startConvert((page) => getComics(page), null, App.globalContext!, name,
+              (comic) => FavoriteItem.fromJmComic(comic));
+    },
+  );
 }
 
 class CreateFolderDialog extends StatefulWidget {

@@ -156,7 +156,7 @@ class LocalFavoritesManager {
     var res = <String>[];
     for(var folder in folderNames){
       var rows = _db.select("""
-        select * from $folder
+        select * from "$folder"
         where target == '${target.toParam}';
       """);
       if(rows.isNotEmpty){
@@ -219,7 +219,7 @@ class LocalFavoritesManager {
 
   List<FavoriteItem> getAllComics(String folder){
     var rows = _db.select("""
-        select * from $folder
+        select * from "$folder"
         ORDER BY display_order;
       """);
     return rows.map((element) => FavoriteItem.fromRow(element)).toList();
@@ -229,7 +229,7 @@ class LocalFavoritesManager {
     var res = <FavoriteItemWithFolderInfo>[];
     for(final folder in folderNames){
       var comics = _db.select("""
-        select * from $folder;
+        select * from "$folder";
       """);
       res.addAll(comics.map((element) => FavoriteItemWithFolderInfo(
           FavoriteItem.fromRow(element), folder)));
@@ -239,11 +239,14 @@ class LocalFavoritesManager {
 
   /// create a folder
   void createFolder(String name) {
+    if(name.isEmpty){
+      throw "name is empty!";
+    }
     if (folderNames.contains(name)) {
       throw Exception("Folder is existing");
     }
     _db.execute("""
-      create table $name(
+      create table "$name"(
         target text primary key,
         name TEXT,
         author TEXT,
@@ -264,7 +267,7 @@ class LocalFavoritesManager {
       throw Exception("Folder does not exists");
     }
     var res = _db.select("""
-      select * from $folder
+      select * from "$folder"
       where target == '${comic.target}';
     """);
     if(res.isNotEmpty){
@@ -272,7 +275,7 @@ class LocalFavoritesManager {
     }
     if(order != null){
       _db.execute("""
-        insert into $folder (target, name, author, type, tags, cover_path, time, display_order)
+        insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
         values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', $order);
       """);
@@ -280,20 +283,20 @@ class LocalFavoritesManager {
     else if(appdata.settings[53] == "0") {
       int maxValue = _db.select("""
         SELECT MAX(display_order) AS max_value
-        FROM $folder;
+        FROM "$folder";
       """).firstOrNull?["max_value"] ?? 0;
       _db.execute("""
-        insert into $folder (target, name, author, type, tags, cover_path, time, display_order)
+        insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
         values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${maxValue+1});
       """);
     } else {
       int minValue = _db.select("""
         SELECT MIN(display_order) AS min_value
-        FROM $folder;
+        FROM "$folder";
       """).firstOrNull?["min_value"] ?? 0;
       _db.execute("""
-        insert into $folder (target, name, author, type, tags, cover_path, time, display_order)
+        insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
         values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${minValue-1});
       """);
@@ -341,7 +344,7 @@ class LocalFavoritesManager {
   /// delete a folder
   void deleteFolder(String name) {
     _db.execute("""
-      drop table $name;
+      drop table "$name";
     """);
   }
 
@@ -359,7 +362,7 @@ class LocalFavoritesManager {
 
   void deleteComicWithTarget(String folder, String target) {
     _db.execute("""
-      delete from $folder
+      delete from "$folder"
       where target == '${target.toParam}';
     """);
   }
@@ -387,8 +390,8 @@ class LocalFavoritesManager {
       throw "Name already exists!";
     }
     _db.execute("""
-      ALTER TABLE $before
-      RENAME TO $after;
+      ALTER TABLE "$before"
+      RENAME TO "$after";
     """);
   }
 
@@ -397,7 +400,7 @@ class LocalFavoritesManager {
     bool isModified = false;
     for(final folder in folderNames){
       var rows = _db.select("""
-        select * from $folder
+        select * from "$folder"
         where target == '${target.toParam}';
       """);
       if(rows.isNotEmpty){
@@ -405,20 +408,20 @@ class LocalFavoritesManager {
         if(appdata.settings[54] == "1"){
           int maxValue = _db.select("""
             SELECT MAX(display_order) AS max_value
-            FROM $folder;
+            FROM "$folder";
           """).firstOrNull?["max_value"] ?? 0;
           _db.execute("""
-            UPDATE $folder
+            UPDATE "$folder"
             SET display_order = ${maxValue+1}
             WHERE target == '${target.toParam}';
           """);
         } else {
           int minValue = _db.select("""
             SELECT MIN(display_order) AS min_value
-            FROM $folder;
+            FROM "$folder";
           """).firstOrNull?["min_value"] ?? 0;
           _db.execute("""
-            UPDATE $folder
+            UPDATE "$folder"
             SET display_order = ${minValue-1}
             WHERE target == '${target.toParam}';
           """);
@@ -431,7 +434,7 @@ class LocalFavoritesManager {
   }
 
   Future<String> folderToString(String folderName) async{
-    var comics = _db.select("select * from $folderName;")
+    var comics = _db.select("select * from \"$folderName\";")
         .map((element) => FavoriteItem.fromRow(element));
     String res = "$folderName:\n";
     for(var comic in comics){

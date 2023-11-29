@@ -324,6 +324,11 @@ abstract class ComicsPage<T> extends StatelessWidget {
           }
         });
 
+    body = Padding(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      child: body,
+    );
+
     if (withScaffold) {
       return Scaffold(
         floatingActionButton: withRefreshFloatingButton

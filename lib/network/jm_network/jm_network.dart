@@ -443,6 +443,10 @@ class JmNetwork {
       try {
         var pageLis = document.querySelectorAll(
             "ul.pagination.pagination-lg > li");
+        if(pageLis.isEmpty){
+          pageLis = document.querySelectorAll(
+              "ul.pagination > li");
+        }
         var pages = int.tryParse(pageLis[pageLis.length - 2].text);
         return Res(comics, subData: pages!);
       }

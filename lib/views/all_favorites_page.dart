@@ -35,38 +35,51 @@ class _AllFavoritesPageState extends State<AllFavoritesPage>
 
   @override
   Widget build(BuildContext context) {
+    final bool showInlineTabBar = App.screenSize(context).width > 720;
+
+    final tabBar = TabBar(
+      splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+      isScrollable: MediaQuery.of(context).size.width < pages * 90,
+      tabAlignment: TabAlignment.center,
+      tabs: [
+        if (appdata.settings[21][0] == "1")
+          const Tab(
+            text: "Picacg",
+          ),
+        if (appdata.settings[21][1] == "1")
+          const Tab(
+            text: "EHentai",
+          ),
+        if (appdata.settings[21][2] == "1")
+          Tab(
+            text: "禁漫天堂".tl,
+          ),
+        if (appdata.settings[21][4] == "1")
+          Tab(
+            text: "绅士漫画".tl,
+          ),
+        if (appdata.settings[21][5] == "1")
+          const Tab(
+            text: "Nhentai",
+          ),
+      ],
+      controller: controller,
+    );
+
     return Scaffold(
       body: Column(
         children: [
-          CustomAppbar(title: Text("收藏夹".tl)),
-          TabBar(
-            splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-            isScrollable: MediaQuery.of(context).size.width < pages * 90,
-            tabAlignment: TabAlignment.center,
-            tabs: [
-              if (appdata.settings[21][0] == "1")
-                const Tab(
-                  text: "Picacg",
-                ),
-              if (appdata.settings[21][1] == "1")
-                const Tab(
-                  text: "EHentai",
-                ),
-              if (appdata.settings[21][2] == "1")
-                Tab(
-                  text: "禁漫天堂".tl,
-                ),
-              if (appdata.settings[21][4] == "1")
-                Tab(
-                  text: "绅士漫画".tl,
-                ),
-              if (appdata.settings[21][5] == "1")
-                const Tab(
-                  text: "Nhentai",
-                ),
+          CustomAppbar(
+            title: Text("收藏夹".tl),
+            actions: [
+              if(showInlineTabBar)
+                tabBar
             ],
-            controller: controller,
           ),
+
+          if(!showInlineTabBar)
+            tabBar,
+
           Expanded(
             child: TabBarView(
               controller: controller,
