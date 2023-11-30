@@ -233,8 +233,7 @@ class LocalFavoriteTile extends ComicTile {
           filterQuality: FilterQuality.medium,
         );
 
-  @override
-  void onTap_() {
+  void showInfo() {
     switch (comic.type) {
       case ComicType.picacg:
         MainPage.to(() => PicacgComicPage(ComicItemBrief(
@@ -327,7 +326,7 @@ class LocalFavoriteTile extends ComicTile {
         items: [
           PopupMenuItem(
               onTap: () => Future.delayed(
-                  const Duration(milliseconds: 200), () => onTap_()),
+                  const Duration(milliseconds: 200), showInfo),
               child: Text("查看".tl)),
           PopupMenuItem(
             child: Text("取消收藏".tl),
@@ -369,7 +368,7 @@ class LocalFavoriteTile extends ComicTile {
                     ListTile(
                       leading: const Icon(Icons.article),
                       title: Text("查看详情".tl),
-                      onTap: onTap_,
+                      onTap: showInfo,
                     ),
                     ListTile(
                       leading: const Icon(Icons.bookmark_remove),
@@ -563,6 +562,15 @@ class LocalFavoriteTile extends ComicTile {
               ],
             ));
   }
+
+  @override
+  void onTap_() {
+    if(appdata.settings[60] == 0){
+      showInfo();
+    } else {
+      read();
+    }
+  }
 }
 
 class LocalFavoritesFolder extends StatefulWidget {
@@ -706,18 +714,18 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "在收藏夹页面选择一个收藏夹进行导出");
           },
         ),
         ListTile(
           title: const Text("nhentai"),
           onTap: (){
-            if(appdata.htName == ""){
+            if(!NhentaiNetwork().logged){
               showMessage(context, "未登录".tl);
               return;
             }
             startConvert((page) => NhentaiNetwork().getFavorites(page),
-                null, context, "Picacg", (comic) => FavoriteItem.fromNhentai(comic));
+                null, context, "nhentai", (comic) => FavoriteItem.fromNhentai(comic));
           },
         ),
       ],

@@ -28,9 +28,6 @@ BaseOptions getHeaders(String method,String token,String url){
   var time = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
   if(token == ""){
     return BaseOptions(
-       connectTimeout: const Duration(milliseconds: 8000),
-        receiveTimeout: const Duration(milliseconds: 10000),
-        sendTimeout: const Duration(milliseconds: 10000),
         receiveDataWhenStatusError: true,
         responseType: ResponseType.plain,
         headers: {
@@ -55,9 +52,6 @@ BaseOptions getHeaders(String method,String token,String url){
   if(method == 'post'){
     return BaseOptions(
         receiveDataWhenStatusError: true,
-        connectTimeout: const Duration(milliseconds: 8000),
-        receiveTimeout: const Duration(milliseconds: 10000),
-        sendTimeout: const Duration(milliseconds: 10000),
         responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
@@ -82,9 +76,6 @@ BaseOptions getHeaders(String method,String token,String url){
   }else if(method == "get"){
     return BaseOptions(
         receiveDataWhenStatusError: true,
-        connectTimeout: const Duration(milliseconds: 8000),
-        receiveTimeout: const Duration(milliseconds: 10000),
-        sendTimeout: const Duration(milliseconds: 10000),
         responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",
@@ -108,7 +99,6 @@ BaseOptions getHeaders(String method,String token,String url){
   }else{
     return BaseOptions(
         receiveDataWhenStatusError: true,
-        connectTimeout: const Duration(milliseconds: 8000),
         responseType: ResponseType.plain,
         headers: {
           "api-key": "C69BAF41DA5ABD1FFEDC6D2FEA56B",

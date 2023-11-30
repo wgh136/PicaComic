@@ -57,6 +57,18 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             },
           ),
         ),
+        ListTile(
+          leading: const Icon(Icons.touch_app),
+          title: Text("点击时的操作".tl),
+          trailing: Select(
+            values: ["查看信息".tl, "阅读".tl],
+            initialValue: int.parse(appdata.settings[60]),
+            whenChange: (i) {
+              appdata.settings[60] = i.toString();
+              appdata.updateSettings();
+            },
+          ),
+        ),
       ],
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -33,6 +35,10 @@ void startConvert<T extends Object>(
       }
       current++;
       yield (current, total??1);
+      if(current > 5){
+        var random = Random().nextInt(500) + 500;
+        await Future.delayed(Duration(milliseconds: random));
+      }
     }
   }
 

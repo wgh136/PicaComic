@@ -30,19 +30,16 @@ class PicComicTile extends ComicTile {
   List<String>? get tags => comic.tags;
 
   @override
-  Widget get image => !downloaded?(cached?CachedNetworkImage(
-    imageUrl: getImageUrl(comic.path),
+  Widget get image => !downloaded?(CachedNetworkImage(
+    httpHeaders: {
+      "host": Uri.parse(comic.path).host
+    },
+    imageUrl: comic.path,
     fit: BoxFit.cover,
     errorWidget: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
     progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-  ):Image.network(
-    getImageUrl(comic.path),
-    fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Icon(Icons.error),
-    height: double.infinity,
-    filterQuality: FilterQuality.medium,
   )):Image.file(
     downloadManager.getCover(comic.id),
     fit: BoxFit.cover,

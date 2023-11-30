@@ -10,7 +10,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/foundation/state_controller.dart';
 import 'package:pica_comic/network/cache_network.dart';
-import 'package:pica_comic/network/log_dio.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/pre_search_page.dart';

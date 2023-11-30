@@ -317,15 +317,14 @@ abstract class ComicsPage<T> extends StatelessWidget {
                   ),
                   if(showPageIndicator)
                     buildPageSelector(context, logic),
-                  SliverPadding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
                 ],
               );
             }
           }
         });
 
-    body = Padding(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+    body = SafeArea(
+      bottom: false,
       child: body,
     );
 

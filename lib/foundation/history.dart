@@ -147,7 +147,6 @@ class HistoryManager {
 
   /// add history. if exists, update read history.
   Future<void> addHistory(History newItem) async {
-    print("add");
     var res = _db.select("""
       select * from history
       where target == '${newItem.target.toParam}';
@@ -172,7 +171,6 @@ class HistoryManager {
 
   ///退出阅读器时调用此函数, 修改阅读位置
   Future<void> saveReadHistory(String target, int ep, int page) async {
-    print("save $ep $page");
     _db.execute("""
         update history
         set time = ${DateTime.now().millisecondsSinceEpoch}, ep = $ep, page = $page
@@ -196,7 +194,6 @@ class HistoryManager {
   }
 
   History? findSync(String target) {
-    print("find");
     var res = _db.select("""
       select * from history
       where target == '${target.toParam}';

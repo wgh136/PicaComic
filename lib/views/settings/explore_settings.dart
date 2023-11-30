@@ -20,16 +20,6 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         trailing: const Icon(Icons.arrow_right),
       ),
       ListTile(
-        leading: const Icon(Icons.network_ping),
-        title: Text("设置代理".tl),
-        trailing: const Icon(
-          Icons.arrow_right,
-        ),
-        onTap: () {
-          setProxy(context);
-        },
-      ),
-      ListTile(
         leading: const Icon(Icons.article_outlined),
         title: Text("初始页面".tl),
         trailing: Select(
@@ -52,7 +42,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
       ListTile(
         leading:
             const Icon(Icons.pages),
-        title: Text("显示的探索页面".tl),
+        title: Text("探索页面".tl),
         trailing: const Icon(Icons.arrow_right),
         onTap: () => setExplorePages(context),
       ),

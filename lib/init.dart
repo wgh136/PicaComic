@@ -14,6 +14,7 @@ import 'network/nhentai_network/nhentai_main_network.dart';
 
 Future<void> init() async{
   try {
+    await appdata.readData();
     startClearCache();
     if (App.isAndroid) {
       final appLinks = AppLinks();
@@ -28,7 +29,6 @@ Future<void> init() async{
     }
     await App.init();
     await checkDownloadPath();
-    await appdata.readData();
     await downloadManager.init();
     await NhentaiNetwork().init();
     await JmNetwork().init();

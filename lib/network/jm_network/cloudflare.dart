@@ -10,7 +10,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async {
   if (App.isWindows && (await FlutterWindowsWebview.isAvailable())) {
     var webview = FlutterWindowsWebview();
     webview.launchWebview(
-        JmNetwork.baseUrl,
+        "${JmNetwork.baseUrl}/album/466419",
         WebviewOptions(messageReceiver: (s) {
           if (s.substring(0, 2) == "UA") {
             JmNetwork().ua = s.replaceFirst("UA", "");
@@ -35,7 +35,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async {
         }));
   } else if (App.isMobile) {
     App.globalTo(() => AppWebview(
-          initialUrl: JmNetwork.baseUrl,
+          initialUrl: "${JmNetwork.baseUrl}/album/466419",
           singlePage: true,
           onTitleChange: (title) {
             if (title.contains("禁漫天堂")) {

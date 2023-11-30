@@ -8,6 +8,7 @@ import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/main.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/settings/local_favorite_settings.dart';
+import 'package:pica_comic/views/settings/network_setting.dart';
 import 'package:pica_comic/views/settings/reading_settings.dart';
 import 'package:pica_comic/views/settings/explore_settings.dart';
 import 'package:pica_comic/views/settings/ht_settings.dart';
@@ -43,7 +44,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
   bool get enableTwoViews => !UiMode.m1(context);
 
-  final categories = <String>["浏览", "漫画源", "阅读", "外观", "本地收藏", "APP", "关于"];
+  final categories = <String>["浏览", "漫画源", "阅读", "外观", "本地收藏", "APP", "网络", "关于"];
 
   final icons = <IconData>[
     Icons.explore,
@@ -52,6 +53,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
     Icons.color_lens,
     Icons.collections_bookmark_rounded,
     Icons.apps,
+    Icons.public,
     Icons.info
   ];
 
@@ -632,7 +634,8 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
       3 => buildAppearanceSettings(),
       4 => const LocalFavoritesSettings(),
       5 => buildAppSettings(),
-      6 => buildAbout(),
+      6 => const NetworkSettings(),
+      7 => buildAbout(),
       _ => throw UnimplementedError()
     };
 

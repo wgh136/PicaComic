@@ -14,7 +14,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
-import '../log_dio.dart';
+import '../app_dio.dart';
 import 'models.dart';
 import 'package:html/parser.dart';
 

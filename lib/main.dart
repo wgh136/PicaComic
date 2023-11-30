@@ -12,7 +12,7 @@ import 'package:pica_comic/init.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
-import 'package:pica_comic/network/proxy.dart';
+import 'package:pica_comic/network/http_client.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
