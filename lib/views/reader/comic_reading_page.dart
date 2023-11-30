@@ -50,6 +50,8 @@ class ReadingPageData {
 
   Gallery? gallery;
 
+  int? jmComments;
+
   ReadingPageData(
       this.initialPage, this.target, this.type, this.eps, this.gallery);
 }
@@ -585,6 +587,7 @@ class ComicReadingPage extends StatelessWidget {
       return;
     }
     var res = await JmNetwork().getChapter(data.target);
+    data.jmComments = res.subData;
     if (res.error) {
       data.message = res.errorMessage ?? "网络错误".tl;
     } else {

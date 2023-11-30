@@ -25,21 +25,13 @@ class PicacgNetwork {
 
   PicacgNetwork._create([this.token = ""]);
 
-  String apiUrl = appdata.settings[3] == "1"
-      ? "$serverDomain/picaapi"
-      : "https://picaapi.picacomic.com";
+  final String apiUrl = "https://picaapi.picacomic.com";
   InitData? initData;
   String token;
 
   var hotTags = <String>[];
 
-  Future<void> updateApi() async {
-    if (appdata.settings[3] == "1") {
-      apiUrl = "$serverDomain/picaapi";
-    } else {
-      apiUrl = "https://picaapi.picacomic.com";
-    }
-  }
+  Future<void> updateApi() async {}
 
   Future<Res<Map<String, dynamic>>> get(String url,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
@@ -1065,9 +1057,7 @@ class PicacgNetwork {
 }
 
 String getImageUrl(String url) {
-  if (url.contains(serverDomain)) return url;
-  if (!url.contains("pica")) return url;
-  return appdata.settings[3] == "1" ? "$serverDomain/storage/$url" : url;
+  return url;
 }
 
 var network = PicacgNetwork();

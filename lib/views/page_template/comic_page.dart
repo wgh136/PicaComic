@@ -445,6 +445,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Widget buildCover(
       BuildContext context, ComicPageLogic logic, double height, double width) {
+    if(headers["host"] == null && headers["Host"] == null){
+      headers["host"] = Uri.parse(cover).host;
+    }
     return GestureDetector(
       child: Padding(
         padding: const EdgeInsets.all(16),

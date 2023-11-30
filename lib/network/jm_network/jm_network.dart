@@ -371,7 +371,9 @@ class JmNetwork {
           }
         }
       }
-      return Res(images);
+      var commentsText = document.querySelector("div#total_video_comments")?.text;
+      int? commentsNumber = commentsText == null ? null : int.tryParse(commentsText);
+      return Res(images, subData: commentsNumber);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
@@ -528,9 +530,6 @@ class JmNetwork {
       }
       var document = parse(res.data);
       var comments = parseComments(document);
-      if(comments.isEmpty){
-        return const Res(null, errorMessage: "No comments");
-      }
       return Res(comments);
     }
     catch(e, s){
