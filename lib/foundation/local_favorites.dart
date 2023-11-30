@@ -262,7 +262,7 @@ class LocalFavoritesManager {
   /// add comic to a folder
   ///
   /// This method will download cover to local, to avoid problems like changing url
-  void addComic(String folder, FavoriteItem comic,[int? order]) async {
+  void addComic(String folder, FavoriteItem comic, [int? order]) async {
     if (!folderNames.contains(folder)) {
       throw Exception("Folder does not exists");
     }
@@ -496,5 +496,22 @@ class LocalFavoritesManager {
       LogManager.addLog(LogLevel.error, "IO", "Failed to load data.\n$e\n$s");
       return (true, e.toString());
     }
+  }
+
+  List<FavoriteItemWithFolderInfo> search(String keyword){
+    var resComics = <FavoriteItemWithFolderInfo>[];
+    for(var table in folderNames){
+      var res = _db.select("""
+        SELECT * FROM "$table" 
+        WHERE name LIKE '%$keyword%' OR author LIKE '%$keyword%' OR tags LIKE '%$keyword%';
+      """);
+      for(var comic in res){
+        resComics.add(FavoriteItemWithFolderInfo(FavoriteItem.fromRow(comic), table));
+      }
+      if(resComics.length > 200){
+        break;
+      }
+    }
+    return resComics;
   }
 }

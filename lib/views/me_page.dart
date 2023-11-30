@@ -63,6 +63,9 @@ class _NewMePageState extends StateWithController<NewMePage>{
   final controller = ScrollController();
   final tabController = ScrollController();
   bool shouldScrollTabBar = false;
+  bool searchMode = false;
+
+  String keyword = "";
 
   void hideLocalFavorites(){
     setState(() {
@@ -180,7 +183,10 @@ class _NewMePageState extends StateWithController<NewMePage>{
                     ],
                   ),
                 ),
-                buildTabBar(),
+                if(searchMode)
+                  buildSearchBar()
+                else
+                  buildTabBar(),
                 Divider(height: 1, color: App.colors(context).outlineVariant,)
               ],
             )
@@ -301,6 +307,45 @@ class _NewMePageState extends StateWithController<NewMePage>{
     }
   }
 
+  Widget buildSearchBar(){
+    return Container(
+      width: double.infinity,
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      color: Theme.of(context).colorScheme.surface,
+      child: Row(
+        children: [
+          const Icon(Icons.search),
+          const SizedBox(width: 4,),
+          Expanded(
+            child: TextField(
+              onChanged: (s) => setState(() {
+                keyword = s;
+              }),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.only(bottom: 4)
+              ),
+            ),
+          ),
+          InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: (){
+              setState(() {
+                searchMode = false;
+              });
+            },
+            child: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Icon(Icons.close),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget buildTabBar() {
     Widget buildTab(String name, [bool all=false]){
       bool selected = (!all && folderName == name) || (all && folderName == null);
@@ -373,6 +418,30 @@ class _NewMePageState extends StateWithController<NewMePage>{
                   const SizedBox(width: 8,),
                   InkWell(
                     onTap: (){
+                      keyword = "";
+                      setState(() {
+                        shouldScrollTabBar = false;
+                        searchMode = true;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 12,),
+                            Text("搜索".tl, style: TextStyle(color: App.colors(context).primary),),
+                            const SizedBox(width: 4,),
+                            const Icon(Icons.search, size: 18,),
+                            const SizedBox(width: 12,),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: (){
                       showDialog(context: context, builder: (context) =>
                       const CreateFolderDialog()).then((value) => setState((){}));
                     },
@@ -420,10 +489,38 @@ class _NewMePageState extends StateWithController<NewMePage>{
   }
 
   Widget buildComics(){
-    if(folderName == null){
+    if(searchMode){
+      return buildSearchView();
+    } else if(folderName == null){
       return buildAllComics();
     } else {
       return buildFolderComics();
+    }
+  }
+
+  Widget buildSearchView(){
+    if(keyword.isNotEmpty) {
+      final comics = LocalFavoritesManager().search(keyword);
+
+      return SliverGrid.builder(
+        key: const Key("_pica_comic_"),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: App.comicTileMaxWidth,
+          childAspectRatio: App.comicTileAspectRatio,
+        ),
+        itemCount: comics.length,
+        itemBuilder: (BuildContext context, int index) {
+          return LocalFavoriteTile(
+            comics[index].comic,
+            comics[index].folder,
+            () => setState(() {}),
+            true,
+            showFolderInfo: true,
+          );
+        },
+      );
+    } else {
+      return const SliverPadding(padding: EdgeInsets.zero);
     }
   }
 
