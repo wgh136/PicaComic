@@ -62,8 +62,9 @@ class _EpsViewState extends State<EpsView> {
               child: Row(
                 children: [
                   const SizedBox(width: 16,),
-                  Text(title),
-                  const Spacer(),
+                  Expanded(
+                    child: Text(title, overflow: TextOverflow.clip,),
+                  ),
                   if(data.downloadedEps.contains(index))
                     Container(
                       decoration: BoxDecoration(
@@ -109,7 +110,7 @@ class _EpsViewState extends State<EpsView> {
                   IconButton(
                     icon: Icon(Icons.comment_outlined, color: Theme.of(context).colorScheme.secondary,),
                     onPressed: (){
-                      showComments(context, data.target, 9999999999999);
+                      showComments(context, data.target, logic.data.jmComments ?? 9999);
                     },
                   ),
                 IconButton(

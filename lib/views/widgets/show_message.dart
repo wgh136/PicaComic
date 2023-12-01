@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-OverlayEntry? entry;
+OverlayEntry? _entry;
 
 /// show message
 void showMessage(BuildContext? context, String message,
@@ -12,9 +12,7 @@ void showMessage(BuildContext? context, String message,
     padding = 32;
   }
 
-  if (entry != null && entry!.mounted) {
-    entry!.remove();
-  }
+  hideMessage(context);
 
   var newEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -56,18 +54,26 @@ void showMessage(BuildContext? context, String message,
           ));
 
   Future.delayed(Duration(seconds: time), () {
+    if(_entry == newEntry){
+      _entry = null;
+    }
     if (newEntry.mounted) {
       newEntry.remove();
     }
   });
 
   Overlay.of(App.globalContext!).insert(newEntry);
-  entry = newEntry;
+  _entry = newEntry;
 }
 
 void hideMessage(BuildContext? context) {
-  if (entry?.mounted ?? false) {
-    entry?.remove();
+  try {
+    if (_entry?.mounted ?? false) {
+      _entry?.remove();
+    }
+  }
+  catch(e){
+    //
   }
 }
 

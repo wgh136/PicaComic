@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:pica_comic/network/log_dio.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/image_manager.dart';

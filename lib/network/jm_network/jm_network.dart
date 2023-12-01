@@ -10,7 +10,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/foundation/state_controller.dart';
 import 'package:pica_comic/network/cache_network.dart';
-import 'package:pica_comic/network/log_dio.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -30,7 +30,7 @@ class JmNetwork {
 
   static String get baseUrl => appdata.settings[56];
 
-  static const cloudflareChallenge = "JM: need cloudflare challenge";
+  static const cloudflareChallenge = "JM: Cloudflare Challenge";
 
   set ua(String value) {
     appdata.nhentaiData[0] = value;
@@ -137,7 +137,7 @@ class JmNetwork {
     if (account == "") {
       return const Res(true);
     }
-    return login(account, pwd);
+    return login(account, pwd, false);
   }
 
   JmComicBrief? _parseComic(dom.Element element) {
@@ -235,8 +235,8 @@ class JmNetwork {
         return Res.fromErrorRes(res);
       }
       var document = parse(res.data);
-      var (comics, _) = _parsePageComics(document);
-      return Res(comics);
+      var (comics, maxPage) = _parsePageComics(document);
+      return Res(comics, subData: maxPage);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
@@ -343,8 +343,8 @@ class JmNetwork {
     }
   }
 
-  Future<Res<List<String>>> getChapter(String id) async{
-    var res = await get("$baseUrl/photo/$id");
+  Future<Res<List<String>>> getChapter(String id, [int? page]) async{
+    var res = await get("$baseUrl/photo/$id${page == null ? "" : "?page=$page"}");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -354,14 +354,33 @@ class JmNetwork {
       for (var s in document.querySelectorAll("div.center.scramble-page")) {
         images.add(getJmImageUrl(s.id, id));
       }
-      return Res(images);
+      if(page == null) {
+        if (document.querySelector("ul.pagination-lg") != null) {
+          var maxPage = int.tryParse((document
+              .querySelectorAll("ul.pagination-lg > li")
+              .last.firstChild
+              ?.attributes["href"]
+              ?.split("=")
+              .last) ?? "1");
+          for (int i = 2; i <= (maxPage ?? 1); i++) {
+            var res = await getChapter(id, i);
+            if(res.error){
+              return Res.fromErrorRes(res);
+            }
+            images.addAll(res.data);
+          }
+        }
+      }
+      var commentsText = document.querySelector("div#total_video_comments")?.text;
+      int? commentsNumber = commentsText == null ? null : int.tryParse(commentsText);
+      return Res(images, subData: commentsNumber);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
     }
   }
 
-  Future<Res<bool>> login(String account, String pwd) async {
+  Future<Res<bool>> login(String account, String pwd, [bool saveData = true]) async {
     var res = await post("$baseUrl/login",
         "username=$account&password=${Uri.encodeComponent(pwd)}&login_remember=on&submit_login="
         , "application/x-www-form-urlencoded");
@@ -369,9 +388,11 @@ class JmNetwork {
       return Res.fromErrorRes(res);
     }
     if(res.data == "Redirect"){
-      appdata.jmName = account;
-      appdata.jmPwd = pwd;
-      appdata.writeData();
+      if(saveData) {
+        appdata.jmName = account;
+        appdata.jmPwd = pwd;
+        appdata.writeData();
+      }
       return const Res(true);
     }
     return const Res(null, errorMessage: "Failed to login");
@@ -416,11 +437,18 @@ class JmNetwork {
       for(final element in document.querySelectorAll("div.col-xs-6.col-sm-3.col-md-3.m-b-15.list-col")){
         final id = element.querySelector("a")!.attributes["href"]!.nums;
         final title = element.querySelector("div.video-title")!.text;
-        comics.add(JmComicBrief(id, "", title, "", [], []));
+        try {
+          comics.add(JmComicBrief(id, "", title, "", [], []));
+        }
+        catch(e){/**/}
       }
       try {
         var pageLis = document.querySelectorAll(
             "ul.pagination.pagination-lg > li");
+        if(pageLis.isEmpty){
+          pageLis = document.querySelectorAll(
+              "ul.pagination > li");
+        }
         var pages = int.tryParse(pageLis[pageLis.length - 2].text);
         return Res(comics, subData: pages!);
       }
@@ -474,7 +502,10 @@ class JmNetwork {
     if(res.error){
       return Res.fromErrorRes(res);
     }
-    return const Res(true);
+    if(jsonDecode(res.data)["status"] == 1){
+      return const Res(true);
+    }
+    return const Res(null, errorMessage: "Failed to add comic.");
   }
 
   Future<Res<List<Comment>>> getComment(String id, int page) async {
@@ -499,9 +530,6 @@ class JmNetwork {
       }
       var document = parse(res.data);
       var comments = parseComments(document);
-      if(comments.isEmpty){
-        return const Res(null, errorMessage: "No comments");
-      }
       return Res(comments);
     }
     catch(e, s){
@@ -559,8 +587,11 @@ class JmNetwork {
         final author = element.querySelectorAll("p.title-truncate > a").map((e) => e.text);
         final category = element.querySelector("div.label-category")!.text;
         final tags = element.querySelectorAll("a.label-category").map((e) => e.text);
-        comics.add(JmComicBrief(id, author.first, name, "",
-            [ComicCategoryInfo("", category)], tags.toList()));
+        try {
+          comics.add(JmComicBrief(id, author.first, name, "",
+              [ComicCategoryInfo("", category)], tags.toList()));
+        }
+        catch(e){/**/}
       }
       return Res(comics, subData: 1);
     }

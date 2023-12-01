@@ -29,6 +29,9 @@ class JmComicTile extends ComicTile {
   Widget get image => CachedNetworkImage(
         imageUrl: getJmCoverUrl(comic.id),
         fit: BoxFit.cover,
+        httpHeaders: {
+          "host": Uri.parse(getJmCoverUrl(comic.id)).host
+        },
         placeholder: (context, s) =>
             ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
         errorWidget: (context, url, error) => const Icon(Icons.error),

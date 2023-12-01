@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -31,6 +30,7 @@ class Webdav {
     _isOperating = true;
     appdata.settings[46] =
         (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
+    appdata.updateSettings();
     config ??= appdata.settings[45];
     var configs = config.split(';');
     if (configs.length != 4 || configs.elementAtOrNull(0) == "") {
@@ -44,7 +44,7 @@ class Webdav {
       configs[0],
       user: configs[1],
       password: configs[2],
-      debug: kDebugMode,
+      debug: false,
     );
     client.setHeaders({'content-type': 'text/plain'});
     try {
@@ -75,7 +75,7 @@ class Webdav {
         configs[0],
         user: configs[1],
         password: configs[2],
-        debug: kDebugMode,
+        debug: false,
       );
       try {
         var cachePath = (await getApplicationCacheDirectory()).path;
@@ -99,9 +99,7 @@ class Webdav {
     if (configs.length != 4 || configs.elementAtOrNull(0) == "") {
       return;
     }
-    var controller = showLoadingDialog(App.globalContext!, () {
-      App.back(App.globalContext!);
-    }, false, true, "同步数据中".tl);
+    var controller = showLoadingDialog(App.globalContext!, () {}, false, true, "同步数据中".tl, "隐藏".tl);
     var res = await Webdav.downloadData();
     if (!res) {
       controller.close();

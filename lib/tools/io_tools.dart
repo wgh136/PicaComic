@@ -8,7 +8,6 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
@@ -207,7 +206,7 @@ Future<String?> exportData(String path, String appdataString, String? downloadPa
     var encode = ZipFileEncoder();
     encode.create("$path${pathSep}userData.picadata");
     await encode.addFile(file);
-    var localFavorite = File("$path${pathSep}localFavorite");
+    var localFavorite = File("$path${pathSep}local_favorite.db");
     if(! localFavorite.existsSync()){
       localFavorite.createSync();
     }
@@ -229,9 +228,6 @@ Future<String> exportDataToFile(bool includeDownload) async{
   try {
     if (DownloadManager().path == null) {
       DownloadManager().init();
-    }
-    if(HistoryManager().history == null){
-      await HistoryManager().readData();
     }
     var appdataString = const JsonEncoder().convert(appdata.toJson());
     var downloadPath = includeDownload?DownloadManager().path:null;
@@ -314,19 +310,29 @@ Future<bool> importData([String? filePath]) async{
           item.renameSync('$path${pathSep}dataTemp${pathSep}download');
         }
       }
+      final json = File("$path${pathSep}dataTemp${pathSep}appdata")
+          .readAsStringSync();
+      int fileVersion = int.parse(((const JsonDecoder().convert(json))["settings"] as List).elementAtOrNull(46) ?? "1");
+      if(fileVersion <= int.parse(data[3]) && data[4] == "1"){
+        return json;
+      }
       var downloadData = Directory("$path${pathSep}dataTemp${pathSep}download");
       if(downloadData.existsSync()) {
         downloadPath.deleteSync(recursive: true);
         downloadPath.createSync();
       }
       var localFavorite = File('$path${pathSep}dataTemp${pathSep}localFavorite');
-      localFavorite.copySync('$path${pathSep}localFavorite');
+      if(localFavorite.existsSync()){
+        localFavorite.copySync('$path${pathSep}localFavorite');
+      } else {
+        var localFavorite2 = File(
+            '$path${pathSep}dataTemp${pathSep}local_favorite.db');
+        localFavorite2.copySync('$path${pathSep}local_favorite_temp.db');
+      }
       if(downloadData.existsSync()) {
         await copyDirectory(
           Directory("$path${pathSep}dataTemp${pathSep}download"), downloadPath);
       }
-      var json = File("$path${pathSep}dataTemp${pathSep}appdata")
-          .readAsStringSync();
       try {
         Directory("$path${pathSep}dataTemp").deleteSync(recursive: true);
       }
@@ -338,7 +344,7 @@ Future<bool> importData([String? filePath]) async{
     catch(e){
       return null;
     }
-  }, [path, filePath, DownloadManager().path!]);
+  }, [path, filePath, DownloadManager().path!, appdata.settings[46], (enableCheck ? "1": "0")]);
   if(data == null){
     return false;
   }
@@ -365,7 +371,6 @@ Future<bool> importData([String? filePath]) async{
   if(appdata.htName != prevAccounts[2]) {
     await HtmangaNetwork().loginFromAppdata();
   }
-  LocalFavoritesManager().close();
   await LocalFavoritesManager().readData();
   LocalFavoritesManager().updateUI();
   return true;

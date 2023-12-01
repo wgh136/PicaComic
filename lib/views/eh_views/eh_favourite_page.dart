@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
+import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../main_page.dart';
 import '../widgets/my_icons.dart';
@@ -18,9 +22,9 @@ class EhFavoritePage extends StatelessWidget {
           delegate: SliverChildBuilderDelegate(childCount: 11, (context, i) {
             if (i == 0) {
               return EhFolderTile(
-                  name: "全部",
+                  name: "全部".tl,
                   onTap: () => MainPage.to(
-                      () => EhFavoritePageFolder(name: "全部", folderId: -1)));
+                      () => EhFavoritePageFolder(name: "全部".tl, folderId: -1)));
             } else {
               i--;
             }
@@ -44,7 +48,7 @@ class PageData {
   Map<int, List<EhGalleryBrief>> comics = {};
 }
 
-class EhFavoritePageFolder extends ComicsPage {
+class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
   EhFavoritePageFolder({required this.name, required this.folderId, super.key});
 
   final String name;
@@ -54,7 +58,7 @@ class EhFavoritePageFolder extends ComicsPage {
   final data = PageData();
 
   @override
-  Future<Res<List>> getComics(int i) async {
+  Future<Res<List<EhGalleryBrief>>> getComics(int i) async {
     if (data.galleries == null) {
       Res<Galleries> res;
       if (folderId == -1) {
@@ -102,6 +106,15 @@ class EhFavoritePageFolder extends ComicsPage {
 
   @override
   bool get withScaffold => true;
+
+  @override
+  Widget? get tailing => IconButton(
+    icon: const Icon(Icons.save),
+    onPressed: (){
+      startConvert((page) => getComics(page), null, App.globalContext!, name,
+              (comic) => FavoriteItem.fromEhentai(comic));
+    },
+  );
 }
 
 class EhFolderTile extends StatelessWidget {

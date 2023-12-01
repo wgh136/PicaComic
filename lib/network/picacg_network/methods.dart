@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
-import 'package:pica_comic/network/proxy.dart';
+import 'package:pica_comic/network/http_client.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 import '../../foundation/app.dart';
 import '../../foundation/log.dart';
-import '../log_dio.dart';
+import '../app_dio.dart';
 import '../res.dart';
 import 'models.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -25,21 +25,13 @@ class PicacgNetwork {
 
   PicacgNetwork._create([this.token = ""]);
 
-  String apiUrl = appdata.settings[3] == "1"
-      ? "$serverDomain/picaapi"
-      : "https://picaapi.picacomic.com";
+  final String apiUrl = "https://picaapi.picacomic.com";
   InitData? initData;
   String token;
 
   var hotTags = <String>[];
 
-  Future<void> updateApi() async {
-    if (appdata.settings[3] == "1") {
-      apiUrl = "$serverDomain/picaapi";
-    } else {
-      apiUrl = "https://picaapi.picacomic.com";
-    }
-  }
+  Future<void> updateApi() async {}
 
   Future<Res<Map<String, dynamic>>> get(String url,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
@@ -1065,9 +1057,7 @@ class PicacgNetwork {
 }
 
 String getImageUrl(String url) {
-  if (url.contains(serverDomain)) return url;
-  if (!url.contains("pica")) return url;
-  return appdata.settings[3] == "1" ? "$serverDomain/storage/$url" : url;
+  return url;
 }
 
 var network = PicacgNetwork();

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/network/log_dio.dart';
+import 'package:pica_comic/network/app_dio.dart';
 
 Future<bool?> checkUpdate() async {
   try {

@@ -23,7 +23,11 @@ extension AppTranslation on String {
   }
 
   static const Map<String, Map<String, String>> translations = {
-    'zh_CN': {"新到书": "新到旧", "need Cloudflare Challenge": "需要进行安全挑战"},
+    'zh_CN': {
+      "新到书": "新到旧",
+      "Cloudflare Challenge": "需要进行安全挑战",
+      "JM: Cloudflare Challenge": "需要进行安全挑战"
+    },
     "zh_TW": {
       '有可用更新': '有可用更新',
       "下载管理器": "下載管理器",
@@ -434,6 +438,16 @@ extension AppTranslation on String {
       "热搜": "熱搜",
       "隐藏": "隱藏",
       "显示收藏": "顯示收藏",
+      // v2.3.0
+      "规则": "規則",
+      "探索页面": "探索頁面",
+      "点击时的操作": "點擊時的操作",
+      "查看信息": "查看詳情",
+      "显示页面信息": "顯示頁面訊息",
+      "从文件导入": "從文件導入",
+      "从网络导入": "從網路導入",
+      "复制到": "複製到",
+      "生成文本并复制": "生成文字並複製",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -546,15 +560,15 @@ extension AppTranslation on String {
       "E-Hentai账号": "E-Hentai Account",
       "目标": "Target",
       "禁漫漫画ID": "JMComic Comic ID",
-      "输入禁漫漫画ID": "Enter JMComic Comic ID",
+      "输入禁漫漫画ID": "Enter JMComic ID",
       "输入的ID不是数字": "The entered ID is not a number",
       "漫画排序模式": "Comic Sorting Mode",
       "新到书": "New to Old",
       "旧到新": "Old to New",
-      "最多喜欢": "Most Liked",
+      "最多喜欢": "Most Likes",
       "最多指名": "Most Nominated",
       "最新": "Newest",
-      "最多点击": "Most Clicked",
+      "最多点击": "Most Clicks",
       "最多图片": "Most Images",
       "哔咔热搜": "Picacg Hot Search",
       "禁漫热搜": "JMComic Hot Search",
@@ -575,7 +589,7 @@ extension AppTranslation on String {
       "当前": "Current",
       " 倒序": "Reverse Order",
       "未知": "Unknown",
-      "继续阅读": "Continue Reading",
+      "继续阅读": "Continue",
       "从头开始": "Start Reading",
       "上次阅读到第 @ep 章第 @page 页, 是否继续阅读?":
           "Last read at Chapter @ep, Page @page. Do you want to continue reading?",
@@ -754,7 +768,7 @@ extension AppTranslation on String {
       "如果系统中未设置任何认证方法请勿开启":
           "Do not enable if no authentication methods are set in the system",
       "本软件仅用于学习交流": "This software is for learning and communication only",
-      "项目地址": "Project address",
+      "项目地址": "Repository",
       "提出建议": "Submit suggestions",
       "正在检查更新": "Checking for updates",
       "关闭更新检查": "Turn off update check",
@@ -965,6 +979,16 @@ extension AppTranslation on String {
       "热搜": "Hot Search",
       "隐藏": "Hide",
       "显示收藏": "Show Favorites",
+      // v2.3.0
+      "规则": "rule",
+      "探索页面": "Explore pages",
+      "点击时的操作": "Action on click",
+      "查看信息": "View Info",
+      "显示页面信息": "Show page information",
+      "从文件导入": "From file",
+      "从网络导入": "From network",
+      "复制到": "Copy",
+      "生成文本并复制": "Copy generated text",
     }
   };
 }

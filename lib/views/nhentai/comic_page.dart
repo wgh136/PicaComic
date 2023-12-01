@@ -142,7 +142,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
   FilledButton get downloadButton => FilledButton(
         onPressed: () {
           final id = "nhentai${data!.id}";
-          if (DownloadManager().downloadedHtComics.contains(id)) {
+          if (DownloadManager().downloaded.contains(id)) {
             showMessage(context, "已下载".tl);
             return;
           }
@@ -156,7 +156,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
           showMessage(context, "已加入下载队列".tl);
         },
         child:
-            DownloadManager().downloadedHtComics.contains("nhentai${data!.id}")
+            DownloadManager().downloaded.contains("nhentai${data!.id}")
                 ? Text("已下载".tl)
                 : Text("下载".tl),
       );

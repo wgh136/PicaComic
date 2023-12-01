@@ -7,11 +7,13 @@ import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../foundation/app.dart';
 import '../foundation/ui_mode.dart';
+import '../network/hitomi_network/hitomi_main_network.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage(this.pages, {Key? key}) : super(key: key);
@@ -41,37 +43,60 @@ class _ExplorePageState extends State<ExplorePage>
     super.initState();
   }
 
+  void refresh(){
+    int page = controller.index;
+    String currentPageId = appdata.settings[59][page];
+    switch(currentPageId){
+      case "0": StateController.find<HomePageLogic>().refresh_();
+      case "1": StateController.find<GamesPageLogic>().refresh_();
+      case "2": StateController.find<EhHomePageLogic>().refresh_();
+      case "3": StateController.find<EhPopularPageLogic>().refresh_();
+      case "4": StateController.find<JmHomePageLogic>().refresh_();
+      case "5": StateController.find<ComicsPageLogic>(tag: JmLatestPage.stateTag).refresh_();
+      case "6": StateController.find<HitomiHomePageLogic>(tag: HitomiDataUrls.homePageAll).refresh_();
+      case "7": StateController.find<NhentaiHomePageController>().refresh_();
+      case "8": StateController.find<HtHomePageLogic>().refresh_();
+    }
+  }
+
   Widget buildFAB() => Material(
         color: Colors.transparent,
         child: FloatingActionButton(
           key: const Key("FAB"),
+          onPressed: refresh,
           child: const Icon(Icons.refresh),
-          onPressed: () {
-            int page = controller.index;
-            var logics = [
-              () => StateController.find<HomePageLogic>().refresh_(),
-              if (appdata.settings[24][1] == "1")
-                () => StateController.find<GamesPageLogic>().refresh_(),
-              if (appdata.settings[24][2] == "1")
-                () => StateController.find<EhHomePageLogic>().refresh_(),
-              if (appdata.settings[24][3] == "1")
-                () => StateController.find<EhPopularPageLogic>().refresh_(),
-              if (appdata.settings[24][4] == "1")
-                () => StateController.find<JmHomePageLogic>().refresh_(),
-              if (appdata.settings[24][5] == "1")
-                () => StateController.find<JmLatestPageLogic>().refresh_(),
-              if (appdata.settings[24][6] == "1")
-                () => HitomiHomePageComics.refresh(),
-              if (appdata.settings[24][7] == "1")
-                () => StateController.find<NhentaiHomePageController>()
-                    .refresh_(),
-              if (appdata.settings[24][9] == "1")
-                () => StateController.find<HtHomePageLogic>().refresh_(),
-            ];
-            logics[page]();
-          },
         ),
       );
+
+  Widget buildTab(String i){
+    return switch(i){
+      "0" => Tab(text: "Picacg".tl, key: const Key("Picacg"),),
+      "1" => Tab(text: "Picacg游戏".tl, key: const Key("Picacg游戏"),),
+      "2" => Tab(text: "Eh主页".tl, key: const Key("Eh主页"),),
+      "3" => Tab(text: "Eh热门".tl, key: const Key("Eh热门"),),
+      "4" => Tab(text: "禁漫主页".tl, key: const Key("禁漫主页")),
+      "5" => Tab(text: "禁漫最新".tl, key: const Key("禁漫最新")),
+      "6" => Tab(text: "Hitomi".tl, key: const Key("Hitomi主页")),
+      "7" => Tab(text: "Nhentai".tl, key: const Key("Nhentai")),
+      "8" => Tab(text: "绅士漫画".tl, key: const Key("绅士漫画")),
+      _ => throw UnimplementedError()
+    };
+  }
+
+  Widget buildBody(String i){
+    return switch(i){
+      "0" => const HomePage(),
+      "1" => const GamesPage(),
+      "2" => const EhHomePage(),
+      "3" => const EhPopularPage(),
+      "4" => const JmHomePage(),
+      "5" => const JmLatestPage(),
+      "6" => const HitomiHomePage(),
+      "7" => const NhentaiHomePage(),
+      "8" => const HtHomePage(),
+      _ => throw UnimplementedError()
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,36 +107,8 @@ class _ExplorePageState extends State<ExplorePage>
       isScrollable: true,
       tabAlignment: TabAlignment.center,
       tabs: [
-        if (appdata.settings[24][0] == "1")
-          Tab(
-            text: "Picacg".tl,
-            key: const Key("Picacg"),
-          ),
-        if (appdata.settings[24][1] == "1")
-          Tab(
-            text: "Picacg游戏".tl,
-            key: const Key("Picacg游戏"),
-          ),
-        if (appdata.settings[24][2] == "1")
-          Tab(
-            text: "Eh主页".tl,
-            key: const Key("Eh主页"),
-          ),
-        if (appdata.settings[24][3] == "1")
-          Tab(
-            text: "Eh热门".tl,
-            key: const Key("Eh热门"),
-          ),
-        if (appdata.settings[24][4] == "1")
-          Tab(text: "禁漫主页".tl, key: const Key("禁漫主页")),
-        if (appdata.settings[24][5] == "1")
-          Tab(text: "禁漫最新".tl, key: const Key("禁漫最新")),
-        if (appdata.settings[24][6] == "1")
-          Tab(text: "Hitomi".tl, key: const Key("Hitomi主页")),
-        if (appdata.settings[24][7] == "1")
-          Tab(text: "Nhentai".tl, key: const Key("Nhentai")),
-        if (appdata.settings[24][9] == "1")
-          const Tab(text: "绅士漫画", key: Key("绅士漫画")),
+        for(int i=0; i<appdata.settings[59].length; i++)
+          buildTab(appdata.settings[59][i])
       ],
       controller: controller,
     );
@@ -226,15 +223,8 @@ class _ExplorePageState extends State<ExplorePage>
                 child: TabBarView(
                   controller: controller,
                   children: [
-                    if (appdata.settings[24][0] == "1") const HomePage(),
-                    if (appdata.settings[24][1] == "1") const GamesPage(),
-                    if (appdata.settings[24][2] == "1") const EhHomePage(),
-                    if (appdata.settings[24][3] == "1") const EhPopularPage(),
-                    if (appdata.settings[24][4] == "1") const JmHomePage(),
-                    if (appdata.settings[24][5] == "1") const JmLatestPage(),
-                    if (appdata.settings[24][6] == "1") const HitomiHomePage(),
-                    if (appdata.settings[24][7] == "1") const NhentaiHomePage(),
-                    if (appdata.settings[24][9] == "1") const HtHomePage()
+                    for(int i=0; i<appdata.settings[59].length; i++)
+                      buildBody(appdata.settings[59][i])
                   ],
                 ),
               ),
@@ -271,13 +261,7 @@ class ExplorePageWithGetControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StateBuilder<ExplorePageLogic>(builder: (logic) {
-      int pages = 0;
-      for (int i = 0; i < appdata.settings[24].length; i++) {
-        if (i == 8) continue;
-        if (appdata.settings[24][i] == "1") {
-          pages++;
-        }
-      }
+      int pages = appdata.settings[59].length;
       return ExplorePage(
         pages,
         key: Key(pages.toString()),

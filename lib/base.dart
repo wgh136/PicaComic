@@ -95,6 +95,10 @@ class Appdata {
     "0", //54 阅读后移动本地收藏(否/尾/首)
     "1", //55 长按缩放
     "https://18comic.vip", //56 jm domain
+    "1", //57 show page info in reader
+    "0", //58 hosts
+    "012345678", //59 explore page
+    "0", //60 action when local favorite is tapped
   ];
 
   ///屏蔽的关键词
@@ -207,8 +211,10 @@ class Appdata {
     await s.setStringList("favoriteTags", favoriteTags.toList());
   }
 
-  Future<void> writeData() async {
-    Webdav.uploadData();
+  Future<void> writeData([bool sync = true]) async {
+    if(sync) {
+      Webdav.uploadData();
+    }
     var s = await SharedPreferences.getInstance();
     await s.setString("token", token);
     await s.setString("userName", user.name);
@@ -331,7 +337,7 @@ class Appdata {
       history.readDataFromJson(json["history"]);
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
       favoriteTags = Set.from(json["favoriteTags"] ?? favoriteTags);
-      writeData();
+      writeData(false);
       return true;
     } catch (e) {
       readData();

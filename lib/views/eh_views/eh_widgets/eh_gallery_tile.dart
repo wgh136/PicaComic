@@ -1,5 +1,4 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
@@ -99,6 +98,7 @@ class EhGalleryTile extends ComicTile{
       "Cookie": EhNetwork().cookiesStr,
       "User-Agent": webUA,
       "Referer": EhNetwork().ehBaseUrl,
+      "host": Uri.parse(gallery.coverPath).host
     },
   ):Image.network(
     gallery.coverPath,

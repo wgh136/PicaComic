@@ -15,7 +15,7 @@ class JmCommentsPageLogic extends StateController {
   bool loading = true;
   List<Comment>? comments;
   String? message;
-  final int totalComments;
+  int totalComments;
   int page = 1;
   var controller = TextEditingController();
 
@@ -48,6 +48,8 @@ class JmCommentsPageLogic extends StateController {
       return;
     }
     var res = await jmNetwork.getComment(id, page + 1);
+    totalComments = res.subData ?? totalComments;
+    print(totalComments);
     if (res.error) {
       return;
     } else {

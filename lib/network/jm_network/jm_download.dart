@@ -86,7 +86,7 @@ class JmDownloadingItem extends DownloadingItem {
   Future<void> saveInfo() async {
     var file = File("$path/$id/info.json");
     var previous = <int>[];
-    if (DownloadManager().downloadedJmComics.contains(id)) {
+    if (DownloadManager().downloaded.contains(id)) {
       var comic = await DownloadManager().getJmComicFormId(id);
       previous = comic.downloadedEps;
     }

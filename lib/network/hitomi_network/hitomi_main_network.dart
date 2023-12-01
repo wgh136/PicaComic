@@ -6,7 +6,7 @@ import 'package:pica_comic/network/hitomi_network/search.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import '../../base.dart';
 import '../../foundation/log.dart';
-import '../proxy.dart';
+import '../http_client.dart';
 import '../res.dart';
 import 'fetch_data.dart';
 import 'hitomi_models.dart';

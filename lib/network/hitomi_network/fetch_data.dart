@@ -3,7 +3,7 @@ import 'package:pica_comic/foundation/def.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:dio/dio.dart';
 
-import '../proxy.dart';
+import '../http_client.dart';
 
 ///改写自 hitomi.la 网站上的js脚本
 ///

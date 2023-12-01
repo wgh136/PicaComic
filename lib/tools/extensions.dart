@@ -18,6 +18,12 @@ extension ListExtension<T> on List<T>{
     }
     return null;
   }
+
+  void addIfNotNull(T? value){
+    if(value != null){
+      add(value);
+    }
+  }
 }
 
 extension StringExtension on String{

@@ -9,7 +9,6 @@ import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
-import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/pic_views/categories_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
@@ -199,7 +198,6 @@ class _MainPageState extends State<MainPage> {
     StateController.put(EhHomePageLogic());
     StateController.put(EhPopularPageLogic());
     StateController.put(JmHomePageLogic());
-    StateController.put(JmLatestPageLogic());
     StateController.put(ExplorePageLogic());
     StateController.put(CategoryPageLogic());
     StateController.put(HtHomePageLogic());

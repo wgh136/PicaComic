@@ -157,7 +157,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   @override
   FilledButton get downloadButton => FilledButton(
         onPressed: () => downloadComic(data!, context),
-        child: downloadManager.downloadedJmComics.contains("jm$id")
+        child: downloadManager.downloaded.contains("jm$id")
             ? Text("修改".tl)
             : Text("下载".tl),
       );
@@ -273,7 +273,7 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
   }
 
   var downloaded = <int>[];
-  if (DownloadManager().downloadedJmComics.contains("jm${comic.id}")) {
+  if (DownloadManager().downloaded.contains("jm${comic.id}")) {
     var downloadedComic =
         await DownloadManager().getJmComicFormId("jm${comic.id}");
     downloaded.addAll(downloadedComic.downloadedEps);

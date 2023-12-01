@@ -29,23 +29,6 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             ListTile(
               title: Text("哔咔漫画".tl),
             ),
-              ListTile(
-                leading: const Icon(Icons.change_circle),
-                title: Text("使用转发服务器".tl),
-                subtitle: Text("同时使用网络代理工具会减慢速度".tl),
-                trailing: Switch(
-                  value: useMyServer,
-                  onChanged: (b) {
-                    b ? appdata.settings[3] = "1" : appdata.settings[3] = "0";
-                    setState(() {
-                      useMyServer = b;
-                    });
-                    network.updateApi();
-                    appdata.writeData();
-                  },
-                ),
-                onTap: () {},
-              ),
             ListTile(
               leading: const Icon(Icons.hub_outlined),
               title: Text("设置分流".tl),

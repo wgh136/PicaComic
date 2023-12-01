@@ -63,13 +63,9 @@ class _NewMePageState extends StateWithController<NewMePage>{
   final controller = ScrollController();
   final tabController = ScrollController();
   bool shouldScrollTabBar = false;
+  bool searchMode = false;
 
-  @override
-  void initState() {
-    Future.microtask(() => LocalFavoritesManager().readData())
-        .then((value){if(value) setState((){});});
-    super.initState();
-  }
+  String keyword = "";
 
   void hideLocalFavorites(){
     setState(() {
@@ -187,7 +183,10 @@ class _NewMePageState extends StateWithController<NewMePage>{
                     ],
                   ),
                 ),
-                buildTabBar(),
+                if(searchMode)
+                  buildSearchBar()
+                else
+                  buildTabBar(),
                 Divider(height: 1, color: App.colors(context).outlineVariant,)
               ],
             )
@@ -226,8 +225,8 @@ class _NewMePageState extends StateWithController<NewMePage>{
     );
   }
 
-  void showFolderManageDialog(String name) async{
-    if(name == "全部".tl){
+  void showFolderManageDialog(String name, [bool all = false]) async{
+    if(all){
       showMessage(context, "不能管理\"全部\"收藏".tl);
     } else {
       Widget buildItem(Icon icon, String title, void Function() onTap){
@@ -272,7 +271,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
             App.globalBack();
             showDialog(context: context, builder: (context) => RenameFolderDialog(name))
                 .then((value) {
-                  if(folderName == name && LocalFavoritesManager().getAllComics(name) == null){
+                  if(folderName == name && !LocalFavoritesManager().folderNames.contains(folderName)){
                     folderName = null;
                   }
                   setState((){});
@@ -308,15 +307,54 @@ class _NewMePageState extends StateWithController<NewMePage>{
     }
   }
 
+  Widget buildSearchBar(){
+    return Container(
+      width: double.infinity,
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      color: Theme.of(context).colorScheme.surface,
+      child: Row(
+        children: [
+          const Icon(Icons.search),
+          const SizedBox(width: 4,),
+          Expanded(
+            child: TextField(
+              onChanged: (s) => setState(() {
+                keyword = s;
+              }),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.only(bottom: 4)
+              ),
+            ),
+          ),
+          InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: (){
+              setState(() {
+                searchMode = false;
+              });
+            },
+            child: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Icon(Icons.close),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget buildTabBar() {
-    Widget buildTab(String name){
-      bool selected = folderName == name || (name == "全部".tl && folderName == null);
+    Widget buildTab(String name, [bool all=false]){
+      bool selected = (!all && folderName == name) || (all && folderName == null);
       return InkWell(
-        key: Key(name),
+        key: all? UniqueKey() : Key(name),
         borderRadius: BorderRadius.circular(8),
         splashColor: App.colors(context).primary.withOpacity(0.2),
         onTap: (){
-          if(name == "全部".tl){
+          if(all){
             setState(() {
               folderName = null;
             });
@@ -329,8 +367,8 @@ class _NewMePageState extends StateWithController<NewMePage>{
             controller.jumpTo(controller.position.minScrollExtent + 58);
           }
         },
-        onLongPress: () => showFolderManageDialog(name),
-        onSecondaryTapDown: (details) => showFolderManageDialog(name),
+        onLongPress: () => showFolderManageDialog(name, all),
+        onSecondaryTapDown: (details) => showFolderManageDialog(name, all),
         child: Container(
           constraints: const BoxConstraints(minWidth: 64),
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -350,11 +388,6 @@ class _NewMePageState extends StateWithController<NewMePage>{
     }
 
     final folders = LocalFavoritesManager().folderNames;
-    if(folders == null) {
-      Future.microtask(() => LocalFavoritesManager().readData())
-          .then((value) => setState(() {}));
-      return const SizedBox();
-    }
     return Material(
       child: MouseRegion(
         onEnter: (details) => setState(() => shouldScrollTabBar = true),
@@ -379,10 +412,34 @@ class _NewMePageState extends StateWithController<NewMePage>{
               child: Row(
                 children: [
                   const SizedBox(width: 8,),
-                  buildTab("全部".tl),
+                  buildTab("全部".tl, true),
                   for(var name in folders)
                     buildTab(name),
                   const SizedBox(width: 8,),
+                  InkWell(
+                    onTap: (){
+                      keyword = "";
+                      setState(() {
+                        shouldScrollTabBar = false;
+                        searchMode = true;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 12,),
+                            Text("搜索".tl, style: TextStyle(color: App.colors(context).primary),),
+                            const SizedBox(width: 4,),
+                            const Icon(Icons.search, size: 18,),
+                            const SizedBox(width: 12,),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                   InkWell(
                     onTap: (){
                       showDialog(context: context, builder: (context) =>
@@ -432,10 +489,38 @@ class _NewMePageState extends StateWithController<NewMePage>{
   }
 
   Widget buildComics(){
-    if(folderName == null){
+    if(searchMode){
+      return buildSearchView();
+    } else if(folderName == null){
       return buildAllComics();
     } else {
       return buildFolderComics();
+    }
+  }
+
+  Widget buildSearchView(){
+    if(keyword.isNotEmpty) {
+      final comics = LocalFavoritesManager().search(keyword);
+
+      return SliverGrid.builder(
+        key: const Key("_pica_comic_"),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: App.comicTileMaxWidth,
+          childAspectRatio: App.comicTileAspectRatio,
+        ),
+        itemCount: comics.length,
+        itemBuilder: (BuildContext context, int index) {
+          return LocalFavoriteTile(
+            comics[index].comic,
+            comics[index].folder,
+            () => setState(() {}),
+            true,
+            showFolderInfo: true,
+          );
+        },
+      );
+    } else {
+      return const SliverPadding(padding: EdgeInsets.zero);
     }
   }
 
@@ -505,7 +590,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
   }
 
   Widget buildFolderComics(){
-    var comics = LocalFavoritesManager().getAllComics(folderName!)!;
+    var comics = LocalFavoritesManager().getAllComics(folderName!);
     if(comics.isEmpty){
       return buildEmptyView();
     }

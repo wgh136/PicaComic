@@ -9,10 +9,11 @@ import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../network/update.dart';
 import '../../tools/io_tools.dart';
-import '../../network/proxy.dart';
+import '../../network/http_client.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
@@ -356,7 +357,9 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
                             await downloadManager.updatePath(controller.text, transform: transform);
                         if (res == "ok") {
                           hideMessage(App.globalContext!);
-                          Navigator.of(App.globalContext!).pop();
+                          if(mounted){
+                            Navigator.of(context).pop();
+                          }
                           showMessage(App.globalContext, "更新成功".tl);
                           appdata.updateSettings();
                         } else {
@@ -475,12 +478,7 @@ class _SetDownloadFolderDialogState extends State<SetDownloadFolderDialog> {
 }
 
 void setExplorePages(BuildContext context) {
-  showDialog(
-      context: context,
-      builder: (logic) => SimpleDialog(
-            title: Text("显示的探索页面".tl),
-            children: const [SetExplorePages()],
-          ));
+  showAdaptiveWidget(App.globalContext!, const SetExplorePages());
 }
 
 class SetExplorePages extends StatefulWidget {
@@ -504,41 +502,99 @@ class _SetExplorePagesState extends State<SetExplorePages> {
     super.dispose();
   }
 
+  Widget buildItem(String i){
+    Widget removeButton = Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: IconButton(
+          onPressed: (){
+            setState((){
+              appdata.settings[59] = appdata.settings[59].replaceFirst(i, "");
+            });
+            appdata.updateSettings();
+          },
+          icon: const Icon(Icons.delete)
+      ),
+    );
+
+    return switch(i){
+      "0" => ListTile(title: Text("Picacg".tl), key: Key(i), trailing: removeButton,),
+      "1" => ListTile(title: Text("Picacg游戏".tl), key: Key(i), trailing: removeButton,),
+      "2" => ListTile(title: Text("Eh主页".tl), key: Key(i), trailing: removeButton,),
+      "3" => ListTile(title: Text("Eh热门".tl), key: Key(i), trailing: removeButton,),
+      "4" => ListTile(title: Text("禁漫主页".tl), key: Key(i), trailing: removeButton,),
+      "5" => ListTile(title: Text("禁漫最新".tl), key: Key(i), trailing: removeButton,),
+      "6" => ListTile(title: Text("Hitomi".tl), key: Key(i), trailing: removeButton,),
+      "7" => ListTile(title: Text("Nhentai".tl), key: Key(i), trailing: removeButton,),
+      "8" => ListTile(title: Text("绅士漫画".tl), key: Key(i), trailing: removeButton,),
+      _ => throw UnimplementedError()
+    };
+  }
+
+  Widget buildNotShowPageSelector(String i, BuildContext context){
+    var widget =  switch(i){
+      "0" => ListTile(title: Text("Picacg".tl), key: Key(i)),
+      "1" => ListTile(title: Text("Picacg游戏".tl), key: Key(i)),
+      "2" => ListTile(title: Text("Eh主页".tl), key: Key(i)),
+      "3" => ListTile(title: Text("Eh热门".tl), key: Key(i)),
+      "4" => ListTile(title: Text("禁漫主页".tl), key: Key(i)),
+      "5" => ListTile(title: Text("禁漫最新".tl), key: Key(i)),
+      "6" => ListTile(title: Text("Hitomi".tl), key: Key(i)),
+      "7" => ListTile(title: Text("Nhentai".tl), key: Key(i)),
+      "8" => ListTile(title: Text("绅士漫画".tl), key: Key(i)),
+      _ => throw UnimplementedError()
+    };
+    return InkWell(
+      child: widget,
+      onTap: (){
+        App.back(context);
+        setState(() {
+          appdata.settings[59] += i;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var titles = [
-      "Picacg".tl,
-      "Picacg游戏".tl,
-      "Eh主页".tl,
-      "Eh热门".tl,
-      "禁漫主页".tl,
-      "禁漫最新".tl,
-      "Hitomi".tl,
-      "nhentai",
-      "",
-      "绅士漫画".tl
-    ];
-    var options = <Widget>[];
-    for (int i = 0; i < 10; i++) {
-      if(i == 8)  continue;
-      options.add(CheckboxListTile(
-        value: appdata.settings[24][i] == "1",
-        onChanged: (b) {
-          setState(() {
-            if (b!) {
-              appdata.settings[24] = appdata.settings[24].replaceRange(i, i + 1, '1');
-            } else {
-              appdata.settings[24] = appdata.settings[24].replaceRange(i, i + 1, '0');
-            }
-          });
-        },
-        title: Text(titles[i]),
-      ));
+    var notShowPages = <String>[];
+    for(int i=0; i<=8; i++){
+      if(!appdata.settings[59].contains(i.toString())){
+        notShowPages.add(i.toString());
+      }
     }
-    return SizedBox(
-      width: 400,
-      child: Column(
-        children: options,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("探索页面".tl),
+        actions: [
+          if(notShowPages.isNotEmpty)
+            IconButton(onPressed: (){
+              showDialog(context: context, builder: (context){
+                return SimpleDialog(
+                  title: const Text("Add"),
+                  children: [
+                    for(var i in notShowPages)
+                      buildNotShowPageSelector(i, context)
+                  ],
+                );
+              });
+            }, icon: const Icon(Icons.add))
+        ],
+      ),
+      body: ReorderableListView(
+        children: [
+          for(int i=0; i<appdata.settings[59].length; i++)
+            buildItem(appdata.settings[59][i])
+        ],
+        onReorder: (oldIndex, newIndex){
+          var settingList = List.generate(appdata.settings[59].length,
+                  (index) => appdata.settings[59][index]);
+          var element = settingList.removeAt(oldIndex);
+          settingList.insert(newIndex, element);
+          setState(() {
+            appdata.settings[59] = settingList.join();
+          });
+          appdata.updateSettings();
+        },
       ),
     );
   }
@@ -595,9 +651,9 @@ void setCacheLimit(BuildContext context) async{
                   children: [
                     Expanded(child: Slider(
                       value: int.parse(value).toDouble(),
-                      max: 1024,
+                      max: 2048,
                       min: 128,
-                      divisions: 897,
+                      divisions: 1919,
                       onChanged: (newValue){
                         size = newValue.toInt();
                         update(newValue.toInt().toString());

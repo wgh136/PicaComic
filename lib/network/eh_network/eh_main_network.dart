@@ -2,12 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
-import 'package:pica_comic/network/log_dio.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/js.dart';
 import 'package:pica_comic/foundation/log.dart';
 import '../../base.dart';
-import '../proxy.dart';
+import '../http_client.dart';
 import 'package:html/parser.dart';
 import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -107,7 +107,7 @@ class EhNetwork {
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
         followRedirects: true,
-        headers: {"user-agent": webUA, ...?headers});
+        headers: {"user-agent": webUA, ...?headers, "host": Uri.parse(url).host});
     var dio = CachedNetwork();
     try {
       var data = await dio.get(url, options,

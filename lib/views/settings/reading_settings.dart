@@ -211,6 +211,18 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             }),
           ),
         ),
+        ListTile(
+          leading: Icon(Icons.insert_drive_file_outlined,
+              color: Theme.of(context).colorScheme.secondary),
+          title: Text("显示页面信息".tl),
+          trailing: Switch(
+            value: appdata.settings[57] == "1",
+            onChanged: (b) => setState(() {
+              appdata.settings[57] = b ? "1" : "0";
+              appdata.updateSettings();
+            }),
+          ),
+        ),
       ],
     );
   }

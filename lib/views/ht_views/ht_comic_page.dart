@@ -99,7 +99,7 @@ class HtComicPage extends ComicPage<HtComicInfo> {
   FilledButton get downloadButton => FilledButton(
         onPressed: () {
           final id = "Ht${data!.id}";
-          if (DownloadManager().downloadedHtComics.contains(id)) {
+          if (DownloadManager().downloaded.contains(id)) {
             showMessage(context, "已下载".tl);
             return;
           }
@@ -112,7 +112,7 @@ class HtComicPage extends ComicPage<HtComicInfo> {
           DownloadManager().addHtDownload(data!);
           showMessage(context, "已加入下载队列".tl);
         },
-        child: DownloadManager().downloadedHtComics.contains("Ht${data!.id}")
+        child: DownloadManager().downloaded.contains("Ht${data!.id}")
             ? Text("已下载".tl)
             : Text("下载".tl),
       );

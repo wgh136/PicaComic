@@ -17,6 +17,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/nhentai_network/download.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/views/download_page.dart';
@@ -47,27 +48,11 @@ class DownloadManager{
   ///下载目录
   String? path;
 
-  ///已下载的picacg漫画
+  ///已下载的漫画
   List<String> downloaded = [];
 
-  ///已下载的e-hentai画廊
-  List<String> downloadedGalleries = [];
-
-  ///已下载的禁漫漫画
-  List<String> downloadedJmComics = [];
-
-  ///已下载的Hitomi漫画
-  List<String> downloadedHitomiComics = [];
-
-  ///已下载的绅士漫画
-  List<String> downloadedHtComics = [];
-
-  /// 已下载的Nhentai漫画
-  List<String> downloadedNhentaiComics = [];
-
   /// 获取所有漫画
-  List<String> get allComics => downloaded + downloadedGalleries
-      + downloadedJmComics + downloadedHitomiComics + downloadedHtComics;
+  List<String> get allComics => downloaded;
 
   ///下载队列
   var downloading = Queue<DownloadingItem>();
@@ -143,9 +128,6 @@ class DownloadManager{
 
     _runInit = false;
     downloaded.clear();
-    downloadedHitomiComics.clear();
-    downloadedGalleries.clear();
-    downloadedJmComics.clear();
     downloading.clear();
     await init();
     return "ok";
@@ -162,38 +144,16 @@ class DownloadManager{
     }
     try {
       var json = const JsonDecoder().convert(file.readAsStringSync());
-      for (var s in json["downloaded"]) {
-        var file = File("$path$pathSep$s${pathSep}info.json");
-        if (!file.existsSync()) continue;
-        downloaded.add(s);
-      }
-      for (var s in json["downloadedGalleries"]) {
-        var file = File("$path$pathSep$s${pathSep}info.json");
-        if (!file.existsSync()) continue;
-        downloadedGalleries.add(s);
-      }
-      for (var s in json["downloadedJmComics"] ?? []) {
-        var file = File("$path$pathSep$s${pathSep}info.json");
-        if (!file.existsSync()) continue;
-        downloadedJmComics.add(s);
-      }
-      for (var s in json["downloadedHitomiComics"] ?? []) {
-        var file = File("$path$pathSep$s${pathSep}info.json");
-        if (!file.existsSync()) continue;
-        downloadedHitomiComics.add(s);
-      }
-      for (var s in json["downloadedHtComics"] ?? []) {
-        var file = File("$path$pathSep$s${pathSep}info.json");
-        if (!file.existsSync()) continue;
-        downloadedHtComics.add(s);
-      }
-      for (var s in json["downloadedNhentaiComics"] ?? []) {
-        var file = File("$path$pathSep$s${pathSep}info.json");
-        if (!file.existsSync()) continue;
-        downloadedNhentaiComics.add(s);
-      }
       for (var item in json["downloading"]) {
         downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
+      }
+      for(var entry in Directory(path!).listSync()){
+        if(entry is Directory){
+          var infoFile = File("${entry.path}/info.json");
+          if(infoFile.existsSync()){
+            downloaded.add(entry.name);
+          }
+        }
       }
     }
     catch(e, s){
@@ -225,12 +185,6 @@ class DownloadManager{
   ///储存当前的下载队列信息, 每完成一张图片的下载调用一次
   Future<void> _saveInfo() async{
     var data = <String, dynamic>{};
-    data["downloaded"] = downloaded;
-    data["downloadedGalleries"] = downloadedGalleries;
-    data["downloadedJmComics"] = downloadedJmComics;
-    data["downloadedHitomiComics"] = downloadedHitomiComics;
-    data["downloadedHtComics"] = downloadedHtComics;
-    data["downloadedNhentaiComics"] = downloadedNhentaiComics;
     data["downloading"] = <Map<String, dynamic>>[];
     for(var item in downloading){
       data["downloading"].add(item.toMap());
@@ -340,18 +294,8 @@ class DownloadManager{
 
   ///当一个下载任务完成时, 调用此函数
   void _whenFinish() async{
-    if(downloading.first.type == DownloadType.picacg && !downloaded.contains(downloading.first.id)) {
+    if(!downloaded.contains(downloading.first.id)) {
       downloaded.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.ehentai && !downloadedGalleries.contains(downloading.first.id)){
-      downloadedGalleries.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.jm && !downloadedJmComics.contains(downloading.first.id)){
-      downloadedJmComics.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.hitomi && !downloadedHitomiComics.contains(downloading.first.id)){
-      downloadedHitomiComics.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.htmanga && !downloadedHtComics.contains(downloading.first.id)){
-      downloadedHtComics.add(downloading.first.id);
-    }else if(downloading.first.type == DownloadType.nhentai && !downloadedNhentaiComics.contains(downloading.first.id)){
-      downloadedNhentaiComics.add(downloading.first.id);
     }
     downloading.removeFirst();
     await _saveInfo();
@@ -421,145 +365,91 @@ class DownloadManager{
     _saveInfo();
   }
 
-  ///通过漫画id获取漫画信息
-  Future<DownloadedComic> getComicFromId(String id) async{
+  Future<DownloadedItem?> getComicOrNull(String id) async{
+    var file = File("$path$pathSep$id${pathSep}info.json");
+    if(!file.existsSync()){
+      LogManager.addLog(LogLevel.error, "IO", "Failed to get a downloaded comic info: "
+          "\nFile Not Found\nId is $id");
+      return null;
+    }
+    var json = await file.readAsString();
+    DownloadedItem comic;
     try {
-      var file = File("$path$pathSep$id${pathSep}info.json");
-      var json = await file.readAsString();
-      var res =  DownloadedComic.fromJson(jsonDecode(json));
+      if (id.startsWith("jm")) {
+        comic = DownloadedJmComic.fromMap(jsonDecode(json));
+      } else if (id.startsWith("hitomi")) {
+        comic = DownloadedHitomiComic.fromMap(jsonDecode(json));
+      } else if (id.startsWith("nhentai")) {
+        comic = NhentaiDownloadedComic.fromJson(jsonDecode(json));
+      } else if (id.startsWith("ht")) {
+        comic = DownloadedHtComic.fromJson(jsonDecode(json));
+      } else if (id.isNum) {
+        comic = DownloadedGallery.fromJson(jsonDecode(json));
+      } else {
+        comic = DownloadedComic.fromJson(jsonDecode(json));
+      }
       try {
         var time = file.lastModifiedSync();
-        res.time = time;
+        comic.time = time;
       }
-      catch(e){
-        //忽视
-      }
-      return res;
+      catch(e){/**/}
+      return comic;
     }
-    catch(e){
-      downloaded.remove(id);
-      _saveInfo();
-      rethrow;
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "IO", "Failed to get a downloaded comic info:\n$e\n$s");
+      return null;
     }
   }
 
-  ///通过画廊id获取画廊信息
-  Future<DownloadedGallery> getGalleryFormId(String id) async{
+  ///通过漫画id获取漫画信息
+  Future<DownloadedComic> getComicFromId(String id) async{
+    var file = File("$path$pathSep$id${pathSep}info.json");
+    var json = await file.readAsString();
+    var res =  DownloadedComic.fromJson(jsonDecode(json));
     try {
-      var file = File("$path$pathSep$id${pathSep}info.json");
-      var json = await file.readAsString();
-      var res =  DownloadedGallery.fromJson(jsonDecode(json));
-      try {
-        var time = file.lastModifiedSync();
-        res.time = time;
-      }
-      catch(e){
-        //忽视
-      }
-      return res;
+      var time = file.lastModifiedSync();
+      res.time = time;
     }
     catch(e){
-      downloadedGalleries.remove(id);
-      _saveInfo();
-      rethrow;
+      //忽视
     }
+    return res;
   }
 
   ///通过禁漫id获取漫画信息
   Future<DownloadedJmComic> getJmComicFormId(String id) async{
+    var file = File("$path$pathSep$id${pathSep}info.json");
+    var json = await file.readAsString();
+    var res =  DownloadedJmComic.fromMap(jsonDecode(json));
     try {
-      var file = File("$path$pathSep$id${pathSep}info.json");
-      var json = await file.readAsString();
-      var res =  DownloadedJmComic.fromMap(jsonDecode(json));
-      try {
-        var time = file.lastModifiedSync();
-        res.time = time;
-      }
-      catch(e){
-        //忽视
-      }
-      return res;
+      var time = file.lastModifiedSync();
+      res.time = time;
     }
     catch(e){
-      downloadedJmComics.remove(id);
-      _saveInfo();
-      rethrow;
+      //忽视
     }
+    return res;
   }
 
   ///获取Hitomi漫画信息
   Future<DownloadedHitomiComic> getHitomiComicFromId(String id) async{
+    var file = File("$path$pathSep$id${pathSep}info.json");
+    var json = await file.readAsString();
+    var res =  DownloadedHitomiComic.fromMap(jsonDecode(json));
     try {
-      var file = File("$path$pathSep$id${pathSep}info.json");
-      var json = await file.readAsString();
-      var res =  DownloadedHitomiComic.fromMap(jsonDecode(json));
-      try {
-        var time = file.lastModifiedSync();
-        res.time = time;
-      }
-      catch(e){
-        //忽视
-      }
-      return res;
+      var time = file.lastModifiedSync();
+      res.time = time;
     }
     catch(e){
-      downloadedHitomiComics.remove(id);
-      _saveInfo();
-      rethrow;
+      //忽视
     }
-  }
-
-  ///获取绅士漫画信息
-  Future<DownloadedHtComic> getHtComicFromId(String id) async{
-    try {
-      var file = File("$path$pathSep$id${pathSep}info.json");
-      var json = await file.readAsString();
-      var res =  DownloadedHtComic.fromJson(jsonDecode(json));
-      try {
-        var time = file.lastModifiedSync();
-        res.time = time;
-      }
-      catch(e){
-        //忽视
-      }
-      return res;
-    }
-    catch(e){
-      downloadedHtComics.remove(id);
-      _saveInfo();
-      rethrow;
-    }
-  }
-
-  Future<NhentaiDownloadedComic> getNhentaiComic(String id) async{
-    try {
-      var file = File("$path$pathSep$id${pathSep}info.json");
-      var json = await file.readAsString();
-      var res =  NhentaiDownloadedComic.fromJson(jsonDecode(json));
-      try {
-        var time = file.lastModifiedSync();
-        res.time = time;
-      }
-      catch(e){
-        //忽视
-      }
-      return res;
-    }
-    catch(e){
-      downloadedHtComics.remove(id);
-      _saveInfo();
-      rethrow;
-    }
+    return res;
   }
 
   ///删除已下载的漫画
   Future<void> delete(List<String> ids) async{
     for (var id in ids) {
       downloaded.remove(id);
-      downloadedGalleries.remove(id);
-      downloadedJmComics.remove(id);
-      downloadedHitomiComics.remove(id);
-      downloadedHtComics.remove(id);
       var comic = Directory("$path$pathSep$id");
       try {
         comic.delete(recursive: true);
