@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -7,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
@@ -319,25 +321,42 @@ class LocalFavoritesManager {
     }
   }
 
+  int _loading = 0;
+
   /// get comic cover
   Future<File> getCover(FavoriteItem item) async {
-    var path = "${appdataPath!}${pathSep}favoritesCover";
-    var hash =
-        md5.convert(const Utf8Encoder().convert(item.coverPath)).toString();
-    var file = File("$path$pathSep$hash.jpg");
-    if (file.existsSync()) {
-      return file;
-    } else {
-      var dio = Dio(BaseOptions(headers: {
-        if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
-        if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
-          "User-Agent": webUA,
-        if (item.type == ComicType.hitomi) "Referer": "https://hitomi.la/"
-      }, responseType: ResponseType.bytes));
-      var res = await dio.get<Uint8List>(item.coverPath);
-      file.createSync(recursive: true);
-      file.writeAsBytesSync(res.data!);
-      return file;
+    while(_loading > 2){
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    _loading++;
+    try {
+      var path = "${appdataPath!}/favoritesCover";
+      var hash =
+      md5.convert(const Utf8Encoder().convert(item.coverPath)).toString();
+      var file = File("$path/$hash.jpg");
+      if (file.existsSync()) {
+        return file;
+      } else {
+        var dio = logDio(BaseOptions(headers: {
+          if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
+          if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
+            "User-Agent": webUA,
+          if (item.type == ComicType.hitomi) "Referer": "https://hitomi.la/"
+        }, responseType: ResponseType.bytes));
+        var res = await dio.get<Uint8List>(item.coverPath);
+        file.createSync(recursive: true);
+        file.writeAsBytesSync(res.data!);
+        var awaitTime = Random().nextInt(500) + 500;
+        await Future.delayed(Duration(milliseconds: awaitTime));
+        return file;
+      }
+    }
+    catch(e){
+      await Future.delayed(const Duration(seconds: 5));
+      rethrow;
+    }
+    finally{
+      _loading--;
     }
   }
 

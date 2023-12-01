@@ -34,7 +34,17 @@ class MyLogInterceptor implements Interceptor {
 }
 
 class AppHttpAdapter implements HttpClientAdapter{
-  final adapter = IOHttpClientAdapter();
+  final HttpClientAdapter adapter;
+
+  AppHttpAdapter(bool http2):
+      adapter = http2 ? Http2Adapter(ConnectionManager(
+        idleTimeout: const Duration(seconds: 10),
+        onClientCreate: (_, config) {
+          if (proxyHttpOverrides?.proxyStr != null) {
+            config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
+          }
+        },
+      ),) : IOHttpClientAdapter();
 
   @override
   void close({bool force = false}) {
@@ -63,19 +73,8 @@ class AppHttpAdapter implements HttpClientAdapter{
     }
   }
 
-  @override
-  Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
-    var options = o.copyWith();
-    LogManager.addLog(LogLevel.info, "Network",
-        "${options.method} ${options.path}\nheaders:\n${options.headers.toString()}\ndata:${options.data}");
-    if(appdata.settings[58] == "0"){
-      return await adapter.fetch(options, requestStream, cancelFuture);
-    }
-    createConfigFile();
+  void changeHost(RequestOptions options){
     var config = const JsonDecoder().convert(File("${App.dataPath}/hosts.json").readAsStringSync());
-    if(options.headers["host"] == null && options.headers["Host"] == null){
-      options.headers["host"] = options.uri.host;
-    }
     if(config["https"][options.uri.host] != null){
       LogManager.addLog(LogLevel.info, "Network",
           "Change host from ${options.uri.host} to ${config["https"][options.uri.host]}");
@@ -86,14 +85,45 @@ class AppHttpAdapter implements HttpClientAdapter{
       options.path = options.path.replaceFirst(options.uri.host, config["http"][options.uri.host]!);
       options.path = options.path.replaceFirst("https://", "http://");
     }
+  }
+
+  @override
+  Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
+    var options = o.copyWith();
+    LogManager.addLog(LogLevel.info, "Network",
+        "${options.method} ${options.path}\nheaders:\n${options.headers.toString()}\ndata:${options.data}");
+    if(appdata.settings[58] == "0"){
+      return await adapter.fetch(options, requestStream, cancelFuture);
+    }
+    createConfigFile();
+    if(options.headers["host"] == null && options.headers["Host"] == null){
+      options.headers["host"] = options.uri.host;
+    }
+    changeHost(options);
     options.followRedirects = false;
     var res = await adapter.fetch(options, requestStream, cancelFuture);
-    if(res.statusCode == 302){
+    while(res.statusCode == 302){
       var location = res.headers["location"]!.first;
-      options.path = options.path.contains("https://")
-          ? "https://${options.uri.host}$location"
-          : "http://${options.uri.host}$location";
-      return await adapter.fetch(options, requestStream, cancelFuture);
+      if(location.contains("http") && Uri.tryParse(location) != null){
+        if(Uri.parse(location).host != o.uri.host){
+          options.path = location;
+          changeHost(options);
+          res = await adapter.fetch(options, requestStream, cancelFuture);
+        } else {
+          location = Uri
+              .parse(location)
+              .path;
+          options.path = options.path.contains("https://")
+              ? "https://${options.uri.host}$location"
+              : "http://${options.uri.host}$location";
+          res = await adapter.fetch(options, requestStream, cancelFuture);
+        }
+      } else {
+        options.path = options.path.contains("https://")
+            ? "https://${options.uri.host}$location"
+            : "http://${options.uri.host}$location";
+        res = await adapter.fetch(options, requestStream, cancelFuture);
+      }
     }
     return res;
   }
@@ -102,20 +132,7 @@ class AppHttpAdapter implements HttpClientAdapter{
 
 Dio logDio([BaseOptions? options, bool http2 = false]) {
   var dio = Dio(options)..interceptors.add(MyLogInterceptor());
-  if (http2) {
-    dio.httpClientAdapter = Http2Adapter(
-      ConnectionManager(
-        idleTimeout: const Duration(seconds: 10),
-        onClientCreate: (_, config) {
-          if (proxyHttpOverrides?.proxyStr != null) {
-            config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
-          }
-        },
-      ),
-    );
-  } else {
-    dio.httpClientAdapter = AppHttpAdapter();
-  }
+  dio.httpClientAdapter = AppHttpAdapter(http2);
   return dio;
 }
 

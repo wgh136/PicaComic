@@ -155,7 +155,7 @@ class EhNetwork {
           ...?headers
         });
 
-    var dio = Dio(options)..interceptors.add(LogInterceptor());
+    var dio = logDio(options);
 
     try {
       var res = await dio.post<String>(ehApiUrl, data: data);
@@ -548,13 +548,20 @@ class EhNetwork {
     }
   }
 
+  Set<String> loadingReaderLinks = {};
+
   /// page starts from 1
   Future<Res<List<String>>> getReaderLinks(String link, int page) async {
     String url = "$link?inline_set=ts_m";
+    while(loadingReaderLinks.contains(url)){
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    loadingReaderLinks.add(url);
     if (page != 1) {
       url = "$url&p=${page - 1}";
     }
     var res = await request(url);
+    loadingReaderLinks.remove(url);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }

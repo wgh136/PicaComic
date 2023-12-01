@@ -7,6 +7,7 @@ import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
@@ -116,7 +117,7 @@ class ImageManager {
   }
 
   /// 获取图片, 适用于没有任何限制的图片链接
-  Stream<DownloadProgress> getImage(String url) async* {
+  Stream<DownloadProgress> getImage(String url, [Map<String, String>? headers]) async* {
     while (loadingItems[url] != null) {
       var progress = loadingItems[url]!;
       yield progress;
@@ -141,7 +142,7 @@ class ImageManager {
           sendTimeout: const Duration(seconds: 8),
           receiveTimeout: const Duration(seconds: 8),
           followRedirects: true,
-          headers: {
+          headers: headers ?? {
             "user-agent": webUA,
           });
 
@@ -154,7 +155,7 @@ class ImageManager {
       final savePath =
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, url, savePath);
-      var dio = Dio(options);
+      var dio = logDio(options);
       if (url.contains("nhentai")) {
         dio.interceptors.add(CookieManager(NhentaiNetwork().cookieJar!));
       }
@@ -225,7 +226,7 @@ class ImageManager {
           followRedirects: true,
           headers: {"user-agent": webUA, "cookie": EhNetwork().cookiesStr});
 
-      var dio = Dio(options);
+      var dio = logDio(options);
 
       // Get imgKey
       const urlsOnePage = 40;
@@ -276,12 +277,24 @@ class ImageManager {
         "showkey": gallery.auth!["showKey"]
       });
 
-      var image = const JsonDecoder().convert(apiRes.data)["i3"] as String;
+      var apiJson = const JsonDecoder().convert(apiRes.data);
+
+      var i6 = apiJson["i6"] as String;
+      
+      var originImage = i6.split("<a href=\"").last.split("\">").first;
+
+      var image = apiJson["i3"] as String;
+      image = image.substring(
+          image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
+
       if (image.contains("/img/509.gif")) {
         throw ImageExceedError();
       }
-      image = image.substring(
-          image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
+
+      if(appdata.settings[29] == "1"){
+        image = originImage;
+      }
+
       var res = await dio.get<ResponseBody>(image,
           options: Options(responseType: ResponseType.stream));
 
@@ -364,7 +377,7 @@ class ImageManager {
       var fileName = image.hash + url.substring(l);
       final savePath =
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
-      var dio = Dio();
+      var dio = logDio();
       dio.options.headers = {
         "User-Agent": webUA,
         "Referer": "https://hitomi.la/reader/$galleryId.html"
@@ -461,7 +474,7 @@ class ImageManager {
       final savePath =
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
 
-      var dio = Dio();
+      var dio = logDio();
       yield DownloadProgress(0, 1, url, savePath);
 
       var bytes = <int>[];

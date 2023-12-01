@@ -1,9 +1,9 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/views/eh_views/cover_image.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
@@ -86,32 +86,13 @@ class EhGalleryTile extends ComicTile{
   }.call();
 
   @override
-  Widget get image => cached?CachedNetworkImage(
-    useOldImageOnUrlChange: true,
-    imageUrl: gallery.coverPath,
-    fit: BoxFit.cover,
-    errorWidget: (context, url, error) => const Icon(Icons.error),
-    height: double.infinity,
-    filterQuality: FilterQuality.medium,
-    placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-    httpHeaders: {
-      "Cookie": EhNetwork().cookiesStr,
-      "User-Agent": webUA,
-      "Referer": EhNetwork().ehBaseUrl,
-      "host": Uri.parse(gallery.coverPath).host
-    },
-  ):Image.network(
-    gallery.coverPath,
-    fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Icon(Icons.error),
-    height: double.infinity,
-    frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
-      return ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant, child: child,);
-    },
+  Widget get image => EhCoverImage(
+    url: gallery.coverPath,
     headers: {
       "Cookie": EhNetwork().cookiesStr,
       "User-Agent": webUA,
       "Referer": EhNetwork().ehBaseUrl,
+      "host": Uri.parse(gallery.coverPath).host
     },
   );
 
