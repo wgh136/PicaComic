@@ -18,6 +18,7 @@ import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
 import '../../foundation/app.dart';
+import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
 import '../widgets/list_loading.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -317,16 +318,17 @@ abstract class ComicsPage<T> extends StatelessWidget {
                   ),
                   if(showPageIndicator)
                     buildPageSelector(context, logic),
+                  SliverPadding(padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom))
                 ],
               );
             }
           }
         });
 
-    body = SafeArea(
-      bottom: false,
-      child: body,
-    );
+    if(head != null && UiMode.m1(context)) {
+      body = SafeArea(bottom: false,child: body,);
+    }
 
     if (withScaffold) {
       return Scaffold(

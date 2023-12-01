@@ -610,7 +610,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
         ListTile(
           leading: const Icon(Icons.support_outlined),
           title: Text("支持开发".tl),
-          onTap: () => launchUrlString("https://wgh136.github.io/posts/1",
+          onTap: () => launchUrlString("https://wgh136.github.io/post/1",
               mode: LaunchMode.externalApplication),
           trailing: const Icon(Icons.arrow_right),
         ),

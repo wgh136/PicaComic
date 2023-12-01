@@ -368,7 +368,10 @@ class LocalFavoriteTile extends ComicTile {
                     ListTile(
                       leading: const Icon(Icons.article),
                       title: Text("查看详情".tl),
-                      onTap: showInfo,
+                      onTap:() {
+                        App.back(context);
+                        showInfo();
+                      },
                     ),
                     ListTile(
                       leading: const Icon(Icons.bookmark_remove),
@@ -565,7 +568,7 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onTap_() {
-    if(appdata.settings[60] == 0){
+    if(appdata.settings[60] == "0"){
       showInfo();
     } else {
       read();

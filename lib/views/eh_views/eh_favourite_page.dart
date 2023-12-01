@@ -3,6 +3,7 @@ import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import '../../foundation/app.dart';
@@ -21,9 +22,9 @@ class EhFavoritePage extends StatelessWidget {
           delegate: SliverChildBuilderDelegate(childCount: 11, (context, i) {
             if (i == 0) {
               return EhFolderTile(
-                  name: "全部",
+                  name: "全部".tl,
                   onTap: () => MainPage.to(
-                      () => EhFavoritePageFolder(name: "全部", folderId: -1)));
+                      () => EhFavoritePageFolder(name: "全部".tl, folderId: -1)));
             } else {
               i--;
             }
