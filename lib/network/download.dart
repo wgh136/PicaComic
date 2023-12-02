@@ -381,7 +381,7 @@ class DownloadManager{
         comic = DownloadedHitomiComic.fromMap(jsonDecode(json));
       } else if (id.startsWith("nhentai")) {
         comic = NhentaiDownloadedComic.fromJson(jsonDecode(json));
-      } else if (id.startsWith("ht")) {
+      } else if (id.startsWith("Ht")) {
         comic = DownloadedHtComic.fromJson(jsonDecode(json));
       } else if (id.isNum) {
         comic = DownloadedGallery.fromJson(jsonDecode(json));
