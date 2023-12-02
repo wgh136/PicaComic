@@ -140,6 +140,9 @@ class PicacgNetwork {
 
   ///登录
   Future<Res<bool>> login(String email, String password) async {
+    if(token.isNotEmpty){
+      token = "";
+    }
     var api = "https://picaapi.picacomic.com";
     var response = await post('$api/auth/sign-in', {
       "email": email,
@@ -153,7 +156,7 @@ class PicacgNetwork {
       try {
         token = res["data"]["token"];
       } catch (e) {
-        return const Res(null, errorMessage: "Failed to get token");
+        return const Res(null, errorMessage: "Failed to get token\n");
       }
       if (kDebugMode) {
         print("Logging successfully");
