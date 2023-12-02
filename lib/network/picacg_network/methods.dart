@@ -81,9 +81,7 @@ class PicacgNetwork {
 
   Future<Res<Map<String, dynamic>>> post(
       String url, Map<String, String>? data) async {
-    var api = appdata.settings[3] == "1"
-        ? "$serverDomain/picaapi"
-        : "https://picaapi.picacomic.com";
+    var api = "https://picaapi.picacomic.com";
     if (token == "" &&
         url != '$api/auth/sign-in' &&
         url != "https://picaapi.picacomic.com/auth/register") {
@@ -142,9 +140,7 @@ class PicacgNetwork {
 
   ///登录
   Future<Res<bool>> login(String email, String password) async {
-    var api = appdata.settings[3] == "1"
-        ? "$serverDomain/picaapi"
-        : "https://picaapi.picacomic.com";
+    var api = "https://picaapi.picacomic.com";
     var response = await post('$api/auth/sign-in', {
       "email": email,
       "password": password,
