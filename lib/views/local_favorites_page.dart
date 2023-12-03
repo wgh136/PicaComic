@@ -1,5 +1,6 @@
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -204,6 +205,7 @@ class LocalFavoriteTile extends ComicTile {
           future: LocalFavoritesManager().getCover(comic),
           builder: (context, file) {
             if (file.hasError) {
+              LogManager.addLog(LogLevel.error, "Network", file.stackTrace.toString());
               return ColoredBox(
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: const Center(child: Icon(Icons.error)));

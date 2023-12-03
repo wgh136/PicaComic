@@ -341,7 +341,7 @@ class LocalFavoritesManager {
 
   /// get comic cover
   Future<File> getCover(FavoriteItem item) async {
-    var path = "${appdataPath!}/favoritesCover";
+    var path = "${App.dataPath}/favoritesCover";
     var hash =
     md5.convert(const Utf8Encoder().convert(item.coverPath)).toString();
     var file = File("$path/$hash.jpg");
@@ -355,6 +355,9 @@ class LocalFavoritesManager {
       _loading++;
     }
     try {
+      if(EhNetwork().cookiesStr == ""){
+        await EhNetwork().getCookies(false);
+      }
       var dio = logDio(BaseOptions(headers: {
         if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
         if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
@@ -364,8 +367,10 @@ class LocalFavoritesManager {
       var res = await dio.get<Uint8List>(item.coverPath);
       file.createSync(recursive: true);
       file.writeAsBytesSync(res.data!);
-      var awaitTime = Random().nextInt(500) + 500;
-      await Future.delayed(Duration(milliseconds: awaitTime));
+      if(item.type == ComicType.ehentai) {
+        var awaitTime = Random().nextInt(500) + 500;
+        await Future.delayed(Duration(milliseconds: awaitTime));
+      }
       return file;
     }
     catch(e){

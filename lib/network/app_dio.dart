@@ -102,7 +102,7 @@ class AppHttpAdapter implements HttpClientAdapter{
     changeHost(options);
     options.followRedirects = false;
     var res = await adapter.fetch(options, requestStream, cancelFuture);
-    while(res.statusCode == 302){
+    while(res.statusCode < 400 && res.statusCode > 300){
       var location = res.headers["location"]!.first;
       if(location.contains("http") && Uri.tryParse(location) != null){
         if(Uri.parse(location).host != o.uri.host){

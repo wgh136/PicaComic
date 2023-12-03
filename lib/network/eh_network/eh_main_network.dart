@@ -143,6 +143,7 @@ class EhNetwork {
     Map<String, dynamic> data, {
     Map<String, String>? headers,
   }) async {
+    await getCookies(false, _ehApiUrl);
     await setNetworkProxy(); //更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -150,12 +151,12 @@ class EhNetwork {
         receiveTimeout: const Duration(seconds: 8),
         headers: {
           "user-agent": webUA,
-          "cookie":
-              "nw=1${appdata.ehId == "" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
           ...?headers
         });
 
     var dio = logDio(options);
+
+    dio.interceptors.add(CookieManager(cookieJar));
 
     try {
       var res = await dio.post<String>(ehApiUrl, data: data);

@@ -12,6 +12,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../base.dart';
@@ -287,11 +288,11 @@ class ImageManager {
       image = image.substring(
           image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
 
-      if (image.contains("/img/509.gif")) {
+      if (image.contains("/img/509.gi")) {
         throw ImageExceedError();
       }
 
-      if(appdata.settings[29] == "1"){
+      if(appdata.settings[29] == "1" && originImage.isURL){
         image = originImage;
       }
 
