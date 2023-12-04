@@ -1,7 +1,6 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
@@ -20,11 +19,15 @@ class NhentaiComicTile extends ComicTile{
   String get description => comic.lang;
 
   @override
-  Widget get image => CachedNetworkImage(
-    imageUrl: comic.cover,
+  Widget get image => Image(
+    image: CachedImageProvider(
+      comic.cover,
+      headers: {
+        "User-Agent": webUA,
+      },
+    ),
     fit: BoxFit.cover,
-    placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-    errorWidget: (context, url, error) => const Icon(Icons.error),
+    errorBuilder: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

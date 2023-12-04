@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -491,11 +490,11 @@ class JmNetwork {
   Future<Res<bool>> favorite(String comicId, String? folderId) async {
     Res res;
     if(folderId != null) {
-      res = await post("https://18comic.vip/ajax/favorite_album",
+      res = await post("$baseUrl/ajax/favorite_album",
           "album_id=$comicId&fid=$folderId"
           , "application/x-www-form-urlencoded; charset=UTF-8");
     } else {
-      res = await post("https://18comic.vip/ajax/delete_favorite_album",
+      res = await post("$baseUrl/ajax/delete_favorite_album",
           "album_id=$comicId"
           , "application/x-www-form-urlencoded; charset=UTF-8");
     }

@@ -17,8 +17,6 @@ const pathSep = '/';
 
 var downloadManager = DownloadManager();
 
-String? appdataPath;
-
 class Appdata {
   //哔咔相关信息
   late String token;

@@ -1,6 +1,5 @@
 import 'dart:async' show Future, StreamController;
 import 'dart:ui' as ui show Codec;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'jm_cached_image.dart' as image_provider;
@@ -63,7 +62,7 @@ class JmCachedImageProvider
   ImageStreamCompleter loadImage(image_provider.JmCachedImageProvider key,
       ImageDecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
+    return MultiFrameImageStreamCompleter(
       codec: _loadBufferAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
@@ -77,7 +76,7 @@ class JmCachedImageProvider
     );
   }
 
-  Stream<ui.Codec> _loadBufferAsync(
+  Future<ui.Codec> _loadBufferAsync(
       image_provider.JmCachedImageProvider key,
       StreamController<ImageChunkEvent> chunkEvents,
       ImageDecoderCallback decode,

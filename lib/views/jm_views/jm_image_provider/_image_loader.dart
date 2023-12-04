@@ -8,7 +8,7 @@ import 'package:pica_comic/foundation/image_manager.dart';
 /// 为禁漫提供的ImageLoader class, 需要对image重组
 class ImageLoader{
 
-  Stream<ui.Codec> loadBufferAsync(
+  Future<ui.Codec> loadBufferAsync(
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
@@ -36,7 +36,7 @@ class ImageLoader{
     );
   }
 
-  Stream<ui.Codec> _load(
+  Future<ui.Codec> _load(
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
@@ -47,7 +47,7 @@ class ImageLoader{
       Function()? errorListener,
       Function() evictImage,
       String epsId
-      ) async* {
+      ) async {
     try {
       chunkEvents.add(const ImageChunkEvent(
           cumulativeBytesLoaded: 1,
@@ -97,7 +97,7 @@ class ImageLoader{
           expectedTotalBytes: 10000)
       );
       var decoded = await decode(bytes);
-      yield decoded;
+      return decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

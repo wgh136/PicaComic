@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
@@ -46,7 +45,7 @@ class _EhCoverImageState extends State<EhCoverImage> {
   static int loading = 0;
 
   void load() async{
-    while(loading > 1){
+    while(loading >= 1){
       await Future.delayed(const Duration(milliseconds: 200));
     }
     loading++;
@@ -59,8 +58,6 @@ class _EhCoverImageState extends State<EhCoverImage> {
           }
         }
       }
-      var awaitTime = Random().nextInt(500) + 500;
-      await Future.delayed(Duration(milliseconds: awaitTime));
     }
     catch(e){
       await Future.delayed(const Duration(seconds: 5));

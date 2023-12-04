@@ -1,6 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/views/widgets/show_user_info.dart';
 import '../../base.dart';
 
@@ -46,20 +45,27 @@ class Avatar extends StatelessWidget {
                 height: size*0.75,
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(size)),
-                child: (avatarUrl==null || avatarUrl=="DEFAULT AVATAR URL")?const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):CachedNetworkImage(
-                  imageUrl: getImageUrl(avatarUrl!),
-                  fit: BoxFit.cover,
-                  errorWidget: (context,s,d)=>const Center(child: Icon(Icons.error),),
-                  placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-                  filterQuality: FilterQuality.medium
+                child: (avatarUrl==null || avatarUrl=="DEFAULT AVATAR URL")?
+                  const Image(image: AssetImage("images/avatar_small.png"),fit: BoxFit.cover,):
+                  Image(
+                    image: CachedImageProvider(
+                      avatarUrl!,
+                      headers: {
+                        "User-Agent": webUA
+                      }
+                    ),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context,s,d)=>const Center(child: Icon(Icons.error),),
+                    filterQuality: FilterQuality.medium
                 ),
               ),
             ),
             if(frame!=null&&appdata.settings[5]=="1")
               Positioned(
-                child: CachedNetworkImage(
-                  imageUrl: getImageUrl(frame!),
-                  errorWidget: (context,s,d){return const SizedBox();},
+                child: Image(
+                  image: CachedImageProvider(
+                    frame!,
+                  ),
                 ),
               ),
           ],

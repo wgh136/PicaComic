@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -349,7 +348,7 @@ class LocalFavoritesManager {
       return file;
     }
     if(item.type == ComicType.ehentai) {
-      while (_loading > 2) {
+      while (_loading >= 1) {
         await Future.delayed(const Duration(milliseconds: 200));
       }
       _loading++;
@@ -367,10 +366,6 @@ class LocalFavoritesManager {
       var res = await dio.get<Uint8List>(item.coverPath);
       file.createSync(recursive: true);
       file.writeAsBytesSync(res.data!);
-      if(item.type == ComicType.ehentai) {
-        var awaitTime = Random().nextInt(500) + 500;
-        await Future.delayed(Duration(milliseconds: awaitTime));
-      }
       return file;
     }
     catch(e){

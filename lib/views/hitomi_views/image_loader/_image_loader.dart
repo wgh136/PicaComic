@@ -9,7 +9,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader{
 
-  Stream<ui.Codec> loadBufferAsync(
+  Future<ui.Codec> loadBufferAsync(
       HitomiFile image,
       String galleryID,
       String? cacheKey,
@@ -37,7 +37,7 @@ class ImageLoader{
     );
   }
 
-  Stream<ui.Codec> _load(
+  Future<ui.Codec> _load(
     HitomiFile image,
     String id,
     String? cacheKey,
@@ -48,7 +48,7 @@ class ImageLoader{
     Map<String, String>? headers,
     Function()? errorListener,
     Function() evictImage,
-  ) async* {
+  ) async {
     try {
       var manager = ImageManager();
 
@@ -79,7 +79,7 @@ class ImageLoader{
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
-      yield decoded;
+      return decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

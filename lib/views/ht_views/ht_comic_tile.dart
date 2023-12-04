@@ -1,5 +1,4 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -7,6 +6,7 @@ import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import '../../foundation/image_loader/cached_image.dart';
 import '../main_page.dart';
 import '../widgets/loading.dart';
 
@@ -20,15 +20,18 @@ class HtComicTile extends ComicTile {
   String get description => comic.time.trim();
 
   @override
-  Widget get image => CachedNetworkImage(
-        imageUrl: comic.image,
-        fit: BoxFit.cover,
-        placeholder: (context, s) =>
-            ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-        height: double.infinity,
-        filterQuality: FilterQuality.medium,
-      );
+  Widget get image => Image(
+    image: CachedImageProvider(
+      comic.image,
+      headers: {
+        "User-Agent": webUA,
+      },
+    ),
+    fit: BoxFit.cover,
+    errorBuilder: (context, url, error) => const Icon(Icons.error),
+    height: double.infinity,
+    filterQuality: FilterQuality.medium,
+  );
 
   @override
   void onTap_() => MainPage.to(() => HtComicPage(comic));

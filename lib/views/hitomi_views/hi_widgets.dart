@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
@@ -10,6 +8,7 @@ import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import '../../foundation/app.dart';
+import '../../foundation/image_loader/cached_image.dart';
 import '../main_page.dart';
 import '../widgets/comic_tile.dart';
 import '../widgets/loading.dart';
@@ -68,15 +67,16 @@ class HiComicTile extends ComicTile {
   }.call();
 
   @override
-  Widget get image => CachedNetworkImage(
-    httpHeaders: const {
-      "User-Agent": webUA,
-      "Referer": "https://hitomi.la/"
-    },
-    placeholder: (context, s) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-    imageUrl: comic.cover,
+  Widget get image => Image(
+    image: CachedImageProvider(
+      comic.cover,
+      headers: {
+        "User-Agent": webUA,
+        "Referer": "https://hitomi.la/"
+      },
+    ),
     fit: BoxFit.cover,
-    errorWidget: (context, url, error) => const Icon(Icons.error),
+    errorBuilder: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

@@ -8,7 +8,7 @@ import 'package:pica_comic/foundation/image_manager.dart';
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader{
 
-  Stream<ui.Codec> loadBufferAsync(
+  Future<ui.Codec> loadBufferAsync(
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
@@ -34,7 +34,7 @@ class ImageLoader{
     );
   }
 
-  Stream<ui.Codec> _load(
+  Future<ui.Codec> _load(
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
@@ -44,7 +44,7 @@ class ImageLoader{
     Map<String, String>? headers,
     Function()? errorListener,
     Function() evictImage,
-  ) async* {
+  ) async {
     try {
       chunkEvents.add(const ImageChunkEvent(
           cumulativeBytesLoaded: 0,
@@ -78,7 +78,7 @@ class ImageLoader{
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
-      yield decoded;
+      return decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

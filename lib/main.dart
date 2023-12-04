@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/init.dart';
@@ -104,8 +103,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (appdata.settings[12] == "1") {
       blockScreenshot();
     }
-    (() async => appdataPath = (await getApplicationSupportDirectory()).path)
-        .call();
     super.initState();
   }
 

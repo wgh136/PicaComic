@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -455,7 +455,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           width: width - 32,
           height: height - 32,
           child: RoundedImage(
-            image: CachedNetworkImageProvider(cover, headers: headers),
+            image: CachedImageProvider(cover, headers: headers),
           ),
         ),
       ),
@@ -772,13 +772,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget _thumbnailImageBuilder(int index) {
-    return CachedNetworkImage(
-      imageUrl: thumbnails!.thumbnails[index],
-      httpHeaders: headers,
+    return Image(
+      image: CachedImageProvider(
+        thumbnails!.thumbnails[index],
+        headers: headers
+      ),
       fit: BoxFit.contain,
-      placeholder: (context, s) =>
-          ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-      errorWidget: (context, s, d) => const Icon(Icons.error),
+      errorBuilder: (context, s, d) => const Icon(Icons.error),
     );
   }
 

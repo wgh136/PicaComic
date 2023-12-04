@@ -9,7 +9,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader{
 
-  Stream<ui.Codec> loadBufferAsync(
+  Future<ui.Codec> loadBufferAsync(
       Gallery gallery,
       int page,
       String? cacheKey,
@@ -43,7 +43,7 @@ class ImageLoader{
     );
   }
 
-  Stream<ui.Codec> _load(
+  Future<ui.Codec> _load(
     Gallery gallery,
     int page,
     String? cacheKey,
@@ -54,7 +54,7 @@ class ImageLoader{
     Map<String, String>? headers,
     Function()? errorListener,
     Function() evictImage,
-  ) async* {
+  ) async {
     try {
       chunkEvents.add(const ImageChunkEvent(
           cumulativeBytesLoaded: 0,
@@ -89,7 +89,7 @@ class ImageLoader{
       var file = finishProgress!.getFile();
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
-      yield decoded;
+      return decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

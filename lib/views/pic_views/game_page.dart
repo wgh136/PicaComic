@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
@@ -8,7 +8,6 @@ import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/tools/translations.dart';
-
 import '../../foundation/app.dart';
 
 class GamePageLogic extends StateController{
@@ -71,8 +70,8 @@ class GamePage extends StatelessWidget {
                           //crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             GestureDetector(
-                              child: CachedNetworkImage(
-                                imageUrl: getImageUrl(logic.gameInfo!.icon),
+                              child: Image.network(
+                                logic.gameInfo!.icon,
                                 fit: BoxFit.contain,
                                 width: MediaQuery.of(context).size.width-10,
                                 height: 300,
@@ -140,8 +139,10 @@ class GamePage extends StatelessWidget {
                               //flex: 1,
                                 child: Padding(
                                   padding: const EdgeInsets.all(5),
-                                  child: CachedNetworkImage(
-                                    imageUrl: getImageUrl(logic.gameInfo!.icon),
+                                  child: Image(
+                                    image: CachedImageProvider(
+                                      logic.gameInfo!.icon
+                                    ),
                                     fit: BoxFit.contain,
                                     width: MediaQuery.of(context).size.width/2-40,
                                     height: 390,
@@ -241,9 +242,11 @@ class GamePage extends StatelessWidget {
                                 for(var s in logic.gameInfo!.screenshots)
                                   GestureDetector(
                                     child: Card(
-                                      child: CachedNetworkImage(
-                                        imageUrl: getImageUrl(s),
-                                        fit: BoxFit.fitHeight,
+                                      child: Image(
+                                        image: CachedImageProvider(
+                                            logic.gameInfo!.icon
+                                        ),
+                                        fit: BoxFit.fitWidth,
                                       ),
                                     ),
                                     onTap: (){
