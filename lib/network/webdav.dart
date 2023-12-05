@@ -40,6 +40,7 @@ class Webdav {
     if (!configs[3].endsWith('/') && !configs[3].endsWith('\\')) {
       configs[3] += '/';
     }
+    LogManager.addLog(LogLevel.info, "network", "Uploading Data");
     var client = newClient(
       configs[0],
       user: configs[1],
@@ -71,6 +72,7 @@ class Webdav {
       if (!configs[3].endsWith('/') && !configs[3].endsWith('\\')) {
         configs[3] += '/';
       }
+      LogManager.addLog(LogLevel.info, "network", "Downloading Data");
       var client = newClient(
         configs[0],
         user: configs[1],
@@ -101,11 +103,17 @@ class Webdav {
     }
     var controller = showLoadingDialog(App.globalContext!, () {}, false, true, "同步数据中".tl, "隐藏".tl);
     var res = await Webdav.downloadData();
+    await Future.delayed(const Duration(milliseconds: 50));
     if (!res) {
       controller.close();
-      showMessage(App.globalContext, "Failed to download data",
+      appdata.settings[45] = "${appdata.settings[45]};0";
+      showMessage(App.globalContext, "下载数据失败, 已禁用同步",
           action:
-              TextButton(onPressed: () => syncData(), child: Text("重试".tl)));
+              TextButton(onPressed: () {
+                appdata.settings[45] = configs.join(';');
+                syncData();
+              }, child: Text("重试".tl,
+                style: TextStyle(color: App.colors(App.globalContext!).inversePrimary),)));
     } else {
       controller.close();
     }

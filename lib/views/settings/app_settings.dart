@@ -900,10 +900,13 @@ void syncDataSettings(BuildContext context){
                     Icons.info_outline,
                     size: 20,
                   ),
-                  Text("  ${"将URL留空以禁用同步".tl}")
+                  if(configs.length == 4)
+                    Text("  ${"将URL留空以禁用同步".tl}")
+                  else
+                    Text("  ${"已禁用".tl}")
                 ],
               ),
-            ),
+            )
           ],
         ),
       )

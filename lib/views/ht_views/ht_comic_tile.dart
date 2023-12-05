@@ -28,7 +28,9 @@ class HtComicTile extends ComicTile {
       },
     ),
     fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Icon(Icons.error),
+    errorBuilder: (context, url, error) => const Center(
+      child: Icon(Icons.error),
+    ),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

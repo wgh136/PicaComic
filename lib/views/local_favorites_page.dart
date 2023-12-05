@@ -206,9 +206,9 @@ class LocalFavoriteTile extends ComicTile {
           builder: (context, file) {
             if (file.hasError) {
               LogManager.addLog(LogLevel.error, "Network", file.stackTrace.toString());
-              return ColoredBox(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  child: const Center(child: Icon(Icons.error)));
+              return const Center(
+                child: Icon(Icons.error),
+              );
             }
             if (file.data == null) {
               return ColoredBox(
@@ -699,7 +699,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
           },
         ),
         ListTile(
@@ -709,7 +709,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
           },
         ),
         ListTile(
@@ -719,7 +719,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
           },
         ),
         ListTile(

@@ -20,15 +20,13 @@ void showMessage(BuildContext? context, String message,
             left: padding / 2,
             right: padding / 2,
             child: Material(
-              color: Colors.transparent,
+              color: Theme.of(context).colorScheme.inverseSurface,
+              borderRadius: BorderRadius.circular(4),
+              elevation: 2,
               child: Container(
                 constraints:
-                    const BoxConstraints(minHeight: 48, maxHeight: 104),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.inverseSurface,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                padding: const EdgeInsets.only(top: 12, bottom: 12),
+                const BoxConstraints(minHeight: 48, maxHeight: 104),
+                padding: const EdgeInsets.only(top: 8, bottom: 8),
                 child: Row(
                   children: [
                     const SizedBox(
@@ -36,13 +34,13 @@ void showMessage(BuildContext? context, String message,
                     ),
                     Expanded(
                         child: Text(
-                      message,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500),
-                      maxLines: 3,
-                    )),
+                          message,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onInverseSurface,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500),
+                          maxLines: 3,
+                        )),
                     if (action != null) action,
                     const SizedBox(
                       width: 8,

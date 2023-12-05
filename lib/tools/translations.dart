@@ -989,6 +989,7 @@ extension AppTranslation on String {
       "从网络导入": "From network",
       "复制到": "Copy",
       "生成文本并复制": "Copy generated text",
+      "打开一个收藏夹并使用右上角按钮": "Open a Folder and use the top right button"
     }
   };
 }

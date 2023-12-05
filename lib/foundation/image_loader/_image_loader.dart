@@ -55,7 +55,7 @@ class ImageLoader{
 
       for(int i = 0; i<3; i++){
         try{
-          var stream = manager.getImage(url);
+          var stream = manager.getImage(url, headers);
           await for(var progress in stream){
             if(progress.currentBytes == progress.expectedBytes){
               finishProgress = progress;

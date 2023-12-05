@@ -297,9 +297,12 @@ class JmNetwork {
 
   Future<Res<JmComicInfo>> getComicInfo(String id) async {
     try{
-      var res = await get("$baseUrl/album/$id");
+      var res = await get("$baseUrl/album/$id/");
       if(res.error){
         return Res.fromErrorRes(res);
+      }
+      if(res.data.contains("無效A漫連結，請確認H漫網址")){
+        throw "Not Found";
       }
       var document = parse(res.data);
       var name = document.querySelector("h1")!.text;
@@ -319,8 +322,8 @@ class JmNetwork {
         }
       }
       final description = document.querySelectorAll("div.col-lg-7 > div > div.p-t-5.p-b-5")[1].text;
-      final likes = int.tryParse(document.querySelector("span#albim_likes_$id")!
-          .text.toLowerCase().replaceAll("k", "000")) ?? 0;
+      final likes = int.tryParse(document.querySelectorAll("div.p-t-5.p-b-5 > span.p-t-5.p-b-5 > span").firstOrNull
+          ?.text.toLowerCase().replaceAll("k", "000") ?? "0") ?? 0;
       var series = <int, String>{};
       var epNames = <String>[];
       for(var element in document.querySelectorAll("div.nav-tab-content div.episode > ul > a")){

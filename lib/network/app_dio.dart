@@ -21,9 +21,10 @@ class MyLogInterceptor implements Interceptor {
   void onResponse(
       Response<dynamic> response, ResponseInterceptorHandler handler) {
     LogManager.addLog(
-        response.statusCode == 200 ? LogLevel.info : LogLevel.error,
+        (response.statusCode != null && response.statusCode! < 400)
+            ? LogLevel.info : LogLevel.error,
         "Network",
-        "Response ${response.realUri.toString()}\nheaders:\n${response.headers}\n${response.data.toString()}");
+        "Response ${response.realUri.toString()} ${response.statusCode}\nheaders:\n${response.headers}\n${response.data.toString()}");
     handler.next(response);
   }
 
