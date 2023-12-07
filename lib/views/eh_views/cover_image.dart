@@ -82,16 +82,18 @@ class _EhCoverImageState extends State<EhCoverImage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget result;
+
     if(error){
-      return const Center(
+      result = const Center(
         child: Icon(Icons.error),
       );
     } else if(data == null){
-      return const Center(
+      result = const Center(
         child: SizedBox(width: 0, height: 0,),
       );
     } else {
-      return Image.memory(
+      result = Image.memory(
         data!,
         fit: BoxFit.cover,
         errorBuilder: (context, url, error) => const Icon(Icons.error),
@@ -99,5 +101,10 @@ class _EhCoverImageState extends State<EhCoverImage> {
         filterQuality: FilterQuality.medium,
       );
     }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: result,
+    );
   }
 }

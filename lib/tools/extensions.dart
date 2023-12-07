@@ -74,13 +74,10 @@ extension StringExtension on String{
   }
 
   bool _isURL(){
-    if(!(Uri.tryParse(this)?.hasScheme ?? false)){
-      return false;
-    }
-    if(indexOf("https://") > 0){
-      return false;
-    }
-    return true;
+    final regex = RegExp(
+        r'^((http|https|ftp)://)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-|]*[\w@?^=%&/~+#-])?$',
+        caseSensitive: false);
+    return regex.hasMatch(this);
   }
 
   bool get isURL => _isURL();

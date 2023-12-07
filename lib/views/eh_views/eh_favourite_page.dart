@@ -108,12 +108,15 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
   bool get withScaffold => true;
 
   @override
-  Widget? get tailing => IconButton(
-    icon: const Icon(Icons.save),
-    onPressed: (){
-      startConvert((page) => getComics(page), null, App.globalContext!, name,
-              (comic) => FavoriteItem.fromEhentai(comic));
-    },
+  Widget? get tailing => Tooltip(
+    message: "保存至本地".tl,
+    child: IconButton(
+      icon: const Icon(Icons.save),
+      onPressed: (){
+        startConvert((page) => getComics(page), null, App.globalContext!, name,
+                (comic) => FavoriteItem.fromEhentai(comic));
+      },
+    ),
   );
 }
 

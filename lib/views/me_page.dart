@@ -283,13 +283,13 @@ class _NewMePageState extends StateWithController<NewMePage>{
             Clipboard.setData(ClipboardData(text: res));
             showMessage(App.globalContext, "已复制".tl);
           }),
-          buildItem(const Icon(Icons.import_export), "导出".tl, () async{
+          buildItem(const Icon(Icons.outbox_rounded), "导出".tl, () async{
             App.globalBack();
             var controller = showLoadingDialog(App.globalContext!, () {}, true, true, "正在导出".tl);
             try {
               await exportStringDataAsFile(
                   LocalFavoritesManager().folderToJsonString(name),
-                  "comics.json");
+                  "$name.json");
               controller.close();
             }
             catch(e, s){

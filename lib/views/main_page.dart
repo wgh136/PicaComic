@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/webdav.dart';
+import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/category_page.dart';
@@ -243,9 +244,32 @@ class _MainPageState extends State<MainPage> {
 
     MainPage.toExplorePage = () => setState(() => i = 1);
 
-    Future.delayed(const Duration(milliseconds: 300), () => Webdav.syncData());
+    Future.delayed(const Duration(milliseconds: 300),
+            () => Webdav.syncData()).then(checkClipboard);
 
     super.initState();
+  }
+
+  void checkClipboard(v) async{
+    if(appdata.settings[61] == "0"){
+      return;
+    }
+    var data = await Clipboard.getData(Clipboard.kTextPlain);
+    if(data?.text != null && canHandle(data!.text!)){
+      await Future.delayed(const Duration(milliseconds: 200));
+      showMessage(
+        App.globalContext,
+        "${"发现剪切板中的链接".tl}\n${data.text}",
+        time: 5,
+        action: TextButton(
+          child: Text("打开".tl, style: TextStyle(
+              color: App.colors(App.globalContext!).onInverseSurface),),
+          onPressed: (){
+            hideMessage(App.globalContext);
+            handleAppLinks(Uri.parse(data.text!));
+          },
+        ));
+    }
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/image_loader/cached_image.dart';
@@ -20,7 +21,7 @@ class HtComicTile extends ComicTile {
   String get description => comic.time.trim();
 
   @override
-  Widget get image => Image(
+  Widget get image => AnimatedImage(
     image: CachedImageProvider(
       comic.image,
       headers: {
@@ -28,9 +29,6 @@ class HtComicTile extends ComicTile {
       },
     ),
     fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Center(
-      child: Icon(Icons.error),
-    ),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

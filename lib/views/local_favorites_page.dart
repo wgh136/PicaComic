@@ -204,14 +204,14 @@ class LocalFavoriteTile extends ComicTile {
       ? FutureBuilder<File>(
           future: LocalFavoritesManager().getCover(comic),
           builder: (context, file) {
+            Widget child;
             if (file.hasError) {
               LogManager.addLog(LogLevel.error, "Network", file.stackTrace.toString());
-              return const Center(
+              child = const Center(
                 child: Icon(Icons.error),
               );
-            }
-            if (file.data == null) {
-              return ColoredBox(
+            } else if (file.data == null) {
+              child = ColoredBox(
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   child: const SizedBox(
                     width: double.infinity,
@@ -219,13 +219,17 @@ class LocalFavoriteTile extends ComicTile {
                   ));
             } else {
               cache[comic.target] = file.data!;
-              return Image.file(
+              child = Image.file(
                 file.data!,
                 fit: BoxFit.cover,
                 height: double.infinity,
                 filterQuality: FilterQuality.medium,
               );
             }
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: child,
+            );
           },
         )
       : Image.file(

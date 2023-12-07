@@ -208,6 +208,7 @@ class LocalFavoritesManager {
       }
     } else if((file = File("${App.dataPath}/local_favorite_temp.db")).existsSync()){
       _db.dispose();
+      await Future.delayed(const Duration(milliseconds: 100));
       var newPath = "${App.dataPath}/local_favorite.db";
       file = file.renameSync(newPath);
       init();

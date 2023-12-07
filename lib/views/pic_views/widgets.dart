@@ -5,6 +5,7 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../main_page.dart';
@@ -29,14 +30,11 @@ class PicComicTile extends ComicTile {
   List<String>? get tags => comic.tags;
 
   @override
-  Widget get image => !downloaded?(Image(
+  Widget get image => !downloaded?(AnimatedImage(
     image: CachedImageProvider(
       comic.path,
     ),
     fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Center(
-      child: Icon(Icons.error),
-    ),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   )):Image.file(

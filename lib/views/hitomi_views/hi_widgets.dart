@@ -5,6 +5,7 @@ import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import '../../foundation/app.dart';
@@ -67,7 +68,7 @@ class HiComicTile extends ComicTile {
   }.call();
 
   @override
-  Widget get image => Image(
+  Widget get image => AnimatedImage(
     image: CachedImageProvider(
       comic.cover,
       headers: {
@@ -76,9 +77,6 @@ class HiComicTile extends ComicTile {
       },
     ),
     fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Center(
-      child: Icon(Icons.error),
-    ),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

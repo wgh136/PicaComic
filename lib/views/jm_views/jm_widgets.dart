@@ -3,6 +3,7 @@ import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -26,7 +27,7 @@ class JmComicTile extends ComicTile {
       }.call();
 
   @override
-  Widget get image => Image(
+  Widget get image => AnimatedImage(
     image: CachedImageProvider(
       getJmCoverUrl(comic.id),
       headers: {
@@ -34,9 +35,6 @@ class JmComicTile extends ComicTile {
       },
     ),
     fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Center(
-      child: Icon(Icons.error),
-    ),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

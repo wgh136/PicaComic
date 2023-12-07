@@ -97,6 +97,8 @@ class Appdata {
     "0", //58 hosts
     "012345678", //59 explore page
     "0", //60 action when local favorite is tapped
+    "0", //61 check link in clipboard
+    "10000", //62 漫画信息页面工具栏: "快速收藏".tl, "复制标题".tl, "复制链接".tl, "分享".tl, "搜索相似".tl
   ];
 
   ///屏蔽的关键词
@@ -360,4 +362,8 @@ Future<void> clearAppdata() async {
   await JmNetwork().cookieJar?.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
+}
+
+class Test{
+  static int a = 1;
 }

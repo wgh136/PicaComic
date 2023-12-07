@@ -5,6 +5,7 @@ import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import '../main_page.dart';
 import '../widgets/loading.dart';
@@ -19,7 +20,7 @@ class NhentaiComicTile extends ComicTile{
   String get description => comic.lang;
 
   @override
-  Widget get image => Image(
+  Widget get image => AnimatedImage(
     image: CachedImageProvider(
       comic.cover,
       headers: {
@@ -27,9 +28,6 @@ class NhentaiComicTile extends ComicTile{
       },
     ),
     fit: BoxFit.cover,
-    errorBuilder: (context, url, error) => const Center(
-      child: Icon(Icons.error),
-    ),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
   );

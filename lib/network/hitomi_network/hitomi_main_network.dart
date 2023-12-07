@@ -19,7 +19,7 @@ class HiNetwork{
 
   static HiNetwork? cache;
 
-  final baseUrl = "https://hitomi.la/";
+  final baseUrl = "https://hitomi.la";
 
   ///基本的get请求
   Future<Res<String>> get(String url, {CacheExpiredTime expiredTime=CacheExpiredTime.short}) async{

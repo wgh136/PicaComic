@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 
 class NormalComicTile extends ComicTile {
@@ -32,15 +33,12 @@ class NormalComicTile extends ComicTile {
   String? get badge => badgeName;
 
   @override
-  Widget get image => Image(
+  Widget get image => AnimatedImage(
         image: CachedImageProvider(
           coverPath,
           headers: headers
         ),
         fit: BoxFit.cover,
-        errorBuilder: (context, url, error) => const Center(
-          child: Icon(Icons.error),
-        ),
         height: double.infinity,
       );
 

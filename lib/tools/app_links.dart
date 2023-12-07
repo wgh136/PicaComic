@@ -7,6 +7,17 @@ import '../views/main_page.dart';
 import '../views/nhentai/comic_page.dart';
 import '../views/widgets/show_message.dart';
 
+bool canHandle(String text){
+  if(!text.isURL){
+    return false;
+  }
+  var uri = Uri.parse(text);
+
+  const acceptedHosts = ["e-hentai.org", "exhentai.org", "nhentai.net", "hitomi.la"];
+
+  return acceptedHosts.contains(uri.host);
+}
+
 bool handleAppLinks(Uri uri, {bool showMessageWhenError = true}){
   LogManager.addLog(LogLevel.info, "App Link", "Open Link $uri");
   switch(uri.host){
