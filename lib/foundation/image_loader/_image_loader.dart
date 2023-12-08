@@ -53,26 +53,15 @@ class ImageLoader{
       var manager = ImageManager();
       DownloadProgress? finishProgress;
 
-      for(int i = 0; i<3; i++){
-        try{
-          var stream = manager.getImage(url, headers);
-          await for(var progress in stream){
-            if(progress.currentBytes == progress.expectedBytes){
-              finishProgress = progress;
-            }
-            chunkEvents.add(ImageChunkEvent(
-                cumulativeBytesLoaded: progress.currentBytes,
-                expectedTotalBytes: progress.expectedBytes)
-            );
-          }
-          break;
+      var stream = manager.getImage(url, headers);
+      await for(var progress in stream){
+        if(progress.currentBytes == progress.expectedBytes){
+          finishProgress = progress;
         }
-        catch(e){
-          if(i == 2){
-            rethrow;
-          }
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
+        chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: progress.currentBytes,
+            expectedTotalBytes: progress.expectedBytes)
+        );
       }
 
       var file = finishProgress!.getFile();

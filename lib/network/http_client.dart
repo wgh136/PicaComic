@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -7,6 +8,12 @@ import '../foundation/app.dart';
 
 ///获取系统设置中的代理, 仅windows,安卓有效
 Future<String?> getProxy() async{
+  if(appdata.settings[58] == "1"){
+    final file = File("${App.dataPath}/rule.json");
+    var json = const JsonDecoder().convert(file.readAsStringSync());
+    return "${InternetAddress.loopbackIPv4.address}:${json["port"]}";
+  }
+
   //手动设置的代理
   if(appdata.settings[8].removeAllBlank=="") return null;
   if(appdata.settings[8]!="0")  return appdata.settings[8];
@@ -80,7 +87,15 @@ class ProxyHttpOverrides extends HttpOverrides {
     final client = super.createHttpClient(context);
     client.connectionTimeout = const Duration(seconds: 5);
     client.findProxy = (uri) => proxy??"DIRECT";
-    client.badCertificateCallback = (X509Certificate cert, String host, int port)=>true;
+    client.badCertificateCallback = (X509Certificate cert, String host, int port){
+      final ipv4RegExp = RegExp(
+          r'^((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3})$');
+      if(ipv4RegExp.hasMatch(host)){
+        // 允许ip访问
+        return true;
+      }
+      return false;
+    };
     return client;
   }
 }

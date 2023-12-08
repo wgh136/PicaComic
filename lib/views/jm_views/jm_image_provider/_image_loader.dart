@@ -53,8 +53,7 @@ class ImageLoader{
           cumulativeBytesLoaded: 1,
           expectedTotalBytes: 10000)
       );
-      //由于需要使用多线程对图片重组
-      //同时加载太多会导致内存占用极高
+
       var manager = ImageManager();
 
       var bookId = "";
@@ -67,26 +66,15 @@ class ImageLoader{
 
       DownloadProgress? finishProgress;
 
-      for(int i = 0; i<3; i++){
-        try{
-          var stream = manager.getJmImage(url, headers, bookId: bookId, epsId: epsId, scrambleId: "220980");
-          await for(var progress in stream){
-            if(progress.currentBytes == progress.expectedBytes){
-              finishProgress = progress;
-            }
-            chunkEvents.add(ImageChunkEvent(
-                cumulativeBytesLoaded: progress.currentBytes,
-                expectedTotalBytes: progress.expectedBytes)
-            );
-          }
-          break;
+      var stream = manager.getJmImage(url, headers, bookId: bookId, epsId: epsId, scrambleId: "220980");
+      await for(var progress in stream){
+        if(progress.currentBytes == progress.expectedBytes){
+          finishProgress = progress;
         }
-        catch(e){
-          if(i == 2){
-            rethrow;
-          }
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
+        chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: progress.currentBytes,
+            expectedTotalBytes: progress.expectedBytes)
+        );
       }
 
       var file = finishProgress!.getFile();

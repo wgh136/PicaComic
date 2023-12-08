@@ -2,6 +2,7 @@ import 'package:app_links/app_links.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/http_proxy.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
@@ -14,7 +15,12 @@ import 'network/nhentai_network/nhentai_main_network.dart';
 
 Future<void> init() async{
   try {
+    LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
     await appdata.readData();
+    await App.init();
+    if(appdata.settings[58] == "1"){
+      HttpProxyServer.startServer();
+    }
     startClearCache();
     if (App.isAndroid) {
       final appLinks = AppLinks();
@@ -27,7 +33,6 @@ Future<void> init() async{
         onStart,
       );
     }
-    await App.init();
     await checkDownloadPath();
     await downloadManager.init();
     await NhentaiNetwork().init();
