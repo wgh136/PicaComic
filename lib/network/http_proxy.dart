@@ -164,10 +164,10 @@ class HttpProxyServer {
           "e-hentai.org": "172.67.0.127",
           "exhentai.org": "178.175.129.254"
         },
-        "sni": {
+        "sni": [
           "e-hentai.org",
           "exhentai.org"
-        }
+        ]
       };
       var spaces = ' ' * 4;
       var encoder = JsonEncoder.withIndent(spaces);
