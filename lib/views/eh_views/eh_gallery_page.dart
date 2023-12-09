@@ -1,8 +1,8 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'dart:ui' as ui;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/res.dart';
@@ -292,7 +292,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
     return ColoredBox(
       color: Theme.of(context).colorScheme.surfaceVariant,
       child: EhThumbnailLoader(
-          image: CachedNetworkImageProvider(imageUrl), index: index),
+          image: CachedImageProvider(imageUrl), index: index),
     );
   }
 

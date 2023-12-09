@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
@@ -13,7 +14,6 @@ import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/custom_chips.dart';
 import 'package:pica_comic/views/widgets/select.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import '../network/nhentai_network/nhentai_main_network.dart';
@@ -193,6 +193,24 @@ class PreSearchPage extends StatelessWidget {
 
     suggestions.clear();
 
+    if(canHandle(controller.text)){
+      suggestions.add(Pair("**URL**", TranslationType.other));
+    } else {
+      var text = controller.text;
+      bool isJmId = false;
+      if(text.isNum){
+        isJmId = true;
+      } else {
+        text = text.toLowerCase();
+        if(text.startsWith("jm") && text.replaceFirst("jm", "").isNum){
+          isJmId = true;
+        }
+      }
+      if(isJmId){
+        suggestions.add(Pair("**JM ID**", TranslationType.other));
+      }
+    }
+
     bool check(String text, String key, String value) {
       if (text.removeAllBlank == "") {
         return false;
@@ -256,7 +274,7 @@ class PreSearchPage extends StatelessWidget {
               height: MediaQuery.of(context).padding.top,
             ),
           _FloatingSearchBar(
-            supportingText: '搜索'.tl,
+            supportingText: '${'搜索'.tl} / ${'链接'.tl} / ${'禁漫ID'.tl}',
             f: (s) {
               if (s == "") return;
               search();
@@ -426,7 +444,33 @@ class PreSearchPage extends StatelessWidget {
           widget = buildMainView(context);
         } else {
           bool showMethod = MediaQuery.of(context).size.width < 600;
+
           Widget buildItem(Pair<String, TranslationType> value) {
+            if(value.left == "**URL**"){
+              return ListTile(
+                leading: const Icon(Icons.link),
+                title: Text("打开链接".tl),
+                subtitle: Text(controller.text, maxLines: 1, overflow: TextOverflow.fade,),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: (){
+                  handleAppLinks(Uri.parse(controller.text));
+                },
+              );
+            }
+
+            if(value.left == "**JM ID**"){
+              var id = controller.text.nums;
+              return ListTile(
+                leading: const Icon(Icons.link),
+                title: Text("打开禁漫ID".tl),
+                subtitle: Text("JM$id"),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: (){
+                  MainPage.to(() => JmComicPage(id));
+                },
+              );
+            }
+
             var subTitle = TagsTranslation.translationTagWithNamespace(
                 value.left, value.right.name);
             return ListTile(
@@ -482,7 +526,7 @@ class PreSearchPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(
-                      width: 32,
+                      width: 36,
                     ),
                   ],
                 ),
@@ -516,71 +560,6 @@ class PreSearchPage extends StatelessWidget {
           ),
         );
 
-    buildJMID() {
-      return Padding(
-        padding: const EdgeInsets.all(4),
-        child: Material(
-          textStyle: Theme.of(context).textTheme.labelLarge,
-          child: InkWell(
-            onTap: () {
-              var controller = TextEditingController();
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text("输入禁漫漫画ID".tl),
-                      content: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: controller,
-                          onEditingComplete: () {
-                            App.back(context);
-                            if (controller.text.isNum) {
-                              MainPage.to(() => JmComicPage(controller.text));
-                            } else {
-                              showMessage(context, "输入的ID不是数字".tl);
-                            }
-                          },
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-                          ],
-                          decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: "ID",
-                              prefix: Text("JM")),
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              App.back(context);
-                              if (controller.text.isNum) {
-                                MainPage.to(() => JmComicPage(controller.text));
-                              } else {
-                                showMessage(context, "输入的ID不是数字".tl);
-                              }
-                            },
-                            child: Text("提交".tl))
-                      ],
-                    );
-                  });
-            },
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            child: Container(
-              decoration: BoxDecoration(
-                border:
-                    Border.all(color: Theme.of(context).colorScheme.outline),
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 7, 24, 7),
-              child: const Text("JM ID"),
-            ),
-          ),
-        ),
-      );
-    }
-
     return StateBuilder<PreSearchController>(
       builder: (logic) {
         return Padding(
@@ -600,7 +579,6 @@ class PreSearchPage extends StatelessWidget {
                     buildItem(logic, 1, "EHentai"),
                   if (appdata.settings[21][2] == "1")
                     buildItem(logic, 2, "JM Comic"),
-                  if (appdata.settings[21][2] == "1") buildJMID(),
                   if (appdata.settings[21][3] == "1")
                     buildItem(logic, 3, "Hitomi"),
                   if (appdata.settings[21][4] == "1")

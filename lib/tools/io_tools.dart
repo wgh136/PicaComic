@@ -37,16 +37,22 @@ Future<bool> exportComic(String id, String name, [List<String>? epNames]) async{
     if(! res){
       return false;
     }
-    if(App.isAndroid || App.isIOS) {
+
+    if(App.isMobile) {
       var params = SaveFileDialogParams(sourceFilePath: '${data.path!}$pathSep$name.zip');
       await FlutterFileDialog.saveFile(params: params);
-    }else if(App.isWindows){
-      final String? directoryPath = await getDirectoryPath();
-      if (directoryPath != null) {
-        var file = File('${data.path!}$pathSep$name.zip');
-        await file.copy("$directoryPath$pathSep$name.zip");
+    } else {
+      final FileSaveLocation? result =
+        await getSaveLocation(suggestedName: '$name.zip');
+
+      if (result != null) {
+        const String mimeType = 'application/zip';
+        final XFile textFile = XFile(
+            '${data.path!}$pathSep$name.zip', mimeType: mimeType);
+        await textFile.saveTo(result.path);
       }
     }
+
     var file = File('${data.path!}$pathSep$name.zip');
     file.delete();
     return true;
@@ -194,7 +200,7 @@ Future<void> checkDownloadPath() async{
   }
 }
 
-Future<String?> exportData(String path, String appdataString, String? downloadPath) async{
+Future<String?> _exportData(String path, String appdataString, String? downloadPath) async{
   try {
     var filePath = "$path${pathSep}appdata";
     var file = File(filePath);
@@ -232,7 +238,7 @@ Future<String> exportDataToFile(bool includeDownload) async{
     var appdataString = const JsonEncoder().convert(appdata.toJson());
     var downloadPath = includeDownload?DownloadManager().path:null;
     var res = await compute<List<String?>, String?>((message) =>
-        exportData(message[0]!, message[1]!, message[2]), [path, appdataString, downloadPath]);
+        _exportData(message[0]!, message[1]!, message[2]), [path, appdataString, downloadPath]);
 
     if (res != null) {
       throw Exception(res);
@@ -249,17 +255,22 @@ Future<bool> runExportData(bool includeDownload) async{
   try {
     var path = (await getApplicationSupportDirectory()).path;
     await exportDataToFile(includeDownload);
-    if (App.isAndroid || App.isIOS) {
+
+    if (App.isMobile) {
       var params = SaveFileDialogParams(
           sourceFilePath: "$path${pathSep}userData.picadata");
       await FlutterFileDialog.saveFile(params: params);
-    } else if (App.isWindows) {
-      final String? directoryPath = await getDirectoryPath();
-      if (directoryPath != null) {
-        var file = File("$path${pathSep}userData.picadata");
-        await file.copy("$directoryPath${pathSep}userData.picadata");
+    } else {
+      final FileSaveLocation? result
+        = await getSaveLocation(suggestedName: 'userData.picadata');
+
+      if (result != null) {
+        const String mimeType = 'application/octet-stream';
+        final XFile textFile = XFile("$path${pathSep}userData.picadata", mimeType: mimeType);
+        await textFile.saveTo(result.path);
       }
     }
+
     var file = File("$path${pathSep}userData.picadata");
     file.delete();
   }
@@ -275,20 +286,14 @@ Future<bool> importData([String? filePath]) async{
   final enableCheck = filePath != null;
   var path = (await getApplicationSupportDirectory()).path;
   if(filePath == null) {
-    if (App.isMobile) {
-      var params = const OpenFileDialogParams();
-      filePath = await FlutterFileDialog.pickFile(params: params);
-    } else if (App.isWindows) {
-      const XTypeGroup typeGroup = XTypeGroup(
-        label: 'data',
-        extensions: <String>['picadata'],
-      );
-      final XFile? file = await openFile(
-          acceptedTypeGroups: <XTypeGroup>[
-            typeGroup
-          ]);
-      filePath = file?.path;
-    }
+    const XTypeGroup typeGroup = XTypeGroup(
+      label: 'data',
+    );
+    final XFile? file = await openFile(
+        acceptedTypeGroups: <XTypeGroup>[
+          typeGroup
+        ]);
+    filePath = file?.path;
     if (filePath == null) {
       return false;
     }
@@ -393,39 +398,42 @@ void saveLog(String log) async{
 }
 
 Future<void> exportStringDataAsFile(String data, String fileName) async{
-  var cachePath = (await getApplicationCacheDirectory()).path;
-  var file = File("$cachePath$pathSep$fileName");
-  if(!file.existsSync()){
-    file.createSync();
-  }
-  file.writeAsStringSync(data);
-  if(App.isAndroid || App.isIOS) {
-    var params = SaveFileDialogParams(sourceFilePath: file.path);
-    await FlutterFileDialog.saveFile(params: params);
-  }else if(App.isWindows){
-    final String? directoryPath = await getDirectoryPath();
-    if (directoryPath != null) {
-      await file.copy("$directoryPath$pathSep$fileName");
+  if(App.isMobile){
+    var cachePath = (await getApplicationCacheDirectory()).path;
+    var file = File("$cachePath$pathSep$fileName");
+    if(!file.existsSync()){
+      file.createSync();
     }
+    file.writeAsStringSync(data);
+    if(App.isAndroid || App.isIOS) {
+      var params = SaveFileDialogParams(sourceFilePath: file.path);
+      await FlutterFileDialog.saveFile(params: params);
+    }
+  } else {
+    final FileSaveLocation? result = await getSaveLocation(
+        suggestedName: fileName);
+    if (result == null) {
+      return;
+    }
+
+    final Uint8List fileData = Uint8List.fromList(data.codeUnits);
+    const String mimeType = 'text/plain';
+    final XFile textFile =
+    XFile.fromData(fileData, mimeType: mimeType, name: fileName);
+    await textFile.saveTo(result.path);
   }
 }
 
 Future<String?> getDataFromUserSelectedFile(List<String> extensions) async{
-  String? filePath;
-  if (App.isMobile) {
-    var params = const OpenFileDialogParams();
-    filePath = await FlutterFileDialog.pickFile(params: params);
-  } else if (App.isWindows) {
-    XTypeGroup typeGroup = XTypeGroup(
-      label: 'data',
-      extensions: extensions,
-    );
-    final XFile? file = await openFile(
-        acceptedTypeGroups: <XTypeGroup>[
-          typeGroup
-        ]);
-    filePath = file?.path;
-  }
+  XTypeGroup typeGroup = XTypeGroup(
+    label: 'data',
+    extensions: extensions,
+  );
+  final XFile? file = await openFile(
+      acceptedTypeGroups: <XTypeGroup>[
+        typeGroup
+      ]);
+  String? filePath = file?.path;
   if(filePath == null){
     return null;
   }

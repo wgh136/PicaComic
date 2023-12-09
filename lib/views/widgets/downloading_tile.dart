@@ -1,7 +1,6 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -30,11 +29,13 @@ class DownloadingTile extends StatelessWidget {
         children: [
           Expanded(
             flex: 0,
-            child: CachedNetworkImage(
+            child: Image(
+              image: CachedImageProvider(
+                comic.cover
+              ),
               width: 80,
               fit: BoxFit.fitHeight,
-              imageUrl: getImageUrl(comic.cover),
-              errorWidget: (context,a,b){
+              errorBuilder: (context,a,b){
                 return const Center(
                   child: Icon(Icons.error),
                 );

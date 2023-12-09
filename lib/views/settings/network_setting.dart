@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/network/http_proxy.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'app_settings.dart';
 
 class NetworkSettings extends StatefulWidget {
@@ -45,6 +46,9 @@ class _NetworkSettingsState extends State<NetworkSettings> {
                 appdata.settings[58] = value ? "1" : "0";
               });
               appdata.updateSettings();
+              if(value){
+                HttpProxyServer.reload();
+              }
             },
           ),
         ),
@@ -54,6 +58,14 @@ class _NetworkSettingsState extends State<NetworkSettings> {
           trailing: const Icon(Icons.arrow_right),
           onTap: (){
             App.globalTo(() => const EditRuleView());
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.help),
+          title: Text("帮助".tl),
+          trailing: const Icon(Icons.arrow_right),
+          onTap: (){
+            launchUrlString("https://github.com/wgh136/PicaComic/blob/master/doc/hosts.md");
           },
         ),
       ],
@@ -69,13 +81,13 @@ class EditRuleView extends StatefulWidget {
 }
 
 class _EditRuleViewState extends State<EditRuleView> {
-  final file = File("${App.dataPath}/hosts.json");
+  final file = File("${App.dataPath}/rule.json");
 
   late TextEditingController controller;
 
   @override
   void initState() {
-    AppHttpAdapter.createConfigFile();
+    HttpProxyServer.createConfigFile();
     controller = TextEditingController(text: file.readAsStringSync());
     super.initState();
   }
@@ -90,7 +102,7 @@ class _EditRuleViewState extends State<EditRuleView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("hosts.json"),
+        title: const Text("rule.json"),
       ),
       body: SingleChildScrollView(
         child: Padding(

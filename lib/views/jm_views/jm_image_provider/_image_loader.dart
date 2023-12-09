@@ -8,7 +8,7 @@ import 'package:pica_comic/foundation/image_manager.dart';
 /// 为禁漫提供的ImageLoader class, 需要对image重组
 class ImageLoader{
 
-  Stream<ui.Codec> loadBufferAsync(
+  Future<ui.Codec> loadBufferAsync(
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
@@ -36,7 +36,7 @@ class ImageLoader{
     );
   }
 
-  Stream<ui.Codec> _load(
+  Future<ui.Codec> _load(
       String url,
       String? cacheKey,
       StreamController<ImageChunkEvent> chunkEvents,
@@ -47,14 +47,13 @@ class ImageLoader{
       Function()? errorListener,
       Function() evictImage,
       String epsId
-      ) async* {
+      ) async {
     try {
       chunkEvents.add(const ImageChunkEvent(
           cumulativeBytesLoaded: 1,
           expectedTotalBytes: 10000)
       );
-      //由于需要使用多线程对图片重组
-      //同时加载太多会导致内存占用极高
+
       var manager = ImageManager();
 
       var bookId = "";
@@ -67,26 +66,15 @@ class ImageLoader{
 
       DownloadProgress? finishProgress;
 
-      for(int i = 0; i<3; i++){
-        try{
-          var stream = manager.getJmImage(url, headers, bookId: bookId, epsId: epsId, scrambleId: "220980");
-          await for(var progress in stream){
-            if(progress.currentBytes == progress.expectedBytes){
-              finishProgress = progress;
-            }
-            chunkEvents.add(ImageChunkEvent(
-                cumulativeBytesLoaded: progress.currentBytes,
-                expectedTotalBytes: progress.expectedBytes)
-            );
-          }
-          break;
+      var stream = manager.getJmImage(url, headers, bookId: bookId, epsId: epsId, scrambleId: "220980");
+      await for(var progress in stream){
+        if(progress.currentBytes == progress.expectedBytes){
+          finishProgress = progress;
         }
-        catch(e){
-          if(i == 2){
-            rethrow;
-          }
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
+        chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: progress.currentBytes,
+            expectedTotalBytes: progress.expectedBytes)
+        );
       }
 
       var file = finishProgress!.getFile();
@@ -97,7 +85,7 @@ class ImageLoader{
           expectedTotalBytes: 10000)
       );
       var decoded = await decode(bytes);
-      yield decoded;
+      return decoded;
     } catch (e) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -298,9 +297,12 @@ class JmNetwork {
 
   Future<Res<JmComicInfo>> getComicInfo(String id) async {
     try{
-      var res = await get("$baseUrl/album/$id");
+      var res = await get("$baseUrl/album/$id/");
       if(res.error){
         return Res.fromErrorRes(res);
+      }
+      if(res.data.contains("無效A漫連結，請確認H漫網址")){
+        throw "Not Found";
       }
       var document = parse(res.data);
       var name = document.querySelector("h1")!.text;
@@ -320,8 +322,8 @@ class JmNetwork {
         }
       }
       final description = document.querySelectorAll("div.col-lg-7 > div > div.p-t-5.p-b-5")[1].text;
-      final likes = int.tryParse(document.querySelector("span#albim_likes_$id")!
-          .text.toLowerCase().replaceAll("k", "000")) ?? 0;
+      final likes = int.tryParse(document.querySelectorAll("div.p-t-5.p-b-5 > span.p-t-5.p-b-5 > span").firstOrNull
+          ?.text.toLowerCase().replaceAll("k", "000") ?? "0") ?? 0;
       var series = <int, String>{};
       var epNames = <String>[];
       for(var element in document.querySelectorAll("div.nav-tab-content div.episode > ul > a")){
@@ -491,11 +493,11 @@ class JmNetwork {
   Future<Res<bool>> favorite(String comicId, String? folderId) async {
     Res res;
     if(folderId != null) {
-      res = await post("https://18comic.vip/ajax/favorite_album",
+      res = await post("$baseUrl/ajax/favorite_album",
           "album_id=$comicId&fid=$folderId"
           , "application/x-www-form-urlencoded; charset=UTF-8");
     } else {
-      res = await post("https://18comic.vip/ajax/delete_favorite_album",
+      res = await post("$baseUrl/ajax/delete_favorite_album",
           "album_id=$comicId"
           , "application/x-www-form-urlencoded; charset=UTF-8");
     }

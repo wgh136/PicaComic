@@ -1,8 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/views/pic_views/game_page.dart';
-import '../../network/picacg_network/methods.dart';
 import '../main_page.dart';
 
 class GameTile extends StatelessWidget {
@@ -27,10 +26,10 @@ class GameTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(18)
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: CachedNetworkImage(
-                    imageUrl: getImageUrl(game.iconUrl),
+                  child: Image(
+                    image: CachedImageProvider(game.iconUrl),
                     fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    errorBuilder: (context, url, error) => const Icon(Icons.error),
                     width: double.infinity,
                     height: 100,
                   ),

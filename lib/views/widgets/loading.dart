@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pica_comic/tools/translations.dart';
-import '../../foundation/app.dart';
 
 Widget showLoading(BuildContext context, {bool withScaffold = false}) {
   final loading = Lottie.asset("images/loading.json",
@@ -56,7 +55,13 @@ Widget showLoading(BuildContext context, {bool withScaffold = false}) {
 class LoadingDialogController {
   BuildContext? context;
 
+  bool closed = false;
+
   void close() {
+    if(closed){
+      return;
+    }
+    closed = true;
     if (context == null) {
       Future.microtask(() => Navigator.of(context!).pop());
     } else {
@@ -99,7 +104,7 @@ LoadingDialogController showLoadingDialog(
               if (allowCancel)
                 TextButton(
                     onPressed: () {
-                      App.globalBack();
+                      controller.close();
                       onCancel();
                     },
                     child: Text(cancelButtonText.tl))

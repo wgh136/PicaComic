@@ -67,26 +67,31 @@ class _SelectState extends State<Select> {
             ]
         );
       },
-      child: Container(
-        margin: EdgeInsets.zero,
-        width: widget.width,
-        height: 38,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(widget.outline ? 4 : 8),
-          color: widget.outline ? null : Theme.of(context).colorScheme.secondaryContainer,
-          border: widget.outline ? Border.all(color: Theme.of(context).colorScheme.outline) : null
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16,),
-            Expanded(
-              child: Text(value == null ? "" : widget.values[value!],
-                overflow: TextOverflow.fade,
-                style: Theme.of(context).textTheme.bodyMedium,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(widget.outline ? 4 : 8),
+        elevation: widget.outline ? 0 : 1,
+        child: Container(
+          margin: EdgeInsets.zero,
+          width: widget.width,
+          height: 38,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(widget.outline ? 4 : 8),
+              color: widget.outline ? null : Theme.of(context).colorScheme.secondaryContainer,
+              border: widget.outline ? Border.all(color: Theme.of(context).colorScheme.outline) : null
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 16,),
+              Expanded(
+                child: Text(value == null ? "" : widget.values[value!],
+                  overflow: TextOverflow.fade,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
-            ),
-            const Icon(Icons.arrow_drop_down_sharp)
-          ],
+              const Icon(Icons.arrow_drop_down_sharp)
+            ],
+          ),
         ),
       ),
     );

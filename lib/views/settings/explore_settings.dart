@@ -87,6 +87,83 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           inPopUpWidget: popUp,
         ),
       ),
+      StatefulBuilder(builder: (context, setState) => ListTile(
+        leading: const Icon(Icons.image),
+        title: Text("检查剪切板中的链接".tl),
+        trailing: Switch(
+          value: appdata.settings[61] == "1",
+          onChanged: (b){
+            setState(() {
+              appdata.settings[61] = b?"1":"0";
+            });
+            appdata.updateSettings();
+          },
+        ),
+      ),),
+      ListTile(
+        leading:
+        const Icon(Icons.build_circle),
+        title: Text("漫画信息页面工具栏".tl),
+        trailing: const Icon(Icons.arrow_right),
+        onTap: () => setTools(context),
+      ),
     ],
   );
+}
+
+
+void setTools(BuildContext context) {
+  showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text("设置工具栏".tl),
+          children: const [
+            SizedBox(
+              width: 400,
+            ),
+            ComicToolsSetting(),
+          ],
+        );
+      });
+}
+
+class ComicToolsSetting extends StatefulWidget {
+  const ComicToolsSetting({Key? key}) : super(key: key);
+
+  @override
+  State<ComicToolsSetting> createState() => _ComicToolsSettingState();
+}
+
+class _ComicToolsSettingState extends State<ComicToolsSetting> {
+  @override
+  void dispose() {
+    appdata.updateSettings();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final titles = ["快速收藏".tl, "复制标题".tl, "复制链接".tl, "分享".tl, "搜索相似画廊".tl];
+    return SizedBox(
+      child: Column(
+        children: [
+          for (int i = 0; i < titles.length; i++)
+            CheckboxListTile(
+              value: appdata.settings[62][i] == "1",
+              onChanged: (b) {
+                setState(() {
+                  if (b!) {
+                    appdata.settings[62] = appdata.settings[62].replaceRange(i, i + 1, '1');
+                  } else {
+                    appdata.settings[62] = appdata.settings[62].replaceRange(i, i + 1, '0');
+                  }
+                });
+              },
+              title: Text(titles[i]),
+            ),
+        ],
+      ),
+    );
+  }
 }

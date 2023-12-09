@@ -142,7 +142,12 @@ class HtmangaNetwork {
             }
           }
           var pages = int.parse(pagesStr);
-          comics.add(HtComicBrief(name, time, image, id, pages));
+          try {
+            comics.add(HtComicBrief(name, time, image, id, pages));
+          }
+          catch(e){
+            // block
+          }
         }
         comicsRes.add(comics);
       }

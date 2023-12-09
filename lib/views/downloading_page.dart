@@ -1,13 +1,12 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../network/download_model.dart';
-import '../network/picacg_network/methods.dart';
 
 
 class DownloadingPage extends StatefulWidget {
@@ -125,11 +124,16 @@ class DownloadingTile extends StatelessWidget {
         children: [
           Expanded(
               flex: 0,
-              child: CachedNetworkImage(
+              child: Image(
+                image: CachedImageProvider(
+                  comic.cover,
+                  headers: {
+                    "User-Agent": webUA
+                  }
+                ),
                 width: 80,
                 fit: BoxFit.fitHeight,
-                imageUrl: getImageUrl(comic.cover),
-                errorWidget: (context,a,b){
+                errorBuilder: (context,a,b){
                   return const Center(
                     child: Icon(Icons.error),
                   );

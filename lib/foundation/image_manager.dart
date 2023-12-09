@@ -12,6 +12,8 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/tools/debug.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../base.dart';
@@ -139,8 +141,6 @@ class ImageManager {
       }
       var options = BaseOptions(
           connectTimeout: const Duration(seconds: 8),
-          sendTimeout: const Duration(seconds: 8),
-          receiveTimeout: const Duration(seconds: 8),
           followRedirects: true,
           headers: headers ?? {
             "user-agent": webUA,
@@ -279,24 +279,43 @@ class ImageManager {
 
       var apiJson = const JsonDecoder().convert(apiRes.data);
 
+      saveDebugData(apiRes.data);
+
       var i6 = apiJson["i6"] as String;
+
+      RegExp regex = RegExp(r"nl\('(.+?)'\)");
+      final nl = regex.firstMatch(i6)?.group(1);
       
       var originImage = i6.split("<a href=\"").last.split("\">").first;
 
       var image = apiJson["i3"] as String;
+
       image = image.substring(
           image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
 
-      if (image.contains("/img/509.gif")) {
+      if (image.contains("/img/509.gi")) {
         throw ImageExceedError();
       }
 
-      if(appdata.settings[29] == "1"){
+      if(appdata.settings[29] == "1" && originImage.isURL){
         image = originImage;
       }
 
-      var res = await dio.get<ResponseBody>(image,
-          options: Options(responseType: ResponseType.stream));
+
+      Response<ResponseBody> res;
+
+      try{
+        res = await dio.get<ResponseBody>(image,
+            options: Options(responseType: ResponseType.stream));
+      }
+      catch(e){
+        if(nl == null){
+          rethrow;
+        }
+        image = await EhNetwork().getImageLinkWithNL(getGalleryId(galleryLink), imgKey, page, nl);
+        res = await dio.get<ResponseBody>(image,
+            options: Options(responseType: ResponseType.stream));
+      }
 
       if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
           res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {

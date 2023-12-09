@@ -1,5 +1,6 @@
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -203,13 +204,14 @@ class LocalFavoriteTile extends ComicTile {
       ? FutureBuilder<File>(
           future: LocalFavoritesManager().getCover(comic),
           builder: (context, file) {
+            Widget child;
             if (file.hasError) {
-              return ColoredBox(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  child: const Center(child: Icon(Icons.error)));
-            }
-            if (file.data == null) {
-              return ColoredBox(
+              LogManager.addLog(LogLevel.error, "Network", file.stackTrace.toString());
+              child = const Center(
+                child: Icon(Icons.error),
+              );
+            } else if (file.data == null) {
+              child = ColoredBox(
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   child: const SizedBox(
                     width: double.infinity,
@@ -217,13 +219,17 @@ class LocalFavoriteTile extends ComicTile {
                   ));
             } else {
               cache[comic.target] = file.data!;
-              return Image.file(
+              child = Image.file(
                 file.data!,
                 fit: BoxFit.cover,
                 height: double.infinity,
                 filterQuality: FilterQuality.medium,
               );
             }
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: child,
+            );
           },
         )
       : Image.file(
@@ -697,7 +703,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
           },
         ),
         ListTile(
@@ -707,7 +713,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在eh的收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
           },
         ),
         ListTile(
@@ -717,7 +723,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            showMessage(context, "在收藏夹页面选择一个收藏夹进行导出");
+            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
           },
         ),
         ListTile(

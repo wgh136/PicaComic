@@ -1,11 +1,11 @@
 import 'package:pica_comic/foundation/app.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/views/pic_views/category_comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../main_page.dart';
@@ -30,16 +30,13 @@ class PicComicTile extends ComicTile {
   List<String>? get tags => comic.tags;
 
   @override
-  Widget get image => !downloaded?(CachedNetworkImage(
-    httpHeaders: {
-      "host": Uri.parse(comic.path).host
-    },
-    imageUrl: comic.path,
+  Widget get image => !downloaded?(AnimatedImage(
+    image: CachedImageProvider(
+      comic.path,
+    ),
     fit: BoxFit.cover,
-    errorWidget: (context, url, error) => const Icon(Icons.error),
     height: double.infinity,
     filterQuality: FilterQuality.medium,
-    progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
   )):Image.file(
     downloadManager.getCover(comic.id),
     fit: BoxFit.cover,
@@ -92,50 +89,4 @@ class PicComicTile extends ComicTile {
 
   @override
   int? get pages => comic.pages;
-}
-
-class CategoryTile extends StatelessWidget {
-  final void Function() onTap;
-  final CategoryItem categoryItem;
-  const CategoryTile(this.categoryItem,this.onTap,{Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: (){
-          MainPage.to(()=>CategoryComicPage(categoryItem.title,categoryType: 1,));
-        },
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 6,
-                child: Container(
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16)
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: CachedNetworkImage(
-                    imageUrl: getImageUrl(categoryItem.path),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
-                    progressIndicatorBuilder: (context, s, p) => ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-                    fit: BoxFit.cover,
-                  ),
-                ),),
-              SizedBox.fromSize(size: const Size(20,5),),
-              Expanded(
-                flex: 11,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(categoryItem.title,style: const TextStyle(fontWeight: FontWeight.w600),),
-                )
-              ),
-            ],
-          ),
-        )
-    );
-  }
 }

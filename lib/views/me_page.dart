@@ -124,7 +124,7 @@ class _NewMePageState extends StateWithController<NewMePage>{
                           AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
                     ),
                     MePageButton(
-                      title: "收藏夹".tl,
+                      title: "网络收藏".tl,
                       subTitle: "查看已收藏的漫画".tl,
                       icon: Icons.bookmarks,
                       onTap: () => MainPage.to(() => const AllFavoritesPage()),
@@ -141,14 +141,14 @@ class _NewMePageState extends StateWithController<NewMePage>{
                       icon: Icons.history,
                       onTap: () => MainPage.to(() => const HistoryPage()),
                     ),
+                    MePageButton(
+                      title: "本地收藏".tl,
+                      subTitle: "显示本地收藏夹".tl,
+                      icon: Icons.local_activity_rounded,
+                      onTap: showLocalFavorites,
+                    ),
                   ],
                 ),
-                Center(
-                  child: TextButton(
-                    onPressed: showLocalFavorites,
-                    child: Text("显示收藏".tl),
-                  ),
-                )
               ],
             ),
           ),
@@ -283,13 +283,13 @@ class _NewMePageState extends StateWithController<NewMePage>{
             Clipboard.setData(ClipboardData(text: res));
             showMessage(App.globalContext, "已复制".tl);
           }),
-          buildItem(const Icon(Icons.import_export), "导出".tl, () async{
+          buildItem(const Icon(Icons.outbox_rounded), "导出".tl, () async{
             App.globalBack();
             var controller = showLoadingDialog(App.globalContext!, () {}, true, true, "正在导出".tl);
             try {
               await exportStringDataAsFile(
                   LocalFavoritesManager().folderToJsonString(name),
-                  "comics.json");
+                  "$name.json");
               controller.close();
             }
             catch(e, s){

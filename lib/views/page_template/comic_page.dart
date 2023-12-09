@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -221,9 +221,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       }
       logic.showAppbarTitle = logic.controller.position.pixels >
           boundingTextSize(title!, const TextStyle(fontSize: 22),
-                      maxWidth: logic.width!)
-                  .height +
-              50;
+                      maxWidth: logic.width!).height + 30;
       if (temp != logic.showAppbarTitle) {
         logic.update();
       }
@@ -282,7 +280,87 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   List<Widget> buildTitle(ComicPageLogic<T> logic) {
-    final menu = Tooltip(
+    List<Widget> actions = [];
+    final settings = appdata.settings[62];
+
+    if(settings[0] == '1'){
+      actions.add(Tooltip(
+        message: "收藏".tl,
+        child: IconButton(
+          icon: const Icon(Icons.book_outlined),
+          onPressed: () async {
+            if (!LocalFavoritesManager()
+                .folderNames
+                .contains(appdata.settings[51])) {
+              showDialog(
+                  context: App.globalContext!,
+                  builder: (context) => AlertDialog(
+                    title: Text("无效的默认收藏夹".tl),
+                    content: Text("必须设置一个有效的收藏夹才能使用快速收藏".tl),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            App.globalBack();
+                            NewSettingsPage.open(0);
+                          },
+                          child: Text("前往设置".tl))
+                    ],
+                  ));
+            } else {
+              LocalFavoritesManager()
+                  .addComic(appdata.settings[51], toLocalFavoriteItem());
+              showMessage(App.globalContext!, "成功添加到默认收藏夹".tl);
+              if (!_logic.favorite) {
+                _logic.favorite = true;
+                logic.update();
+              }
+            }
+          },
+        ),
+      ));
+    }
+
+    if(settings[1] == '1'){
+      actions.add(Tooltip(
+        message: "复制标题".tl,
+        child: IconButton(
+          icon: const Icon(Icons.copy),
+          onPressed: () => Clipboard.setData(ClipboardData(text: title!)),
+        ),
+      ));
+    }
+
+    if(settings[2] == '1' && url != null){
+      actions.add(Tooltip(
+        message: "复制链接".tl,
+        child: IconButton(
+          icon: const Icon(Icons.copy_all),
+          onPressed: () => Clipboard.setData(ClipboardData(text: url!)),
+        ),
+      ));
+    }
+
+    if(settings[3] == '2'){
+      actions.add(Tooltip(
+        message: "分享".tl,
+        child: IconButton(
+          icon: const Icon(Icons.share),
+          onPressed: () => Share.share("${title!}\n${url ?? ""}"),
+        ),
+      ));
+    }
+
+    if(settings[4] == '1' && searchSimilar != null){
+      actions.add(Tooltip(
+        message: "搜索相似画廊".tl,
+        child: IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: searchSimilar!,
+        ),
+      ));
+    }
+
+    actions.add(Tooltip(
       message: "更多".tl,
       child: IconButton(
         icon: const Icon(Icons.more_horiz),
@@ -315,42 +393,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               ]);
         },
       ),
-    );
-
-    final favoriteShortcut = Tooltip(
-      message: "收藏".tl,
-      child: IconButton(
-        icon: const Icon(Icons.book_outlined),
-        onPressed: () async {
-          if (!LocalFavoritesManager()
-              .folderNames
-              .contains(appdata.settings[51])) {
-            showDialog(
-                context: App.globalContext!,
-                builder: (context) => AlertDialog(
-                      title: Text("无效的默认收藏夹".tl),
-                      content: Text("必须设置一个有效的收藏夹才能使用快速收藏".tl),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              App.globalBack();
-                              NewSettingsPage.open(0);
-                            },
-                            child: Text("前往设置".tl))
-                      ],
-                    ));
-          } else {
-            LocalFavoritesManager()
-                .addComic(appdata.settings[51], toLocalFavoriteItem());
-            showMessage(App.globalContext!, "成功添加到默认收藏夹".tl);
-            if (!_logic.favorite) {
-              _logic.favorite = true;
-              logic.update();
-            }
-          }
-        },
-      ),
-    );
+    ));
 
     final finalTitle = "[$source] $title${pages == null ? "" : "(${pages}P)"}";
 
@@ -365,17 +408,19 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Text(finalTitle),
         ),
         pinned: true,
-        actions: [favoriteShortcut, menu],
+        actions: actions,
         primary: UiMode.m1(context),
       ),
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 20, 10, 15),
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
           child: SizedBox(
             width: double.infinity,
             child: CustomSelectableText(
               text: finalTitle,
-              style: const TextStyle(fontSize: 26),
+              style: UiMode.m1(context) ?
+                const TextStyle(fontSize: 22) :
+                const TextStyle(fontSize: 24),
               withAddToBlockKeywordButton: true,
             ),
           ),
@@ -394,12 +439,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
     return SliverPadding(
       padding: UiMode.m1(context)
-          ? const EdgeInsets.fromLTRB(10, 0, 10, 8)
-          : const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          ? const EdgeInsets.fromLTRB(12, 0, 12, 8)
+          : const EdgeInsets.fromLTRB(18, 0, 18, 8),
       sliver: SliverToBoxAdapter(
         child: SelectableText(
           subTitle!,
-          style: const TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 16),
         ),
       ),
     );
@@ -415,7 +460,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             children: [
               buildCover(context, logic, 350, _logic.width!),
               const SizedBox(
-                height: 20,
+                height: 8,
               ),
               ...buildInfoCards(logic, context),
             ],
@@ -450,12 +495,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
     return GestureDetector(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: SizedBox(
-          width: width - 32,
-          height: height - 32,
+          width: width - 16,
+          height: height - 16,
           child: RoundedImage(
-            image: CachedNetworkImageProvider(cover, headers: headers),
+            image: CachedImageProvider(cover, headers: headers),
           ),
         ),
       ),
@@ -533,9 +578,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             color: title
-                ? colorScheme.primaryContainer
+                ? colorScheme.surfaceTint.withOpacity(0.18)
                 : colorScheme.surfaceVariant,
-            borderRadius: const BorderRadius.all(Radius.circular(12))),
+            borderRadius: const BorderRadius.all(Radius.circular(8))),
         margin: EdgeInsets.fromLTRB(3 * size, 3 * size, 3 * size, 3 * size),
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -552,7 +597,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           },
           child: Padding(
             padding:
-                EdgeInsets.fromLTRB(8 * size, 5 * size, 8 * size, 5 * size),
+                EdgeInsets.fromLTRB(8 * size, 4.5 * size, 8 * size, 4.5 * size),
             child: enableTranslationToCN
                 ? (title
                     ? Text(text.translateTagsCategoryToCN)
@@ -571,27 +616,27 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     if (buildMoreInfo != null) {
       res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+        padding: const EdgeInsets.fromLTRB(18, 8, 30, 8),
         child: buildMoreInfo!,
       ));
     }
 
     if (actions != null) {
       res2.add(Padding(
-        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
         child: actions,
       ));
     }
 
     res2.add(Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      padding: const EdgeInsets.fromLTRB(18, 6, 18, 10),
       child: Row(
         children: [
           Expanded(
             child: downloadButton,
           ),
           SizedBox.fromSize(
-            size: const Size(10, 1),
+            size: const Size(12, 0),
           ),
           Expanded(
             child: readButton,
@@ -602,11 +647,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     if (logic.history != null && logic.history!.ep != 0) {
       res2.add(Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
         height: 38,
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: const BorderRadius.all(Radius.circular(8))),
+            borderRadius: const BorderRadius.all(Radius.circular(12))),
         child: Row(
           children: [
             const SizedBox(
@@ -637,7 +682,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     for (var key in tags!.keys) {
       res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
         child: Wrap(
           children: [
             buildInfoCard(key, context, title: true),
@@ -649,7 +694,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     if (uploaderInfo != null) {
       res.add(Padding(
-        padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+        padding: const EdgeInsets.fromLTRB(18, 4, 18, 4),
         child: uploaderInfo,
       ));
     }
@@ -772,13 +817,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget _thumbnailImageBuilder(int index) {
-    return CachedNetworkImage(
-      imageUrl: thumbnails!.thumbnails[index],
-      httpHeaders: headers,
+    return Image(
+      image: CachedImageProvider(
+        thumbnails!.thumbnails[index],
+        headers: headers
+      ),
       fit: BoxFit.contain,
-      placeholder: (context, s) =>
-          ColoredBox(color: Theme.of(context).colorScheme.surfaceVariant),
-      errorWidget: (context, s, d) => const Icon(Icons.error),
+      errorBuilder: (context, s, d) => const Icon(Icons.error),
     );
   }
 

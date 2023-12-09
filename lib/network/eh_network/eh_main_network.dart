@@ -143,6 +143,7 @@ class EhNetwork {
     Map<String, dynamic> data, {
     Map<String, String>? headers,
   }) async {
+    await getCookies(false, _ehApiUrl);
     await setNetworkProxy(); //更新代理
     var options = BaseOptions(
         connectTimeout: const Duration(seconds: 8),
@@ -150,12 +151,12 @@ class EhNetwork {
         receiveTimeout: const Duration(seconds: 8),
         headers: {
           "user-agent": webUA,
-          "cookie":
-              "nw=1${appdata.ehId == "" ? "" : ";ipb_member_id=${appdata.ehId};ipb_pass_hash=${appdata.ehPassHash}"}",
           ...?headers
         });
 
     var dio = logDio(options);
+
+    dio.interceptors.add(CookieManager(cookieJar));
 
     try {
       var res = await dio.post<String>(ehApiUrl, data: data);
@@ -553,13 +554,13 @@ class EhNetwork {
   /// page starts from 1
   Future<Res<List<String>>> getReaderLinks(String link, int page) async {
     String url = "$link?inline_set=ts_m";
+    if (page != 1) {
+      url = "$url&p=${page - 1}";
+    }
     while(loadingReaderLinks.contains(url)){
       await Future.delayed(const Duration(milliseconds: 200));
     }
     loadingReaderLinks.add(url);
-    if (page != 1) {
-      url = "$url&p=${page - 1}";
-    }
     var res = await request(url);
     loadingReaderLinks.remove(url);
     if (res.error) {
@@ -580,6 +581,17 @@ class EhNetwork {
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
+    }
+  }
+
+  Future<String> getImageLinkWithNL(String gid, String imgKey, int p, String nl) async{
+    var res = await request("$ehBaseUrl/s/$imgKey/$gid-$p?nl=$nl");
+    if(res.error){
+      throw res.errorMessage ?? "error";
+    }else{
+      var document = parse(res.data);
+      var image = document.querySelector("div#i3 > a > img")?.attributes["src"];
+      return image ?? (throw "Failed to get image.");
     }
   }
 

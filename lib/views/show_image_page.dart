@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -40,7 +40,7 @@ class ShowImagePage extends StatelessWidget {
       ),
       body: PhotoView(
         minScale: PhotoViewComputedScale.contained * 0.9,
-        imageProvider: CachedNetworkImageProvider(getImageUrl(url)),
+        imageProvider: CachedImageProvider(url),
         loadingBuilder: (context, event) {
           return Container(
             decoration: const BoxDecoration(color: Colors.black),

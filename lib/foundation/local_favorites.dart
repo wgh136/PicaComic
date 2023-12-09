@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -209,6 +208,7 @@ class LocalFavoritesManager {
       }
     } else if((file = File("${App.dataPath}/local_favorite_temp.db")).existsSync()){
       _db.dispose();
+      await Future.delayed(const Duration(milliseconds: 100));
       var newPath = "${App.dataPath}/local_favorite.db";
       file = file.renameSync(newPath);
       init();
@@ -341,7 +341,7 @@ class LocalFavoritesManager {
 
   /// get comic cover
   Future<File> getCover(FavoriteItem item) async {
-    var path = "${appdataPath!}/favoritesCover";
+    var path = "${App.dataPath}/favoritesCover";
     var hash =
     md5.convert(const Utf8Encoder().convert(item.coverPath)).toString();
     var file = File("$path/$hash.jpg");
@@ -349,12 +349,15 @@ class LocalFavoritesManager {
       return file;
     }
     if(item.type == ComicType.ehentai) {
-      while (_loading > 2) {
+      while (_loading >= 1) {
         await Future.delayed(const Duration(milliseconds: 200));
       }
       _loading++;
     }
     try {
+      if(EhNetwork().cookiesStr == ""){
+        await EhNetwork().getCookies(false);
+      }
       var dio = logDio(BaseOptions(headers: {
         if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
         if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
@@ -364,8 +367,6 @@ class LocalFavoritesManager {
       var res = await dio.get<Uint8List>(item.coverPath);
       file.createSync(recursive: true);
       file.writeAsBytesSync(res.data!);
-      var awaitTime = Random().nextInt(500) + 500;
-      await Future.delayed(Duration(milliseconds: awaitTime));
       return file;
     }
     catch(e){

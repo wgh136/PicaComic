@@ -17,8 +17,6 @@ const pathSep = '/';
 
 var downloadManager = DownloadManager();
 
-String? appdataPath;
-
 class Appdata {
   //哔咔相关信息
   late String token;
@@ -90,7 +88,7 @@ class Appdata {
     "1", //49 阅读器中双击放缩
     "", //50 language, empty=system
     "", //51 默认收藏夹
-    "0", //52 me page
+    "1", //52 me page
     "0", //53 本地收藏添加位置(尾/首)
     "0", //54 阅读后移动本地收藏(否/尾/首)
     "1", //55 长按缩放
@@ -99,6 +97,8 @@ class Appdata {
     "0", //58 hosts
     "012345678", //59 explore page
     "0", //60 action when local favorite is tapped
+    "0", //61 check link in clipboard
+    "10000", //62 漫画信息页面工具栏: "快速收藏".tl, "复制标题".tl, "复制链接".tl, "分享".tl, "搜索相似".tl
   ];
 
   ///屏蔽的关键词
@@ -362,4 +362,8 @@ Future<void> clearAppdata() async {
   await JmNetwork().cookieJar?.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
+}
+
+class Test{
+  static int a = 1;
 }
