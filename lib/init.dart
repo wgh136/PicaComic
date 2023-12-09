@@ -18,6 +18,7 @@ Future<void> init() async{
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
     await appdata.readData();
     await App.init();
+    HttpProxyServer.createConfigFile();
     if(appdata.settings[58] == "1"){
       HttpProxyServer.startServer();
     }
