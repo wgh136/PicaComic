@@ -46,6 +46,8 @@ class ComicsPageLogic<T> extends StateController {
   ///是否正在获取数据， 用于在顺序浏览模式下， 避免同时进行多个网络请求
   bool loadingData = false;
 
+  bool showFloatingButton = true;
+
   void get(Future<Res<List<T>>> Function(int) getComics) async {
     if(loadingData) return;
     loadingData = true;
@@ -258,7 +260,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
               );
             } else {
               var comics = logic.dividedComics;
-              return CustomScrollView(
+              Widget body = CustomScrollView(
                 slivers: [
                   if (showTitle)
                     if (largeTitle)
@@ -278,50 +280,88 @@ abstract class ComicsPage<T> extends StatelessWidget {
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: comics?[logic.current]!.length,
-                        (context, i) {
-                      switch (type.index) {
-                        case 0:
-                          return PicComicTile(
-                              comics?[logic.current]![i] as ComicItemBrief);
-                        case 1:
-                          return EhGalleryTile(
-                              comics?[logic.current]![i] as EhGalleryBrief);
-                        case 2:
-                          return JmComicTile(
-                              comics?[logic.current]![i] as JmComicBrief);
-                        case 3:
-                          if (comics?[logic.current]![i] is int) {
-                            return HitomiComicTileDynamicLoading(
-                                comics?[logic.current]![i] as int);
-                          } else {
-                            return HiComicTile(
-                                comics?[logic.current]![i] as HitomiComicBrief);
-                          }
-                        case 4:
-                          return HtComicTile(
-                              comic:
+                            (context, i) {
+                          switch (type.index) {
+                            case 0:
+                              return PicComicTile(
+                                  comics?[logic.current]![i] as ComicItemBrief);
+                            case 1:
+                              return EhGalleryTile(
+                                  comics?[logic.current]![i] as EhGalleryBrief);
+                            case 2:
+                              return JmComicTile(
+                                  comics?[logic.current]![i] as JmComicBrief);
+                            case 3:
+                              if (comics?[logic.current]![i] is int) {
+                                return HitomiComicTileDynamicLoading(
+                                    comics?[logic.current]![i] as int);
+                              } else {
+                                return HiComicTile(
+                                    comics?[logic.current]![i] as HitomiComicBrief);
+                              }
+                            case 4:
+                              return HtComicTile(
+                                  comic:
                                   comics?[logic.current]![i] as HtComicBrief);
-                        case 5:
-                          return HtComicTileInFavoritePage(
-                              comic: comics?[logic.current]![i] as HtComicBrief,
-                              refresh: refresh);
-                        case 6:
-                          return NhentaiComicTile(comics?[logic.current]![i] as NhentaiComicBrief);
-                        default:
-                          throw UnimplementedError();
-                      }
-                    }),
+                            case 5:
+                              return HtComicTileInFavoritePage(
+                                  comic: comics?[logic.current]![i] as HtComicBrief,
+                                  refresh: refresh);
+                            case 6:
+                              return NhentaiComicTile(comics?[logic.current]![i] as NhentaiComicBrief);
+                            default:
+                              throw UnimplementedError();
+                          }
+                        }),
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: App.comicTileMaxWidth,
                       childAspectRatio: App.comicTileAspectRatio,
                     ),
                   ),
-                  if(showPageIndicator)
+                  if(showPageIndicator && !UiMode.m1(context))
                     buildPageSelector(context, logic),
                   SliverPadding(padding: EdgeInsets.only(
                       bottom: MediaQuery.of(context).padding.bottom))
                 ],
               );
+
+              body = NotificationListener<ScrollUpdateNotification>(
+                onNotification: (notifications){
+                  if(notifications.scrollDelta != null){
+                    if(notifications.scrollDelta! > 0 && logic.showFloatingButton){
+                      logic.showFloatingButton = false;
+                      logic.update();
+                    } else if((notifications.scrollDelta! < 0
+                        || notifications.metrics.pixels == notifications.metrics.minScrollExtent
+                        || notifications.metrics.pixels == notifications.metrics.maxScrollExtent)
+                        && !logic.showFloatingButton){
+                      logic.showFloatingButton = true;
+                      logic.update();
+                    }
+                  }
+                  return false;
+                },
+                child: body,
+              );
+
+              if(showPageIndicator && UiMode.m1(context)){
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      child: body,
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 12,
+                      top: 0,
+                      bottom: 0,
+                      child: buildPageSelectorRight(context, logic)
+                    )
+                  ],
+                );
+              } else {
+                return body;
+              }
             }
           }
         });
@@ -365,13 +405,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                   ),
                   FilledButton(
                       onPressed: () {
-                        if (logic.current == 1 ||
-                            logic.current == 0) {
-                          showMessage(context, "已经是第一页了".tl);
-                        } else {
-                          logic.current--;
-                          logic.update();
-                        }
+                        prevPage(logic);
                       },
                       child: Text("上一页".tl)),
                   const Spacer(),
@@ -379,61 +413,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                     label: Text(
                         "${"页面".tl}: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
                     onPressed: () async {
-                      String res = "";
-                      await showDialog(
-                          context: context,
-                          builder: (dialogContext) {
-                            var controller =
-                            TextEditingController();
-                            return SimpleDialog(
-                              title: const Text("切换页面"),
-                              children: [
-                                const SizedBox(
-                                  width: 300,
-                                ),
-                                Padding(
-                                  padding:
-                                  const EdgeInsets.fromLTRB(
-                                      16, 10, 16, 20),
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      border:
-                                      const OutlineInputBorder(),
-                                      labelText: "页码".tl,
-                                      suffixText:
-                                      "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
-                                    ),
-                                    controller: controller,
-                                    onSubmitted: (s) {
-                                      res = s;
-                                      App.globalBack();
-                                    },
-                                  ),
-                                ),
-                                Center(
-                                  child: FilledButton(
-                                    child: Text("提交".tl),
-                                    onPressed: () {
-                                      res = controller.text;
-                                      App.globalBack();
-                                    },
-                                  ),
-                                )
-                              ],
-                            );
-                          });
-                      if (res.isNum) {
-                        int i = int.parse(res);
-                        if (logic.maxPage == null ||
-                            (i > 0 && i <= logic.maxPage!)) {
-                          logic.current = i;
-                          logic.update();
-                          return;
-                        }
-                      }
-                      if (res != "") {
-                        showMessage(App.globalContext, "输入的数字不正确");
-                      }
+                      selectPage(logic);
                     },
                     elevation: 1,
                     side: BorderSide.none,
@@ -441,13 +421,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                   const Spacer(),
                   FilledButton(
                       onPressed: () {
-                        if (logic.current == logic.maxPage ||
-                            logic.current == 0) {
-                          showMessage(context, "已经是最后一页了".tl);
-                        } else {
-                          logic.current++;
-                          logic.update();
-                        }
+                        nextPage(logic);
                       },
                       child: Text("下一页".tl)),
                   const SizedBox(
@@ -460,5 +434,145 @@ abstract class ComicsPage<T> extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget buildPageSelectorRight(BuildContext context, ComicsPageLogic logic){
+    return Align(
+      alignment: Alignment.centerRight,
+      child: AnimatedSlide(
+        offset: logic.showFloatingButton ? const Offset(0, 0) : const Offset(1.5, 0),
+        duration: const Duration(milliseconds: 200),
+        child: Material(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(16),
+          elevation: 3,
+          child: SizedBox(
+            height: 156,
+            width: 58,
+            child: Column(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                    onTap: (){
+                      prevPage(logic);
+                    },
+                    child: const SizedBox.expand(
+                      child: Center(
+                        child: Icon(Icons.keyboard_arrow_left),
+                      ),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1,),
+                Expanded(
+                  child: InkWell(
+                    onTap: (){
+                      selectPage(logic);
+                    },
+                    child: SizedBox.expand(
+                      child: Center(
+                        child: Text("${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
+                      ),
+                    ),
+                  )
+                ),
+                const Divider(height: 1,),
+                Expanded(
+                  child: InkWell(
+                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+                    onTap: (){
+                      nextPage(logic);
+                    },
+                    child: const SizedBox.expand(
+                      child: Center(
+                        child: Icon(Icons.keyboard_arrow_right),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ));
+  }
+
+  void nextPage(ComicsPageLogic logic){
+    if (logic.current == logic.maxPage ||
+        logic.current == 0) {
+      showMessage(App.globalContext, "已经是最后一页了".tl);
+    } else {
+      logic.current++;
+      logic.update();
+    }
+  }
+
+  void prevPage(ComicsPageLogic logic){
+    if (logic.current == 1 ||
+        logic.current == 0) {
+      showMessage(App.globalContext, "已经是第一页了".tl);
+    } else {
+      logic.current--;
+      logic.update();
+    }
+  }
+
+  void selectPage(ComicsPageLogic logic) async{
+    String res = "";
+    await showDialog(
+    context: App.globalContext!,
+    builder: (dialogContext) {
+      var controller =
+      TextEditingController();
+      return SimpleDialog(
+        title: const Text("切换页面"),
+        children: [
+          const SizedBox(
+            width: 300,
+          ),
+          Padding(
+            padding:
+            const EdgeInsets.fromLTRB(
+                16, 10, 16, 20),
+            child: TextField(
+              decoration: InputDecoration(
+                border:
+                const OutlineInputBorder(),
+                labelText: "页码".tl,
+                suffixText:
+                "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
+              ),
+              controller: controller,
+              onSubmitted: (s) {
+                res = s;
+                App.globalBack();
+              },
+            ),
+          ),
+          Center(
+            child: FilledButton(
+              child: Text("提交".tl),
+              onPressed: () {
+                res = controller.text;
+                App.globalBack();
+              },
+            ),
+          )
+        ],
+      );
+    });
+    if (res.isNum) {
+      int i = int.parse(res);
+      if (logic.maxPage == null ||
+          (i > 0 && i <= logic.maxPage!)) {
+        logic.current = i;
+        logic.update();
+        return;
+      }
+    }
+    if (res != "") {
+      showMessage(App.globalContext, "输入的数字不正确");
+    }
   }
 }

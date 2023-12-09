@@ -92,6 +92,17 @@ class ScrollManager {
   }
 }
 
+class _TapDownPointer{
+  int id;
+  Offset offset;
+
+  double getDistance(){
+    return offset.dx * offset.dx + offset.dy * offset.dy;
+  }
+
+  _TapDownPointer(this.id): offset = const Offset(0, 0);
+}
+
 class TapController {
   static Offset? _tapOffset;
 
@@ -101,7 +112,7 @@ class TapController {
 
   static bool longTimePressScale = false;
 
-  static int? tapDownPointerID;
+  static _TapDownPointer? _tapDownPointer;
 
   static void Function(PointerUpEvent event)? onTapUpReplacement;
 
@@ -120,9 +131,9 @@ class TapController {
     var logic = StateController.find<ComicReadingPageLogic>();
 
     if(appdata.settings[55] == "1") {
-      tapDownPointerID = event.pointer;
+      _tapDownPointer = _TapDownPointer(event.pointer);
       Future.delayed(const Duration(milliseconds: 200), () {
-        if (event.pointer == tapDownPointerID) {
+        if (event.pointer == _tapDownPointer?.id) {
           onTapUpReplacement = _handleLongPressEnd;
           _handleLongPressStart(event.position);
         }
@@ -177,7 +188,7 @@ class TapController {
 
     var logic = StateController.find<ComicReadingPageLogic>();
 
-    tapDownPointerID = null;
+    _tapDownPointer = null;
 
     if (appdata.settings[9] == "4") {
       logic.data.scrollManager!.tapUp(detail);
@@ -219,8 +230,11 @@ class TapController {
 
   static void onPointerMove(PointerMoveEvent event){
     final data = StateController.find<ComicReadingPageLogic>().data;
-    if(event.pointer == tapDownPointerID){
-      tapDownPointerID = null;
+    if(event.pointer == _tapDownPointer?.id){
+      _tapDownPointer!.offset += event.delta;
+      if(_tapDownPointer!.getDistance() > 1){
+        _tapDownPointer = null;
+      }
     }
     if (appdata.settings[9] == "4" &&
         data.scrollManager!.fingers != 2) {

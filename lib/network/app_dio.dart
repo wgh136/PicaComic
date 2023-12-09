@@ -6,7 +6,6 @@ import 'package:dio/io.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:pica_comic/network/http_client.dart';
-
 import '../base.dart';
 import '../foundation/app.dart';
 
@@ -42,7 +41,7 @@ class AppHttpAdapter implements HttpClientAdapter{
       adapter = http2 ? Http2Adapter(ConnectionManager(
         idleTimeout: const Duration(seconds: 10),
         onClientCreate: (_, config) {
-          if (proxyHttpOverrides?.proxyStr != null) {
+          if (proxyHttpOverrides?.proxyStr != null && appdata.settings[58] != "1") {
             config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
           }
         },
@@ -57,7 +56,7 @@ class AppHttpAdapter implements HttpClientAdapter{
   /// 直接使用ip访问绕过sni
   bool changeHost(RequestOptions options){
     var config = const JsonDecoder().convert(File("${App.dataPath}/rule.json").readAsStringSync());
-    if(config["sni"].contains(options.uri.host) && config["rule"][options.uri.host] != null) {
+    if((config["sni"] ?? []).contains(options.uri.host) && (config["rule"] ?? {})[options.uri.host] != null) {
       options.path = options.path.replaceFirst(
           options.uri.host, config["rule"][options.uri.host]!);
       return true;

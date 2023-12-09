@@ -61,9 +61,9 @@ class _NetworkSettingsState extends State<NetworkSettings> {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.rule),
+          leading: const Icon(Icons.help),
           title: Text("帮助".tl),
-          trailing: const Icon(Icons.help),
+          trailing: const Icon(Icons.arrow_right),
           onTap: (){
             launchUrlString("https://github.com/wgh136/PicaComic/blob/master/doc/hosts.md");
           },

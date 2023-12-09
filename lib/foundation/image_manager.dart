@@ -141,8 +141,6 @@ class ImageManager {
       }
       var options = BaseOptions(
           connectTimeout: const Duration(seconds: 8),
-          sendTimeout: const Duration(seconds: 8),
-          receiveTimeout: const Duration(seconds: 8),
           followRedirects: true,
           headers: headers ?? {
             "user-agent": webUA,
