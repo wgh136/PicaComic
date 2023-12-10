@@ -286,14 +286,19 @@ Future<bool> importData([String? filePath]) async{
   final enableCheck = filePath != null;
   var path = (await getApplicationSupportDirectory()).path;
   if(filePath == null) {
-    const XTypeGroup typeGroup = XTypeGroup(
-      label: 'data',
-    );
-    final XFile? file = await openFile(
-        acceptedTypeGroups: <XTypeGroup>[
-          typeGroup
-        ]);
-    filePath = file?.path;
+    if (App.isMobile) {
+      var params = const OpenFileDialogParams();
+      filePath = await FlutterFileDialog.pickFile(params: params);
+    } else {
+      const XTypeGroup typeGroup = XTypeGroup(
+        label: 'data',
+      );
+      final XFile? file = await openFile(
+          acceptedTypeGroups: <XTypeGroup>[
+            typeGroup
+          ]);
+      filePath = file?.path;
+    }
     if (filePath == null) {
       return false;
     }
@@ -425,15 +430,21 @@ Future<void> exportStringDataAsFile(String data, String fileName) async{
 }
 
 Future<String?> getDataFromUserSelectedFile(List<String> extensions) async{
-  XTypeGroup typeGroup = XTypeGroup(
-    label: 'data',
-    extensions: extensions,
-  );
-  final XFile? file = await openFile(
-      acceptedTypeGroups: <XTypeGroup>[
-        typeGroup
-      ]);
-  String? filePath = file?.path;
+  String? filePath;
+  if (App.isMobile) {
+    var params = const OpenFileDialogParams();
+    filePath = await FlutterFileDialog.pickFile(params: params);
+  } else if (App.isWindows) {
+    XTypeGroup typeGroup = XTypeGroup(
+      label: 'data',
+      extensions: extensions,
+    );
+    final XFile? file = await openFile(
+        acceptedTypeGroups: <XTypeGroup>[
+          typeGroup
+        ]);
+    filePath = file?.path;
+  }
   if(filePath == null){
     return null;
   }

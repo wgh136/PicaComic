@@ -275,7 +275,9 @@ class _ComicDescription extends StatelessWidget {
                                   padding:
                                       const EdgeInsets.fromLTRB(3, 1, 3, 3),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context)
+                                    color: s == "Unavailable" ? Theme.of(context)
+                                        .colorScheme
+                                        .errorContainer : Theme.of(context)
                                         .colorScheme
                                         .secondaryContainer,
                                     borderRadius: const BorderRadius.all(

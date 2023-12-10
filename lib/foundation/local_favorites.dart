@@ -227,6 +227,15 @@ class LocalFavoritesManager {
     return rows.map((element) => FavoriteItem.fromRow(element)).toList();
   }
 
+  void addTagTo(String folder, String target, String tag){
+    _db.execute("""
+      update "$folder"
+      set tags = '$tag,' || tags
+      where target == '${target.toParam}'
+    """);
+    saveData();
+  }
+
   List<FavoriteItemWithFolderInfo> allComics() {
     var res = <FavoriteItemWithFolderInfo>[];
     for(final folder in folderNames){
@@ -275,6 +284,7 @@ class LocalFavoritesManager {
         display_order int
       );
     """);
+    saveData();
   }
 
   /// add comic to a folder
@@ -396,7 +406,6 @@ class LocalFavoritesManager {
   void deleteComic(String folder, FavoriteItem comic) {
     deleteComicWithTarget(folder, comic.target);
     checkAndDeleteCover(comic);
-    saveData();
   }
 
   void deleteComicWithTarget(String folder, String target) {
@@ -404,12 +413,14 @@ class LocalFavoritesManager {
       delete from "$folder"
       where target == '${target.toParam}';
     """);
+    saveData();
   }
 
   Future<void> clearAll() async {
     _db.dispose();
     File("${App.dataPath}/local_favorite.db").deleteSync();
     await init();
+    saveData();
   }
 
   void reorder(List<FavoriteItem> newFolder, String folder) async {
@@ -432,6 +443,7 @@ class LocalFavoritesManager {
       ALTER TABLE "$before"
       RENAME TO "$after";
     """);
+    saveData();
   }
 
   void onReadEnd(String target) async{
@@ -470,6 +482,7 @@ class LocalFavoritesManager {
     if(isModified) {
       updateUI();
     }
+    saveData();
   }
 
   Future<String> folderToString(String folderName) async{

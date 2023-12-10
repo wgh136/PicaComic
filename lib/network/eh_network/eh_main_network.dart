@@ -374,8 +374,14 @@ class EhNetwork {
         try {
           var folderDivs = document.querySelectorAll("div.fp");
           for (var folderDiv in folderDivs) {
-            names.add(folderDiv.children.elementAtOrNull(2)?.text ??
-                "Favorite ${names.length}");
+            var name = folderDiv.children.elementAtOrNull(2)?.text ??
+                "Favorite ${names.length}";
+            var length = folderDiv.children.elementAtOrNull(0)?.text;
+            if(length != null){
+              length = " ($length)";
+            }
+            length ??= "";
+            names.add("$name$length");
           }
           if (names.length != 10) {
             names = names.sublist(0, 10);

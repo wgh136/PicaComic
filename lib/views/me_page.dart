@@ -277,11 +277,13 @@ class _NewMePageState extends StateWithController<NewMePage>{
                   setState((){});
             });
           }),
-          buildItem(const Icon(Icons.text_snippet_outlined), "生成文本并复制".tl, () async{
+          buildItem(const Icon(Icons.library_add_check), "检查漫画存活".tl, () async{
             App.globalBack();
-            var res = await LocalFavoritesManager().folderToString(name);
-            Clipboard.setData(ClipboardData(text: res));
-            showMessage(App.globalContext, "已复制".tl);
+            checkFolder(name).then((value) {
+              if(mounted){
+                setState(() {});
+              }
+            });
           }),
           buildItem(const Icon(Icons.outbox_rounded), "导出".tl, () async{
             App.globalBack();

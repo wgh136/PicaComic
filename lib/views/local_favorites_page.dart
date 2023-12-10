@@ -741,3 +741,112 @@ void showNetworkSourceDialog(BuildContext context){
     );
   });
 }
+
+/// Check the availability of comics in folder
+Future<void> checkFolder(String name) async{
+  var comics = LocalFavoritesManager().getAllComics(name);
+  int unavailableNum = 0;
+  int networkError = 0;
+  int checked = 0;
+
+  Stream<(int current, int total)> check() async*{
+    for(var comic in comics){
+      bool available = true;
+      switch(comic.type){
+        case ComicType.picacg:
+          var res = await PicacgNetwork().getComicInfo(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
+        case ComicType.ehentai:
+          var res = await EhNetwork().getGalleryInfo(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
+        case ComicType.jm:
+          var res = await JmNetwork().getComicInfo(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
+        case ComicType.hitomi:
+          var res = await HiNetwork().getComicInfo(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
+        case ComicType.htManga:
+          var res = await HtmangaNetwork().getComicInfo(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
+        case ComicType.nhentai:
+          var res = await NhentaiNetwork().getComicInfo(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
+        default:
+          available = true;
+      }
+      if(!available){
+        unavailableNum++;
+        if(!comic.tags.contains("Unavailable")) {
+          LocalFavoritesManager().addTagTo(name, comic.target, "Unavailable");
+        }
+      }
+      checked++;
+      yield (checked, comics.length);
+    }
+  }
+
+  await showDialog(context: App.globalContext!, builder: (context){
+    return Dialog(
+      child: StreamBuilder(
+        stream: check(),
+        builder: (context, snapshot){
+          if(checked == comics.length){
+            return SizedBox(
+              height: 200,
+              width: 200,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle, size: 54, color: Theme.of(context).colorScheme.primary,),
+                    const SizedBox(height: 12,),
+                    Text("Unavailable: $unavailableNum"),
+                    Text("Network Error: $networkError"),
+                  ],
+                ),
+              ),
+            );
+          }
+          return SizedBox(
+            height: 200,
+            width: 200,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 12,),
+                  Text("$checked/${comics.length}")
+                ],
+              ),
+            ),
+          );
+      }),
+    );
+  });
+
+}

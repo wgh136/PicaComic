@@ -9,12 +9,8 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import android.content.Intent
-import android.provider.Settings
 import android.net.Uri
 import android.os.Environment
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManagerFactory
-import javax.net.ssl.X509TrustManager
 
 class MainActivity: FlutterFragmentActivity() {
     var volumeListen = VolumeListen()
@@ -68,12 +64,15 @@ class MainActivity: FlutterFragmentActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "pica_comic/settings").setMethodCallHandler { call, res ->
-            if (call.method == "link" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val intent = Intent(android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS)
-                intent.data = Uri.parse("package:com.github.wgh136.pica_comic")
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"pica_comic/settings").setMethodCallHandler{
+                call, res ->
+            if(call.method == "link") {
+                val intent = Intent(
+                    android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                    Uri.parse("package:com.github.wgh136.pica_comic"),
+                )
                 startActivity(intent)
-            } else if (call.method == "files") {
+            } else if(call.method == "files") {
                 val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                 } else {
@@ -81,11 +80,12 @@ class MainActivity: FlutterFragmentActivity() {
                 }
                 intent.data = Uri.parse("package:com.github.wgh136.pica_comic")
                 startActivity(intent)
-            } else if (call.method == "files_check") {
+            } else if(call.method == "files_check") {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     res.success(Environment.isExternalStorageManager())
                 }
             }
+            res.success(null)
         }
     }
 
