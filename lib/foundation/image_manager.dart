@@ -12,13 +12,13 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
-import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
 import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
+import '../network/res.dart';
 
 class ImageManager {
   static ImageManager? cache;
@@ -224,6 +224,8 @@ class ImageManager {
 
       final options = BaseOptions(
           followRedirects: true,
+          connectTimeout: const Duration(seconds: 8),
+          receiveTimeout: const Duration(seconds: 20),
           headers: {"user-agent": webUA, "cookie": EhNetwork().cookiesStr});
 
       var dio = logDio(options);
@@ -243,16 +245,22 @@ class ImageManager {
           return;
         }
         gallery.auth!["showKey"] = "loading";
-        var res = await dio.get<String>(urls[0]);
-        var html = parse(res.data!);
-        var script = html
-            .querySelectorAll("script")
-            .firstWhere((element) => element.text.contains("showkey"));
-        var match = RegExp(r'showkey="(.*?)"').firstMatch(script.text);
-        final showKey = match!.group(1)!;
-        gallery.auth!["showKey"] = showKey;
-      }
+        try {
+          var res = await EhNetwork().request(urls[0]);
 
+          var html = parse(res.data);
+          var script = html
+              .querySelectorAll("script")
+              .firstWhere((element) => element.text.contains("showkey"));
+          var match = RegExp(r'showkey="(.*?)"').firstMatch(script.text);
+          final showKey = match!.group(1)!;
+          gallery.auth!["showKey"] = showKey;
+        }
+        catch(e){
+          gallery.auth!.remove("showKey");
+          rethrow;
+        }
+      }
       await getShowKey();
       assert(gallery.auth?["showKey"] != null);
 
@@ -268,8 +276,9 @@ class ImageManager {
       yield DownloadProgress(0, 100, cacheKey, savePath);
 
       var imgKey = readerLink.split('/')[4];
+
       // get image url through api
-      var apiRes = await EhNetwork().apiRequest({
+      Res<String>? apiRes = await EhNetwork().apiRequest({
         "gid": int.parse(gid),
         "imgkey": imgKey,
         "method": "showpage",
@@ -277,14 +286,18 @@ class ImageManager {
         "showkey": gallery.auth!["showKey"]
       });
 
-      var apiJson = const JsonDecoder().convert(apiRes.data);
+      if(apiRes.error && apiRes.errorMessage!.contains("handshake")){
+        throw "Failed to make api request.\n"
+            "This may be due to too frequent requests.\n"
+            "Try to wait for some time and retry.";
+      }
 
-      saveDebugData(apiRes.data);
+      var apiJson = const JsonDecoder().convert(apiRes.data);
 
       var i6 = apiJson["i6"] as String;
 
       RegExp regex = RegExp(r"nl\('(.+?)'\)");
-      final nl = regex.firstMatch(i6)?.group(1);
+      var nl = regex.firstMatch(i6)?.group(1);
       
       var originImage = i6.split("<a href=\"").last.split("\">").first;
 
@@ -302,24 +315,36 @@ class ImageManager {
       }
 
 
-      Response<ResponseBody> res;
+      Response<ResponseBody>? res;
+      int retryTimes = 0;
 
-      try{
-        res = await dio.get<ResponseBody>(image,
-            options: Options(responseType: ResponseType.stream));
-      }
-      catch(e){
-        if(nl == null){
-          rethrow;
+      while(res == null){
+        try{
+          res = await dio.get<ResponseBody>(image,
+              options: Options(responseType: ResponseType.stream));
+          if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
+              res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
+            throw ImageExceedError();
+          }
         }
-        image = await EhNetwork().getImageLinkWithNL(getGalleryId(galleryLink), imgKey, page, nl);
-        res = await dio.get<ResponseBody>(image,
-            options: Options(responseType: ResponseType.stream));
-      }
-
-      if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
-          res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
-        throw ImageExceedError();
+        catch(e){
+          retryTimes++;
+          if(retryTimes == 4){
+            throw "Failed to load image.\nMaximum number of retries reached.";
+          }
+          if(nl == null){
+            rethrow;
+          }
+          var (newImage, newNl) = await EhNetwork().getImageLinkWithNL(
+              getGalleryId(galleryLink), imgKey, page, nl);
+          image = newImage;
+          if(kDebugMode){
+            print("Get new image: $image, new nl $newNl");
+          }
+          if(newNl != null){
+            nl = newNl;
+          }
+        }
       }
 
       var stream = res.data!.stream;
@@ -634,5 +659,5 @@ Future<void> startWriteFile(WriteInfo info) async {
 
 class ImageExceedError extends Error {
   @override
-  String toString() => "当前IP超出E-Hentai图片限制";
+  String toString() => "Maximum image loading limit reached.";
 }

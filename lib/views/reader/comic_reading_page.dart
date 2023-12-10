@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
@@ -538,6 +539,7 @@ class ComicReadingPage extends StatelessWidget {
       showMessage(App.globalContext, "数据丢失, 将从网络获取漫画".tl);
       logic.downloaded = false;
     }
+    EhNetwork().loadingReaderLinks.clear();
     var maxPage = int.parse(gallery!.maxPage);
     logic.urls.addAll(List.generate(maxPage, (index) => ""));
     await Future.delayed(const Duration(milliseconds: 200));

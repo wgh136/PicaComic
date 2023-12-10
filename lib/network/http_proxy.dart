@@ -108,10 +108,11 @@ class HttpProxyServer {
     runZonedGuarded(() async{
       socket = await ServerSocket.bind(InternetAddress.loopbackIPv4, port);
       socket?.listen((event) => _HttpProxyHandler().handle(event, handler));
-    }, (error, stack) {
+    }, (error, stack) async{
       LogManager.addLog(LogLevel.error, "Network", "Proxy Server\n$error\n$stack");
       try {
-        socket?.close();
+        await socket?.close();
+        socket = null;
       }
       finally{
         run();

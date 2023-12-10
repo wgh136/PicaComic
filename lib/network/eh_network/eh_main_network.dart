@@ -138,20 +138,25 @@ class EhNetwork {
     }
   }
 
+  int _apiKey = 0;
+
   ///eh APi请求
   Future<Res<String>> apiRequest(
     Map<String, dynamic> data, {
     Map<String, String>? headers,
   }) async {
+    int currentKey = _apiKey + 1;
+    while(_apiKey != currentKey-1){
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
     await getCookies(false, _ehApiUrl);
     await setNetworkProxy(); //更新代理
     var options = BaseOptions(
-        connectTimeout: const Duration(seconds: 8),
-        sendTimeout: const Duration(seconds: 8),
-        receiveTimeout: const Duration(seconds: 8),
+        connectTimeout: const Duration(seconds: 20),
         headers: {
           "user-agent": webUA,
-          ...?headers
+          ...?headers,
+          "host": Uri.parse(ehBaseUrl).host
         });
 
     var dio = logDio(options);
@@ -159,7 +164,9 @@ class EhNetwork {
     dio.interceptors.add(CookieManager(cookieJar));
 
     try {
+      print("request $ehApiUrl");
       var res = await dio.post<String>(ehApiUrl, data: data);
+      await Future.delayed(const Duration(milliseconds: 500));
       return Res(res.data);
     } on DioException catch (e) {
       String? message;
@@ -175,6 +182,9 @@ class EhNetwork {
         message = e.toString();
       }
       return Res(null, errorMessage: message ?? "网络错误");
+    }
+    finally{
+      _apiKey++;
     }
   }
 
@@ -584,14 +594,16 @@ class EhNetwork {
     }
   }
 
-  Future<String> getImageLinkWithNL(String gid, String imgKey, int p, String nl) async{
+  Future<(String image, String? nl)> getImageLinkWithNL(String gid, String imgKey, int p, String nl) async{
     var res = await request("$ehBaseUrl/s/$imgKey/$gid-$p?nl=$nl");
     if(res.error){
       throw res.errorMessage ?? "error";
     }else{
       var document = parse(res.data);
       var image = document.querySelector("div#i3 > a > img")?.attributes["src"];
-      return image ?? (throw "Failed to get image.");
+      var nl = document.querySelector("div#i6 > div > a#loadfail")?.attributes["onclick"]?.split('\'')
+          .firstWhereOrNull((element) => element.contains('-'));
+      return (image ?? (throw "Failed to get image."), nl);
     }
   }
 

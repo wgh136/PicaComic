@@ -37,7 +37,7 @@ bool handleAppLinks(Uri uri, {bool showMessageWhenError = true}){
       if(uri.pathSegments.isEmpty){
         MainPage.toExplorePageAt(7);
       }else if(uri.path.contains("/g/")){
-        MainPage.to(() => NhentaiComicPage(uri.path.nums));
+        MainPage.to(() => NhentaiComicPage(uri.pathSegments.firstWhere((element) => element.isNum)));
       }else{
         showMessage(App.globalContext, "Unknown Link");
         return false;

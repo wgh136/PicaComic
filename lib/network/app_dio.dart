@@ -72,11 +72,11 @@ class AppHttpAdapter implements HttpClientAdapter{
     if(appdata.settings[58] == "0"){
       return await adapter.fetch(options, requestStream, cancelFuture);
     }
-    if(options.headers["host"] == null && options.headers["Host"] == null){
-      options.headers["host"] = options.uri.host;
-    }
     if(!changeHost(options)){
       return await adapter.fetch(options, requestStream, cancelFuture);
+    }
+    if(options.headers["host"] == null && options.headers["Host"] == null){
+      options.headers["host"] = options.uri.host;
     }
     options.followRedirects = false;
     var res = await adapter.fetch(options, requestStream, cancelFuture);

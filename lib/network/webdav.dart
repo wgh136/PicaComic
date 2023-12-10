@@ -95,7 +95,7 @@ class Webdav {
         password: configs[2],
         debug: false,
       );
-      client.setConnectTimeout(5000);
+      client.setConnectTimeout(8000);
       try {
         var files = await client.readDir(configs[3]);
         int? maxVersion;
@@ -114,7 +114,7 @@ class Webdav {
           return true;
         }
 
-        final fileName = maxVersion == null ? "$maxVersion.picadata" : "picadata";
+        final fileName = maxVersion != null ? "$maxVersion.picadata" : "picadata";
 
         var cachePath = (await getApplicationCacheDirectory()).path;
         await client.read2File("${configs[3]}$fileName",
