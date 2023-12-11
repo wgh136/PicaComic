@@ -147,7 +147,7 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
 
   Widget buildType123() {
     return PhotoViewGallery.builder(
-      key: Key(logic.readingMethod.index.toString() + appdata.settings[41]),
+      key: Key(logic.readingMethod.index.toString()),
       reverse: appdata.settings[9] == "2",
       scrollDirection:
           appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
@@ -177,15 +177,13 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           }
         }
 
-        if(index == logic.index) {
-          logic.photoViewController = PhotoViewController();
-        }
+        logic.photoViewControllers[index] ??= PhotoViewController();
 
         return PhotoViewGalleryPageOptions(
           filterQuality: FilterQuality.medium,
           imageProvider: imageProvider,
           fit: getFit(),
-          controller: index == logic.index ? logic.photoViewController : null,
+          controller: logic.photoViewControllers[index],
           errorBuilder: (_, error, s, retry) {
             return Center(
               child: SizedBox(
@@ -282,12 +280,10 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
         }
         precacheComicImage(logic, type, context, index * 2 + 1, target);
 
-        if(index * 2 - 1 == logic.index) {
-          logic.photoViewController = PhotoViewController();
-        }
+        logic.photoViewControllers[index] ??= PhotoViewController();
 
         return PhotoViewGalleryPageOptions.customChild(
-            controller: index * 2 - 1 == logic.index ? logic.photoViewController : null,
+            controller: logic.photoViewControllers[index],
             child: Row(
               children: logic.readingMethod == ReadingMethod.twoPage
                   ? [
@@ -366,12 +362,13 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
   if (["1", "2", "3"].contains(appdata.settings[9])) {
     body = buildType123();
   } else if (appdata.settings[9] == "4") {
+    logic.photoViewControllers[0] ??= PhotoViewController();
     body = PhotoView.customChild(
         key: Key(logic.order.toString()),
         minScale: 1.0,
         maxScale: 2.5,
         strictScale: true,
-        controller: logic.photoViewController,
+        controller: logic.photoViewControllers[0],
         onScaleEnd: (context, detail, value) {
           var prev = logic.currentScale;
           logic.currentScale = value.scale ?? 1.0;

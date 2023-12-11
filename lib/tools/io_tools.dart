@@ -141,22 +141,29 @@ Future<void> eraseCache() async{
 }
 
 Future<void> copyDirectory(Directory source, Directory destination) async{
-  // 获取源文件夹中的内容（包括文件和子文件夹）
-  List<FileSystemEntity> contents = source.listSync();
+  try {
+    // 获取源文件夹中的内容（包括文件和子文件夹）
+    List<FileSystemEntity> contents = source.listSync();
 
-  // 遍历源文件夹中的每个文件和子文件夹
-  for (FileSystemEntity content in contents) {
-    String newPath = destination.path + Platform.pathSeparator + content.path.split(Platform.pathSeparator).last;
+    // 遍历源文件夹中的每个文件和子文件夹
+    for (FileSystemEntity content in contents) {
+      String newPath = destination.path + Platform.pathSeparator + content.path
+          .split(Platform.pathSeparator)
+          .last;
 
-    if (content is File) {
-      // 如果是文件，则复制文件到目标文件夹中
-      content.copySync(newPath);
-    } else if (content is Directory) {
-      // 如果是子文件夹，则递归地调用该函数，复制子文件夹到目标文件夹中
-      Directory newDirectory = Directory(newPath);
-      newDirectory.createSync();
-      copyDirectory(content.absolute, newDirectory.absolute);
+      if (content is File) {
+        // 如果是文件，则复制文件到目标文件夹中
+        content.copySync(newPath);
+      } else if (content is Directory) {
+        // 如果是子文件夹，则递归地调用该函数，复制子文件夹到目标文件夹中
+        Directory newDirectory = Directory(newPath);
+        newDirectory.createSync();
+        copyDirectory(content.absolute, newDirectory.absolute);
+      }
     }
+  }
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
   }
 }
 

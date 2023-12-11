@@ -107,7 +107,7 @@ abstract class DownloadingItem{
     if(file.existsSync()){
       file.deleteSync();
     }
-    file.createSync();
+    file.createSync(recursive: true);
     file.writeAsBytesSync(res.data!);
   }
 

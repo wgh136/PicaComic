@@ -195,7 +195,12 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 whenChange: (int i) {
                   appdata.settings[41] = i.toString();
                   appdata.updateSettings();
-                  logic.update();
+                  logic.photoViewController.resetWithNewBoxFit(switch(i){
+                    0 => BoxFit.contain,
+                    1 => BoxFit.fitWidth,
+                    2 => BoxFit.fitHeight,
+                    _ => BoxFit.contain,
+                  });
                 },
               ),
             ),
@@ -442,6 +447,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     logic.showSettings = false;
     logic.index = 1;
     logic.pageController = PageController(initialPage: 1);
+    logic.clearPhotoViewControllers();
     logic.update();
   }
 

@@ -215,7 +215,7 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
       //保存历史记录
       _updateHistory(logic);
-
+      logic.clearPhotoViewControllers();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       if (data.listenVolume != null) {
@@ -233,6 +233,9 @@ class ComicReadingPage extends StatelessWidget {
       if(history != null) {
         HistoryManager().saveReadHistory(
             history!.target, history!.ep, history!.page);
+      }
+      if(logic.isFullScreen){
+        logic.fullscreen();
       }
       Future.microtask(() {
         if (ComicPage.tagsStack.isNotEmpty) {

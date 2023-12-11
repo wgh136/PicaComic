@@ -157,7 +157,7 @@ bool Win32Window::SendAppLinkToInstance(const std::wstring& title) {
     return false;
 }
 
-void readPlacement(HWND hwnd) {
+void Win32Window::readPlacement(HWND hwnd) {
     WINDOWPLACEMENT windowsPlacement{};
     wchar_t appDataPath[MAX_PATH];
     GetEnvironmentVariableW(L"APPDATA", appDataPath, MAX_PATH);
@@ -231,7 +231,7 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
   return DefWindowProc(window, message, wparam, lparam);
 }
 
-void writePlacement(HWND hwnd) {
+void Win32Window::writePlacement(HWND hwnd) {
     WINDOWPLACEMENT windowsPlacement{};
     GetWindowPlacement(hwnd, &windowsPlacement);
 

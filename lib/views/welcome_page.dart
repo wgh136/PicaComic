@@ -39,7 +39,7 @@ class _WelcomePageState extends State<WelcomePage> {
         padding: EdgeInsets.fromLTRB(padding, 0, padding, 0),
         child: Column(
           children: [
-            const SizedBox(height: 16,),
+            SizedBox(height: 16 + MediaQuery.of(context).padding.top,),
             const SizedBox(
               height: 100,
               width: double.infinity,
@@ -100,7 +100,7 @@ class _WelcomePageState extends State<WelcomePage> {
             ),
             if(showTwoPanel)
               SizedBox(
-                height: 236,
+                height: 258,
                 child: Row(
                   children: [
                     Expanded(
@@ -119,11 +119,11 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             if(!showTwoPanel)
               SizedBox(
-                height: 236,
+                height: 258,
                 child: buildAppearanceSettings(),
               ),
             SizedBox(
-              height: 576,
+              //height: 576,
               child: buildReadingSettings(),
             ),
             if(showTwoPanel)
@@ -371,7 +371,6 @@ class _WelcomePageState extends State<WelcomePage> {
       color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.6),
       child: Container(
         width: double.infinity,
-        height: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

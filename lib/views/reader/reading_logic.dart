@@ -26,7 +26,15 @@ class ComicReadingPageLogic extends StateController {
   var scrollController = ScrollController(keepScrollOffset: true);
 
   ///用于从上至下(连续)阅读方式, 获取放缩大小
-  var photoViewController = PhotoViewController();
+  PhotoViewController get photoViewController => photoViewControllers[index]
+      ?? photoViewControllers[0]!;
+
+  var photoViewControllers = <int, PhotoViewController>{};
+
+  void clearPhotoViewControllers(){
+    photoViewControllers.forEach((key, value) => value.dispose());
+    photoViewControllers.clear();
+  }
 
   bool noScroll = false;
 
@@ -207,7 +215,7 @@ class ComicReadingPageLogic extends StateController {
     }
     index = 1;
     pageController = PageController(initialPage: 1);
-    photoViewController = PhotoViewController();
+    clearPhotoViewControllers();
     update();
   }
 
@@ -242,7 +250,7 @@ class ComicReadingPageLogic extends StateController {
     }
     pageController = PageController(initialPage: 1);
     index = 1;
-    photoViewController = PhotoViewController();
+    clearPhotoViewControllers();
     update();
   }
 
@@ -275,7 +283,7 @@ class ComicReadingPageLogic extends StateController {
     itemScrollController = ItemScrollController();
     itemScrollListener = ItemPositionsListener.create();
     scrollController = ScrollController(keepScrollOffset: true);
-    photoViewController = PhotoViewController();
+    clearPhotoViewControllers();
     noScroll = false;
     currentScale = 1.0;
     showFloatingButtonValue = 0;
@@ -285,6 +293,14 @@ class ComicReadingPageLogic extends StateController {
     tools = false;
     showSettings = false;
     update();
+  }
+
+  bool isFullScreen = false;
+
+  void fullscreen(){
+    const channel = MethodChannel("pica_comic/full_screen");
+    channel.invokeMethod("set", !isFullScreen);
+    isFullScreen = !isFullScreen;
   }
 
   void handleKeyboard(RawKeyEvent event) {
@@ -311,6 +327,10 @@ class ComicReadingPageLogic extends StateController {
           jumpToLastPage();
         }
         break;
+      case LogicalKeyboardKey.f12:
+        if(App.isWindows && !event.isKeyPressed(LogicalKeyboardKey.f12)) {
+          fullscreen();
+        }
     }
   }
 }

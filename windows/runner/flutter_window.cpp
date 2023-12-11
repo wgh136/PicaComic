@@ -116,6 +116,26 @@ bool FlutterWindow::OnCreate() {
             RedrawWindow(GetHandle(), NULL, 0, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
             result->Success();
         });
+
+    const flutter::MethodChannel<> channel4(
+        flutter_controller_->engine()->messenger(), "pica_comic/full_screen",
+        &flutter::StandardMethodCodec::GetInstance()
+    );
+    channel4.SetMethodCallHandler(
+        [this](const flutter::MethodCall<>& call, const std::unique_ptr<flutter::MethodResult<>>& result) {
+            if (std::get<bool>(*call.arguments())) {
+                GetWindowRect(GetHandle(), &windowRect);
+                int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+                int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+                SetWindowLong(GetHandle(), GWL_STYLE, WS_POPUP);
+                SetWindowPos(GetHandle(), HWND_TOP, 0, 0, screenWidth, screenHeight, SWP_SHOWWINDOW);
+            }
+            else {
+                SetWindowLong(GetHandle(), GWL_STYLE, WS_OVERLAPPEDWINDOW);
+                SetWindowPos(GetHandle(), HWND_TOP, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
+            }
+            result->Success();
+        });
     
     SetChildContent(flutter_controller_->view()->GetNativeWindow());
 

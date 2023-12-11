@@ -193,6 +193,16 @@ Widget buildBottomToolBar(
                     child: Text(text),
                   ),
                   const Spacer(),
+                  if(App.isWindows)
+                    Tooltip(
+                      message: "${"全屏".tl}(F12)",
+                      child: IconButton(
+                        icon: const Icon(Icons.fullscreen),
+                        onPressed: (){
+                          logic.fullscreen();
+                        },
+                      ),
+                    ),
                   if (App.isAndroid)
                     Tooltip(
                       message: "屏幕方向".tl,

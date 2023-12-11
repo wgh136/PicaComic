@@ -12,6 +12,9 @@
 // rendering and input handling
 class Win32Window {
  public:
+     static void readPlacement(HWND hwnd);
+     static void writePlacement(HWND hwnd);
+
   struct Point {
     unsigned int x;
     unsigned int y;
