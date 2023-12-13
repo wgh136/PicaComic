@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/jm_views/jm_comics_page.dart';
+import 'package:pica_comic/views/jm_views/jm_leaderboard.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_week_recommendation_page.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -24,33 +25,8 @@ class JmDetailedCategoriesPage extends StatelessWidget
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildTitle("每周必看".tl),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 16),
-            child: SizedBox(
-              width: 200,
-              height: 50,
-              child: InkWell(
-                onTap: () => MainPage.to(() => JmWeekRecommendationPage()),
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                child: Card(
-                  margin: EdgeInsets.zero,
-                  child: Row(
-                    children: [
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      const Icon(Icons.book_outlined),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      Text("每周必看".tl),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          buildTitle("禁漫天堂".tl),
+          buildTags(["每周必看".tl, "排行榜".tl], "basic"),
           buildTitle("成人A漫"),
           buildTags(mainCategories.keys.toList()),
           buildTitle("主題A漫"),
@@ -123,6 +99,15 @@ class JmDetailedCategoriesPage extends StatelessWidget
 
   @override
   void handleClick(String tag, [String? namespace]) {
+    if(namespace == "basic"){
+      if(tag == "每周必看".tl){
+        MainPage.to(() => JmWeekRecommendationPage());
+      } else {
+        MainPage.to(() => const JmLeaderboardPage());
+      }
+      return;
+    }
+
     if(mainCategories[tag] != null){
       MainPage.to(() => JmComicsPage(tag, mainCategories[tag]!));
     } else {

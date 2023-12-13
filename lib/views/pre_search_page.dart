@@ -106,7 +106,7 @@ class _FloatingSearchBar extends StatelessWidget {
 }
 
 class PreSearchController extends StateController {
-  int target = 0;
+  int target = int.parse(appdata.settings[63]);
   int picComicsOrder = appdata.getSearchMode();
   int jmComicsOrder = int.parse(appdata.settings[19]);
   NhentaiSort nhentaiSort = NhentaiSort.values[int.parse(appdata.settings[39])];

@@ -290,7 +290,7 @@ class HtmangaNetwork {
           document.querySelector("div.asTBcell.uwuinfo > p > font")!.text);
       var photosDom = document.querySelectorAll("div.pic_box.tb > a > img");
       var photos = List<String>.generate(photosDom.length,
-          (index) => "http:${photosDom[index].attributes["src"]!}");
+          (index) => "https:${photosDom[index].attributes["src"]!}");
       return Res(
           HtComicInfo(id, coverPath, name, category, pages, tags, description,
               uploader, avatar, uploadNum, photos));
@@ -309,7 +309,7 @@ class HtmangaNetwork {
       var document = parse(res.data);
       var photosDom = document.querySelectorAll("div.pic_box.tb > a > img");
       var photos = List<String>.generate(photosDom.length,
-          (index) => "http:${photosDom[index].attributes["src"]!}");
+          (index) => "https:${photosDom[index].attributes["src"]!}");
       return Res(photos);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");

@@ -4,6 +4,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import '../../foundation/app.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/show_error.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -61,10 +62,7 @@ class EhPopularPage extends StatelessWidget {
                         return EhGalleryTile(logic.galleries![i]);
                       }
                   ),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: App.comicTileMaxWidth,
-                    childAspectRatio: App.comicTileAspectRatio,
-                  ),
+                  gridDelegate: const SliverGridDelegateWithComics(),
                 ),
                 if(logic.galleries!.next!=null)
                   const SliverToBoxAdapter(

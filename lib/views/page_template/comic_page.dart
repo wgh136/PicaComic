@@ -9,6 +9,7 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/local_favorites_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
+import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
@@ -468,20 +469,26 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
       );
     } else {
+      final width = _logic.width! > 1200 ? 1200.0 : _logic.width!;
       return SliverToBoxAdapter(
         child: SizedBox(
-          width: _logic.width!,
-          child: Row(
-            children: [
-              buildCover(context, logic, 550, _logic.width! / 2),
-              SizedBox(
-                width: _logic.width! / 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: buildInfoCards(logic, context),
-                ),
+          width: double.infinity,
+          child: Center(
+            child: SizedBox(
+              width: width,
+              child: Row(
+                children: [
+                  buildCover(context, logic, 480, width / 2),
+                  SizedBox(
+                    width: width / 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: buildInfoCards(logic, context),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       );
@@ -495,10 +502,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     }
     return GestureDetector(
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
         child: SizedBox(
-          width: width - 16,
-          height: height - 16,
+          width: width - 32,
+          height: height - 32,
           child: RoundedImage(
             image: CachedImageProvider(cover, headers: headers),
           ),
@@ -576,11 +583,6 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             items: buildPopMenus());
       },
       child: Container(
-        decoration: BoxDecoration(
-            color: title
-                ? colorScheme.surfaceTint.withOpacity(0.18)
-                : colorScheme.surfaceVariant,
-            borderRadius: const BorderRadius.all(Radius.circular(8))),
         margin: EdgeInsets.fromLTRB(3 * size, 3 * size, 3 * size, 3 * size),
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -595,15 +597,22 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     details.globalPosition.dy),
                 items: buildPopMenus());
           },
-          child: Padding(
-            padding:
-                EdgeInsets.fromLTRB(8 * size, 4.5 * size, 8 * size, 4.5 * size),
-            child: enableTranslationToCN
-                ? (title
-                    ? Text(text.translateTagsCategoryToCN)
-                    : Text(
-                        TagsTranslation.translationTagWithNamespace(text, key)))
-                : Text(text),
+          child: Card(
+            margin: EdgeInsets.zero,
+            color: title ? colorScheme.primaryContainer
+                : ElevationOverlay.applySurfaceTint(colorScheme.surface, colorScheme.surfaceTint, 3),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 0,
+            child: Padding(
+              padding:
+              EdgeInsets.fromLTRB(8 * size, 4.5 * size, 8 * size, 4.5 * size),
+              child: enableTranslationToCN
+                  ? (title
+                  ? Text(text.translateTagsCategoryToCN)
+                  : Text(
+                  TagsTranslation.translationTagWithNamespace(text, key)))
+                  : Text(text),
+            ),
           ),
         ),
       ),
@@ -711,27 +720,18 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         child: Divider(),
       ),
       SliverToBoxAdapter(
-        child: SizedBox(
-            width: 100,
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 20,
-                ),
-                Icon(Icons.library_books,
-                    color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(
-                  width: 20,
-                ),
-                Text(
-                  "章节".tl,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 16),
-                )
-              ],
-            )),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 18),
+          child: SizedBox(
+              width: 100,
+              child: Text(
+                "章节".tl,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w500, fontSize: 18),
+              )),
+        ),
       ),
-      const SliverPadding(padding: EdgeInsets.all(5)),
+      const SliverPadding(padding: EdgeInsets.all(6)),
       SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         sliver: SliverGrid(
@@ -745,16 +745,17 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                   elevation: 1,
                   color:
                       (_logic.history?.readEpisode ?? const {}).contains(i + 1)
-                          ? colorScheme.secondaryContainer.withOpacity(0.8)
-                          : colorScheme.secondaryContainer,
+                          ? colorScheme.surface.withAlpha(220)
+                          : colorScheme.surface,
                   margin: EdgeInsets.zero,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: Center(
                       child: Text(
                         eps!.eps[i],
                         maxLines: 2,
                         textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             color: (_logic.history?.readEpisode ?? const {})
                                 .contains(i + 1)
@@ -768,9 +769,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               ),
             );
           }),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          gridDelegate: const SliverGridDelegateWithFixedHeight(
             maxCrossAxisExtent: 250,
-            childAspectRatio: 4,
+            itemHeight: 60
           ),
         ),
       )
@@ -791,24 +792,19 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(
-                  width: 20,
-                ),
-                Icon(Icons.insert_drive_file,
-                    color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(
-                  width: 20,
+                  width: 18,
                 ),
                 Text(
                   "简介".tl,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 16),
+                      fontWeight: FontWeight.w500, fontSize: 18),
                 )
               ],
             )),
       ),
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+          padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
           child: CustomSelectableText(text: introduction!),
         ),
       ),
@@ -846,17 +842,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(
-                  width: 20,
-                ),
-                Icon(Icons.remove_red_eye,
-                    color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(
-                  width: 20,
+                  width: 18,
                 ),
                 Text(
                   "预览".tl,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 16),
+                      fontWeight: FontWeight.w500, fontSize: 18),
                 )
               ],
             )),
@@ -946,17 +937,12 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(
-                  width: 20,
-                ),
-                Icon(Icons.recommend,
-                    color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(
-                  width: 20,
+                  width: 18,
                 ),
                 Text(
                   "相关推荐".tl,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 16),
+                      fontWeight: FontWeight.w500, fontSize: 18),
                 )
               ],
             )),

@@ -176,6 +176,9 @@ class JmComicInfo {
         favorite = false,
         comments = 0,
         epNames = List.from(map["epNames"] ?? []);
+
+  JmComicBrief toBrief() =>
+      JmComicBrief(id, author.firstOrNull ?? "", name, description, [], tags);
 }
 
 class Comment {

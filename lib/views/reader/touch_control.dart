@@ -3,7 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/tools/time.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
+import 'package:pica_comic/views/reader/reading_settings.dart';
 import 'package:pica_comic/views/reader/reading_type.dart';
 import '../../base.dart';
 
@@ -123,6 +125,10 @@ class TapController {
   }
 
   static void onTapDown(PointerDownEvent event) {
+    if(event.buttons == kSecondaryMouseButton){
+      handleSecondaryTapUp(event);
+      return;
+    }
     fingers++;
     if(ignoreNextTap){
       ignoreNextTap = false;
@@ -177,6 +183,35 @@ class TapController {
   }
 
   static void Function(PointerUpEvent detail)? _doubleClickRecognizer;
+
+  static void handleSecondaryTapUp(PointerDownEvent detail){
+    var logic = StateController.find<ComicReadingPageLogic>();
+    showMenu(
+      context: App.globalContext!,
+      position: RelativeRect.fromLTRB(
+        detail.position.dx, detail.position.dy, detail.position.dx, detail.position.dy),
+      items: [
+        PopupMenuItem(
+          child: Text("设置".tl),
+          onTap: () => showSettings(App.globalContext!),
+        ),
+        if(App.isWindows)
+          PopupMenuItem(
+            onTap: logic.fullscreen,
+            child: Text("全屏".tl),
+          ),
+        PopupMenuItem(
+          child: Text("退出".tl),
+          onTap: () => App.globalBack(),
+        ),
+        if(logic.data.type.hasEps)
+          PopupMenuItem(
+            onTap: logic.openEpsView,
+            child: Text("章节".tl),
+          ),
+      ]
+    );
+  }
 
   static void onTapUp(PointerUpEvent detail) async {
     fingers--;

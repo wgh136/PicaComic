@@ -17,6 +17,7 @@ import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
 import '../../foundation/local_favorites.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/select_download_eps.dart';
 import '../widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -214,10 +215,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
             childCount: data.relatedComics.length, (context, i) {
           return JmComicTile(data.relatedComics[i]);
         }),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: App.comicTileMaxWidth,
-          childAspectRatio: App.comicTileAspectRatio,
-        ),
+        gridDelegate: const SliverGridDelegateWithComics(),
       );
 
   @override

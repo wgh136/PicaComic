@@ -13,6 +13,7 @@ import 'package:pica_comic/views/jm_views/jm_widgets.dart';
 import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
+import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -247,10 +248,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                           throw UnimplementedError();
                       }
                     }),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: App.comicTileMaxWidth,
-                      childAspectRatio: App.comicTileAspectRatio,
-                    ),
+                    gridDelegate: const SliverGridDelegateWithComics(),
                   ),
                   if (logic.current < (logic.maxPage ?? 114514))
                     const SliverToBoxAdapter(
@@ -313,10 +311,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                               throw UnimplementedError();
                           }
                         }),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: App.comicTileMaxWidth,
-                      childAspectRatio: App.comicTileAspectRatio,
-                    ),
+                    gridDelegate: const SliverGridDelegateWithComics(),
                   ),
                   if(showPageIndicator && !UiMode.m1(context))
                     buildPageSelector(context, logic),

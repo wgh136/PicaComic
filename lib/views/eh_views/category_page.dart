@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/eh_views/eh_leaderboard.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/page_template/category_page.dart';
@@ -12,7 +14,10 @@ class EhCategoryPage extends StatelessWidget with CategoryPageBuilder{
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          buildTitle("EHentai"),
+          buildTags(["排行榜".tl], "rank"),
           buildItem("Male", TagsTranslation.maleTags),
           buildItem("Female", TagsTranslation.femaleTags),
           buildItem("Parody", TagsTranslation.parodyTags),
@@ -51,6 +56,10 @@ class EhCategoryPage extends StatelessWidget with CategoryPageBuilder{
 
   @override
   void handleClick(String tag, [String? namespace]) {
+    if(namespace == "rank"){
+      MainPage.to(() => const EhLeaderboardPage());
+      return;
+    }
     var keyword = "";
     if(namespace != null){
       keyword += namespace;

@@ -80,7 +80,7 @@ class Appdata {
     "0", //41 阅读器图片布局方式, 0-contain, 1-fitWidth, 2-fitHeight
     "0", //42 禁漫收藏夹排序模式, 0-最新收藏, 1-最新更新
     "1", //43 限制图片宽度
-    "0", //44 comic display type
+    "0,1.0", //44 comic display type
     "", //45 webdav
     "0", //46 webdav version
     "0", //47 eh warning
@@ -99,6 +99,7 @@ class Appdata {
     "0", //60 action when local favorite is tapped
     "0", //61 check link in clipboard
     "10000", //62 漫画信息页面工具栏: "快速收藏".tl, "复制标题".tl, "复制链接".tl, "分享".tl, "搜索相似".tl
+    "0", //63 初始搜索目标
   ];
 
   ///屏蔽的关键词

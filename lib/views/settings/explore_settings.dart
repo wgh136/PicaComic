@@ -76,17 +76,79 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
       ListTile(
         leading: const Icon(Icons.crop_square),
         title: Text("漫画块显示模式".tl),
-        subtitle: Text("需要重新加载页面".tl),
         trailing: Select(
-          initialValue: int.parse(appdata.settings[44]),
+          initialValue: int.parse(appdata.settings[44].split(',').first),
           whenChange: (i) {
-            appdata.settings[44] = i.toString();
+            var settings = appdata.settings[44].split(',');
+            settings[0] = i.toString();
+            if(settings.length == 1){
+              settings.add("1.0");
+            }
+            appdata.settings[44] = settings.join(',');
             appdata.updateSettings();
           },
-          values: ["详细".tl, "简略".tl, "最小".tl, "详细(大)".tl],
+          values: ["详细".tl, "简略".tl],
           inPopUpWidget: popUp,
         ),
       ),
+      StatefulBuilder(builder: (context, setState){
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: SizedBox(
+            width: double.infinity,
+            height: 64,
+            child: Row(
+              children: [
+                const SizedBox(width: 16,),
+                const Icon(Icons.crop_free),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 12,
+                        right: 0,
+                        child: Text("漫画块大小".tl, style: const TextStyle(
+                            fontSize: 16
+                        ),),
+                      ),
+                      Positioned(
+                        left: -8,
+                        right: 0,
+                        bottom: 0,
+                        child: Slider(
+                          max: 1.25,
+                          min: 0.75,
+                          divisions: 10,
+                          value: double.parse(appdata.settings[44].split(',').elementAtOrNull(1) ?? "1.00"),
+                          overlayColor: MaterialStateColor.resolveWith(
+                                  (states) => Colors.transparent),
+                          onChangeEnd: (v){
+                            appdata.updateSettings();
+                          },
+                          onChanged: (v) {
+                            var settings = appdata.settings[44].split(',');
+                            if(settings.length == 1){
+                              settings.add(v.toStringAsFixed(2));
+                            } else {
+                              settings[1] = v.toStringAsFixed(2);
+                            }
+                            setState((){
+                              appdata.settings[44] = settings.join(',');
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(appdata.settings[44].split(',').elementAtOrNull(1) ?? "1.00"),
+                const SizedBox(width: 32,),
+              ],
+            ),
+          ),
+        );
+      }),
       StatefulBuilder(builder: (context, setState) => ListTile(
         leading: const Icon(Icons.image),
         title: Text("检查剪切板中的链接".tl),
@@ -106,6 +168,20 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         title: Text("漫画信息页面工具栏".tl),
         trailing: const Icon(Icons.arrow_right),
         onTap: () => setTools(context),
+      ),
+      ListTile(
+        leading:
+        const Icon(Icons.search),
+        title: Text("默认搜索源".tl),
+        trailing: Select(
+          initialValue: int.parse(appdata.settings[63]),
+          whenChange: (i) {
+            appdata.settings[63] = i.toString();
+            appdata.updateSettings();
+          },
+          values: ["Picacg", "EHentai", "禁漫天堂".tl, "hitomi", "绅士漫画".tl, "nhentai"],
+          inPopUpWidget: popUp,
+        ),
       ),
     ],
   );

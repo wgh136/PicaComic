@@ -120,59 +120,60 @@ abstract class ComicTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(appdata.settings[44] == "0"){
-      return _buildDetailedMode(context, 3, 10);
-    } else if(appdata.settings[44] == "3") {
-      return _buildDetailedMode(context, 5, 12);
-    }else{
+    var type = appdata.settings[44].split(',').first;
+    if(type == "0" || type == "3"){
+      return _buildDetailedMode(context);
+    } else {
       return _buildBriefMode(context);
     }
   }
 
-  Widget _buildDetailedMode(BuildContext context, int flexLeft, int flexRight){
-    return Material(
-      color: Colors.transparent,
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-      child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap_,
-          onLongPress: enableLongPressed ? onLongTap_ : null,
-          onSecondaryTapDown: onSecondaryTap_,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
-            child: Row(
-              children: [
-                Expanded(
-                    flex: flexLeft,
-                    child: Container(
-                        decoration: BoxDecoration(
+  Widget _buildDetailedMode(BuildContext context){
+    return LayoutBuilder(builder: (context, constrains){
+      final height = constrains.maxHeight - 16;
+      return Material(
+        color: Colors.transparent,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap_,
+            onLongPress: enableLongPressed ? onLongTap_ : null,
+            onSecondaryTapDown: onSecondaryTap_,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
+              child: Row(
+                children: [
+                  Container(
+                      width: height * 0.68,
+                      height: double.infinity,
+                      decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(8)),
-                        clipBehavior: Clip.antiAlias,
-                        child: image)),
-                SizedBox.fromSize(
-                  size: const Size(16, 5),
-                ),
-                Expanded(
-                  flex: flexRight,
-                  child: _ComicDescription(
-                    //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
-                    title: pages == null ? title.replaceAll("\n", "") : "[${pages}P]${title.replaceAll("\n", "")}",
-                    user: subTitle,
-                    description: description,
-                    subDescription: buildSubDescription(context),
-                    badge: badge,
-                    tags: tags,
-                    maxLines: maxLines,
+                          borderRadius: BorderRadius.circular(8)),
+                      clipBehavior: Clip.antiAlias,
+                      child: image),
+                  SizedBox.fromSize(
+                    size: const Size(16, 5),
                   ),
-                ),
-                //const Center(
-                //  child: Icon(Icons.arrow_right),
-                //)
-              ],
-            ),
-          )),
-    );
+                  Expanded(
+                    child: _ComicDescription(
+                      //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
+                      title: pages == null ? title.replaceAll("\n", "") : "[${pages}P]${title.replaceAll("\n", "")}",
+                      user: subTitle,
+                      description: description,
+                      subDescription: buildSubDescription(context),
+                      badge: badge,
+                      tags: tags,
+                      maxLines: maxLines,
+                    ),
+                  ),
+                  //const Center(
+                  //  child: Icon(Icons.arrow_right),
+                  //)
+                ],
+              ),
+            )),
+      );
+    });
   }
 
   Widget _buildBriefMode(BuildContext context){
@@ -190,8 +191,9 @@ abstract class ComicTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: Container(
-                    width: double.infinity,
+                      width: double.infinity,
                       decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondaryContainer,
                           borderRadius: BorderRadius.circular(12)),
                       clipBehavior: Clip.antiAlias,
                       child: image),

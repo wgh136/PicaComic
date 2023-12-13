@@ -20,11 +20,13 @@ import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/stateful_switch.dart';
 import '../foundation/app.dart';
+import '../foundation/local_favorites.dart';
 import '../network/eh_network/eh_download_model.dart';
 import '../network/jm_network/jm_download.dart';
 import '../network/picacg_network/picacg_download_model.dart';
@@ -162,11 +164,7 @@ class DownloadPage extends StatelessWidget {
           childCount: comics.length, (context, index) {
         return buildItem(context, logic, index);
       }),
-      gridDelegate:
-      SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: App.comicTileMaxWidth,
-        childAspectRatio: App.comicTileAspectRatio,
-      ),
+      gridDelegate: const SliverGridDelegateWithComics(),
     );
   }
 
@@ -474,7 +472,7 @@ class DownloadPage extends StatelessWidget {
           : IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back)),
-      backgroundColor: logic.selecting
+      backgroundColor: (logic.selecting && UiMode.m1(context))
           ? Theme.of(context).colorScheme.secondaryContainer
           : null,
       title: buildTitle(context, logic),
@@ -577,54 +575,7 @@ class DownloadPage extends StatelessWidget {
                       ),
                       PopupMenuItem(
                         child: Text("导出".tl),
-                        onTap: () {
-                          if (logic.selectedNum == 0) {
-                            showMessage(context, "请选择漫画".tl);
-                          } else if (logic.selectedNum > 1) {
-                            showMessage(
-                                context, "一次只能导出一部漫画".tl);
-                          } else {
-                            Future<void>.delayed(
-                              const Duration(milliseconds: 200),
-                                  () => showDialog(
-                                context: context,
-                                barrierColor: Colors.black26,
-                                barrierDismissible: false,
-                                builder: (context) =>
-                                const SimpleDialog(
-                                  children: [
-                                    SizedBox(
-                                      width: 200,
-                                      height: 200,
-                                      child: Center(
-                                        child: SizedBox(
-                                          width: 50,
-                                          height: 75,
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              CircularProgressIndicator(),
-                                              SizedBox(
-                                                height: 9,
-                                              ),
-                                              Text("打包中")
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            );
-                            Future<void>.delayed(
-                                const Duration(
-                                    milliseconds: 500),
-                                    () => export(logic));
-                          }
-                        },
+                        onTap: () => exportSelectedComic(context, logic),
                       ),
                       PopupMenuItem(
                         child: Text("查看漫画详情".tl),
@@ -641,6 +592,13 @@ class DownloadPage extends StatelessWidget {
                                 }
                               }
                             }),
+                      ),
+                      PopupMenuItem(
+                        child: Text("添加至本地收藏".tl),
+                        onTap: () => Future.delayed(
+                            const Duration(milliseconds: 200),
+                            () => addToLocalFavoriteFolder(context, logic)
+                        ),
                       ),
                     ]);
               },
@@ -662,6 +620,119 @@ class DownloadPage extends StatelessWidget {
           )
       ],
     );
+
+  void exportSelectedComic(BuildContext context, DownloadPageLogic logic){
+    if (logic.selectedNum == 0) {
+      showMessage(context, "请选择漫画".tl);
+    } else if (logic.selectedNum > 1) {
+      showMessage(
+          context, "一次只能导出一部漫画".tl);
+    } else {
+      Future<void>.delayed(
+        const Duration(milliseconds: 200),
+            () => showDialog(
+          context: context,
+          barrierColor: Colors.black26,
+          barrierDismissible: false,
+          builder: (context) =>
+          const SimpleDialog(
+            children: [
+              SizedBox(
+                width: 200,
+                height: 200,
+                child: Center(
+                  child: SizedBox(
+                    width: 50,
+                    height: 75,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          height: 9,
+                        ),
+                        Text("打包中")
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+      Future<void>.delayed(
+          const Duration(
+              milliseconds: 500),
+              () => export(logic));
+    }
+  }
+
+  void addToLocalFavoriteFolder(BuildContext context, DownloadPageLogic logic){
+    String? folder;
+    showDialog(
+        context: App.globalContext!,
+        builder: (context) => SimpleDialog(
+          title: const Text("复制到..."),
+          children: [
+            SizedBox(
+              width: 400,
+              height: 132,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text("收藏夹".tl),
+                    trailing: Select(
+                      width: 156,
+                      values: LocalFavoritesManager().folderNames,
+                      initialValue: null,
+                      whenChange: (i) =>
+                      folder = LocalFavoritesManager().folderNames[i],
+                    ),
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: FilledButton(
+                      child: const Text("确认"),
+                      onPressed: () {
+                        if(folder == null){
+                          return;
+                        }
+                        for (int i = 0; i < logic.selected.length; i++) {
+                          if (logic.selected[i]) {
+                            var comic = logic.comics[i];
+                            LocalFavoritesManager().addComic(folder!, switch(comic.type){
+                              DownloadType.picacg =>
+                                  FavoriteItem.fromPicacg((comic as DownloadedComic).comicItem.toBrief()),
+                              DownloadType.ehentai =>
+                                  FavoriteItem.fromEhentai((comic as DownloadedGallery).gallery.toBrief()),
+                              DownloadType.jm =>
+                                  FavoriteItem.fromJmComic((comic as DownloadedJmComic).comic.toBrief()),
+                              DownloadType.nhentai =>
+                                  FavoriteItem.fromNhentai(NhentaiComicBrief(comic.name,
+                                      (comic as NhentaiDownloadedComic).cover, comic.id, "", const [])),
+                              DownloadType.hitomi =>
+                                  FavoriteItem.fromHitomi((comic as DownloadedHitomiComic).comic.toBrief(comic.link, comic.cover)),
+                              DownloadType.htmanga =>
+                                  FavoriteItem.fromHtcomic((comic as DownloadedHtComic).comic.toBrief()),
+                            });
+                          }
+                        }
+                        App.globalBack();
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ),
+            )
+          ],
+        ));
+  }
 }
 
 class DownloadedComicInfoView extends StatefulWidget {

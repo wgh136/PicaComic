@@ -18,6 +18,7 @@ import 'package:pica_comic/base.dart';
 import '../../foundation/app.dart';
 import '../../foundation/history.dart';
 import '../main_page.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/select_download_eps.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -150,10 +151,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
             childCount: data.recommendation.length, (context, i) {
           return PicComicTile(data.recommendation[i]);
         }),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: App.comicTileMaxWidth,
-          childAspectRatio: App.comicTileAspectRatio,
-        ),
+        gridDelegate: const SliverGridDelegateWithComics(),
       );
 
   @override

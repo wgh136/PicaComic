@@ -18,6 +18,8 @@ import '../../foundation/history.dart';
 import '../../foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 
+import '../widgets/grid_view_delegate.dart';
+
 class HitomiComicPage extends ComicPage<HitomiComic> {
   const HitomiComicPage(this.comic, {super.key});
 
@@ -116,10 +118,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
             (context, i) {
           return HitomiComicTileDynamicLoading(data.related[i]);
         }),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: App.comicTileMaxWidth,
-          childAspectRatio: App.comicTileAspectRatio,
-        ),
+        gridDelegate: const SliverGridDelegateWithComics(),
       );
 
   @override

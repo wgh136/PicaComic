@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../foundation/app.dart';
+import '../../foundation/ui_mode.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../network/picacg_network/models.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/show_error.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -38,6 +40,7 @@ class OnePicacgLeaderboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return StateBuilder<PicacgLeaderboardPageLogic>(
         tag: time,
+        init: PicacgLeaderboardPageLogic(),
         builder: (logic){
           if(logic.loading){
             logic.get(time);
@@ -54,10 +57,7 @@ class OnePicacgLeaderboardPage extends StatelessWidget {
                         return PicComicTile(logic.comics![i]);
                       }
                   ),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: App.comicTileMaxWidth,
-                    childAspectRatio: App.comicTileAspectRatio,
-                  ),
+                  gridDelegate: const SliverGridDelegateWithComics(),
                 )
               ],
             );
@@ -83,26 +83,25 @@ class PicacgLeaderboardPage extends StatelessWidget{
       Tab(text: '7天'.tl),
       Tab(text: '30天'.tl),
     ];
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          TabBar(tabs: tabs, splashBorderRadius: const BorderRadius.all(Radius.circular(10)),),
-          const Expanded(child: TabBarView(
-              children: [
-                OnePicacgLeaderboardPage("H24"),
-                OnePicacgLeaderboardPage("D7"),
-                OnePicacgLeaderboardPage("D30")
-              ]
-          ))
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        primary: UiMode.m1(context),
+        title: Text("排行榜".tl),),
+      body: DefaultTabController(
+        length: 3,
+        child: Column(
+          children: [
+            TabBar(tabs: tabs, splashBorderRadius: const BorderRadius.all(Radius.circular(10)),),
+            const Expanded(child: TabBarView(
+                children: [
+                  OnePicacgLeaderboardPage("H24"),
+                  OnePicacgLeaderboardPage("D7"),
+                  OnePicacgLeaderboardPage("D30")
+                ]
+            ))
+          ],
+        ),
       ),
     );
-  }
-
-  static createState(){
-    StateController.put(PicacgLeaderboardPageLogic(), tag: "H24");
-    StateController.put(PicacgLeaderboardPageLogic(), tag: "D7");
-    StateController.put(PicacgLeaderboardPageLogic(), tag: "D30");
   }
 }

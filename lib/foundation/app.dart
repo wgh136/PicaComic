@@ -52,12 +52,11 @@ class App {
     dataPath = (await getApplicationSupportDirectory()).path;
   }
 
-  //ComicTile的最大宽度
   static double get comicTileMaxWidth =>
-      [680.0, 200.0, 120.0, 720.0][int.parse(appdata.settings[44])];
-  //ComicTile的宽高比
-  static double get comicTileAspectRatio =>
-      [3.0, 0.62, 0.62, 2.5][int.parse(appdata.settings[44])];
+      [650.0, 192.0, 136.0, 720.0][int.parse(appdata.settings[44])];
+
+  static double get comicTileHeight =>
+      [164.0, 256.0, 168.0, 200.0][int.parse(appdata.settings[44])];
 
   static back(BuildContext context) {
     if (Navigator.canPop(context)) {

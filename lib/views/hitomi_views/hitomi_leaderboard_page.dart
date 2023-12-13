@@ -3,6 +3,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../foundation/app.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/show_error.dart';
 import 'hi_widgets.dart';
@@ -97,10 +98,7 @@ class OneLeaderboardPage extends StatelessWidget {
                 }
                 return HitomiComicTileDynamicLoading(logic.comics[index].comicIds[i]);
               }, childCount: logic.comics[index].comicIds.length),
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: App.comicTileMaxWidth,
-                childAspectRatio: App.comicTileAspectRatio,
-              ),
+              gridDelegate: const SliverGridDelegateWithComics(),
             ),
             if(logic.comics[index].toLoad < logic.comics[index].total)
               const SliverToBoxAdapter(child: ListLoadingIndicator(),)

@@ -6,6 +6,7 @@ import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
+import '../widgets/grid_view_delegate.dart';
 
 class EhHomePageLogic extends StateController{
   bool loading = true;
@@ -62,10 +63,7 @@ class EhHomePage extends StatelessWidget {
                         return EhGalleryTile(logic.galleries![i]);
                       }
                   ),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: App.comicTileMaxWidth,
-                    childAspectRatio: App.comicTileAspectRatio,
-                  ),
+                  gridDelegate: const SliverGridDelegateWithComics(),
                 ),
                 if(logic.galleries!.next!=null)
                   const SliverToBoxAdapter(

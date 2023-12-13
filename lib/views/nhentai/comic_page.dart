@@ -12,6 +12,7 @@ import '../../foundation/history.dart';
 import '../../network/download.dart';
 import '../main_page.dart';
 import '../../foundation/local_favorites.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/show_message.dart';
 import 'comments.dart';
 
@@ -207,10 +208,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
             childCount: data.recommendations.length, (context, i) {
           return NhentaiComicTile(data.recommendations[i]);
         }),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: App.comicTileMaxWidth,
-          childAspectRatio: App.comicTileAspectRatio,
-        ),
+        gridDelegate: const SliverGridDelegateWithComics(),
       );
 
   @override

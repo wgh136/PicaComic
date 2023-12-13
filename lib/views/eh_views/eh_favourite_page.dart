@@ -16,13 +16,27 @@ class EhFavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int num = 0;
+    for(var folder in EhNetwork().folderNames){
+      if(folder.contains('(') && folder.contains(')')) {
+        num += (int.tryParse(folder
+            .split('(')
+            .last
+            .split(')')
+            .first) ?? 0);
+      }
+    }
     return CustomScrollView(
       slivers: [
         SliverGridViewWithFixedItemHeight(
           delegate: SliverChildBuilderDelegate(childCount: 11, (context, i) {
             if (i == 0) {
+              var name = "全部".tl;
+              if(num != 0){
+                name += " ($num)";
+              }
               return EhFolderTile(
-                  name: "全部".tl,
+                  name: name,
                   onTap: () => MainPage.to(
                       () => EhFavoritePageFolder(name: "全部".tl, folderId: -1)));
             } else {

@@ -1,105 +1,32 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
-import 'package:pica_comic/views/jm_views/jm_widgets.dart';
-import 'package:pica_comic/views/widgets/appbar.dart';
-import 'package:pica_comic/views/widgets/list_loading.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
-import 'package:pica_comic/views/widgets/show_error.dart';
+import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 
-class JmComicsPage extends StatefulWidget {
+class JmComicsPage extends ComicsPage<JmComicBrief>{
   const JmComicsPage(this.title, this.id, {super.key});
 
+  @override
   final String title;
 
   final String id;
 
   @override
-  State<JmComicsPage> createState() => _JmComicsPageState();
-}
-
-class _JmComicsPageState extends State<JmComicsPage> {
-  bool loading = true;
-
-  List<JmComicBrief>? list;
-
-  int loaded = 0;
-
-  int? max;
-
-  String? message;
-
-  void load() async {
-    var res = await JmNetwork().getComicsPage(widget.id, loaded + 1);
-
-    if (res.error) {
-      if (list == null) {
-        setState(() {
-          loading = false;
-          message = res.errorMessage;
-        });
-      }
-    } else {
-      loaded++;
-      var (comics, maxPage) = res.data;
-      list ??= [];
-      setState(() {
-        list!.addAll(comics);
-        max ??= maxPage;
-        loading = false;
-      });
+  Future<Res<List<JmComicBrief>>> getComics(int i) async{
+    var res = await JmNetwork().getComicsPage(id, i);
+    if(res.error){
+      return Res.fromErrorRes(res);
     }
-  }
-
-  void retry() {
-    setState(() {
-      message = null;
-      list = null;
-      loaded = 0;
-      max = null;
-      loading = true;
-    });
+    return Res(res.data.$1, subData: res.data.$2);
   }
 
   @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      body: buildBody(context),
-    );
-  }
+  String? get tag => "Jm Comics Page $id";
 
-  Widget buildBody(BuildContext context) {
-    if (loading) {
-      load();
-      return showLoading(context);
-    } else if (list != null) {
-      return CustomScrollView(
-        slivers: [
-          CustomSliverAppbar(
-            title: Text(widget.title),
-            centerTitle: true,
-          ),
-          SliverGrid(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              if (index == list!.length - 1 && loaded != max) {
-                load();
-              }
-              return JmComicTile(list![index]);
-            }, childCount: list!.length),
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: App.comicTileMaxWidth,
-              childAspectRatio: App.comicTileAspectRatio,
-            ),
-          ),
-          if (max != loaded)
-            const SliverToBoxAdapter(
-              child: ListLoadingIndicator(),
-            )
-        ],
-      );
-    } else {
-      return showNetworkError(message!, retry, context);
-    }
-  }
+  @override
+  ComicType get type => ComicType.jm;
+
+  @override
+  bool get withScaffold => true;
+
 }

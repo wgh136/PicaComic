@@ -95,7 +95,8 @@ class SideBarRoute<T> extends PopupRoute<T> {
                   stateUpdater((){});
                 },
                 onHorizontalDragEnd: (details){
-                  if(location != 0 && shouldPop && location < 0 - sideBarWidth/2){
+                  if(shouldPop && ((location != 0 && location < 0 - sideBarWidth/2)
+                      || (details.primaryVelocity != null && details.primaryVelocity! > 1.0))){
                     Navigator.of(context).pop();
                   } else {
                     () async{

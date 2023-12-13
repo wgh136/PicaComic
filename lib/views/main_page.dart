@@ -10,13 +10,11 @@ import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
-import 'package:pica_comic/views/pic_views/categories_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
+import 'package:pica_comic/views/local_favorites_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
-import 'package:pica_comic/views/leaderboard_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
-import 'package:pica_comic/views/tools.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
 import 'package:pica_comic/views/widgets/will_pop_scope.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -65,26 +63,7 @@ class MainPage extends StatefulWidget {
   static void Function()? toExplorePage;
 
   static void toExplorePageAt(int page) async {
-    if (appdata.settings[24][page] != "1") {
-      showMessage(App.globalContext!, "探索页面被禁用".tl);
-      return;
-    }
-    if (toExplorePage == null) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
     toExplorePage?.call();
-    Future.microtask(() async {
-      int index = 0;
-      for (int i = 0; i < page; i++) {
-        if (appdata.settings[24][i] == "1") {
-          index++;
-        }
-      }
-      if (ExplorePage.jumpTo == null) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-      ExplorePage.jumpTo?.call(index);
-    });
   }
 
   @override
@@ -104,9 +83,9 @@ class _MainPageState extends State<MainPage> {
 
   final pages = [
     const MePage(),
+    const LocalFavoritesPage(),
     const ExplorePageWithGetControl(),
     const CategoryPageWithGetControl(),
-    const LeaderBoardPage(),
   ];
 
   void login() {
@@ -194,7 +173,6 @@ class _MainPageState extends State<MainPage> {
 
   void initLogic() {
     StateController.put(HomePageLogic());
-    StateController.put(CategoriesPageLogic());
     StateController.put(GamesPageLogic());
     StateController.put(EhHomePageLogic());
     StateController.put(EhPopularPageLogic());
@@ -274,7 +252,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    var titles = ["我".tl, "探索".tl, "分类".tl, "排行榜".tl];
+    var titles = ["我".tl, "收藏夹".tl, "探索".tl, "分类".tl];
 
     return Material(
       child: CustomWillPopScope(
@@ -316,12 +294,6 @@ class _MainPageState extends State<MainPage> {
                                       notifications.context?.widget is MePage,
                                   actions: [
                                     Tooltip(
-                                      message: "工具".tl,
-                                      child: const IconButton(
-                                          icon: Icon(Icons.construction),
-                                          onPressed: openTool),
-                                    ),
-                                    Tooltip(
                                       message: "搜索".tl,
                                       child: IconButton(
                                           icon: const Icon(Icons.search),
@@ -358,6 +330,11 @@ class _MainPageState extends State<MainPage> {
                                       label: '我'.tl,
                                     ),
                                     NavigationItemData(
+                                      icon: const Icon(Icons.local_activity_outlined),
+                                      selectedIcon: const Icon(Icons.local_activity),
+                                      label: '收藏'.tl,
+                                    ),
+                                    NavigationItemData(
                                       icon: const Icon(Icons.explore_outlined),
                                       selectedIcon: const Icon(Icons.explore),
                                       label: '探索'.tl,
@@ -368,13 +345,6 @@ class _MainPageState extends State<MainPage> {
                                       selectedIcon:
                                           const Icon(Icons.account_tree),
                                       label: '分类'.tl,
-                                    ),
-                                    NavigationItemData(
-                                      icon: const Icon(
-                                          Icons.leaderboard_outlined),
-                                      selectedIcon:
-                                          const Icon(Icons.leaderboard),
-                                      label: '排行榜'.tl,
                                     ),
                                   ],
                                 )
@@ -533,16 +503,14 @@ class _NavigateBarState extends State<NavigateBar> {
             ),
             NavigatorItem(Icons.person_outlined, Icons.person, "我".tl, i == 0,
                 () => setState(() => i = 0)),
+            NavigatorItem(Icons.local_activity_outlined, Icons.local_activity, "收藏".tl, i == 1,
+                    () => setState(() => i = 1)),
             NavigatorItem(Icons.explore_outlined, Icons.explore, "探索".tl,
-                i == 1, () => setState(() => i = 1)),
+                i == 2, () => setState(() => i = 2)),
             NavigatorItem(Icons.account_tree_outlined, Icons.account_tree,
-                "分类".tl, i == 2, () => setState(() => i = 2)),
-            NavigatorItem(Icons.leaderboard_outlined, Icons.leaderboard,
-                "排行榜".tl, i == 3, () => setState(() => i = 3)),
+                "分类".tl, i == 3, () => setState(() => i = 3)),
             const Divider(),
             const Spacer(),
-            NavigatorItem(Icons.construction, Icons.construction, "工具".tl,
-                false, openTool),
             NavigatorItem(Icons.search, Icons.search, "搜索".tl, false,
                 () => MainPage.to(() => PreSearchPage())),
             NavigatorItem(
@@ -570,10 +538,6 @@ class _NavigateBarState extends State<NavigateBar> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Flexible(
-                  child: IconButton(
-                      icon: Icon(Icons.construction), onPressed: openTool),
-                ),
                 Flexible(
                   child: IconButton(
                     icon: const Icon(Icons.search),
@@ -604,6 +568,11 @@ class _NavigateBarState extends State<NavigateBar> {
             label: Text('我'.tl),
           ),
           NavigationRailDestination(
+            icon: const Icon(Icons.local_activity_outlined),
+            selectedIcon: const Icon(Icons.local_activity),
+            label: Text('收藏'.tl),
+          ),
+          NavigationRailDestination(
             icon: const Icon(Icons.explore_outlined),
             selectedIcon: const Icon(Icons.explore),
             label: Text('探索'.tl),
@@ -612,11 +581,6 @@ class _NavigateBarState extends State<NavigateBar> {
             icon: const Icon(Icons.account_tree_outlined),
             selectedIcon: const Icon(Icons.account_tree),
             label: Text('分类'.tl),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.leaderboard_outlined),
-            selectedIcon: const Icon(Icons.leaderboard),
-            label: Text('排行榜'.tl),
           ),
         ],
       );

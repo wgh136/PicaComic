@@ -33,7 +33,18 @@ abstract class DownloadedItem{
   set comicSize(double? value);
 }
 
-enum DownloadType{picacg, ehentai, jm, hitomi, htmanga, nhentai}
+enum DownloadType{
+  picacg, ehentai, jm, hitomi, htmanga, nhentai;
+
+  ComicType toComicType() => switch(this){
+    picacg => ComicType.picacg,
+    ehentai => ComicType.ehentai,
+    jm => ComicType.jm,
+    hitomi => ComicType.hitomi,
+    htmanga => ComicType.htManga,
+    nhentai => ComicType.nhentai,
+  };
+}
 
 typedef DownloadProgressCallback = void Function();
 

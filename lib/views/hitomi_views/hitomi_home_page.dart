@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/select.dart';
 
 class HitomiHomePageLogic extends StateController{
@@ -73,10 +75,7 @@ class HitomiHomePageComics extends StatelessWidget {
                   }
                   return HitomiComicTileDynamicLoading(logic.comics!.comicIds[index]);
                 }, childCount: logic.comics!.comicIds.length),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: App.comicTileMaxWidth,
-                  childAspectRatio: App.comicTileAspectRatio,
-                ),
+                gridDelegate: const SliverGridDelegateWithComics(),
               ),
               if(logic.comics!.toLoad < logic.comics!.total)
                 const SliverToBoxAdapter(child: ListLoadingIndicator(),)
@@ -96,10 +95,13 @@ class HitomiHomePage extends StatefulWidget {
 }
 
 class _HitomiHomePageState extends State<HitomiHomePage> {
-  var url = HitomiDataUrls.homePageAll;
+  var type = "index";
+  var lang = "-all";
 
   @override
   Widget build(BuildContext context) {
+    var url = "https://ltn.hitomi.la/$type$lang.nozomi";
+    print(url);
     return Column(
       children: [
         Material(
@@ -112,15 +114,27 @@ class _HitomiHomePageState extends State<HitomiHomePage> {
                 const SizedBox(width: 16,),
                 const Padding(
                   padding: EdgeInsets.only(bottom: 4),
-                  child: Text("Recently Added"),
+                  child: Text("hitomi"),
                 ),
                 const Spacer(),
                 Material(
                   child: Select(
+                    values: ["最新".tl, "热门|今天".tl, "热门|一周".tl, "热门|本月".tl, "热门|一年".tl],
+                    initialValue: 0,
+                    whenChange: (i) => setState(() {
+                      type = ["index", "popular/today", "popular/week"
+                        , "popular/month", "popular/year"][i];
+                    }),
+                  ),
+                ),
+                const SizedBox(width: 16,),
+                Material(
+                  child: Select(
+                    width: 100,
                     values: const ["All", "中文", "日本語", "English"],
                     initialValue: 0,
                     whenChange: (i) => setState(() {
-                      url = HitomiUrls.values[i].url;
+                      lang = ["-all", "-chinese", "-japanese", "-english"][i];
                     }),
                   ),
                 ),

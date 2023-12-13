@@ -333,4 +333,6 @@ class ComicReadingPageLogic extends StateController {
         }
     }
   }
+
+  late final void Function() openEpsView;
 }

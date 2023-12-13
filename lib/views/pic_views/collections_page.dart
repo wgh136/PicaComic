@@ -6,6 +6,7 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 import '../../foundation/app.dart';
+import '../widgets/grid_view_delegate.dart';
 
 class CollectionPageLogic extends StateController{
   bool isLoading = true;
@@ -117,10 +118,7 @@ class CollectionsPage extends StatelessWidget {
                         return PicComicTile(logic.c1[i]);
                       }
                   ),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: App.comicTileMaxWidth,
-                    childAspectRatio: App.comicTileAspectRatio,
-                  ),
+                  gridDelegate: const SliverGridDelegateWithComics(),
                 ),
                 const SliverPadding(padding: EdgeInsets.only(top: 20)),
                 const SliverToBoxAdapter(child: Divider(),),
@@ -137,10 +135,7 @@ class CollectionsPage extends StatelessWidget {
                         return PicComicTile(logic.c2[i]);
                       }
                   ),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: App.comicTileMaxWidth,
-                    childAspectRatio: App.comicTileAspectRatio,
-                  ),
+                  gridDelegate: const SliverGridDelegateWithComics(),
                 ),
                 SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
               ],

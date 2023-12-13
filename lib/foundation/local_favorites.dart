@@ -8,6 +8,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
@@ -43,6 +44,8 @@ class FavoriteItem {
       _ => throw UnimplementedError()
     };
   }
+
+
 
   FavoriteItem.fromPicacg(ComicItemBrief comic)
       : name = comic.title,
@@ -122,6 +125,8 @@ class FavoriteItem {
         time = row["time"]{
     tags.remove("");
   }
+
+  FavoriteItem(this.name, this.author, this.type, this.tags, this.target, this.coverPath);
 }
 
 class FavoriteItemWithFolderInfo {
@@ -144,6 +149,8 @@ class LocalFavoritesManager {
   static LocalFavoritesManager? cache;
 
   late Database _db;
+
+  List<String>? _folderNames;
 
   Future<void> init() async{
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
@@ -215,9 +222,12 @@ class LocalFavoritesManager {
     }
   }
 
-  List<String> get folderNames =>
-      _db.select("SELECT name FROM sqlite_master WHERE type='table';")
-          .map((element) => element["name"] as String).toList();
+  List<String> getFolderNamesWithDB(){
+    return _db.select("SELECT name FROM sqlite_master WHERE type='table';")
+        .map((element) => element["name"] as String).toList();
+  }
+
+  List<String> get folderNames => _folderNames ?? (_folderNames = getFolderNamesWithDB());
 
   List<FavoriteItem> getAllComics(String folder){
     var rows = _db.select("""
@@ -284,6 +294,7 @@ class LocalFavoritesManager {
         display_order int
       );
     """);
+    _folderNames?.add(name);
     saveData();
   }
 
@@ -358,11 +369,17 @@ class LocalFavoritesManager {
     if (file.existsSync()) {
       return file;
     }
-    if(item.type == ComicType.ehentai) {
+    if(item.coverPath.contains("s.exhentai.org")) {
       while (_loading >= 1) {
         await Future.delayed(const Duration(milliseconds: 200));
       }
       _loading++;
+    }
+    if(item.coverPath.startsWith("file://")){
+      var data = DownloadManager().getCover(item.coverPath.replaceFirst("file://", ""));
+      file.createSync(recursive: true);
+      file.writeAsBytesSync(data.readAsBytesSync());
+      return file;
     }
     try {
       if(EhNetwork().cookiesStr == ""){
@@ -384,7 +401,7 @@ class LocalFavoritesManager {
       rethrow;
     }
     finally{
-      if(item.type == ComicType.ehentai) {
+      if(item.coverPath.contains("s.exhentai.org")) {
         _loading--;
       }
     }
@@ -392,6 +409,7 @@ class LocalFavoritesManager {
 
   /// delete a folder
   void deleteFolder(String name) {
+    _folderNames?.remove(name);
     _db.execute("""
       drop table "$name";
     """);
@@ -438,6 +456,9 @@ class LocalFavoritesManager {
   void rename(String before, String after) {
     if (folderNames.contains(after)) {
       throw "Name already exists!";
+    }
+    if(_folderNames != null){
+      _folderNames![_folderNames!.indexOf(before)] = after;
     }
     _db.execute("""
       ALTER TABLE "$before"

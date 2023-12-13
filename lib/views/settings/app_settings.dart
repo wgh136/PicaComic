@@ -17,7 +17,6 @@ import '../../network/http_client.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
-import '../leaderboard_page.dart';
 import '../widgets/value_listenable_widget.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -225,7 +224,6 @@ class _ComicSourceSettingState extends State<ComicSourceSetting> {
       try {
         StateController.find<CategoryPageLogic>().update();
         StateController.find<ExplorePageLogic>().update();
-        StateController.find<LeaderboardPageLogic>().update();
       } catch (e) {
         //如果在test_network_page进行此操作将产生错误
       }

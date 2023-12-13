@@ -4,6 +4,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../../foundation/app.dart';
+import '../widgets/grid_view_delegate.dart';
 import 'jm_widgets.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -191,10 +192,7 @@ class WeekRecommendationList extends StatelessWidget {
                 },
                 childCount: logic.comics[index].length
             ),
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: App.comicTileMaxWidth,
-              childAspectRatio: App.comicTileAspectRatio,
-            ),
+            gridDelegate: const SliverGridDelegateWithComics(),
           ),
         ],
       );

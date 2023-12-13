@@ -5,6 +5,7 @@ import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../foundation/app.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
+import '../widgets/grid_view_delegate.dart';
 import '../widgets/show_message.dart';
 
 class HomePageLogic extends StateController{
@@ -62,10 +63,7 @@ class HomePage extends StatelessWidget {
                           return PicComicTile(logic.comics[i],);
                         }
                     ),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: App.comicTileMaxWidth,
-                      childAspectRatio: App.comicTileAspectRatio,
-                    ),
+                    gridDelegate: const SliverGridDelegateWithComics(),
                   ),
                   const SliverToBoxAdapter(
                     child: ListLoadingIndicator(),

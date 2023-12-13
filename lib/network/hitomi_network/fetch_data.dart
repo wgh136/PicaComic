@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:pica_comic/foundation/def.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:dio/dio.dart';
 
@@ -56,7 +57,8 @@ Future<Res<List<int>>> fetchComicData(String url, int start, {int? maxLength, in
     }
     return Res(comicIds, subData: range.substring(i+1));
   }
-  catch(e){
-    return Res(null, errorMessage: e.toString()=="null" ? "未知错误" : e.toString());
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
+    return Res(null, errorMessage: e.toString()=="null" ? "Unknown Error" : e.toString());
   }
 }

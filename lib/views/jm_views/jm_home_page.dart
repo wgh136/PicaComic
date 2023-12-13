@@ -7,6 +7,7 @@ import '../../network/jm_network/jm_network.dart';
 import '../../network/jm_network/jm_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../main_page.dart';
+import '../widgets/grid_view_delegate.dart';
 
 class JmHomePageLogic extends StateController {
   bool loading = true;
@@ -89,10 +90,7 @@ class JmHomePage extends StatelessWidget {
         delegate: SliverChildBuilderDelegate((context, index) {
           return JmComicTile(item.comics[index]);
         }, childCount: item.comics.length),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: App.comicTileMaxWidth,
-          childAspectRatio: App.comicTileAspectRatio,
-        ),
+        gridDelegate: const SliverGridDelegateWithComics(),
       ),
       const SliverToBoxAdapter(
         child: Divider(),

@@ -209,6 +209,7 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
       App.onAppLifeCircleChanged = () => TapController.fingers = 0;
+      logic.openEpsView = openEpsDrawer;
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
@@ -9,26 +10,32 @@ class JmLeaderboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 4, child: Column(
-      children: [
-        TabBar(
-            splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-            tabs: [
-              Tab(text: "总排行".tl),
-              Tab(text: "月排行".tl),
-              Tab(text: "周排行".tl),
-              Tab(text: "日排行".tl),
-            ]),
-        const Expanded(child: TabBarView(
-            children: [
-              OneJmLeaderboardPage(ComicsOrder.totalRanking),
-              OneJmLeaderboardPage(ComicsOrder.monthRanking),
-              OneJmLeaderboardPage(ComicsOrder.weekRanking),
-              OneJmLeaderboardPage(ComicsOrder.dayRanking),
-            ]
-        ),)
-      ],
-    ));
+    return Scaffold(
+      appBar: AppBar(
+        primary: UiMode.m1(context),
+        title: Text("排行榜".tl),
+      ),
+      body: DefaultTabController(length: 4, child: Column(
+        children: [
+          TabBar(
+              splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+              tabs: [
+                Tab(text: "总排行".tl),
+                Tab(text: "月排行".tl),
+                Tab(text: "周排行".tl),
+                Tab(text: "日排行".tl),
+              ]),
+          const Expanded(child: TabBarView(
+              children: [
+                OneJmLeaderboardPage(ComicsOrder.totalRanking),
+                OneJmLeaderboardPage(ComicsOrder.monthRanking),
+                OneJmLeaderboardPage(ComicsOrder.weekRanking),
+                OneJmLeaderboardPage(ComicsOrder.dayRanking),
+              ]
+          ),)
+        ],
+      )),
+    );
   }
 }
 
