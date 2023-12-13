@@ -98,6 +98,7 @@ class _EhCoverImageState extends State<EhCoverImage> {
         fit: BoxFit.cover,
         errorBuilder: (context, url, error) => const Icon(Icons.error),
         height: double.infinity,
+        width: double.infinity,
         filterQuality: FilterQuality.medium,
       );
     }

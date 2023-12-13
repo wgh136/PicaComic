@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/main.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/settings/app_settings.dart';
@@ -86,6 +87,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
             }
             appdata.settings[44] = settings.join(',');
             appdata.updateSettings();
+            MyApp.updater?.call();
           },
           values: ["详细".tl, "简略".tl],
           inPopUpWidget: popUp,

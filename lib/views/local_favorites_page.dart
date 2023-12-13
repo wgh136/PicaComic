@@ -1204,6 +1204,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
         key: const Key("_pica_comic_"),
         gridDelegate: const SliverGridDelegateWithComics(),
         itemCount: comics.length,
+        padding: EdgeInsets.zero,
         itemBuilder: (BuildContext context, int index) {
           return LocalFavoriteTile(
             comics[index].comic,
@@ -1272,7 +1273,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       controller.animateToPage(
           newIndex,
           duration: const Duration(milliseconds: 200),
-          curve: Curves.linear
+          curve: Curves.fastOutSlowIn
       );
     } else {
       temp = buildFolderComics(LocalFavoritesManager().folderNames[currentPage]);
@@ -1280,8 +1281,8 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       controller.jumpToPage(initialPage);
       controller.animateToPage(
           newIndex,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.linear);
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.fastOutSlowIn);
     }
   }
 
@@ -1325,6 +1326,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       key: Key(folder),
       gridDelegate: const SliverGridDelegateWithComics(),
       itemCount: comics.length,
+      padding: EdgeInsets.zero,
       itemBuilder: (BuildContext context, int index) {
         return LocalFavoriteTile(
           comics[index],

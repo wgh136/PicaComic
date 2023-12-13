@@ -137,6 +137,6 @@ class SliverGridDelegateWithComics extends SliverGridDelegate{
 
   @override
   bool shouldRelayout(covariant SliverGridDelegate oldDelegate) {
-    return oldDelegate is! SliverGridDelegateWithComics;
+    return true;
   }
 }
