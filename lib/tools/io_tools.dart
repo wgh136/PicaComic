@@ -4,7 +4,6 @@ import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
@@ -129,12 +128,10 @@ Future<double> calculateCacheSize() async{
 Future<void> eraseCache() async{
   if(App.isAndroid || App.isIOS) {
     imageCache.clear();
-    await DefaultCacheManager().emptyCache();
     await ImageManager().clear();
     await CachedNetwork.clearCache();
   }else if(App.isWindows){
     imageCache.clear();
-    await DefaultCacheManager().emptyCache();
     await ImageManager().clear();
     await CachedNetwork.clearCache();
   }

@@ -33,6 +33,12 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void initState() {
+    Future.delayed(const Duration(milliseconds: 200), _focusNode.requestFocus);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -67,7 +73,6 @@ class _SearchPageState extends State<SearchPage> {
                 Expanded(
                   child: TextField(
                     focusNode: _focusNode,
-                    autofocus: true,
                     controller: widget.controller,
                     decoration: const InputDecoration(
                         border: InputBorder.none, hintText: "Search"),

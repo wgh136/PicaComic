@@ -78,7 +78,7 @@ class HtHomePage extends StatelessWidget {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return HtComicTile(comic: logic.data!.comics[i][index]);
                 }, childCount: logic.data!.comics[i].length),
-                gridDelegate: const SliverGridDelegateWithComics(),
+                gridDelegate: SliverGridDelegateWithComics(),
               ),
             );
           }

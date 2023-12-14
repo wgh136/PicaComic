@@ -8,6 +8,13 @@ import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
 import 'package:pica_comic/views/widgets/select.dart';
 
 Widget buildExploreSettings(BuildContext context, bool popUp) {
+  var comicTileSettings = appdata.settings[44].split(',');
+  if(comicTileSettings[0] == "2"){
+    comicTileSettings[0] = "1";
+  } else if(comicTileSettings[0] == "3"){
+    comicTileSettings[0] = "0";
+  }
+  appdata.settings[44] = comicTileSettings.join(',');
   return Column(
     children: [
       ListTile(
@@ -29,7 +36,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
             appdata.settings[23] = i.toString();
             appdata.updateSettings();
           },
-          values: ["我".tl, "探索".tl, "分类".tl, "排行榜".tl],
+          values: ["我".tl, "收藏".tl, "探索".tl, "分类".tl],
           inPopUpWidget: popUp,
         ),
       ),
@@ -185,6 +192,22 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           inPopUpWidget: popUp,
         ),
       ),
+      StatefulBuilder(builder: (context, setState){
+        return ListTile(
+          leading:
+          const Icon(Icons.border_right),
+          title: Text("启用侧边翻页栏".tl),
+          trailing: Switch(
+            value: appdata.settings[64] == "1",
+            onChanged: (b){
+              setState(() {
+                appdata.settings[64] = b?"1":"0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        );
+      })
     ],
   );
 }

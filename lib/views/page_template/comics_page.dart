@@ -248,7 +248,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                           throw UnimplementedError();
                       }
                     }),
-                    gridDelegate: const SliverGridDelegateWithComics(),
+                    gridDelegate: SliverGridDelegateWithComics(),
                   ),
                   if (logic.current < (logic.maxPage ?? 114514))
                     const SliverToBoxAdapter(
@@ -311,9 +311,9 @@ abstract class ComicsPage<T> extends StatelessWidget {
                               throw UnimplementedError();
                           }
                         }),
-                    gridDelegate: const SliverGridDelegateWithComics(),
+                    gridDelegate: SliverGridDelegateWithComics(),
                   ),
-                  if(showPageIndicator && !UiMode.m1(context))
+                  if(showPageIndicator && appdata.settings[64] == "0")
                     buildPageSelector(context, logic),
                   SliverPadding(padding: EdgeInsets.only(
                       bottom: MediaQuery.of(context).padding.bottom))
@@ -339,7 +339,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 child: body,
               );
 
-              if(showPageIndicator && UiMode.m1(context)){
+              if(showPageIndicator && appdata.settings[64] == "1"){
                 return Stack(
                   children: [
                     Positioned.fill(

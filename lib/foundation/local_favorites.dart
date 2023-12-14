@@ -1,13 +1,10 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
-import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -38,7 +35,9 @@ class FavoriteItem {
       ComicType.picacg => target,
       ComicType.ehentai => getGalleryId(target),
       ComicType.jm => "jm$target",
-      ComicType.hitomi => "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)![0]!}",
+      ComicType.hitomi => RegExp(r"\d+(?=\.html)").hasMatch(target)
+          ? "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)?[0]}"
+          : target,
       ComicType.htManga => "ht$target",
       ComicType.nhentai => "nhentai$target",
       _ => throw UnimplementedError()
@@ -343,7 +342,7 @@ class LocalFavoritesManager {
     updateUI();
     saveData();
     try {
-      var file = await DefaultCacheManager().getSingleFile(comic.coverPath);
+      var file = (await (ImageManager().getImage(comic.coverPath)).last).getFile();
       var path =
           "${(await getApplicationSupportDirectory()).path}${pathSep}favoritesCover";
       var directory = Directory(path);
@@ -358,8 +357,6 @@ class LocalFavoritesManager {
     }
   }
 
-  int _loading = 0;
-
   /// get comic cover
   Future<File> getCover(FavoriteItem item) async {
     var path = "${App.dataPath}/favoritesCover";
@@ -368,12 +365,6 @@ class LocalFavoritesManager {
     var file = File("$path/$hash.jpg");
     if (file.existsSync()) {
       return file;
-    }
-    if(item.coverPath.contains("s.exhentai.org")) {
-      while (_loading >= 1) {
-        await Future.delayed(const Duration(milliseconds: 200));
-      }
-      _loading++;
     }
     if(item.coverPath.startsWith("file://")){
       var data = DownloadManager().getCover(item.coverPath.replaceFirst("file://", ""));
@@ -385,25 +376,19 @@ class LocalFavoritesManager {
       if(EhNetwork().cookiesStr == ""){
         await EhNetwork().getCookies(false);
       }
-      var dio = logDio(BaseOptions(headers: {
+      var res = await (ImageManager().getImage(item.coverPath, {
         if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
         if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
           "User-Agent": webUA,
         if (item.type == ComicType.hitomi) "Referer": "https://hitomi.la/"
-      }, responseType: ResponseType.bytes));
-      var res = await dio.get<Uint8List>(item.coverPath);
+      }).last);
       file.createSync(recursive: true);
-      file.writeAsBytesSync(res.data!);
+      file.writeAsBytesSync(res.getFile().readAsBytesSync());
       return file;
     }
     catch(e){
       await Future.delayed(const Duration(seconds: 5));
       rethrow;
-    }
-    finally{
-      if(item.coverPath.contains("s.exhentai.org")) {
-        _loading--;
-      }
     }
   }
 

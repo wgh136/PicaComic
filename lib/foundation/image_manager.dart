@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:path_provider/path_provider.dart';
@@ -43,6 +42,8 @@ class ImageManager {
   ImageManager._create();
 
   Map<String, String>? _paths;
+
+  final dio = logDio(BaseOptions(persistentConnection: true));
 
   Future<void> readData() async {
     if (_paths == null) {
@@ -126,7 +127,6 @@ class ImageManager {
       if (progress.finished) return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    loadingItems[url] = DownloadProgress(0, 1, url, "");
     try {
       await readData();
       //检查缓存
@@ -139,12 +139,11 @@ class ImageManager {
           _paths!.remove(url);
         }
       }
-      var options = BaseOptions(
-          connectTimeout: const Duration(seconds: 8),
-          followRedirects: true,
-          headers: headers ?? {
-            "user-agent": webUA,
-          });
+
+      if(url.contains("s.exhentai.org") || url.contains("ehgt.org")) {
+        loadingItems[url] = DownloadProgress(0, 1, url, "");
+      }
+      await Future.delayed(Duration(seconds: 1 * (loadingItems.length-1)));
 
       //生成文件名
       var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
@@ -155,12 +154,20 @@ class ImageManager {
       final savePath =
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, url, savePath);
-      var dio = logDio(options);
+      var headers_ = headers ?? {
+        "user-agent": webUA,
+      };
       if (url.contains("nhentai")) {
-        dio.interceptors.add(CookieManager(NhentaiNetwork().cookieJar!));
+        var cookies = await NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse(url));
+        var res = "";
+        for (var cookie in cookies) {
+          res += "${cookie.name}=${cookie.value}; ";
+        }
+        headers_["Cookie"] = res;
       }
+      headers_["Connection"] = "keep-alive";
       var dioRes = await dio.get<ResponseBody>(url,
-          options: Options(responseType: ResponseType.stream));
+          options: Options(responseType: ResponseType.stream, headers: headers_));
       if (dioRes.data == null) {
         throw Exception("无数据");
       }

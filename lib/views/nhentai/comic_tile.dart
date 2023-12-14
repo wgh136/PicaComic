@@ -1,6 +1,7 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
@@ -73,4 +74,7 @@ class NhentaiComicTile extends ComicTile{
       readNhentai(res.data);
     }
   };
+
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromNhentai(comic);
 }

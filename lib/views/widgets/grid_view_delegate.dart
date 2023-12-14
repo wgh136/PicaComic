@@ -78,7 +78,7 @@ class SliverGridDelegateWithFixedHeight extends SliverGridDelegate{
 }
 
 class SliverGridDelegateWithComics extends SliverGridDelegate{
-  const SliverGridDelegateWithComics();
+  SliverGridDelegateWithComics();
 
   @override
   SliverGridLayout getLayout(SliverConstraints constraints) {

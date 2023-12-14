@@ -1,8 +1,10 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:pica_comic/views/widgets/select.dart';
 import '../../base.dart';
 export 'package:pica_comic/foundation/def.dart';
 
@@ -20,7 +22,7 @@ abstract class ComicTile extends StatelessWidget {
   List<String>? get tags => null;
   int get maxLines => 2;
 
-  ActionFunc? get favorite => null;
+  FavoriteItem? get favoriteItem => null;
 
   ActionFunc? get read => null;
 
@@ -31,12 +33,17 @@ abstract class ComicTile extends StatelessWidget {
   String? get badgeOnImage => null;
 
   void onLongTap_() {
+    bool favorite = false;
     showDialog(
         context: App.globalContext!,
-        builder: (context) => Dialog(
+        builder: (context) => StatefulBuilder(builder: (context, setState){
+          Widget child;
+          if(!favorite){
+            child = Dialog(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
                 child: Column(
+                  key: const Key("1"),
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,13 +63,14 @@ abstract class ComicTile extends StatelessWidget {
                         onTap_();
                       },
                     ),
-                    if(favorite != null)
+                    if(favoriteItem != null)
                       ListTile(
                         leading: const Icon(Icons.bookmark_rounded),
-                        title: Text("收藏/取消收藏".tl),
+                        title: Text("本地收藏".tl),
                         onTap: () {
-                          App.globalBack();
-                          favorite!();
+                          setState((){
+                            favorite = true;
+                          });
                         },
                       ),
                     if(read != null)
@@ -88,7 +96,50 @@ abstract class ComicTile extends StatelessWidget {
                   ],
                 ),
               ),
-            ));
+            );
+          } else {
+            child = buildFavoriteDialog();
+          }
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: child,
+          );
+        }));
+  }
+
+  Widget buildFavoriteDialog(){
+    String? folder;
+    return SimpleDialog(
+      title: Text("添加收藏".tl),
+      children: [
+        ListTile(
+          title: Text("收藏夹".tl),
+          trailing: Select(
+            outline: true,
+            width: 156,
+            values: LocalFavoritesManager().folderNames,
+            initialValue: null,
+            whenChange: (i) =>
+            folder = LocalFavoritesManager().folderNames[i],
+          ),
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        Center(
+          child: FilledButton(
+            child: const Text("确认"),
+            onPressed: () {
+              LocalFavoritesManager().addComic(folder!, favoriteItem!);
+              App.globalBack();
+            },
+          ),
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+      ],
+    );
   }
 
   void onTap_();
@@ -115,6 +166,12 @@ abstract class ComicTile extends StatelessWidget {
                   const Duration(milliseconds: 200),
                       () => MainPage.to(() => PreSearchPage(initialValue: title,))),
               child: Text("搜索".tl)),
+          PopupMenuItem(
+              onTap: () => Future.delayed(
+                  const Duration(milliseconds: 200),
+                      () => showDialog(context: App.globalContext!,
+                          builder: (context) => buildFavoriteDialog())),
+              child: Text("本地收藏".tl)),
         ]);
   }
 

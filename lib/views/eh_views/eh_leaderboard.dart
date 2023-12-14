@@ -111,7 +111,7 @@ class OneEhLeaderboardPage extends StatelessWidget{
                     return EhGalleryTile(logic.leaderboards[index].galleries[i]);
                   }
               ),
-              gridDelegate: const SliverGridDelegateWithComics(),
+              gridDelegate: SliverGridDelegateWithComics(),
             ),
             if(logic.leaderboards[index].loaded!=EhLeaderboard.max&&!logic.networkStatus[index])
               const SliverToBoxAdapter(

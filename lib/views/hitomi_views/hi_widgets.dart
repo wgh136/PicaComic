@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
@@ -92,6 +93,8 @@ class HiComicTile extends ComicTile {
   @override
   String get title => comic.name;
 
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromHitomi(comic);
 }
 
 class ComicDescription extends StatelessWidget {

@@ -62,7 +62,7 @@ class EhPopularPage extends StatelessWidget {
                         return EhGalleryTile(logic.galleries![i]);
                       }
                   ),
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                 ),
                 if(logic.galleries!.next!=null)
                   const SliverToBoxAdapter(

@@ -75,7 +75,7 @@ class HitomiHomePageComics extends StatelessWidget {
                   }
                   return HitomiComicTileDynamicLoading(logic.comics!.comicIds[index]);
                 }, childCount: logic.comics!.comicIds.length),
-                gridDelegate: const SliverGridDelegateWithComics(),
+                gridDelegate: SliverGridDelegateWithComics(),
               ),
               if(logic.comics!.toLoad < logic.comics!.total)
                 const SliverToBoxAdapter(child: ListLoadingIndicator(),)

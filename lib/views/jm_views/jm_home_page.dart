@@ -90,7 +90,7 @@ class JmHomePage extends StatelessWidget {
         delegate: SliverChildBuilderDelegate((context, index) {
           return JmComicTile(item.comics[index]);
         }, childCount: item.comics.length),
-        gridDelegate: const SliverGridDelegateWithComics(),
+        gridDelegate: SliverGridDelegateWithComics(),
       ),
       const SliverToBoxAdapter(
         child: Divider(),

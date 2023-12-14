@@ -231,7 +231,7 @@ class _HistoryPageState extends State<HistoryPage> {
           },
         );
       }),
-      gridDelegate: const SliverGridDelegateWithComics(),
+      gridDelegate: SliverGridDelegateWithComics(),
     );
   }
 }

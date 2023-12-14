@@ -151,7 +151,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
             childCount: data.recommendation.length, (context, i) {
           return PicComicTile(data.recommendation[i]);
         }),
-        gridDelegate: const SliverGridDelegateWithComics(),
+        gridDelegate: SliverGridDelegateWithComics(),
       );
 
   @override

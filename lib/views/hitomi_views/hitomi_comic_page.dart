@@ -118,7 +118,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
             (context, i) {
           return HitomiComicTileDynamicLoading(data.related[i]);
         }),
-        gridDelegate: const SliverGridDelegateWithComics(),
+        gridDelegate: SliverGridDelegateWithComics(),
       );
 
   @override

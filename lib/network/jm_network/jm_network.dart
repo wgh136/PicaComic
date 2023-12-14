@@ -515,11 +515,14 @@ class JmNetwork {
       var res = <Comment>[];
       for(var e in element.querySelectorAll("div.panel.panel-default.timeline-panel")){
         final id = e.querySelector("div.timeline")!.attributes["data-cid"]!;
-        final avatar = e.querySelector("div.timeline-left > a > img")!.attributes["src"];
+        var avatar = e.querySelector("div.timeline-left > a > img")!.attributes["src"];
+        if(avatar != null) {
+          avatar = getJmAvatarUrl(avatar.split('/').last);
+        }
         final name = e.querySelector("span.timeline-username")!.text.trim();
         final time = e.querySelector("div.timeline-date")!.text.trim();
         final content = e.querySelector("div.timeline-content")!.text.trim();
-        res.add(Comment(id, "$baseUrl$avatar", name, time, content, []));
+        res.add(Comment(id, avatar ?? "", name, time, content, []));
       }
       return res;
     }

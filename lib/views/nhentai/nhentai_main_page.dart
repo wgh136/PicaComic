@@ -69,7 +69,7 @@ class NhentaiHomePage extends StatelessWidget {
                   delegate: SliverChildBuilderDelegate((context, index) {
                     return NhentaiComicTile(logic.data!.popular[index]);
                   }, childCount: logic.data!.popular.length),
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                 ),
                 const SliverToBoxAdapter(child: Divider(),),
                 const SliverToBoxAdapter(
@@ -101,7 +101,7 @@ class NhentaiHomePage extends StatelessWidget {
                     }
                     return NhentaiComicTile(logic.data!.latest[index]);
                   }, childCount: logic.data!.latest.length),
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                 ),
                 const SliverToBoxAdapter(child: ListLoadingIndicator(),)
               ],

@@ -665,7 +665,7 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
                 return GridView(
                   key: _key,
                   controller: _scrollController,
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                   children: children,
                 );
               },
@@ -857,7 +857,7 @@ class LocalFavoritesPage extends StatefulWidget {
 }
 
 class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
-  String? _folderName = LocalFavoritesManager().folderNames.first;
+  String? _folderName;
 
   String? get folderName => _folderName;
 
@@ -875,10 +875,21 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
 
   late final controller = ComicsPageViewController(updateFolderName);
 
+  @override
+  void initState() {
+    if(LocalFavoritesManager().folderNames.isEmpty){
+      LocalFavoritesManager().createFolder("default");
+    }
+    _folderName = LocalFavoritesManager().folderNames.first;
+    super.initState();
+  }
+
   void updateFolderName(int i){
-    setState(() {
-      _folderName = LocalFavoritesManager().folderNames[i];
-    });
+    if(LocalFavoritesManager().folderNames[i] != folderName) {
+      setState(() {
+        _folderName = LocalFavoritesManager().folderNames[i];
+      });
+    }
   }
 
   void hideLocalFavorites(){
@@ -1202,7 +1213,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
 
       return GridView.builder(
         key: const Key("_pica_comic_"),
-        gridDelegate: const SliverGridDelegateWithComics(),
+        gridDelegate: SliverGridDelegateWithComics(),
         itemCount: comics.length,
         padding: EdgeInsets.zero,
         itemBuilder: (BuildContext context, int index) {
@@ -1304,6 +1315,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       onPageChanged: (i) {
         currentPage = i;
         folder = LocalFavoritesManager().folderNames[i];
+        widget.controller.onDragChangePage(i);
       },
       itemCount: LocalFavoritesManager().folderNames.length,
       itemBuilder: (context, index){
@@ -1324,7 +1336,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     return GridView.builder(
       primary: false,
       key: Key(folder),
-      gridDelegate: const SliverGridDelegateWithComics(),
+      gridDelegate: SliverGridDelegateWithComics(),
       itemCount: comics.length,
       padding: EdgeInsets.zero,
       itemBuilder: (BuildContext context, int index) {
@@ -1345,7 +1357,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text("这里什么都没有"),
+          Text("这里什么都没有".tl),
           const SizedBox(height: 8,),
           RichText(
             text: TextSpan(

@@ -1,14 +1,16 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
-import 'package:pica_comic/views/eh_views/cover_image.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../main_page.dart';
+import '../../widgets/animated_image.dart';
 import '../../widgets/loading.dart';
 
 class EhGalleryTile extends ComicTile{
@@ -86,14 +88,18 @@ class EhGalleryTile extends ComicTile{
   }.call();
 
   @override
-  Widget get image => EhCoverImage(
-    url: gallery.coverPath,
-    headers: {
-      "Cookie": EhNetwork().cookiesStr,
-      "User-Agent": webUA,
-      "Referer": EhNetwork().ehBaseUrl,
-      "host": Uri.parse(gallery.coverPath).host
-    },
+  Widget get image => AnimatedImage (
+    image: CachedImageProvider(
+      gallery.coverPath,
+      headers: {
+        "Cookie": EhNetwork().cookiesStr,
+        "User-Agent": webUA,
+        "Referer": EhNetwork().ehBaseUrl,
+        "host": Uri.parse(gallery.coverPath).host
+      },
+    ),
+    fit: BoxFit.cover,
+    height: double.infinity,
   );
 
   @override
@@ -127,4 +133,7 @@ class EhGalleryTile extends ComicTile{
 
   @override
   int? get pages => gallery.pages;
+
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromEhentai(gallery);
 }

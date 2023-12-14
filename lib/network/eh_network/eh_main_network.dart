@@ -138,33 +138,25 @@ class EhNetwork {
     }
   }
 
-  bool _runningApiRequest = false;
+  final apiDio = logDio(BaseOptions());
 
   ///eh APi请求
   Future<Res<String>> apiRequest(
     Map<String, dynamic> data, {
     Map<String, String>? headers,
   }) async {
-    while(_runningApiRequest){
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
-    _runningApiRequest = true;
     await getCookies(false, _ehApiUrl);
-    await setNetworkProxy(); //更新代理
-    var options = BaseOptions(
-        connectTimeout: const Duration(seconds: 20),
+    await setNetworkProxy();
+
+    try {
+      var res = await apiDio.post<String>(ehApiUrl, data: data, options: Options(
         headers: {
           "user-agent": webUA,
           ...?headers,
-          "host": Uri.parse(ehBaseUrl).host
-        });
-
-    var dio = logDio(options);
-
-    dio.interceptors.add(CookieManager(cookieJar));
-
-    try {
-      var res = await dio.post<String>(ehApiUrl, data: data);
+          "host": Uri.parse(ehBaseUrl).host,
+          "Cookie": cookieJar
+          }
+      ));
       return Res(res.data);
     } on DioException catch (e) {
       String? message;
@@ -180,9 +172,6 @@ class EhNetwork {
         message = e.toString();
       }
       return Res(null, errorMessage: message ?? "网络错误");
-    }
-    finally{
-      _runningApiRequest = false;
     }
   }
 

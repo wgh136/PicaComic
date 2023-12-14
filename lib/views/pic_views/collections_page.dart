@@ -118,7 +118,7 @@ class CollectionsPage extends StatelessWidget {
                         return PicComicTile(logic.c1[i]);
                       }
                   ),
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                 ),
                 const SliverPadding(padding: EdgeInsets.only(top: 20)),
                 const SliverToBoxAdapter(child: Divider(),),
@@ -135,7 +135,7 @@ class CollectionsPage extends StatelessWidget {
                         return PicComicTile(logic.c2[i]);
                       }
                   ),
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                 ),
                 SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
               ],

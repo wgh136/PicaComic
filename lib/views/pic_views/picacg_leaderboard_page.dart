@@ -57,7 +57,7 @@ class OnePicacgLeaderboardPage extends StatelessWidget {
                         return PicComicTile(logic.comics![i]);
                       }
                   ),
-                  gridDelegate: const SliverGridDelegateWithComics(),
+                  gridDelegate: SliverGridDelegateWithComics(),
                 )
               ],
             );

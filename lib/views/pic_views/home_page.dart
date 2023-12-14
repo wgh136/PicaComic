@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                           return PicComicTile(logic.comics[i],);
                         }
                     ),
-                    gridDelegate: const SliverGridDelegateWithComics(),
+                    gridDelegate: SliverGridDelegateWithComics(),
                   ),
                   const SliverToBoxAdapter(
                     child: ListLoadingIndicator(),

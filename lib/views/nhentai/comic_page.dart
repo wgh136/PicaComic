@@ -208,7 +208,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
             childCount: data.recommendations.length, (context, i) {
           return NhentaiComicTile(data.recommendations[i]);
         }),
-        gridDelegate: const SliverGridDelegateWithComics(),
+        gridDelegate: SliverGridDelegateWithComics(),
       );
 
   @override

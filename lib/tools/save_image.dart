@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -27,13 +26,8 @@ void saveImage(String urlOrHash, String id, {bool reading=false}) async{
   }else if(App.isWindows){
     try {
       File? file;
-      if(reading){
-        file = await ImageManager().getFile(urlOrHash);
-      } else {
-        var f = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
-        file = f!.file;
-      }
-      var f = file!;
+      file = (await ImageManager().getImage(urlOrHash).last).getFile();
+      var f = file;
       var basename = file.path;
       var bytes = await f.readAsBytes();
       for(var i = basename.length-1;i>=0;i--){
@@ -59,13 +53,8 @@ void saveImage(String urlOrHash, String id, {bool reading=false}) async{
 Future<bool> saveImageFormCache(String urlOrHash, String id, {bool reading=false}) async{
   try {
     File? file;
-    if(reading){
-      file = await ImageManager().getFile(urlOrHash);
-    }else {
-      var f = await DefaultCacheManager().getFileFromCache(urlOrHash);
-      file = f!.file;
-    }
-    var f = file!;
+    file = (await ImageManager().getImage(urlOrHash).last).getFile();
+    var f = file;
     var name = file.path;
     for(var i = name.length-1;i>=0;i--){
       if(name[i] == '/'){
@@ -111,14 +100,8 @@ void saveImageFromDisk(String image) async{
 
 void shareImageFromCache(String urlOrHash, String id, [bool reading=false]) async{
   try{
-    if(reading){
-      var file = await ImageManager().getFile(urlOrHash);
-      var bytes = await file!.readAsBytes();
-      Share.shareXFiles([XFile.fromData(bytes, mimeType: 'image/jpeg', name: "share.jpg")]);
-    } else {
-      var file = await DefaultCacheManager().getFileFromCache(getImageUrl(urlOrHash));
-      Share.shareXFiles([XFile(file!.file.path)]);
-    }
+    var file = (await ImageManager().getImage(urlOrHash).last).getFile();
+    Share.shareXFiles([XFile(file.path)]);
   }
   catch(e, s){
     LogManager.addLog(LogLevel.error, "Share Image", "$e\n$s");

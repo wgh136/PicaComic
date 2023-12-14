@@ -53,10 +53,8 @@ void showMessage(BuildContext? context, String message,
 
   Future.delayed(Duration(seconds: time), () {
     if(_entry == newEntry){
-      _entry = null;
-    }
-    if (newEntry.mounted) {
       newEntry.remove();
+      _entry = null;
     }
   });
 
@@ -65,13 +63,8 @@ void showMessage(BuildContext? context, String message,
 }
 
 void hideMessage(BuildContext? context) {
-  try {
-    if (_entry?.mounted ?? false) {
-      _entry?.remove();
-    }
-  }
-  catch(e){
-    //
+  if (_entry != null) {
+    _entry!.remove();
   }
 }
 

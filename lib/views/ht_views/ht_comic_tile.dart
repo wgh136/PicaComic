@@ -1,5 +1,6 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
@@ -58,6 +59,9 @@ class HtComicTile extends ComicTile {
 
   @override
   String get title => comic.name.trim();
+
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromHtcomic(comic);
 }
 
 class HtComicTileInFavoritePage extends HtComicTile {
@@ -156,4 +160,7 @@ class HtComicTileInFavoritePage extends HtComicTile {
               child: const Text("删除收藏")),
         ]);
   }
+
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromHtcomic(comic);
 }

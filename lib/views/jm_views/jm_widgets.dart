@@ -1,4 +1,5 @@
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
@@ -69,4 +70,7 @@ class JmComicTile extends ComicTile {
 
   @override
   List<String>? get tags => comic.tags;
+
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromJmComic(comic);
 }

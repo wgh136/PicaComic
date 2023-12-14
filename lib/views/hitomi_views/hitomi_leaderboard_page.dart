@@ -98,7 +98,7 @@ class OneLeaderboardPage extends StatelessWidget {
                 }
                 return HitomiComicTileDynamicLoading(logic.comics[index].comicIds[i]);
               }, childCount: logic.comics[index].comicIds.length),
-              gridDelegate: const SliverGridDelegateWithComics(),
+              gridDelegate: SliverGridDelegateWithComics(),
             ),
             if(logic.comics[index].toLoad < logic.comics[index].total)
               const SliverToBoxAdapter(child: ListLoadingIndicator(),)

@@ -192,7 +192,7 @@ class WeekRecommendationList extends StatelessWidget {
                 },
                 childCount: logic.comics[index].length
             ),
-            gridDelegate: const SliverGridDelegateWithComics(),
+            gridDelegate: SliverGridDelegateWithComics(),
           ),
         ],
       );

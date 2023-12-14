@@ -1,6 +1,7 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/base.dart';
@@ -42,9 +43,6 @@ class PicComicTile extends ComicTile {
     fit: BoxFit.cover,
     height: double.infinity,
   );
-
-  @override
-  ActionFunc? get favorite => () => network.favouriteOrUnfavouriteComic(comic.id);
 
   @override
   ActionFunc? get read => () async{
@@ -89,4 +87,7 @@ class PicComicTile extends ComicTile {
 
   @override
   int? get pages => comic.pages;
+
+  @override
+  FavoriteItem? get favoriteItem => FavoriteItem.fromPicacg(comic);
 }

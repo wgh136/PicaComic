@@ -215,7 +215,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
             childCount: data.relatedComics.length, (context, i) {
           return JmComicTile(data.relatedComics[i]);
         }),
-        gridDelegate: const SliverGridDelegateWithComics(),
+        gridDelegate: SliverGridDelegateWithComics(),
       );
 
   @override

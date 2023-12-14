@@ -164,7 +164,7 @@ class DownloadPage extends StatelessWidget {
           childCount: comics.length, (context, index) {
         return buildItem(context, logic, index);
       }),
-      gridDelegate: const SliverGridDelegateWithComics(),
+      gridDelegate: SliverGridDelegateWithComics(),
     );
   }
 
