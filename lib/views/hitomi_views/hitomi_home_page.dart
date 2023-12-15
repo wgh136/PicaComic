@@ -119,7 +119,7 @@ class _HitomiHomePageState extends State<HitomiHomePage> {
                 const Spacer(),
                 Material(
                   child: Select(
-                    values: ["最新".tl, "热门|今天".tl, "热门|一周".tl, "热门|本月".tl, "热门|一年".tl],
+                    values: ["最新".tl, "热门 | 今天".tl, "热门 | 一周".tl, "热门 | 本月".tl, "热门 | 一年".tl],
                     initialValue: 0,
                     whenChange: (i) => setState(() {
                       type = ["index", "popular/today", "popular/week"

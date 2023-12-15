@@ -841,7 +841,7 @@ class PreSearchPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "漫画排序模式".tl,
+                "排序方式".tl,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               Wrap(

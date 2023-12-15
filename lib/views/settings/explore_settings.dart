@@ -207,7 +207,19 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
             },
           ),
         );
-      })
+      }),
+      ListTile(
+        leading: const Icon(Icons.image),
+        title: Text("漫画块缩略图布局".tl),
+        trailing: Select(
+          initialValue: int.parse(appdata.settings[66]),
+          whenChange: (i) {
+            appdata.settings[66] = i.toString();
+            appdata.updateSettings();
+          },
+          values: ["覆盖".tl, "容纳".tl],
+        ),
+      ),
     ],
   );
 }

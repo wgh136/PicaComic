@@ -163,11 +163,13 @@ class HttpProxyServer {
           "storage1.picacomic.com": "104.21.91.145",
           "storage-b.picacomic.com": "104.21.91.145",
           "e-hentai.org": "172.67.0.127",
-          "exhentai.org": "178.175.129.254"
+          "exhentai.org": "178.175.129.254",
+          "s.exhentai.org": "178.175.129.254"
         },
         "sni": [
           "e-hentai.org",
-          "exhentai.org"
+          "exhentai.org",
+          "s.exhentai.org"
         ]
       };
       var spaces = ' ' * 4;

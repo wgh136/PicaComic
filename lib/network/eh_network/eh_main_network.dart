@@ -154,7 +154,7 @@ class EhNetwork {
           "user-agent": webUA,
           ...?headers,
           "host": Uri.parse(ehBaseUrl).host,
-          "Cookie": cookieJar
+          "Cookie": cookiesStr
           }
       ));
       return Res(res.data);

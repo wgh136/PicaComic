@@ -19,7 +19,6 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
         ListTile(
           leading: const Icon(Icons.book),
           title: Text("默认收藏夹".tl),
-          subtitle: Text("用于快速收藏".tl),
           trailing: Select(
             initialValue: LocalFavoritesManager()
                 .folderNames
@@ -69,6 +68,20 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             },
           ),
         ),
+        ListTile(
+          leading:
+          const Icon(Icons.library_books_rounded),
+          title: Text("显示本地收藏的数量".tl),
+          trailing: Switch(
+            value: appdata.settings[65] == "1",
+            onChanged: (b){
+              setState(() {
+                appdata.settings[65] = b?"1":"0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        )
       ],
     );
   }

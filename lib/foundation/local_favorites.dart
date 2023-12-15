@@ -149,8 +149,6 @@ class LocalFavoritesManager {
 
   late Database _db;
 
-  List<String>? _folderNames;
-
   Future<void> init() async{
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
   }
@@ -221,12 +219,19 @@ class LocalFavoritesManager {
     }
   }
 
-  List<String> getFolderNamesWithDB(){
+  List<String> _getFolderNamesWithDB(){
     return _db.select("SELECT name FROM sqlite_master WHERE type='table';")
         .map((element) => element["name"] as String).toList();
   }
 
-  List<String> get folderNames => _folderNames ?? (_folderNames = getFolderNamesWithDB());
+  int count(String folderName){
+    return _db.select("""
+      select count(*) as c
+      from "$folderName"
+    """).first["c"];
+  }
+
+  List<String> get folderNames => _getFolderNamesWithDB();
 
   List<FavoriteItem> getAllComics(String folder){
     var rows = _db.select("""
@@ -293,7 +298,6 @@ class LocalFavoritesManager {
         display_order int
       );
     """);
-    _folderNames?.add(name);
     saveData();
   }
 
@@ -394,7 +398,6 @@ class LocalFavoritesManager {
 
   /// delete a folder
   void deleteFolder(String name) {
-    _folderNames?.remove(name);
     _db.execute("""
       drop table "$name";
     """);
@@ -441,9 +444,6 @@ class LocalFavoritesManager {
   void rename(String before, String after) {
     if (folderNames.contains(after)) {
       throw "Name already exists!";
-    }
-    if(_folderNames != null){
-      _folderNames![_folderNames!.indexOf(before)] = after;
     }
     _db.execute("""
       ALTER TABLE "$before"

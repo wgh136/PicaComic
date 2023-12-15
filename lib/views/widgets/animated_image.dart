@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:pica_comic/base.dart';
 
 class AnimatedImage extends StatefulWidget {
   /// show animation when loading is complete.
@@ -276,7 +277,7 @@ class _AnimatedImageState extends State<AnimatedImage> with WidgetsBindingObserv
         color: widget.color,
         opacity: widget.opacity,
         colorBlendMode: widget.colorBlendMode,
-        fit: widget.fit,
+        fit: appdata.settings[66] == "0" ? BoxFit.cover : BoxFit.contain,
         alignment: widget.alignment,
         repeat: widget.repeat,
         centerSlice: widget.centerSlice,

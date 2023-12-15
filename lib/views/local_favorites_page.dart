@@ -880,7 +880,11 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
     if(LocalFavoritesManager().folderNames.isEmpty){
       LocalFavoritesManager().createFolder("default");
     }
-    _folderName = LocalFavoritesManager().folderNames.first;
+    var names = LocalFavoritesManager().folderNames;
+    _folderName = names.first;
+    if(names.contains(appdata.settings[51])){
+      _folderName = appdata.settings[51];
+    }
     super.initState();
   }
 
@@ -1084,6 +1088,10 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
 
   Widget buildTabBar() {
     Widget buildTab(String name, [bool all=false]){
+      var showName = name;
+      if(appdata.settings[65] == "1"){
+        showName += "(${LocalFavoritesManager().count(name)})";
+      }
       bool selected = (!all && folderName == name) || (all && folderName == null);
       return InkWell(
         key: all? UniqueKey() : Key(name),
@@ -1104,7 +1112,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
                 border: selected ? Border(bottom: BorderSide(color: App.colors(context).primary, width: 2)) : null
             ),
             child: Center(
-              child: Text(name, style: TextStyle(
+              child: Text(showName, style: TextStyle(
                 color: selected ? App.colors(context).primary : null,
                 fontWeight: FontWeight.w600,
               ),),
@@ -1203,6 +1211,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
       return ComicsPageView(
         key: const Key("comics"),
         controller: controller,
+        initialPage: LocalFavoritesManager().folderNames.indexOf(_folderName!),
       );
     }
   }
@@ -1249,20 +1258,20 @@ class ComicsPageViewController{
 
 
 class ComicsPageView extends StatefulWidget {
-  const ComicsPageView({required this.controller, super.key});
+  const ComicsPageView({required this.controller, this.initialPage = 1, super.key});
 
   final ComicsPageViewController controller;
+
+  final int initialPage;
 
   @override
   State<ComicsPageView> createState() => _ComicsPageViewState();
 }
 
 class _ComicsPageViewState extends State<ComicsPageView> {
-  var controller = PageController();
+  late PageController controller = PageController(initialPage: currentPage);
 
-  int currentPage = 0;
-
-  int key = 0;
+  late int currentPage = widget.initialPage;
 
   Widget? temp;
 
@@ -1310,7 +1319,6 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       currentPage--;
     }
     return PageView.builder(
-      key: ObjectKey(key),
       controller: controller,
       onPageChanged: (i) {
         currentPage = i;
@@ -1333,21 +1341,30 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     if(comics.isEmpty){
       return buildEmptyView();
     }
-    return GridView.builder(
-      primary: false,
+    return MediaQuery.removePadding(
       key: Key(folder),
-      gridDelegate: SliverGridDelegateWithComics(),
-      itemCount: comics.length,
-      padding: EdgeInsets.zero,
-      itemBuilder: (BuildContext context, int index) {
-        return LocalFavoriteTile(
-          comics[index],
-          folder,
-              () => setState(() {}),
-          true,
-          showFolderInfo: true,
-        );
-      },
+      removeTop: true,
+      context: context,
+      child: Scrollbar(
+          interactive: true,
+          thickness: App.isMobile ? 8 : null,
+          radius: const Radius.circular(8),
+          child: GridView.builder(
+            key: Key(folder),
+            primary: true,
+            gridDelegate: SliverGridDelegateWithComics(),
+            itemCount: comics.length,
+            padding: EdgeInsets.zero,
+            itemBuilder: (BuildContext context, int index) {
+              return LocalFavoriteTile(
+                comics[index],
+                folder,
+                    () => setState(() {}),
+                true,
+                showFolderInfo: true,
+              );
+            },
+          )),
     );
   }
 

@@ -220,7 +220,7 @@ class _MainPageState extends State<MainPage> {
 
     checkDownload();
 
-    MainPage.toExplorePage = () => setState(() => i = 1);
+    MainPage.toExplorePage = () => setState(() => i = 2);
 
     Future.delayed(const Duration(milliseconds: 300),
             () => Webdav.syncData()).then(checkClipboard);

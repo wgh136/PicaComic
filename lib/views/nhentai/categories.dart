@@ -30,7 +30,7 @@ class _NhentaiCategoriesState extends State<NhentaiCategories>
           buildTitle("长度".tl),
           buildTags(
               ["1-25", "25-75", "75-150", "150-500", "500-1000", ">1000"]),
-          buildTitleWithRefresh("Tags".tl, () => setState(() {})),
+          buildTitleWithRefresh("Tags", () => setState(() {})),
           buildTags(generateTags()),
         ],
       ),

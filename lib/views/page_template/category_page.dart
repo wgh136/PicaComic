@@ -19,7 +19,7 @@ abstract mixin class CategoryPageBuilder {
       padding: const EdgeInsets.fromLTRB(16, 10, 5, 10),
       child: Row(
         children: [
-          Text(title.translateTagsCategoryToCN,
+          Text(title,
               style:
                   const TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
           const Spacer(),
