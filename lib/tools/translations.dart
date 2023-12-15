@@ -463,7 +463,23 @@ extension AppTranslation on String {
       "启用侧边翻页栏": "啟用側邊翻頁欄",
       "高刷新率模式": "高刷新率模式",
       "帮助": "幫助",
-      "显示本地收藏的数量": "顯示本地收藏的數量"
+      "显示本地收藏的数量": "顯示本地收藏的數量",
+      "使用须知": "使用須知",
+      "感谢使用本软件, 请注意:": "感謝使用本軟體, 請注意:",
+      """
+      本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, 与开发者无关.
+      此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系.
+      如果在使用中发现问题, 请先确认是否为自己的设备问题, 然后再进行反馈.""": """
+      本App的開發目的僅為學習交流與個人興趣, 顯示的任何內容均來自網絡, 與開發者無關.
+      此項目與Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai無任何關係.
+      如果在使用中發現問題, 請先確認是否為自己的設備問題, 然後再進行反饋.
+      """,
+      "我已阅读并知晓": "我已閱讀並同意",
+      "更多设置": "更多設定",
+      "登录账号": "登入帳號",
+      "进入APP": "進入APP",
+      "请先阅读使用须知": "請先閱讀使用須知",
+      "要管理收藏夹, 请长按收藏夹标签或者使用鼠标右键": "要管理收藏夾, 請長按收藏夾標籤或使用滑鼠右鍵",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -1022,6 +1038,22 @@ extension AppTranslation on String {
       "显示本地收藏的数量": "Displays the number of local favourites",
       "覆盖": "cover",
       "漫画块缩略图布局": "Thumbnail Layout",
+      "使用须知": "Notice",
+      "感谢使用本软件, 请注意:": "Thank you for using this app, please note:",
+      """
+本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, 与开发者无关.
+此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系.
+如果在使用中发现问题, 请先确认是否为自己的设备问题, 然后再进行反馈.""": """
+This app was developed for the purpose of communication and personal interest only, any content displayed is from the internet.
+This project is not affiliated with Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai.
+If you find a problem while using it, please check if it's a problem with your device first, and then provide feedback.
+""",
+      "我已阅读并知晓": "I have read and understand",
+      "更多设置": "More settings",
+      "登录账号": "Login account",
+      "进入APP": "Enter",
+      "请先阅读使用须知": "Please read the Notice first",
+      "要管理收藏夹, 请长按收藏夹标签或者使用鼠标右键": "To manage your favourites, long press on the favourites tab or use the right mouse button.",
     }
   };
 }

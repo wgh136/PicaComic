@@ -53,11 +53,11 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
               child: Text(
-                "欢迎",
-                style: TextStyle(fontSize: 20),
+                "欢迎".tl,
+                style: const TextStyle(fontSize: 20),
               ),
             ),
             const SizedBox(height: 16,),
@@ -70,7 +70,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("使用须知", style: TextStyle(fontSize: 22),),
+                    Text("使用须知".tl, style: const TextStyle(fontSize: 22),),
                     const SizedBox(height: 8,),
                     Text(
                       "感谢使用本软件, 请注意:".tl,
@@ -276,17 +276,18 @@ class _WelcomePageState extends State<WelcomePage> {
               leading: const Icon(Icons.crop_square),
               title: Text("漫画块显示模式".tl),
               trailing: Select(
-                initialValue: int.parse(appdata.settings[44]),
+                initialValue: int.parse(appdata.settings[44].split(',').first),
                 whenChange: (i) {
-                  appdata.settings[44] = i.toString();
+                  var settings = appdata.settings[44].split(',');
+                  settings[0] = i.toString();
+                  if(settings.length == 1){
+                    settings.add("1.0");
+                  }
+                  appdata.settings[44] = settings.join(',');
                   appdata.updateSettings();
+                  MyApp.updater?.call();
                 },
-                values: [
-                  "详细".tl,
-                  "简略".tl,
-                  "最小".tl,
-                  "详细(大) ".tl
-                ],
+                values: ["详细".tl, "简略".tl],
               ),
             ),
             const SizedBox(
