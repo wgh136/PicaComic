@@ -117,82 +117,91 @@ class DownloadingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      width: double.infinity,
-      child: Row(
-        children: [
-          Expanded(
-              flex: 0,
-              child: Image(
-                image: CachedImageProvider(
-                  comic.cover,
-                  headers: {
-                    "User-Agent": webUA
-                  }
-                ),
-                width: 80,
-                fit: BoxFit.fitHeight,
-                errorBuilder: (context,a,b){
-                  return const Center(
-                    child: Icon(Icons.error),
-                  );
-                },
-              )),
-          const SizedBox(width: 5,),
-          Expanded(
-              flex: 4,
-              child: StateBuilder(
-                init: DownloadingProgressController(),
-                tag: comic.id,
-                builder: (controller){
-                  controller.downloadPages = comic.downloadedPages;
-                  controller.pagesCount = comic.totalPages;
-                  controller.value = controller.downloadPages/(controller.pagesCount==0?1:controller.pagesCount);
-                  comic.updateUi = (){
-                    controller.change(comic.downloadedPages,comic.totalPages);
-                  };
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
-                      const Spacer(),
-                      Text("${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
-                      const SizedBox(height: 3,),
-                      LinearProgressIndicator(
-                        value: controller.value,
-                      )
-                    ],
-                  );
-                },
-              )
-          ),
-          const SizedBox(width: 5,),
-          Expanded(
-            flex: 0,
-            child: SizedBox(
-              width: 50,
-              child: Column(
-                children: [
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: cancel,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: SizedBox(
+        height: 100,
+        width: double.infinity,
+        child: Row(
+          children: [
+            Expanded(
+                flex: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.vertical_align_top),
-                    onPressed: () {
-                      DownloadManager().moveToFirst(comic);
-                      onComicPositionChange();
+                  clipBehavior: Clip.antiAlias,
+                  child: Image(
+                    image: CachedImageProvider(
+                        comic.cover,
+                        headers: {
+                          "User-Agent": webUA
+                        }
+                    ),
+                    width: 80,
+                    fit: BoxFit.fitHeight,
+                    errorBuilder: (context,a,b){
+                      return const Center(
+                        child: Icon(Icons.error),
+                      );
                     },
                   ),
-                  const Spacer(),
-                ],
+                )),
+            const SizedBox(width: 5,),
+            Expanded(
+                flex: 4,
+                child: StateBuilder(
+                  init: DownloadingProgressController(),
+                  tag: comic.id,
+                  builder: (controller){
+                    controller.downloadPages = comic.downloadedPages;
+                    controller.pagesCount = comic.totalPages;
+                    controller.value = controller.downloadPages/(controller.pagesCount==0?1:controller.pagesCount);
+                    comic.updateUi = (){
+                      controller.change(comic.downloadedPages,comic.totalPages);
+                    };
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
+                        const Spacer(),
+                        Text("${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
+                        const SizedBox(height: 3,),
+                        LinearProgressIndicator(
+                          value: controller.value,
+                        )
+                      ],
+                    );
+                  },
+                )
+            ),
+            const SizedBox(width: 5,),
+            Expanded(
+              flex: 0,
+              child: SizedBox(
+                width: 50,
+                child: Column(
+                  children: [
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: cancel,
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.vertical_align_top),
+                      onPressed: () {
+                        DownloadManager().moveToFirst(comic);
+                        onComicPositionChange();
+                      },
+                    ),
+                    const Spacer(),
+                  ],
+                ),
               ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -64,18 +64,31 @@ class ImageLoader{
 
       DownloadProgress? finishProgress;
 
-      var stream = manager.getEhImageNew(gallery, page);
-      await for(var progress in stream){
-        if(progress.currentBytes == progress.expectedBytes){
-          finishProgress = progress;
+      int retryTimes = 3;
+
+      while(finishProgress == null){
+        try {
+          var stream = manager.getEhImageNew(gallery, page);
+          await for (var progress in stream) {
+            if (progress.currentBytes == progress.expectedBytes) {
+              finishProgress = progress;
+            }
+            chunkEvents.add(ImageChunkEvent(
+                cumulativeBytesLoaded: progress.currentBytes,
+                expectedTotalBytes: progress.expectedBytes)
+            );
+          }
         }
-        chunkEvents.add(ImageChunkEvent(
-            cumulativeBytesLoaded: progress.currentBytes,
-            expectedTotalBytes: progress.expectedBytes)
-        );
+        catch(e){
+          retryTimes--;
+          if(retryTimes == 0){
+            rethrow;
+          }
+          await Future.delayed(Duration(seconds: 6 - retryTimes));
+        }
       }
 
-      var file = finishProgress!.getFile();
+      var file = finishProgress.getFile();
       var bytes = await file.readAsBytes();
       var decoded = await decode(bytes);
       return decoded;

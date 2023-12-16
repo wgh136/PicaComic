@@ -163,7 +163,7 @@ abstract class DownloadingItem{
           String fileExtension = imageExtension ??
               '.${urls[index].split('/').lastOrNull?.split('?').firstOrNull?.split(".").elementAtOrNull(1) ?? "jpg"}';
           if(bytes.isEmpty){
-            throw Exception("Fail to download image");
+            throw Exception("Fail to download image: data is empty.");
           }
           if(currentKey != _runtimeKey)  return;
           File file;

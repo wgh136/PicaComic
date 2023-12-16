@@ -43,7 +43,7 @@ class ImageManager {
 
   Map<String, String>? _paths;
 
-  final dio = logDio(BaseOptions(persistentConnection: true));
+  final dio = logDio(BaseOptions());
 
   Future<void> readData() async {
     if (_paths == null) {
@@ -119,6 +119,8 @@ class ImageManager {
     loadingItems.clear();
   }
 
+  int ehLoading = 0;
+
   /// 获取图片, 适用于没有任何限制的图片链接
   Stream<DownloadProgress> getImage(String url, [Map<String, String>? headers]) async* {
     while (loadingItems[url] != null) {
@@ -127,6 +129,7 @@ class ImageManager {
       if (progress.finished) return;
       await Future.delayed(const Duration(milliseconds: 100));
     }
+    loadingItems[url] = DownloadProgress(0, 1, url, "");
     try {
       await readData();
       //检查缓存
@@ -141,9 +144,9 @@ class ImageManager {
       }
 
       if(url.contains("s.exhentai.org") || url.contains("ehgt.org")) {
-        loadingItems[url] = DownloadProgress(0, 1, url, "");
+        await Future.delayed(Duration(seconds: 2 * ehLoading));
+        ehLoading++;
       }
-      await Future.delayed(Duration(seconds: 1 * (loadingItems.length-1)));
 
       //生成文件名
       var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
@@ -167,9 +170,10 @@ class ImageManager {
       }
       headers_["Connection"] = "keep-alive";
       var dioRes = await dio.get<ResponseBody>(url,
-          options: Options(responseType: ResponseType.stream, headers: headers_));
+          options: Options(
+              responseType: ResponseType.stream, headers: headers_));
       if (dioRes.data == null) {
-        throw Exception("无数据");
+        throw Exception("Empty Data");
       }
       List<int> imageData = [];
       int? expectedBytes;
@@ -198,6 +202,9 @@ class ImageManager {
       rethrow;
     } finally {
       loadingItems.remove(url);
+      if(url.contains("s.exhentai.org") || url.contains("ehgt.org")){
+        ehLoading--;
+      }
     }
   }
 
