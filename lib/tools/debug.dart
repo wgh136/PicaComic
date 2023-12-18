@@ -1,11 +1,15 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 
 ///用于测试函数
 void debug() async {
-  showMessage(App.globalContext, "test");
+  var controller = showLoadingDialog(App.globalContext!, () { });
+  showDialog(context: App.globalContext!, builder: (context) => const Dialog(child: SizedBox(width: 400, height: 400,),));
+  await Future.delayed(const Duration(milliseconds: 400));
+  controller.close();
 }
 
 ///保存网络请求数据, 用于Debug

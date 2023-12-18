@@ -1,22 +1,24 @@
 import 'dart:async' show Future, StreamController;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import '../image_manager.dart';
 import 'base_image_provider.dart';
-import 'cached_image.dart' as image_provider;
 
 /// Function which is called after loading the image failed.
 typedef ErrorListener = void Function();
 
-class CachedImageProvider
-    extends BaseImageProvider<image_provider.CachedImageProvider> {
+class HitomiCachedImageProvider
+    extends BaseImageProvider<HitomiCachedImageProvider> {
 
   /// Image provider for normal image.
-  const CachedImageProvider(this.url, {this.headers});
+  const HitomiCachedImageProvider(this.image, this.id);
 
-  final String url;
+  ///Hitomi图像信息
+  final HitomiFile image;
 
-  final Map<String, String>? headers;
+  ///画廊ID
+  final String id;
 
   @override
   Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents) async{
@@ -27,7 +29,7 @@ class CachedImageProvider
     var manager = ImageManager();
     DownloadProgress? finishProgress;
 
-    var stream = manager.getImage(url, headers);
+    var stream = manager.getHitomiImage(image, id);
     await for (var progress in stream) {
       if (progress.currentBytes == progress.expectedBytes) {
         finishProgress = progress;
@@ -43,10 +45,10 @@ class CachedImageProvider
   }
 
   @override
-  Future<CachedImageProvider> obtainKey(ImageConfiguration configuration) {
+  Future<HitomiCachedImageProvider> obtainKey(ImageConfiguration configuration) {
     return SynchronousFuture(this);
   }
 
   @override
-  String get key => url;
+  String get key => image.hash;
 }

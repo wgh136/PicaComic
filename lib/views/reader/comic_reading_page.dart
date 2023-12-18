@@ -352,25 +352,7 @@ class ComicReadingPage extends StatelessWidget {
               ),
             );
 
-            if (App.isIOS) {
-              return body;
-            } else {
-              return PopScope(
-                canPop: false,
-                  onPopInvoked: (didPop) async {
-                    if (didPop) {
-                      return;
-                    }
-                    if (logic.tools) {
-                      Navigator.of(context).pop();
-                    } else {
-                      logic.tools = true;
-                      logic.update(["ToolBar"]);
-                      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-                    }
-                  },
-                  child: body);
-            }
+            return body;
           } else {
             return buildErrorView(logic, context);
           }
@@ -497,7 +479,7 @@ class ComicReadingPage extends StatelessWidget {
       }
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
-      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画".tl);
+      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
       comicReadingPageLogic.downloaded = false;
     }
     if(data.epNames.isEmpty){
@@ -540,7 +522,7 @@ class ComicReadingPage extends StatelessWidget {
         return;
       }
     } catch (e) {
-      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画".tl);
+      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
       logic.downloaded = false;
     }
     EhNetwork().loadingReaderLinks.clear();
@@ -569,7 +551,7 @@ class ComicReadingPage extends StatelessWidget {
         comicReadingPageLogic.downloaded = false;
       }
     } catch (e) {
-      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画");
+      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
       comicReadingPageLogic.downloaded = false;
     }
     comicReadingPageLogic.tools = false;
@@ -627,7 +609,7 @@ class ComicReadingPage extends StatelessWidget {
         return;
       }
     } catch (e) {
-      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画");
+      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
       logic.downloaded = false;
     }
     var res = await HtmangaNetwork().getImages(target);
@@ -653,7 +635,7 @@ class ComicReadingPage extends StatelessWidget {
         return;
       }
     } catch (e) {
-      showMessage(App.globalContext, "数据丢失, 将从网络获取漫画");
+      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
       logic.downloaded = false;
     }
     var res = await NhentaiNetwork().getImages(target);

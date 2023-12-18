@@ -79,6 +79,7 @@ class HiComicTile extends ComicTile {
     ),
     fit: BoxFit.cover,
     height: double.infinity,
+    width: double.infinity,
     filterQuality: FilterQuality.medium,
   );
 

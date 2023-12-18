@@ -13,7 +13,7 @@ import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
-import 'package:pica_comic/views/jm_views/jm_image_provider/image_recombine.dart';
+import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
 import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
@@ -291,34 +291,64 @@ class ImageManager {
 
       var imgKey = readerLink.split('/')[4];
 
-      // get image url through api
-      Res<String>? apiRes = await EhNetwork().apiRequest({
-        "gid": int.parse(gid),
-        "imgkey": imgKey,
-        "method": "showpage",
-        "page": page,
-        "showkey": gallery.auth!["showKey"]
-      });
+      Future<(String, String, String?)> getImageFromApi() async{
+        // get image url through api
+        Res<String>? apiRes = await EhNetwork().apiRequest({
+          "gid": int.parse(gid),
+          "imgkey": imgKey,
+          "method": "showpage",
+          "page": page,
+          "showkey": gallery.auth!["showKey"]
+        });
 
-      if(apiRes.error && apiRes.errorMessage!.contains("handshake")){
-        throw "Failed to make api request.\n"
-            "This may be due to too frequent requests.\n"
-            "Try to wait for some time and retry.";
+        if(apiRes.error && apiRes.errorMessage!.contains("handshake")){
+          throw "Failed to make api request.\n"
+              "This may be due to too frequent requests.\n"
+              "Try to wait for some time and retry.";
+        }
+
+        var apiJson = const JsonDecoder().convert(apiRes.data);
+
+        var i6 = apiJson["i6"] as String;
+
+        RegExp regex = RegExp(r"nl\('(.+?)'\)");
+        var nl = regex.firstMatch(i6)?.group(1);
+
+        var originImage = i6.split("<a href=\"").last.split("\">").first;
+
+        var image = apiJson["i3"] as String;
+
+        image = image.substring(
+            image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
+
+        return (image, originImage, nl);
       }
 
-      var apiJson = const JsonDecoder().convert(apiRes.data);
+      Future<(String, String, String?)> getImageFromHtml() async{
+        var res = await EhNetwork().request(readerLink);
+        if(res.error){
+          throw res.errorMessage ?? "error";
+        }else{
+          var document = parse(res.data);
+          var image = document.querySelector("div#i3 > a > img")?.attributes["src"];
+          var nl = document.querySelector("div#i6 > div > a#loadfail")?.attributes["onclick"]?.split('\'')
+              .firstWhereOrNull((element) => element.contains('-'));
+          var originImage = document.querySelectorAll("div#i6 > div > a")
+              .firstWhere((element) => element.text.contains("original"))
+              .attributes["href"] ?? "";
+          return (image ?? (throw "Failed to get image."), originImage, nl);
+        }
+      }
 
-      var i6 = apiJson["i6"] as String;
+      String image, originImage;
+      String? nl;
 
-      RegExp regex = RegExp(r"nl\('(.+?)'\)");
-      var nl = regex.firstMatch(i6)?.group(1);
-      
-      var originImage = i6.split("<a href=\"").last.split("\">").first;
-
-      var image = apiJson["i3"] as String;
-
-      image = image.substring(
-          image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
+      try{
+        (image, originImage, nl) = await getImageFromApi();
+      }
+      catch(e){
+        (image, originImage, nl) = await getImageFromHtml();
+      }
 
       if (image.contains("/img/509.gi")) {
         throw ImageExceedError();

@@ -214,6 +214,7 @@ class _MePageButtonState extends State<MePageButton> {
         child: Listener(
           onPointerUp: (event) => setState(() => hovering = false),
           onPointerDown: (event) => setState(() => hovering = true),
+          onPointerCancel: (event) => setState(() => hovering = false),
           child: InkWell(
             borderRadius: const BorderRadius.all(Radius.circular(24)),
             onTap: widget.onTap,

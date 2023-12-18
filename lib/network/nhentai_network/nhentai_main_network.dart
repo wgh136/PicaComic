@@ -375,7 +375,7 @@ class NhentaiNetwork {
 
         Map<String, dynamic> parseJavaScriptJson(String jsCode) {
           String jsonText = jsCode.split('JSON.parse("')[1].split('");')[0];
-          String decodedJsonText = jsonText.replaceAll("\\u0022", "\"");
+          String decodedJsonText = jsonText.replaceAll("\\u0022", "\"").replaceAll("\\u005C", "\\");
 
           return json.decode(decodedJsonText);
         }

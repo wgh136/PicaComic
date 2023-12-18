@@ -37,6 +37,7 @@ class PicComicTile extends ComicTile {
     ),
     fit: BoxFit.cover,
     height: double.infinity,
+    width: double.infinity,
     filterQuality: FilterQuality.medium,
   )):Image.file(
     downloadManager.getCover(comic.id),
