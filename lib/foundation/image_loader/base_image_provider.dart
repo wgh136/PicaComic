@@ -44,6 +44,7 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>> extends ImagePr
           if(retryTime > (2 << 6)){
             rethrow;
           }
+          await Future.delayed(Duration(seconds: retryTime));
         }
       }
 

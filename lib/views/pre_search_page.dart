@@ -24,7 +24,7 @@ import 'main_page.dart';
 
 typedef FilterChip = CustomFilterChip;
 
-class _FloatingSearchBar extends StatelessWidget {
+class _FloatingSearchBar extends StatefulWidget {
   const _FloatingSearchBar(
       {Key? key,
       required this.supportingText,
@@ -35,17 +35,23 @@ class _FloatingSearchBar extends StatelessWidget {
       required this.showMenu})
       : super(key: key);
 
-  final double height = 56;
-  double get effectiveHeight {
-    return max(height, 53);
-  }
-
   final void Function(String) f;
   final String supportingText;
   final TextEditingController controller;
   final void Function(String)? onChanged;
   final FocusNode? focusNode;
   final void Function() showMenu;
+
+  @override
+  State<_FloatingSearchBar> createState() => _FloatingSearchBarState();
+}
+
+class _FloatingSearchBarState extends State<_FloatingSearchBar> {
+  final double height = 56;
+
+  double get effectiveHeight {
+    return max(height, 53);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,27 +81,42 @@ class _FloatingSearchBar extends StatelessWidget {
                 cursorColor: colorScheme.primary,
                 style: textTheme.bodyLarge,
                 textAlignVertical: TextAlignVertical.center,
-                controller: controller,
-                onChanged: onChanged,
-                focusNode: focusNode,
+                controller: widget.controller,
+                onChanged: (s){
+                  if(s.length <= 1){
+                    setState(() {});
+                  }
+                  widget.onChanged?.call(s);
+                },
+                focusNode: widget.focusNode,
                 decoration: InputDecoration(
                   isCollapsed: true,
                   border: InputBorder.none,
-                  hintText: supportingText,
+                  hintText: widget.supportingText,
                   hintStyle: textTheme.bodyLarge?.apply(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 textInputAction: TextInputAction.search,
-                onSubmitted: f,
+                onSubmitted: widget.f,
               ),
             ),
-            if (MediaQuery.of(context).size.width <= 950)
+            if(widget.controller.text.isNotEmpty)
+              Tooltip(
+                message: "clear",
+                child: IconButton(
+                  icon: const Icon(Icons.clear_rounded),
+                  onPressed: (){
+                    widget.controller.text = "";
+                  },
+                ),
+              ),
+            if (MediaQuery.of(context).size.width <= 950 && widget.controller.text.isEmpty)
               Tooltip(
                 message: "menu",
                 child: IconButton(
                   icon: const Icon(Icons.menu),
-                  onPressed: showMenu,
+                  onPressed: widget.showMenu,
                 ),
               )
           ]),
@@ -865,6 +886,7 @@ class PreSearchPage extends StatelessWidget {
 
   Widget buildHistorySideBar() {
     return StateBuilder<PreSearchController>(
+        id: "history",
         builder: (logic) => ListView.builder(
               padding: EdgeInsets.zero,
               itemCount: appdata.searchHistory.length + 1,
@@ -888,6 +910,15 @@ class PreSearchPage extends StatelessWidget {
                         .searchHistory[appdata.searchHistory.length - index]),
                     onTap: () => search(appdata
                         .searchHistory[appdata.searchHistory.length - index]),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: (){
+                        appdata.searchHistory.remove(appdata
+                            .searchHistory[appdata.searchHistory.length - index]);
+                        logic.update(["history"]);
+                        appdata.writeHistory();
+                      },
+                    ),
                   );
                 }
               },

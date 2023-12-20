@@ -441,7 +441,7 @@ class LocalFavoriteTile extends ComicTile {
                 ComicItemBrief(comic.name, comic.author, 0, comic.coverPath,
                     comic.target, [],
                     ignoreExamination: true),
-                res.data);
+                res.data, true);
           }
         }
       case ComicType.ehentai:

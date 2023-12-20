@@ -453,7 +453,6 @@ class LocalFavoritesManager {
   }
 
   void onReadEnd(String target) async{
-    if(appdata.settings[54] == "0") return;
     bool isModified = false;
     for(final folder in folderNames){
       var rows = _db.select("""
@@ -462,27 +461,28 @@ class LocalFavoritesManager {
       """);
       if(rows.isNotEmpty){
         isModified = true;
+        var newTime = DateTime.now().toIso8601String().replaceFirst("T", " ").substring(0, 19);
+        String updateLocationSql = "";
         if(appdata.settings[54] == "1"){
           int maxValue = _db.select("""
             SELECT MAX(display_order) AS max_value
             FROM "$folder";
           """).firstOrNull?["max_value"] ?? 0;
-          _db.execute("""
-            UPDATE "$folder"
-            SET display_order = ${maxValue+1}
-            WHERE target == '${target.toParam}';
-          """);
-        } else {
+          updateLocationSql = "display_order = ${maxValue+1},";
+        } else if(appdata.settings[54] == "2"){
           int minValue = _db.select("""
             SELECT MIN(display_order) AS min_value
             FROM "$folder";
           """).firstOrNull?["min_value"] ?? 0;
-          _db.execute("""
+          updateLocationSql = "display_order = ${minValue-1},";
+        }
+        _db.execute("""
             UPDATE "$folder"
-            SET display_order = ${minValue-1}
+            SET 
+              $updateLocationSql
+              time = '$newTime'
             WHERE target == '${target.toParam}';
           """);
-        }
       }
     }
     if(isModified) {

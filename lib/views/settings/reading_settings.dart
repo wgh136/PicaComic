@@ -123,10 +123,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           leading: const Icon(Icons.image_outlined),
           title: Text("图片预加载".tl),
           trailing: Select(
-            initialValue: int.parse(appdata.settings[28]),
-            values: const ["0", "1", "2", "3", "4", "5"],
+            initialValue: ["0", "1", "2", "3", "4", "5", "10", "15"].indexOf(appdata.settings[28]),
+            values: const ["0", "1", "2", "3", "4", "5", "10", "15"],
             whenChange: (i) {
-              appdata.settings[28] = i.toString();
+              appdata.settings[28] = ["0", "1", "2", "3", "4", "5", "10", "15"][i];
               appdata.updateSettings();
             },
             inPopUpWidget: widget.popUp,

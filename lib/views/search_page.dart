@@ -79,7 +79,19 @@ class _SearchPageState extends State<SearchPage> {
                     onSubmitted: (s) => search(),
                     onChanged: (s) => setState(() {}),
                   ),
-                )
+                ),
+                if(widget.controller.text.isNotEmpty)
+                  Tooltip(
+                    message: "clear",
+                    child: IconButton(
+                      icon: const Icon(Icons.clear_rounded),
+                      onPressed: (){
+                        setState(() {
+                          widget.controller.text = "";
+                        });
+                      },
+                    ),
+                  ),
               ],
             ),
           ),

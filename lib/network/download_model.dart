@@ -161,7 +161,11 @@ abstract class DownloadingItem{
           }
           var bytes = await getImage(urls[index]);
           String fileExtension = imageExtension ??
-              '.${urls[index].split('/').lastOrNull?.split('?').firstOrNull?.split(".").elementAtOrNull(1) ?? "jpg"}';
+              '.${urls[index].split('/').lastOrNull?.split('?').firstOrNull?.split(".").last}';
+          // Check fileExtension is really an image extension
+          if(!["jpg", "jpeg", "png", "gif", "webp"].contains(fileExtension)){
+            fileExtension = ".jpg";
+          }
           if(bytes.isEmpty){
             throw Exception("Fail to download image: data is empty.");
           }

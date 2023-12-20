@@ -22,7 +22,7 @@ class DownloadedHtComic extends DownloadedItem{
   List<int> get downloadedEps => [0];
 
   @override
-  List<String> get eps => ["第一章"];
+  List<String> get eps => ["EP 1"];
 
   @override
   String get id => "Ht${comic.id}";
