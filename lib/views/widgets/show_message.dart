@@ -63,8 +63,13 @@ void showMessage(BuildContext? context, String message,
 }
 
 void hideMessage(BuildContext? context) {
-  if (_entry != null) {
-    _entry!.remove();
+  try {
+    if (_entry != null) {
+      _entry!.remove();
+    }
+  }
+  catch(e){
+    _entry = null;
   }
 }
 
