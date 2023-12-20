@@ -334,8 +334,8 @@ class ImageManager {
           var nl = document.querySelector("div#i6 > div > a#loadfail")?.attributes["onclick"]?.split('\'')
               .firstWhereOrNull((element) => element.contains('-'));
           var originImage = document.querySelectorAll("div#i6 > div > a")
-              .firstWhere((element) => element.text.contains("original"))
-              .attributes["href"] ?? "";
+              .firstWhereOrNull((element) => element.text.contains("original"))
+              ?.attributes["href"] ?? "";
           return (image ?? (throw "Failed to get image."), originImage, nl);
         }
       }
