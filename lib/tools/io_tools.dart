@@ -425,7 +425,7 @@ Future<void> exportStringDataAsFile(String data, String fileName) async{
       return;
     }
 
-    final Uint8List fileData = Uint8List.fromList(data.codeUnits);
+    final Uint8List fileData = Uint8List.fromList(const Utf8Encoder().convert(data));
     const String mimeType = 'text/plain';
     final XFile textFile =
     XFile.fromData(fileData, mimeType: mimeType, name: fileName);

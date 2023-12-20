@@ -66,6 +66,7 @@ void hideMessage(BuildContext? context) {
   try {
     if (_entry != null) {
       _entry!.remove();
+      _entry = null;
     }
   }
   catch(e){
