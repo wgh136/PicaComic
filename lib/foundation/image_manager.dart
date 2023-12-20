@@ -336,7 +336,7 @@ class ImageManager {
           var originImage = document.querySelectorAll("div#i6 > div > a")
               .firstWhereOrNull((element) => element.text.contains("original"))
               ?.attributes["href"] ?? "";
-          return (image ?? (throw "Failed to get image."), originImage, nl);
+          return (image ?? "", originImage, nl);
         }
       }
 
@@ -364,6 +364,9 @@ class ImageManager {
 
       while(res == null){
         try{
+          if(image == ""){
+            throw "empty url";
+          }
           res = await dio.get<ResponseBody>(image,
               options: Options(responseType: ResponseType.stream));
           if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
