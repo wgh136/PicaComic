@@ -245,11 +245,7 @@ class ImageManager {
       var dio = logDio(options);
 
       // Get imgKey
-      const urlsOnePage = 40;
-      final shouldLoadPage = (page - 1) ~/ urlsOnePage + 1;
-      final urls =
-          (await EhNetwork().getReaderLinks(galleryLink, shouldLoadPage)).data;
-      final readerLink = urls[(page - 1) % urlsOnePage];
+      final readerLink =  (await EhNetwork().getReaderLink(galleryLink, page)).data;
 
       Future<void> getShowKey() async {
         while (gallery.auth!["showKey"] == "loading") {
@@ -260,7 +256,7 @@ class ImageManager {
         }
         gallery.auth!["showKey"] = "loading";
         try {
-          var res = await EhNetwork().request(urls[0]);
+          var res = await EhNetwork().request(readerLink);
 
           var html = parse(res.data);
           var script = html

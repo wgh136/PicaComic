@@ -68,11 +68,10 @@ class EhNetwork {
     cookieJar.delete(Uri.parse(url), true);
     cookies.removeWhere((element) =>
         ["nw", "ipb_member_id", "ipb_pass_hash"].contains(element.name));
+    cookies.removeWhere((element) => element.name=="igneous" && element.value=="mystery");
     var igneousField =
         cookies.firstWhereOrNull((element) => element.name == "igneous");
-    if (igneousField != null &&
-        appdata.igneous != igneousField.value &&
-        igneousField.value != "mystery") {
+    if (igneousField != null && appdata.igneous != igneousField.value) {
       appdata.igneous = igneousField.value;
       appdata.writeData();
     }
@@ -554,8 +553,24 @@ class EhNetwork {
 
   Set<String> loadingReaderLinks = {};
 
+  Future<Res<String>> getReaderLink(String gLink, int page) async{
+    var res = await _getReaderLinks(gLink, 1);
+    if(page <= res.data.length){
+      return Res(res.data[page-1]);
+    }
+    var urlsOnePage = res.data.length;
+
+    final shouldLoadPage = (page - 1) ~/ urlsOnePage + 1;
+    final urlsRes =
+        (await _getReaderLinks(gLink, shouldLoadPage));
+    if(urlsRes.error){
+      return Res.fromErrorRes(urlsRes);
+    }
+    return Res(urlsRes.data[(page - 1) % urlsOnePage]);
+  }
+
   /// page starts from 1
-  Future<Res<List<String>>> getReaderLinks(String link, int page) async {
+  Future<Res<List<String>>> _getReaderLinks(String link, int page) async {
     String url = "$link?inline_set=ts_m";
     if (page != 1) {
       url = "$url&p=${page - 1}";
