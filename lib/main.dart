@@ -231,11 +231,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               child: Text(details.exception.toString()),
             );
           };
-          if (widget != null) {
-            return Overlay(
-              initialEntries: [OverlayEntry(builder: (context) => widget)],
-            );
-          }
+          if (widget != null) return widget;
           throw ('widget is null');
         },
       );

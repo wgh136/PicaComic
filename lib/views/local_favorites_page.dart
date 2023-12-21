@@ -18,8 +18,10 @@ import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/pic_views/comic_page.dart';
+import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/desktop_menu.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/select.dart';
@@ -324,32 +326,36 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onSecondaryTap_(TapDownDetails details) {
-    showMenu(
-        context: App.globalContext!,
-        position: RelativeRect.fromLTRB(
-            details.globalPosition.dx,
-            details.globalPosition.dy,
-            details.globalPosition.dx,
-            details.globalPosition.dy),
-        items: [
-          PopupMenuItem(
-              onTap: () => Future.delayed(
-                  const Duration(milliseconds: 200), showInfo),
-              child: Text("查看".tl)),
-          PopupMenuItem(
-            child: Text("取消收藏".tl),
-            onTap: () {
+    showDesktopMenu(App.globalContext!,
+        Offset(details.globalPosition.dx, details.globalPosition.dy), [
+          DesktopMenuEntry(
+            text: "查看".tl,
+            onClick: () =>
+                Future.delayed(const Duration(milliseconds: 200), showInfo),
+          ),
+            DesktopMenuEntry(
+              text: "阅读".tl,
+              onClick: () =>
+                  Future.delayed(const Duration(milliseconds: 200), read),
+            ),
+          DesktopMenuEntry(
+            text: "搜索".tl,
+            onClick: () => Future.delayed(
+                const Duration(milliseconds: 200),
+                    () => MainPage.to(() => PreSearchPage(
+                  initialValue: title,
+                ))),
+          ),
+          DesktopMenuEntry(
+            text: "取消收藏".tl,
+            onClick: () {
               LocalFavoritesManager().deleteComic(folderName, comic);
               onDelete();
             },
           ),
-          PopupMenuItem(
-            onTap: read,
-            child: Text("阅读".tl),
-          ),
-          PopupMenuItem(
-            onTap: copyTo,
-            child: Text("复制到".tl),
+          DesktopMenuEntry(
+            text: "复制到".tl,
+            onClick: copyTo,
           ),
         ]);
   }
@@ -427,7 +433,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.picacg:
         {
           bool cancel = false;
-          showLoadingDialog(App.globalContext!, () => cancel = true);
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
           var res = await network.getEps(comic.target);
           if (cancel) {
             return;
@@ -447,7 +453,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.ehentai:
         {
           bool cancel = false;
-          showLoadingDialog(App.globalContext!, () => cancel = true);
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
           var res = await EhNetwork().getGalleryInfo(comic.target);
           if (cancel) {
             return;
@@ -463,7 +469,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.jm:
         {
           bool cancel = false;
-          showLoadingDialog(App.globalContext!, () => cancel = true);
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
           var res = await JmNetwork().getComicInfo(comic.target);
           if (cancel) {
             return;
@@ -479,7 +485,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.hitomi:
         {
           bool cancel = false;
-          showLoadingDialog(App.globalContext!, () => cancel = true);
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
           var res = await HiNetwork().getComicInfo(comic.target);
           if (cancel) {
             return;
@@ -495,7 +501,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.htManga:
         {
           bool cancel = false;
-          showLoadingDialog(App.globalContext!, () => cancel = true);
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
           var res = await HtmangaNetwork().getComicInfo(comic.target);
           if (cancel) {
             return;
@@ -511,7 +517,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.nhentai:
         {
           bool cancel = false;
-          showLoadingDialog(App.globalContext!, () => cancel = true);
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
           var res = await NhentaiNetwork().getComicInfo(comic.target);
           if (cancel) {
             return;

@@ -63,6 +63,9 @@ class DownloadedComic extends DownloadedItem{
 
   @override
   set comicSize(double? value) => size = value;
+
+  @override
+  List<String> get tags => comicItem.tags;
 }
 
 ///picacg的下载进程模型

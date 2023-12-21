@@ -9,7 +9,7 @@ import '../../tools/io_tools.dart';
 import '../download_model.dart';
 
 class NhentaiDownloadedComic extends DownloadedItem{
-  NhentaiDownloadedComic(this.comicID, this.title, this.size, this.cover);
+  NhentaiDownloadedComic(this.comicID, this.title, this.size, this.cover, this.tags);
 
   final String comicID;
 
@@ -52,10 +52,14 @@ class NhentaiDownloadedComic extends DownloadedItem{
       comicID = json["comicID"],
       title = json["title"],
       size = json["size"],
+      tags = List.from(json["tags"] ?? []),
       cover = json["cover"];
 
   @override
   set comicSize(double? value){}
+
+  @override
+  List<String> tags;
 }
 
 class NhentaiDownloadingItem extends DownloadingItem{
@@ -90,7 +94,7 @@ class NhentaiDownloadingItem extends DownloadingItem{
   @override
   Future<void> saveInfo() async{
     var file = File("$path/$id/info.json");
-    var item = NhentaiDownloadedComic(id, title, await getFolderSize(Directory("$path$pathSep$id")), comic.cover);
+    var item = NhentaiDownloadedComic(id, title, await getFolderSize(Directory("$path$pathSep$id")), comic.cover, comic.tags["tags"] ?? []);
     var json = jsonEncode(item.toJson());
     await file.writeAsString(json);
   }

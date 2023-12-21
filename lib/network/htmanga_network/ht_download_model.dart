@@ -48,6 +48,9 @@ class DownloadedHtComic extends DownloadedItem{
 
   @override
   set comicSize(double? value) => size = value;
+
+  @override
+  List<String> get tags => comic.tags.keys.toList();
 }
 
 class DownloadingHtComic extends DownloadingItem{

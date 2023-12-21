@@ -67,6 +67,9 @@ class DownloadedJmComic extends DownloadedItem {
 
   @override
   set comicSize(double? value) => size = value;
+
+  @override
+  List<String> get tags => comic.tags;
 }
 
 class JmDownloadingItem extends DownloadingItem {

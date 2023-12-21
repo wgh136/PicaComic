@@ -9,6 +9,7 @@ import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
@@ -20,6 +21,7 @@ import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
+import 'package:pica_comic/views/widgets/desktop_menu.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';
@@ -223,6 +225,7 @@ class DownloadPage extends StatelessWidget {
           author: logic.comics[index].subTitle,
           imagePath: downloadManager.getCover(logic.comics[index].id),
           type: logic.comics[index].type.name,
+          tag: logic.comics[index].tags,
           onTap: () async {
             if (logic.selecting) {
               logic.selected[index] = !logic.selected[index];
@@ -250,76 +253,71 @@ class DownloadPage extends StatelessWidget {
             logic.update();
           },
           onSecondaryTap: (details) {
-            showMenu(
-                context: App.globalContext!,
-                position: RelativeRect.fromLTRB(
-                    details.globalPosition.dx,
-                    details.globalPosition.dy,
-                    details.globalPosition.dx,
-                    details.globalPosition.dy),
-                items: [
-                  PopupMenuItem(
-                    onTap: () {
+            showDesktopMenu(App.globalContext!,
+                Offset(details.globalPosition.dx, details.globalPosition.dy), [
+                  DesktopMenuEntry(
+                    text: "删除".tl,
+                    onClick: () {
                       downloadManager.delete([logic.comics[index].id]);
                       logic.comics.removeAt(index);
                       logic.selected.removeAt(index);
                       logic.update();
                     },
-                    child: Text("删除".tl),
                   ),
-                  PopupMenuItem(
-                    child: Text("导出".tl),
-                    onTap: () {
-                      Future<void>.delayed(
-                        const Duration(milliseconds: 200),
-                        () => showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          barrierColor: Colors.black26,
-                          builder: (context) => SimpleDialog(
-                            children: [
-                              SizedBox(
-                                width: 200,
-                                height: 200,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 50,
-                                    height: 80,
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(
-                                          height: 10,
+                  DesktopMenuEntry(
+                    text: "导出".tl,
+                    onClick: () =>
+                        Future.delayed(const Duration(milliseconds: 200), () {
+                          Future<void>.delayed(
+                            const Duration(milliseconds: 200),
+                                () => showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              barrierColor: Colors.black26,
+                              builder: (context) => SimpleDialog(
+                                children: [
+                                  SizedBox(
+                                    width: 200,
+                                    height: 200,
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: 50,
+                                        height: 80,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            const CircularProgressIndicator(),
+                                            const SizedBox(
+                                              height: 9,
+                                            ),
+                                            Text("打包中".tl)
+                                          ],
                                         ),
-                                        const CircularProgressIndicator(),
-                                        const SizedBox(
-                                          height: 9,
-                                        ),
-                                        Text("打包中".tl)
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                      Future<void>.delayed(const Duration(milliseconds: 500),
-                          () async {
-                        var res = await exportComic(
-                            logic.comics[index].id, logic.comics[index].name, logic.comics[index].eps);
-                        App.globalBack();
-                        if (res) {
-                          //忽视
-                        } else {
-                          showMessage(App.globalContext, "导出失败");
-                        }
-                      });
-                    },
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                          Future<void>.delayed(const Duration(milliseconds: 500),
+                                  () async {
+                                var res = await exportComic(
+                                    logic.comics[index].id, logic.comics[index].name, logic.comics[index].eps);
+                                App.globalBack();
+                                if (res) {
+                                  //忽视
+                                } else {
+                                  showMessage(App.globalContext, "导出失败");
+                                }
+                              });
+                        }),
                   ),
-                  PopupMenuItem(
-                    child: Text("查看漫画详情".tl),
-                    onTap: () {
+                  DesktopMenuEntry(
+                    text: "查看漫画详情".tl,
+                    onClick: () {
                       Future.delayed(const Duration(milliseconds: 300), () {
                         toComicInfoPage(logic.comics[index]);
                       });
@@ -932,9 +930,13 @@ class DownloadedComicTile extends ComicTile {
   final String author;
   final String name;
   final String type;
+  final List<String> tag;
   final void Function() onTap;
   final void Function() onLongTap;
   final void Function(TapDownDetails details) onSecondaryTap;
+
+  @override
+  List<String>? get tags => tag.map((e) => e.translateTagsToCN).toList();
 
   @override
   String get description => "${size}MB";
@@ -964,6 +966,7 @@ class DownloadedComicTile extends ComicTile {
   @override
   String? get badge => type;
 
+
   const DownloadedComicTile(
       {required this.size,
       required this.imagePath,
@@ -973,5 +976,6 @@ class DownloadedComicTile extends ComicTile {
       required this.onLongTap,
       required this.onSecondaryTap,
       required this.type,
+      required this.tag,
       super.key});
 }

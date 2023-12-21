@@ -52,6 +52,9 @@ class DownloadedHitomiComic extends DownloadedItem {
 
   @override
   set comicSize(double? value) => size = value;
+
+  @override
+  List<String> get tags => comic.tags.map((e) => e.name).toList();
 }
 
 class HitomiDownloadingItem extends DownloadingItem {

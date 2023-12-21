@@ -47,6 +47,15 @@ class DownloadedGallery extends DownloadedItem{
 
   @override
   set comicSize(double? value) {}
+
+  List<String> _getTags(){
+    var res = <String>[];
+    gallery.tags.forEach((key, value) => value.forEach((element) => res.add(element)));
+    return res;
+  }
+
+  @override
+  List<String> get tags => _getTags();
 }
 
 ///e-hentai的下载进程模型
