@@ -11,7 +11,7 @@ import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
-import 'package:pica_comic/views/local_favorites_page.dart';
+import 'package:pica_comic/views/favorites/local_favorites_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';

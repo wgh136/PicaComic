@@ -88,7 +88,7 @@ class Appdata {
     "1", //49 阅读器中双击放缩
     "", //50 language, empty=system
     "", //51 默认收藏夹
-    "1", //52 me page
+    "1", //52 favorites
     "0", //53 本地收藏添加位置(尾/首)
     "0", //54 阅读后移动本地收藏(否/尾/首)
     "1", //55 长按缩放
@@ -366,8 +366,4 @@ Future<void> clearAppdata() async {
   await JmNetwork().cookieJar?.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
-}
-
-class Test{
-  static int a = 1;
 }

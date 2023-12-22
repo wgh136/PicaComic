@@ -62,24 +62,24 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         // ignore
       }
     }
-    setNetworkProxy(); //当App从后台进入前台, 代理设置可能发生变更
-    if (state == AppLifecycleState.resumed) {
-      if (appdata.settings[13] == "1" && appdata.flag && !AuthPage.lock) {
-        appdata.flag = false;
-        App.to(App.globalContext!, () => const AuthPage());
+    setNetworkProxy();
+    scheduleMicrotask(() {
+      if (state == AppLifecycleState.resumed) {
+        if (appdata.settings[13] == "1" && appdata.flag && !AuthPage.lock) {
+          appdata.flag = false;
+          App.to(App.globalContext!, () => const AuthPage());
+        }
+      } else if (state == AppLifecycleState.paused) {
+        appdata.flag = true;
       }
-    } else if (state == AppLifecycleState.paused) {
-      appdata.flag = true;
-    }
 
-    if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
-        7200000) {
-      JmNetwork().loginFromAppdata();
-      Webdav.syncData();
-      time = DateTime.now();
-    }
-
-    App.onAppLifeCircleChanged?.call();
+      if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
+          7200000) {
+        JmNetwork().loginFromAppdata();
+        Webdav.syncData();
+        time = DateTime.now();
+      }
+    });
   }
 
   @override

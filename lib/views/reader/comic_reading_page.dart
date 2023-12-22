@@ -208,7 +208,6 @@ class ComicReadingPage extends StatelessWidget {
       //进入阅读器时清除内存中的缓存, 并且增大限制
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
-      App.onAppLifeCircleChanged = () => TapController.fingers = 0;
       logic.openEpsView = openEpsDrawer;
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
@@ -229,7 +228,6 @@ class ComicReadingPage extends StatelessWidget {
       logic.runningAutoPageTurning = false;
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
-      App.onAppLifeCircleChanged = null;
       LocalFavoritesManager().onReadEnd(target);
       if(history != null) {
         HistoryManager().saveReadHistory(

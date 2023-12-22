@@ -119,10 +119,6 @@ class App {
         };
       }.call();
 
-  /// This function will be called when app life circle state changed.
-  /// 
-  /// Page can change this, and must set this to null when user exit the page.
-  static void Function()? onAppLifeCircleChanged;
 
   /// size of screen
   static Size screenSize(BuildContext context) => MediaQuery.of(context).size;

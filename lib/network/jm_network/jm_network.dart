@@ -63,7 +63,7 @@ class JmNetwork {
             "Accept-Language":
                 "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
             "Referer": baseUrl
-          }, validateStatus: (i) => i==200 || i==403 || i==301, responseType: ResponseType.plain,
+          }, validateStatus: (i) => i==200 || i==403 || i==301 || i==302, responseType: ResponseType.plain,
           followRedirects: true),
           expiredTime: CacheExpiredTime.no,
           http2: true,
@@ -75,7 +75,11 @@ class JmNetwork {
         }
       }
 
-      if(res.statusCode == 301){
+      if(res.statusCode == 301 || res.statusCode == 302){
+        var location = res.headers["location"]!.first;
+        if(location.contains("login")){
+          return const Res(null, errorMessage: "Login Required");
+        }
         return get(res.headers["location"]!.first);
       }
 
@@ -467,9 +471,6 @@ class JmNetwork {
   Future<Res<Map<String, String>>> getFolders() async {
     var res = await get("$baseUrl/user/${appdata.jmName}/favorite/albums");
     if(res.error){
-      if(res.errorMessage!.contains("301")){
-        return const Res(null, errorMessage: "Login Required");
-      }
       return Res.fromErrorRes(res);
     }
     try{

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
-import 'package:pica_comic/views/all_favorites_page.dart';
 import 'package:pica_comic/views/tools.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
@@ -79,12 +78,6 @@ class _NewMePageState extends State<NewMePage>{
                       icon: Icons.switch_account,
                       onTap: () => showAdaptiveWidget(App.globalContext!,
                           AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
-                    ),
-                    MePageButton(
-                      title: "网络收藏".tl,
-                      subTitle: "查看已收藏的漫画".tl,
-                      icon: Icons.bookmarks,
-                      onTap: () => MainPage.to(() => const AllFavoritesPage()),
                     ),
                     MePageButton(
                       title: "已下载".tl,

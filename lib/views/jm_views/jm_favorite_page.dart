@@ -46,6 +46,7 @@ class JmFavoritePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StateBuilder<JmFavoritePageLogic>(
+      init: JmFavoritePageLogic(),
       builder: (logic) {
         if (logic.loading) {
           logic.get();
