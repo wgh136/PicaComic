@@ -166,7 +166,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
     if (appdata.blockingKeyword.contains(tag) ||
         (tag != null &&
             appdata.blockingKeyword.contains(tag!.split(" ").last))) {
-      var body = showNetworkError("已屏蔽的关键词", () {}, context,
+      var body = showNetworkError("Blocked", () {}, context,
           showBack: showBackWhenError);
       if (withScaffold) {
         return Scaffold(
@@ -194,7 +194,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 : showLoading(context);
           } else if (logic.message != null){
             return showNetworkError(
-                logic.message ?? "网络错误", logic.refresh_, context,
+                logic.message ?? "Network Error", logic.refresh_, context,
                 showBack: showBackWhenError);
           } else {
             if (appdata.settings[25] == "0") {

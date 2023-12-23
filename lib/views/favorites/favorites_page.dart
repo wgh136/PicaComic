@@ -13,6 +13,9 @@ import '../../tools/io_tools.dart';
 import '../main_page.dart';
 import 'local_favorites.dart';
 
+const _networkFolderFlag = "**##network##**";
+
+List<String> get _allFolders => [_networkFolderFlag] + LocalFavoritesManager().folderNames;
 
 class LocalFavoritesPage extends StatefulWidget {
   const LocalFavoritesPage({super.key});
@@ -22,13 +25,12 @@ class LocalFavoritesPage extends StatefulWidget {
 }
 
 class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
-  String? _folderName;
+  String? _folderName = _networkFolderFlag;
 
   String? get folderName => _folderName;
 
   set folderName(String? value) {
-    final names = LocalFavoritesManager().folderNames;
-    var page = value == null ? 0 : names.indexOf(value);
+    var page = _allFolders.indexOf(value!);
     _folderName = value;
     controller.to(page);
   }
@@ -55,7 +57,6 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
       LocalFavoritesManager().createFolder("default");
     }
     var names = LocalFavoritesManager().folderNames;
-    _folderName = names.first;
     if(names.contains(appdata.settings[51])){
       _folderName = appdata.settings[51];
     }
@@ -63,9 +64,9 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
   }
 
   void updateFolderName(int i){
-    if(LocalFavoritesManager().folderNames[i] != folderName) {
+    if(_allFolders[i] != folderName) {
       setState(() {
-        _folderName = LocalFavoritesManager().folderNames[i];
+        _folderName = _allFolders[i];
       });
     }
   }
@@ -86,18 +87,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
-      switchInCurve: Curves.ease,
-      switchOutCurve: Curves.ease,
-      transitionBuilder: (child, animation){
-        return FadeTransition(
-          opacity: animation.drive(Tween<double>(begin: 0, end: 1)),
-          child: child,
-        );
-      },
-      child: local ? buildBody(context) : AllFavoritesPage(() => setState(() => local=true)),
-    );
+    return buildBody(context);
   }
 
   Widget buildBody(BuildContext context) {
@@ -140,93 +130,89 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
     );
   }
 
-  void showFolderManageDialog(String name, [bool all = false]) async{
-    if(all){
-      showMessage(context, "不能管理\"全部\"收藏".tl);
-    } else {
-      Widget buildItem(Icon icon, String title, void Function() onTap){
-        return InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400, minHeight: 56),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  icon,
-                  const SizedBox(width: 12,),
-                  Text(title)
-                ],
-              ),
+  void showFolderManageDialog(String name) async{
+    Widget buildItem(Icon icon, String title, void Function() onTap){
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400, minHeight: 56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                icon,
+                const SizedBox(width: 12,),
+                Text(title)
+              ],
             ),
           ),
-        );
-      }
+        ),
+      );
+    }
 
-      bool isModified = false;
+    bool isModified = false;
 
-      await showDialog(context: App.globalContext!, builder: (context) => SimpleDialog(
-        title: Text(name),
-        children: [
-          buildItem(const Icon(Icons.delete), "删除".tl, () {
-            isModified = true;
-            var index = LocalFavoritesManager().folderNames.indexOf(name);
-            LocalFavoritesManager().deleteFolder(name);
-            if(index == LocalFavoritesManager().folderNames.length){
-              index--;
-            }
-            if(name == folderName){
+    await showDialog(context: App.globalContext!, builder: (context) => SimpleDialog(
+      title: Text(name),
+      children: [
+        buildItem(const Icon(Icons.delete), "删除".tl, () {
+          isModified = true;
+          var index = LocalFavoritesManager().folderNames.indexOf(name);
+          LocalFavoritesManager().deleteFolder(name);
+          if(index == LocalFavoritesManager().folderNames.length){
+            index--;
+          }
+          if(name == folderName){
+            _folderName = LocalFavoritesManager().folderNames[index];
+          }
+          setState(() {});
+          App.globalBack();
+        }),
+        buildItem(const Icon(Icons.reorder), "排序".tl, () async{
+          App.globalBack();
+          await App.globalTo(() => LocalFavoritesFolder(name))
+              .then((value) => setState((){}));
+        }),
+        buildItem(const Icon(Icons.drive_file_rename_outline), "重命名".tl, () async{
+          App.globalBack();
+          var index = LocalFavoritesManager().folderNames.indexOf(name);
+          showDialog(context: context, builder: (context) => RenameFolderDialog(name))
+              .then((value) {
+            if(folderName == name && !LocalFavoritesManager().folderNames.contains(folderName)){
               _folderName = LocalFavoritesManager().folderNames[index];
             }
             setState(() {});
-            App.globalBack();
-          }),
-          buildItem(const Icon(Icons.reorder), "排序".tl, () async{
-            App.globalBack();
-            await App.globalTo(() => LocalFavoritesFolder(name))
-                .then((value) => setState((){}));
-          }),
-          buildItem(const Icon(Icons.drive_file_rename_outline), "重命名".tl, () async{
-            App.globalBack();
-            var index = LocalFavoritesManager().folderNames.indexOf(name);
-            showDialog(context: context, builder: (context) => RenameFolderDialog(name))
-                .then((value) {
-              if(folderName == name && !LocalFavoritesManager().folderNames.contains(folderName)){
-                _folderName = LocalFavoritesManager().folderNames[index];
-              }
+          });
+        }),
+        buildItem(const Icon(Icons.library_add_check), "检查漫画存活".tl, () async{
+          App.globalBack();
+          checkFolder(name).then((value) {
+            if(mounted){
               setState(() {});
-            });
-          }),
-          buildItem(const Icon(Icons.library_add_check), "检查漫画存活".tl, () async{
-            App.globalBack();
-            checkFolder(name).then((value) {
-              if(mounted){
-                setState(() {});
-              }
-            });
-          }),
-          buildItem(const Icon(Icons.outbox_rounded), "导出".tl, () async{
-            App.globalBack();
-            var controller = showLoadingDialog(App.globalContext!, () {}, true, true, "正在导出".tl);
-            try {
-              await exportStringDataAsFile(
-                  LocalFavoritesManager().folderToJsonString(name),
-                  "$name.json");
-              controller.close();
             }
-            catch(e, s){
-              controller.close();
-              showMessage(App.globalContext, e.toString());
-              LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
-            }
-          }),
-        ],
-      ));
+          });
+        }),
+        buildItem(const Icon(Icons.outbox_rounded), "导出".tl, () async{
+          App.globalBack();
+          var controller = showLoadingDialog(App.globalContext!, () {}, true, true, "正在导出".tl);
+          try {
+            await exportStringDataAsFile(
+                LocalFavoritesManager().folderToJsonString(name),
+                "$name.json");
+            controller.close();
+          }
+          catch(e, s){
+            controller.close();
+            showMessage(App.globalContext, e.toString());
+            LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+          }
+        }),
+      ],
+    ));
 
-      if(isModified){
-        setState(() {});
-      }
+    if(isModified){
+      setState(() {});
     }
   }
 
@@ -270,14 +256,18 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
   }
 
   Widget buildTabBar() {
-    Widget buildTab(String name, [bool all=false]){
+    Widget buildTab(String name, [bool network=false]){
       var showName = name;
-      if(appdata.settings[65] == "1"){
-        showName += "(${LocalFavoritesManager().count(name)})";
+      if(!network) {
+        if (appdata.settings[65] == "1") {
+          showName += "(${LocalFavoritesManager().count(name)})";
+        }
+      } else {
+        name = _networkFolderFlag;
       }
-      bool selected = (!all && folderName == name) || (all && folderName == null);
+      bool selected = folderName == name;
       return InkWell(
-        key: all? UniqueKey() : Key(name),
+        key: Key(name),
         borderRadius: BorderRadius.circular(8),
         splashColor: App.colors(context).primary.withOpacity(0.2),
         onTap: (){
@@ -285,8 +275,8 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
             folderName = name;
           });
         },
-        onLongPress: () => showFolderManageDialog(name, all),
-        onSecondaryTapDown: (details) => showFolderManageDialog(name, all),
+        onLongPress: network ? null : () => showFolderManageDialog(name),
+        onSecondaryTapDown: network ? null : (details) => showFolderManageDialog(name),
         child: Container(
           constraints: const BoxConstraints(minWidth: 64),
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -330,28 +320,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
               child: Row(
                 children: [
                   const SizedBox(width: 8,),
-                  InkWell(
-                    onTap: (){
-                      setState(() {
-                        local = false;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 12,),
-                            Text("本地".tl,),
-                            const SizedBox(width: 4,),
-                            const Icon(Icons.change_circle_outlined, size: 18,),
-                            const SizedBox(width: 12,),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  buildTab("网络".tl, true),
                   const SizedBox(width: 8,),
                   for(var name in folders)
                     buildTab(name),
@@ -417,7 +386,7 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
       return ComicsPageView(
         key: const Key("comics"),
         controller: controller,
-        initialPage: LocalFavoritesManager().folderNames.indexOf(_folderName!),
+        initialPage: _allFolders.indexOf(_folderName!),
       );
     }
   }
@@ -464,7 +433,7 @@ class ComicsPageViewController{
 
 
 class ComicsPageView extends StatefulWidget {
-  const ComicsPageView({required this.controller, this.initialPage = 1, super.key});
+  const ComicsPageView({required this.controller, this.initialPage = 0, super.key});
 
   final ComicsPageViewController controller;
 
@@ -502,7 +471,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
           curve: Curves.fastOutSlowIn
       );
     } else {
-      temp = buildFolderComics(LocalFavoritesManager().folderNames[currentPage]);
+      temp = buildFolderComics(_allFolders[currentPage]);
       int initialPage = currentPage - newIndex > 0 ? newIndex+1 : newIndex-1;
       controller.jumpToPage(initialPage);
       controller.animateToPage(
@@ -516,33 +485,36 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     if(currentPage == 0){
       return const SizedBox();
     }
-    return buildFolderComics(LocalFavoritesManager().folderNames[currentPage-1]);
+    return buildFolderComics(_allFolders[currentPage-1]);
   }
 
   @override
   Widget build(BuildContext context) {
-    if(LocalFavoritesManager().folderNames.length <= currentPage){
+    if(_allFolders.length <= currentPage){
       currentPage--;
     }
     return PageView.builder(
       controller: controller,
       onPageChanged: (i) {
         currentPage = i;
-        folder = LocalFavoritesManager().folderNames[i];
+        folder = _allFolders[i];
         widget.controller.onDragChangePage(i);
       },
-      itemCount: LocalFavoritesManager().folderNames.length,
+      itemCount: _allFolders.length,
       itemBuilder: (context, index){
         if(temp != null){
           Future.microtask(() => temp = null);
           return temp;
         }
-        return buildFolderComics(LocalFavoritesManager().folderNames[index]);
+        return buildFolderComics(_allFolders[index]);
       },
     );
   }
 
   Widget buildFolderComics(String folder){
+    if(folder == _networkFolderFlag){
+      return const AllFavoritesPage();
+    }
     var comics = LocalFavoritesManager().getAllComics(folder);
     if(comics.isEmpty){
       return buildEmptyView();

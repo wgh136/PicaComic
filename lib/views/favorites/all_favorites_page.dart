@@ -9,9 +9,7 @@ import '../../base.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class AllFavoritesPage extends StatefulWidget {
-  const AllFavoritesPage(this.switchToLocal, {Key? key}) : super(key: key);
-
-  final void Function() switchToLocal;
+  const AllFavoritesPage({Key? key}) : super(key: key);
 
   @override
   State<AllFavoritesPage> createState() => _AllFavoritesPageState();
@@ -108,25 +106,6 @@ class _AllFavoritesPageState extends State<AllFavoritesPage>
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              const SizedBox(width: 8,),
-              InkWell(
-                onTap: widget.switchToLocal,
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(width: 12,),
-                        Text("网络".tl,),
-                        const SizedBox(width: 4,),
-                        const Icon(Icons.change_circle_outlined, size: 18,),
-                        const SizedBox(width: 12,),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
               const SizedBox(width: 8,),
               for(int i=0; i<folders.length; i++)
                 buildTab(i),

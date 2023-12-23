@@ -227,8 +227,8 @@ class AccountsPage extends StatelessWidget {
                   if (appdata.jmName != "")
                     ListTile(
                       title: Text("退出登录".tl),
-                      onTap: () {
-                        jmNetwork.logout();
+                      onTap: () async{
+                        await jmNetwork.logout();
                         logic.update();
                       },
                       trailing: const Icon(Icons.logout),

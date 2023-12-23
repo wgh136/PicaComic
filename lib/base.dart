@@ -310,7 +310,6 @@ class Appdata {
         "jmPwd": jmPwd,
         "htName": htName,
         "htPwd": htPwd,
-        "history": history.toJson(),
         "blockingKeywords": blockingKeyword,
         "favoriteTags": favoriteTags.toList()
       };
@@ -338,7 +337,9 @@ class Appdata {
       jmPwd = json["jmPwd"];
       htName = json["htName"];
       htPwd = json["htPwd"];
-      history.readDataFromJson(json["history"]);
+      if(json["history"] != null) {
+        history.readDataFromJson(json["history"]);
+      }
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
       favoriteTags = Set.from(json["favoriteTags"] ?? favoriteTags);
       writeData(false);

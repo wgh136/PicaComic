@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/settings/jm_settings.dart';
 import '../../foundation/app.dart';
@@ -53,9 +54,11 @@ class JmSearchPage extends StatefulWidget {
 class _SearchPageState extends State<JmSearchPage> {
   late String keyword = widget.keyword;
   var controller = TextEditingController();
+  late ComicsOrder order;
 
   @override
   void initState() {
+    order = widget.order;
     controller.text = keyword;
     super.initState();
   }
@@ -65,8 +68,8 @@ class _SearchPageState extends State<JmSearchPage> {
     return Scaffold(
       body: SearchPageComicsList(
         keyword,
-        widget.order,
-        key: Key(keyword),
+        order,
+        key: Key(keyword + order.name),
         head_: SliverPersistentHeader(
           floating: true,
           delegate: _SliverAppBarDelegate(
@@ -78,9 +81,9 @@ class _SearchPageState extends State<JmSearchPage> {
                 onPressed: () =>
                     setJmComicsOrder(context, search: true).then((b) {
                   if (!b) {
-                    StateController.find<ComicsPageLogic>(
-                            tag: "Jm search $keyword")
-                        .refresh_();
+                    setState(() {
+                      order = ComicsOrder.values[int.parse(appdata.settings[19])];
+                    });
                   }
                 }),
               ),

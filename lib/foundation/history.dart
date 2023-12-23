@@ -100,6 +100,15 @@ class HistoryManager {
 
   late Database _db;
 
+  Future<void> tryUpdateDb() async{
+    var file = File("${App.dataPath}/history_temp.db");
+    if(file.existsSync()){
+      _db.dispose();
+      file.renameSync("${App.dataPath}/history.db");
+      await init();
+    }
+  }
+
   Future<void> init() async {
     _db = sqlite3.open("${App.dataPath}/history.db");
     var res = _db.select(
@@ -123,6 +132,8 @@ class HistoryManager {
         readDataFromJson(jsonDecode(file.readAsStringSync()));
         file.deleteSync();
       }
+    } else {
+      vacuum();
     }
   }
 
@@ -135,6 +146,7 @@ class HistoryManager {
     for(var element in history){
       addHistory(element);
     }
+    vacuum();
   }
 
   void saveData() async {
@@ -210,5 +222,11 @@ class HistoryManager {
       order by time DESC;
     """);
     return res.map((element) => History.fromRow(element)).toList();
+  }
+
+  void vacuum(){
+    _db.execute("""
+      vacuum;
+    """);
   }
 }

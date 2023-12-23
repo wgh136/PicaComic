@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
@@ -217,10 +218,15 @@ Future<String?> _exportData(String path, String appdataString, String? downloadP
     encode.create("$path${pathSep}userData.picadata");
     await encode.addFile(file);
     var localFavorite = File("$path${pathSep}local_favorite.db");
+    var history = File("$path${pathSep}history.db");
     if(! localFavorite.existsSync()){
       localFavorite.createSync();
     }
+    if(! history.existsSync()){
+      history.createSync();
+    }
     await encode.addFile(localFavorite);
+    await encode.addFile(history);
     if(downloadPath != null) {
       var download = Directory(downloadPath);
       await encode.addDirectory(download);
@@ -343,6 +349,10 @@ Future<bool> importData([String? filePath]) async{
             '$path${pathSep}dataTemp${pathSep}local_favorite.db');
         localFavorite2.copySync('$path${pathSep}local_favorite_temp.db');
       }
+      var history = File('$path${pathSep}dataTemp${pathSep}history.db');
+      if(history.existsSync()){
+        history.copySync('$path${pathSep}history_temp.db');
+      }
       if(downloadData.existsSync()) {
         await copyDirectory(
           Directory("$path${pathSep}dataTemp${pathSep}download"), downloadPath);
@@ -387,6 +397,7 @@ Future<bool> importData([String? filePath]) async{
   }
   await LocalFavoritesManager().readData();
   LocalFavoritesManager().updateUI();
+  await HistoryManager().tryUpdateDb();
   return true;
 }
 
