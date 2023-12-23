@@ -235,6 +235,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   Map<String, List<String>>? get tags => {
+        "长度".tl: data!.maxPage.toList(),
         "类型".tl: data!.type.toList(),
         "时间".tl: data!.time.toList(),
         ...data!.tags

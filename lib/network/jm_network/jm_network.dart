@@ -77,6 +77,13 @@ class JmNetwork {
 
       if(res.statusCode == 301 || res.statusCode == 302){
         var location = res.headers["location"]!.first;
+        if(RegExp(r"user/(.*?)/").hasMatch(location)){
+          var jmName = RegExp(r"user/(.*?)/").firstMatch(location)!.group(1)!;
+          if(jmName != appdata.jmName) {
+            appdata.jmName = jmName;
+            appdata.writeData();
+          }
+        }
         if(location.contains("login")){
           return const Res(null, errorMessage: "Login Required");
         }
@@ -508,7 +515,16 @@ class JmNetwork {
     if(jsonDecode(res.data)["status"] == 1){
       return const Res(true);
     }
-    return const Res(null, errorMessage: "Failed to add comic.");
+    try {
+      var msg = jsonDecode(res.data)["msg"] as String;
+      msg = msg.replaceRange(0, msg.indexOf("</button>"), "");
+      msg = msg.replaceFirst("</button>", "");
+      msg = msg.replaceFirst("</div>", "");
+      return Res(null, errorMessage: msg);
+    }
+    catch(e){
+      return const Res(null, errorMessage: "Failed to add comic.");
+    }
   }
 
   Future<Res<List<Comment>>> getComment(String id, int page) async {
