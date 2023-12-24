@@ -455,19 +455,20 @@ class JmNetwork {
         }
         catch(e){/**/}
       }
-      try {
-        var pageLis = document.querySelectorAll(
-            "ul.pagination.pagination-lg > li");
-        if(pageLis.isEmpty){
-          pageLis = document.querySelectorAll(
-              "ul.pagination > li");
+      var pageLis = document.querySelectorAll(
+          "ul.pagination.pagination-lg > li");
+      if(pageLis.isEmpty){
+        pageLis = document.querySelectorAll(
+            "ul.pagination > li");
+      }
+      int maxPages = 1;
+      for(var p in pageLis){
+        var i = int.tryParse(p.text);
+        if(i != null && i > maxPages){
+          maxPages = i;
         }
-        var pages = int.tryParse(pageLis[pageLis.length - 2].text);
-        return Res(comics, subData: pages!);
       }
-      catch(e){
-        return Res(comics, subData: 1);
-      }
+      return Res(comics, subData: maxPages);
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
