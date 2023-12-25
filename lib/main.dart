@@ -17,6 +17,7 @@ import 'package:pica_comic/views/app_views/auth_page.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import 'network/picacg_network/methods.dart';
 import 'network/webdav.dart';
 
@@ -231,7 +232,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               child: Text(details.exception.toString()),
             );
           };
-          if (widget != null) return widget;
+          if (widget != null) return OverlayWidget(widget);
           throw ('widget is null');
         },
       );

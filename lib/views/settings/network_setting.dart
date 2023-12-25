@@ -68,6 +68,7 @@ class _NetworkSettingsState extends State<NetworkSettings> {
             launchUrlString("https://github.com/wgh136/PicaComic/blob/master/doc/hosts.md");
           },
         ),
+        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );
   }

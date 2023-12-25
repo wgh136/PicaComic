@@ -37,7 +37,7 @@ class NewSettingsPage extends StatefulWidget {
   State<NewSettingsPage> createState() => _NewSettingsPageState();
 }
 
-class _NewSettingsPageState extends State<NewSettingsPage> {
+class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
   int currentPage = -1;
 
   ColorScheme get colors => Theme.of(context).colorScheme;
@@ -60,6 +60,19 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
   double offset = 0;
 
   late final HorizontalDragGestureRecognizer gestureRecognizer;
+
+  ModalRoute? _route;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ModalRoute<dynamic>? nextRoute = ModalRoute.of(context);
+    if (nextRoute != _route) {
+      _route?.unregisterPopEntry(this);
+      _route = nextRoute;
+      _route?.registerPopEntry(this);
+    }
+  }
 
   @override
   void initState() {
@@ -113,30 +126,21 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
     super.dispose();
     gestureRecognizer.dispose();
     App.temporaryDisablePopGesture = false;
+    _route?.unregisterPopEntry(this);
   }
 
   @override
   Widget build(BuildContext context) {
     if (currentPage != -1 && !enableTwoViews) {
+      canPop.value = false;
       App.temporaryDisablePopGesture = true;
     } else {
+      canPop.value = true;
       App.temporaryDisablePopGesture = false;
     }
-    return WillPopScope(
-        onWillPop: App.enablePopGesture
-            ? null
-            : () async {
-                if (currentPage != -1) {
-                  setState(() {
-                    currentPage = -1;
-                  });
-                  return false;
-                }
-                return true;
-              },
-        child: Material(
-          child: buildBody(),
-        ));
+    return Material(
+      child: buildBody(),
+    );
   }
 
   Widget buildBody() {
@@ -278,19 +282,20 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
   }
 
   Widget buildComicSourceSettings() {
-    return const Column(
+    return Column(
       children: [
-        PicacgSettings(false),
-        Divider(),
-        EhSettings(false),
-        Divider(),
-        JmSettings(false),
-        Divider(),
-        HtSettings(false),
-        Divider(),
+        const PicacgSettings(false),
+        const Divider(),
+        const EhSettings(false),
+        const Divider(),
+        const JmSettings(false),
+        const Divider(),
+        const HtSettings(false),
+        const Divider(),
         // Encountering some issues, temporarily disable this option.
         //buildNhentaiSettings(),
         //const Divider(),
+        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );
   }
@@ -555,7 +560,8 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
           const ListTile(
             title: Text("Debug"),
             onTap: debug,
-          )
+          ),
+        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );
   }
@@ -621,6 +627,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
               mode: LaunchMode.externalApplication),
           trailing: const Icon(Icons.arrow_right),
         ),
+        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );
   }
@@ -664,4 +671,18 @@ class _NewSettingsPageState extends State<NewSettingsPage> {
 
     return body;
   }
+
+  var canPop = ValueNotifier(true);
+
+  @override
+  ValueListenable<bool> get canPopNotifier => canPop;
+
+  @override
+  PopInvokedCallback? get onPopInvoked => (canPop){
+    if (currentPage != -1) {
+      setState(() {
+        currentPage = -1;
+      });
+    }
+  };
 }

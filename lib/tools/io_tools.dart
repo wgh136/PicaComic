@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:archive/archive_io.dart';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +17,9 @@ import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:zip_flutter/zip_flutter.dart';
 import '../foundation/app.dart';
 
 Future<double> getFolderSize(Directory path) async{
@@ -87,10 +90,7 @@ Future<bool> runningExportComic(ExportComicData data) async{
         }
       }
     }
-    var encode = ZipFileEncoder();
-    encode.create('${data.path!}$pathSep${data.name}.zip');
-    await encode.addDirectory(path);
-    encode.close();
+    ZipFile.compressFolder(path.path, '${data.path!}$pathSep${data.name}.zip');
     if(isModifiedNames) {
       for (var entry in path.listSync()) {
         if (entry is Directory) {
@@ -206,6 +206,7 @@ Future<void> checkDownloadPath() async{
 }
 
 Future<String?> _exportData(String path, String appdataString, String? downloadPath) async{
+  var encode = ZipFile.open("$path/userData.picadata");
   try {
     var filePath = "$path${pathSep}appdata";
     var file = File(filePath);
@@ -214,9 +215,7 @@ Future<String?> _exportData(String path, String appdataString, String? downloadP
     }
     file.createSync();
     file.writeAsStringSync(appdataString);
-    var encode = ZipFileEncoder();
-    encode.create("$path${pathSep}userData.picadata");
-    await encode.addFile(file);
+    encode.addFile(file.uri.pathSegments.last, file.path);
     var localFavorite = File("$path${pathSep}local_favorite.db");
     var history = File("$path${pathSep}history.db");
     if(! localFavorite.existsSync()){
@@ -225,17 +224,33 @@ Future<String?> _exportData(String path, String appdataString, String? downloadP
     if(! history.existsSync()){
       history.createSync();
     }
-    await encode.addFile(localFavorite);
-    await encode.addFile(history);
+    encode.addFile(localFavorite.name, localFavorite.path.replaceAll("\\", "/"));
+    encode.addFile(history.name, history.path);
     if(downloadPath != null) {
-      var download = Directory(downloadPath);
-      await encode.addDirectory(download);
+      downloadPath = downloadPath.replaceAll('\\', '/');
+      var sourceFolder = downloadPath.substring(0, downloadPath.lastIndexOf('/'));
+      void walk(String path){
+        for(var entry in Directory(path).listSync()){
+          if(entry is Directory){
+            walk(entry.path);
+          } else {
+            var filePathInZip = entry.path.replaceFirst(sourceFolder, "");
+            if(filePathInZip.startsWith('/') || filePathInZip.startsWith('\\')){
+              filePathInZip = filePathInZip.substring(1);
+            }
+            encode.addFile(filePathInZip, entry.path);
+          }
+        }
+      }
+      walk(downloadPath);
     }
-    encode.close();
     return null;
   }
   catch(e){
     return e.toString();
+  }
+  finally{
+    encode.close();
   }
 }
 
@@ -266,6 +281,8 @@ Future<bool> runExportData(bool includeDownload) async{
     var path = (await getApplicationSupportDirectory()).path;
     await exportDataToFile(includeDownload);
 
+    showSnackBar("正在复制文件".tl, time: 10);
+
     if (App.isMobile) {
       var params = SaveFileDialogParams(
           sourceFilePath: "$path${pathSep}userData.picadata");
@@ -280,6 +297,8 @@ Future<bool> runExportData(bool includeDownload) async{
         await textFile.saveTo(result.path);
       }
     }
+
+    removeSnackbar();
 
     var file = File("$path${pathSep}userData.picadata");
     file.delete();
@@ -318,10 +337,7 @@ Future<bool> importData([String? filePath]) async{
   }
   var data = await compute<List<String>, String?>((data) async{
     try {
-      var decode = ZipDecoder();
-      final inputStream = InputFileStream(data[1]);
-      var archive = decode.decodeBuffer(inputStream);
-      extractArchiveToDisk(archive, "$path${pathSep}dataTemp");
+      ZipFile.openAndExtract(data[1], "$path${pathSep}dataTemp");
       var downloadPath = Directory(data[2]);
       List<FileSystemEntity> contents = Directory("$path${pathSep}dataTemp")
           .listSync();
@@ -464,4 +480,8 @@ Future<String?> getDataFromUserSelectedFile(List<String> extensions) async{
     return null;
   }
   return File(filePath).readAsStringSync();
+}
+
+extension FileExtension on File{
+  String get name => uri.pathSegments.last;
 }

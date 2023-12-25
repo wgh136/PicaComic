@@ -220,6 +220,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           values: ["覆盖".tl, "容纳".tl],
         ),
       ),
+      Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
     ],
   );
 }

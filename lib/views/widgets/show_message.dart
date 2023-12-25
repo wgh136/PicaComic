@@ -1,37 +1,146 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-SnackRoute? _route;
-
-/// show message
 void showMessage(BuildContext? context, String message,
     {int time = 2, bool useGet = true, Widget? action}) {
-  hideMessage(context);
+  var newEntry = OverlayEntry(builder: (context) => AppSnackBar(message, action));
 
-  var newRoute = SnackRoute(message, action);
+  _OverlayWidgetState.addOverlay(newEntry);
 
-  _route = newRoute;
-
-  Navigator.of(App.globalContext!).push(_route!);
-
-  Future.delayed(Duration(seconds: time), () {
-    if(_route == newRoute){
-      Navigator.of(App.globalContext!).removeRoute(_route!);
-      _route = null;
-    }
-  });
+  Timer(Duration(seconds: time), () => _OverlayWidgetState.remove(newEntry));
 }
 
 void hideMessage(BuildContext? context) {
-  try {
-    if (_route != null) {
-      Navigator.of(App.globalContext!).removeRoute(_route!);
-      _route = null;
+  _OverlayWidgetState.removeAll();
+}
+
+void showSnackBar(String message, {int time = 2, bool useGet = true, Widget? trailing}){
+  var newEntry = OverlayEntry(builder: (context) => AppSnackBar(message, trailing));
+
+  _OverlayWidgetState.addOverlay(newEntry);
+
+  Timer(Duration(seconds: time), () => _OverlayWidgetState.remove(newEntry));
+}
+
+void removeSnackbar(){
+  _OverlayWidgetState.removeAll();
+}
+
+class AppSnackBar extends StatefulWidget {
+  const AppSnackBar(this.message, this.trailing, {super.key});
+
+  final String message;
+  final Widget? trailing;
+
+  @override
+  State<AppSnackBar> createState() => _AppSnackBarState();
+}
+
+class _AppSnackBarState extends State<AppSnackBar> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var padding = MediaQuery.of(App.globalContext!).size.width - 400;
+    if (padding < 32) {
+      padding = 32;
+    }
+    return AnimatedBuilder(animation: CurvedAnimation(parent: _controller, curve: Curves.ease), builder: (context, child) => Positioned(
+      bottom: (24 + MediaQuery.of(context).viewInsets.bottom) * (_controller.value * 2 - 1),
+      left: padding / 2,
+      right: padding / 2,
+      child: Material(
+        color: Theme.of(context).colorScheme.inverseSurface,
+        borderRadius: BorderRadius.circular(4),
+        elevation: 2,
+        child: Container(
+          constraints:
+          const BoxConstraints(minHeight: 48, maxHeight: 104),
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 16,
+              ),
+              Expanded(
+                  child: Text(
+                    widget.message,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onInverseSurface,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500),
+                    maxLines: 3,
+                  )),
+              if (widget.trailing != null) widget.trailing!,
+              const SizedBox(
+                width: 8,
+              )
+            ],
+          ),
+        ),
+      ),
+    ));
+  }
+}
+
+
+
+class OverlayWidget extends StatefulWidget {
+  const OverlayWidget(this.child, {super.key});
+
+  final Widget child;
+
+  @override
+  State<OverlayWidget> createState() => _OverlayWidgetState();
+}
+
+class _OverlayWidgetState extends State<OverlayWidget> {
+  static var overlayKey = GlobalKey<OverlayState>();
+
+  static var entries = <OverlayEntry>[];
+
+  static void addOverlay(OverlayEntry entry){
+    if(overlayKey.currentState != null) {
+      overlayKey.currentState!.insert(entry);
+      entries.add(entry);
     }
   }
-  catch(e){
-    _route = null;
+
+  static void remove(OverlayEntry entry){
+    if(entries.remove(entry)) {
+      entry.remove();
+    }
+  }
+
+  static void removeAll(){
+    for(var entry in entries){
+      entry.remove();
+    }
+    entries.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Overlay(
+      key: overlayKey,
+      initialEntries: [OverlayEntry(builder: (context) => widget.child)],
+    );
   }
 }
 
@@ -39,114 +148,33 @@ void showDialogMessage(BuildContext context, String title, String message) {
   showDialog(
       context: context,
       builder: (context) => AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              TextButton(
-                  onPressed: () => App.back(context), child: Text("了解".tl))
-            ],
-          ));
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+              onPressed: () => App.back(context), child: Text("了解".tl))
+        ],
+      ));
 }
+
+
 
 void showConfirmDialog(BuildContext context, String title, String content,
     void Function() onConfirm) {
   showDialog(
       context: context,
       builder: (context) => AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: [
-              TextButton(
-                  onPressed: () => App.back(context), child: Text("取消".tl)),
-              TextButton(
-                  onPressed: () {
-                    App.back(context);
-                    onConfirm();
-                  },
-                  child: Text("确认".tl)),
-            ],
-          ));
-}
-
-class SnackRoute<T> extends PopupRoute<T>{
-  SnackRoute(this.message, this.action);
-
-  final String message;
-
-  final Widget? action;
-
-  @override
-  Color? get barrierColor => Colors.transparent;
-
-  @override
-  String? get barrierLabel => "Message";
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: 24 + MediaQuery.of(context).viewInsets.bottom,
-          left: 8,
-          right: 8
-        ),
-        child: Material(
-          color: Theme.of(context).colorScheme.inverseSurface,
-          borderRadius: BorderRadius.circular(4),
-          elevation: 2,
-          child: Container(
-            constraints:
-            const BoxConstraints(minHeight: 48, maxHeight: 104, maxWidth: 380),
-            padding: const EdgeInsets.only(top: 8, bottom: 8,),
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 16,
-                ),
-                Expanded(
-                    child: Text(
-                      message,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500),
-                      maxLines: 3,
-                    )),
-                if (action != null) action!,
-                const SizedBox(
-                  width: 8,
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  bool get maintainState => false;
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 200);
-
-  @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-    return SlideTransition(
-      position: animation.drive(
-          Tween(begin: const Offset(0, 1), end: Offset.zero)
-              .chain(CurveTween(curve: Curves.fastOutSlowIn))),
-      child: child,
-    );
-  }
-
-  @override
-  bool get barrierDismissible => false;
-
-  @override
-  void onPopInvoked(bool didPop) {
-    _route = null;
-    super.onPopInvoked(didPop);
-  }
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+              onPressed: () => App.back(context), child: Text("取消".tl)),
+          TextButton(
+              onPressed: () {
+                App.back(context);
+                onConfirm();
+              },
+              child: Text("确认".tl)),
+        ],
+      ));
 }

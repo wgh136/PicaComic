@@ -25,7 +25,7 @@ class AppPageRoute<T> extends PageRoute<T> {
   static bool _isPopGestureEnabled<T>(PageRoute<T> route) {
     if (route.isFirst ||
         route.willHandlePopInternally ||
-        route.hasScopedWillPopCallback ||
+        route.popDisposition == RoutePopDisposition.doNotPop ||
         route.fullscreenDialog ||
         route.animation!.status != AnimationStatus.completed ||
         route.secondaryAnimation!.status != AnimationStatus.dismissed ||

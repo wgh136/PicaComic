@@ -10,7 +10,7 @@ packages:
     source: hosted
     version: "3.4.3"
   archive:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: archive
       sha256: "7b875fd4a20b165a3084bd2d210439b22ebc653f21cea4842729c0c30c82596b"
@@ -1000,6 +1000,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.4.2"
+  zip_flutter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "27a7a66d348546b15da7c3b7e5fa60369c02055d"
+      url: "https://github.com/wgh136/zip_flutter"
+    source: git
+    version: "0.0.1"
 sdks:
   dart: ">=3.2.0 <4.0.0"
   flutter: ">=3.16.0"

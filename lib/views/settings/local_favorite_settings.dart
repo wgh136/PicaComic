@@ -81,7 +81,8 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
               appdata.updateSettings();
             },
           ),
-        )
+        ),
+        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );
   }
