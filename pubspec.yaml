@@ -88,7 +88,7 @@ dependencies:
   zip_flutter:
     git:
       url: https://github.com/wgh136/zip_flutter
-      ref: master
+      ref: 92b7309e
 
 dev_dependencies:
   flutter_test:
