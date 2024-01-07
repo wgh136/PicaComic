@@ -7,7 +7,8 @@ enum ComicType {
   hitomi,
   htManga,
   htFavorite,
-  nhentai;
+  nhentai,
+  other;
 
   bool get hasEps => [0, 2].contains(index);
 }

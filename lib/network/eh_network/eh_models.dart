@@ -1,6 +1,8 @@
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/base_comic.dart';
 
-class EhGalleryBrief{
+class EhGalleryBrief extends BaseComic{
+  @override
   String title;
   String type;
   String time;
@@ -8,6 +10,7 @@ class EhGalleryBrief{
   double stars; //0-5
   String coverPath;
   String link;
+  @override
   List<String> tags;
   int? pages;
 
@@ -26,6 +29,18 @@ class EhGalleryBrief{
       throw Error();
     }
   }
+
+  @override
+  String get cover => coverPath;
+
+  @override
+  String get description => time;
+
+  @override
+  String get id => link;
+
+  @override
+  String get subTitle => uploader;
 }
 
 class Galleries{

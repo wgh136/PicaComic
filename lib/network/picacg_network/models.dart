@@ -1,4 +1,5 @@
 import "package:pica_comic/base.dart";
+import "package:pica_comic/network/base_comic.dart";
 
 class Profile {
   String id;
@@ -53,12 +54,15 @@ class InitData {
   InitData(this.imageServer, this.fileServer);
 }
 
-class ComicItemBrief {
+class ComicItemBrief extends BaseComic{
+  @override
   String title;
   String author;
   int likes;
   String path;
+  @override
   String id;
+  @override
   List<String> tags;
   int? pages;
 
@@ -72,6 +76,15 @@ class ComicItemBrief {
       throw Error();
     }
   }
+
+  @override
+  String get cover => path;
+
+  @override
+  String get description => "$likes pages";
+
+  @override
+  String get subTitle => author;
 }
 
 class ComicItem {

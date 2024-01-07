@@ -1,3 +1,6 @@
+import 'package:pica_comic/network/base_comic.dart';
+import 'package:pica_comic/network/jm_network/jm_image.dart';
+
 import '../../base.dart';
 
 class HomePageData {
@@ -15,12 +18,15 @@ class HomePageItem {
   HomePageItem(this.name, this.id, this.comics, this.category);
 }
 
-class JmComicBrief {
+class JmComicBrief extends BaseComic{
+  @override
   String id;
   String author;
   String name;
+  @override
   String description;
   List<ComicCategoryInfo> categories;
+  @override
   List<String> tags;
 
   JmComicBrief(this.id, this.author, this.name, this.description,
@@ -36,6 +42,15 @@ class JmComicBrief {
       throw Error();
     }
   }
+
+  @override
+  String get cover => getJmCoverUrl(id);
+
+  @override
+  String get subTitle => author;
+
+  @override
+  String get title => name;
 }
 
 class ComicCategoryInfo {

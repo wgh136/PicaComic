@@ -11,6 +11,7 @@ import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/favorites/network_to_local.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
@@ -95,7 +96,7 @@ class CreateFolderDialog extends StatelessWidget {
                 onPressed: () async {
                   App.globalBack();
                   await Future.delayed(const Duration(milliseconds: 200));
-                  showNetworkSourceDialog(App.globalContext!);
+                  networkToLocal();
                 },
               ),
               const Spacer(),
@@ -203,44 +204,55 @@ class LocalFavoriteTile extends ComicTile {
   String get description => "${comic.time} | ${comic.type.name}";
 
   @override
-  Widget get image => cache[comic.target] == null
-      ? FutureBuilder<File>(
-    future: LocalFavoritesManager().getCover(comic),
-    builder: (context, file) {
-      Widget child;
-      if (file.hasError) {
-        LogManager.addLog(LogLevel.error, "Network", file.stackTrace.toString());
-        child = const Center(
-          child: Icon(Icons.error),
-        );
-      } else if (file.data == null) {
-        child = ColoredBox(
-            color: Theme.of(context).colorScheme.secondaryContainer,
-            child: const SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-            ));
-      } else {
-        cache[comic.target] = file.data!;
-        child = Image.file(
-          file.data!,
-          fit: BoxFit.cover,
-          height: double.infinity,
-          filterQuality: FilterQuality.medium,
-        );
-      }
-      return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: child,
+  Widget get image => (){
+    if(DownloadManager().allComics.contains(comic.toDownloadId())){
+      return Image.file(
+        DownloadManager().getCover(comic.toDownloadId()),
+        fit: BoxFit.cover,
+        height: double.infinity,
+        filterQuality: FilterQuality.medium,
       );
-    },
-  )
-      : Image.file(
-    cache[comic.target]!,
-    fit: BoxFit.cover,
-    height: double.infinity,
-    filterQuality: FilterQuality.medium,
-  );
+    } else if(cache[comic.target] == null){
+      return FutureBuilder<File>(
+        future: LocalFavoritesManager().getCover(comic),
+        builder: (context, file) {
+          Widget child;
+          if (file.hasError) {
+            LogManager.addLog(LogLevel.error, "Network", file.stackTrace.toString());
+            child = const Center(
+              child: Icon(Icons.error),
+            );
+          } else if (file.data == null) {
+            child = ColoredBox(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                child: const SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                ));
+          } else {
+            cache[comic.target] = file.data!;
+            child = Image.file(
+              file.data!,
+              fit: BoxFit.cover,
+              height: double.infinity,
+              filterQuality: FilterQuality.medium,
+            );
+          }
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: child,
+          );
+        },
+      );
+    } else {
+      return Image.file(
+        cache[comic.target]!,
+        fit: BoxFit.cover,
+        height: double.infinity,
+        filterQuality: FilterQuality.medium,
+      );
+    }
+  }();
 
   void showInfo() {
     switch (comic.type) {
@@ -276,7 +288,8 @@ class LocalFavoriteTile extends ComicTile {
             ignoreExamination: true)));
       case ComicType.nhentai:
         MainPage.to(() => NhentaiComicPage(comic.target));
-      case ComicType.htFavorite:
+      default:
+        // TODO: implement custom comic source.
         throw UnimplementedError();
     }
   }
@@ -529,7 +542,8 @@ class LocalFavoriteTile extends ComicTile {
             readNhentai(res.data);
           }
         }
-      case ComicType.htFavorite:
+      default:
+        // TODO: implement custom comic source.
         throw UnimplementedError();
     }
   }

@@ -11,6 +11,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
@@ -251,7 +252,7 @@ class ImageManager {
         while (gallery.auth!["showKey"] == "loading") {
           await Future.delayed(const Duration(milliseconds: 100));
         }
-        if (gallery.auth!["showKey"] != null) {
+        if (gallery.auth!["showKey"] != null || gallery.auth!["mpvKey"] != null) {
           return;
         }
         gallery.auth!["showKey"] = "loading";
@@ -259,12 +260,29 @@ class ImageManager {
           var res = await EhNetwork().request(readerLink);
 
           var html = parse(res.data);
+          saveDebugData(res.data);
           var script = html
               .querySelectorAll("script")
-              .firstWhere((element) => element.text.contains("showkey"));
-          var match = RegExp(r'showkey="(.*?)"').firstMatch(script.text);
-          final showKey = match!.group(1)!;
-          gallery.auth!["showKey"] = showKey;
+              .firstWhereOrNull((element) => element.text.contains("showkey"));
+          if(script != null) {
+            var match = RegExp(r'showkey="(.*?)"').firstMatch(script.text);
+            final showKey = match!.group(1)!;
+            gallery.auth!["showKey"] = showKey;
+          } else {
+            final script = html
+                .querySelectorAll("script")
+                .firstWhereOrNull((element) => element.text.contains("mpvkey"))?.text;
+            if(script == null){
+              throw Exception("Failed to get showKey or mpvkey");
+            }
+            var mpvKey= script.split(";").firstWhere((element) => element.contains("mpvkey"));
+            gallery.auth!["mpvKey"] = mpvKey.removeAllBlank
+                .replaceFirst("varmpvkey=", "").replaceAll('"', "");
+            var imageListScript = script.split(";").firstWhere((element) => element.contains("imagelist"))
+                .removeAllBlank.replaceFirst("varimagelist=", "");
+            gallery.auth!["imgKey"] = jsonDecode(imageListScript).map((e) => e["k"]).join(",");
+            gallery.auth!.remove("showKey");
+          }
         }
         catch(e){
           gallery.auth!.remove("showKey");
@@ -272,7 +290,7 @@ class ImageManager {
         }
       }
       await getShowKey();
-      assert(gallery.auth?["showKey"] != null);
+      assert(gallery.auth?["showKey"] != null || gallery.auth?["mpvKey"] != null);
 
       // generate file name
       var fileName =
@@ -285,107 +303,146 @@ class ImageManager {
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, cacheKey, savePath);
 
-      var imgKey = readerLink.split('/')[4];
-
-      Future<(String, String, String?)> getImageFromApi() async{
-        // get image url through api
-        Res<String>? apiRes = await EhNetwork().apiRequest({
-          "gid": int.parse(gid),
-          "imgkey": imgKey,
-          "method": "showpage",
-          "page": page,
-          "showkey": gallery.auth!["showKey"]
-        });
-
-        if(apiRes.error && apiRes.errorMessage!.contains("handshake")){
-          throw "Failed to make api request.\n"
-              "This may be due to too frequent requests.\n"
-              "Try to wait for some time and retry.";
-        }
-
-        var apiJson = const JsonDecoder().convert(apiRes.data);
-
-        var i6 = apiJson["i6"] as String;
-
-        RegExp regex = RegExp(r"nl\('(.+?)'\)");
-        var nl = regex.firstMatch(i6)?.group(1);
-
-        var originImage = i6.split("<a href=\"").last.split("\">").first;
-
-        var image = apiJson["i3"] as String;
-
-        image = image.substring(
-            image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
-
-        return (image, originImage, nl);
-      }
-
-      Future<(String, String, String?)> getImageFromHtml() async{
-        var res = await EhNetwork().request(readerLink);
-        if(res.error){
-          throw res.errorMessage ?? "error";
-        }else{
-          var document = parse(res.data);
-          var image = document.querySelector("div#i3 > a > img")?.attributes["src"];
-          var nl = document.querySelector("div#i6 > div > a#loadfail")?.attributes["onclick"]?.split('\'')
-              .firstWhereOrNull((element) => element.contains('-'));
-          var originImage = document.querySelectorAll("div#i6 > div > a")
-              .firstWhereOrNull((element) => element.text.contains("original"))
-              ?.attributes["href"] ?? "";
-          return (image ?? "", originImage, nl);
-        }
-      }
-
-      String image, originImage;
-      String? nl;
-
-      try{
-        (image, originImage, nl) = await getImageFromApi();
-      }
-      catch(e){
-        (image, originImage, nl) = await getImageFromHtml();
-      }
-
-      if (image.contains("/img/509.gi")) {
-        throw ImageExceedError();
-      }
-
-      if(appdata.settings[29] == "1" && originImage.isURL){
-        image = originImage;
-      }
-
 
       Response<ResponseBody>? res;
-      int retryTimes = 0;
 
-      while(res == null){
-        try{
-          if(image == ""){
-            throw "empty url";
+      var imgKey = readerLink.split('/')[4];
+
+      if(gallery.auth?["mpvKey"] != null){
+        Future<(String image, String nl)> getImageFromApi([String? nl]) async{
+          Res<String>? apiRes = await EhNetwork().apiRequest({
+            "gid": int.parse(gid),
+            "imgkey": gallery.auth!["imgKey"]!.split(',')[page-1],
+            "method": "imagedispatch",
+            "page": page,
+            "mpvkey": gallery.auth!["mpvKey"],
+            if(nl != null)
+              "nl": nl
+          });
+          var apiJson = const JsonDecoder().convert(apiRes.data);
+          return (apiJson["i"].toString(), apiJson["s"].toString());
+        }
+        var (image, nl) = await getImageFromApi();
+        int retryTimes = 0;
+        while(res == null){
+          try{
+            if(image == ""){
+              throw "empty url";
+            }
+            res = await dio.get<ResponseBody>(image,
+                options: Options(responseType: ResponseType.stream));
+            if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
+                res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
+              throw ImageExceedError();
+            }
           }
-          res = await dio.get<ResponseBody>(image,
-              options: Options(responseType: ResponseType.stream));
-          if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
-              res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
-            throw ImageExceedError();
+          catch(e){
+            retryTimes++;
+            if(retryTimes == 4){
+              throw "Failed to load image.\nMaximum number of retries reached.";
+            }
+            (image, nl) = await getImageFromApi(nl);
           }
         }
+      } else {
+        Future<(String, String, String?)> getImageFromApi() async{
+          // get image url through api
+          Res<String>? apiRes = await EhNetwork().apiRequest({
+            "gid": int.parse(gid),
+            "imgkey": imgKey,
+            "method": "showpage",
+            "page": page,
+            "showkey": gallery.auth!["showKey"]
+          });
+
+          if(apiRes.error && apiRes.errorMessage!.contains("handshake")){
+            throw "Failed to make api request.\n"
+                "This may be due to too frequent requests.\n"
+                "Try to wait for some time and retry.";
+          }
+
+          var apiJson = const JsonDecoder().convert(apiRes.data);
+
+          var i6 = apiJson["i6"] as String;
+
+          RegExp regex = RegExp(r"nl\('(.+?)'\)");
+          var nl = regex.firstMatch(i6)?.group(1);
+
+          var originImage = i6.split("<a href=\"").last.split("\">").first;
+
+          var image = apiJson["i3"] as String;
+
+          image = image.substring(
+              image.indexOf("src=\"") + 5, image.indexOf("\" style") - 1);
+
+          return (image, originImage, nl);
+        }
+
+        Future<(String, String, String?)> getImageFromHtml() async{
+          var res = await EhNetwork().request(readerLink);
+          if(res.error){
+            throw res.errorMessage ?? "error";
+          }else{
+            var document = parse(res.data);
+            var image = document.querySelector("div#i3 > a > img")?.attributes["src"];
+            var nl = document.querySelector("div#i6 > div > a#loadfail")?.attributes["onclick"]?.split('\'')
+                .firstWhereOrNull((element) => element.contains('-'));
+            var originImage = document.querySelectorAll("div#i6 > div > a")
+                .firstWhereOrNull((element) => element.text.contains("original"))
+                ?.attributes["href"] ?? "";
+            return (image ?? "", originImage, nl);
+          }
+        }
+
+        String image, originImage;
+        String? nl;
+
+        try{
+          (image, originImage, nl) = await getImageFromApi();
+        }
         catch(e){
-          retryTimes++;
-          if(retryTimes == 4){
-            throw "Failed to load image.\nMaximum number of retries reached.";
+          (image, originImage, nl) = await getImageFromHtml();
+        }
+
+        if (image.contains("/img/509.gi")) {
+          throw ImageExceedError();
+        }
+
+        if(appdata.settings[29] == "1" && originImage.isURL){
+          image = originImage;
+        }
+
+        int retryTimes = 0;
+
+        while(res == null){
+          try{
+            if(image == ""){
+              throw "empty url";
+            }
+            res = await dio.get<ResponseBody>(image,
+                options: Options(responseType: ResponseType.stream));
+            if (res.data!.headers["Content-Type"]?[0] == "text/html; charset=UTF-8" ||
+                res.data!.headers["content-type"]?[0] == "text/html; charset=UTF-8") {
+              throw ImageExceedError();
+            }
           }
-          if(nl == null){
-            rethrow;
-          }
-          var (newImage, newNl) = await EhNetwork().getImageLinkWithNL(
-              getGalleryId(galleryLink), imgKey, page, nl);
-          image = newImage;
-          if(kDebugMode){
-            print("Get new image: $image, new nl $newNl");
-          }
-          if(newNl != null){
-            nl = newNl;
+          catch(e){
+            retryTimes++;
+            if(retryTimes == 4){
+              throw "Failed to load image.\nMaximum number of retries reached.";
+            }
+            if(nl == null){
+              rethrow;
+            }
+            var (newImage, newNl) = await EhNetwork().getImageLinkWithNL(
+                getGalleryId(galleryLink), imgKey, page, nl);
+            image = newImage;
+            if(kDebugMode){
+              print("Get new image: $image, new nl $newNl");
+            }
+            if(newNl != null){
+              nl = newNl;
+            }
           }
         }
       }
@@ -419,7 +476,10 @@ class ImageManager {
       }
       await saveInfo(cacheKey, savePath);
       yield DownloadProgress(1, 1, cacheKey, savePath);
-    } finally {
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
+    }finally {
       loadingItems.remove(cacheKey);
     }
   }

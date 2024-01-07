@@ -40,6 +40,9 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>> extends ImagePr
           return decode(buffer);
         }
         catch(e){
+          if(e.toString().contains("Your IP address")){
+            rethrow;
+          }
           retryTime <<= 1;
           if(retryTime > (2 << 6)){
             rethrow;

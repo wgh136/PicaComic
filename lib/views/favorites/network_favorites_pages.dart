@@ -1,32 +1,31 @@
+import 'package:pica_comic/comic_source/favorites.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/eh_views/eh_favourite_page.dart';
-import 'package:pica_comic/views/ht_views/ht_favorites_page.dart';
-import 'package:pica_comic/views/jm_views/jm_favorite_page.dart';
-import 'package:pica_comic/views/nhentai/favorites_page.dart';
-import 'package:pica_comic/views/pic_views/favorites_page.dart';
-import '../../base.dart';
-import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/favorites/network_favorite_page.dart';
 
-class AllFavoritesPage extends StatefulWidget {
-  const AllFavoritesPage({Key? key}) : super(key: key);
+import '../../base.dart';
+
+class NetworkFavoritesPages extends StatefulWidget {
+  const NetworkFavoritesPages({Key? key}) : super(key: key);
 
   @override
-  State<AllFavoritesPage> createState() => _AllFavoritesPageState();
+  State<NetworkFavoritesPages> createState() => _NetworkFavoritesPagesState();
 }
 
-class _AllFavoritesPageState extends State<AllFavoritesPage>
+class _NetworkFavoritesPagesState extends State<NetworkFavoritesPages>
     with SingleTickerProviderStateMixin {
   late TabController controller;
-  int pages = int.parse(appdata.settings[21][0]) +
-      int.parse(appdata.settings[21][1]) +
-      int.parse(appdata.settings[21][2]) +
-      int.parse(appdata.settings[21][4]) +
-      int.parse(appdata.settings[21][5]);
+
+  late final List<FavoriteData> _folders;
 
   @override
   void initState() {
-    controller = TabController(length: pages, vsync: this);
+    var folders = <FavoriteData>[];
+    for(var key in appdata.settings[68].split(',')){
+      folders.add(getFavoriteData(key));
+    }
+    _folders = folders;
+    controller = TabController(length: _folders.length, vsync: this);
     controller.addListener(() {
       setState(() {});
     });
@@ -42,13 +41,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage>
         Expanded(
           child: TabBarView(
             controller: controller,
-            children: [
-              if (appdata.settings[21][0] == "1") const FavoritesPage(),
-              if (appdata.settings[21][1] == "1") const EhFavoritePage(),
-              if (appdata.settings[21][2] == "1") const JmFavoritePage(),
-              if (appdata.settings[21][4] == "1") const HtFavoritePage(),
-              if (appdata.settings[21][5] == "1") const NhentaiFavoritePage(),
-            ],
+            children: _folders.map((e) => NetworkFavoritePage(e)).toList(),
           ),
         )
       ],
@@ -56,18 +49,7 @@ class _AllFavoritesPageState extends State<AllFavoritesPage>
   }
 
   Widget buildTabBar() {
-    final folders = <String>[
-      if (appdata.settings[21][0] == "1")
-        "Picacg",
-      if (appdata.settings[21][1] == "1")
-        "EHentai",
-      if (appdata.settings[21][2] == "1")
-        "禁漫天堂".tl,
-      if (appdata.settings[21][4] == "1")
-        "绅士漫画".tl,
-      if (appdata.settings[21][5] == "1")
-        "Nhentai",
-    ];
+    final folders = _folders.map((e) => e.title).toList();
 
     Widget buildTab(int index, [bool all=false]){
       var showName = folders[index];

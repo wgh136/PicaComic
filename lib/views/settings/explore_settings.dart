@@ -5,7 +5,11 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/settings/app_settings.dart';
 import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
+import 'package:pica_comic/views/settings/multi_pages_filter.dart';
 import 'package:pica_comic/views/widgets/select.dart';
+
+import '../../foundation/app.dart';
+import '../widgets/pop_up_widget.dart';
 
 Widget buildExploreSettings(BuildContext context, bool popUp) {
   var comicTileSettings = appdata.settings[44].split(',');
@@ -42,17 +46,26 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
       ),
       ListTile(
         leading:
-            const Icon(Icons.source),
-        title: Text("漫画源(非探索页面)".tl),
-        trailing: const Icon(Icons.arrow_right),
-        onTap: () => setComicSource(context),
-      ),
-      ListTile(
-        leading:
             const Icon(Icons.pages),
         title: Text("探索页面".tl),
         trailing: const Icon(Icons.arrow_right),
         onTap: () => setExplorePages(context),
+      ),
+      ListTile(
+        leading:
+        const Icon(Icons.account_tree),
+        title: Text("分类页面".tl),
+        trailing: const Icon(Icons.arrow_right),
+        onTap: () => showAdaptiveWidget(App.globalContext!,
+            MultiPagesFilter("分类页面".tl, 67, categoryPages())),
+      ),
+      ListTile(
+        leading:
+        const Icon(Icons.favorite),
+        title: Text("网络收藏页面".tl),
+        trailing: const Icon(Icons.arrow_right),
+        onTap: () => showAdaptiveWidget(App.globalContext!,
+            MultiPagesFilter("网络收藏页面".tl, 68, networkFavorites())),
       ),
       ListTile(
         leading:
@@ -280,4 +293,24 @@ class _ComicToolsSettingState extends State<ComicToolsSetting> {
       ),
     );
   }
+}
+
+Map<String, String> categoryPages(){
+  return {
+    "picacg": "Picacg",
+    "ehentai": "ehentai",
+    "jm": "禁漫天堂".tl,
+    "htmanga": "绅士漫画".tl,
+    "nhentai": "nhentai"
+  };
+}
+
+Map<String, String> networkFavorites(){
+  return {
+    "picacg": "Picacg",
+    "ehentai": "ehentai",
+    "jm": "禁漫天堂".tl,
+    "htmanga": "绅士漫画".tl,
+    "nhentai": "nhentai"
+  };
 }

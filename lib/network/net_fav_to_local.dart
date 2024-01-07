@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -19,14 +20,18 @@ void startConvert<T extends Object>(
     ComicToLocalFavoriteFunc<T> toLocalFavoriteFunc) async{
   var comics = <T>[];
 
-  Stream<(int, int)> load() async*{
-    yield (0,1);
+  Stream<(int, int?)> load() async*{
+    yield (0,null);
     int current = 0;
     int? total;
-    while(current < (total??1)){
+    while(total == null || current < total){
       var res = await getFavoriteFunc(current+1);
       if(res.error){
         throw res.errorMessageWithoutNull;
+      }
+      if(res.data.isEmpty){
+        yield (current, current);
+        return;
       }
       comics.addAll(res.data);
       total ??= res.subData;
@@ -34,7 +39,7 @@ void startConvert<T extends Object>(
         await Future.delayed(interval);
       }
       current++;
-      yield (current, total??1);
+      yield (current, total);
       if(current > 5){
         var random = Random().nextInt(500) + 500;
         await Future.delayed(Duration(milliseconds: random));
@@ -49,12 +54,16 @@ void startConvert<T extends Object>(
       const Center(
         child: CircularProgressIndicator(),
       ),
-      StreamBuilder<(int, int)>(
+      StreamBuilder<(int, int?)>(
         stream: load(),
         builder: (context, snapshot){
           if(snapshot.hasError){
             Future.microtask(() {
               App.back(context);
+              if(kDebugMode){
+                print(snapshot.error);
+                print(snapshot.stackTrace);
+              }
               showMessage(App.globalContext!, snapshot.error.toString());
             });
           }

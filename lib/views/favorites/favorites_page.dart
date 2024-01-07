@@ -3,7 +3,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/favorites/all_favorites_page.dart';
+import 'package:pica_comic/views/favorites/network_favorites_pages.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -513,7 +513,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
 
   Widget buildFolderComics(String folder){
     if(folder == _networkFolderFlag){
-      return const AllFavoritesPage();
+      return const NetworkFavoritesPages();
     }
     var comics = LocalFavoritesManager().getAllComics(folder);
     if(comics.isEmpty){
