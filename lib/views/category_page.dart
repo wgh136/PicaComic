@@ -26,6 +26,7 @@ class AllCategoryPage extends StatelessWidget {
               child: Column(
                 children: [
                   TabBar.secondary(
+                    splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
                     tabs: [
                       for (var c in categories)
                         Tab(

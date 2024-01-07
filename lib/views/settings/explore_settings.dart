@@ -233,6 +233,19 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           values: ["覆盖".tl, "容纳".tl],
         ),
       ),
+      ListTile(
+        leading: const Icon(Icons.language),
+        title: Text("自动添加语言筛选".tl),
+        subtitle: Text("仅部分漫画源有效".tl),
+        trailing: Select(
+          initialValue: int.parse(appdata.settings[69]),
+          whenChange: (i) {
+            appdata.settings[69] = i.toString();
+            appdata.updateSettings();
+          },
+          values: ["无".tl, "chinese", "english", "japanese"],
+        ),
+      ),
       Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
     ],
   );

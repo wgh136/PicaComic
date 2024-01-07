@@ -105,6 +105,7 @@ class Appdata {
     "0", //66 缩略图布局: 覆盖, 容纳
     "picacg,ehentai,jm,htmanga,nhentai", //67 分类页面
     "picacg,ehentai,jm,htmanga,nhentai", //68 收藏页面
+    "0", //69 自动添加语言筛选
   ];
 
   ///屏蔽的关键词

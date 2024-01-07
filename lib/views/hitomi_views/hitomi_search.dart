@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
+import '../../base.dart';
 import '../../foundation/app.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';
@@ -60,8 +61,17 @@ class HitomiSearchPage extends StatefulWidget {
 }
 
 class _HitomiSearchPageState extends State<HitomiSearchPage> {
-  late String keyword = widget.keyword;
+  late String keyword;
   var controller = TextEditingController();
+
+  @override
+  void initState() {
+    keyword = widget.keyword;
+    if(appdata.settings[69] != "0" && !keyword.contains("lang")){
+      keyword += " language:${["", "chinese", "english", "japanese"][int.parse(appdata.settings[69])]}";
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

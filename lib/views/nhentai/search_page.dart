@@ -51,9 +51,18 @@ class NhentaiSearchPage extends StatefulWidget {
 }
 
 class _NhentaiSearchPageState extends State<NhentaiSearchPage> {
-  late String keyword = widget.keyword;
+  late String keyword;
   var controller = TextEditingController();
   NhentaiSort sort = NhentaiSort.values[int.parse(appdata.settings[39])];
+
+  @override
+  void initState() {
+    keyword = widget.keyword;
+    if(appdata.settings[69] != "0" && !keyword.contains("lang")){
+      keyword += " language:${["", "chinese", "english", "japanese"][int.parse(appdata.settings[69])]}";
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
