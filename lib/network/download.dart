@@ -506,11 +506,26 @@ class DownloadManager{
   File getImage(String id, int ep, int index){
     String downloadPath;
     if(ep == 0){
-      downloadPath = "$path$pathSep$id$pathSep";
+      downloadPath = "$path/$id/";
     }else{
-      downloadPath = "$path$pathSep$id$pathSep$ep$pathSep";
+      downloadPath = "$path/$id/$ep/";
     }
     for(var file in Directory(downloadPath).listSync()){
+      if(file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") == index.toString()){
+        return file as File;
+      }
+    }
+    throw Exception("File not found");
+  }
+
+  Future<File> getImageAsync(String id, int ep, int index) async{
+    String downloadPath;
+    if(ep == 0){
+      downloadPath = "$path/$id/";
+    }else{
+      downloadPath = "$path/$id/$ep/";
+    }
+    await for(var file in Directory(downloadPath).list()){
       if(file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") == index.toString()){
         return file as File;
       }
