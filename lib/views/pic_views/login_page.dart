@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/views/pic_views/register.dart';
-import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
 import '../../network/picacg_network/methods.dart';
@@ -23,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('登录哔咔账号'.tl),
+        title: Text('登录'.tl),
         actions: [
           Tooltip(
             message: "转到注册".tl,
@@ -120,13 +119,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 )),
-                SizedBox.fromSize(size: const Size(5,10),),
-                  ListTile(
-                    leading: Icon(Icons.settings, color: Theme.of(context).colorScheme.secondary,),
-                    title: const Text("设置"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () => NewSettingsPage.open(),
-                  ),
                 SizedBox.fromSize(size: const Size(5,10),),
                 if(!isLogging)
                   SizedBox(

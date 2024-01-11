@@ -25,7 +25,7 @@ class AllCategoryPage extends StatelessWidget {
               key: Key(appdata.settings[67]),
               child: Column(
                 children: [
-                  TabBar.secondary(
+                  TabBar(
                     splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
                     tabs: [
                       for (var c in categories)
@@ -130,7 +130,7 @@ class CategoryPage extends StatelessWidget {
   Widget buildTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 5, 10),
-      child: Text(title.translateTagsCategoryToCN,
+      child: Text(title.tl,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
     );
   }
@@ -140,7 +140,7 @@ class CategoryPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 5, 10),
       child: Row(
         children: [
-          Text(title,
+          Text(title.tl,
               style:
                   const TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
           const Spacer(),

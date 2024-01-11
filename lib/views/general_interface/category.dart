@@ -8,7 +8,6 @@ void toCategoryPage(String key, String tag, String? param) {
     case "picacg":
       MainPage.to(() => CategoryComicPage(
             tag,
-            categoryType: 1,
           ));
     case "jm":
       MainPage.to(() => JmComicsPage(tag, param!));

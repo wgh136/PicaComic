@@ -20,7 +20,7 @@ class _HtLoginPageState extends State<HtLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("登录绅士漫画".tl),
+        title: Text("登录".tl),
       ),
       body: Center(
         child: Padding(
@@ -103,12 +103,12 @@ class _HtLoginPageState extends State<HtLoginPage> {
                     ),
                   ),
                 SizedBox(
-                  width: 70,
                   height: 40,
                   child: TextButton(
                     onPressed: () => launchUrlString("https://www.wnacg.com/albums.html",
                         mode: LaunchMode.externalApplication),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text("注册".tl),
                         const Icon(

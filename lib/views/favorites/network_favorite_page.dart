@@ -112,7 +112,7 @@ class _MultiFolderFavoritesPageState extends State<_MultiFolderFavoritesPage> {
       return showNetworkError(_errorMessage!, () => setState(() {
         _loading = true;
         _errorMessage = null;
-      }), context);
+      }), context, showBack: false);
     } else {
       var length = folders!.length;
       if(widget.data.allFavoritesId != null)  length++;

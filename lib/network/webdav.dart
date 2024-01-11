@@ -31,7 +31,7 @@ class Webdav {
     _isOperating = true;
     appdata.settings[46] =
         (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-    appdata.updateSettings();
+    appdata.updateSettings(false);
     config ??= appdata.settings[45];
     var configs = config.split(';');
     if (configs.length != 4 || configs.elementAtOrNull(0) == "") {

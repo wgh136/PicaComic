@@ -202,9 +202,12 @@ class Appdata {
     await s.setStringList("settings", settings);
   }
 
-  void updateSettings() async {
+  void updateSettings([bool syncData = true]) async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("settings", settings);
+    if(syncData) {
+      Webdav.uploadData();
+    }
   }
 
   void writeFirstUse() async {

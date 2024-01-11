@@ -55,7 +55,8 @@ const CategoryData picacgCategory = CategoryData(
     ],
     enableSuggestionPage: true,
     enableRankingPage: true,
-    enableRandomPage: false);
+    enableRandomPage: false,
+    recommendPageName: "推荐");
 
 CategoryData ehCategory = CategoryData(
     title: "ehentai",

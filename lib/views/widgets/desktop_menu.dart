@@ -23,10 +23,11 @@ class DesktopMenuRoute<T> extends PopupRoute<T>{
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    const width = 186.0;
     final size = MediaQuery.of(context).size;
     var left = location.dx;
-    if(left + 156 > size.width){
-      left = size.width - 156;
+    if(left + width > size.width){
+      left = size.width - width;
     }
     var top = location.dy;
     var height = 16 + 32*entries.length;
@@ -45,8 +46,8 @@ class DesktopMenuRoute<T> extends PopupRoute<T>{
             type: MaterialType.card,
             borderRadius: BorderRadius.circular(4),
             child: Container(
-              width: 156,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              width: width,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: entries.map((e) => buildEntry(e, context)).toList(),
@@ -60,6 +61,7 @@ class DesktopMenuRoute<T> extends PopupRoute<T>{
 
   Widget buildEntry(DesktopMenuEntry entry, BuildContext context){
     return InkWell(
+      borderRadius: BorderRadius.circular(4),
       onTap: (){
         Navigator.of(context).pop();
         entry.onClick();
@@ -68,6 +70,7 @@ class DesktopMenuRoute<T> extends PopupRoute<T>{
         height: 32,
         child: Row(
           children: [
+            const SizedBox(width: 4,),
             if(entry.icon != null)
               Icon(entry.icon, size: 18,),
             const SizedBox(width: 4,),

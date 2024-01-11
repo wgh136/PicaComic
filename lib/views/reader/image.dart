@@ -354,13 +354,18 @@ class _ComicImageState extends State<ComicImage> with WidgetsBindingObserver {
         width: width,
         height: height??300,
         child: Center(
-          child: CircularProgressIndicator(
-            backgroundColor: Colors.white24,
-            value: (_loadingProgress != null &&
-                _loadingProgress!.expectedTotalBytes!=null &&
-                _loadingProgress!.expectedTotalBytes! != 0)
-                ?_loadingProgress!.cumulativeBytesLoaded / _loadingProgress!.expectedTotalBytes!
-                :0,
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.white24,
+              strokeWidth: 3,
+              value: (_loadingProgress != null &&
+                  _loadingProgress!.expectedTotalBytes!=null &&
+                  _loadingProgress!.expectedTotalBytes! != 0)
+                  ?_loadingProgress!.cumulativeBytesLoaded / _loadingProgress!.expectedTotalBytes!
+                  :0,
+            ),
           ),
         ),
       );

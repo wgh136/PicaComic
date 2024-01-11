@@ -26,7 +26,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("登录E-Hentai账户".tl),
+        title: Text("登录".tl),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -39,7 +39,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "  使用cookie登录".tl,
+                      "  Cookies".tl,
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(
@@ -74,7 +74,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                     ),
                     Center(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                         child: !logging
                             ? FilledButton(
                                 child: Text("登录".tl),
@@ -97,7 +97,6 @@ class _EhLoginPageState extends State<EhLoginPage> {
                         App.isIOS)
                       Center(
                         child: SizedBox(
-                          width: 155,
                           height: 40,
                           child: TextButton(
                             onPressed: () async {
@@ -133,6 +132,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                               }
                             },
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text("在Webview中登录".tl),
                                 const Icon(
@@ -150,13 +150,13 @@ class _EhLoginPageState extends State<EhLoginPage> {
                       ),
                     Center(
                       child: SizedBox(
-                        width: 68,
                         height: 40,
                         child: TextButton(
                           onPressed: () => launchUrlString(
                               "https://forums.e-hentai.org/index.php?act=Reg&CODE=00",
                               mode: LaunchMode.externalApplication),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text("注册".tl),
                               const Icon(
@@ -168,23 +168,6 @@ class _EhLoginPageState extends State<EhLoginPage> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 400,
-                      height: 40,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            size: 20,
-                          ),
-                          Text(
-                            "由于需要captcha响应, 暂不支持直接密码登录".tl,
-                            maxLines: 2,
-                          )
-                        ],
-                      ),
-                    )
                   ],
                 ),
               ),

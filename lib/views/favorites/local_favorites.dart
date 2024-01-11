@@ -556,16 +556,17 @@ class LocalFavoriteTile extends ComicTile {
     showDialog(
         context: App.globalContext!,
         builder: (context) => SimpleDialog(
-          title: const Text("复制到..."),
+          title: Text("复制到".tl),
           children: [
             SizedBox(
-              width: 400,
+              width: 280,
               height: 132,
               child: Column(
                 children: [
                   ListTile(
                     title: Text("收藏夹".tl),
                     trailing: Select(
+                      outline: true,
                       width: 156,
                       values: LocalFavoritesManager().folderNames,
                       initialValue: null,
@@ -576,7 +577,7 @@ class LocalFavoriteTile extends ComicTile {
                   const Spacer(),
                   Center(
                     child: FilledButton(
-                      child: const Text("确认"),
+                      child: Text("确认".tl),
                       onPressed: () {
                         LocalFavoritesManager().addComic(folder!, comic);
                         App.globalBack();

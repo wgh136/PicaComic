@@ -188,6 +188,7 @@ class _SearchPageState extends State<SearchPage> {
       find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
 
       bool showMethod = MediaQuery.of(context).size.width < 600;
+      bool showTranslation = App.locale.languageCode == "zh";
       Widget buildItem(Pair<String, TranslationType> value) {
         var subTitle = TagsTranslation.translationTagWithNamespace(
             value.left, value.right.name);
@@ -200,7 +201,7 @@ class _SearchPageState extends State<SearchPage> {
                 const SizedBox(
                   width: 12,
                 ),
-              if (!showMethod)
+              if (!showMethod && showTranslation)
                 Text(
                   subTitle,
                   style: TextStyle(
@@ -209,7 +210,7 @@ class _SearchPageState extends State<SearchPage> {
                 )
             ],
           ),
-          subtitle: showMethod ? Text(subTitle) : null,
+          subtitle: (showMethod && showTranslation) ? Text(subTitle) : null,
           trailing: Text(
             value.right.name,
             style: const TextStyle(fontSize: 13),
