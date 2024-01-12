@@ -9,6 +9,14 @@ import 'package:pica_comic/views/widgets/select.dart';
 import '../../base.dart';
 export 'package:pica_comic/foundation/def.dart';
 
+class ComicTileMenuOption {
+  final String title;
+  final IconData icon;
+  final void Function() onTap;
+
+  const ComicTileMenuOption(this.title, this.icon, this.onTap);
+}
+
 abstract class ComicTile extends StatelessWidget {
   /// Show a comic brief information. Usually displayed in comic list page.
   const ComicTile({Key? key}) : super(key: key);
@@ -31,6 +39,8 @@ abstract class ComicTile extends StatelessWidget {
   int? get pages => null;
 
   String? get badgeOnImage => null;
+
+  List<ComicTileMenuOption>? get addonMenuOptions => null;
 
   void onLongTap_() {
     bool favorite = false;
@@ -92,6 +102,13 @@ abstract class ComicTile extends StatelessWidget {
                                 ));
                           },
                         ),
+                        if (addonMenuOptions != null)
+                          for (var option in addonMenuOptions!)
+                            ListTile(
+                              leading: Icon(option.icon),
+                              title: Text(option.title),
+                              onTap: option.onTap,
+                            ),
                         const SizedBox(
                           height: 16,
                         ),
@@ -174,6 +191,12 @@ abstract class ComicTile extends StatelessWidget {
                 context: App.globalContext!,
                 builder: (context) => buildFavoriteDialog())),
       ),
+      if (addonMenuOptions != null)
+        for (var option in addonMenuOptions!)
+          DesktopMenuEntry(
+            text: option.title,
+            onClick: option.onTap,
+          ),
     ]);
   }
 

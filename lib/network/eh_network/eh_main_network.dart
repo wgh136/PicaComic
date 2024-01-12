@@ -742,6 +742,18 @@ class EhNetwork {
     }
   }
 
+  Future<bool> unfavorite2(String gid) async {
+    var res = await post(
+        "https://e-hentai.org/favorites.php",
+        "ddact=delete&modifygids%5B%5D=$gid",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"});
+    if (res.error) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   ///发送评论
   Future<Res<bool>> comment(String content, String link) async {
     var res = await post(

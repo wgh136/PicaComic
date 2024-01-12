@@ -4,7 +4,9 @@ import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
@@ -137,4 +139,14 @@ class EhGalleryTile extends ComicTile{
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromEhentai(gallery);
+  
+  @override
+  List<ComicTileMenuOption>? get addonMenuOptions => [
+    ComicTileMenuOption("取消收藏".tl, Icons.playlist_remove_sharp, () async{
+      showMessage(App.globalContext!, "正在取消收藏".tl, time: 10);
+      await EhNetwork().unfavorite2(getGalleryId(gallery.link));
+      hideMessage(App.globalContext!);
+      showMessage(App.globalContext!, "取消收藏成功".tl);
+    })
+  ];
 }
