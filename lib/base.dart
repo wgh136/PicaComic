@@ -106,6 +106,7 @@ class Appdata {
     "picacg,ehentai,jm,htmanga,nhentai", //67 分类页面
     "picacg,ehentai,jm,htmanga,nhentai", //68 收藏页面
     "0", //69 自动添加语言筛选
+    "0", //70 反转点按识别
   ];
 
   ///屏蔽的关键词

@@ -1061,6 +1061,7 @@ If you find a problem while using it, please check if it's a problem with your d
       "屏蔽": "Block",
       "自动翻页": "Auto",
       "全屏": "Full Screen",
+      "反转点按翻页": "Reverse Tap to Flip Page",
     }
   };
 }

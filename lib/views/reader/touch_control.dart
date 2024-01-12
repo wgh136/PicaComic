@@ -283,31 +283,37 @@ class TapController {
     bool flag2 = false;
     final range = int.parse(appdata.settings[40]) / 100;
     if (appdata.settings[0] == "1" && !logic.tools) {
+      void updatePageWithSetting(bool next){
+        if(appdata.settings[70] == "1"){
+          next = !next;
+        }
+        next ? logic.jumpToNextPage() : logic.jumpToLastPage();
+      }
       switch (appdata.settings[9]) {
         case "1":
         case "5":
           detail.position.dx > MediaQuery.of(context).size.width * (1 - range)
-              ? logic.jumpToNextPage()
+              ? updatePageWithSetting(true)
               : flag = true;
           detail.position.dx < MediaQuery.of(context).size.width * range
-              ? logic.jumpToLastPage()
+              ? updatePageWithSetting(false)
               : flag2 = true;
           break;
         case "2":
         case "6":
           detail.position.dx > MediaQuery.of(context).size.width * (1 - range)
-              ? logic.jumpToLastPage()
+              ? updatePageWithSetting(false)
               : flag = true;
           detail.position.dx < MediaQuery.of(context).size.width * range
-              ? logic.jumpToNextPage()
+              ? updatePageWithSetting(true)
               : flag2 = true;
           break;
         case "3":
           detail.position.dy > MediaQuery.of(context).size.height * (1 - range)
-              ? logic.jumpToNextPage()
+              ? updatePageWithSetting(true)
               : flag = true;
           detail.position.dy < MediaQuery.of(context).size.height * range
-              ? logic.jumpToLastPage()
+              ? updatePageWithSetting(false)
               : flag2 = true;
           break;
         case "4":

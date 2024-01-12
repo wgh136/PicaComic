@@ -38,6 +38,17 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           onTap: () {},
         ),
+        ListTile(
+          leading: const Icon(Icons.touch_app),
+          title: Text("反转点按翻页".tl),
+          trailing: Switch(
+            value: appdata.settings[70] == "1",
+            onChanged: (b) => setState(() {
+              appdata.settings[70] = b ? "1" : "0";
+              appdata.updateSettings();
+            }),
+          ),
+        ),
         if (App.isAndroid)
           ListTile(
             leading: const Icon(Icons.volume_mute),
@@ -185,8 +196,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           title: Text("自动翻页时间间隔".tl),
         ),
         ListTile(
-          leading: Icon(Icons.zoom_out_map,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.zoom_out_map),
           title: Text("双击缩放".tl),
           onTap: () {},
           trailing: Switch(
@@ -200,8 +210,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.zoom_in,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.zoom_in),
           title: Text("长按缩放".tl),
           trailing: Switch(
             value: appdata.settings[55] == "1",
@@ -212,8 +221,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
         ),
         ListTile(
-          leading: Icon(Icons.insert_drive_file_outlined,
-              color: Theme.of(context).colorScheme.secondary),
+          leading: const Icon(Icons.insert_drive_file_outlined),
           title: Text("显示页面信息".tl),
           trailing: Switch(
             value: appdata.settings[57] == "1",

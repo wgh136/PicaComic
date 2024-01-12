@@ -78,8 +78,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             onTap: () {},
           ),
           ListTile(
-            leading: Icon(Icons.touch_app_outlined,
-                color: Theme.of(context).colorScheme.secondary),
+            leading: const SizedBox(),
             title: Text("点按翻页识别范围".tl),
             subtitle: SizedBox(
               height: 25,
@@ -114,6 +113,17 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 "${appdata.settings[40]}%",
                 style: const TextStyle(fontSize: 14),
               ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.touch_app),
+            title: Text("反转点按翻页".tl),
+            trailing: Switch(
+              value: appdata.settings[70] == "1",
+              onChanged: (b) => setState(() {
+                appdata.settings[70] = b ? "1" : "0";
+                appdata.updateSettings();
+              }),
             ),
           ),
           ListTile(
