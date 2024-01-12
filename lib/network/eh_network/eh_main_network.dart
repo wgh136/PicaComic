@@ -61,9 +61,6 @@ class EhNetwork {
   ///设置请求cookie
   Future<String> getCookies(bool setNW, [String? url]) async {
     url ??= ehBaseUrl;
-    if (appdata.ehId == "") {
-      return "";
-    }
     var cookies = await cookieJar.loadForRequest(Uri.parse(url));
     cookieJar.delete(Uri.parse(url), true);
     cookies.removeWhere((element) =>
