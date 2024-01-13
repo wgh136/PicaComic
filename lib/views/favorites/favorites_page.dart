@@ -12,9 +12,9 @@ import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
+import '../../network/net_fav_to_local.dart';
 import '../../tools/io_tools.dart';
 import '../main_page.dart';
-import '../widgets/select.dart';
 import 'local_favorites.dart';
 
 const _networkFolderFlag = "**##network##**";
@@ -538,73 +538,13 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     );
   }
   Future<void> onRefresh(context) async {
-
-    if(folderSync() == null){
-      showMessage(App.globalContext, "该收藏夹没有对应网络收藏夹".tl);
-      return Future.value();
-    }
-    var controllerFrom = TextEditingController();
-    var controllerTo = TextEditingController();
-    var direction = "0";
-    await showDialog(context: context, builder: (context){
-      return AlertDialog(
-        title: Text("网络收藏夹同步设置".tl),
-        content: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: Row(
-            children: [
-              Text("从".tl+"1"),
-              // TextField(
-              //   keyboardType: TextInputType.number,
-              //   controller: controllerFrom,
-              //   inputFormatters: [
-              //     FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-              //   ],
-              //   decoration: const InputDecoration(
-              //       border: OutlineInputBorder(),
-              //   ),
-              // ),
-              Text("到".tl),
-              TextField(
-                keyboardType: TextInputType.number,
-                controller: controllerTo,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-                ],
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              Text("新收藏添加至".tl),
-              Select(
-                values: ["最后".tl, "最前".tl],
-                initialValue: 0,
-                whenChange: (i) {
-                  direction = i.toString();
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: (){
-            if(controllerTo.text == ""){
-              return;
-            }
-            App.globalBack();
-          }, child: Text("提交".tl))
-        ],
-      );
-    });
-
-    return startFolderSync(context, folderSync()!, FolderSyncParam(int.parse("1"), int.parse(controllerTo.text), direction));
+    return startFolderSync(context, folderSync()!);
   }
   Widget buildFolderComics(String folder){
     if(folder == _networkFolderFlag){
       return const NetworkFavoritesPages();
     }
     var comics = LocalFavoritesManager().getAllComics(folder);
-    inspect(comics);
     if(comics.isEmpty){
       return buildEmptyView();
     }
@@ -613,7 +553,10 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       removeTop: true,
       context: context,
       child: RefreshIndicator(
-        onRefresh: ()=>onRefresh(context),
+        notificationPredicate: (notify) {
+          return folderSync() != null;
+        },
+        onRefresh: () => onRefresh(context),
         child: Scrollbar(
             interactive: true,
             thickness: App.isMobile ? 8 : null,
@@ -639,43 +582,34 @@ class _ComicsPageViewState extends State<ComicsPageView> {
   }
 
   Widget buildEmptyView(){
-    Widget noFolderSync = RichText(
-      text: TextSpan(
-        style: Theme.of(context).textTheme.bodyMedium,
+    return Padding(
+      padding: const EdgeInsets.only(top: 64),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          TextSpan(
-            text: '前往'.tl,
-          ),
-          TextSpan(
-              text: '探索页面'.tl,
-              style: TextStyle(color: App.colors(context).primary),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  MainPage.toExplorePage?.call();
-                }),
-          TextSpan(
-            text: '寻找漫画'.tl,
-          ),
+          Text("这里什么都没有".tl),
+          const SizedBox(height: 8,),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.bodyMedium,
+              children: [
+                TextSpan(
+                  text: '前往'.tl,
+                ),
+                TextSpan(
+                    text: '探索页面'.tl,
+                    style: TextStyle(color: App.colors(context).primary),
+                    recognizer:  TapGestureRecognizer()..onTap = () {
+                      MainPage.toExplorePage?.call();
+                    }
+                ),
+                TextSpan(
+                  text: '寻找漫画'.tl,
+                ),
+              ],
+            ),
+          )
         ],
-      ),
-    );
-    Widget hasFolderSync = Text("尝试下拉刷新, 同步网络收藏".tl);
-    return RefreshIndicator(
-      onRefresh: () => onRefresh(context),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 64),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(folderSync() == null ? "这里什么都没有".tl : "这个收藏夹同步了网络".tl),
-              const SizedBox(
-                height: 8,
-              ),
-              folderSync() == null ? noFolderSync : hasFolderSync
-            ],
-          ),
-        ),
       ),
     );
   }

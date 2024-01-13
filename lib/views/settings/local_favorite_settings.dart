@@ -82,7 +82,23 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             },
           ),
         ),
-        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
+        ListTile(
+          leading: const Icon(Icons.sync),
+          title: Text("下拉更新拉取页数".tl),
+          trailing: Select(
+            initialValue: ["1", "2", "3", "4", "5", "10", "99"]
+                .indexOf(appdata.settings[71]),
+            values: const ["1", "2", "3", "4", "5", "10", "99"],
+            whenChange: (i) {
+              appdata.settings[71] = ["1", "2", "3", "4", "5", "10", "99"][i];
+              appdata.updateSettings();
+            },
+            width: 140,
+          ),
+        ),
+        Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );
   }

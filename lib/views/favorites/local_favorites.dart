@@ -712,7 +712,7 @@ void showNetworkSourceDialog(BuildContext context){
               return;
             }
             startConvert((page) => PicacgNetwork().getFavorites(page, true),
-                null, context, "Picacg", (comic) => FavoriteItem.fromPicacg(comic));
+                null, context, "Picacg", (comic) => FavoriteItem.fromPicacg(comic), "picacg", false, {});
           },
         ),
         ListTile(
@@ -753,7 +753,7 @@ void showNetworkSourceDialog(BuildContext context){
               return;
             }
             startConvert((page) => NhentaiNetwork().getFavorites(page),
-                null, context, "nhentai", (comic) => FavoriteItem.fromNhentai(comic));
+                null, context, "nhentai", (comic) => FavoriteItem.fromNhentai(comic), "nhentai", false, {});
           },
         ),
       ],

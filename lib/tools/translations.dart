@@ -488,6 +488,11 @@ extension AppTranslation on String {
       "自动翻页": "自動翻頁",
       "全屏": "全螢幕",
       "反转点按翻页": "反轉點按翻頁",
+      // 2.3.3
+      "本次更新数: ": "本次更新數:",
+      ", 上次更新时间: ": ", 上次更新時間:",
+      "下拉更新拉取页数": "下拉更新拉取頁數",
+      "支持下拉更新": "支援下拉更新",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -1070,6 +1075,11 @@ If you find a problem while using it, please check if it's a problem with your d
       "自动翻页": "Auto",
       "全屏": "Full Screen",
       "反转点按翻页": "Reverse Tap to Flip Page",
+      // 2.3.3
+      "本次更新数: ": "Number of updates this time:",
+      ", 上次更新时间: ": ", last updated:",
+      "下拉更新拉取页数": "Pull down to update the number of pages pulled",
+      "支持下拉更新": "Support pull down update",
     }
   };
 }

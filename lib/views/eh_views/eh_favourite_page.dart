@@ -129,7 +129,7 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
       icon: const Icon(Icons.save),
       onPressed: (){
         startConvert((page) => getComics(page), null, App.globalContext!, name,
-                (comic) => FavoriteItem.fromEhentai(comic));
+                (comic) => FavoriteItem.fromEhentai(comic), "ehentai", false, {"folderId": folderId});
       },
     ),
   );

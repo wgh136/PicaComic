@@ -158,9 +158,9 @@ class FavoriteItemWithFolderInfo {
 class FolderSync {
   String folderName;
   String time = getCurTime();
-  ComicType type;
-  String syncData;
-  FolderSync(this.folderName, this.type, this.syncData);
+  String key;
+  String syncData; // 内容是 json, 存一下选中的文件夹 folderId
+  FolderSync(this.folderName, this.key, this.syncData);
   Map<String, dynamic> get syncDataObj => jsonDecode(syncData);
 }
 
@@ -179,7 +179,6 @@ class LocalFavoritesManager {
   late Database _db;
 
   Future<void> init() async {
-    print("${App.dataPath}/local_favorite.db");
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
   }
 
@@ -265,29 +264,37 @@ class LocalFavoritesManager {
   }
 
   List<FolderSync> _getFolderSyncWithDB() {
-    return _db
-        .select("SELECT * FROM folder_sync")
-        .map((element) => FolderSync(
-            element['folder_name'], ComicType.values[element['type']], element['sync_data']))
-        .toList();
-  }
-
-  void insertFolderSync(FolderSync folderSync) {
     final tables = _getTablesWithDB();
     if (!tables.contains('folder_sync')) {
       _db.execute("""
       create table folder_sync (
         folder_name text primary key,
         time TEXT,
-        type int,
+        key TEXT,
         sync_data TEXT
       );
     """);
+      return [];
     }
+    return _db
+        .select("SELECT * FROM folder_sync")
+        .map((element) => FolderSync(
+            element['folder_name'], element['key'], element['sync_data']))
+        .toList();
+  }
+  void updateFolderSyncTime(FolderSync folderSync){
     _db.execute("""
-        insert into folder_sync (folder_name, time, type, sync_data)
-        values ('${folderSync.folderName.toParam}', '${folderSync.time.toParam}', '${folderSync.type.index}', 
-          '${folderSync.syncData.toParam}');
+      update folder_sync
+      set time = '${folderSync.time}'
+      where folder_name == '${folderSync.folderName}'
+    """);
+  }
+  void insertFolderSync(FolderSync folderSync) {
+    // 注意 syncData 不能用 toParam, 否则会没法 jsonDecode
+    _db.execute("""
+        insert into folder_sync (folder_name, time, key, sync_data)
+        values ('${folderSync.folderName.toParam}', '${folderSync.time.toParam}', '${folderSync.key.toParam}', 
+          '${folderSync.syncData}');
       """);
   }
 
@@ -472,8 +479,11 @@ class LocalFavoritesManager {
   /// delete a folder
   void deleteFolder(String name) {
     _db.execute("""
-      drop table "$name";
+      delete from folder_sync where folder_name == '$name';
     """);
+    _db.execute("""
+      drop table "$name";
+    """);    
   }
 
   void checkAndDeleteCover(FavoriteItem item) async {
@@ -525,8 +535,8 @@ class LocalFavoritesManager {
     if (folderSync.isNotEmpty) {
       _db.execute("""
       UPDATE folder_sync
-      set folder_name = "$after"
-      where folder_name == "$before"
+      set folder_name = '$after'
+      where folder_name == '$before'
     """);
     }
     saveData();
