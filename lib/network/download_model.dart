@@ -124,13 +124,14 @@ abstract class DownloadingItem{
     file.writeAsBytesSync(res.data!);
   }
 
-  /// retry when error, only allow 3 times.
-  void retry(){
+  /// retry when error
+  Future<void> retry() async{
     _retryTimes++;
-    if(_retryTimes > 3){
+    if(_retryTimes > 4){
       whenError?.call();
       _retryTimes = 0;
     }else{
+      await Future.delayed(Duration(seconds: 2 << _retryTimes));
       start();
     }
   }
@@ -178,11 +179,11 @@ abstract class DownloadingItem{
           }else{
             file = File("$path$pathSep$id$pathSep$index$fileExtension");
           }
-          if(file.existsSync()){
-            file.deleteSync();
+          if(await file.exists()){
+            await file.delete();
           }
-          file.createSync(recursive: true);
-          file.writeAsBytesSync(bytes);
+          await file.create(recursive: true);
+          await file.writeAsBytes(bytes);
           await ImageManager().delete(urls[index]);
           index++;
           _downloadedNum++;
@@ -203,8 +204,8 @@ abstract class DownloadingItem{
     }
     catch(e, s){
       if(currentKey != _runtimeKey)  return;
-      retry();
       LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
+      retry();
     }
   }
 

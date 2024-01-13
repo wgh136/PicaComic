@@ -18,21 +18,16 @@ class ModeRadioLogic1 extends StateController{
 
 class CategoryComicPage extends ComicsPage<ComicItemBrief>{
   final String keyWord;
-  final int categoryType;
-  const CategoryComicPage(this.keyWord,{this.categoryType=2,Key? key}) : super(key: key);
+  final String cType;
+  const CategoryComicPage(this.keyWord, {this.cType = "c", Key? key})
+      : super(key: key);
 
   @override
   bool get centerTitle => true;
 
   @override
   Future<Res<List<ComicItemBrief>>> getComics(int i) async{
-    if(categoryType == 1){
-      return await network.getCategoryComics(keyWord, i, appdata.settings[1]);
-    }else if(categoryType == 2){
-      return await network.search(keyWord, appdata.settings[1], i);
-    }else{
-      return await network.getCategoryComics(keyWord, i, appdata.settings[1], "a");
-    }
+    return await network.getCategoryComics(keyWord, i, appdata.settings[1], cType);
   }
 
   @override

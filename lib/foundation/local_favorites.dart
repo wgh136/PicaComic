@@ -10,7 +10,6 @@ import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
-import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
@@ -18,6 +17,7 @@ import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'dart:io';
+import '../network/base_comic.dart';
 import '../network/webdav.dart';
 
 String getCurTime() {
@@ -129,8 +129,23 @@ class FavoriteItem {
     tags.remove("");
   }
 
-  FavoriteItem(this.name, this.author, this.type, this.tags, this.target,
-      this.coverPath);
+  factory FavoriteItem.fromBaseComic(BaseComic comic){
+    if(comic is ComicItemBrief){
+      return FavoriteItem.fromPicacg(comic);
+    } else if(comic is EhGalleryBrief){
+      return FavoriteItem.fromEhentai(comic);
+    } else if(comic is JmComicBrief){
+      return FavoriteItem.fromJmComic(comic);
+    } else if(comic is HtComicBrief){
+      return FavoriteItem.fromHtcomic(comic);
+    } else if(comic is NhentaiComicBrief){
+      return FavoriteItem.fromNhentai(comic);
+    }
+    // TODO: implement custom comic source
+    throw UnimplementedError();
+  }
+
+  FavoriteItem(this.name, this.author, this.type, this.tags, this.target, this.coverPath);
 }
 
 class FavoriteItemWithFolderInfo {
@@ -557,41 +572,6 @@ class LocalFavoritesManager {
       updateUI();
     }
     saveData();
-  }
-
-  Future<String> folderToString(String folderName) async {
-    var comics = _db
-        .select("select * from \"$folderName\";")
-        .map((element) => FavoriteItem.fromRow(element));
-    String res = "$folderName:\n";
-    for (var comic in comics) {
-      switch (comic.type) {
-        case ComicType.picacg:
-          res +=
-              "${comic.name}: https://manhuapica.com/pcomicview/?cid=${comic.target}";
-          break;
-        case ComicType.ehentai:
-          res += "${comic.name}: ${comic.target}";
-          break;
-        case ComicType.jm:
-          res += "${comic.name}: id: ${comic.target}(jm)";
-          break;
-        case ComicType.htManga:
-          res +=
-              "${comic.name}: ${HtmangaNetwork.baseUrl}/photos-index-aid-${comic.target}.html";
-          break;
-        case ComicType.hitomi:
-          res += "${comic.name}: ${comic.target}";
-          break;
-        case ComicType.nhentai:
-          res += "${comic.name}: https://nhentai.net/g/${comic.target}/";
-          break;
-        case ComicType.htFavorite:
-          break;
-      }
-      res += "\n";
-    }
-    return res;
   }
 
   String folderToJsonString(String folderName) {

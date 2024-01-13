@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:pica_comic/network/base_comic.dart';
 
 import '../../base.dart';
 
@@ -12,11 +13,12 @@ class HtHomePageData {
 }
 
 @immutable
-class HtComicBrief {
+class HtComicBrief extends BaseComic{
   final String name;
   final String time;
   final String image;
   final int pages;
+  @override
   final String id;
   final String? favoriteId;
 
@@ -30,6 +32,21 @@ class HtComicBrief {
       }
     }
   }
+
+  @override
+  String get cover => image;
+
+  @override
+  String get description => time;
+
+  @override
+  String get subTitle => id;
+
+  @override
+  List<String> get tags => const [];
+
+  @override
+  String get title => name;
 }
 
 @immutable

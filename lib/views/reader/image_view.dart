@@ -2,6 +2,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pica_comic/foundation/image_loader/file_image_loader.dart';
 import 'package:pica_comic/foundation/image_loader/hitomi_image_provider.dart';
 import 'package:pica_comic/views/reader/reading_logic.dart';
 import 'package:flutter/material.dart';
@@ -61,11 +62,13 @@ ImageProvider createImageProvider(
     } else if (type == ReadingType.nhentai) {
       id = "nhentai$target";
     }
-    image = FileImage(downloadManager.getImage(id, logic.order, index));
+    image = FileImageProvider(id, logic.order, index);
   }
 
   return image;
 }
+
+//image = FileImageProvider(id, logic.order, index);
 
 /// check current location of [PageView], update location when it is out of range.
 bool updateLocation(BuildContext context, PhotoViewController controller) {

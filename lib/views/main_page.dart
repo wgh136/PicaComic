@@ -85,7 +85,7 @@ class _MainPageState extends State<MainPage> {
     const MePage(),
     const LocalFavoritesPage(),
     const ExplorePageWithGetControl(),
-    const CategoryPageWithGetControl(),
+    const AllCategoryPage(),
   ];
 
   void login() {
@@ -178,7 +178,7 @@ class _MainPageState extends State<MainPage> {
     StateController.put(EhPopularPageLogic());
     StateController.put(JmHomePageLogic());
     StateController.put(ExplorePageLogic());
-    StateController.put(CategoryPageLogic());
+    StateController.put(SimpleController(), tag: "category");
     StateController.put(HtHomePageLogic());
   }
 

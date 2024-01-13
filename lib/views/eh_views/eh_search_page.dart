@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
+import '../../base.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';
@@ -91,9 +92,18 @@ class EhSearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<EhSearchPage> {
-  late String keyword = widget.keyword;
+  late String keyword;
   var controller = TextEditingController();
   var data = PageData();
+
+  @override
+  void initState() {
+    keyword = widget.keyword;
+    if(appdata.settings[69] != "0" && !keyword.contains("lang")){
+      keyword += " language:${["", "chinese", "english", "japanese"][int.parse(appdata.settings[69])]}";
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

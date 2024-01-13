@@ -61,9 +61,6 @@ class EhNetwork {
   ///设置请求cookie
   Future<String> getCookies(bool setNW, [String? url]) async {
     url ??= ehBaseUrl;
-    if (appdata.ehId == "") {
-      return "";
-    }
     var cookies = await cookieJar.loadForRequest(Uri.parse(url));
     cookieJar.delete(Uri.parse(url), true);
     cookies.removeWhere((element) =>
@@ -736,6 +733,18 @@ class EhNetwork {
         "favcat=favdel&favnote=&apply=Apply+Changes&update=1",
         headers: {"Content-Type": "application/x-www-form-urlencoded"});
     if (res.error || res.data[0] != "<") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<bool> unfavorite2(String gid) async {
+    var res = await post(
+        "https://e-hentai.org/favorites.php",
+        "ddact=delete&modifygids%5B%5D=$gid",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"});
+    if (res.error) {
       return false;
     } else {
       return true;

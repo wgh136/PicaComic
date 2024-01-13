@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/widgets/list_loading.dart';
+import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/pic_views/picacg_latest_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import '../../foundation/app.dart';
 import '../../network/picacg_network/models.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import '../widgets/grid_view_delegate.dart';
-import '../widgets/show_message.dart';
 
 class HomePageLogic extends StateController{
   bool isLoading = true;
   String? message;
-  var comics = <ComicItemBrief>[];
+  late List<ComicItemBrief> randomComics;
+  late List<ComicItemBrief> latestComics;
 
   void get() async{
-    var res = await network.getRandomComics();
-    if(res.error){
-      if(comics.isEmpty) {
-        message = res.errorMessage;
-      }else{
-        showMessage(App.globalContext, res.errorMessageWithoutNull);
-      }
+    var res1 = await network.getRandomComics();
+    var res2 = await network.getLatest(1);
+    if(res1.error || res2.error){
+      message = res1.errorMessage ?? res2.errorMessage;
     }else{
-      comics.addAll(res.data);
+      randomComics = res1.data;
+      latestComics = res2.data;
     }
     isLoading = false;
     update();
@@ -30,7 +30,8 @@ class HomePageLogic extends StateController{
 
   void refresh_() async{
     isLoading = true;
-    comics.clear();
+    randomComics.clear();
+    latestComics.clear();
     message = null;
     update();
   }
@@ -53,21 +54,12 @@ class HomePage extends StatelessWidget {
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
-                  SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                        childCount: logic.comics.length,
-                            (context, i){
-                          if(i == logic.comics.length-1) {
-                            logic.get();
-                          }
-                          return PicComicTile(logic.comics[i],);
-                        }
-                    ),
-                    gridDelegate: SliverGridDelegateWithComics(),
-                  ),
-                  const SliverToBoxAdapter(
-                    child: ListLoadingIndicator(),
-                  ),
+                  buildTitle("随机".tl),
+                  buildComicsList(logic.randomComics),
+                  buildTitle("最新".tl, TextButton(
+                      onPressed: () => MainPage.to(() => const PicacgLatestPage()),
+                      child: Text("查看更多".tl))),
+                  buildComicsList(logic.latestComics),
                   SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
                 ],
               ),
@@ -81,5 +73,39 @@ class HomePage extends StatelessWidget {
                 logic.refresh_, context, showBack: false);
       }
     });
+  }
+
+  Widget buildComicsList(List<ComicItemBrief> comics){
+    return SliverGrid(
+      delegate: SliverChildBuilderDelegate(
+          childCount: comics.length, (context, i){
+            return PicComicTile(comics[i],);
+          }
+      ),
+      gridDelegate: SliverGridDelegateWithComics(),
+    );
+  }
+
+  Widget buildTitle(String title, [Widget? action]){
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 60,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 5, 10),
+          child: Row(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 20,
+                    fontWeight: FontWeight.w500),
+              ),
+              const Spacer(),
+              if(action != null)
+                action
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

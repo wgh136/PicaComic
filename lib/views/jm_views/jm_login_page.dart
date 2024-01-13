@@ -19,7 +19,7 @@ class _JmLoginPageState extends State<JmLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("登录禁漫天堂".tl),),
+      appBar: AppBar(title: Text("登录".tl),),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(5),
@@ -98,11 +98,11 @@ class _JmLoginPageState extends State<JmLoginPage> {
                     ),
                   ),
                 SizedBox(
-                  width: 70,
                   height: 40,
                   child: TextButton(
                     onPressed: ()=>launchUrlString("https://18comic.vip/signup",mode: LaunchMode.externalApplication),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text("注册".tl),
                         const Icon(Icons.arrow_outward,size: 15,)

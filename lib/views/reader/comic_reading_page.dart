@@ -276,7 +276,7 @@ class ComicReadingPage extends StatelessWidget {
           } else if (logic.urls.isNotEmpty) {
             if (logic.readingMethod == ReadingMethod.topToBottomContinuously &&
                 data.initialPage != 1) {
-              Future.delayed(const Duration(milliseconds: 300), () {
+              Future.microtask(() {
                 logic.jumpToPage(data.initialPage);
                 data.initialPage = 1;
               });

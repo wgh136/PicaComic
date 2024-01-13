@@ -48,7 +48,7 @@ class CustomSelectableText extends StatelessWidget {
                   appdata.writeData();
                   state.hideToolbar();
                 },
-                label: "添加至屏蔽词".tl),
+                label: "屏蔽".tl),
           ],
         );
       },

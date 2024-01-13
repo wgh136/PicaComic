@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../foundation/app.dart';
 
+
 class PopUpWidget<T> extends PopupRoute<T>{
   PopUpWidget(this.widget);
 
@@ -17,14 +18,19 @@ class PopUpWidget<T> extends PopupRoute<T>{
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    var height = MediaQuery.of(context).size.height*0.9;
+    bool showPopUp = MediaQuery.of(context).size.width > 550;
+    if(!showPopUp){
+      height = MediaQuery.of(context).size.height;
+    }
     return Center(
       child: Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        clipBehavior: Clip.antiAlias,
+        decoration: showPopUp ? const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ) : null,
+        clipBehavior: showPopUp ? Clip.antiAlias : Clip.none,
         width: 550,
-        height: MediaQuery.of(context).size.height*0.9,
+        height: height,
         child: ClipRect(
           child: Navigator(
             onGenerateRoute: (settings) => MaterialPageRoute(
@@ -37,7 +43,16 @@ class PopUpWidget<T> extends PopupRoute<T>{
   }
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 200);
+  Duration get transitionDuration => const Duration(milliseconds: 350);
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    return FadeTransition(
+      opacity: animation.drive(Tween(begin: 0.0, end: 1.0)
+          .chain(CurveTween(curve: Curves.ease))),
+      child: child,
+    );
+  }
 }
 
 Future<T> showPopUpWidget<T>(BuildContext context, Widget widget) async{

@@ -128,7 +128,8 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
     child: IconButton(
       icon: const Icon(Icons.save),
       onPressed: (){
-        startConvert(ComicType.ehentai, name, {"folderId": folderId});
+        startConvert((page) => getComics(page), null, App.globalContext!, name,
+                (comic) => FavoriteItem.fromEhentai(comic));
       },
     ),
   );

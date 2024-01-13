@@ -10,6 +10,7 @@ import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
 import 'package:pica_comic/views/jm_views/jm_search_page.dart';
+import 'package:pica_comic/views/nhentai/comic_page.dart';
 import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/widgets/custom_chips.dart';
@@ -219,16 +220,25 @@ class PreSearchPage extends StatelessWidget {
     } else {
       var text = controller.text;
       bool isJmId = false;
+      bool isNhentaiId = false;
       if(text.isNum){
         isJmId = true;
+        isNhentaiId = true;
       } else {
         text = text.toLowerCase();
         if(text.startsWith("jm") && text.replaceFirst("jm", "").isNum){
           isJmId = true;
+        } else if(text.startsWith("nh") && text.replaceFirst("nh", "").isNum){
+          isNhentaiId = true;
+        } else if(text.startsWith("nhentai") && text.replaceFirst("nhentai", "").isNum){
+          isNhentaiId = true;
         }
       }
       if(isJmId){
         suggestions.add(Pair("**JM ID**", TranslationType.other));
+      }
+      if(isNhentaiId){
+        suggestions.add(Pair("**NH ID**", TranslationType.other));
       }
     }
 
@@ -295,7 +305,7 @@ class PreSearchPage extends StatelessWidget {
               height: MediaQuery.of(context).padding.top,
             ),
           _FloatingSearchBar(
-            supportingText: '${'搜索'.tl} / ${'链接'.tl} / ${'禁漫ID'.tl}',
+            supportingText: '${'搜索'.tl} / ${'链接'.tl} / ID',
             f: (s) {
               if (s == "") return;
               search();
@@ -374,7 +384,7 @@ class PreSearchPage extends StatelessWidget {
             height: double.infinity,
             child: buildHistorySideBar(),
           ),
-        if (showSideBar) const VerticalDivider(),
+        if (showSideBar) const VerticalDivider(width: 1,),
         Expanded(
             child: SingleChildScrollView(
           padding: showSideBar
@@ -397,7 +407,7 @@ class PreSearchPage extends StatelessWidget {
             ],
           ),
         )),
-        if (showSideBar) const VerticalDivider(),
+        if (showSideBar) const VerticalDivider(width: 1,),
         if (showSideBar)
           SizedBox(
             width: 250 + addWidth,
@@ -465,7 +475,7 @@ class PreSearchPage extends StatelessWidget {
           widget = buildMainView(context);
         } else {
           bool showMethod = MediaQuery.of(context).size.width < 600;
-
+          bool showTranslation = App.locale.languageCode == "zh";
           Widget buildItem(Pair<String, TranslationType> value) {
             if(value.left == "**URL**"){
               return ListTile(
@@ -492,6 +502,19 @@ class PreSearchPage extends StatelessWidget {
               );
             }
 
+            if(value.left == "**NH ID**"){
+              var id = controller.text.nums;
+              return ListTile(
+                leading: const Icon(Icons.link),
+                title: const Text("nhentai ID"),
+                subtitle: Text(id),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: (){
+                  MainPage.to(() => NhentaiComicPage(id));
+                },
+              );
+            }
+
             var subTitle = TagsTranslation.translationTagWithNamespace(
                 value.left, value.right.name);
             return ListTile(
@@ -503,7 +526,7 @@ class PreSearchPage extends StatelessWidget {
                     const SizedBox(
                       width: 12,
                     ),
-                  if (!showMethod)
+                  if (!showMethod && showTranslation)
                     Text(
                       subTitle,
                       style: TextStyle(
@@ -512,7 +535,7 @@ class PreSearchPage extends StatelessWidget {
                     )
                 ],
               ),
-              subtitle: showMethod ? Text(subTitle) : null,
+              subtitle: (showMethod && showTranslation) ? Text(subTitle) : null,
               trailing: Text(
                 value.right.name,
                 style: const TextStyle(fontSize: 13),

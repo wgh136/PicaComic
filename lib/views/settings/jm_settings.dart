@@ -199,11 +199,6 @@ class _JmSettingsState extends State<JmSettings> {
                 inPopUpWidget: widget.popUp,
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: Text("清除登录状态".tl),
-              onTap: () => jmNetwork.logout(),
-            ),
           ],
         ));
   }

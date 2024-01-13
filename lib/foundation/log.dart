@@ -12,12 +12,12 @@ class LogManager {
   static bool ignoreLimitation = false;
 
   static void addLog(LogLevel lever, String title, String content) {
-    if (!ignoreLimitation && content.length > maxLogLength) {
-      content = "${content.substring(0, maxLogLength)}...";
-    }
-
     if (kDebugMode) {
       print(content);
+    }
+
+    if (!ignoreLimitation && content.length > maxLogLength) {
+      content = "${content.substring(0, maxLogLength)}...";
     }
 
     _logs.add(Log(lever, title, content));

@@ -1,14 +1,25 @@
 import 'package:flutter/cupertino.dart';
+import 'package:pica_comic/network/base_comic.dart';
 
 @immutable
-class NhentaiComicBrief{
+class NhentaiComicBrief extends BaseComic{
+  @override
   final String title;
+  @override
   final String cover;
+  @override
   final String id;
   final String lang;
+  @override
   final List<String> tags;
 
   const NhentaiComicBrief(this.title, this.cover, this.id, this.lang, this.tags);
+
+  @override
+  String get description => lang;
+
+  @override
+  String get subTitle => id;
 }
 
 class NhentaiHomePageData{

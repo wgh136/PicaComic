@@ -5,7 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/main.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/webdav.dart';
-import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
@@ -189,71 +188,6 @@ class CalculateCacheLogic extends StateController {
   void get() async {
     size = await calculateCacheSize();
     change();
-  }
-}
-
-
-void setComicSource(BuildContext context) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-          title: Text("设置漫画源".tl),
-          children: const [
-            SizedBox(
-              width: 400,
-            ),
-            ComicSourceSetting(),
-          ],
-        );
-      });
-}
-
-class ComicSourceSetting extends StatefulWidget {
-  const ComicSourceSetting({Key? key}) : super(key: key);
-
-  @override
-  State<ComicSourceSetting> createState() => _ComicSourceSettingState();
-}
-
-class _ComicSourceSettingState extends State<ComicSourceSetting> {
-  @override
-  void dispose() {
-    appdata.updateSettings();
-    Future.delayed(const Duration(milliseconds: 500), () {
-      try {
-        StateController.find<CategoryPageLogic>().update();
-        StateController.find<ExplorePageLogic>().update();
-      } catch (e) {
-        //如果在test_network_page进行此操作将产生错误
-      }
-    });
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var titles = ["Picacg", "E-hentai", "禁漫天堂".tl, "Hitomi.la", "绅士漫画".tl, "nhentai"];
-    return SizedBox(
-      child: Column(
-        children: [
-          for (int i = 0; i < 6; i++)
-            CheckboxListTile(
-              value: appdata.settings[21][i] == "1",
-              onChanged: (b) {
-                setState(() {
-                  if (b!) {
-                    appdata.settings[21] = appdata.settings[21].replaceRange(i, i + 1, '1');
-                  } else {
-                    appdata.settings[21] = appdata.settings[21].replaceRange(i, i + 1, '0');
-                  }
-                });
-              },
-              title: Text(titles[i]),
-            ),
-        ],
-      ),
-    );
   }
 }
 

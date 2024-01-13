@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -6,13 +6,12 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/favorites/all_favorites_page.dart';
+import 'package:pica_comic/views/favorites/network_favorites_pages.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
-import '../../network/net_fav_to_local.dart';
 import '../../tools/io_tools.dart';
 import '../main_page.dart';
 import '../widgets/select.dart';
@@ -38,7 +37,9 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
   set folderName(String? value) {
     var page = _allFolders.indexOf(value!);
     _folderName = value;
-    controller.to(page);
+    scheduleMicrotask(() {
+      controller.to(page);
+    });
   }
 
   final tabController = ScrollController();
@@ -288,7 +289,15 @@ class _LocalFavoritesPageState extends StateWithController<LocalFavoritesPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Container(
             decoration: BoxDecoration(
-                border: selected ? Border(bottom: BorderSide(color: App.colors(context).primary, width: 2)) : null
+                border: Border(
+                    bottom: BorderSide(
+                      color: selected ?
+                        App.colors(context).primary :
+                        Colors.transparent,
+                      width: 2),
+                    top: const BorderSide(
+                        color: Colors.transparent,
+                        width: 2))
             ),
             child: Center(
               child: Text(showName, style: TextStyle(
@@ -476,19 +485,24 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     }
 
     if((currentPage - newIndex).abs() == 1){
+      folder = _allFolders[newIndex];
       controller.animateToPage(
           newIndex,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.fastOutSlowIn
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease
       );
     } else {
       temp = buildFolderComics(_allFolders[currentPage]);
       int initialPage = currentPage - newIndex > 0 ? newIndex+1 : newIndex-1;
+      folder = _allFolders[initialPage];
       controller.jumpToPage(initialPage);
-      controller.animateToPage(
-          newIndex,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.fastOutSlowIn);
+      scheduleMicrotask(() {
+        folder = _allFolders[newIndex];
+        controller.animateToPage(
+            newIndex,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease);
+      });
     }
   }
 
@@ -508,8 +522,10 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       controller: controller,
       onPageChanged: (i) {
         currentPage = i;
-        folder = _allFolders[i];
-        widget.controller.onDragChangePage(i);
+        if(folder != _allFolders[i]){
+          folder = _allFolders[i];
+          widget.controller.onDragChangePage(i);
+        }
       },
       itemCount: _allFolders.length,
       itemBuilder: (context, index){
@@ -585,7 +601,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
   }
   Widget buildFolderComics(String folder){
     if(folder == _networkFolderFlag){
-      return const AllFavoritesPage();
+      return const NetworkFavoritesPages();
     }
     var comics = LocalFavoritesManager().getAllComics(folder);
     inspect(comics);

@@ -103,6 +103,10 @@ class Appdata {
     "0", //64 启用侧边翻页
     "0", //65 本地收藏显示数量
     "0", //66 缩略图布局: 覆盖, 容纳
+    "picacg,ehentai,jm,htmanga,nhentai", //67 分类页面
+    "picacg,ehentai,jm,htmanga,nhentai", //68 收藏页面
+    "0", //69 自动添加语言筛选
+    "0", //70 反转点按识别
   ];
 
   ///屏蔽的关键词
@@ -199,9 +203,12 @@ class Appdata {
     await s.setStringList("settings", settings);
   }
 
-  void updateSettings() async {
+  void updateSettings([bool syncData = true]) async {
     var s = await SharedPreferences.getInstance();
     await s.setStringList("settings", settings);
+    if(syncData) {
+      Webdav.uploadData();
+    }
   }
 
   void writeFirstUse() async {

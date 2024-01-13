@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:pica_comic/foundation/log.dart';
 import '../foundation/app.dart';
 
@@ -109,14 +110,8 @@ class HttpProxyServer {
       socket = await ServerSocket.bind(InternetAddress.loopbackIPv4, port);
       socket?.listen((event) => _HttpProxyHandler().handle(event, handler));
     }, (error, stack) async{
-      LogManager.addLog(LogLevel.error, "Network", "Proxy Server\n$error\n$stack");
-      try {
-        await socket?.close();
-        socket = null;
-      }
-      finally{
-        run();
-      }
+      print(error);
+      print(stack);
     });
   }
 
@@ -124,31 +119,25 @@ class HttpProxyServer {
     socket?.close();
   }
 
-  static HttpProxyServer? _server;
+  static Isolate? _server;
 
-  static void startServer(){
-    try {
-      final file = File("${App.dataPath}/rule.json");
+  static void startServer() async{
+    _server?.kill();
+    _server = await Isolate.spawn<String>((message) {
+      final file = File("$message/rule.json");
       var json = const JsonDecoder().convert(file.readAsStringSync());
-      if (_server == null) {
-        _server = HttpProxyServer((request) {
-          final file = File("${App.dataPath}/rule.json");
-          final json = const JsonDecoder().convert(file.readAsStringSync());
-          if (json["rule"][request.host] != null) {
-            request.host = json["rule"][request.host];
-          }
-        }, json["port"]);
-        _server?.run();
-      }
-    }
-    catch(e){
-      //
-    }
+      var server = HttpProxyServer((request) {
+        final file = File("$message/rule.json");
+        final json = const JsonDecoder().convert(file.readAsStringSync());
+        if (json["rule"][request.host] != null) {
+          request.host = json["rule"][request.host];
+        }
+      }, json["port"]);
+      server.run();
+    }, App.dataPath);
   }
 
-  static reload(){
-    _server?.close();
-    _server = null;
+  static void reload(){
     startServer();
   }
 

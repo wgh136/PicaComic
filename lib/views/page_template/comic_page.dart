@@ -71,6 +71,7 @@ class ComicPageLogic<T extends Object> extends StateController {
   double? height;
   bool favorite = false;
   History? history;
+  bool reverseEpsOrder = false;
 
   void get(Future<Res<T>> Function() loadData,
       Future<bool> Function(T) loadFavorite, String id) async {
@@ -542,7 +543,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
         if (!title)
           PopupMenuItem(
-            child: Text("添加到屏蔽词".tl),
+            child: Text("屏蔽".tl),
             onTap: () {
               appdata.blockingKeyword.add(text);
               appdata.writeData();
@@ -711,71 +712,89 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     return !UiMode.m1(context) ? res + res2 : res2 + res;
   }
 
-  List<Widget> buildEpisodeInfo(BuildContext context) {
+  Iterable<Widget> buildEpisodeInfo(BuildContext context) sync*{
     final colorScheme = Theme.of(context).colorScheme;
-    if (eps == null) return [];
+    if (eps == null) return;
 
-    return [
-      const SliverToBoxAdapter(
-        child: Divider(),
-      ),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 18),
-          child: SizedBox(
-              width: 100,
-              child: Text(
+    yield const SliverToBoxAdapter(
+      child: Divider(),
+    );
+
+    yield SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 18),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
                 "章节".tl,
                 style: const TextStyle(
                     fontWeight: FontWeight.w500, fontSize: 18),
-              )),
-        ),
+              ),
+              Tooltip(
+                message: "排序".tl,
+                child: IconButton(
+                  icon: Icon(_logic.reverseEpsOrder ?
+                  Icons.vertical_align_top :
+                  Icons.vertical_align_bottom_outlined),
+                  onPressed: (){
+                    _logic.reverseEpsOrder = !_logic.reverseEpsOrder;
+                    _logic.update();
+                  },
+                ),
+              )
+            ]),
       ),
-      const SliverPadding(padding: EdgeInsets.all(6)),
-      SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        sliver: SliverGrid(
-          delegate: SliverChildBuilderDelegate(childCount: eps!.eps.length,
-              (context, i) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-              child: InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                child: Card(
-                  elevation: 1,
-                  color:
-                      (_logic.history?.readEpisode ?? const {}).contains(i + 1)
-                          ? colorScheme.surface.withAlpha(220)
-                          : colorScheme.surface,
-                  margin: EdgeInsets.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Center(
-                      child: Text(
-                        eps!.eps[i],
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            color: (_logic.history?.readEpisode ?? const {})
-                                .contains(i + 1)
-                                ? colorScheme.outline
-                                : null),
+    );
+
+    yield const SliverPadding(padding: EdgeInsets.all(6));
+
+    yield SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      sliver: SliverGrid(
+        delegate: SliverChildBuilderDelegate(childCount: eps!.eps.length,
+                (context, i) {
+              if(_logic.reverseEpsOrder){
+                i = eps!.eps.length - i - 1;
+              }
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                child: InkWell(
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  child: Card(
+                    elevation: 1,
+                    color:
+                    (_logic.history?.readEpisode ?? const {}).contains(i + 1)
+                        ? colorScheme.surface.withAlpha(220)
+                        : colorScheme.surface,
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Center(
+                        child: Text(
+                          eps!.eps[i],
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: (_logic.history?.readEpisode ?? const {})
+                                  .contains(i + 1)
+                                  ? colorScheme.outline
+                                  : null),
+                        ),
                       ),
                     ),
                   ),
+                  onTap: () => eps!.onTap(i),
                 ),
-                onTap: () => eps!.onTap(i),
-              ),
-            );
-          }),
-          gridDelegate: const SliverGridDelegateWithFixedHeight(
+              );
+            }),
+        gridDelegate: const SliverGridDelegateWithFixedHeight(
             maxCrossAxisExtent: 250,
             itemHeight: 60
-          ),
         ),
-      )
-    ];
+      ),
+    );
   }
 
   List<Widget> buildIntroduction(BuildContext context) {

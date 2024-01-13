@@ -8,6 +8,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/pic_views/category_comic_page.dart';
+import 'package:pica_comic/views/pic_views/search_page.dart';
 import 'package:pica_comic/views/reader/comic_reading_page.dart';
 import 'package:pica_comic/views/pic_views/comments_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
@@ -168,11 +169,11 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   @override
   void tapOnTags(String tag){
     if(data!.categories.contains(tag)){
-      MainPage.to(() => CategoryComicPage(tag, categoryType: 1,));
-    }else if(data!.author == tag){
-      MainPage.to(() => CategoryComicPage(tag, categoryType: 3,));
-    }else {
-      MainPage.to(() => CategoryComicPage(tag, categoryType: 2,));
+      MainPage.to(() => CategoryComicPage(tag));
+    } else if(data!.author == tag){
+      MainPage.to(() => CategoryComicPage(tag, cType: "a",));
+    } else {
+      MainPage.to(() => SearchPage(tag));
     }
   }
 
