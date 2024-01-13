@@ -22,6 +22,7 @@ class _NetworkFavoritesPagesState extends State<NetworkFavoritesPages>
   void initState() {
     var folders = <FavoriteData>[];
     for(var key in appdata.settings[68].split(',')){
+      if(key == "")  continue;
       folders.add(getFavoriteData(key));
     }
     _folders = folders;
@@ -34,6 +35,9 @@ class _NetworkFavoritesPagesState extends State<NetworkFavoritesPages>
 
   @override
   Widget build(BuildContext context) {
+    if(_folders.isEmpty){
+      return const SizedBox();
+    }
     return Column(
       children: [
         buildTabBar(),

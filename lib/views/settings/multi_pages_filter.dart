@@ -23,6 +23,7 @@ class _MultiPagesFilterState extends State<MultiPagesFilter> {
   @override
   void initState() {
     keys = appdata.settings[widget.settingsIndex].split(",");
+    keys.remove("");
     super.initState();
   }
 
