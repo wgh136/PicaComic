@@ -253,8 +253,7 @@ class JmFavoriteFolder extends ComicsPage<JmComicBrief> {
     child: IconButton(
       icon: const Icon(Icons.save),
       onPressed: (){
-        startConvert((page) => getComics(page), null, App.globalContext!, name,
-                (comic) => FavoriteItem.fromJmComic(comic));
+        startConvert(ComicType.jm, name, {});
       },
     ),
   );

@@ -248,8 +248,7 @@ class HtFavoriteFolder extends ComicsPage<HtComicBrief> {
     child: IconButton(
       icon: const Icon(Icons.save),
       onPressed: (){
-        startConvert((page) => getComics(page), null, App.globalContext!, name,
-                (comic) => FavoriteItem.fromHtcomic(comic));
+        startConvert(ComicType.htFavorite, name, {});
       },
     ),
   );

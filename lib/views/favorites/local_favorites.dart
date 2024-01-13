@@ -696,8 +696,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            startConvert((page) => PicacgNetwork().getFavorites(page, true),
-                null, context, "Picacg", (comic) => FavoriteItem.fromPicacg(comic));
+            startConvert(ComicType.picacg, "Picacg", {});
           },
         ),
         ListTile(
@@ -737,8 +736,7 @@ void showNetworkSourceDialog(BuildContext context){
               showMessage(context, "未登录".tl);
               return;
             }
-            startConvert((page) => NhentaiNetwork().getFavorites(page),
-                null, context, "nhentai", (comic) => FavoriteItem.fromNhentai(comic));
+            startConvert(ComicType.nhentai, "nhentai", {});
           },
         ),
       ],

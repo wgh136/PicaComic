@@ -71,6 +71,7 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
 
   final data = PageData();
 
+  // 一次请求是50个
   @override
   Future<Res<List<EhGalleryBrief>>> getComics(int i) async {
     if (data.galleries == null) {
@@ -127,8 +128,7 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
     child: IconButton(
       icon: const Icon(Icons.save),
       onPressed: (){
-        startConvert((page) => getComics(page), null, App.globalContext!, name,
-                (comic) => FavoriteItem.fromEhentai(comic));
+        startConvert(ComicType.ehentai, name, {"folderId": folderId});
       },
     ),
   );
