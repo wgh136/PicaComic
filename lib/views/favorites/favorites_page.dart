@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/translations.dart';

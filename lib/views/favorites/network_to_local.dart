@@ -17,13 +17,16 @@ class _ChooseNetworkFolderWidget extends StatefulWidget {
   const _ChooseNetworkFolderWidget();
 
   @override
-  State<_ChooseNetworkFolderWidget> createState() => _ChooseNetworkFolderWidgetState();
+  State<_ChooseNetworkFolderWidget> createState() =>
+      _ChooseNetworkFolderWidgetState();
 }
+
 class LoadComicClass {
   NetToLocalEhPageData data = NetToLocalEhPageData();
 
-  Future<Res<List<BaseComic>>> loadComic(FavoriteData fData, int i, String folder) async{
-    if(fData.key == "ehentai"){
+  Future<Res<List<BaseComic>>> loadComic(
+      FavoriteData fData, int i, String folder) async {
+    if (fData.key == "ehentai") {
       if (data.galleries == null) {
         Res<Galleries> res = await EhNetwork().getGalleries(
             "${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder&inline_set=dm_l",
@@ -55,7 +58,9 @@ class LoadComicClass {
     return fData.loadComic(i, folder);
   }
 }
-class _ChooseNetworkFolderWidgetState extends State<_ChooseNetworkFolderWidget> {
+
+class _ChooseNetworkFolderWidgetState
+    extends State<_ChooseNetworkFolderWidget> {
   late final List<FavoriteData> _folders;
 
   late List<bool> isExpanded;
@@ -71,7 +76,7 @@ class _ChooseNetworkFolderWidgetState extends State<_ChooseNetworkFolderWidget> 
   @override
   void initState() {
     var folders = <FavoriteData>[];
-    for(var key in appdata.settings[68].split(',')){
+    for (var key in appdata.settings[68].split(',')) {
       folders.add(getFavoriteData(key));
     }
     _folders = folders;
@@ -87,7 +92,9 @@ class _ChooseNetworkFolderWidgetState extends State<_ChooseNetworkFolderWidget> 
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: IconButton(onPressed: () => App.globalBack(), icon: const Icon(Icons.close)),
+            child: IconButton(
+                onPressed: () => App.globalBack(),
+                icon: const Icon(Icons.close)),
           )
         ],
       ),
@@ -98,16 +105,22 @@ class _ChooseNetworkFolderWidgetState extends State<_ChooseNetworkFolderWidget> 
               child: ExpansionPanelList(
                 materialGapSize: 0,
                 expandedHeaderPadding: EdgeInsets.zero,
-                expansionCallback: (i, value) => setState(() => isExpanded[i] = value),
+                expansionCallback: (i, value) =>
+                    setState(() => isExpanded[i] = value),
                 children: _folders.map((e) => buildItem(e)).toList(),
               ),
             ),
           ),
-          const Divider(height: 1,),
+          const Divider(
+            height: 1,
+          ),
           SizedBox(
             height: 56,
             child: Row(
               children: [
+                const SizedBox(
+                  width: 8,
+                ),
                 Checkbox(
                     value: agreeSync,
                     onChanged: (b) {
@@ -129,65 +142,77 @@ class _ChooseNetworkFolderWidgetState extends State<_ChooseNetworkFolderWidget> 
     );
   }
 
-  ExpansionPanel buildItem(FavoriteData data){
+  ExpansionPanel buildItem(FavoriteData data) {
     return ExpansionPanel(
-      headerBuilder: (context, expand){
-        return ListTile(title: Text(data.title),);
-      },
-      isExpanded: isExpanded[_folders.indexOf(data)],
-      body: buildBody(data),
-      canTapOnHeader: true
-    );
+        headerBuilder: (context, expand) {
+          return ListTile(
+            title: Text(data.title),
+          );
+        },
+        isExpanded: isExpanded[_folders.indexOf(data)],
+        body: buildBody(data),
+        canTapOnHeader: true);
   }
 
-  Widget buildTile(String key, String title){
-    return RadioListTile<String?>(title: Text(title),value: key, groupValue: selected, onChanged: (newValue){
-      setState(() {
-        selected = newValue;
-      });
-    });
+  Widget buildTile(String key, String title) {
+    return RadioListTile<String?>(
+        title: Text(title),
+        value: key,
+        groupValue: selected,
+        onChanged: (newValue) {
+          setState(() {
+            selected = newValue;
+          });
+        });
   }
 
-  Widget buildBody(FavoriteData data){
-    if(!data.multiFolder){
+  Widget buildBody(FavoriteData data) {
+    if (!data.multiFolder) {
       return buildTile(data.key, data.title);
     } else {
-      return StatefulBuilder(builder: (context, updater){
-        if(multiFolderData[data.key] == null){
-          if(isExpanded[_folders.indexOf(data)]){
+      return StatefulBuilder(builder: (context, updater) {
+        if (multiFolderData[data.key] == null) {
+          if (isExpanded[_folders.indexOf(data)]) {
             data.loadFolders!().then((value) {
-              if(value.error){
+              if (value.error) {
                 showMessage(App.globalContext, "网络错误".tl);
               } else {
-                updater((){
+                updater(() {
                   multiFolderData[data.key] = value.data;
                 });
               }
             });
           }
-          return const SizedBox(height: 56, width: double.infinity,
-            child: Center(child: CircularProgressIndicator(),),);
+          return const SizedBox(
+            height: 56,
+            width: double.infinity,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         } else {
           return Column(
             mainAxisSize: MainAxisSize.min,
-            children: multiFolderData[data.key]!.entries.map((e) =>
-                buildTile("${data.key}:${e.key}", e.value)).toList(),
+            children: multiFolderData[data.key]!
+                .entries
+                .map((e) => buildTile("${data.key}:${e.key}", e.value))
+                .toList(),
           );
         }
       });
     }
   }
 
-  void onConfirm(){
+  void onConfirm() {
     var key = selected!.split(":").first;
     var folderId = selected!.split(":").last;
     var data = _folders.firstWhere((element) => element.key == key);
     String name;
-    if(!data.multiFolder){
+    if (!data.multiFolder) {
       name = data.title;
     } else {
       name = multiFolderData[data.key]![folderId]!;
-      if(data.key == "ehentai"){
+      if (data.key == "ehentai") {
         name = name.substring(0, name.lastIndexOf("("));
       }
     }
@@ -205,7 +230,7 @@ class _ChooseNetworkFolderWidgetState extends State<_ChooseNetworkFolderWidget> 
   }
 }
 
-void networkToLocal(){
+void networkToLocal() {
   showPopUpWidget(App.globalContext!, const _ChooseNetworkFolderWidget());
 }
 
