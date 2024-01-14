@@ -180,8 +180,11 @@ class LocalFavoritesManager {
 
   Future<void> init() async {
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
+    _checkAndCreate();
+  }
+
+  void _checkAndCreate() async {
     final tables = _getTablesWithDB();
-    // 初始化 folder_sync 表
     if (!tables.contains('folder_sync')) {
       _db.execute("""
       create table folder_sync (
@@ -282,6 +285,7 @@ class LocalFavoritesManager {
             element['folder_name'], element['key'], element['sync_data']))
         .toList();
   }
+
   void updateFolderSyncTime(FolderSync folderSync){
     _db.execute("""
       update folder_sync
