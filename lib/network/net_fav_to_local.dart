@@ -145,8 +145,8 @@ void startFolderSync<T extends Object>(BuildContext context,
       null,
       total);
   final range = comics.length;
-  String direction = '1'; // 顺序是放到最前还是最后, 现在默认最前
-  final comicsWithRange = comics.getRange(0, range);
+  String direction = '1'; // 顺序是放到最前还是最后, 为了保证顺序和网络收藏一致, 默认最前从新到旧, 不过有些网络收藏(绅士漫画)是从旧到新
+  final comicsWithRange = comics.getRange(0, range).toList().reversed.toList(); // 翻转一下, 保证插入顺序最终和网络收藏一致
   for (var comic in comicsWithRange) {
     final temComic = FavoriteItem.fromBaseComic(comic);
     final index =
