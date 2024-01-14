@@ -415,7 +415,7 @@ class NhentaiNetwork {
       return Res(null, errorMessage: "Failed to Parse Data: $e");
     }
   }
-
+  // 一页 25 个
   Future<Res<List<NhentaiComicBrief>>> getFavorites(int page) async {
     if (!logged) {
       return const Res(null, errorMessage: "login required");

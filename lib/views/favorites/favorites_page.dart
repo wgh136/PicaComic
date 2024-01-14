@@ -11,6 +11,7 @@ import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../foundation/app.dart';
+import '../../network/net_fav_to_local.dart';
 import '../../tools/io_tools.dart';
 import '../main_page.dart';
 import 'local_favorites.dart';
@@ -18,6 +19,7 @@ import 'local_favorites.dart';
 const _networkFolderFlag = "**##network##**";
 
 List<String> get _allFolders => [_networkFolderFlag] + LocalFavoritesManager().folderNames;
+List<FolderSync> get _allFolderSync => LocalFavoritesManager().folderSync;
 
 class LocalFavoritesPage extends StatefulWidget {
   const LocalFavoritesPage({super.key});
@@ -457,17 +459,45 @@ class ComicsPageView extends StatefulWidget {
 
 class _ComicsPageViewState extends State<ComicsPageView> {
   late PageController controller = PageController(initialPage: currentPage);
-
+  late ScrollController scrollController;
   late int currentPage = widget.initialPage;
-
+  bool showFB = true;
+  double location = 0;
   Widget? temp;
 
   String? folder;
 
+  FolderSync? folderSync(){
+    final folderSyncArr = _allFolderSync.where((element) => element.folderName == folder).toList();
+    if(folderSyncArr.isEmpty) return null;
+    return folderSyncArr[0];
+  }
   @override
   void initState() {
     widget.controller.listener = onPageChange;
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      var current = scrollController.offset;
+
+      if ((current > location && current != 0) && showFB) {
+        setState(() {
+          showFB = false;
+        });
+      } else if ((current < location || current == 0) && !showFB) {
+        setState(() {
+          showFB = true;
+        });
+      }
+
+      location = current;
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   void onPageChange(int newIndex){
@@ -496,6 +526,8 @@ class _ComicsPageViewState extends State<ComicsPageView> {
             curve: Curves.ease);
       });
     }
+    // 保证切换后能第一时间展示右侧刷新按钮
+    showFB = true;
   }
 
   Widget buildPreviousPage(){
@@ -529,43 +561,77 @@ class _ComicsPageViewState extends State<ComicsPageView> {
       },
     );
   }
+  Future<void> onRefresh(context) async {
+    return startFolderSync(context, folderSync()!);
+  }
 
-  Widget buildFolderComics(String folder){
-    if(folder == _networkFolderFlag){
+  Widget buildFolderComics(String folder) {
+    if (folder == _networkFolderFlag) {
       return const NetworkFavoritesPages();
     }
     var comics = LocalFavoritesManager().getAllComics(folder);
-    if(comics.isEmpty){
+    if (comics.isEmpty) {
       return buildEmptyView();
     }
-    return MediaQuery.removePadding(
-      key: Key(folder),
-      removeTop: true,
-      context: context,
-      child: Scrollbar(
-          interactive: true,
-          thickness: App.isMobile ? 8 : null,
-          radius: const Radius.circular(8),
-          child: GridView.builder(
-            key: Key(folder),
-            primary: true,
-            gridDelegate: SliverGridDelegateWithComics(),
-            itemCount: comics.length,
-            padding: EdgeInsets.zero,
-            itemBuilder: (BuildContext context, int index) {
-              return LocalFavoriteTile(
-                comics[index],
-                folder,
-                    () => setState(() {}),
-                true,
-                showFolderInfo: true,
-              );
+    
+    return Scaffold(
+        body: MediaQuery.removePadding(
+          key: Key(folder),
+          removeTop: true,
+          context: context,
+          child: RefreshIndicator(
+            notificationPredicate: (notify) {
+              return folderSync() != null;
             },
-          )),
-    );
+            onRefresh: () => onRefresh(context),
+            child: Scrollbar(
+                controller: scrollController,
+                interactive: true,
+                thickness: App.isMobile ? 8 : null,
+                radius: const Radius.circular(8),
+                child: GridView.builder(
+                  key: Key(folder),
+                  primary: false, // scrollController 要生效, 需要将 primary 设为 false
+                  controller: scrollController,
+                  gridDelegate: SliverGridDelegateWithComics(),
+                  itemCount: comics.length,
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (BuildContext context, int index) {
+                    return LocalFavoriteTile(
+                      comics[index],
+                      folder,
+                      () => setState(() {}),
+                      true,
+                      showFolderInfo: true,
+                    );
+                  },
+                )),
+          ),
+        ),
+        floatingActionButton: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 150),
+          reverseDuration: const Duration(milliseconds: 150),
+          child: showFB && folderSync() != null ? buildFAB() : const SizedBox(),
+          transitionBuilder: (widget, animation) {
+            var tween = Tween<Offset>(
+                begin: const Offset(0, 1), end: const Offset(0, 0));
+            return SlideTransition(
+              position: tween.animate(animation),
+              child: widget,
+            );
+          },
+        ));
   }
 
-  Widget buildEmptyView(){
+  Widget buildFAB() => Material(
+        color: Colors.transparent,
+        child: FloatingActionButton(
+          key: const Key("FAB"),
+          onPressed: () => onRefresh(context),
+          child: const Icon(Icons.refresh),
+        ),
+      );
+  Widget buildEmptyView() {
     return Padding(
       padding: const EdgeInsets.only(top: 64),
       child: Column(

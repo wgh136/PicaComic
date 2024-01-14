@@ -2,7 +2,6 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
-import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -696,69 +695,6 @@ class _LocalFavoritesFolderState extends State<LocalFavoritesFolder> {
       ),
     );
   }
-}
-
-void showNetworkSourceDialog(BuildContext context){
-  showDialog(context: context, builder: (context) {
-    return SimpleDialog(
-      title: Text("源".tl),
-      children: [
-        const SizedBox(width: 300,),
-        ListTile(
-          title: const Text("Picacg"),
-          onTap: (){
-            if(PicacgNetwork().token == ""){
-              showMessage(context, "未登录".tl);
-              return;
-            }
-            startConvert((page) => PicacgNetwork().getFavorites(page, true),
-                null, context, "Picacg", (comic) => FavoriteItem.fromPicacg(comic));
-          },
-        ),
-        ListTile(
-          title: const Text("ehentai"),
-          onTap: (){
-            if(appdata.ehAccount == ""){
-              showMessage(context, "未登录".tl);
-              return;
-            }
-            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
-          },
-        ),
-        ListTile(
-          title: const Text("JmComic"),
-          onTap: (){
-            if(appdata.jmName == ""){
-              showMessage(context, "未登录".tl);
-              return;
-            }
-            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
-          },
-        ),
-        ListTile(
-          title: Text("绅士漫画".tl),
-          onTap: (){
-            if(appdata.htName == ""){
-              showMessage(context, "未登录".tl);
-              return;
-            }
-            showMessage(context, "打开一个收藏夹并使用右上角按钮".tl);
-          },
-        ),
-        ListTile(
-          title: const Text("nhentai"),
-          onTap: (){
-            if(!NhentaiNetwork().logged){
-              showMessage(context, "未登录".tl);
-              return;
-            }
-            startConvert((page) => NhentaiNetwork().getFavorites(page),
-                null, context, "nhentai", (comic) => FavoriteItem.fromNhentai(comic));
-          },
-        ),
-      ],
-    );
-  });
 }
 
 /// Check the availability of comics in folder

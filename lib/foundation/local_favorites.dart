@@ -20,6 +20,13 @@ import 'dart:io';
 import '../network/base_comic.dart';
 import '../network/webdav.dart';
 
+String getCurTime() {
+  return DateTime.now()
+      .toIso8601String()
+      .replaceFirst("T", " ")
+      .substring(0, 19);
+}
+
 class FavoriteItem {
   String name;
   String author;
@@ -27,11 +34,10 @@ class FavoriteItem {
   List<String> tags;
   String target;
   String coverPath;
-  String time =
-      DateTime.now().toIso8601String().replaceFirst("T", " ").substring(0, 19);
+  String time = getCurTime();
 
-  String toDownloadId(){
-    return switch(type){
+  String toDownloadId() {
+    return switch (type) {
       ComicType.picacg => target,
       ComicType.ehentai => getGalleryId(target),
       ComicType.jm => "jm$target",
@@ -119,7 +125,7 @@ class FavoriteItem {
         tags = (row["tags"] as String).split(","),
         target = row["target"],
         coverPath = row["cover_path"],
-        time = row["time"]{
+        time = row["time"] {
     tags.remove("");
   }
 
@@ -149,7 +155,16 @@ class FavoriteItemWithFolderInfo {
   FavoriteItemWithFolderInfo(this.comic, this.folder);
 }
 
-extension SQL on String{
+class FolderSync {
+  String folderName;
+  String time = getCurTime();
+  String key;
+  String syncData; // 内容是 json, 存一下选中的文件夹 folderId
+  FolderSync(this.folderName, this.key, this.syncData);
+  Map<String, dynamic> get syncDataObj => jsonDecode(syncData);
+}
+
+extension SQL on String {
   String get toParam => replaceAll('\'', "''").replaceAll('"', "\"\"");
 }
 
@@ -163,22 +178,38 @@ class LocalFavoritesManager {
 
   late Database _db;
 
-  Future<void> init() async{
+  Future<void> init() async {
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
+    _checkAndCreate();
   }
 
-  void updateUI(){
-    Future.microtask(() => StateController.findOrNull(tag: "me page")?.update());
+  void _checkAndCreate() async {
+    final tables = _getTablesWithDB();
+    if (!tables.contains('folder_sync')) {
+      _db.execute("""
+      create table folder_sync (
+        folder_name text primary key,
+        time TEXT,
+        key TEXT,
+        sync_data TEXT
+      );
+    """);
+    }
   }
 
-  Future<List<String>> find(String target) async{
+  void updateUI() {
+    Future.microtask(
+        () => StateController.findOrNull(tag: "me page")?.update());
+  }
+
+  Future<List<String>> find(String target) async {
     var res = <String>[];
-    for(var folder in folderNames){
+    for (var folder in folderNames) {
       var rows = _db.select("""
         select * from "$folder"
         where target == '${target.toParam}';
       """);
-      if(rows.isNotEmpty){
+      if (rows.isNotEmpty) {
         res.add(folder);
       }
     }
@@ -195,11 +226,11 @@ class LocalFavoritesManager {
   /// import data.
   Future<void> readData() async {
     var file = File("${App.dataPath}/localFavorite");
-    if(file.existsSync()) {
+    if (file.existsSync()) {
       Map<String, List<FavoriteItem>> allComics = {};
       try {
         var data = (const JsonDecoder().convert(file.readAsStringSync()))
-        as Map<String, dynamic>;
+            as Map<String, dynamic>;
 
         for (var key in data.keys.toList()) {
           List<FavoriteItem> comics = [];
@@ -220,11 +251,11 @@ class LocalFavoritesManager {
         }
       } catch (e, s) {
         LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
-      }
-      finally{
+      } finally {
         file.deleteSync();
       }
-    } else if((file = File("${App.dataPath}/local_favorite_temp.db")).existsSync()){
+    } else if ((file = File("${App.dataPath}/local_favorite_temp.db"))
+        .existsSync()) {
       _db.dispose();
       await Future.delayed(const Duration(milliseconds: 100));
       var newPath = "${App.dataPath}/local_favorite.db";
@@ -233,12 +264,45 @@ class LocalFavoritesManager {
     }
   }
 
-  List<String> _getFolderNamesWithDB(){
-    return _db.select("SELECT name FROM sqlite_master WHERE type='table';")
-        .map((element) => element["name"] as String).toList();
+  List<String> _getTablesWithDB() {
+    final tables = _db
+        .select("SELECT name FROM sqlite_master WHERE type='table';")
+        .map((element) => element["name"] as String)
+        .toList();
+    return tables;
   }
 
-  int count(String folderName){
+  List<String> _getFolderNamesWithDB() {
+    final folders = _getTablesWithDB();
+    folders.remove('folder_sync');
+    return folders;
+  }
+
+  List<FolderSync> _getFolderSyncWithDB() {
+    return _db
+        .select("SELECT * FROM folder_sync")
+        .map((element) => FolderSync(
+            element['folder_name'], element['key'], element['sync_data']))
+        .toList();
+  }
+
+  void updateFolderSyncTime(FolderSync folderSync){
+    _db.execute("""
+      update folder_sync
+      set time = '${folderSync.time}'
+      where folder_name == '${folderSync.folderName}'
+    """);
+  }
+  void insertFolderSync(FolderSync folderSync) {
+    // 注意 syncData 不能用 toParam, 否则会没法 jsonDecode
+    _db.execute("""
+        insert into folder_sync (folder_name, time, key, sync_data)
+        values ('${folderSync.folderName.toParam}', '${folderSync.time.toParam}', '${folderSync.key.toParam}', 
+          '${folderSync.syncData}');
+      """);
+  }
+
+  int count(String folderName) {
     return _db.select("""
       select count(*) as c
       from "$folderName"
@@ -246,8 +310,22 @@ class LocalFavoritesManager {
   }
 
   List<String> get folderNames => _getFolderNamesWithDB();
+  List<FolderSync> get folderSync => _getFolderSyncWithDB();
+  int maxValue(String folder) {
+    return _db.select("""
+        SELECT MAX(display_order) AS max_value
+        FROM "$folder";
+      """).firstOrNull?["max_value"] ?? 0;
+  } 
 
-  List<FavoriteItem> getAllComics(String folder){
+  int minValue(String folder) {
+    return _db.select("""
+        SELECT MIN(display_order) AS min_value
+        FROM "$folder";
+      """).firstOrNull?["min_value"] ?? 0;
+  } 
+
+  List<FavoriteItem> getAllComics(String folder) {
     var rows = _db.select("""
         select * from "$folder"
         ORDER BY display_order;
@@ -255,7 +333,7 @@ class LocalFavoritesManager {
     return rows.map((element) => FavoriteItem.fromRow(element)).toList();
   }
 
-  void addTagTo(String folder, String target, String tag){
+  void addTagTo(String folder, String target, String tag) {
     _db.execute("""
       update "$folder"
       set tags = '$tag,' || tags
@@ -266,20 +344,20 @@ class LocalFavoritesManager {
 
   List<FavoriteItemWithFolderInfo> allComics() {
     var res = <FavoriteItemWithFolderInfo>[];
-    for(final folder in folderNames){
+    for (final folder in folderNames) {
       var comics = _db.select("""
         select * from "$folder";
       """);
-      res.addAll(comics.map((element) => FavoriteItemWithFolderInfo(
-          FavoriteItem.fromRow(element), folder)));
+      res.addAll(comics.map((element) =>
+          FavoriteItemWithFolderInfo(FavoriteItem.fromRow(element), folder)));
     }
     return res;
   }
 
   /// create a folder
   void createFolder(String name, [bool renameWhenInvalidName = false]) {
-    if(name.isEmpty){
-      if(renameWhenInvalidName) {
+    if (name.isEmpty) {
+      if (renameWhenInvalidName) {
         int i = 0;
         while (folderNames.contains(i.toString())) {
           i++;
@@ -290,7 +368,7 @@ class LocalFavoritesManager {
       }
     }
     if (folderNames.contains(name)) {
-      if(renameWhenInvalidName) {
+      if (renameWhenInvalidName) {
         int i = 0;
         while (folderNames.contains(i.toString())) {
           i++;
@@ -326,41 +404,33 @@ class LocalFavoritesManager {
       select * from "$folder"
       where target == '${comic.target}';
     """);
-    if(res.isNotEmpty){
+    if (res.isNotEmpty) {
       return;
     }
-    if(order != null){
+    if (order != null) {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
         values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', $order);
       """);
-    }
-    else if(appdata.settings[53] == "0") {
-      int maxValue = _db.select("""
-        SELECT MAX(display_order) AS max_value
-        FROM "$folder";
-      """).firstOrNull?["max_value"] ?? 0;
+    } else if (appdata.settings[53] == "0") {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
         values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
-          '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${maxValue+1});
+          '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${maxValue(folder) + 1});
       """);
     } else {
-      int minValue = _db.select("""
-        SELECT MIN(display_order) AS min_value
-        FROM "$folder";
-      """).firstOrNull?["min_value"] ?? 0;
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
         values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
-          '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${minValue-1});
+          '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${minValue(folder) - 1});
       """);
     }
     updateUI();
     saveData();
     try {
-      var file = (await (ImageManager().getImage(comic.coverPath)).last).getFile();
+      var file =
+          (await (ImageManager().getImage(comic.coverPath)).last).getFile();
       var path =
           "${(await getApplicationSupportDirectory()).path}${pathSep}favoritesCover";
       var directory = Directory(path);
@@ -379,19 +449,20 @@ class LocalFavoritesManager {
   Future<File> getCover(FavoriteItem item) async {
     var path = "${App.dataPath}/favoritesCover";
     var hash =
-    md5.convert(const Utf8Encoder().convert(item.coverPath)).toString();
+        md5.convert(const Utf8Encoder().convert(item.coverPath)).toString();
     var file = File("$path/$hash.jpg");
     if (file.existsSync()) {
       return file;
     }
-    if(item.coverPath.startsWith("file://")){
-      var data = DownloadManager().getCover(item.coverPath.replaceFirst("file://", ""));
+    if (item.coverPath.startsWith("file://")) {
+      var data = DownloadManager()
+          .getCover(item.coverPath.replaceFirst("file://", ""));
       file.createSync(recursive: true);
       file.writeAsBytesSync(data.readAsBytesSync());
       return file;
     }
     try {
-      if(EhNetwork().cookiesStr == ""){
+      if (EhNetwork().cookiesStr == "") {
         await EhNetwork().getCookies(false);
       }
       var res = await (ImageManager().getImage(item.coverPath, {
@@ -403,8 +474,7 @@ class LocalFavoritesManager {
       file.createSync(recursive: true);
       file.writeAsBytesSync(res.getFile().readAsBytesSync());
       return file;
-    }
-    catch(e){
+    } catch (e) {
       await Future.delayed(const Duration(seconds: 5));
       rethrow;
     }
@@ -413,12 +483,15 @@ class LocalFavoritesManager {
   /// delete a folder
   void deleteFolder(String name) {
     _db.execute("""
-      drop table "$name";
+      delete from folder_sync where folder_name == '$name';
     """);
+    _db.execute("""
+      drop table "$name";
+    """);    
   }
 
   void checkAndDeleteCover(FavoriteItem item) async {
-    if((await find(item.target)).isEmpty) {
+    if ((await find(item.target)).isEmpty) {
       (await getCover(item)).deleteSync();
     }
   }
@@ -449,7 +522,7 @@ class LocalFavoritesManager {
     }
     deleteFolder(folder);
     createFolder(folder);
-    for(int i=0; i<newFolder.length; i++){
+    for (int i = 0; i < newFolder.length; i++) {
       addComic(folder, newFolder[i], i);
     }
     updateUI();
@@ -463,32 +536,42 @@ class LocalFavoritesManager {
       ALTER TABLE "$before"
       RENAME TO "$after";
     """);
+    if (folderSync.isNotEmpty) {
+      _db.execute("""
+      UPDATE folder_sync
+      set folder_name = '$after'
+      where folder_name == '$before'
+    """);
+    }
     saveData();
   }
 
-  void onReadEnd(String target) async{
+  void onReadEnd(String target) async {
     bool isModified = false;
-    for(final folder in folderNames){
+    for (final folder in folderNames) {
       var rows = _db.select("""
         select * from "$folder"
         where target == '${target.toParam}';
       """);
-      if(rows.isNotEmpty){
+      if (rows.isNotEmpty) {
         isModified = true;
-        var newTime = DateTime.now().toIso8601String().replaceFirst("T", " ").substring(0, 19);
+        var newTime = DateTime.now()
+            .toIso8601String()
+            .replaceFirst("T", " ")
+            .substring(0, 19);
         String updateLocationSql = "";
-        if(appdata.settings[54] == "1"){
+        if (appdata.settings[54] == "1") {
           int maxValue = _db.select("""
             SELECT MAX(display_order) AS max_value
             FROM "$folder";
           """).firstOrNull?["max_value"] ?? 0;
-          updateLocationSql = "display_order = ${maxValue+1},";
-        } else if(appdata.settings[54] == "2"){
+          updateLocationSql = "display_order = ${maxValue + 1},";
+        } else if (appdata.settings[54] == "2") {
           int minValue = _db.select("""
             SELECT MIN(display_order) AS min_value
             FROM "$folder";
           """).firstOrNull?["min_value"] ?? 0;
-          updateLocationSql = "display_order = ${minValue-1},";
+          updateLocationSql = "display_order = ${minValue - 1},";
         }
         _db.execute("""
             UPDATE "$folder"
@@ -499,7 +582,7 @@ class LocalFavoritesManager {
           """);
       }
     }
-    if(isModified) {
+    if (isModified) {
       updateUI();
     }
     saveData();
@@ -510,45 +593,48 @@ class LocalFavoritesManager {
     data["info"] = "Generated by PicaComic.";
     data["website"] = "https://github.com/wgh136/PicaComic";
     data["name"] = folderName;
-    var comics = _db.select("select * from \"$folderName\";")
-        .map((element) => FavoriteItem.fromRow(element).toJson()).toList();
+    var comics = _db
+        .select("select * from \"$folderName\";")
+        .map((element) => FavoriteItem.fromRow(element).toJson())
+        .toList();
     data["comics"] = comics;
     return const JsonEncoder().convert(data);
   }
 
-  (bool, String) loadFolderData(String dataString){
-    try{
-      var data = const JsonDecoder().convert(dataString) as Map<String, dynamic>;
+  (bool, String) loadFolderData(String dataString) {
+    try {
+      var data =
+          const JsonDecoder().convert(dataString) as Map<String, dynamic>;
       final name_ = data["name"] as String;
       var name = name_;
       int i = 0;
-      while(folderNames.contains(name)){
+      while (folderNames.contains(name)) {
         name = name_ + i.toString();
         i++;
       }
       createFolder(name);
-      for(var json in data["comics"]){
+      for (var json in data["comics"]) {
         addComic(name, FavoriteItem.fromJson(json));
       }
       return (false, "");
-    }
-    catch(e, s){
+    } catch (e, s) {
       LogManager.addLog(LogLevel.error, "IO", "Failed to load data.\n$e\n$s");
       return (true, e.toString());
     }
   }
 
-  List<FavoriteItemWithFolderInfo> search(String keyword){
+  List<FavoriteItemWithFolderInfo> search(String keyword) {
     var resComics = <FavoriteItemWithFolderInfo>[];
-    for(var table in folderNames){
+    for (var table in folderNames) {
       var res = _db.select("""
         SELECT * FROM "$table" 
         WHERE name LIKE '%$keyword%' OR author LIKE '%$keyword%' OR tags LIKE '%$keyword%';
       """);
-      for(var comic in res){
-        resComics.add(FavoriteItemWithFolderInfo(FavoriteItem.fromRow(comic), table));
+      for (var comic in res) {
+        resComics.add(
+            FavoriteItemWithFolderInfo(FavoriteItem.fromRow(comic), table));
       }
-      if(resComics.length > 200){
+      if (resComics.length > 200) {
         break;
       }
     }
