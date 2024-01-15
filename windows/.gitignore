@@ -1,4 +1,6 @@
 flutter/ephemeral/
+flutter/generated_plugin_registrant.h
+flutter/generated_plugin_registrant.cc
 
 # Visual Studio user-specific files.
 *.suo
