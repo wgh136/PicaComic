@@ -216,6 +216,20 @@ class LocalFavoritesManager {
     return res;
   }
 
+  List<String> findSync(String target) {
+    var res = <String>[];
+    for (var folder in folderNames) {
+      var rows = _db.select("""
+        select * from "$folder"
+        where target == '${target.toParam}';
+      """);
+      if (rows.isNotEmpty) {
+        res.add(folder);
+      }
+    }
+    return res;
+  }
+
   Future<void> saveData() async {
     Webdav.uploadData();
   }

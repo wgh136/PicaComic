@@ -187,7 +187,7 @@ class ComicReadingPage extends StatelessWidget {
         }
       }
     } else {
-      if (logic!.index == 1 || logic.index == logic.length) {
+      if (logic!.index == 1) {
         history?.ep = 0;
         history?.page = 0;
       } else {
@@ -195,7 +195,6 @@ class ComicReadingPage extends StatelessWidget {
         history?.page = logic.index;
       }
     }
-    HistoryManager().saveData();
   }
 
   @override

@@ -78,4 +78,7 @@ class NhentaiComicTile extends ComicTile{
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromNhentai(comic);
+
+  @override
+  String get comicID => comic.id;
 }

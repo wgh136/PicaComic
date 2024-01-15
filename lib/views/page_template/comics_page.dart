@@ -222,31 +222,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                       if (i == comics.length - 1) {
                         logic.loadNextPage(getComics);
                       }
-                      switch (type.index) {
-                        case 0:
-                          return PicComicTile(comics[i] as ComicItemBrief);
-                        case 1:
-                          return EhGalleryTile(comics[i] as EhGalleryBrief);
-                        case 2:
-                          return JmComicTile(comics[i] as JmComicBrief);
-                        case 3:
-                          if (comics[i] is int) {
-                            return HitomiComicTileDynamicLoading(
-                                comics[i] as int);
-                          } else {
-                            return HiComicTile(comics[i] as HitomiComicBrief);
-                          }
-                        case 4:
-                          return HtComicTile(comic: comics[i] as HtComicBrief);
-                        case 5:
-                          return HtComicTileInFavoritePage(
-                              comic: comics[i] as HtComicBrief,
-                              refresh: refresh);
-                        case 6:
-                          return NhentaiComicTile(comics[i] as NhentaiComicBrief);
-                        default:
-                          throw UnimplementedError();
-                      }
+                      return buildItem(context, comics[i]);
                     }),
                     gridDelegate: SliverGridDelegateWithComics(),
                   ),
@@ -279,37 +255,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate(
                         childCount: comics?[logic.current]!.length,
                             (context, i) {
-                          switch (type.index) {
-                            case 0:
-                              return PicComicTile(
-                                  comics?[logic.current]![i] as ComicItemBrief);
-                            case 1:
-                              return EhGalleryTile(
-                                  comics?[logic.current]![i] as EhGalleryBrief);
-                            case 2:
-                              return JmComicTile(
-                                  comics?[logic.current]![i] as JmComicBrief);
-                            case 3:
-                              if (comics?[logic.current]![i] is int) {
-                                return HitomiComicTileDynamicLoading(
-                                    comics?[logic.current]![i] as int);
-                              } else {
-                                return HiComicTile(
-                                    comics?[logic.current]![i] as HitomiComicBrief);
-                              }
-                            case 4:
-                              return HtComicTile(
-                                  comic:
-                                  comics?[logic.current]![i] as HtComicBrief);
-                            case 5:
-                              return HtComicTileInFavoritePage(
-                                  comic: comics?[logic.current]![i] as HtComicBrief,
-                                  refresh: refresh);
-                            case 6:
-                              return NhentaiComicTile(comics?[logic.current]![i] as NhentaiComicBrief);
-                            default:
-                              throw UnimplementedError();
-                          }
+                          return buildItem(context, comics![logic.current]![i]);
                         }),
                     gridDelegate: SliverGridDelegateWithComics(),
                   ),
@@ -568,6 +514,31 @@ abstract class ComicsPage<T> extends StatelessWidget {
     }
     if (res != "") {
       showMessage(App.globalContext, "输入的数字不正确");
+    }
+  }
+
+  Widget buildItem(BuildContext context, T item){
+    switch (type.index) {
+      case 0:
+        return PicComicTile(item as ComicItemBrief);
+      case 1:
+        return EhGalleryTile(item as EhGalleryBrief);
+      case 2:
+        return JmComicTile(item as JmComicBrief);
+      case 3:
+        if (item is int) {
+          return HitomiComicTileDynamicLoading(item);
+        } else {
+          return HiComicTile(item as HitomiComicBrief);
+        }
+      case 4:
+        return HtComicTile(comic: item as HtComicBrief);
+      case 5:
+        return HtComicTileInFavoritePage(comic: item as HtComicBrief, refresh: refresh);
+      case 6:
+        return NhentaiComicTile(item as NhentaiComicBrief);
+      default:
+        throw UnimplementedError();
     }
   }
 }

@@ -91,4 +91,7 @@ class PicComicTile extends ComicTile {
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromPicacg(comic);
+
+  @override
+  String get comicID => comic.id;
 }

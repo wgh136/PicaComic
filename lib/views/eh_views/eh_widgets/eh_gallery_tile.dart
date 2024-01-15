@@ -15,59 +15,71 @@ import '../../main_page.dart';
 import '../../widgets/animated_image.dart';
 import '../../widgets/loading.dart';
 
-class EhGalleryTile extends ComicTile{
+class EhGalleryTile extends ComicTile {
   final EhGalleryBrief gallery;
   final void Function()? onTap;
   final void Function()? onLongTap;
   final bool cached;
   final String? size;
   final String? time;
-  const EhGalleryTile(this.gallery,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true}) : super(key: key);
+  final bool showRemoveFavorite;
+  const EhGalleryTile(this.gallery,
+      {Key? key,
+      this.onTap,
+      this.size,
+      this.time,
+      this.onLongTap,
+      this.cached = true,
+      this.showRemoveFavorite = false})
+      : super(key: key);
 
-  List<String> _generateTags(List<String> tags){
-    if(App.locale.languageCode != "zh") {
+  List<String> _generateTags(List<String> tags) {
+    if (App.locale.languageCode != "zh") {
       return tags;
     }
     List<String> res = [];
     List<String> res2 = [];
-    for(var tag in tags){
-      if(tag.contains(":")){
+    for (var tag in tags) {
+      if (tag.contains(":")) {
         var splits = tag.split(":");
-        if(splits[0] == "language"){
+        if (splits[0] == "language") {
           continue;
         }
         var lowLevelKey = ["character", "artist", "cosplayer", "group"];
-        if(lowLevelKey.contains(splits[0])){
-          res2.add(TagsTranslation.translationTagWithNamespace(splits[1], splits[0]));
-        }else {
-          res.add(TagsTranslation.translationTagWithNamespace(splits[1], splits[0]));
+        if (lowLevelKey.contains(splits[0])) {
+          res2.add(TagsTranslation.translationTagWithNamespace(
+              splits[1], splits[0]));
+        } else {
+          res.add(TagsTranslation.translationTagWithNamespace(
+              splits[1], splits[0]));
         }
-      }else{
+      } else {
         res.add(tag.translateTagsToCN);
       }
     }
-    return res+res2;
+    return res + res2;
   }
 
   @override
-  int get maxLines => MediaQuery.of(App.globalContext!).size.width < 430 ? 1 : 2;
+  int get maxLines =>
+      MediaQuery.of(App.globalContext!).size.width < 430 ? 1 : 2;
 
   @override
-  ActionFunc? get read => () async{
-    bool cancel = false;
-    showLoadingDialog(App.globalContext!, ()=>cancel=true);
-    var res = await EhNetwork().getGalleryInfo(gallery.link);
-    if(cancel){
-      return;
-    }
-    if(res.error){
-      App.globalBack();
-      showMessage(App.globalContext, res.errorMessageWithoutNull);
-    }else{
-      App.globalBack();
-      readEhGallery(res.data);
-    }
-  };
+  ActionFunc? get read => () async {
+        bool cancel = false;
+        showLoadingDialog(App.globalContext!, () => cancel = true);
+        var res = await EhNetwork().getGalleryInfo(gallery.link);
+        if (cancel) {
+          return;
+        }
+        if (res.error) {
+          App.globalBack();
+          showMessage(App.globalContext, res.errorMessageWithoutNull);
+        } else {
+          App.globalBack();
+          readEhGallery(res.data);
+        }
+      };
 
   @override
   List<String>? get tags => _generateTags(gallery.tags);
@@ -76,34 +88,37 @@ class EhGalleryTile extends ComicTile{
   String get description => "${gallery.time}  ${gallery.type}";
 
   @override
-  String? get badge => (){
-    String? lang;
-    if(gallery.tags.isNotEmpty&&gallery.tags[0].substring(0,4) == "lang"){
-      lang = gallery.tags[0].substring(9);
-    }else if(gallery.tags.length > 1 && gallery.tags.isNotEmpty&&gallery.tags[1].substring(0,4) == "lang"){
-      lang = gallery.tags[1].substring(9);
-    }
-    if(App.locale.languageCode == "zh" && lang != null){
-      lang = lang.translateTagsToCN;
-    }
-    return lang;
-  }.call();
+  String? get badge => () {
+        String? lang;
+        if (gallery.tags.isNotEmpty &&
+            gallery.tags[0].substring(0, 4) == "lang") {
+          lang = gallery.tags[0].substring(9);
+        } else if (gallery.tags.length > 1 &&
+            gallery.tags.isNotEmpty &&
+            gallery.tags[1].substring(0, 4) == "lang") {
+          lang = gallery.tags[1].substring(9);
+        }
+        if (App.locale.languageCode == "zh" && lang != null) {
+          lang = lang.translateTagsToCN;
+        }
+        return lang;
+      }.call();
 
   @override
-  Widget get image => AnimatedImage (
-    image: CachedImageProvider(
-      gallery.coverPath,
-      headers: {
-        "Cookie": EhNetwork().cookiesStr,
-        "User-Agent": webUA,
-        "Referer": EhNetwork().ehBaseUrl,
-        "host": Uri.parse(gallery.coverPath).host
-      },
-    ),
-    fit: BoxFit.cover,
-    height: double.infinity,
-    width: double.infinity,
-  );
+  Widget get image => AnimatedImage(
+        image: CachedImageProvider(
+          gallery.coverPath,
+          headers: {
+            "Cookie": EhNetwork().cookiesStr,
+            "User-Agent": webUA,
+            "Referer": EhNetwork().ehBaseUrl,
+            "host": Uri.parse(gallery.coverPath).host
+          },
+        ),
+        fit: BoxFit.cover,
+        height: double.infinity,
+        width: double.infinity,
+      );
 
   @override
   void onTap_() {
@@ -111,18 +126,29 @@ class EhGalleryTile extends ComicTile{
   }
 
   @override
-  Widget? buildSubDescription(context){
+  Widget? buildSubDescription(context) {
     final s = gallery.stars ~/ 0.5;
     return SizedBox(
       height: 20,
       child: Row(
         children: [
-          for(int i=0;i<s~/2;i++)
-            Icon(Icons.star,size: 20,color: Theme.of(context).colorScheme.secondary,),
-          if(s%2==1)
-            Icon(Icons.star_half,size: 20,color: Theme.of(context).colorScheme.secondary,),
-          for(int i=0;i<(5 - s~/2 - s%2);i++)
-            const Icon(Icons.star_border,size: 20,)
+          for (int i = 0; i < s ~/ 2; i++)
+            Icon(
+              Icons.star,
+              size: 20,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          if (s % 2 == 1)
+            Icon(
+              Icons.star_half,
+              size: 20,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          for (int i = 0; i < (5 - s ~/ 2 - s % 2); i++)
+            const Icon(
+              Icons.star_border,
+              size: 20,
+            )
         ],
       ),
     );
@@ -139,14 +165,17 @@ class EhGalleryTile extends ComicTile{
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromEhentai(gallery);
-  
+
   @override
-  List<ComicTileMenuOption>? get addonMenuOptions => [
-    ComicTileMenuOption("取消收藏".tl, Icons.playlist_remove_sharp, () async{
-      showMessage(App.globalContext!, "正在取消收藏".tl, time: 10);
-      await EhNetwork().unfavorite2(getGalleryId(gallery.link));
-      hideMessage(App.globalContext!);
-      showMessage(App.globalContext!, "取消收藏成功".tl);
-    })
-  ];
+  List<ComicTileMenuOption>? get addonMenuOptions => !showRemoveFavorite ? null : [
+        ComicTileMenuOption("取消收藏".tl, Icons.playlist_remove_sharp, () async {
+          showMessage(App.globalContext!, "正在取消收藏".tl, time: 10);
+          await EhNetwork().unfavorite2(getGalleryId(gallery.link));
+          hideMessage(App.globalContext!);
+          showMessage(App.globalContext!, "取消收藏成功".tl);
+        })
+      ];
+
+  @override
+  String get comicID => gallery.link;
 }

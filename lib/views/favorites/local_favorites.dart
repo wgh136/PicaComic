@@ -203,6 +203,9 @@ class LocalFavoriteTile extends ComicTile {
   String get description => "${comic.time} | ${comic.type.name}";
 
   @override
+  bool get showFavorite => false;
+
+  @override
   Widget get image => (){
     if(DownloadManager().allComics.contains(comic.toDownloadId())){
       return Image.file(
@@ -601,6 +604,9 @@ class LocalFavoriteTile extends ComicTile {
       read();
     }
   }
+
+  @override
+  String get comicID => comic.target;
 }
 
 class LocalFavoritesFolder extends StatefulWidget {

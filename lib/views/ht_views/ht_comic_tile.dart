@@ -63,6 +63,10 @@ class HtComicTile extends ComicTile {
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromHtcomic(comic);
+
+  @override
+
+  String get comicID => comic.id;
 }
 
 class HtComicTileInFavoritePage extends HtComicTile {

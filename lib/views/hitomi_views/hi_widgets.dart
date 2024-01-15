@@ -96,6 +96,9 @@ class HiComicTile extends ComicTile {
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromHitomi(comic);
+
+  @override
+  String get comicID => comic.link;
 }
 
 class ComicDescription extends StatelessWidget {

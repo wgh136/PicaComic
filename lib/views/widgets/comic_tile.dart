@@ -1,5 +1,6 @@
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
@@ -38,9 +39,12 @@ abstract class ComicTile extends StatelessWidget {
 
   int? get pages => null;
 
-  String? get badgeOnImage => null;
-
   List<ComicTileMenuOption>? get addonMenuOptions => null;
+
+  /// Comic ID, used to identify a comic.
+  String? get comicID => null;
+
+  bool get showFavorite => true;
 
   void onLongTap_() {
     bool favorite = false;
@@ -203,11 +207,70 @@ abstract class ComicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var type = appdata.settings[44].split(',').first;
+    Widget child;
     if (type == "0" || type == "3") {
-      return _buildDetailedMode(context);
+      child = _buildDetailedMode(context);
     } else {
-      return _buildBriefMode(context);
+      child = _buildBriefMode(context);
     }
+    if(comicID == null){
+      return child;
+    }
+    bool isFavorite = LocalFavoritesManager().findSync(comicID!).isNotEmpty;
+    var history = HistoryManager().findSync(comicID!);
+    if(history?.page == 0){
+      history!.page = 1;
+    }
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: child,
+        ),
+        Positioned(
+          left: 8,
+          top: 8,
+          child: Container(
+            height: 24,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Row(
+              children: [
+                if (isFavorite && showFavorite)
+                  Container(
+                    height: 24,
+                    width: 24,
+                    color: Colors.green,
+                    child: const Icon(
+                      Icons.bookmark_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                if (history != null)
+                  Container(
+                    height: 24,
+                    color: Colors.blue.withOpacity(0.9),
+                    constraints: const BoxConstraints(minWidth: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Center(
+                      child: Text(
+                        history.ep <= 1 ? "${history.page}" : "${history.ep}:${history.page}",
+                        style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
   }
 
   Widget _buildDetailedMode(BuildContext context) {

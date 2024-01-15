@@ -4,6 +4,8 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import '../../foundation/app.dart';
@@ -133,6 +135,15 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
       },
     ),
   );
+
+  @override
+  Widget buildItem(BuildContext context, EhGalleryBrief item) {
+    return EhGalleryTile(
+      item,
+      onTap: () => MainPage.to(() => EhGalleryPage(item)),
+      showRemoveFavorite: true,
+    );
+  }
 }
 
 class EhFolderTile extends StatelessWidget {

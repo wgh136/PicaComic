@@ -74,4 +74,7 @@ class JmComicTile extends ComicTile {
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromJmComic(comic);
+
+  @override
+  String get comicID => comic.id;
 }
