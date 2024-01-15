@@ -640,10 +640,11 @@ class LocalFavoritesManager {
   List<FavoriteItemWithFolderInfo> search(String keyword) {
     var resComics = <FavoriteItemWithFolderInfo>[];
     for (var table in folderNames) {
+      keyword = "%$keyword%";
       var res = _db.select("""
         SELECT * FROM "$table" 
-        WHERE name LIKE '%$keyword%' OR author LIKE '%$keyword%' OR tags LIKE '%$keyword%';
-      """);
+        WHERE name LIKE ? OR author LIKE ? OR tags LIKE ?;
+      """, [keyword, keyword, keyword]);
       for (var comic in res) {
         resComics.add(
             FavoriteItemWithFolderInfo(FavoriteItem.fromRow(comic), table));
