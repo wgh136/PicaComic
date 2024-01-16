@@ -22,63 +22,64 @@ Widget buildTopToolBar(ComicReadingPageLogic comicReadingPageLogic,
         switchInCurve: Curves.fastOutSlowIn,
         child: comicReadingPageLogic.tools
             ? Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .secondaryContainer
-                  .withOpacity(0.95)),
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Tooltip(
-                  message: "返回".tl,
-                  child: IconButton(
-                    iconSize: 25,
-                    icon: const Icon(Icons.arrow_back_outlined),
-                    onPressed: () => App.globalBack(),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  height: 50,
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width - 75),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      title,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 20),
+                decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withOpacity(0.95)),
+                width: MediaQuery.of(context).size.width,
+                padding:
+                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Tooltip(
+                        message: "返回".tl,
+                        child: IconButton(
+                          iconSize: 25,
+                          icon: const Icon(Icons.arrow_back_outlined),
+                          onPressed: () => App.globalBack(),
+                        ),
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width - 75),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            title,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                    ),
+                    //const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: Tooltip(
+                        message: "阅读设置".tl,
+                        child: IconButton(
+                          iconSize: 25,
+                          icon: const Icon(Icons.settings),
+                          onPressed: () => showSettings(context),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              //const Spacer(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: Tooltip(
-                  message: "阅读设置".tl,
-                  child: IconButton(
-                    iconSize: 25,
-                    icon: const Icon(Icons.settings),
-                    onPressed: () => showSettings(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        )
+              )
             : const SizedBox(
-          width: 0,
-          height: 0,
-        ),
+                width: 0,
+                height: 0,
+              ),
         transitionBuilder: (Widget child, Animation<double> animation) {
-          var tween =
-          Tween<Offset>(begin: const Offset(0, -1), end: const Offset(0, 0));
+          var tween = Tween<Offset>(
+              begin: const Offset(0, -1), end: const Offset(0, 0));
           return SlideTransition(
             position: tween.animate(animation),
             child: child,
@@ -136,47 +137,38 @@ Widget buildBottomToolBar(
     void Function() openEpsDrawer,
     void Function() share,
     void Function() downloadCurrentImage) {
-  var text = "E${logic.order} : P${logic.index}";
-  if (logic.order == 0) {
-    text = "P${logic.index}";
-  }
-
   return Positioned(
     bottom: 0,
     left: 0,
     right: 0,
     child: StateBuilder<ComicReadingPageLogic>(
       id: "ToolBar",
-      builder: (logic) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        reverseDuration: const Duration(milliseconds: 150),
-        switchInCurve: Curves.fastOutSlowIn,
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          var tween =
-          Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0));
-          return SlideTransition(
-            position: tween.animate(animation),
-            child: child,
-          );
-        },
-        child: logic.tools
-            ? Container(
+      builder: (logic) {
+        var text = "E${logic.order} : P${logic.index}";
+        if (logic.order == 0) {
+          text = "P${logic.index}";
+        }
+
+        Widget child = SizedBox(
           height: 105 + MediaQuery.of(context).padding.bottom,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16)),
-            color: Theme.of(context)
-                .colorScheme
-                .secondaryContainer
-                .withOpacity(0.95),
-          ),
           child: Column(
             children: [
               const SizedBox(
                 height: 8,
               ),
-              buildSlider(logic),
+              Row(
+                children: [
+                  const SizedBox(width: 8,),
+                  IconButton.filledTonal(onPressed: () => logic.jumpToLastChapter(),
+                      icon: const Icon(Icons.first_page)),
+                  Expanded(
+                    child: buildSlider(logic),
+                  ),
+                  IconButton.filledTonal(onPressed: () => logic.jumpToNextChapter(),
+                      icon: const Icon(Icons.last_page)),
+                  const SizedBox(width: 8,),
+                ],
+              ),
               Row(
                 children: [
                   const SizedBox(
@@ -188,17 +180,17 @@ Widget buildBottomToolBar(
                     decoration: BoxDecoration(
                       color:
                       Theme.of(context).colorScheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(text),
                   ),
                   const Spacer(),
-                  if(App.isWindows)
+                  if (App.isWindows)
                     Tooltip(
                       message: "${"全屏".tl}(F12)",
                       child: IconButton(
                         icon: const Icon(Icons.fullscreen),
-                        onPressed: (){
+                        onPressed: () {
                           logic.fullscreen();
                         },
                       ),
@@ -213,7 +205,8 @@ Widget buildBottomToolBar(
                           } else if (logic.rotation == false) {
                             return const Icon(Icons.screen_lock_portrait);
                           } else {
-                            return const Icon(Icons.screen_lock_landscape);
+                            return const Icon(
+                                Icons.screen_lock_landscape);
                           }
                         }.call(),
                         onPressed: () {
@@ -283,12 +276,37 @@ Widget buildBottomToolBar(
               )
             ],
           ),
-        )
-            : const SizedBox(
-          width: 0,
-          height: 0,
-        ),
-      ),
+        );
+
+        child = Material(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16)),
+          surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+          elevation: 3,
+          child: child,
+        );
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 150),
+          reverseDuration: const Duration(milliseconds: 150),
+          switchInCurve: Curves.fastOutSlowIn,
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            var tween =
+            Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0));
+            return SlideTransition(
+              position: tween.animate(animation),
+              child: child,
+            );
+          },
+          child: logic.tools
+              ? child
+              : const SizedBox(
+            width: 0,
+            height: 0,
+          ),
+        );
+      },
     ),
   );
 }

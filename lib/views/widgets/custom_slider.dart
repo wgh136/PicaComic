@@ -194,18 +194,6 @@ class _CustomSliderState extends State<CustomSlider> {
                         )
                       ),
                       Positioned(
-                        left: widget.reversed ? null : constrains.maxWidth * ((value - widget.min) / (widget.max - widget.min))-12,
-                        right: !widget.reversed ? null : constrains.maxWidth * ((value - widget.min) / (widget.max - widget.min))-12,
-                        child: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: theme.secondaryActiveTrackColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      Positioned(
                         top: 0,
                         bottom: 0,
                         left: widget.reversed ? null : constrains.maxWidth * ((value - widget.min) / (widget.max - widget.min))-11,

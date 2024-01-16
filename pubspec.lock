@@ -149,10 +149,10 @@ packages:
     dependency: "direct main"
     description:
       name: dynamic_color
-      sha256: "8b8bd1d798bd393e11eddeaa8ae95b12ff028bf7d5998fc5d003488cd5f4ce2f"
+      sha256: a866f1f8947bfdaf674d7928e769eac7230388a2e7a2542824fad4bb5b87be3b
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.8"
+    version: "1.6.9"
   equatable:
     dependency: transitive
     description:
@@ -628,7 +628,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: f530e8f88d613be338c50a2b486cdd968bae67f0
+      resolved-ref: "66b8845e781f9520f1868fe4e17a838d2bf025b6"
       url: "https://github.com/wgh136/photo_view"
     source: git
     version: "0.14.0"

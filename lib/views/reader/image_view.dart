@@ -1,4 +1,3 @@
-import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/gestures.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -15,9 +14,7 @@ import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'image.dart';
 import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import 'reading_type.dart';
-import 'package:pica_comic/tools/translations.dart';
 
 extension ScrollExtension on ScrollController {
   static double? futurePosition;
@@ -249,8 +246,7 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           if (type == ReadingType.ehentai ||
               type == ReadingType.hitomi ||
               type == ReadingType.nhentai) {
-            logic.pageController.jumpToPage(1);
-            showMessage(App.globalContext, "已经是第一页了".tl);
+            logic.pageController.animatedJumpToPage(1);
             return;
           }
           logic.jumpToLastChapter();
@@ -258,8 +254,7 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           if (type == ReadingType.ehentai ||
               type == ReadingType.hitomi ||
               type == ReadingType.nhentai) {
-            logic.pageController.jumpToPage(i - 1);
-            showMessage(App.globalContext, "已经是最后一页了".tl);
+            logic.pageController.animatedJumpToPage(i - 1);
             return;
           }
           logic.jumpToNextChapter();
@@ -338,8 +333,7 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           if (type == ReadingType.ehentai ||
               type == ReadingType.hitomi ||
               type == ReadingType.nhentai) {
-            logic.pageController.jumpToPage(1);
-            showMessage(App.globalContext, "已经是第一页了".tl);
+            logic.pageController.animatedJumpToPage(1);
             return;
           }
           logic.jumpToLastChapter();
@@ -347,8 +341,7 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
           if (type == ReadingType.ehentai ||
               type == ReadingType.hitomi ||
               type == ReadingType.nhentai) {
-            logic.pageController.jumpToPage(i - 1);
-            showMessage(App.globalContext, "已经是最后一页了".tl);
+            logic.pageController.animatedJumpToPage(i - 1);
             return;
           }
           logic.jumpToNextChapter();
