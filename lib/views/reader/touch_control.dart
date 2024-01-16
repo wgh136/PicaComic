@@ -138,7 +138,7 @@ class TapController {
 
     if(appdata.settings[55] == "1") {
       _tapDownPointer = _TapDownPointer(event.pointer);
-      Future.delayed(const Duration(milliseconds: 200), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         if (event.pointer == _tapDownPointer?.id) {
           onTapUpReplacement = _handleLongPressEnd;
           _handleLongPressStart(event.position);

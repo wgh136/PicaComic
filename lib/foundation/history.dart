@@ -153,10 +153,6 @@ class HistoryManager {
     Webdav.uploadData();
   }
 
-  Future<void> readData() async {
-
-  }
-
   /// add history. if exists, update read history.
   Future<void> addHistory(History newItem) async {
     var res = _db.select("""
@@ -182,12 +178,12 @@ class HistoryManager {
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
-  Future<void> saveReadHistory(String target, int ep, int page) async {
+  Future<void> saveReadHistory(History history) async {
     _db.execute("""
         update history
-        set time = ${DateTime.now().millisecondsSinceEpoch}, ep = $ep, page = $page
-        where target == '${target.toParam}';
-    """);
+        set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?
+        where target == ?;
+    """, [history.ep, history.page, history.target, history.readEpisode.join(',')]);
   }
 
   void clearHistory() {

@@ -229,8 +229,7 @@ class ComicReadingPage extends StatelessWidget {
       StateController.remove<ComicReadingPageLogic>();
       LocalFavoritesManager().onReadEnd(target);
       if(history != null) {
-        HistoryManager().saveReadHistory(
-            history!.target, history!.ep, history!.page);
+        HistoryManager().saveReadHistory(history!);
       }
       if(logic.isFullScreen){
         logic.fullscreen();

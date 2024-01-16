@@ -419,6 +419,13 @@ Widget buildComicView(ComicReadingPageLogic logic, ReadingType type,
   return Positioned.fill(
     child: Listener(
       onPointerSignal: onPointerSignal,
+      onPointerPanZoomUpdate: (event) {
+        if(event.kind == PointerDeviceKind.trackpad && logic.readingMethod == ReadingMethod.topToBottomContinuously){
+          if(event.scale == 1.0) {
+            logic.scrollController.smoothTo(0 - event.panDelta.dy*1.2);
+          }
+        }
+      },
       onPointerDown: (details) => logic.mouseScroll = false,
       child: NotificationListener<ScrollUpdateNotification>(
         child: body,
