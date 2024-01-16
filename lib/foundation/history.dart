@@ -183,7 +183,7 @@ class HistoryManager {
         update history
         set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?
         where target == ?;
-    """, [history.ep, history.page, history.target, history.readEpisode.join(',')]);
+    """, [history.ep, history.page, history.readEpisode.join(','), history.target]);
   }
 
   void clearHistory() {
