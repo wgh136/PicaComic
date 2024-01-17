@@ -42,7 +42,8 @@ class EhNetwork {
   ///api url
   get ehApiUrl => _ehApiUrl;
 
-  final cookieJar = CookieJar(ignoreExpires: true);
+  final cookieJar = PersistCookieJar(
+      ignoreExpires: true, storage: FileStorage("${App.dataPath}/eh_cookies"));
 
   ///给图片加载使用的cookie
   String cookiesStr = "";
@@ -62,10 +63,11 @@ class EhNetwork {
   Future<String> getCookies(bool setNW, [String? url]) async {
     url ??= ehBaseUrl;
     var cookies = await cookieJar.loadForRequest(Uri.parse(url));
-    cookieJar.delete(Uri.parse(url), true);
+    await cookieJar.delete(Uri.parse(url), true);
     cookies.removeWhere((element) =>
         ["nw", "ipb_member_id", "ipb_pass_hash"].contains(element.name));
-    cookies.removeWhere((element) => element.name=="igneous" && element.value=="mystery");
+    cookies.removeWhere(
+        (element) => element.name == "igneous" && element.value == "mystery");
     var igneousField =
         cookies.firstWhereOrNull((element) => element.name == "igneous");
     if (igneousField != null && appdata.igneous != igneousField.value) {
@@ -103,7 +105,11 @@ class EhNetwork {
         sendTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 8),
         followRedirects: true,
-        headers: {"user-agent": webUA, ...?headers, "host": Uri.parse(url).host});
+        headers: {
+          "user-agent": webUA,
+          ...?headers,
+          "host": Uri.parse(url).host
+        });
     var dio = CachedNetwork();
     try {
       var data = await dio.get(url, options,
@@ -124,13 +130,13 @@ class EhNetwork {
       } else {
         message = e.toString().split("\n").elementAtOrNull(1);
       }
-      return Res(null, errorMessage: message ?? "网络错误");
+      return Res(null, errorMessage: message ?? "Network Error");
     } catch (e) {
       String? message;
       if (e.toString() != "null") {
         message = e.toString();
       }
-      return Res(null, errorMessage: message ?? "网络错误");
+      return Res(null, errorMessage: message ?? "Network Error");
     }
   }
 
@@ -145,14 +151,14 @@ class EhNetwork {
     await setNetworkProxy();
 
     try {
-      var res = await apiDio.post<String>(ehApiUrl, data: data, options: Options(
-        headers: {
-          "user-agent": webUA,
-          ...?headers,
-          "host": Uri.parse(ehBaseUrl).host,
-          "Cookie": cookiesStr
-          }
-      ));
+      var res = await apiDio.post<String>(ehApiUrl,
+          data: data,
+          options: Options(headers: {
+            "user-agent": webUA,
+            ...?headers,
+            "host": Uri.parse(ehBaseUrl).host,
+            "Cookie": cookiesStr
+          }));
       return Res(res.data);
     } on DioException catch (e) {
       String? message;
@@ -161,13 +167,13 @@ class EhNetwork {
       } else {
         message = e.toString().split("\n").elementAtOrNull(1);
       }
-      return Res(null, errorMessage: message ?? "网络错误");
+      return Res(null, errorMessage: message ?? "Network Error");
     } catch (e) {
       String? message;
       if (e.toString() != "null") {
         message = e.toString();
       }
-      return Res(null, errorMessage: message ?? "网络错误");
+      return Res(null, errorMessage: message ?? "Network Error");
     }
   }
 
@@ -198,14 +204,14 @@ class EhNetwork {
       } else {
         message = e.toString().split("\n").elementAtOrNull(1);
       }
-      return Res(null, errorMessage: message ?? "网络错误");
+      return Res(null, errorMessage: message ?? "Network Error");
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
       String? message;
       if (e.toString() != "null") {
         message = e.toString();
       }
-      return Res(null, errorMessage: message ?? "网络错误");
+      return Res(null, errorMessage: message ?? "Network Error");
     }
   }
 
@@ -294,45 +300,32 @@ class EhNetwork {
     }
     try {
       var document = parse(res.data);
-      var items = document.querySelectorAll("table.itg.gltc > tbody > tr");
       var galleries = <EhGalleryBrief>[];
-      for (int i = 1; i < items.length; i++) {
-        //items的第一个为表格的标题, 忽略
+
+      // compact mode
+      for (var item in document.querySelectorAll("table.itg.gltc > tbody > tr")) {
         try {
-          var type = items[i].children[0 + t].children[0].text;
-          var time = items[i].children[1 + t].children[2].children[0].text;
-          var stars = getStarsFromPosition(items[i]
-              .children[1 + t]
-              .children[2]
-              .children[1]
-              .attributes["style"]!);
-          var cover = items[i]
-              .children[1 + t]
-              .children[1]
-              .children[0]
-              .children[0]
-              .attributes["src"];
+          var type = item.children[0 + t].children[0].text;
+          var time = item.children[1 + t].children[2].children[0].text;
+          var stars = getStarsFromPosition(item
+              .children[1 + t].children[2].children[1].attributes["style"]!);
+          var cover = item.children[1 + t].children[1].children[0].children[0].attributes["src"];
           if (cover![0] == 'd') {
-            cover = items[i]
-                .children[1 + t]
-                .children[1]
-                .children[0]
-                .children[0]
-                .attributes["data-src"];
+            cover = item.children[1 + t].children[1].children[0].children[0].attributes["data-src"];
           }
-          var title = items[i].children[2 + t].children[0].children[0].text;
-          var link = items[i].children[2 + t].children[0].attributes["href"];
+          var title = item.children[2 + t].children[0].children[0].text;
+          var link = item.children[2 + t].children[0].attributes["href"];
           String uploader = "";
           int? pages;
           try {
-            uploader = items[i].children[3 + t].children[0].children[0].text;
-            pages = int.parse(items[i].children[3 + t].children[1].text.nums);
+            uploader = item.children[3 + t].children[0].children[0].text;
+            pages = int.parse(item.children[3 + t].children[1].text.nums);
           } catch (e) {
             //收藏夹页没有uploader
           }
           var tags = <String>[];
           for (var node
-              in items[i].children[2 + t].children[0].children[1].children) {
+              in item.children[2 + t].children[0].children[1].children) {
             tags.add(node.attributes["title"]!);
           }
 
@@ -344,6 +337,78 @@ class EhNetwork {
           continue;
         }
       }
+
+      // Thumbnail mode
+      for (var item in document.querySelectorAll("div.gl1t")) {
+        try {
+          final title = item.querySelector("a")?.text ?? "Unknown";
+          final type =
+              item.querySelector("div.gl5t > div > div.cs")?.text ?? "Unknown";
+          final time = item
+                  .querySelectorAll("div.gl5t > div")
+                  .firstWhereOrNull(
+                      (element) => DateTime.tryParse(element.text) != null)
+                  ?.text ??
+              "Unknown";
+          final coverPath = item.querySelector("img")?.attributes["src"] ?? "";
+          final stars = getStarsFromPosition(item
+                  .querySelector("div.gl5t > div > div.ir")
+                  ?.attributes["style"] ??
+              "");
+          final link = item.querySelector("a")?.attributes["href"] ?? "";
+          final pages = int.tryParse(item
+                  .querySelectorAll("div.gl5t > div > div")
+                  .firstWhereOrNull((element) => element.text.contains("pages"))
+                  ?.text
+                  .nums ??
+              "");
+          galleries.add(EhGalleryBrief(
+              title, type, time, "", coverPath, stars, link, [],
+              pages: pages));
+        } catch (e) {
+          //忽视
+        }
+      }
+
+      // Extended mode
+      for(var item in document.querySelectorAll("table.itg.glte > tbody > tr")){
+        try{
+          final title = item.querySelector("td.gl2e > div > a > div > div.glink")?.text ?? "Unknown";
+          final type = item.querySelector("td.gl2e > div > div.gl3e > div.cn")?.text ?? "Unknown";
+          final time = item.querySelectorAll("td.gl2e > div > div.gl3e > div")
+              .firstWhereOrNull((element) => DateTime.tryParse(element.text) != null)?.text ?? "Unknown";
+          final uploader = item.querySelector("td.gl2e > div > div.gl3e > div > a")?.text ?? "Unknown";
+          final coverPath = item.querySelector("td.gl1e > div > a > img")?.attributes["src"] ?? "";
+          final stars = getStarsFromPosition(item.querySelector("td.gl2e > div > div.gl3e > div.ir")?.attributes["style"] ?? "");
+          final link = item.querySelector("td.gl1e > div > a")?.attributes["href"] ?? "";
+          final tags = item.querySelectorAll("div.gtl").map((e) => e.attributes["title"] ?? "").toList();
+          final pages = int.tryParse(item.querySelectorAll("td.gl2e > div > div.gl3e > div")
+              .firstWhereOrNull((element) => element.text.contains("pages"))?.text.nums ?? "");
+          galleries.add(EhGalleryBrief(title, type, time, uploader, coverPath, stars, link, tags, pages: pages));
+        }
+        catch(e){
+          //忽视
+        }
+      }
+
+      // minimal mode
+      for(var item in document.querySelectorAll("table.itg.gltm > tbody > tr")){
+        try{
+          final title = item.querySelector("td.gl3m > a > div.glink")?.text ?? "Unknown";
+          final type = item.querySelector("td.gl1m > div.cs")?.text ?? "Unknown";
+          final time = item.querySelectorAll("td.gl2m > div")
+              .firstWhereOrNull((element) => DateTime.tryParse(element.text) != null)?.text ?? "Unknown";
+          final uploader = item.querySelector("td.gl5m > div > a")?.text ?? "Unknown";
+          final coverPath = item.querySelector("td.gl2m > div > div > img")?.attributes["src"] ?? "";
+          final stars = getStarsFromPosition(item.querySelector("td.gl4m > div.ir")?.attributes["style"] ?? "");
+          final link = item.querySelector("td.gl3m > a")?.attributes["href"] ?? "";
+          galleries.add(EhGalleryBrief(title, type, time, uploader, coverPath, stars, link, []));
+        }
+        catch(e){
+          //忽视
+        }
+      }
+
       var g = Galleries();
       var nextButton = document.getElementById("dnext");
       if (nextButton == null) {
@@ -362,7 +427,7 @@ class EhNetwork {
             var name = folderDiv.children.elementAtOrNull(2)?.text ??
                 "Favorite ${names.length}";
             var length = folderDiv.children.elementAtOrNull(0)?.text;
-            if(length != null){
+            if (length != null) {
               length = " ($length)";
             }
             length ??= "";
@@ -381,7 +446,7 @@ class EhNetwork {
       return Res(g);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: $e");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -550,17 +615,16 @@ class EhNetwork {
 
   Set<String> loadingReaderLinks = {};
 
-  Future<Res<String>> getReaderLink(String gLink, int page) async{
+  Future<Res<String>> getReaderLink(String gLink, int page) async {
     var res = await _getReaderLinks(gLink, 1);
-    if(page <= res.data.length){
-      return Res(res.data[page-1]);
+    if (page <= res.data.length) {
+      return Res(res.data[page - 1]);
     }
     var urlsOnePage = res.data.length;
 
     final shouldLoadPage = (page - 1) ~/ urlsOnePage + 1;
-    final urlsRes =
-        (await _getReaderLinks(gLink, shouldLoadPage));
-    if(urlsRes.error){
+    final urlsRes = (await _getReaderLinks(gLink, shouldLoadPage));
+    if (urlsRes.error) {
       return Res.fromErrorRes(urlsRes);
     }
     return Res(urlsRes.data[(page - 1) % urlsOnePage]);
@@ -568,11 +632,11 @@ class EhNetwork {
 
   /// page starts from 1
   Future<Res<List<String>>> _getReaderLinks(String link, int page) async {
-    String url = "$link?inline_set=ts_m";
+    String url = link;
     if (page != 1) {
       url = "$url&p=${page - 1}";
     }
-    while(loadingReaderLinks.contains(url)){
+    while (loadingReaderLinks.contains(url)) {
       await Future.delayed(const Duration(milliseconds: 200));
     }
     loadingReaderLinks.add(url);
@@ -599,14 +663,18 @@ class EhNetwork {
     }
   }
 
-  Future<(String image, String? nl)> getImageLinkWithNL(String gid, String imgKey, int p, String nl) async{
+  Future<(String image, String? nl)> getImageLinkWithNL(
+      String gid, String imgKey, int p, String nl) async {
     var res = await request("$ehBaseUrl/s/$imgKey/$gid-$p?nl=$nl");
-    if(res.error){
+    if (res.error) {
       throw res.errorMessage ?? "error";
-    }else{
+    } else {
       var document = parse(res.data);
       var image = document.querySelector("div#i3 > a > img")?.attributes["src"];
-      var nl = document.querySelector("div#i6 > div > a#loadfail")?.attributes["onclick"]?.split('\'')
+      var nl = document
+          .querySelector("div#i6 > div > a#loadfail")
+          ?.attributes["onclick"]
+          ?.split('\'')
           .firstWhereOrNull((element) => element.contains('-'));
       return (image ?? (throw "Failed to get image."), nl);
     }
@@ -614,7 +682,7 @@ class EhNetwork {
 
   Future<Res<List<String>>> getThumbnailUrls(Gallery gallery) async {
     if (gallery.auth!["thumbnailKey"] == null) {
-      var res = await request("${gallery.link}?inline_set=ts_m");
+      var res = await request(gallery.link);
       if (res.error) {
         return Res.fromErrorRes(res);
       }
@@ -649,7 +717,7 @@ class EhNetwork {
       appdata.searchHistory.add(keyword);
       appdata.writeHistory();
     }
-    var requestUrl = "$ehBaseUrl/?f_search=$keyword&inline_set=dm_l";
+    var requestUrl = "$ehBaseUrl/?f_search=$keyword";
     if (fCats != null) {
       requestUrl += "&f_cats=$fCats";
     }
@@ -740,8 +808,7 @@ class EhNetwork {
   }
 
   Future<bool> unfavorite2(String gid) async {
-    var res = await post(
-        "https://e-hentai.org/favorites.php",
+    var res = await post("https://e-hentai.org/favorites.php",
         "ddact=delete&modifygids%5B%5D=$gid",
         headers: {"Content-Type": "application/x-www-form-urlencoded"});
     if (res.error) {

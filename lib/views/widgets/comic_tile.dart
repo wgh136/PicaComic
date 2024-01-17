@@ -256,7 +256,7 @@ abstract class ComicTile extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Center(
                       child: Text(
-                        history.ep <= 1 ? "${history.page}" : "${history.ep}:${history.page}",
+                        history.ep <= 1 ? "${history.page}" : "${history.ep}-${history.page}",
                         style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,

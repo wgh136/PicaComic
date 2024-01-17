@@ -11,7 +11,6 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
-import 'package:pica_comic/tools/debug.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
@@ -260,7 +259,6 @@ class ImageManager {
           var res = await EhNetwork().request(readerLink);
 
           var html = parse(res.data);
-          saveDebugData(res.data);
           var script = html
               .querySelectorAll("script")
               .firstWhereOrNull((element) => element.text.contains("showkey"));

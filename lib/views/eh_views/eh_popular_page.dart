@@ -14,7 +14,7 @@ class EhPopularPageLogic extends StateController{
   String? message;
 
   void getGallery() async{
-    var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/popular?inline_set=dm_l");
+    var res = await EhNetwork().getGalleries("${EhNetwork().ehBaseUrl}/popular?inline_set=dm_t");
     if(res.error){
       message = res.errorMessage;
     }else{
