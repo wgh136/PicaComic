@@ -275,9 +275,19 @@ class EhGalleryPage extends ComicPage<Gallery> {
         "Referer": EhNetwork().ehBaseUrl,
       };
 
+
   @override
-  ThumbnailsData? get thumbnailsCreator =>
-      ThumbnailsData([], (page) => EhNetwork().getThumbnailUrls(data!), 2);
+  ThumbnailsData? get thumbnailsCreator {
+    if(data?.auth?["thumbnailKey"] != null && data!.auth!["thumbnailKey"]!.startsWith("large thumbnail")){
+      return ThumbnailsData(
+          data!.thumbnails,
+          (page) => EhNetwork().getLargeThumbnails(data!, page),
+          int.tryParse(data!.auth!["thumbnailKey"]!.nums) ?? 1
+      );
+    } else {
+      return ThumbnailsData([], (page) => EhNetwork().getThumbnailUrls(data!), 2);
+    }
+  }
 
   @override
   String? get title => data!.title;
@@ -290,6 +300,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   Widget thumbnailImageBuilder(int index, String imageUrl) {
+    if(data?.auth?["thumbnailKey"] != null && data!.auth!["thumbnailKey"]!.startsWith("large thumbnail")){
+      return super.thumbnailImageBuilder(index, imageUrl);
+    }
     return ColoredBox(
       color: Theme.of(context).colorScheme.surfaceVariant,
       child: EhThumbnailLoader(

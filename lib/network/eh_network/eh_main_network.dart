@@ -345,7 +345,7 @@ class EhNetwork {
           final type =
               item.querySelector("div.gl5t > div > div.cs")?.text ?? "Unknown";
           final time = item
-                  .querySelectorAll("div.gl5t > div")
+                  .querySelectorAll("div.gl5t > div > div")
                   .firstWhereOrNull(
                       (element) => DateTime.tryParse(element.text) != null)
                   ?.text ??
@@ -539,12 +539,6 @@ class EhNetwork {
       //身份认证数据
       var auth = getVariablesFromJsCode(res.data);
       var thumbnailUrls = <String>[];
-      var imgDom = document.querySelectorAll("div.gdtl > a > img");
-      for (var i in imgDom) {
-        if (i.attributes["src"] != null) {
-          thumbnailUrls.add(i.attributes["src"]!);
-        }
-      }
       var title = document.querySelector("h1#gn")!.text;
       var subTitle = document.querySelector("h1#gj")?.text;
       if (subTitle != null && subTitle.removeAllBlank == "") {
@@ -562,6 +556,16 @@ class EhNetwork {
             auth["thumbnailKey"] = extractedValue;
           }
         }
+      } else {
+        var imgDom = document.querySelectorAll("div.gdtl > a > img");
+        for (var i in imgDom) {
+          if (i.attributes["src"] != null) {
+            thumbnailUrls.add(i.attributes["src"]!);
+          }
+        }
+        var totalPages = document.querySelectorAll("table.ptt > tbody > tr > td > a")
+            .where((element) => element.text.isNum).last.text;
+        auth["thumbnailKey"] = "large thumbnail: $totalPages";
       }
       return Res(Gallery(
           title,
@@ -707,6 +711,15 @@ class EhNetwork {
       }
       return "https://ehgt.org/m/${gallery.auth!["thumbnailKey"]!}/${getGalleryId(gallery.link)}-$page.jpg";
     }));
+  }
+
+  Future<Res<List<String>>> getLargeThumbnails(Gallery gallery, int page) async{
+    var res = await request("${gallery.link}?p=$page");
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    var document = parse(res.data);
+    return Res(document.querySelectorAll("div.gdtl > a > img").map((e) => e.attributes["src"] ?? "").toList());
   }
 
   ///搜索e-hentai

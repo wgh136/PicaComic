@@ -74,6 +74,7 @@ class Gallery{
   bool favorite;
   String link;
   String maxPage;
+  List<String> thumbnails;
 
   List<String> _generateTags(){
     var res = <String>[];
@@ -126,6 +127,7 @@ class Gallery{
     favorite = json["favorite"],
     link = json["link"],
     maxPage = json["maxPage"],
+    thumbnails = [],
     comments = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);
@@ -146,7 +148,7 @@ class Gallery{
       this.favorite,
       this.link,
       this.maxPage,
-      List<String> str, // unused field
+      this.thumbnails, // unused field
       this.subTitle);
 }
 

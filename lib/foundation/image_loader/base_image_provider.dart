@@ -33,6 +33,12 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>> extends ImagePr
     try {
       int retryTime = 1;
 
+      bool stop = false;
+
+      chunkEvents.onCancel = () {
+        stop = true;
+      };
+
       while(true){
         try {
           final buffer = await ImmutableBuffer.fromUint8List(
@@ -44,7 +50,7 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>> extends ImagePr
             rethrow;
           }
           retryTime <<= 1;
-          if(retryTime > (2 << 5)){
+          if(retryTime > (2 << 5) || stop){
             rethrow;
           }
           await Future.delayed(Duration(seconds: retryTime));
