@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/tools.dart';
@@ -10,97 +12,73 @@ import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'main_page.dart';
 
+class MePage extends StatelessWidget {
+  const MePage({super.key});
 
-class NewMePage extends StatefulWidget {
-  const NewMePage({super.key});
-
-  @override
-  State<NewMePage> createState() => _NewMePageState();
-}
-
-class _NewMePageState extends State<NewMePage>{
-  String? folderName;
-  final controller = ScrollController();
-  final tabController = ScrollController();
-  bool shouldScrollTabBar = false;
-  bool searchMode = false;
-
-  String keyword = "";
-
-  void hideLocalFavorites(){
-    setState(() {
-      appdata.settings[52] = "1";
-      appdata.updateSettings();
-    });
-  }
-
-  void showLocalFavorites(){
-    setState(() {
-      appdata.settings[52] = "0";
-      appdata.updateSettings();
-    });
+  int calcAccounts(){
+    int count = 0;
+    if(appdata.picacgAccount != "") count++;
+    if(appdata.ehAccount != "") count++;
+    if(appdata.jmName != "") count++;
+    if(appdata.htName != "") count++;
+    if(NhentaiNetwork().logged) count++;
+    return count;
   }
 
   @override
   Widget build(BuildContext context) {
-    return buildOldView(context);
-  }
-
-  Widget buildOldView(BuildContext context) {
+    int accounts = calcAccounts();
     return CustomScrollView(
       key: const Key("1"),
       slivers: [
         if (!UiMode.m1(context))
           const SliverPadding(padding: EdgeInsets.all(30)),
         SliverToBoxAdapter(
-          child: SizedBox(
-            width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox.fromSize(
-                  size: const Size(400, 120),
-                  child: const Center(
-                    child: Text(
-                      "Pica Comic",
-                      style: TextStyle(
-                          fontFamily: "font2",
-                          fontSize: 40,
-                          fontWeight: FontWeight.w700),
-                    ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox.fromSize(
+                size: const Size(400, 120),
+                child: const Center(
+                  child: Text(
+                    "Pica Comic",
+                    style: TextStyle(
+                        fontFamily: "font2",
+                        fontSize: 40,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
-                Wrap(
-                  children: [
-                    MePageButton(
-                      title: "账号管理".tl,
-                      subTitle: "查看或修改账号信息".tl,
-                      icon: Icons.switch_account,
-                      onTap: () => showAdaptiveWidget(App.globalContext!,
-                          AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
-                    ),
-                    MePageButton(
-                      title: "已下载".tl,
-                      subTitle: "管理已下载的漫画".tl,
-                      icon: Icons.download_for_offline,
-                      onTap: () => MainPage.to(() => const DownloadPage()),
-                    ),
-                    MePageButton(
-                      title: "历史记录".tl,
-                      subTitle: "查看历史记录".tl,
-                      icon: Icons.history,
-                      onTap: () => MainPage.to(() => const HistoryPage()),
-                    ),
-                    MePageButton(
-                      title: "工具".tl,
-                      subTitle: "使用工具发现更多漫画".tl,
-                      icon: Icons.build_circle,
-                      onTap: openTool,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              Wrap(
+                children: [
+                  MePageButton(
+                    title: "账号管理".tl,
+                    subTitle: "已登录 @a 个账号".tlParams({"a": accounts.toString()}),
+                    icon: Icons.switch_account,
+                    onTap: () => showAdaptiveWidget(App.globalContext!,
+                        AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
+                  ),
+                  MePageButton(
+                    title: "已下载".tl,
+                    subTitle: "共 @a 部漫画".tlParams({"a": DownloadManager().downloaded.length.toString()}),
+                    icon: Icons.download_for_offline,
+                    onTap: () => MainPage.to(() => const DownloadPage()),
+                  ),
+                  MePageButton(
+                    title: "历史记录".tl,
+                    subTitle: "@a 条历史记录".tlParams({"a": appdata.history.length.toString()}),
+                    icon: Icons.history,
+                    onTap: () => MainPage.to(() => const HistoryPage()),
+                  ),
+                  MePageButton(
+                    title: "工具".tl,
+                    subTitle: "使用工具发现更多漫画".tl,
+                    icon: Icons.build_circle,
+                    onTap: openTool,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         const SliverPadding(padding: EdgeInsets.only(top: 12)),
@@ -109,57 +87,6 @@ class _NewMePageState extends State<NewMePage>{
   }
 }
 
-class NewMePageButton extends StatelessWidget {
-  const NewMePageButton({required this.icon, required this.title, required this.onTap, super.key});
-
-  final Icon icon;
-
-  final String title;
-
-  final ActionFunc onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: LayoutBuilder(builder: (context, constrains){
-        Widget child;
-
-        if(constrains.maxWidth < 148){
-          child = Center(
-            child: icon,
-          );
-        } else {
-          child =  Row(
-            children: [
-              const SizedBox(width: 16,),
-              icon,
-              const SizedBox(width: 8,),
-              Text(title),
-              const SizedBox(width: 16,),
-            ],
-          );
-        }
-
-        return Container(
-          width: double.infinity,
-          height: double.infinity,
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          decoration: BoxDecoration(
-              color: App.colors(context).primaryContainer,
-              borderRadius: BorderRadius.circular(16)
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: onTap,
-              child: child,
-            ),
-          ),
-        );
-    }));
-  }
-}
 
 class MePageButton extends StatefulWidget {
   const MePageButton({required this.title, required this.subTitle, required this.icon, required this.onTap, super.key});

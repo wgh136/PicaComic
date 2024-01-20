@@ -493,6 +493,9 @@ extension AppTranslation on String {
       ", 上次更新时间: ": ", 上次更新時間:",
       "下拉更新拉取页数": "下拉更新拉取頁數",
       "支持下拉更新": "支援下拉更新",
+      "已登录 @a 个账号": "已登入 @a 個帳號",
+      "共 @a 部漫画": "共 @a 部漫画",
+      "@a 条历史记录": "@a 條歷史記錄",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -1080,6 +1083,9 @@ If you find a problem while using it, please check if it's a problem with your d
       ", 上次更新时间: ": ", last updated:",
       "下拉更新拉取页数": "Pull down to update the number of pages pulled",
       "支持下拉更新": "Support pull down update",
+      "已登录 @a 个账号": "@a accounts logged in.",
+      "共 @a 部漫画": "@a comics in total",
+      "@a 条历史记录": "@a history records",
     }
   };
 }

@@ -113,7 +113,7 @@ class SliverGridDelegateWithComics extends SliverGridDelegate{
 
   SliverGridLayout getBriefModeLayout(SliverConstraints constraints, double scale){
     final maxCrossAxisExtent = 192.0 * scale;
-    const childAspectRatio = 0.62;
+    const childAspectRatio = 0.72;
     const crossAxisSpacing = 0.0;
     int crossAxisCount = (constraints.crossAxisExtent / (maxCrossAxisExtent + crossAxisSpacing)).ceil();
     // Ensure a minimum count of 1, can be zero and result in an infinite extent

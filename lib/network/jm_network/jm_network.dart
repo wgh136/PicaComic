@@ -254,8 +254,12 @@ class JmNetwork {
   }
 
   Future<Res<(List<JmComicBrief>, int)>> getComicsPage(
-      String link, int page) async {
+      String link, int page, [ComicsOrder? order]) async {
     var url = "$baseUrl$link";
+
+    if(order != null){
+      url += "?o=$order";
+    }
 
     if (url.contains("?")) {
       url = "$url&page=$page";

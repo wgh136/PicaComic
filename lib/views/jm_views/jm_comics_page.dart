@@ -1,7 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
+
+import '../../foundation/app.dart';
+import '../settings/jm_settings.dart';
 
 class JmComicsPage extends ComicsPage<JmComicBrief>{
   const JmComicsPage(this.title, this.id, {super.key});
@@ -13,7 +18,7 @@ class JmComicsPage extends ComicsPage<JmComicBrief>{
 
   @override
   Future<Res<List<JmComicBrief>>> getComics(int i) async{
-    var res = await JmNetwork().getComicsPage(id, i);
+    var res = await JmNetwork().getComicsPage(id, i, ComicsOrder.values[int.parse(appdata.settings[16])]);
     if(res.error){
       return Res.fromErrorRes(res);
     }
@@ -29,4 +34,13 @@ class JmComicsPage extends ComicsPage<JmComicBrief>{
   @override
   bool get withScaffold => true;
 
+  @override
+  Widget? get tailing => IconButton(
+    icon: const Icon(Icons.sort),
+    onPressed: () => setJmComicsOrder(App.globalContext!).then((b) {
+          if (!b) {
+            refresh();
+          }
+        }),
+  );
 }

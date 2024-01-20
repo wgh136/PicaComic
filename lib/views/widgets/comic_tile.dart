@@ -2,6 +2,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -325,46 +326,69 @@ abstract class ComicTile extends StatelessWidget {
   }
 
   Widget _buildBriefMode(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
-      child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap_,
-          onLongPress: enableLongPressed ? onLongTap_ : null,
-          onSecondaryTapDown: onSecondaryTap_,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(12)),
-                      clipBehavior: Clip.antiAlias,
-                      child: image),
-                ),
-                const SizedBox(
-                  height: 2,
-                ),
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                Text(
-                  subTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 10),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        elevation: 1,
+        child: Stack(
+          children: [
+            Positioned.fill(child: Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(8)),
+                clipBehavior: Clip.antiAlias,
+                child: image)),
+            Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.3),
+                            Colors.black.withOpacity(0.5),
+                          ]),
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8))
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    child: Text(
+                      title.replaceAll("\n", ""),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14.0,
+                        color: Colors.white,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 )
-              ],
             ),
-          )),
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap_,
+                  onLongPress: enableLongPressed ? onLongTap_ : null,
+                  onSecondaryTapDown: onSecondaryTap_,
+                  borderRadius: BorderRadius.circular(8),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
@@ -389,6 +413,9 @@ class _ComicDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(tags != null){
+      tags!.removeWhere((element) => element.removeAllBlank == "");
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 0.0),
       child: Column(

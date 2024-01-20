@@ -100,6 +100,8 @@ class HistoryManager {
 
   late Database _db;
 
+  int get length => _db.select("select count(*) from history;").first[0] as int;
+
   Future<void> tryUpdateDb() async{
     var file = File("${App.dataPath}/history_temp.db");
     if(file.existsSync()){
