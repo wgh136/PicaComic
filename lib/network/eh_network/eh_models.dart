@@ -171,3 +171,13 @@ class EhLeaderboard{
 
   EhLeaderboard(this.type,this.galleries,this.loaded);
 }
+
+class EhImageLimit{
+  final int current;
+  final int max;
+  final int resetCost;
+  final int kGP;
+  final int credits;
+
+  const EhImageLimit(this.current, this.max, this.resetCost, this.kGP, this.credits);
+}

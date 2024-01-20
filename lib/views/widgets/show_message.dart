@@ -99,6 +99,60 @@ class _AppSnackBarState extends State<AppSnackBar> with SingleTickerProviderStat
   }
 }
 
+void showToast({required String message, IconData? icon}){
+  var newEntry = OverlayEntry(builder: (context) => ToastOverlay(message: message, icon: icon));
+
+  _OverlayWidgetState.addOverlay(newEntry);
+
+  Timer(const Duration(seconds: 2), () => _OverlayWidgetState.remove(newEntry));
+}
+
+class ToastOverlay extends StatelessWidget {
+  const ToastOverlay({required this.message, this.icon, super.key});
+
+  final String message;
+
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 24 + MediaQuery.of(context).viewInsets.bottom,
+      left: 0,
+      right: 0,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+          borderRadius: BorderRadius.circular(12),
+          elevation: 2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) Icon(icon),
+                if (icon != null)
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  message,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 
 
 class OverlayWidget extends StatefulWidget {

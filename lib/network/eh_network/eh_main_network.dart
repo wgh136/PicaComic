@@ -846,4 +846,46 @@ class EhNetwork {
     }
     return const Res(true);
   }
+
+  Future<Res<EhImageLimit>> getImageLimit() async{
+    if(appdata.ehAccount == ""){
+      return const Res(null, errorMessage: "Not logged in");
+    }
+    var [res, res1] = await Future.wait([
+      request("https://e-hentai.org/home.php", expiredTime: CacheExpiredTime.no),
+      request("https://e-hentai.org/exchange.php?t=gp", expiredTime: CacheExpiredTime.no)
+    ]);
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    if(res1.error){
+      return Res.fromErrorRes(res1);
+    }
+    var document = parse(res.data);
+    var infoBox = document.querySelectorAll("div.homebox > p")
+        .firstWhere((element) => element.text.contains("You are currently at"));
+    var [current, limit] = infoBox.querySelectorAll("strong").map((e) => e.text).toList();
+    var resetBox = document.querySelectorAll("div.homebox > p")
+        .firstWhere((element) => element.text.contains("Reset Cost"));
+    var cost = resetBox.querySelector("strong")!.text;
+    document = parse(res1.data);
+    var credits = document.querySelectorAll("div.outer > div > div")
+        .where((element) => element.children.isEmpty && element.text.contains("Credits")).map((e) => e.text.nums).first;
+    var gp = document.querySelectorAll("div.outer > div > div")
+        .where((element) => element.children.isEmpty && element.text.contains("kGP")).map((e) => e.text.nums).first;
+    return Res(EhImageLimit(int.parse(current.nums), int.parse(limit.nums),
+        int.parse(cost.nums), int.parse(gp.nums), int.parse(credits.nums)));
+  }
+
+  Future<bool> resetImageLimit() async{
+    if(appdata.ehAccount == ""){
+      return false;
+    }
+    var res = await post("https://e-hentai.org/home.php", "reset_imagelimit=Reset+Limit",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"});
+    if(res.error){
+      return false;
+    }
+    return true;
+  }
 }

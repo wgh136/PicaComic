@@ -228,8 +228,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
                 "${details.exception}\n${details.stack}");
-            return Center(
-              child: Text(details.exception.toString()),
+            return Material(
+              child: Center(
+                child: Text(details.exception.toString()),
+              ),
             );
           };
           if (widget != null) return OverlayWidget(widget);
