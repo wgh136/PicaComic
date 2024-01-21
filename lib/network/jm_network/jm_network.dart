@@ -79,7 +79,7 @@ class JmNetwork {
         var location = res.headers["location"]!.first;
         if(RegExp(r"user/(.*?)/").hasMatch(location)){
           var jmName = RegExp(r"user/(.*?)/").firstMatch(location)!.group(1)!;
-          if(jmName != appdata.jmName) {
+          if(jmName != appdata.jmName && appdata.jmName != "") {
             appdata.jmName = jmName;
             appdata.writeData();
           }

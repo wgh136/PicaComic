@@ -155,7 +155,7 @@ class _WelcomePageState extends State<WelcomePage> {
               child: FilledButton(
                 onPressed: () {
                   if(agree){
-                    App.globalTo(() => const MainPage());
+                    App.globalOff(() => const MainPage());
                   } else {
                     showMessage(context, "请先阅读使用须知".tl);
                   }

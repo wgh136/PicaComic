@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
@@ -186,6 +187,9 @@ class HistoryManager {
         set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?
         where target == ?;
     """, [history.ep, history.page, history.readEpisode.join(','), history.target]);
+    scheduleMicrotask(() {
+      StateController.findOrNull<SimpleController>(tag: "week_report")?.update();
+    });
   }
 
   void clearHistory() {
@@ -226,5 +230,20 @@ class HistoryManager {
     _db.execute("""
       vacuum;
     """);
+  }
+
+  /// 获取最近一周的阅读数据, 用于生成图表, List中的元素是当天阅读的漫画数量
+  List<int> getWeekData(){
+    var res = _db.select("""
+      select * from history
+      where time > ${DateTime.now().add(const Duration(days: -6)).millisecondsSinceEpoch}
+      order by time ASC;
+    """);
+    var data = List<int>.filled(7, 0);
+    for(var element in res){
+      var time = DateTime.fromMillisecondsSinceEpoch(element["time"] as int);
+      data[DateTime.now().difference(time).inDays]++;
+    }
+    return data.reversed.toList();
   }
 }

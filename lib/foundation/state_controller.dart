@@ -11,6 +11,10 @@ abstract class StateController{
     return controller;
   }
 
+  static T putIfNotExists<T extends StateController>(T controller, {Object? tag, bool autoRemove = false}){
+    return findOrNull<T>(tag: tag) ?? put(controller, tag: tag, autoRemove: autoRemove);
+  }
+
   static T find<T extends StateController>({Object? tag}){
     try {
       return _controllers.lastWhere((element) =>
