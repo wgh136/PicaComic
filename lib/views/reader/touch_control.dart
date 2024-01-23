@@ -1,13 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:pica_comic/tools/time.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/reader/reading_logic.dart';
-import 'package:pica_comic/views/reader/reading_settings.dart';
-import 'package:pica_comic/views/reader/reading_type.dart';
-import '../../base.dart';
+part of pica_reader;
 
 /// Control scroll when readingMethod is [ReadingMethod.topToBottomContinuously]
 /// and the image has been enlarge

@@ -1,5 +1,12 @@
+library pica_reader;
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
@@ -8,26 +15,43 @@ import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
-import 'package:pica_comic/views/reader/reading_type.dart';
-import 'package:pica_comic/views/reader/tool_bar.dart';
 import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import '../../foundation/app.dart';
+import '../../foundation/image_loader/cached_image.dart';
+import '../../foundation/image_loader/eh_image_provider.dart';
+import '../../foundation/image_loader/file_image_loader.dart';
+import '../../foundation/image_loader/hitomi_image_provider.dart';
+import '../../foundation/image_loader/jm_image_provider.dart';
+import '../../foundation/ui_mode.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
-import 'image.dart';
-import 'eps_view.dart';
-import 'image_view.dart';
-import 'touch_control.dart';
-import 'reading_logic.dart';
+import '../jm_views/jm_comments_page.dart';
+import '../widgets/custom_slider.dart';
+import '../widgets/scrollable_list/src/item_positions_listener.dart';
+import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../widgets/select.dart';
+
+
+part 'eps_view.dart';
+part 'image_view.dart';
+part 'image.dart';
+part 'touch_control.dart';
+part 'reading_logic.dart';
+part 'tool_bar.dart';
+part 'reading_type.dart';
+part 'reading_settings.dart';
+
 
 class ReadingPageData {
   int initialPage;
@@ -333,17 +357,16 @@ class ComicReadingPage extends StatelessWidget {
                     ),
 
                   if(appdata.settings[57] == "1")
-                    buildPageInfoText(logic, type.hasEps, eps, context,
+                    buildPageInfoText(logic, type.hasEps, context,
                         jm: type == ReadingType.jm),
 
                   //底部工具栏
-                  buildBottomToolBar(logic, context, type.hasEps, openEpsDrawer,
-                      share, saveCurrentImage),
+                  buildBottomToolBar(logic, context, type.hasEps),
 
                   ...buildButtons(logic, context),
 
                   //顶部工具栏
-                  buildTopToolBar(logic, context, title),
+                  buildTopToolBar(logic, context),
                 ],
               ),
             );
@@ -742,6 +765,35 @@ class ComicReadingPage extends StatelessWidget {
       shareImageFromDisk(downloadManager.getImage(id, logic.order, index).path);
     } else {
       shareImageFromCache(getImageKey(index), data.target, true);
+    }
+  }
+
+  Future<String?> _persistentCurrentImage() async{
+    var logic = StateController.find<ComicReadingPageLogic>();
+    int? index = logic.index - 1;
+    if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
+      index = await selectImage();
+    }
+    if(index == null){
+      return null;
+    }
+    if (logic.downloaded) {
+      var id = data.target;
+      if (type == ReadingType.ehentai) {
+        id = getGalleryId(data.target);
+      }
+      if (type == ReadingType.jm) {
+        id = "jm$target";
+      } else if (type == ReadingType.hitomi) {
+        id = "hitomi$target";
+      } else if (type == ReadingType.htManga) {
+        id = "Ht$target";
+      } else if (type == ReadingType.nhentai) {
+        id = "nhentai$target";
+      }
+      return persistentCurrentImage(file: downloadManager.getImage(id, logic.order, index));
+    } else {
+      return persistentCurrentImage(urlOrHash: getImageKey(index));
     }
   }
 

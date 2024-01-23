@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
-import 'touch_control.dart';
+part of pica_reader;
 
 class ComicImage extends StatefulWidget {
   /// Modified from flutter Image

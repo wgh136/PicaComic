@@ -1,13 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/views/jm_views/jm_comments_page.dart';
-import 'package:pica_comic/views/reader/reading_logic.dart';
-import 'package:pica_comic/views/reader/reading_type.dart';
-import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import 'comic_reading_page.dart'
-  show ReadingPageData;
-import 'package:pica_comic/tools/translations.dart';
+part of pica_reader;
 
 class EpsView extends StatefulWidget {
   const EpsView(this.type, this.eps, this.data, {Key? key}) : super(key: key);

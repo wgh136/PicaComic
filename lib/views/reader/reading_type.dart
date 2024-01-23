@@ -1,4 +1,4 @@
-import '../../foundation/def.dart';
+part of pica_reader;
 
 typedef ReadingType = ComicType;
 

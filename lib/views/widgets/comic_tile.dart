@@ -209,9 +209,12 @@ abstract class ComicTile extends StatelessWidget {
   Widget build(BuildContext context) {
     var type = appdata.settings[44].split(',').first;
     Widget child;
+    bool detailedMode;
     if (type == "0" || type == "3") {
+      detailedMode = true;
       child = _buildDetailedMode(context);
     } else {
+      detailedMode = false;
       child = _buildBriefMode(context);
     }
     if(comicID == null){
@@ -228,7 +231,7 @@ abstract class ComicTile extends StatelessWidget {
           child: child,
         ),
         Positioned(
-          left: 8,
+          left: detailedMode ? 16 : 6,
           top: 8,
           child: Container(
             height: 24,

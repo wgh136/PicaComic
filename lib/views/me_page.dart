@@ -5,6 +5,7 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
+import 'package:pica_comic/views/app_views/image_favorites.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/tools.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
@@ -30,61 +31,75 @@ class MePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int accounts = calcAccounts();
-    var padding = 24.0;
-    if(UiMode.m1(context)){
-      padding /= 3;
-    } else if(UiMode.m3(context)){
-      padding *= 4;
-    }
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: padding, vertical: 8),
-      child: CustomScrollView(
-          key: const Key("1"),
-          slivers: [
-            if (!UiMode.m1(context))
-              const SliverPadding(padding: EdgeInsets.all(30)),
-            const SliverToBoxAdapter(
-              child: SizedBox(
-                height: 204,
-                child: Center(
-                  child: WeekReport(),
+    StateController.putIfNotExists(SimpleController(), tag: "me_page");
+    return StateBuilder(
+      tag: "me_page",
+      builder: (controller){
+        int accounts = calcAccounts();
+        var padding = 24.0;
+        if(UiMode.m1(context)){
+          padding /= 3;
+        } else if(UiMode.m3(context)){
+          padding *= 4;
+        }
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding, vertical: 8),
+          child: CustomScrollView(
+              key: const Key("1"),
+              slivers: [
+                if (!UiMode.m1(context))
+                  const SliverPadding(padding: EdgeInsets.all(30))
+                else
+                  const SliverPadding(padding: EdgeInsets.all(4)),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 204,
+                    child: Center(
+                      child: WeekReport(HistoryManager().getWeekData()),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SliverPadding(padding: EdgeInsets.all(8)),
-            SliverGrid(
-              delegate: SliverChildListDelegate.fixed([
-                MePageButton(
-                  title: "账号管理".tl,
-                  subTitle: "已登录 @a 个账号".tlParams({"a": accounts.toString()}),
-                  icon: Icons.switch_account,
-                  onTap: () => showAdaptiveWidget(App.globalContext!,
-                      AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
+                const SliverPadding(padding: EdgeInsets.all(8)),
+                SliverGrid(
+                  delegate: SliverChildListDelegate.fixed([
+                    MePageButton(
+                      title: "账号管理".tl,
+                      subTitle: "已登录 @a 个账号".tlParams({"a": accounts.toString()}),
+                      icon: Icons.switch_account,
+                      onTap: () => showAdaptiveWidget(App.globalContext!,
+                          AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
+                    ),
+                    MePageButton(
+                      title: "已下载".tl,
+                      subTitle: "共 @a 部漫画".tlParams({"a": DownloadManager().downloaded.length.toString()}),
+                      icon: Icons.download_for_offline,
+                      onTap: () => MainPage.to(() => const DownloadPage()),
+                    ),
+                    MePageButton(
+                      title: "历史记录".tl,
+                      subTitle: "@a 条历史记录".tlParams({"a": appdata.history.length.toString()}),
+                      icon: Icons.history,
+                      onTap: () => MainPage.to(() => const HistoryPage()),
+                    ),
+                    MePageButton(
+                      title: "图片收藏".tl,
+                      subTitle: "@a 条图片收藏".tlParams({"a": ImageFavoriteManager.length.toString()}),
+                      icon: Icons.history,
+                      onTap: () => MainPage.to(() => const ImageFavoritesPage()),
+                    ),
+                    MePageButton(
+                      title: "工具".tl,
+                      subTitle: "使用工具发现更多漫画".tl,
+                      icon: Icons.build_circle,
+                      onTap: openTool,
+                    ),
+                  ]),
+                  gridDelegate: const MePageItemsDelegate(),
                 ),
-                MePageButton(
-                  title: "已下载".tl,
-                  subTitle: "共 @a 部漫画".tlParams({"a": DownloadManager().downloaded.length.toString()}),
-                  icon: Icons.download_for_offline,
-                  onTap: () => MainPage.to(() => const DownloadPage()),
-                ),
-                MePageButton(
-                  title: "历史记录".tl,
-                  subTitle: "@a 条历史记录".tlParams({"a": appdata.history.length.toString()}),
-                  icon: Icons.history,
-                  onTap: () => MainPage.to(() => const HistoryPage()),
-                ),
-                MePageButton(
-                  title: "工具".tl,
-                  subTitle: "使用工具发现更多漫画".tl,
-                  icon: Icons.build_circle,
-                  onTap: openTool,
-                ),
-              ]),
-              gridDelegate: const MePageItemsDelegate(),
-            ),
-          ]
-      ),
+              ]
+          ),
+        );
+      },
     );
   }
 }
@@ -96,7 +111,7 @@ class MePageItemsDelegate extends SliverGridDelegate {
   SliverGridLayout getLayout(SliverConstraints constraints) {
     final items = (constraints.crossAxisExtent / 600).ceil();
     final width = constraints.crossAxisExtent / items;
-    final height = (width / 2.6).clamp(164, 200).toDouble();
+    final height = (width / 3).clamp(146, 196).toDouble();
     return SliverGridRegularTileLayout(
       crossAxisCount: items,
       mainAxisStride: height,
@@ -114,21 +129,20 @@ class MePageItemsDelegate extends SliverGridDelegate {
 }
 
 class WeekReport extends StatelessWidget {
-  const WeekReport({super.key});
+  const WeekReport(this.data, {super.key});
+
+  final List<int> data;
 
   @override
   Widget build(BuildContext context) {
-    StateController.putIfNotExists(SimpleController(), tag: "week_report");
-    return StateBuilder<SimpleController>(tag: "week_report", builder: (controller){
-      var data = HistoryManager().getWeekData();
-      var length = data.reduce((value, element) => value + element);
-      return Card(
-        elevation: 0,
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant)),
+    var length = data.reduce((value, element) => value + element);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Material(
+        elevation: 1,
+        color: Theme.of(context).colorScheme.surface,
+        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
@@ -162,25 +176,27 @@ class WeekReport extends StatelessWidget {
             ],
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 
   LineChartData calculateData(BuildContext context, List<int> data) {
     List<Color> gradientColors = [
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.surfaceTint,
+      Theme.of(context).colorScheme.secondary,
+      Theme.of(context).colorScheme.surface,
     ];
     final current = DateTime.now();
     return LineChartData(
       lineTouchData: const LineTouchData(enabled: false),
       lineBarsData: [
-        LineChartBarData(isCurved: true, spots: [
-          for (int i = 0; i < 7; i++)
-            FlSpot(
-                i.toDouble(),
-                data.elementAt(i).toDouble()),
-        ],
+        LineChartBarData(
+          isCurved: true,
+          spots: [
+            for (int i = 0; i < 7; i++)
+              FlSpot(
+                  i.toDouble(),
+                  data.elementAt(i).toDouble()),
+          ],
           gradient: LinearGradient(
             colors: [
               ColorTween(begin: gradientColors[0], end: gradientColors[1])
@@ -204,7 +220,9 @@ class WeekReport extends StatelessWidget {
                     .withOpacity(0.1),
               ],
             ),
-          ),)
+          ),
+          //isStepLineChart: true,
+        ),
       ],
       minX: 0,
       maxX: 6,

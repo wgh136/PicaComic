@@ -1,16 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/image_manager.dart';
-import 'package:pica_comic/views/reader/reading_type.dart';
-import 'package:pica_comic/views/widgets/side_bar.dart';
-import '../../foundation/ui_mode.dart';
-import '../../network/picacg_network/methods.dart';
-import '../../tools/keep_screen_on.dart';
-import '../widgets/select.dart';
-import '../widgets/show_message.dart';
-import 'reading_logic.dart';
-import 'package:pica_comic/tools/translations.dart';
+part of pica_reader;
 
 void showSettings(BuildContext context) {
   if (UiMode.m1(context)) {

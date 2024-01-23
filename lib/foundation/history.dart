@@ -6,6 +6,8 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+part "image_favorites.dart";
+
 enum HistoryType {
   picacg(0),
   ehentai(1),
@@ -138,6 +140,8 @@ class HistoryManager {
     } else {
       vacuum();
     }
+
+    ImageFavoriteManager.init();
   }
 
   void readDataFromJson(List<dynamic> json) {
@@ -188,7 +192,7 @@ class HistoryManager {
         where target == ?;
     """, [history.ep, history.page, history.readEpisode.join(','), history.target]);
     scheduleMicrotask(() {
-      StateController.findOrNull<SimpleController>(tag: "week_report")?.update();
+      StateController.findOrNull(tag: "me_page")?.update();
     });
   }
 

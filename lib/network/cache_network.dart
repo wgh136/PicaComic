@@ -69,6 +69,20 @@ class CachedNetwork {
     }
     return CachedNetworkRes(res.data ?? "", res.statusCode, res.headers.map);
   }
+
+  void delete(String url) async{
+    var fileName = md5
+        .convert(const Utf8Encoder()
+        .convert(url.replaceFirst("inline_set=ts_l&", "")))
+        .toString();
+    if (fileName.length > 20) {
+      fileName = fileName.substring(0, 21);
+    }
+    var file = File(_path! + Platform.pathSeparator + fileName);
+    if(await file.exists()){
+      await file.delete();
+    }
+  }
 }
 
 enum CacheExpiredTime {

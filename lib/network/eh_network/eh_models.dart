@@ -111,6 +111,7 @@ class Gallery{
       "favorite": favorite,
       "link": link,
       "maxPage": maxPage,
+      "auth": auth
     };
   }
 
@@ -128,6 +129,7 @@ class Gallery{
     link = json["link"],
     maxPage = json["maxPage"],
     thumbnails = [],
+    auth = json["auth"],
     comments = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);

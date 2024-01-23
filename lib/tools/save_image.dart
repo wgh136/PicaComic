@@ -50,6 +50,19 @@ void saveImage(String urlOrHash, String id, {bool reading=false}) async{
   }
 }
 
+Future<String> persistentCurrentImage({String? urlOrHash, File? file}) async{
+  file ??= (await ImageManager().getFile(urlOrHash!));
+  if(file == null){
+    throw "加载中";
+  }
+  var newFile = File("${App.dataPath}/images/${file.path.split('/').last})}");
+  if(!(await newFile.exists())){
+    newFile.createSync(recursive: true);
+    newFile.writeAsBytesSync(await file.readAsBytes());
+  }
+  return newFile.path;
+}
+
 Future<bool> saveImageFormCache(String urlOrHash, String id, {bool reading=false}) async{
   try {
     File? file;

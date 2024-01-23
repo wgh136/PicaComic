@@ -78,7 +78,9 @@ class SliverGridDelegateWithFixedHeight extends SliverGridDelegate{
 }
 
 class SliverGridDelegateWithComics extends SliverGridDelegate{
-  SliverGridDelegateWithComics();
+  SliverGridDelegateWithComics([this.useBriefMode = false]);
+
+  final bool useBriefMode;
 
   @override
   SliverGridLayout getLayout(SliverConstraints constraints) {
@@ -86,7 +88,7 @@ class SliverGridDelegateWithComics extends SliverGridDelegate{
     if(setting.length == 1){
       setting.add("1.0");
     }
-    if(setting[0] == "1" || setting[0] == "2"){
+    if(setting[0] == "1" || setting[0] == "2" || useBriefMode){
       return getBriefModeLayout(constraints, double.parse(setting[1]));
     } else {
       return getDetailedModeLayout(constraints, double.parse(setting[1]));

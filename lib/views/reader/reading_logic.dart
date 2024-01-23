@@ -1,14 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:pica_comic/views/reader/comic_reading_page.dart'
-    show ReadingPageData;
-import 'package:pica_comic/views/reader/reading_type.dart';
-import '../../base.dart';
-import '../../network/hitomi_network/hitomi_models.dart';
-import '../widgets/scrollable_list/src/item_positions_listener.dart';
-import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
+part of pica_reader;
 
 extension PageControllerExtension on PageController{
   void animatedJumpToPage(int page){

@@ -119,6 +119,7 @@ class EhNetwork {
       }
       await getCookies(true);
       if ((data.data).substring(0, 4) == "Your") {
+        dio.delete(url);
         return const Res(null,
             errorMessage: "Your IP address has been temporarily banned");
       }

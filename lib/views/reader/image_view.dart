@@ -1,20 +1,4 @@
-import 'package:flutter/gestures.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:pica_comic/foundation/image_loader/file_image_loader.dart';
-import 'package:pica_comic/foundation/image_loader/hitomi_image_provider.dart';
-import 'package:pica_comic/views/reader/reading_logic.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/views/reader/touch_control.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/image_loader/cached_image.dart';
-import 'package:pica_comic/foundation/image_loader/eh_image_provider.dart';
-import 'package:pica_comic/foundation/image_loader/jm_image_provider.dart';
-import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'image.dart';
-import '../widgets/scrollable_list/src/scrollable_positioned_list.dart';
-import 'reading_type.dart';
+part of pica_reader;
 
 extension ScrollExtension on ScrollController {
   static double? futurePosition;
