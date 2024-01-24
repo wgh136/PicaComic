@@ -172,7 +172,7 @@ class _ImageProvider extends BaseImageProvider<_ImageProvider>{
   final ImageFavorite image;
   
   @override
-  String get key => image.id;
+  String get key => image.id + image.ep.toString() + image.page.toString();
 
   @override
   Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents) async{
