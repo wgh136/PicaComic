@@ -186,7 +186,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
       appdata.igneous = igneous;
       EhNetwork().getUserName().then((b) {
         if (b) {
-          App.globalBack();
+          App.back(context);
           showMessage(context, "登录成功".tl);
         } else {
           showMessage(context, "登录失败".tl);
@@ -204,7 +204,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
       initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
       onTitleChange: (title){
         if (title == "E-Hentai Forums") {
-          App.globalBack();
+          App.back(context);
         }
       },
       onDestroy: (controller) async{

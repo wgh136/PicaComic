@@ -241,7 +241,7 @@ abstract class ComicTile extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Row(
               children: [
-                if (isFavorite && showFavorite)
+                if (isFavorite && showFavorite && appdata.settings[72] == "1")
                   Container(
                     height: 24,
                     width: 24,
@@ -252,7 +252,7 @@ abstract class ComicTile extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                if (history != null)
+                if (history != null && appdata.settings[73] == "1")
                   Container(
                     height: 24,
                     color: Colors.blue.withOpacity(0.9),

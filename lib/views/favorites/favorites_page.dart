@@ -587,24 +587,27 @@ class _ComicsPageViewState extends State<ComicsPageView> {
             child: Scrollbar(
                 controller: scrollController,
                 interactive: true,
-                thickness: App.isMobile ? 8 : null,
+                thickness: App.isMobile ? 12 : null,
                 radius: const Radius.circular(8),
-                child: GridView.builder(
-                  key: Key(folder),
-                  primary: false, // scrollController 要生效, 需要将 primary 设为 false
-                  controller: scrollController,
-                  gridDelegate: SliverGridDelegateWithComics(),
-                  itemCount: comics.length,
-                  padding: EdgeInsets.zero,
-                  itemBuilder: (BuildContext context, int index) {
-                    return LocalFavoriteTile(
-                      comics[index],
-                      folder,
-                      () => setState(() {}),
-                      true,
-                      showFolderInfo: true,
-                    );
-                  },
+                child: ScrollConfiguration(
+                  behavior: const ScrollBehavior().copyWith(scrollbars: false),
+                  child: GridView.builder(
+                    key: Key(folder),
+                    primary: false,
+                    controller: scrollController,
+                    gridDelegate: SliverGridDelegateWithComics(),
+                    itemCount: comics.length,
+                    padding: EdgeInsets.zero,
+                    itemBuilder: (BuildContext context, int index) {
+                      return LocalFavoriteTile(
+                        comics[index],
+                        folder,
+                            () => setState(() {}),
+                        true,
+                        showFolderInfo: true,
+                      );
+                    },
+                  ),
                 )),
           ),
         ),

@@ -12,7 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'network/picacg_network/models.dart';
 export 'foundation/def.dart';
 
-//路径分隔符
+// 路径分隔符
+// 写这东西的时候并不知道dart中不区分路径分隔符, 但是由于用了太多次了, 所以就不改了
 const pathSep = '/';
 
 var downloadManager = DownloadManager();
@@ -108,6 +109,9 @@ class Appdata {
     "0", //69 自动添加语言筛选
     "0", //70 反转点按识别
     "1", // 71 关联网络收藏夹后每次刷新拉取几页
+    "1", //72 漫画块显示收藏状态
+    "0", //73 漫画块显示阅读位置
+    "1.0", //74 图片收藏大小
   ];
 
   ///屏蔽的关键词

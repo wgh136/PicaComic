@@ -496,6 +496,21 @@ extension AppTranslation on String {
       "已登录 @a 个账号": "已登入 @a 個帳號",
       "共 @a 部漫画": "共 @a 部漫画",
       "@a 条历史记录": "@a 條歷史記錄",
+      // 2.3.4
+      "显示收藏状态": "顯示收藏狀態",
+      "显示阅读位置": "顯示閱讀位置",
+      "图片收藏大小": "圖片收藏大小",
+      "图片收藏": "圖片收藏",
+      "@a 条图片收藏": "@a 條圖片收藏",
+      "要删除这个图片吗": "要刪除這個圖片嗎",
+      "近7天": "近7天",
+      "图片配额": "圖片配額",
+      "已用": "已用",
+      "重置花费": "重置花費",
+      "可用货币": "可用貨幣",
+      "头像": "頭像",
+      "显示": "顯示",
+      "漫画块": "漫畫塊",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -1086,6 +1101,21 @@ If you find a problem while using it, please check if it's a problem with your d
       "已登录 @a 个账号": "@a accounts logged in.",
       "共 @a 部漫画": "@a comics in total",
       "@a 条历史记录": "@a history records",
+      // 2.3.4
+      "显示收藏状态": "Show favorite status",
+      "显示阅读位置": "Show reading history",
+      "图片收藏大小": "Size of favorite image",
+      "图片收藏": "Favorite image",
+      "@a 条图片收藏": "@a favorite images",
+      "要删除这个图片吗": "Do you want to delete this image?",
+      "近7天": "Week",
+      "图片配额": "Image limit",
+      "已用": "Used",
+      "重置花费": "Reset cost",
+      "可用货币": "Available money",
+      "头像": "Avatar",
+      "显示": "Display",
+      "漫画块": "Comic tile",
     }
   };
 }

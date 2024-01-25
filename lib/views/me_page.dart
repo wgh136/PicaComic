@@ -32,9 +32,10 @@ class MePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     StateController.putIfNotExists(SimpleController(), tag: "me_page");
+    var controller = ScrollController();
     return StateBuilder(
       tag: "me_page",
-      builder: (controller){
+      builder: (logic){
         int accounts = calcAccounts();
         var padding = 24.0;
         if(UiMode.m1(context)){
@@ -42,63 +43,65 @@ class MePage extends StatelessWidget {
         } else if(UiMode.m3(context)){
           padding *= 4;
         }
-        return Padding(
+        return Scrollbar(controller: controller, child: Padding(
           padding: EdgeInsets.symmetric(horizontal: padding, vertical: 8),
-          child: CustomScrollView(
-              key: const Key("1"),
-              slivers: [
-                if (!UiMode.m1(context))
-                  const SliverPadding(padding: EdgeInsets.all(30))
-                else
-                  const SliverPadding(padding: EdgeInsets.all(4)),
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 204,
-                    child: Center(
-                      child: WeekReport(HistoryManager().getWeekData()),
+          child: ScrollConfiguration(
+            behavior: const ScrollBehavior().copyWith(scrollbars: false),
+            child: CustomScrollView(
+                primary: false,
+                controller: controller,
+                slivers: [
+                  if (!UiMode.m1(context))
+                    const SliverPadding(padding: EdgeInsets.all(30)),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 204,
+                      child: Center(
+                        child: WeekReport(HistoryManager().getWeekData()),
+                      ),
                     ),
                   ),
-                ),
-                const SliverPadding(padding: EdgeInsets.all(8)),
-                SliverGrid(
-                  delegate: SliverChildListDelegate.fixed([
-                    MePageButton(
-                      title: "账号管理".tl,
-                      subTitle: "已登录 @a 个账号".tlParams({"a": accounts.toString()}),
-                      icon: Icons.switch_account,
-                      onTap: () => showAdaptiveWidget(App.globalContext!,
-                          AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
-                    ),
-                    MePageButton(
-                      title: "已下载".tl,
-                      subTitle: "共 @a 部漫画".tlParams({"a": DownloadManager().downloaded.length.toString()}),
-                      icon: Icons.download_for_offline,
-                      onTap: () => MainPage.to(() => const DownloadPage()),
-                    ),
-                    MePageButton(
-                      title: "历史记录".tl,
-                      subTitle: "@a 条历史记录".tlParams({"a": appdata.history.length.toString()}),
-                      icon: Icons.history,
-                      onTap: () => MainPage.to(() => const HistoryPage()),
-                    ),
-                    MePageButton(
-                      title: "图片收藏".tl,
-                      subTitle: "@a 条图片收藏".tlParams({"a": ImageFavoriteManager.length.toString()}),
-                      icon: Icons.history,
-                      onTap: () => MainPage.to(() => const ImageFavoritesPage()),
-                    ),
-                    MePageButton(
-                      title: "工具".tl,
-                      subTitle: "使用工具发现更多漫画".tl,
-                      icon: Icons.build_circle,
-                      onTap: openTool,
-                    ),
-                  ]),
-                  gridDelegate: const MePageItemsDelegate(),
-                ),
-              ]
+                  const SliverPadding(padding: EdgeInsets.all(4)),
+                  SliverGrid(
+                    delegate: SliverChildListDelegate.fixed([
+                      MePageButton(
+                        title: "账号管理".tl,
+                        subTitle: "已登录 @a 个账号".tlParams({"a": accounts.toString()}),
+                        icon: Icons.switch_account,
+                        onTap: () => showAdaptiveWidget(App.globalContext!,
+                            AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
+                      ),
+                      MePageButton(
+                        title: "已下载".tl,
+                        subTitle: "共 @a 部漫画".tlParams({"a": DownloadManager().downloaded.length.toString()}),
+                        icon: Icons.download_for_offline,
+                        onTap: () => MainPage.to(() => const DownloadPage()),
+                      ),
+                      MePageButton(
+                        title: "历史记录".tl,
+                        subTitle: "@a 条历史记录".tlParams({"a": appdata.history.length.toString()}),
+                        icon: Icons.history,
+                        onTap: () => MainPage.to(() => const HistoryPage()),
+                      ),
+                      MePageButton(
+                        title: "图片收藏".tl,
+                        subTitle: "@a 条图片收藏".tlParams({"a": ImageFavoriteManager.length.toString()}),
+                        icon: Icons.image,
+                        onTap: () => MainPage.to(() => const ImageFavoritesPage()),
+                      ),
+                      MePageButton(
+                        title: "工具".tl,
+                        subTitle: "使用工具发现更多漫画".tl,
+                        icon: Icons.build_circle,
+                        onTap: openTool,
+                      ),
+                    ]),
+                    gridDelegate: const MePageItemsDelegate(),
+                  ),
+                ]
+            ),
           ),
-        );
+        ));
       },
     );
   }
@@ -109,14 +112,14 @@ class MePageItemsDelegate extends SliverGridDelegate {
 
   @override
   SliverGridLayout getLayout(SliverConstraints constraints) {
-    final items = (constraints.crossAxisExtent / 600).ceil();
+    final items = (constraints.crossAxisExtent / 540).ceil();
     final width = constraints.crossAxisExtent / items;
-    final height = (width / 3).clamp(146, 196).toDouble();
+    final height = (width / 3).clamp(124, 196).toDouble();
     return SliverGridRegularTileLayout(
       crossAxisCount: items,
       mainAxisStride: height,
       crossAxisStride: width,
-      childMainAxisExtent: height,
+      childMainAxisExtent: height.clamp(124, 178) - 4,
       childCrossAxisExtent: width,
       reverseCrossAxis: false,
     );
@@ -142,7 +145,7 @@ class WeekReport extends StatelessWidget {
         elevation: 1,
         color: Theme.of(context).colorScheme.surface,
         surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
@@ -277,7 +280,7 @@ class _MePageButtonState extends State<MePageButton> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
       child: MouseRegion(
         onEnter: (event) => setState(() => hovering = true),
         onExit: (event) => setState(() => hovering = false),
@@ -287,11 +290,11 @@ class _MePageButtonState extends State<MePageButton> {
           onPointerDown: (event) => setState(() => hovering = true),
           onPointerCancel: (event) => setState(() => hovering = false),
           child: InkWell(
-            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
             onTap: widget.onTap,
             child: AnimatedContainer(
               decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(24)),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
                   color: hovering?Theme.of(context).colorScheme.inversePrimary.withAlpha(150):Theme.of(context).colorScheme.inversePrimary.withAlpha(40)
               ),
               duration: const Duration(milliseconds: 300),

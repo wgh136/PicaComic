@@ -662,9 +662,9 @@ class AccountsPage extends StatelessWidget {
       showDialog(context: App.globalContext!, builder: (context){
         return AlertDialog(
           title: Text("图片配额".tl),
-          content: Text("已用: ${res.data.current}/${res.data.max}\n"
-              "重置花费: ${res.data.resetCost}\n"
-              "可用货币: ${res.data.kGP}kGP, ${res.data.credits}credits"
+          content: Text("${"已用".tl}: ${res.data.current}/${res.data.max}\n"
+              "${"重置花费".tl}: ${res.data.resetCost}\n"
+              "${"可用货币".tl}: ${res.data.kGP}kGP, ${res.data.credits}credits"
           ),
           actions: [
             TextButton(onPressed: () => App.back(context), child: Text("返回".tl),),

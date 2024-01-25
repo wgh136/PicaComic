@@ -7,6 +7,7 @@ import 'package:pica_comic/views/settings/app_settings.dart';
 import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
 import 'package:pica_comic/views/settings/multi_pages_filter.dart';
 import 'package:pica_comic/views/widgets/select.dart';
+import 'package:pica_comic/views/widgets/stateful_switch.dart';
 
 import '../../foundation/app.dart';
 import '../widgets/pop_up_widget.dart';
@@ -21,6 +22,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
   appdata.settings[44] = comicTileSettings.join(',');
   return Column(
     children: [
+      ListTile(title: Text("显示".tl),),
       ListTile(
         leading:
             const Icon(Icons.block),
@@ -94,6 +96,71 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           inPopUpWidget: popUp,
         ),
       ),
+      ListTile(title: Text("工具".tl),),
+      StatefulBuilder(builder: (context, setState) => ListTile(
+        leading: const Icon(Icons.image),
+        title: Text("检查剪切板中的链接".tl),
+        trailing: Switch(
+          value: appdata.settings[61] == "1",
+          onChanged: (b){
+            setState(() {
+              appdata.settings[61] = b?"1":"0";
+            });
+            appdata.updateSettings();
+          },
+        ),
+      ),),
+      ListTile(
+        leading:
+        const Icon(Icons.build_circle),
+        title: Text("漫画信息页面工具栏".tl),
+        trailing: const Icon(Icons.arrow_right),
+        onTap: () => setTools(context),
+      ),
+      ListTile(
+        leading:
+        const Icon(Icons.search),
+        title: Text("默认搜索源".tl),
+        trailing: Select(
+          initialValue: int.parse(appdata.settings[63]),
+          whenChange: (i) {
+            appdata.settings[63] = i.toString();
+            appdata.updateSettings();
+          },
+          values: ["Picacg", "EHentai", "禁漫天堂".tl, "hitomi", "绅士漫画".tl, "nhentai"],
+          inPopUpWidget: popUp,
+        ),
+      ),
+      StatefulBuilder(builder: (context, setState){
+        return ListTile(
+          leading:
+          const Icon(Icons.border_right),
+          title: Text("启用侧边翻页栏".tl),
+          trailing: Switch(
+            value: appdata.settings[64] == "1",
+            onChanged: (b){
+              setState(() {
+                appdata.settings[64] = b?"1":"0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        );
+      }),
+      ListTile(
+        leading: const Icon(Icons.language),
+        title: Text("自动添加语言筛选".tl),
+        subtitle: Text("仅部分漫画源有效".tl),
+        trailing: Select(
+          initialValue: int.parse(appdata.settings[69]),
+          whenChange: (i) {
+            appdata.settings[69] = i.toString();
+            appdata.updateSettings();
+          },
+          values: ["无".tl, "chinese", "english", "japanese"],
+        ),
+      ),
+      ListTile(title: Text("漫画块".tl),),
       ListTile(
         leading: const Icon(Icons.crop_square),
         title: Text("漫画块显示模式".tl),
@@ -171,56 +238,6 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           ),
         );
       }),
-      StatefulBuilder(builder: (context, setState) => ListTile(
-        leading: const Icon(Icons.image),
-        title: Text("检查剪切板中的链接".tl),
-        trailing: Switch(
-          value: appdata.settings[61] == "1",
-          onChanged: (b){
-            setState(() {
-              appdata.settings[61] = b?"1":"0";
-            });
-            appdata.updateSettings();
-          },
-        ),
-      ),),
-      ListTile(
-        leading:
-        const Icon(Icons.build_circle),
-        title: Text("漫画信息页面工具栏".tl),
-        trailing: const Icon(Icons.arrow_right),
-        onTap: () => setTools(context),
-      ),
-      ListTile(
-        leading:
-        const Icon(Icons.search),
-        title: Text("默认搜索源".tl),
-        trailing: Select(
-          initialValue: int.parse(appdata.settings[63]),
-          whenChange: (i) {
-            appdata.settings[63] = i.toString();
-            appdata.updateSettings();
-          },
-          values: ["Picacg", "EHentai", "禁漫天堂".tl, "hitomi", "绅士漫画".tl, "nhentai"],
-          inPopUpWidget: popUp,
-        ),
-      ),
-      StatefulBuilder(builder: (context, setState){
-        return ListTile(
-          leading:
-          const Icon(Icons.border_right),
-          title: Text("启用侧边翻页栏".tl),
-          trailing: Switch(
-            value: appdata.settings[64] == "1",
-            onChanged: (b){
-              setState(() {
-                appdata.settings[64] = b?"1":"0";
-              });
-              appdata.updateSettings();
-            },
-          ),
-        );
-      }),
       ListTile(
         leading: const Icon(Icons.image),
         title: Text("漫画块缩略图布局".tl),
@@ -234,18 +251,79 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         ),
       ),
       ListTile(
-        leading: const Icon(Icons.language),
-        title: Text("自动添加语言筛选".tl),
-        subtitle: Text("仅部分漫画源有效".tl),
-        trailing: Select(
-          initialValue: int.parse(appdata.settings[69]),
-          whenChange: (i) {
-            appdata.settings[69] = i.toString();
+        leading: const Icon(Icons.bookmark),
+        title: Text("显示收藏状态".tl),
+        trailing: StatefulSwitch(
+          initialValue: appdata.settings[72] == "1",
+          onChanged: (b){
+            appdata.settings[72] = b?"1":"0";
             appdata.updateSettings();
           },
-          values: ["无".tl, "chinese", "english", "japanese"],
         ),
       ),
+      ListTile(
+        leading: const Icon(Icons.history_toggle_off),
+        title: Text("显示阅读位置".tl),
+        trailing: StatefulSwitch(
+          initialValue: appdata.settings[73] == "1",
+          onChanged: (b){
+            appdata.settings[73] = b?"1":"0";
+            appdata.updateSettings();
+          },
+        ),
+      ),
+      StatefulBuilder(builder: (context, setState){
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: SizedBox(
+            width: double.infinity,
+            height: 64,
+            child: Row(
+              children: [
+                const SizedBox(width: 16,),
+                const Icon(Icons.crop_free),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 12,
+                        right: 0,
+                        child: Text("图片收藏大小".tl, style: const TextStyle(
+                            fontSize: 16
+                        ),),
+                      ),
+                      Positioned(
+                        left: -8,
+                        right: 0,
+                        bottom: 0,
+                        child: Slider(
+                          max: 1.25,
+                          min: 0.75,
+                          divisions: 10,
+                          value: double.parse(appdata.settings[74]),
+                          overlayColor: MaterialStateColor.resolveWith(
+                                  (states) => Colors.transparent),
+                          onChangeEnd: (v){
+                            appdata.updateSettings();
+                          },
+                          onChanged: (v) {
+                            setState((){
+                              appdata.settings[74] = v.toStringAsFixed(2);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(appdata.settings[74]),
+                const SizedBox(width: 32,),
+              ],
+            ),
+          ),
+        );
+      }),
       Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
     ],
   );

@@ -17,6 +17,8 @@ import 'package:pica_comic/views/widgets/desktop_menu.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+import '../../base.dart';
+
 class ImageFavoritesPage extends StatefulWidget {
   const ImageFavoritesPage({super.key});
 
@@ -60,7 +62,7 @@ class _ImageFavoritesPageState extends State<ImageFavoritesPage> {
     var images = ImageFavoriteManager.getAll();
 
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithComics(true),
+      gridDelegate: SliverGridDelegateWithComics(true, appdata.settings[74]),
       itemCount: images.length,
       itemBuilder: (context, index){
         return FavoriteImageTile(images[index]);
@@ -149,7 +151,7 @@ class FavoriteImageTile extends StatelessWidget {
   }
 
   void onLongTap(){
-    showConfirmDialog(App.globalContext!, "确认删除", "要删除这个图片吗", delete);
+    showConfirmDialog(App.globalContext!, "确认删除".tl, "要删除这个图片吗".tl, delete);
   }
 
   void delete(){
@@ -160,8 +162,8 @@ class FavoriteImageTile extends StatelessWidget {
 
   void onSecondaryTap(TapDownDetails details){
     showDesktopMenu(App.globalContext!, details.globalPosition, [
-      DesktopMenuEntry(text: "查看", onClick: onTap),
-      DesktopMenuEntry(text: "删除", onClick: delete),
+      DesktopMenuEntry(text: "查看".tl, onClick: onTap),
+      DesktopMenuEntry(text: "删除".tl, onClick: delete),
     ]);
   }
 }

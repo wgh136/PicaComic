@@ -59,7 +59,9 @@ class _JmLoginPageState extends State<JmLoginPage> {
                         logging = false;
                       });
                     }else{
-                      App.globalBack();
+                      if(mounted) {
+                        App.back(context);
+                      }
                     }
                   },
                 ),
@@ -85,7 +87,9 @@ class _JmLoginPageState extends State<JmLoginPage> {
                             //忽视
                           }
                         }else{
-                          App.globalBack();
+                          if(mounted) {
+                            App.back(context);
+                          }
                         }
                       },
                     ),

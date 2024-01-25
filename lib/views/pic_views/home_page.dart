@@ -20,6 +20,8 @@ class HomePageLogic extends StateController{
     var res2 = await network.getLatest(1);
     if(res1.error || res2.error){
       message = res1.errorMessage ?? res2.errorMessage;
+      randomComics = [];
+      latestComics = [];
     }else{
       randomComics = res1.data;
       latestComics = res2.data;

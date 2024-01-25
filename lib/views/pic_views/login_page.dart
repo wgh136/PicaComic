@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
                                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                App.globalBack();
+                                App.back(context);
                               }
                             });
                           } else {
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                                 appdata.picacgAccount = nameController.text;
                                 appdata.picacgPassword = passwordController.text;
                                 appdata.writeData();
-                                App.globalBack();
+                                App.back(context);
                               }
                             });
                           } else{

@@ -62,7 +62,9 @@ class _HtLoginPageState extends State<HtLoginPage> {
                         logging = false;
                       });
                     } else {
-                      App.globalBack();
+                      if(mounted) {
+                        App.back(context);
+                      }
                     }
                   },
                 ),
@@ -90,7 +92,9 @@ class _HtLoginPageState extends State<HtLoginPage> {
                             //忽视
                           }
                         } else {
-                          App.globalBack();
+                          if(mounted) {
+                            App.back(context);
+                          }
                         }
                       },
                     ),
