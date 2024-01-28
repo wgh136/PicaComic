@@ -129,7 +129,7 @@ class Gallery{
     link = json["link"],
     maxPage = json["maxPage"],
     thumbnails = [],
-    auth = json["auth"],
+    auth = json["auth"] == null ? null : Map<String,String>.from(json["auth"]),
     comments = []{
     for(var key in (json["tags"] as Map<String, dynamic>).keys){
       tags["key"] = List<String>.from(json["tags"][key]);
