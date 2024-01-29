@@ -639,7 +639,7 @@ class EhNetwork {
   Future<Res<List<String>>> _getReaderLinks(String link, int page) async {
     String url = link;
     if (page != 1) {
-      url = "$url&p=${page - 1}";
+      url = url.contains("?") ? "$url&p=${page - 1}" : "$url?p=${page - 1}";
     }
     while (loadingReaderLinks.contains(url)) {
       await Future.delayed(const Duration(milliseconds: 200));

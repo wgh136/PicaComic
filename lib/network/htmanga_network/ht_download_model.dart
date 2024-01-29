@@ -75,7 +75,10 @@ class DownloadingHtComic extends DownloadingItem{
   Future<Uint8List> getImage(String link) async{
     await for(var s in ImageManager().getImage(link)){
       if(s.finished){
-        return s.getFile().readAsBytesSync();
+        var file = s.getFile();
+        var data = await file.readAsBytes();
+        await file.delete();
+        return data;
       }
     }
     throw Exception("Failed to download image");

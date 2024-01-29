@@ -184,7 +184,6 @@ abstract class DownloadingItem{
           }
           await file.create(recursive: true);
           await file.writeAsBytes(bytes);
-          await ImageManager().delete(urls[index]);
           index++;
           _downloadedNum++;
           updateUi?.call();

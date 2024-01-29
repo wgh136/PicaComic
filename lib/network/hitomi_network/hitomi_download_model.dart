@@ -100,7 +100,10 @@ class HitomiDownloadingItem extends DownloadingItem {
     await for(var s in ImageManager().getHitomiImage(HitomiFile.fromMap(
         const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))){
       if(s.finished){
-        return s.getFile().readAsBytesSync();
+        var file = s.getFile();
+        var data = await file.readAsBytes();
+        await file.delete();
+        return data;
       }
     }
     throw Exception("Fail to download image");

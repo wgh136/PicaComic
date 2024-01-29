@@ -99,7 +99,10 @@ class EhDownloadingItem extends DownloadingItem{
   Future<Uint8List> getImage(String link) async{
     await for(var s in ImageManager().getEhImageNew(gallery, int.parse(link))){
       if(s.finished){
-        return s.getFile().readAsBytesSync();
+        var file = s.getFile();
+        var data = await file.readAsBytes();
+        await file.delete();
+        return data;
       }
     }
     throw Exception("Failed to download Image");
@@ -127,7 +130,6 @@ class EhDownloadingItem extends DownloadingItem{
   void onStart() async{
     // clear showKey and imageKey
     // imageKey is saved through the network cache mechanism
-    print("*****pass*****");
     gallery.auth?.remove("showKey");
     await CachedNetwork.clearCache();
   }
