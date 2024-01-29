@@ -236,8 +236,6 @@ class ComicReadingPage extends StatelessWidget {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
-      //保存历史记录
-      _updateHistory(logic);
       logic.clearPhotoViewControllers();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
@@ -251,13 +249,19 @@ class ComicReadingPage extends StatelessWidget {
       logic.runningAutoPageTurning = false;
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
+      // 更新本地收藏
       LocalFavoritesManager().onReadEnd(target);
+      // 保存历史记录
       if(history != null) {
+        _updateHistory(logic);
+        history!.maxPage = logic.length;
         HistoryManager().saveReadHistory(history!);
       }
+      // 退出全屏
       if(logic.isFullScreen){
         logic.fullscreen();
       }
+      // 更新漫画详情页面
       Future.microtask(() {
         if (ComicPage.tagsStack.isNotEmpty) {
           ComicPage.tagsStack.last.updateHistory(history);

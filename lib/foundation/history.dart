@@ -40,9 +40,11 @@ base class History extends LinkedListEntry<History> {
 
   Set<int> readEpisode;
 
+  int? maxPage;
+
   History(this.type, this.time, this.title, this.subtitle, this.cover, this.ep,
       this.page, this.target,
-      [this.readEpisode = const <int>{}]);
+      [this.readEpisode = const <int>{}, this.maxPage]);
 
   Map<String, dynamic> toMap() => {
         "type": type.value,
@@ -53,7 +55,8 @@ base class History extends LinkedListEntry<History> {
         "ep": ep,
         "page": page,
         "target": target,
-        "readEpisode": readEpisode.toList()
+        "readEpisode": readEpisode.toList(),
+        "max_page": maxPage
       };
 
   History.fromMap(Map<String, dynamic> map)
@@ -66,7 +69,8 @@ base class History extends LinkedListEntry<History> {
         page = map["page"],
         target = map["target"],
         readEpisode = Set<int>.from(
-            (map["readEpisode"] as List<dynamic>?)?.toSet() ?? const <int>{});
+            (map["readEpisode"] as List<dynamic>?)?.toSet() ?? const <int>{}),
+        maxPage = map["max_page"];
 
   @override
   String toString() {
@@ -84,11 +88,8 @@ base class History extends LinkedListEntry<History> {
         target = row["target"],
         readEpisode = Set<int>.from(
             (row["readEpisode"] as String).split(',').where((element) => element != "")
-                .map((e) => int.parse(e)));
-}
-
-extension SQL on String{
-  String get toParam => replaceAll('\'', "''").replaceAll('"', "\"\"");
+                .map((e) => int.parse(e))),
+        maxPage = row["max_page"];
 }
 
 class HistoryManager {
@@ -116,12 +117,9 @@ class HistoryManager {
 
   Future<void> init() async {
     _db = sqlite3.open("${App.dataPath}/history.db");
-    var res = _db.select(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='history';");
-    if (res.isEmpty) {
-      var file = File("${App.dataPath}/history.json");
-      _db.execute("""
-        create table history (
+
+    _db.execute("""
+        create table if not exists history  (
           target text primary key,
           title text,
           subtitle text,
@@ -130,15 +128,28 @@ class HistoryManager {
           type int,
           ep int,
           page int,
-          readEpisode text
+          readEpisode text,
+          max_page int
         );
       """);
-      if(file.existsSync()){
-        readDataFromJson(jsonDecode(file.readAsStringSync()));
-        file.deleteSync();
-      }
-    } else {
-      vacuum();
+
+    // 检查是否有max_page字段, 如果没有则添加
+    var res = _db.select("""
+      select * from history
+      limit 1;
+    """);
+    if(res.isNotEmpty && !res.first.containsKey("max_page")){
+      _db.execute("""
+        alter table history
+        add column max_page int;
+      """);
+    }
+
+    // 迁移早期版本的数据
+    var file = File("${App.dataPath}/history.json");
+    if(file.existsSync()){
+      readDataFromJson(jsonDecode(file.readAsStringSync()));
+      file.deleteSync();
     }
 
     ImageFavoriteManager.init();
@@ -160,26 +171,27 @@ class HistoryManager {
     Webdav.uploadData();
   }
 
-  /// add history. if exists, update read history.
+  /// add history. if exists, update time.
+  ///
+  /// This function would be called when user start reading.
   Future<void> addHistory(History newItem) async {
     var res = _db.select("""
       select * from history
-      where target == '${newItem.target.toParam}';
-    """);
+      where target == ?;
+    """, [newItem.target]);
     if(res.isEmpty){
       _db.execute("""
-        insert into history (target, title, subtitle, cover, time, type, ep, page, readEpisode)
-        values ('${newItem.target.toParam}', '${newItem.title.toParam}', 
-        '${newItem.subtitle.toParam}', '${newItem.cover.toParam}', 
-        ${newItem.time.millisecondsSinceEpoch}, ${newItem.type.index}, 
-        ${newItem.ep}, ${newItem.page}, '${newItem.readEpisode.join(',')}');
-      """);
+        insert into history (target, title, subtitle, cover, time, type, ep, page, readEpisode, max_page)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      """, [newItem.target, newItem.title, newItem.subtitle, newItem.cover,
+        newItem.time.millisecondsSinceEpoch, newItem.type.index, newItem.ep,
+        newItem.page, newItem.readEpisode.join(','), newItem.maxPage]);
     } else {
       _db.execute("""
         update history
         set time = ${DateTime.now().millisecondsSinceEpoch}
-        where target == '${newItem.target.toParam}';
-      """);
+        where target == ?;
+      """, [newItem.target]);
     }
     saveData();
   }
@@ -188,9 +200,9 @@ class HistoryManager {
   Future<void> saveReadHistory(History history) async {
     _db.execute("""
         update history
-        set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?
+        set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?, max_page = ?
         where target == ?;
-    """, [history.ep, history.page, history.readEpisode.join(','), history.target]);
+    """, [history.ep, history.page, history.readEpisode.join(','), history.maxPage, history.target]);
     scheduleMicrotask(() {
       StateController.findOrNull(tag: "me_page")?.update();
     });
@@ -214,8 +226,8 @@ class HistoryManager {
   History? findSync(String target) {
     var res = _db.select("""
       select * from history
-      where target == '${target.toParam}';
-    """);
+      where target == ?;
+    """, [target]);
     if(res.isEmpty){
       return null;
     }

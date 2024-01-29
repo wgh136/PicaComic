@@ -258,15 +258,8 @@ abstract class ComicTile extends StatelessWidget {
                     color: Colors.blue.withOpacity(0.9),
                     constraints: const BoxConstraints(minWidth: 24),
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Center(
-                      child: Text(
-                        history.ep <= 1 ? "${history.page}" : "${history.ep}-${history.page}",
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                    child: CustomPaint(
+                      painter: _ReadingHistoryPainter(history.page, history.maxPage),
                     ),
                   )
               ],
@@ -531,5 +524,71 @@ class _ComicDescription extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _ReadingHistoryPainter extends CustomPainter{
+  final int page;
+  final int? maxPage;
+
+  const _ReadingHistoryPainter(this.page, this.maxPage);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if(maxPage == null){
+      // 在中央绘制page
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: "$page",
+          style: TextStyle(
+            fontSize: size.width * 0.8,
+            color: Colors.white,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      textPainter.paint(canvas, Offset((size.width - textPainter.width) / 2, (size.height - textPainter.height) / 2));
+    } else if(page == maxPage) {
+      // 在中央绘制勾
+      final paint = Paint()
+        ..color = Colors.white
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke;
+      canvas.drawLine(Offset(size.width * 0.2, size.height * 0.5), Offset(size.width * 0.5, size.height * 0.8), paint);
+      canvas.drawLine(Offset(size.width * 0.5, size.height * 0.8), Offset(size.width * 0.85, size.height * 0.25), paint);
+
+    } else {
+      // 在左上角绘制page, 在右下角绘制maxPage
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: "$page",
+          style: TextStyle(
+            fontSize: size.width * 0.8,
+            color: Colors.white,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      textPainter.paint(canvas, const Offset(0, 0));
+      final textPainter2 = TextPainter(
+        text: TextSpan(
+          text: "/$maxPage",
+          style: TextStyle(
+            fontSize: size.width * 0.5,
+            color: Colors.white,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter2.layout();
+      textPainter2.paint(canvas, Offset(size.width - textPainter2.width, size.height - textPainter2.height));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return oldDelegate is! _ReadingHistoryPainter || oldDelegate.page != page || oldDelegate.maxPage != maxPage;
   }
 }
