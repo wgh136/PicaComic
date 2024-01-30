@@ -510,9 +510,7 @@ class ComicReadingPage extends StatelessWidget {
     }
     comicReadingPageLogic.tools = false;
     if (comicReadingPageLogic.downloaded && epLength != null) {
-      for (int p = 0; p < epLength; p++) {
-        comicReadingPageLogic.urls.add("");
-      }
+      comicReadingPageLogic.urls = List.filled(epLength, "");
       comicReadingPageLogic.change();
     } else {
       network
@@ -550,7 +548,7 @@ class ComicReadingPage extends StatelessWidget {
     }
     EhNetwork().loadingReaderLinks.clear();
     var maxPage = int.parse(gallery!.maxPage);
-    logic.urls.addAll(List.generate(maxPage, (index) => ""));
+    logic.urls = List.filled(maxPage, "");
     await Future.delayed(const Duration(milliseconds: 200));
     logic.change();
   }
@@ -591,9 +589,7 @@ class ComicReadingPage extends StatelessWidget {
     data.epNames.addAll(List.generate(eps.length, (index) => getEpName(index)));
 
     if (comicReadingPageLogic.downloaded && epLength != null) {
-      for (int p = 0; p < epLength; p++) {
-        comicReadingPageLogic.urls.add("");
-      }
+      comicReadingPageLogic.urls = List.filled(epLength, "");
       comicReadingPageLogic.change();
       return;
     }
@@ -610,7 +606,7 @@ class ComicReadingPage extends StatelessWidget {
 
   void loadHitomiData(ComicReadingPageLogic logic) async {
     logic.images = images!;
-    logic.urls = images!.map<String>((e) => "").toList();
+    logic.urls = List.filled(images!.length, "");
     if (downloadManager.downloaded.contains("hitomi$target")) {
       logic.downloaded = true;
     }
@@ -623,11 +619,8 @@ class ComicReadingPage extends StatelessWidget {
     try {
       if (downloadManager.downloaded.contains("Ht$target")) {
         logic.downloaded = true;
-        for (int i = 0;
-            i < await downloadManager.getComicLength("Ht$target");
-            i++) {
-          logic.urls.add("");
-        }
+        var length = await downloadManager.getComicLength("Ht$target");
+        logic.urls = List.filled(length, "");
         logic.change();
         return;
       }
@@ -649,11 +642,7 @@ class ComicReadingPage extends StatelessWidget {
     try {
       if (downloadManager.downloaded.contains("nhentai$target")) {
         logic.downloaded = true;
-        for (int i = 0;
-            i < await downloadManager.getComicLength("nhentai$target");
-            i++) {
-          logic.urls.add("");
-        }
+        logic.urls = List.filled(await downloadManager.getComicLength("nhentai$target"), "");
         logic.change();
         return;
       }
