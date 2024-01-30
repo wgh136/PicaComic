@@ -135,10 +135,9 @@ class HistoryManager {
 
     // 检查是否有max_page字段, 如果没有则添加
     var res = _db.select("""
-      select * from history
-      limit 1;
+      PRAGMA table_info(history);
     """);
-    if(res.isNotEmpty && !res.first.containsKey("max_page")){
+    if (res.every((row) => row["name"] != "max_page")) {
       _db.execute("""
         alter table history
         add column max_page int;
