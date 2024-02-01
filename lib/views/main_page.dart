@@ -91,6 +91,21 @@ class _MainPageState extends State<MainPage> {
       if (res.error) {
         showMessage(
             App.globalContext!, "登录哔咔时发生错误:".tl + res.errorMessageWithoutNull);
+      } else {
+        //检查是否打卡
+        if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
+          if (App.isMobile) {
+            runBackgroundService();
+          } else {
+            appdata.user.isPunched = true;
+            network.punchIn().then((b) {
+              if (b) {
+                showMessage(App.globalContext, "打卡成功".tl, useGet: false);
+                appdata.user.exp += 10;
+              }
+            });
+          }
+        }
       }
     });
     HtmangaNetwork().loginFromAppdata().then((res) {
@@ -199,20 +214,6 @@ class _MainPageState extends State<MainPage> {
     }
     //清除未正常退出时的下载通知
     notifications.cancelAll();
-    //检查是否打卡
-    if (appdata.user.isPunched == false && appdata.settings[6] == "1") {
-      if (App.isMobile) {
-        runBackgroundService();
-      } else {
-        appdata.user.isPunched = true;
-        network.punchIn().then((b) {
-          if (b) {
-            showMessage(App.globalContext, "打卡成功".tl, useGet: false);
-            appdata.user.exp += 10;
-          }
-        });
-      }
-    }
 
     checkUpdates();
 

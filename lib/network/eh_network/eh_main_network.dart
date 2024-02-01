@@ -63,7 +63,12 @@ class EhNetwork {
   Future<String> getCookies(bool setNW, [String? url]) async {
     url ??= ehBaseUrl;
     var cookies = await cookieJar.loadForRequest(Uri.parse(url));
-    await cookieJar.delete(Uri.parse(url), true);
+    try {
+      await cookieJar.delete(Uri.parse(url), true);
+    }
+    catch(e){
+      //
+    }
     cookies.removeWhere((element) =>
         ["nw", "ipb_member_id", "ipb_pass_hash"].contains(element.name));
     cookies.removeWhere(
