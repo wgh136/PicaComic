@@ -70,7 +70,7 @@ class EhNetwork {
       //
     }
     cookies.removeWhere((element) =>
-        ["nw", "ipb_member_id", "ipb_pass_hash"].contains(element.name));
+        ["nw", "ipb_member_id", "ipb_pass_hash", "sp"].contains(element.name));
     cookies.removeWhere(
         (element) => element.name == "igneous" && element.value == "mystery");
     var igneousField =
@@ -85,6 +85,8 @@ class EhNetwork {
       if (appdata.ehPassHash != "") Cookie("ipb_pass_hash", appdata.ehPassHash),
       if (appdata.igneous != "" && igneousField == null)
         Cookie("igneous", appdata.igneous),
+      if (appdata.settings[75] != "")
+        Cookie("sp", appdata.settings[75]),
     ];
     cookies.addAll(shouldAdd);
     await cookieJar.saveFromResponse(Uri.parse(url), cookies);
@@ -893,5 +895,20 @@ class EhNetwork {
       return false;
     }
     return true;
+  }
+  
+  /// key - value: id - name
+  Future<Res<Map<String, String>>> getProfiles() async{
+    var res = await request("$_ehBaseUrl/uconfig.php", expiredTime: CacheExpiredTime.no);
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    var document = parse(res.data);
+    var options = document.querySelectorAll("select[name=profile_set] > option");
+    if(options.isEmpty){
+      return const Res.error("No profiles found");
+    } else {
+      return Res({ for (var e in options) e.attributes["value"] ?? "" : e.text });
+    }
   }
 }

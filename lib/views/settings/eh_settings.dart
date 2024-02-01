@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import '../../base.dart';
@@ -32,7 +33,7 @@ class _EhSettingsState extends State<EhSettings> {
                   "e-hentai.org",
                   "exhentai.org",
                 ],
-                whenChange: (i){
+                whenChange: (i) {
                   appdata.settings[20] = i.toString();
                   appdata.updateSettings();
                   EhNetwork().updateUrl();
@@ -46,9 +47,9 @@ class _EhSettingsState extends State<EhSettings> {
               title: Text("优先加载原图".tl),
               trailing: Switch(
                 value: appdata.settings[29] == "1",
-                onChanged: (b){
+                onChanged: (b) {
                   setState(() {
-                    appdata.settings[29] = b?"1":"0";
+                    appdata.settings[29] = b ? "1" : "0";
                   });
                   appdata.updateSettings();
                 },
@@ -59,15 +60,97 @@ class _EhSettingsState extends State<EhSettings> {
               title: Text("忽略警告".tl),
               trailing: Switch(
                 value: appdata.settings[47] == "1",
-                onChanged: (b){
+                onChanged: (b) {
                   setState(() {
-                    appdata.settings[47] = b?"1":"0";
+                    appdata.settings[47] = b ? "1" : "0";
                   });
                   appdata.updateSettings();
                 },
               ),
             ),
+            ListTile(
+              leading: const Icon(Icons.request_page_rounded),
+              title: Text("配置文件".tl),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => App.to(context, () => const EhProfileSelectPage()),
+            )
           ],
         ));
+  }
+}
+
+class EhProfileSelectPage extends StatefulWidget {
+  const EhProfileSelectPage({super.key});
+
+  @override
+  State<EhProfileSelectPage> createState() => _EhProfileSelectPageState();
+}
+
+class _EhProfileSelectPageState extends State<EhProfileSelectPage> {
+  bool loading = true;
+
+  Map<String, String>? profiles;
+
+  String? error;
+
+  void loadData() async {
+    var res = await EhNetwork().getProfiles();
+    loading = false;
+    if (res.error) {
+      setState(() {
+        error = res.errorMessageWithoutNull;
+      });
+    } else {
+      setState(() {
+        profiles = res.data;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      loadData();
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Profile"),
+      ),
+      body: loading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : error != null
+              ? Center(child: Text(error!))
+              : profiles == null
+                  ? const Center(child: Text("Unknown Error"))
+                  : buildBody(),
+    );
+  }
+
+  Widget buildBody(){
+    profiles?[""] = "Do not modify";
+    var keys = profiles?.keys.toList();
+    if(keys != null){
+      keys.sort();
+    }
+    return ListView.builder(
+      itemCount: profiles!.length,
+      itemBuilder: (context, index) {
+        var key = keys!.elementAt(index);
+        var value = profiles![key]!;
+        return RadioListTile<String>(
+          title: Text(value),
+          value: key,
+          groupValue: appdata.settings[75],
+          onChanged: (value) async {
+            setState(() {
+              appdata.settings[75] = key;
+            });
+            appdata.updateSettings();
+          },
+        );
+      },
+    );
   }
 }
