@@ -32,11 +32,6 @@ extension AppTranslation on String {
       '有可用更新': '有可用更新',
       "下载管理器": "下載管理器",
       "有未完成的下载, 是否继续?": "有未完成的下載, 是否繼續?",
-      "欢迎": "歡迎",
-      "感谢使用本软件, 请注意:\n\n": "感謝使用本軟件, 請注意:\n\n",
-      "本App的开发目的仅为学习交流与个人兴趣\n\n": "本App的開發目的僅為學習交流與個人興趣\n\n",
-      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系":
-          "此項目與Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫無任何關係",
       "需要身份验证": "需要身份驗證",
       "否": "否",
       "是": "是",
@@ -511,18 +506,12 @@ extension AppTranslation on String {
       "头像": "頭像",
       "显示": "顯示",
       "漫画块": "漫畫塊",
+      "下载数据失败, 已禁用同步": "下載資料失敗, 已禁用同步",
     },
     'en_US': {
       '有可用更新': 'Updates available',
       "下载管理器": "Download manager",
       "有未完成的下载, 是否继续?": "There are unfinished downloads, continue?",
-      "欢迎": "Welcome",
-      "感谢使用本软件, 请注意:\n\n":
-          "Thank you for using this software, please note:\n\n",
-      "本App的开发目的仅为学习交流与个人兴趣\n\n":
-          "The development purpose of this App is solely for learning, communication, and personal interest\n\n",
-      "此项目与Picacg, e-hentai.org, JmComic, hitomi.la无任何关系":
-          "This project has no affiliation with Picacg, e-hentai.org, JmComic, hitomi.la",
       "需要身份验证": "Authentication required",
       "否": "No",
       "是": "Yes",
@@ -1116,6 +1105,7 @@ If you find a problem while using it, please check if it's a problem with your d
       "头像": "Avatar",
       "显示": "Display",
       "漫画块": "Comic tile",
+      "下载数据失败, 已禁用同步": "Failed to download data, sync disabled",
     }
   };
 }

@@ -4,6 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 
+class SnackBarButton extends StatelessWidget {
+  const SnackBarButton({required this.text, required this.onTap, super.key});
+
+  final String text;
+
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          height: 32,
+          child: Center(
+            child: Text(
+              text,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 void showMessage(BuildContext? context, String message,
     {int time = 2, bool useGet = true, Widget? action}) {
   var newEntry = OverlayEntry(builder: (context) => AppSnackBar(message, action));

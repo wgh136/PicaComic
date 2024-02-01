@@ -9,7 +9,19 @@ import 'package:webdav_client/webdav_client.dart';
 import '../base.dart';
 import '../views/widgets/loading.dart';
 import '../views/widgets/show_message.dart';
-import 'package:flutter/material.dart';
+
+Future<bool> _retryZone(Future<bool> Function() fn) async {
+  int time = 1;
+  while (time < 1 << 3) {
+    var res = await fn();
+    if (res) {
+      return true;
+    }
+    await Future.delayed(Duration(seconds: time));
+    time *= 2;
+  }
+  return false;
+}
 
 class Webdav {
   static bool _isOperating = false;
@@ -51,22 +63,23 @@ class Webdav {
     client.setHeaders({'content-type': 'text/plain'});
     try {
       var files = await client.readDir(configs[3]);
-      for(var file in files){
+      for (var file in files) {
         var name = file.name;
-        if(name != null){
+        if (name != null) {
           var version = name.split(".").first;
-          if(version.isNum){
+          if (version.isNum) {
             var days = int.parse(version) ~/ 86400;
-            var currentDays = DateTime.now().millisecondsSinceEpoch ~/ 1000 ~/ 86400;
-            if(currentDays == days && file.path != null){
+            var currentDays =
+                DateTime.now().millisecondsSinceEpoch ~/ 1000 ~/ 86400;
+            if (currentDays == days && file.path != null) {
               client.remove(file.path!);
               break;
             }
           }
         }
       }
-      await client.writeFromFile(
-          await exportDataToFile(false), "${configs[3]}${appdata.settings[46]}.picadata");
+      await client.writeFromFile(await exportDataToFile(false),
+          "${configs[3]}${appdata.settings[46]}.picadata");
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Sync",
           "Failed to upload data to webdav server.\n$e\n$s");
@@ -99,28 +112,28 @@ class Webdav {
       try {
         var files = await client.readDir(configs[3]);
         int? maxVersion;
-        for(var file in files){
+        for (var file in files) {
           var name = file.name;
-          if(name != null){
+          if (name != null) {
             var version = name.split(".").first;
-            if(version.isNum){
+            if (version.isNum) {
               maxVersion = max(maxVersion ?? 0, int.parse(version));
             }
           }
         }
 
-        if(maxVersion.toString() == appdata.settings[46]){
-          LogManager.addLog(LogLevel.info, "Sync", "No updated version of data.\nStop downloading data.");
+        if (maxVersion.toString() == appdata.settings[46]) {
+          LogManager.addLog(LogLevel.info, "Sync",
+              "No updated version of data.\nStop downloading data.");
           return true;
         }
 
-        final fileName = maxVersion != null ? "$maxVersion.picadata" : "picadata";
+        final fileName =
+            maxVersion != null ? "$maxVersion.picadata" : "picadata";
 
         var cachePath = (await getApplicationCacheDirectory()).path;
-        await client.read2File("${configs[3]}$fileName",
-            "$cachePath/picadata");
-        var res =
-            await importData("$cachePath/picadata");
+        await client.read2File("${configs[3]}$fileName", "$cachePath/picadata");
+        var res = await importData("$cachePath/picadata");
         return res;
       } catch (e, s) {
         LogManager.addLog(LogLevel.error, "Sync",
@@ -137,19 +150,20 @@ class Webdav {
     if (configs.length != 4 || configs.elementAtOrNull(0) == "") {
       return;
     }
-    var controller = showLoadingDialog(App.globalContext!, () {}, false, true, "同步数据中".tl, "隐藏".tl);
-    var res = await Webdav.downloadData();
+    var controller = showLoadingDialog(
+        App.globalContext!, () {}, false, true, "同步数据中".tl, "隐藏".tl);
+    var res = await _retryZone(Webdav.downloadData);
     await Future.delayed(const Duration(milliseconds: 50));
     if (!res) {
       controller.close();
       appdata.settings[45] = "${appdata.settings[45]};0";
-      showMessage(App.globalContext, "下载数据失败, 已禁用同步",
-          action:
-              TextButton(onPressed: () {
+      showMessage(App.globalContext, "下载数据失败, 已禁用同步".tl,
+          action: SnackBarButton(
+              onTap: () {
                 appdata.settings[45] = configs.join(';');
                 syncData();
-              }, child: Text("重试".tl,
-                style: TextStyle(color: App.colors(App.globalContext!).inversePrimary),)));
+              },
+              text: "重试".tl,));
     } else {
       controller.close();
     }
