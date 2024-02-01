@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:pica_comic/comic_source/app_build_in_category.dart';
+part of comic_source;
 
 class CategoryData {
   /// The title is displayed in the tab bar.

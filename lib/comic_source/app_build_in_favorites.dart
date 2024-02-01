@@ -1,10 +1,10 @@
 import 'package:pica_comic/base.dart';
-import 'package:pica_comic/comic_source/favorites.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/res.dart';
+import 'comic_source.dart';
 
 final picacgFavorites = FavoriteData(
     key: "picacg",

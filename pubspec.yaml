@@ -90,6 +90,8 @@ dependencies:
       url: https://github.com/wgh136/zip_flutter
       ref: 92b7309e
   fl_chart: any
+  yaml: any
+  flutter_js: 0.8.0
 
 dev_dependencies:
   flutter_test:

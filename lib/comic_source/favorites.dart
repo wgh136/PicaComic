@@ -1,7 +1,4 @@
-import 'package:pica_comic/comic_source/app_build_in_favorites.dart';
-
-import '../network/base_comic.dart';
-import '../network/res.dart';
+part of comic_source;
 
 class FavoriteData{
   final String key;
