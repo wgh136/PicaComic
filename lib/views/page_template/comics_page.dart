@@ -251,7 +251,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
                         actions: tailing != null ? [tailing!] : null,
                       ),
                   if (head != null) head!,
-                  if(showPageIndicator && appdata.settings[64] == "0")
+                  if(showPageIndicator && appdata.settings[64] == "0" && comics![logic.current]!.length > 4)
                     buildPageSelector(context, logic),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
@@ -334,27 +334,30 @@ abstract class ComicsPage<T> extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Material(
         color: Colors.transparent,
-        child: SizedBox(
-          width: 300,
-          height: 42,
-          child: Row(
-            children: [
-              const SizedBox(width: 16,),
-              FilledButton.tonal(onPressed: () => prevPage(logic), child: Text("上一页".tl)),
-              const Spacer(),
-              ActionChip(
-                label: Text(
-                    "${"页面".tl}: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
-                onPressed: () async {
-                  selectPage(logic);
-                },
-                elevation: 1,
-                side: BorderSide.none,
-              ),
-              const Spacer(),
-              FilledButton.tonal(onPressed: () => nextPage(logic), child: Text("下一页".tl)),
-              const SizedBox(width: 16,),
-            ],
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8, top: 8),
+          child: SizedBox(
+            width: 300,
+            height: 42,
+            child: Row(
+              children: [
+                const SizedBox(width: 16,),
+                FilledButton.tonal(onPressed: () => prevPage(logic), child: Text("上一页".tl)),
+                const Spacer(),
+                ActionChip(
+                  label: Text(
+                      "${"页面".tl}: ${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
+                  onPressed: () async {
+                    selectPage(logic);
+                  },
+                  elevation: 1,
+                  side: BorderSide.none,
+                ),
+                const Spacer(),
+                FilledButton.tonal(onPressed: () => nextPage(logic), child: Text("下一页".tl)),
+                const SizedBox(width: 16,),
+              ],
+            ),
           ),
         ),
       ),

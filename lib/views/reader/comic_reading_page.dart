@@ -337,14 +337,7 @@ class ComicReadingPage extends StatelessWidget {
               onPointerCancel: TapController.onTapCancel,
               child: Stack(
                 children: [
-                  buildComicView(
-                      logic,
-                      type,
-                      (logic.downloaded && type == ReadingType.jm)
-                          ? "jm$target"
-                          : data.target,
-                      eps,
-                      context),
+                  buildComicView(logic, context),
                   if (MediaQuery.of(context).platformBrightness ==
                           Brightness.dark &&
                       appdata.settings[18] == "1")

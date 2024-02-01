@@ -42,6 +42,8 @@ class ComicReadingPageLogic extends StateController {
 
   bool isCtrlPressed = false;
 
+  List<bool> requestedLoadingItems = [];
+
   static int _getIndex(int initPage) {
     if (appdata.settings[9] == "5" || appdata.settings[9] == "6") {
       return initPage % 2 == 1 ? initPage : initPage - 1;
