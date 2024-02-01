@@ -507,6 +507,7 @@ extension AppTranslation on String {
       "显示": "顯示",
       "漫画块": "漫畫塊",
       "下载数据失败, 已禁用同步": "下載資料失敗, 已禁用同步",
+      "固定横屏": "固定橫屏",
     },
     'en_US': {
       '有可用更新': 'Updates available',
@@ -1106,6 +1107,7 @@ If you find a problem while using it, please check if it's a problem with your d
       "显示": "Display",
       "漫画块": "Comic tile",
       "下载数据失败, 已禁用同步": "Failed to download data, sync disabled",
+      "固定横屏": "Fixed landscape",
     }
   };
 }

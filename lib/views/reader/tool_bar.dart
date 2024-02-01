@@ -62,7 +62,7 @@ extension ToolBar on ComicReadingPage{
                           },
                         ),
                       ),
-                    if (App.isAndroid)
+                    if (App.isAndroid && appdata.settings[76] != "1")
                       Tooltip(
                         message: "屏幕方向".tl,
                         child: IconButton(
