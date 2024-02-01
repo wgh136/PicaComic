@@ -228,6 +228,12 @@ class ComicReadingPage extends StatelessWidget {
       if (appdata.settings[14] == "1") {
         setKeepScreenOn();
       }
+      if(appdata.settings[76] == "1"){
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight
+        ]);
+      }
       //进入阅读器时清除内存中的缓存, 并且增大限制
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
@@ -267,6 +273,9 @@ class ComicReadingPage extends StatelessWidget {
           ComicPage.tagsStack.last.updateHistory(history);
         }
       });
+      if(appdata.settings[76] == "1"){
+        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      }
     }, builder: (logic) {
       return Scaffold(
         backgroundColor: Colors.black,
@@ -337,14 +346,7 @@ class ComicReadingPage extends StatelessWidget {
               onPointerCancel: TapController.onTapCancel,
               child: Stack(
                 children: [
-                  buildComicView(
-                      logic,
-                      type,
-                      (logic.downloaded && type == ReadingType.jm)
-                          ? "jm$target"
-                          : data.target,
-                      eps,
-                      context),
+                  buildComicView(logic, context),
                   if (MediaQuery.of(context).platformBrightness ==
                           Brightness.dark &&
                       appdata.settings[18] == "1")

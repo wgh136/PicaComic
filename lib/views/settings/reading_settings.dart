@@ -231,6 +231,18 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             }),
           ),
         ),
+        if(App.isAndroid)
+          ListTile(
+            leading: const Icon(Icons.screen_lock_landscape),
+            title: Text("固定横屏".tl),
+            trailing: Switch(
+              value: appdata.settings[76] == "1",
+              onChanged: (b) => setState(() {
+                appdata.settings[76] = b ? "1" : "0";
+                appdata.updateSettings();
+              }),
+            ),
+          ),
         Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );

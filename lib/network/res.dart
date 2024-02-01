@@ -34,4 +34,6 @@ class Res<T>{
 
   /// network result
   const Res(this._data,{this.errorMessage, this.subData});
+
+  const Res.error(this.errorMessage):_data=null, subData=null;
 }

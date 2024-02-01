@@ -555,8 +555,8 @@ class _ReadingHistoryPainter extends CustomPainter{
         ..color = Colors.white
         ..strokeWidth = 2
         ..style = PaintingStyle.stroke;
-      canvas.drawLine(Offset(size.width * 0.2, size.height * 0.5), Offset(size.width * 0.5, size.height * 0.8), paint);
-      canvas.drawLine(Offset(size.width * 0.5, size.height * 0.8), Offset(size.width * 0.85, size.height * 0.25), paint);
+      canvas.drawLine(Offset(size.width * 0.2, size.height * 0.5), Offset(size.width * 0.45, size.height * 0.75), paint);
+      canvas.drawLine(Offset(size.width * 0.45, size.height * 0.75), Offset(size.width * 0.85, size.height * 0.3), paint);
 
     } else {
       // 在左上角绘制page, 在右下角绘制maxPage
