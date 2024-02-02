@@ -15,7 +15,7 @@ extension ScrollExtension on ScrollController {
 
 extension ImageExt on ComicReadingPage{
   /// build comic image
-  Widget buildComicView(ComicReadingPageLogic logic, BuildContext context) {
+  Widget buildComicView(ComicReadingPageLogic logic, BuildContext context, String target) {
     ScrollExtension.futurePosition = null;
 
     PhotoViewGallery.onKeyDown = logic.handleKeyboard;
@@ -40,7 +40,7 @@ extension ImageExt on ComicReadingPage{
             imageWidth = height / 1.2;
           }
 
-          precacheComicImage(logic, context, index + 1);
+          precacheComicImage(logic, context, index + 1, target);
 
           ImageProvider image = createImageProvider(type, logic, index, target);
 
@@ -73,7 +73,7 @@ extension ImageExt on ComicReadingPage{
                 ));
           }
 
-          precacheComicImage(logic, context, index);
+          precacheComicImage(logic, context, index, target);
 
           BoxFit getFit() {
             switch (appdata.settings[41]) {
@@ -185,7 +185,7 @@ extension ImageExt on ComicReadingPage{
             return PhotoViewGalleryPageOptions.customChild(
                 child: const SizedBox());
           }
-          precacheComicImage(logic, context, index * 2 + 1);
+          precacheComicImage(logic, context, index * 2 + 1, target);
 
           logic.photoViewControllers[index] ??= PhotoViewController();
 
@@ -441,7 +441,7 @@ extension ImageExt on ComicReadingPage{
   }
 
   /// preload image
-  void precacheComicImage(ComicReadingPageLogic logic, BuildContext context, int index) {
+  void precacheComicImage(ComicReadingPageLogic logic, BuildContext context, int index, String target) {
     if(logic.requestedLoadingItems.length != logic.length){
       logic.requestedLoadingItems = List.filled(logic.length+1, false);
     }
