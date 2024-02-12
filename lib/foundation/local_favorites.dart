@@ -181,6 +181,7 @@ class LocalFavoritesManager {
   Future<void> init() async {
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
     _checkAndCreate();
+    await readData();
   }
 
   void _checkAndCreate() async {

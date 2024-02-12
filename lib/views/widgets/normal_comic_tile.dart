@@ -12,8 +12,10 @@ class NormalComicTile extends ComicTile {
       required this.onTap,
       this.onLongTap,
       this.badgeName,
-      this.headers = const {},
+      this.headers,
+      this.tags,
       super.key});
+
   final String description_;
   final String coverPath;
   final void Function() onTap;
@@ -21,7 +23,10 @@ class NormalComicTile extends ComicTile {
   final String name;
   final void Function()? onLongTap;
   final String? badgeName;
-  final Map<String, String> headers;
+  final Map<String, String>? headers;
+
+  @override
+  final List<String>? tags;
 
   @override
   String get description => description_;

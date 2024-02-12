@@ -3,10 +3,13 @@ library comic_source;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/log.dart';
+import 'package:toml/toml.dart';
 
+import '../foundation/js_engine.dart';
 import '../network/base_comic.dart';
 import '../network/res.dart';
 import 'app_build_in_category.dart';
@@ -14,9 +17,24 @@ import 'app_build_in_favorites.dart';
 
 part 'category.dart';
 part 'favorites.dart';
+part 'parser.dart';
+
+/// build comic list, [Res.subData] should be maxPage or null if there is no limit.
+typedef ComicListBuilder = Future<Res<List<BaseComic>>> Function(int page);
 
 class ComicSource {
   static List<ComicSource> sources = [];
+
+  static Future<void> init() async{
+    final path = "${App.dataPath}/comic_source";
+    await for(var entity in Directory(path).list()){
+      if(entity is File && entity.path.endsWith(".toml")){
+        var source = await parseToml(await entity.readAsString());
+        await source.loadData();
+        sources.add(source);
+      }
+    }
+  }
 
   /// Name of this source.
   final String name;
@@ -26,9 +44,6 @@ class ComicSource {
 
   /// Account config.
   final AccountConfig? account;
-
-  /// Network config.
-  final NetworkConfig network;
 
   /// Category data used to build category page.
   final CategoryData? categoryData;
@@ -40,21 +55,21 @@ class ComicSource {
   final List<ExplorePageData> explorePages;
 
   /// Search page.
-  final SearchPageData searchPageData;
+  final SearchPageData? searchPageData;
 
   /// Settings.
   final List<SettingItem> settings;
 
   /// Load comic info.
-  final Future<ComicInfoData> Function(String id) loadComicInfo;
+  final Future<ComicInfoData> Function(String id)? loadComicInfo;
 
   /// Load comic pages.
-  final Future<List<String>> Function(String id, String? ep) loadComicPages;
+  final Future<List<String>> Function(String id, String? ep)? loadComicPages;
 
   /// Load image. The imageKey usually is the url of image.
   ///
   /// Default is send a http get request to [imageKey].
-  final Future<Uint8List>? Function(String imageKey) loadImage;
+  final Future<Uint8List>? Function(String imageKey)? loadImage;
 
   var data = <String, String>{};
 
@@ -77,7 +92,6 @@ class ComicSource {
       this.name,
       this.key,
       this.account,
-      this.network,
       this.categoryData,
       this.favoriteData,
       this.explorePages,
@@ -91,9 +105,14 @@ class ComicSource {
 class AccountConfig {
   final String? loginJs;
 
+  final String? loginWebsite;
+
   final String? registerJs;
 
-  const AccountConfig(this.loginJs, this.registerJs);
+  final String? registerWebsite;
+
+  const AccountConfig(this.loginJs, this.loginWebsite,
+      this.registerJs, this.registerWebsite);
 }
 
 class LoadImageRequest {
@@ -104,25 +123,14 @@ class LoadImageRequest {
   LoadImageRequest(this.url, this.headers);
 }
 
-class NetworkConfig {
-  final bool enableCookie;
-
-  final bool enableCloudflareBypass;
-
-  final void Function(LoadImageRequest request)? onloadImage;
-
-  const NetworkConfig(
-      this.enableCookie, this.enableCloudflareBypass, this.onloadImage);
-}
-
 class ExplorePageData {
   final String title;
 
   final ExplorePageType type;
 
-  final Future<List<BaseComic>> Function(int page)? loadPage;
+  final ComicListBuilder? loadPage;
 
-  final Future<List<ExplorePagePart>> Function()? loadMultiPart;
+  final Future<Res<List<ExplorePagePart>>> Function()? loadMultiPart;
 
   ExplorePageData(this.title, this.type, this.loadPage, this.loadMultiPart);
 }

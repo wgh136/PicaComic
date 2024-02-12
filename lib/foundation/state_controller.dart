@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/pair.dart';
 
-class SimpleController extends StateController{}
+class SimpleController extends StateController{
+  final void Function()? refresh_;
+
+  SimpleController({this.refresh_});
+
+  @override
+  void refresh() {
+    (refresh_ ?? super.refresh)();
+  }
+}
 
 abstract class StateController{
   static final _controllers = <StateControllerWrapped>[];
@@ -50,8 +59,8 @@ abstract class StateController{
     }
   }
 
-  static SimpleController putSimpleController(void Function() onUpdate, Object? tag){
-    var controller = SimpleController();
+  static SimpleController putSimpleController(void Function() onUpdate, Object? tag, {void Function()? refresh}){
+    var controller = SimpleController(refresh_: refresh);
     controller.stateUpdaters.add(Pair(null, onUpdate));
     _controllers.add(StateControllerWrapped(controller, false, tag));
     return controller;
@@ -75,6 +84,10 @@ abstract class StateController{
 
   void dispose(){
     _controllers.removeWhere((element) => element.controller == this);
+  }
+
+  void refresh(){
+    update();
   }
 }
 
@@ -156,10 +169,14 @@ class _StateBuilderState<T extends StateController> extends State<StateBuilder> 
 abstract class StateWithController<T extends StatefulWidget> extends State<T>{
   late final SimpleController _controller;
 
+  void refresh(){
+    _controller.update();
+  }
+
   @override
   @mustCallSuper
   void initState() {
-    _controller = StateController.putSimpleController(() {setState(() {});}, tag);
+    _controller = StateController.putSimpleController(() => setState(() {}), tag, refresh: refresh);
     super.initState();
   }
 

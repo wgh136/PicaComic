@@ -53,7 +53,7 @@ const CategoryData picacgCategory = CategoryData(
           ],
           "category"),
     ],
-    enableSuggestionPage: true,
+    enableRecommendationPage: true,
     enableRankingPage: true,
     enableRandomPage: false,
     recommendPageName: "推荐");
@@ -110,7 +110,7 @@ CategoryData ehCategory = CategoryData(
     ],
     enableRandomPage: false,
     enableRankingPage: true,
-    enableSuggestionPage: false);
+    enableRecommendationPage: false);
 
 const CategoryData jmCategory = CategoryData(
     title: "禁漫天堂",
@@ -196,7 +196,7 @@ const CategoryData jmCategory = CategoryData(
     ],
     enableRandomPage: false,
     enableRankingPage: true,
-    enableSuggestionPage: true,
+    enableRecommendationPage: true,
     recommendPageName: "每周必看");
 
 const CategoryData htCategory = CategoryData(
@@ -257,7 +257,7 @@ const CategoryData htCategory = CategoryData(
     ],
     enableRandomPage: false,
     enableRankingPage: false,
-    enableSuggestionPage: false);
+    enableRecommendationPage: false);
 
 final nhCategory = CategoryData(
     title: "nhentai",
@@ -268,6 +268,6 @@ final nhCategory = CategoryData(
       RandomCategoryPartWithRuntimeData(
           "Tags", () => nhentaiTags.values.toList(), 50, "search"),
     ],
-    enableSuggestionPage: false,
+    enableRecommendationPage: false,
     enableRankingPage: false,
     enableRandomPage: true);

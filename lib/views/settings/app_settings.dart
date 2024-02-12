@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -425,11 +426,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   void dispose() {
     appdata.updateSettings();
     Future.delayed(const Duration(milliseconds: 500), () {
-      try {
-        StateController.find<ExplorePageLogic>().update();
-      } catch (e) {
-        //如果在test_network_page进行此操作将产生错误
-      }
+      StateController.findOrNull<ExplorePageLogic>()?.update();
     });
     super.dispose();
   }
@@ -440,9 +437,10 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       child: IconButton(
           onPressed: (){
             setState((){
-              appdata.settings[59] = appdata.settings[59].replaceFirst(i, "");
+              var config = appdata.settings[77].split(',');
+              config.remove(i);
+              appdata.settings[77] = config.join(',');
             });
-            appdata.updateSettings();
           },
           icon: const Icon(Icons.delete)
       ),
@@ -458,7 +456,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "6" => ListTile(title: Text("Hitomi".tl), key: Key(i), trailing: removeButton,),
       "7" => ListTile(title: Text("Nhentai".tl), key: Key(i), trailing: removeButton,),
       "8" => ListTile(title: Text("绅士漫画".tl), key: Key(i), trailing: removeButton,),
-      _ => throw UnimplementedError()
+      _ => ListTile(title: Text(i), key: Key(i), trailing: removeButton,),
     };
   }
 
@@ -473,14 +471,17 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "6" => ListTile(title: Text("Hitomi".tl), key: Key(i)),
       "7" => ListTile(title: Text("Nhentai".tl), key: Key(i)),
       "8" => ListTile(title: Text("绅士漫画".tl), key: Key(i)),
-      _ => throw UnimplementedError()
+      _ => ListTile(title: Text(i), key: Key(i)),
     };
     return InkWell(
       child: widget,
       onTap: (){
         App.back(context);
         setState(() {
-          appdata.settings[59] += i;
+          if(appdata.settings[77].isNotEmpty){
+            appdata.settings[77] += ",";
+          }
+          appdata.settings[77] += i;
         });
       },
     );
@@ -489,9 +490,15 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   @override
   Widget build(BuildContext context) {
     var notShowPages = <String>[];
-    for(int i=0; i<=8; i++){
-      if(!appdata.settings[59].contains(i.toString())){
-        notShowPages.add(i.toString());
+    var allPages = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
+    for(var source in ComicSource.sources){
+      for(var page in source.explorePages){
+        allPages.add(page.title);
+      }
+    }
+    for(var i in allPages){
+      if(!appdata.settings[77].split(',').contains(i)){
+        notShowPages.add(i);
       }
     }
     return Scaffold(
@@ -503,29 +510,21 @@ class _SetExplorePagesState extends State<SetExplorePages> {
               showDialog(context: context, builder: (context){
                 return SimpleDialog(
                   title: const Text("Add"),
-                  children: [
-                    for(var i in notShowPages)
-                      buildNotShowPageSelector(i, context)
-                  ],
+                  children: notShowPages.map((e) => buildNotShowPageSelector(e, context)).toList(),
                 );
               });
             }, icon: const Icon(Icons.add))
         ],
       ),
       body: ReorderableListView(
-        children: [
-          for(int i=0; i<appdata.settings[59].length; i++)
-            buildItem(appdata.settings[59][i])
-        ],
+        children: appdata.settings[77].split(',').map((e) => buildItem(e)).toList(),
         onReorder: (oldIndex, newIndex){
-          var settingList = List.generate(appdata.settings[59].length,
-                  (index) => appdata.settings[59][index]);
+          var settingList = appdata.settings[77].split(',');
           var element = settingList.removeAt(oldIndex);
           settingList.insert(newIndex, element);
           setState(() {
-            appdata.settings[59] = settingList.join();
+            appdata.settings[77] = settingList.join(',');
           });
-          appdata.updateSettings();
         },
       ),
     );
@@ -536,7 +535,7 @@ void setCacheLimit(BuildContext context) async{
   int? number;
   int? size;
   await showDialog(context: context, builder: (context)=>SimpleDialog(
-    title: const Text("阅读器缓存限制"),
+    title: Text("缓存限制".tl),
     children: [
       SizedBox(
         width: 400,

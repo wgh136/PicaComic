@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/main.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -392,7 +393,10 @@ Map<String, String> categoryPages(){
     "ehentai": "ehentai",
     "jm": "禁漫天堂".tl,
     "htmanga": "绅士漫画".tl,
-    "nhentai": "nhentai"
+    "nhentai": "nhentai",
+    for(var source in ComicSource.sources)
+      if(source.categoryData != null)
+        source.categoryData!.title: source.categoryData!.title
   };
 }
 

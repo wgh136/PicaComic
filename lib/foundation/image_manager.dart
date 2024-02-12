@@ -198,7 +198,8 @@ class ImageManager {
       }
       await saveInfo(url, savePath);
       yield DownloadProgress(1, 1, url, savePath);
-    } catch (e) {
+    } catch (e, s) {
+      log("$e\n$s", "Network", LogLevel.error);
       rethrow;
     } finally {
       loadingItems.remove(url);

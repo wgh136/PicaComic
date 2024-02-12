@@ -85,7 +85,7 @@ class CategoryPage extends StatelessWidget {
               buildTag("随机".tl, (p0, p1) => randomComic(data.key)),
             if (data.enableRankingPage)
               buildTag("排行榜".tl, (p0, p1) => toRankingPage(data.key)),
-            if (data.enableSuggestionPage)
+            if (data.enableRecommendationPage)
               buildTag(data.recommendPageName.tl,
                   (p0, p1) => buildRecommendation(data.key))
           ],

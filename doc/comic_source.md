@@ -6,7 +6,8 @@
 
 ### 网络请求
 
-支持使用xhr进行网络请求, 不支持使用fetch, 为了简化网络请求, 有以下方法可供使用:
+#### 发送网络请求
+xhr和fetch均不可使用, 以下代码通过与dart交互实现网络请求:
 
 ```js
 class Network {
@@ -31,6 +32,11 @@ class Network {
     }
 }
 ```
+
+#### cookie
+cookie将被自动持久化储存
+
+// TODO: 修改cookie
 
 ### 数据
 
@@ -68,3 +74,51 @@ class Network {
 - level: string 仅接受 'error', 'warning', 'info'
 - title: string
 - content: string
+
+### 返回结果
+
+在所有需要编写js代码的地方, 都需要编写一个函数, 例如登录:
+```js
+async function login(username, password) {
+    let res = await Network.post('http://example.com/login', {
+        'Content-Type': 'application/json'
+    }, JSON.stringify({
+        username: username,
+        password: password
+    }));
+    
+    if(res.status !== 200) {
+        sendError("登录失败")
+    } else {
+        success("ok")
+    }
+}
+```
+
+使用`success`函数返回结果, 使用`sendError`函数返回错误
+
+### 解析html
+
+由于处于非浏览器环境, 无法使用`DOMParser`
+
+为了实现解析html, 并且减少第三方库的依赖, 采用了与Dart端交互的方式实现解析html
+
+### 数据结构
+
+#### 漫画信息
+
+```
+{
+    title: string,
+    subtitle: string?,
+    cover: string,
+    id: string,
+    tags: string[],
+    description: string?,
+}
+```
+
+- id: 用于加载漫画的详细信息, 可以是漫画的url, 也可以是漫画的id
+- description: 漫画的某种信息, 取决于漫画源的提供的数据, 可以是上传时间, 语言, 等等
+
+

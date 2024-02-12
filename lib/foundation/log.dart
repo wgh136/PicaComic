@@ -1,5 +1,9 @@
 import 'package:flutter/foundation.dart';
 
+void log(String content, [String title = "debug", LogLevel level = LogLevel.info]){
+  LogManager.addLog(level, title, content);
+}
+
 class LogManager {
   static final List<Log> _logs = <Log>[];
 
@@ -11,7 +15,7 @@ class LogManager {
 
   static bool ignoreLimitation = false;
 
-  static void addLog(LogLevel lever, String title, String content) {
+  static void addLog(LogLevel level, String title, String content) {
     if (kDebugMode) {
       print(content);
     }
@@ -20,7 +24,7 @@ class LogManager {
       content = "${content.substring(0, maxLogLength)}...";
     }
 
-    _logs.add(Log(lever, title, content));
+    _logs.add(Log(level, title, content));
     if (_logs.length > maxLogNumber) {
       _logs.removeAt(0);
     }

@@ -109,6 +109,9 @@ class ComicsPageLogic<T> extends StateController {
     message = null;
     update();
   }
+
+  @override
+  void refresh() => refresh_();
 }
 
 /// 漫画列表页面

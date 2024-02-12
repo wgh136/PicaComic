@@ -96,7 +96,7 @@ class Appdata {
     "https://18comic.vip", //56 jm domain
     "1", //57 show page info in reader
     "0", //58 hosts
-    "012345678", //59 explore page
+    "012345678", //59 explore page(废弃)
     "0", //60 action when local favorite is tapped
     "0", //61 check link in clipboard
     "10000", //62 漫画信息页面工具栏: "快速收藏".tl, "复制标题".tl, "复制链接".tl, "分享".tl, "搜索相似".tl
@@ -114,6 +114,7 @@ class Appdata {
     "1.0", //74 图片收藏大小
     "", //75 eh profile
     "0", //76 阅读器内固定横屏
+    "0,1,2,3,4,5,6,7,8", //77 探索页面
   ];
 
   ///屏蔽的关键词
