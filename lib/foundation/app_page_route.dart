@@ -68,13 +68,11 @@ class AppPageRoute<T> extends PageRoute<T> {
         context,
         animation,
         secondaryAnimation,
-        App.enablePopGesture && enableIOSGesture
-            ? IOSBackGestureDetector(
-                gestureWidth: _kBackGestureWidth,
-                enabledCallback: () => _isPopGestureEnabled<T>(this),
-                onStartPopGesture: () => _startPopGesture(this),
-                child: child)
-            : child);
+        IOSBackGestureDetector(
+            gestureWidth: _kBackGestureWidth,
+            enabledCallback: () => _isPopGestureEnabled<T>(this),
+            onStartPopGesture: () => _startPopGesture(this),
+            child: child));
   }
 
   @override
@@ -262,7 +260,7 @@ class FadePageTransitionBuilder extends PageTransitionsBuilder {
       Widget child) {
     return FadeTransition(
       opacity: animation.drive(Tween(begin: 0.0, end: 1.0)
-          .chain(CurveTween(curve: Curves.fastOutSlowIn))),
+          .chain(CurveTween(curve: Curves.ease))),
       child: child,
     );
   }
@@ -276,11 +274,19 @@ class SlidePageTransitionBuilder extends PageTransitionsBuilder {
       Animation<double> animation,
       Animation<double> secondaryAnimation,
       Widget child) {
-    return SlideTransition(
-      position: animation.drive(
-          Tween(begin: const Offset(1, 0), end: Offset.zero)
-              .chain(CurveTween(curve: Curves.fastOutSlowIn))),
-      child: child,
-    );
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    return AnimatedBuilder(animation: animation, builder: (context, child) {
+      child = SizedBox(width: screenWidth, height: screenHeight, child: child);
+      child = PhysicalModel(color: Colors.transparent, elevation: 6, child: child,);
+      return Stack(
+        children: <Widget>[
+          Positioned(
+            left: screenWidth * (1 - animation.value),
+            child: child,
+          ),
+        ],
+      );
+    }, child: child);
   }
 }

@@ -80,10 +80,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   final pages = [
-    const MePage(),
-    const LocalFavoritesPage(),
-    const ExplorePageWithGetControl(),
-    const AllCategoryPage(),
+    const MePage(key: Key("0"),),
+    const LocalFavoritesPage(key: Key("1"),),
+    const ExplorePageWithGetControl(key: Key("2"),),
+    const AllCategoryPage(key: Key("3"),),
   ];
 
   void login() {
@@ -309,9 +309,10 @@ class _MainPageState extends State<MainPage> {
                                   ],
                                 ),
                               Expanded(
-                                child: AnimatedMainPage(
-                                  pages[i],
-                                  key: Key(i.toString()),
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 120),
+                                  reverseDuration: const Duration(milliseconds: 120),
+                                  child: pages[i],
                                 ),
                               ),
                               if (UiMode.m1(context))
@@ -407,44 +408,6 @@ class NavigatorItem extends StatelessWidget {
             ),
           ),
         ));
-  }
-}
-
-class AnimatedMainPage extends StatefulWidget {
-  const AnimatedMainPage(this.widget, {super.key});
-
-  final Widget widget;
-
-  @override
-  State<AnimatedMainPage> createState() => _AnimatedMainPageState();
-}
-
-class _AnimatedMainPageState extends State<AnimatedMainPage> {
-  var offset = const Offset(0, 0.05);
-
-  static bool initial = true;
-
-  @override
-  void initState() {
-    if (!initial) {
-      Future.microtask(() => setState(() {
-            offset = const Offset(0, 0);
-          }));
-    } else {
-      offset = const Offset(0, 0);
-    }
-    initial = false;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSlide(
-      offset: offset,
-      curve: Curves.ease,
-      duration: const Duration(milliseconds: 300),
-      child: widget.widget,
-    );
   }
 }
 
