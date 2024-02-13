@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/login.dart';
@@ -18,6 +20,7 @@ import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../foundation/app.dart';
 import '../../network/jm_network/jm_network.dart';
 import '../../network/picacg_network/methods.dart';
@@ -52,6 +55,7 @@ class AccountsPage extends StatelessWidget {
                   ...buildHt(context),
                   const Divider(),
                   ...buildNh(context),
+                  ...buildCustom(context),
                 ])),
             const SliverPadding(padding: EdgeInsets.only(bottom: 50))
           ],
@@ -645,6 +649,36 @@ class AccountsPage extends StatelessWidget {
     ];
   }
 
+  Iterable<Widget> buildCustom(BuildContext context) sync*{
+    var sources = ComicSource.sources.where((element) => element.account != null);
+    if(sources.isEmpty) return;
+
+    yield const Divider();
+    for(var element in sources){
+      final bool logged = element.data["logged_in"] == true;
+      yield Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Text(
+          element.name,
+          style: const TextStyle(fontSize: 20),
+        ),
+      );
+      yield ListTile(
+        title: Text("账号".tl),
+        subtitle: Text(logged ? "已登录".tl : "未登录".tl),
+      );
+      if(!logged && element.account!.login != null){
+        yield ListTile(
+          title: Text("登录".tl),
+          onTap: () => App.to(context, () => _LoginPage(
+            login: element.account!.login!,
+            registerWebsite: element.account!.registerWebsite,
+          )),
+        );
+      }
+    }
+  }
+
   void setClipboard(String text){
     Clipboard.setData(ClipboardData(text: text));
     showToast(message: "已复制".tl, icon: Icons.check);
@@ -685,5 +719,101 @@ class AccountsPage extends StatelessWidget {
         );
       });
     }
+  }
+}
+
+class _LoginPage extends StatefulWidget {
+  const _LoginPage({required this.login, this.registerWebsite});
+
+  final LoginFunction login;
+
+  final String? registerWebsite;
+
+  @override
+  State<_LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<_LoginPage> {
+  String username = "";
+  String password = "";
+  bool loading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      primary: false,
+      appBar: AppBar(
+        title: Text("登录".tl),
+      ),
+      body: Column(
+        children: [
+          const Spacer(),
+          TextField(
+            decoration: InputDecoration(
+              labelText: "用户名".tl, border: const OutlineInputBorder()),
+            onChanged: (s) {
+              username = s;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            decoration: InputDecoration(
+              labelText: "密码".tl, border: const OutlineInputBorder()),
+            obscureText: true,
+            onChanged: (s) {
+              password = s;
+            },
+            onSubmitted: (s) => login(),
+          ),
+          const SizedBox(height: 32),
+          if (!loading)
+            FilledButton(
+              onPressed: login,
+              child: Text("继续".tl),
+            )
+          else
+            const CircularProgressIndicator(),
+
+          const Spacer(),
+          if(widget.registerWebsite != null)
+            TextButton(
+              onPressed: () => launchUrlString(widget.registerWebsite!),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.link),
+                  const SizedBox(width: 8),
+                  Text("注册".tl),
+                ],
+              ),
+            ),
+
+          if(UiMode.m1(context))
+            SizedBox(height: MediaQuery.of(context).padding.bottom,),
+        ]
+      ).paddingLeft(32).paddingRight(32).paddingBottom(16),
+    );
+  }
+
+  void login(){
+    if(username.isEmpty || password.isEmpty){
+      showToast(message: "不能为空".tl, icon: Icons.error_outline);
+      return;
+    }
+    setState(() {
+      loading = true;
+    });
+    widget.login(username, password).then((value){
+      if(value.error){
+        showMessage(App.globalContext, value.errorMessage!);
+        setState(() {
+          loading = false;
+        });
+      }else{
+        showToast(message: "登录成功".tl, icon: Icons.check);
+        StateController.find<AccountsPageLogic>().update();
+        App.back(context);
+      }
+    });
   }
 }

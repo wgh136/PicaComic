@@ -22,6 +22,8 @@ part 'parser.dart';
 /// build comic list, [Res.subData] should be maxPage or null if there is no limit.
 typedef ComicListBuilder = Future<Res<List<BaseComic>>> Function(int page);
 
+typedef LoginFunction = Future<Res<bool>> Function(String, String);
+
 class ComicSource {
   static List<ComicSource> sources = [];
 
@@ -29,7 +31,7 @@ class ComicSource {
     final path = "${App.dataPath}/comic_source";
     await for(var entity in Directory(path).list()){
       if(entity is File && entity.path.endsWith(".toml")){
-        var source = await parseToml(await entity.readAsString());
+        var source = await ComicSourceParser().parse(await entity.readAsString());
         await source.loadData();
         sources.add(source);
       }
@@ -71,7 +73,7 @@ class ComicSource {
   /// Default is send a http get request to [imageKey].
   final Future<Uint8List>? Function(String imageKey)? loadImage;
 
-  var data = <String, String>{};
+  var data = <String, dynamic>{};
 
   Future<void> loadData() async{
     var file = File("${App.dataPath}/comic_source/$key.data");
@@ -103,16 +105,13 @@ class ComicSource {
 }
 
 class AccountConfig {
-  final String? loginJs;
+  final LoginFunction? login;
 
   final String? loginWebsite;
 
-  final String? registerJs;
-
   final String? registerWebsite;
 
-  const AccountConfig(this.loginJs, this.loginWebsite,
-      this.registerJs, this.registerWebsite);
+  const AccountConfig(this.login, this.loginWebsite, this.registerWebsite);
 }
 
 class LoadImageRequest {

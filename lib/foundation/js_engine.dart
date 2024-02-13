@@ -16,7 +16,7 @@ class JavaScriptRuntimeException implements Exception {
 
   @override
   String toString() {
-    return message;
+    return "JavaScriptRuntimeException: $message";
   }
 }
 
@@ -94,7 +94,7 @@ class JsEngine {
           {
             String key = message["key"];
             String dataKey = message["data_key"];
-            String data = message["data"];
+            var data = message["data"];
             var source = ComicSource.sources
                 .firstWhere((element) => element.key == key);
             source.data[dataKey] = data;
@@ -210,7 +210,7 @@ class JsEngine {
     }
   }
 
-  Future<int> runProtectedWithKey(String js) async {
+  Future<int> runProtectedWithKey(String js, String key) async {
     _messageKey++;
 
     var res = await _jsRuntime!.evaluateAsync('''
@@ -228,6 +228,21 @@ class JsEngine {
             errorMessage: data,
             key: $_messageKey,
           }));
+        }
+        function loadData(key){
+          return sendMessage('message', JSON.stringify({
+              method: 'load_data',
+              key: '$key',
+              data_key: key,
+          }));
+        }
+        function setData(key, data){
+            return sendMessage('message', JSON.stringify({
+                method: 'save_data',
+                key: '$key',
+                data_key: key,
+                data: data
+            }));
         }
         $js
       }
@@ -529,23 +544,6 @@ function log(level, title, content){
         title: title,
         content: content,
     }))
-}
-
-function loadData(key, dataKey){
-    return sendMessage('message', JSON.stringify({
-        method: 'load_data',
-        key: key,
-        data_key: dataKey,
-    }));
-}
-
-function saveData(key, dataKey, data){
-    return sendMessage('message', JSON.stringify({
-        method: 'save_data',
-        key: key,
-        data_key: dataKey,
-        data: data
-    }));
 }
 
 let tempData = {}

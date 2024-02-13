@@ -9,6 +9,8 @@
 #### 发送网络请求
 xhr和fetch均不可使用, 以下代码通过与dart交互实现网络请求:
 
+网络请求始终返回string类型的数据, 请自行解析json或者html
+
 ```js
 class Network {
     static async sendRequest(method, url, headers, data) {
@@ -42,20 +44,21 @@ cookie将被自动持久化储存
 
 #### 持久化数据
 
-使用此函数写入的数据会被持久化
+使用json格式持久化数据
 
-`function saveData(key, dataKey, data)`
+使用此函数写入数据
 
-- key: string 此漫画源的标识符
-- dataKey: string 数据的标识符
-- data: string
+`function setData(key, data)`
+
+- key: string 此数据的标识符
+- data: any
 
 读取数据
 
-`function loadData(key, dataKey)`
+`function loadData(key)`
 
-- key: string 此漫画源的标识符
-- dataKey: string 数据的标识符
+- key: string 数据的标识符
+- return: any
 
 #### 临时数据
 

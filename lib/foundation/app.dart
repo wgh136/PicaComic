@@ -7,6 +7,7 @@ import 'package:pica_comic/foundation/log.dart';
 import '../base.dart';
 
 export 'state_controller.dart';
+export 'widget_utils.dart';
 
 class App {
   // platform
