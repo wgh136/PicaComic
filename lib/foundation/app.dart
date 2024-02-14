@@ -68,29 +68,29 @@ class App {
   static off(BuildContext context, Widget Function() page) {
     LogManager.addLog(LogLevel.info, "App Status",
         "Going to Page /${page.runtimeType.toString().replaceFirst("() => ", "")}");
-    Navigator.of(context).pushReplacement(AppPageRoute(page));
+    Navigator.of(context).pushReplacement(AppPageRoute(builder: (context) => page()));
   }
 
   static globalOff(Widget Function() page) {
     LogManager.addLog(LogLevel.info, "App Status",
         "Going to Page /${page.runtimeType.toString().replaceFirst("() => ", "")}");
-    Navigator.of(globalContext!).pushReplacement(AppPageRoute(page));
+    Navigator.of(globalContext!).pushReplacement(AppPageRoute(builder: (context) => page()));
   }
 
   static offAll(Widget Function() page) {
     Navigator.of(globalContext!)
-        .pushAndRemoveUntil(AppPageRoute(page), (route) => false);
+        .pushAndRemoveUntil(AppPageRoute(builder: (context) => page()), (route) => false);
   }
 
   static Future<T?> to<T extends Object?>(BuildContext context, Widget Function() page,
       [bool enableIOSGesture = true]) {
     LogManager.addLog(LogLevel.info, "App Status",
         "Going to Page /${page.runtimeType.toString().replaceFirst("() => ", "")}");
-    return Navigator.of(context).push<T>(AppPageRoute(page, enableIOSGesture));
+    return Navigator.of(context).push<T>(AppPageRoute(builder: (context) => page()));
   }
 
   static Future<T?> globalTo<T extends Object?>(Widget Function() page, {bool preventDuplicates = false}) {
-    return Navigator.of(globalContext!).push<T>(AppPageRoute(page));
+    return Navigator.of(globalContext!).push<T>(AppPageRoute(builder: (context) => page()));
   }
 
   static bool get enablePopGesture => isIOS;

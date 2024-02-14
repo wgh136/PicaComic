@@ -18,7 +18,7 @@ class AllCategoryPage extends StatelessWidget {
     return StateBuilder<SimpleController>(
         tag: "category",
         builder: (controller) {
-          final categories = appdata.settings[67].split(',').map((e) => getCategoryDataWithKey(e));
+          final categories = appdata.settings[67].split(',');
           return Material(
             child: DefaultTabController(
               length: categories.length,
@@ -27,19 +27,25 @@ class AllCategoryPage extends StatelessWidget {
                 children: [
                   TabBar(
                     splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-                    tabs: [
-                      for (var c in categories)
-                        Tab(
-                          text: c.title,
-                          key: Key(c.key),
-                        )
-                    ],
+                    tabs: categories.map((e) {
+                      String title = e;
+                      try{
+                        title = getCategoryDataWithKey(e).title;
+                      }
+                      catch(e){
+                        //
+                      }
+                      return Tab(
+                        text: title,
+                        key: Key(e),
+                      );
+                    }).toList(),
                     isScrollable: true,
                     tabAlignment: TabAlignment.center,
                   ),
                   Expanded(
                     child: TabBarView(
-                        children: [for (var c in categories) CategoryPage(c)]),
+                        children: categories.map((e) => CategoryPage(e)).toList()),
                   )
                 ],
               ),
@@ -52,9 +58,11 @@ class AllCategoryPage extends StatelessWidget {
 typedef ClickTagCallback = void Function(String, String?);
 
 class CategoryPage extends StatelessWidget {
-  const CategoryPage(this.data, {super.key});
+  const CategoryPage(this.category, {super.key});
 
-  final CategoryData data;
+  final String category;
+
+  CategoryData get data => getCategoryDataWithKey(category);
 
   void handleClick(
       String tag, String? param, String type, String namespace, String key) {

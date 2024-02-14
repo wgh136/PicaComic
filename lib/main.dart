@@ -7,6 +7,7 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/app_page_route.dart';
 import 'package:pica_comic/init.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -204,11 +205,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: App.isWindows ? "font" : "",
         ),
-        home: notFirstUse
+        onGenerateRoute: (settings) => AppPageRoute(builder: (context) => notFirstUse
             ? (appdata.settings[13] == "1"
-                ? const AuthPage()
-                : const MainPage())
-            : const WelcomePage(),
+            ? const AuthPage()
+            : const MainPage())
+            : const WelcomePage()),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

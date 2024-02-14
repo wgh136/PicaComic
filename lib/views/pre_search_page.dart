@@ -280,16 +280,9 @@ class PreSearchPage extends StatelessWidget {
     find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
   }
 
-  void showMenu() {
-    scaffoldKey.currentState!.openEndDrawer();
-  }
-
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
       endDrawerEnableOpenDragGesture: false,
       floatingActionButton: FloatingActionButton(
         onPressed: search,
@@ -304,7 +297,7 @@ class PreSearchPage extends StatelessWidget {
             SizedBox(
               height: MediaQuery.of(context).padding.top,
             ),
-          _FloatingSearchBar(
+          Builder(builder: (context) => _FloatingSearchBar(
             supportingText: '${'搜索'.tl} / ${'链接'.tl} / ID',
             f: (s) {
               if (s == "") return;
@@ -316,8 +309,8 @@ class PreSearchPage extends StatelessWidget {
               searchController.update([1, 100]);
             },
             focusNode: _focusNode,
-            showMenu: showMenu,
-          ),
+            showMenu: () => Scaffold.of(context).openEndDrawer(),
+          ),),
           const SizedBox(
             height: 8,
           ),

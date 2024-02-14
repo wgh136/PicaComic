@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app_page_route.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/tools/app_links.dart';
@@ -283,7 +284,7 @@ class _MainPageState extends State<MainPage> {
                         key: (MainPage.navigatorKey ??
                             (MainPage.navigatorKey = GlobalKey())),
                         onGenerateRoute: (settings) =>
-                            MaterialPageRoute(builder: (context) {
+                            AppPageRoute(builder: (context) {
                           return Column(
                             children: [
                               if (UiMode.m1(context))
