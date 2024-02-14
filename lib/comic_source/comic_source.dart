@@ -7,6 +7,7 @@ import 'dart:math' as math;
 
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:toml/toml.dart';
 
 import '../foundation/js_engine.dart';
@@ -111,7 +112,12 @@ class AccountConfig {
 
   final String? registerWebsite;
 
-  const AccountConfig(this.login, this.loginWebsite, this.registerWebsite);
+  final List<String> logoutDeleteCookies;
+
+  final List<String> logoutDeleteData;
+
+  const AccountConfig(this.login, this.loginWebsite, this.registerWebsite,
+      this.logoutDeleteCookies, this.logoutDeleteData);
 }
 
 class LoadImageRequest {

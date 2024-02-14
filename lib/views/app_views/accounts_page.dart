@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/foundation/js_engine.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
@@ -541,6 +542,7 @@ class AccountsPage extends StatelessWidget {
           onTap: () async {
             showMessage(App.globalContext, "正在重新登录".tl, time: 8);
             var res = await jmNetwork.loginFromAppdata();
+            hideMessage(App.globalContext);
             if (res.error) {
               showMessage(App.globalContext, res.errorMessage!);
             } else {
@@ -595,6 +597,7 @@ class AccountsPage extends StatelessWidget {
           onTap: () async {
             showMessage(App.globalContext, "正在重新登录".tl, time: 8);
             var res = await HtmangaNetwork().loginFromAppdata();
+            hideMessage(App.globalContext);
             if (res.error) {
               showMessage(App.globalContext, res.errorMessage!);
             } else {
@@ -674,6 +677,40 @@ class AccountsPage extends StatelessWidget {
             login: element.account!.login!,
             registerWebsite: element.account!.registerWebsite,
           )),
+        );
+      }
+      if(logged){
+        yield ListTile(
+          title: Text("重新登录".tl),
+          subtitle: Text("如果登录失效点击此处".tl),
+          onTap: () async {
+            if(element.data["account"] == null){
+              showToast(message: "无数据".tl);
+              return;
+            }
+            final List account = element.data["account"];
+            showMessage(App.globalContext, "正在重新登录".tl, time: 8);
+            var res = await element.account!.login!(account[0], account[1]);
+            hideMessage(App.globalContext);
+            if (res.error) {
+              showMessage(App.globalContext, res.errorMessage!);
+            } else {
+              showMessage(App.globalContext, "重新登录成功".tl);
+            }
+          },
+          trailing: const Icon(Icons.refresh),
+        );
+      }
+      if(logged){
+        yield ListTile(
+          title: Text("退出登录".tl),
+          onTap: (){
+            element.data["logged_in"] = false;
+            JsEngine().clearCookies(element.account!.logoutDeleteCookies);
+            element.data.removeWhere((key, value) => element.account!.logoutDeleteData.contains(key));
+            logic.update();
+          },
+          trailing: const Icon(Icons.logout),
         );
       }
     }

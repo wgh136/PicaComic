@@ -42,6 +42,8 @@ class ComicSourceParser {
           var key = await JsEngine().runProtectedWithKey(
               "$loginJs\nlogin(${jsonEncode(account)}, ${jsonEncode(pwd)})", _key!);
           await JsEngine().wait(key);
+          ComicSource.sources.firstWhere((element) => element.key == _key)
+              .data["account"] = <String>[account, pwd];
           return const Res(true);
         }
         catch(e, s){
@@ -54,7 +56,9 @@ class ComicSourceParser {
     return AccountConfig(
         login,
         document["account"]["login"]["website"],
-        document["account"]["register"]["website"]
+        document["account"]["register"]["website"],
+        ListOrNull.from(document["account"]["logout"]["cookies"]) ?? const [],
+        ListOrNull.from(document["account"]["logout"]["data"]) ?? const [],
     );
   }
 

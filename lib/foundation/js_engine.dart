@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:html/parser.dart' as html;
@@ -20,7 +23,7 @@ class JavaScriptRuntimeException implements Exception {
   }
 }
 
-class JsEngine {
+class JsEngine with _JSEngineApi{
   factory JsEngine() => _cache ?? (_cache = JsEngine._create());
 
   static JsEngine? _cache;
@@ -115,6 +118,10 @@ class JsEngine {
   void _loop() async {
     _dio ??= logDio(BaseOptions(
         responseType: ResponseType.plain, validateStatus: (status) => true));
+    _cookieJar ??= PersistCookieJar(
+        storage: FileStorage("${App.dataPath}/comic_source/cookies/"));
+
+    _dio!.interceptors.add(CookieManager(_cookieJar!));
 
     while (_jsRuntime != null) {
       if (_closed) return;
@@ -276,9 +283,12 @@ class JsEngine {
     clear();
     throw JavaScriptRuntimeException("Timeout");
   }
+}
 
+mixin class _JSEngineApi{
   final Map<int, dom.Document> _documents = {};
   final Map<int, dom.Element> _elements = {};
+  CookieJar? _cookieJar;
 
   dynamic handleHtmlCallback(Map<String, dynamic> data) {
     switch (data["function"]) {
@@ -326,9 +336,31 @@ class JsEngine {
     }
   }
 
+  dynamic handleCookieCallback(Map<String, dynamic> data) {
+    switch (data["function"]) {
+      case "set":
+        _cookieJar!.saveFromResponse(
+            Uri.parse(data["url"]),
+            (data["cookies"] as List).map(
+                    (e) => Cookie(e["name"], e["value"])).toList());
+        return null;
+      case "get":
+        return _cookieJar!.loadForRequest(Uri.parse(data["url"]));
+        // TODO
+    }
+  }
+
   void clear(){
     _documents.clear();
     _elements.clear();
+  }
+
+  void clearCookies(List<String> domains) async{
+    for(var domain in domains){
+      var uri = Uri.tryParse(domain);
+      if(uri == null) continue;
+      await _cookieJar!.delete(uri);
+    }
   }
 }
 
