@@ -179,6 +179,17 @@ abstract class ComicsPage<T> extends StatelessWidget {
         return body;
       }
     }
+
+    Widget? removeSliver(Widget? widget){
+      if(widget == null) return null;
+
+      if(widget is SliverToBoxAdapter){
+        return widget.child;
+      }
+
+      return widget;
+    }
+
     Widget body = StateBuilder<ComicsPageLogic<T>>(
         init: ComicsPageLogic<T>(),
         tag: tag,
@@ -190,15 +201,28 @@ abstract class ComicsPage<T> extends StatelessWidget {
           }
           if (logic.loading) {
             logic.get(getComics);
-            return !showBackWhenLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : showLoading(context);
+            return Column(
+              children: [
+                removeSliver(head) ?? const SizedBox(),
+                Expanded(
+                  child: !showBackWhenLoading
+                      ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                      : showLoading(context),
+                )
+              ],
+            );
           } else if (logic.message != null){
-            return showNetworkError(
-                logic.message ?? "Network Error", logic.refresh_, context,
-                showBack: showBackWhenError);
+            return Column(
+              children: [
+                removeSliver(head) ?? const SizedBox(),
+                Expanded(
+                  child: showNetworkError(
+                    logic.message ?? "Network Error", logic.refresh_, context,
+                  showBack: showBackWhenError))
+              ],
+            );
           } else {
             if (appdata.settings[25] == "0") {
               var comics = logic.comics!;

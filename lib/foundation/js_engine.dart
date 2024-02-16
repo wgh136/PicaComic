@@ -229,7 +229,7 @@ class JsEngine with _JSEngineApi{
             key: $_messageKey,
           }));
         }
-        function sendError(data){
+        function error(data){
           sendMessage('message', JSON.stringify({
             method: 'return',
             errorMessage: data,

@@ -1,5 +1,6 @@
 library comic_source;
 
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -28,11 +29,12 @@ typedef LoginFunction = Future<Res<bool>> Function(String, String);
 class ComicSource {
   static List<ComicSource> sources = [];
 
-  static Future<void> init() async{
+  static Future<void> init() async {
     final path = "${App.dataPath}/comic_source";
-    await for(var entity in Directory(path).list()){
-      if(entity is File && entity.path.endsWith(".toml")){
-        var source = await ComicSourceParser().parse(await entity.readAsString());
+    await for (var entity in Directory(path).list()) {
+      if (entity is File && entity.path.endsWith(".toml")) {
+        var source =
+            await ComicSourceParser().parse(await entity.readAsString());
         await source.loadData();
         sources.add(source);
       }
@@ -48,8 +50,11 @@ class ComicSource {
   /// Account config.
   final AccountConfig? account;
 
-  /// Category data used to build category page.
+  /// Category data used to build a static category tags page.
   final CategoryData? categoryData;
+
+  /// Category comics data used to build a comics page with a category tag.
+  final CategoryComicsData? categoryComicsData;
 
   /// Favorite data used to build favorite page.
   final FavoriteData? favoriteData;
@@ -76,16 +81,16 @@ class ComicSource {
 
   var data = <String, dynamic>{};
 
-  Future<void> loadData() async{
+  Future<void> loadData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
-    if(await file.exists()){
+    if (await file.exists()) {
       data = Map.from(jsonDecode(await file.readAsString()));
     }
   }
 
-  Future<void> saveData() async{
+  Future<void> saveData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
-    if(! await file.exists()){
+    if (!await file.exists()) {
       await file.create(recursive: true);
     }
     await file.writeAsString(jsonEncode(data));
@@ -96,6 +101,7 @@ class ComicSource {
       this.key,
       this.account,
       this.categoryData,
+      this.categoryComicsData,
       this.favoriteData,
       this.explorePages,
       this.searchPageData,
@@ -213,4 +219,33 @@ class ComicInfoData {
 
   const ComicInfoData(this.title, this.subTitle, this.description, this.tags,
       this.chapters, this.thumbnails, this.thumbnailLoader, this.suggestions);
+}
+
+typedef CategoryComicsLoader = Future<Res<List<BaseComic>>> Function(
+    String category, String? param, List<String> options, int page);
+
+class CategoryComicsData {
+  /// options
+  final List<CategoryComicsOptions> options;
+
+  /// [category] is the one clicked by the user on the category page.
+
+  /// if [BaseCategoryPart.categoryParams] is not null, [param] will be not null.
+  ///
+  /// [Res.subData] should be maxPage or null if there is no limit.
+  final CategoryComicsLoader load;
+
+  const CategoryComicsData(this.options, this.load);
+}
+
+class CategoryComicsOptions{
+  /// Use a [LinkedHashMap] to describe an option list.
+  /// key is for loading comics, value is the name displayed on screen.
+  /// Default value will be the first of the Map.
+  final LinkedHashMap<String, String> options;
+
+  /// If [notShowWhen] contains category's name, the option will not be shown.
+  final List<String> notShowWhen;
+
+  const CategoryComicsOptions(this.options, this.notShowWhen);
 }
