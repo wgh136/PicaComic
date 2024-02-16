@@ -379,7 +379,12 @@ class ComicReadingPage extends StatelessWidget {
               ),
             );
 
-            return body;
+            return KeyboardListener(
+              focusNode: FocusNode(),
+              autofocus: true,
+              onKeyEvent: logic.handleKeyboard,
+              child: body,
+            );
           } else {
             return buildErrorView(logic, context);
           }

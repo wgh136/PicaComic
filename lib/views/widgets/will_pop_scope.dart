@@ -17,10 +17,10 @@ class CustomWillPopScope extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget res = App.isIOS ? child : WillPopScope(
-        onWillPop: App.isDesktop ? null : () async {
+    Widget res = App.isIOS ? child : PopScope(
+        canPop: App.isAndroid ? false : true,
+        onPopInvoked: (value) {
           action();
-          return false;
         },
         child: child);
     if(popGesture){

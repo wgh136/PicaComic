@@ -284,7 +284,7 @@ class _MainPageState extends State<MainPage> {
                         key: (MainPage.navigatorKey ??
                             (MainPage.navigatorKey = GlobalKey())),
                         onGenerateRoute: (settings) =>
-                            AppPageRoute(builder: (context) {
+                            AppPageRoute(preventRebuild: false, builder: (context) {
                           return Column(
                             children: [
                               if (UiMode.m1(context))

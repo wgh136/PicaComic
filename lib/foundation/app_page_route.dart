@@ -19,6 +19,7 @@ class AppPageRoute<T> extends PageRoute<T> with _AppRouteTransitionMixin{
     super.allowSnapshotting = true,
     super.barrierDismissible = false,
     this.enableIOSGesture = true,
+    this.preventRebuild = true,
   }) {
     assert(opaque);
   }
@@ -37,6 +38,9 @@ class AppPageRoute<T> extends PageRoute<T> with _AppRouteTransitionMixin{
 
   @override
   final bool enableIOSGesture;
+
+  @override
+  final bool preventRebuild;
 }
 
 mixin _AppRouteTransitionMixin<T> on PageRoute<T> {
@@ -61,13 +65,24 @@ mixin _AppRouteTransitionMixin<T> on PageRoute<T> {
 
   bool get enableIOSGesture;
 
+  bool get preventRebuild;
+
+  Widget? _child;
+
   @override
   Widget buildPage(
       BuildContext context,
       Animation<double> animation,
       Animation<double> secondaryAnimation,
       ) {
-    final Widget result = buildContent(context);
+    Widget result;
+
+    if(preventRebuild){
+      result = _child ?? (_child = buildContent(context));
+    } else {
+      result = buildContent(context);
+    }
+
     return Semantics(
       scopesRoute: true,
       explicitChildNodes: true,

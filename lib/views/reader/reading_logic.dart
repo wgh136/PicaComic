@@ -40,7 +40,7 @@ class ComicReadingPageLogic extends StateController {
 
   double currentScale = 1.0;
 
-  bool isCtrlPressed = false;
+  bool get isCtrlPressed => HardwareKeyboard.instance.isControlPressed;
 
   List<bool> requestedLoadingItems = [];
 
@@ -209,7 +209,7 @@ class ComicReadingPageLogic extends StateController {
       return;
     }
     order += 1;
-    urls.clear();
+    urls = [];
     isLoading = true;
     tools = false;
     if (type == ReadingType.jm) {
@@ -238,7 +238,7 @@ class ComicReadingPageLogic extends StateController {
     }
 
     order -= 1;
-    urls.clear();
+    urls = [];
     isLoading = true;
     tools = false;
     if (type == ReadingType.jm) {
@@ -299,34 +299,18 @@ class ComicReadingPageLogic extends StateController {
     isFullScreen = !isFullScreen;
   }
 
-  void handleKeyboard(RawKeyEvent event) {
-    isCtrlPressed = event.isControlPressed;
-    switch (event.logicalKey) {
-      case LogicalKeyboardKey.arrowDown:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowDown) || event.repeat) {
+  void handleKeyboard(KeyEvent event) {
+    if(event is KeyUpEvent){
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.arrowDown:
+        case LogicalKeyboardKey.arrowRight:
           jumpToNextPage();
-        }
-        break;
-      case LogicalKeyboardKey.arrowRight:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowRight) ||
-            event.repeat) {
-          jumpToNextPage();
-        }
-        break;
-      case LogicalKeyboardKey.arrowUp:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowUp) || event.repeat) {
+        case LogicalKeyboardKey.arrowUp:
+        case LogicalKeyboardKey.arrowLeft:
           jumpToLastPage();
-        }
-        break;
-      case LogicalKeyboardKey.arrowLeft:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowLeft) || event.repeat) {
-          jumpToLastPage();
-        }
-        break;
-      case LogicalKeyboardKey.f12:
-        if(App.isWindows && !event.isKeyPressed(LogicalKeyboardKey.f12)) {
+        case LogicalKeyboardKey.f12:
           fullscreen();
-        }
+      }
     }
   }
 
