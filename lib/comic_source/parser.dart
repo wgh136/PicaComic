@@ -208,7 +208,7 @@ class ComicSourceParser {
   SearchPageData? _loadSearchData(Map<String, dynamic>? doc){
     if(doc == null) return null;
     var options = <SearchOptions>[];
-    for(var element in doc["options"]){
+    for(var element in doc["options"] ?? []){
       LinkedHashMap<String, String> map = LinkedHashMap<String, String>();
       for(var option in (element["content"] as String)
           .replaceAll("\r\n", "\n")
