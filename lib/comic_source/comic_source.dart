@@ -166,16 +166,24 @@ enum ExplorePageType {
   singlePageWithMultiPart,
 }
 
+typedef SearchFunction = Future<Res<List<BaseComic>>> Function(
+    String keyword, int page, List<String> searchOption);
+
 class SearchPageData {
-  final String name;
-
   /// If this is not null, the default value of search options will be first element.
-  final List<String>? searchOptions;
+  final List<SearchOptions>? searchOptions;
 
-  final Future<List<BaseComic>> Function(
-      String keyword, int page, String? searchOption)? loadPage;
+  final SearchFunction? loadPage;
 
-  const SearchPageData(this.name, this.searchOptions, this.loadPage);
+  const SearchPageData(this.searchOptions, this.loadPage);
+}
+
+class SearchOptions{
+  final LinkedHashMap<String, String> options;
+
+  final String label;
+
+  const SearchOptions(this.options, this.label);
 }
 
 class SettingItem {

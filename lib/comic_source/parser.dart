@@ -29,9 +29,10 @@ class ComicSourceParser {
         _loadCategoryData(document["category"] ?? const {});
     final categoryComicsData =
         _loadCategoryComicsData(document["categoryComics"]);
+    final searchData = _loadSearchData(document["search"]);
 
     return ComicSource(name, key, account, categoryPageData, categoryComicsData, null,
-        explorePageData, null, [], null, null, null);
+        explorePageData, searchData, [], null, null, null);
   }
 
   AccountConfig? _loadAccountConfig(Map<String, dynamic> document) {
@@ -190,6 +191,43 @@ class ComicSourceParser {
       try{
         final key = await JsEngine().runProtectedWithKey(
             "$loadJs\nload(${jsonEncode(category)}, ${jsonEncode(param)}, ${jsonEncode(options)}, $page)", _key!);
+        var res = await JsEngine().wait(key);
+        return Res(
+            List.generate(
+                res["comics"].length,
+                    (index) => CustomComic.fromJson(res["comics"][index])),
+            subData: res["maxPage"]);
+      }
+      catch(e, s){
+        log("$e\n$s", "Network", LogLevel.error);
+        return Res.error(e.toString());
+      }
+    });
+  }
+
+  SearchPageData? _loadSearchData(Map<String, dynamic>? doc){
+    if(doc == null) return null;
+    var options = <SearchOptions>[];
+    for(var element in doc["options"]){
+      LinkedHashMap<String, String> map = LinkedHashMap<String, String>();
+      for(var option in (element["content"] as String)
+          .replaceAll("\r\n", "\n")
+          .split("\n")){
+        if(option.isEmpty || !option.contains("-")){
+          continue;
+        }
+        var split = option.split("-");
+        var key = split.removeAt(0);
+        var value = split.join("-");
+        map[key] = value;
+      }
+      options.add(SearchOptions(map, element["label"]));
+    }
+    var loadJs = doc["load"];
+    return SearchPageData(options, (keyword, page, searchOption) async{
+      try{
+        final key = await JsEngine().runProtectedWithKey(
+            "$loadJs\nload(${jsonEncode(keyword)}, $page, ${jsonEncode(searchOption)})", _key!);
         var res = await JsEngine().wait(key);
         return Res(
             List.generate(

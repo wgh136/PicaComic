@@ -106,6 +106,31 @@ async function login(username, password) {
 
 为了实现解析html, 并且减少第三方库的依赖, 采用了与Dart端交互的方式实现解析html
 
+#### api
+
+加载html
+
+`let document = new HtmlDocument(html)`
+
+获取元素
+
+`let element = document.querySelector(selector)`
+
+`let elements = document.querySelectorAll(selector)`
+
+使用元素
+
+`let attributes = element.attributes`
+
+`let text = element.text`
+
+`let children = element.children`
+
+`let element1 = element.querySelector(selector)`
+
+`let elements1 = element.querySelectorAll(selector)`
+
+
 ### 数据结构
 
 #### 漫画信息
@@ -285,4 +310,148 @@ name = "更新"
 type = "fixed"
 categories = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
 itemType = "category"
+```
+
+### 分类漫画页面
+
+分类漫画页面指的是根据分类tag列出漫画的页面, 可以拥有一些选项, 例如排序, 筛选等
+
+示例:
+```toml
+[categoryComics]
+load = """
+async function load(category, param, options, page){
+    try{
+        category = encodeURIComponent(category)
+        let url = ""
+        if(param !== undefined && param !== null){
+            url = `https://ymcdnyfqdapp.ikmmh.com/update/${param}.html`
+        } else {
+            url = `https://ymcdnyfqdapp.ikmmh.com/booklists/${options[1]}/${category}/${options[0]}/${page}.html`
+        }
+        let res = await Network.get(url)
+        if(res.status !== 200){
+            error("Invalid status code: " + res.status)
+        }
+        let document = new HtmlDocument(res.body)
+
+        function parseComic(element){
+            let title = element.querySelector("h2").text
+            let cover = element.querySelector("img").attributes["data-src"]
+            let tags = []
+            let tagDoms = element.querySelectorAll("div.tag-list > p")
+            for(let j = 0; j < tagDoms.length; j++){
+                tags.push(tagDoms[j].text.trim())
+            }
+            let link = element.querySelector("a").attributes["href"]
+            link = "https://ymcdnyfqdapp.ikmmh.com" + link
+            let updateInfo = element.querySelector("p.process").text
+            return {
+                title: title,
+                cover: cover,
+                tags: tags,
+                id: link,
+                subTitle: updateInfo
+            };
+        }
+
+        let maxPage = 1
+        if(param === undefined || param === null){
+            maxPage = document.querySelectorAll("ul.list-page > li > a").pop().text
+            maxPage = parseInt(maxPage)
+        }
+        success({
+            comics: document.querySelectorAll("ul.list-comic-book > li").map(parseComic),
+            maxPage: maxPage
+        })
+    }
+    catch (e){
+        error(e.toString())
+    }
+}
+"""
+
+[[categoryComics.options]]
+# content 用于提供分类页面的选项, 按照如下格式, 使用`-`分割, 左侧为加载使用的参数, 右侧为显示在屏幕上的选项文字
+content = """
+3-全部
+4-连载中
+1-已完结
+"""
+# notShowWhen提供一个列表, 当分类页面的名称为列表中的任意一个时, 将不会显示此选项
+notShowWhen = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+
+[[categoryComics.options]]
+content = """
+9-全部
+1-日漫
+2-港台
+3-美漫
+4-国漫
+5-韩漫
+6-未分类
+"""
+notShowWhen = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+```
+
+#### 提供选项
+提供一个数组, 其中每一个元素, 都包含`content`和`notShowWhen`字段
+
+`content`用于提供分类页面的选项, `notShowWhen`提供一个列表, 当分类页面的名称为列表中的任意一个时, 将不会显示此选项
+
+#### 加载漫画
+需要实现函数`async function load(category, param, options, page)`.
+
+`category`为分类页面的名称, `param`为分类页面的参数, `options`为提供的选项值列表, `page`为当前页面序号.
+
+如果成功, 使用`success`函数返回结果, 结果应该包含`comics`和`maxPage`字段, `comics`为漫画列表, `maxPage`为最大页数.
+
+### 搜索
+
+与分类漫画页面类似
+
+示例:
+```toml
+[search]
+load = """
+async function load(keyword, options, page){
+    try{
+        let res = await Network.get(`https://ymcdnyfqdapp.ikmmh.com/search?searchkey=${encodeURIComponent(keyword)}`)
+        if(res.status !== 200){
+            error("Invalid status code: " + res.status)
+        }
+        let document = new HtmlDocument(res.body)
+
+        function parseComic(element){
+            let title = element.querySelector("a").text
+            let cover = element.querySelector("img").attributes["data-src"]
+            let link = element.querySelector("a").attributes["href"]
+            link = "https://ymcdnyfqdapp.ikmmh.com" + link
+            let updateInfo = element.querySelector("p.describe > a").text
+            return {
+                title: title,
+                cover: cover,
+                id: link,
+                subTitle: updateInfo
+            };
+        }
+
+        success({
+            comics: document.querySelectorAll("div.classification").map(parseComic),
+            maxPage: 1
+        })
+    }
+    catch (e){
+        error(e.toString())
+    }
+}
+"""
+
+[[search.options]]
+label = "排序模式"
+content = """
+1-最新
+2-最热
+3-评分
+"""
 ```

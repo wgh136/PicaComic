@@ -187,6 +187,10 @@ abstract class ComicsPage<T> extends StatelessWidget {
         return widget.child;
       }
 
+      if(widget is SliverPersistentHeader){
+        return null;
+      }
+
       return widget;
     }
 
