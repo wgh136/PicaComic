@@ -13,9 +13,10 @@ extension ScrollExtension on ScrollController {
   }
 }
 
-extension ImageExt on ComicReadingPage{
+extension ImageExt on ComicReadingPage {
   /// build comic image
-  Widget buildComicView(ComicReadingPageLogic logic, BuildContext context, String target) {
+  Widget buildComicView(
+      ComicReadingPageLogic logic, BuildContext context, String target) {
     ScrollExtension.futurePosition = null;
 
     Widget buildType4() {
@@ -57,7 +58,7 @@ extension ImageExt on ComicReadingPage{
         key: Key(logic.readingMethod.index.toString()),
         reverse: appdata.settings[9] == "2",
         scrollDirection:
-        appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
+            appdata.settings[9] != "3" ? Axis.horizontal : Axis.vertical,
         itemCount: logic.urls.length + 2,
         builder: (BuildContext context, int index) {
           ImageProvider? imageProvider;
@@ -100,14 +101,20 @@ extension ImageExt on ComicReadingPage{
                     children: [
                       Expanded(
                         child: Center(
-                          child: Text(error.toString(), style: const TextStyle(color: Colors.white), maxLines: 3,),
+                          child: Text(
+                            error.toString(),
+                            style: const TextStyle(color: Colors.white),
+                            maxLines: 3,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 4,),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: Listener(
-                          onPointerDown: (details){
+                          onPointerDown: (details) {
                             TapController.ignoreNextTap = true;
                             retry();
                           },
@@ -115,19 +122,24 @@ extension ImageExt on ComicReadingPage{
                             width: 84,
                             height: 36,
                             child: Center(
-                              child: Text("Retry", style: TextStyle(color: Colors.blue),),
+                              child: Text(
+                                "Retry",
+                                style: TextStyle(color: Colors.blue),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16,),
+                      const SizedBox(
+                        height: 16,
+                      ),
                     ],
                   ),
                 ),
               );
             },
             heroAttributes:
-            PhotoViewHeroAttributes(tag: "$index/${logic.urls.length}"),
+                PhotoViewHeroAttributes(tag: "$index/${logic.urls.length}"),
           );
         },
         pageController: logic.pageController,
@@ -142,7 +154,7 @@ extension ImageExt on ComicReadingPage{
                 value: event == null
                     ? 0
                     : event.cumulativeBytesLoaded /
-                    (event.expectedTotalBytes ?? 1000000000000),
+                        (event.expectedTotalBytes ?? 1000000000000),
               ),
             ),
           ),
@@ -192,45 +204,45 @@ extension ImageExt on ComicReadingPage{
               child: Row(
                 children: logic.readingMethod == ReadingMethod.twoPage
                     ? [
-                  Expanded(
-                    child: ComicImage(
-                      image: createImageProvider(
-                          type, logic, index * 2 - 2, target),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.centerRight,
-                    ),
-                  ),
-                  Expanded(
-                    child: index * 2 - 1 < logic.urls.length
-                        ? ComicImage(
-                      image: createImageProvider(
-                          type, logic, index * 2 - 1, target),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.centerLeft,
-                    )
-                        : const SizedBox(),
-                  ),
-                ]
+                        Expanded(
+                          child: ComicImage(
+                            image: createImageProvider(
+                                type, logic, index * 2 - 2, target),
+                            fit: BoxFit.contain,
+                            alignment: Alignment.centerRight,
+                          ),
+                        ),
+                        Expanded(
+                          child: index * 2 - 1 < logic.urls.length
+                              ? ComicImage(
+                                  image: createImageProvider(
+                                      type, logic, index * 2 - 1, target),
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.centerLeft,
+                                )
+                              : const SizedBox(),
+                        ),
+                      ]
                     : [
-                  Expanded(
-                    child: index * 2 - 1 < logic.urls.length
-                        ? ComicImage(
-                      image: createImageProvider(
-                          type, logic, index * 2 - 1, target),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.centerRight,
-                    )
-                        : const SizedBox(),
-                  ),
-                  Expanded(
-                    child: ComicImage(
-                      image: createImageProvider(
-                          type, logic, index * 2 - 2, target),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.centerLeft,
-                    ),
-                  ),
-                ],
+                        Expanded(
+                          child: index * 2 - 1 < logic.urls.length
+                              ? ComicImage(
+                                  image: createImageProvider(
+                                      type, logic, index * 2 - 1, target),
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.centerRight,
+                                )
+                              : const SizedBox(),
+                        ),
+                        Expanded(
+                          child: ComicImage(
+                            image: createImageProvider(
+                                type, logic, index * 2 - 2, target),
+                            fit: BoxFit.contain,
+                            alignment: Alignment.centerLeft,
+                          ),
+                        ),
+                      ],
               ));
         },
         pageController: logic.pageController,
@@ -301,10 +313,10 @@ extension ImageExt on ComicReadingPage{
               : logic.jumpToLastPage();
         } else {
           if ((logic.scrollController.position.pixels ==
-              logic.scrollController.position.minScrollExtent &&
-              pointerSignal.scrollDelta.dy < 0) ||
+                      logic.scrollController.position.minScrollExtent &&
+                  pointerSignal.scrollDelta.dy < 0) ||
               (logic.scrollController.position.pixels ==
-                  logic.scrollController.position.maxScrollExtent &&
+                      logic.scrollController.position.maxScrollExtent &&
                   pointerSignal.scrollDelta.dy > 0)) {
             logic.photoViewController.updateMultiple(
                 position: logic.photoViewController.position -
@@ -320,9 +332,10 @@ extension ImageExt on ComicReadingPage{
       child: Listener(
         onPointerSignal: onPointerSignal,
         onPointerPanZoomUpdate: (event) {
-          if(event.kind == PointerDeviceKind.trackpad && logic.readingMethod == ReadingMethod.topToBottomContinuously){
-            if(event.scale == 1.0) {
-              logic.scrollController.smoothTo(0 - event.panDelta.dy*1.2);
+          if (event.kind == PointerDeviceKind.trackpad &&
+              logic.readingMethod == ReadingMethod.topToBottomContinuously) {
+            if (event.scale == 1.0) {
+              logic.scrollController.smoothTo(0 - event.panDelta.dy * 1.2);
             }
           }
         },
@@ -332,16 +345,16 @@ extension ImageExt on ComicReadingPage{
           onNotification: (notification) {
             TapController.lastScrollTime = DateTime.now();
             // update floating button
-            var length = logic.data.eps.length;
+            var length = logic.data.eps?.length ?? 1;
             if (!logic.scrollController.hasClients) return false;
             if (logic.scrollController.position.pixels -
-                logic.scrollController.position.minScrollExtent <=
-                0 &&
+                        logic.scrollController.position.minScrollExtent <=
+                    0 &&
                 logic.order != 0) {
               logic.showFloatingButton(-1);
             } else if (logic.scrollController.position.pixels -
-                logic.scrollController.position.maxScrollExtent >=
-                0 &&
+                        logic.scrollController.position.maxScrollExtent >=
+                    0 &&
                 logic.order < length) {
               logic.showFloatingButton(1);
             } else {
@@ -365,40 +378,12 @@ extension ImageExt on ComicReadingPage{
     );
   }
 
-  /// create a image provider with the provided image and comic source.
+  /// create a image provider
   ImageProvider createImageProvider(
       ReadingType type, ComicReadingPageLogic logic, int index, String target) {
-    ImageProvider image;
-
-    if (type == ReadingType.ehentai && !logic.downloaded) {
-      image = EhCachedImageProvider(logic.data.gallery!, index + 1);
-    } else if (type == ReadingType.hitomi && !logic.downloaded) {
-      image = HitomiCachedImageProvider(logic.images[index], target);
-    } else if (type == ReadingType.picacg && !logic.downloaded) {
-      image = CachedImageProvider(getImageUrl(logic.urls[index]));
-    } else if (type == ReadingType.jm && !logic.downloaded) {
-      image = JmCachedImageProvider(logic.urls[index], target);
-    } else if (type == ReadingType.htManga && !logic.downloaded) {
-      image = CachedImageProvider(logic.urls[index]);
-    } else if (type == ReadingType.nhentai && !logic.downloaded) {
-      image = CachedImageProvider(logic.urls[index], headers: {
-        "User-Agent": webUA,
-      });
-    } else {
-      var id = target;
-      if (type == ReadingType.ehentai) {
-        id = getGalleryId(target);
-      } else if (type == ReadingType.hitomi) {
-        id = "hitomi$target";
-      } else if (type == ReadingType.htManga) {
-        id = "Ht$target";
-      } else if (type == ReadingType.nhentai) {
-        id = "nhentai$target";
-      }
-      image = FileImageProvider(id, logic.order, index);
-    }
-
-    return image;
+    return StreamImageProvider(
+        logic.data.loadImage(logic.order, index, logic.urls[index]),
+        "${logic.data.id} ${logic.order} $index}");
   }
 
   /// check current location of [PageView], update location when it is out of range.
@@ -439,31 +424,24 @@ extension ImageExt on ComicReadingPage{
   }
 
   /// preload image
-  void precacheComicImage(ComicReadingPageLogic logic, BuildContext context, int index, String target) {
-    if(logic.requestedLoadingItems.length != logic.length){
-      logic.requestedLoadingItems = List.filled(logic.length+1, false);
+  void precacheComicImage(ComicReadingPageLogic logic, BuildContext context,
+      int index, String target) {
+    if (logic.requestedLoadingItems.length != logic.length) {
+      logic.requestedLoadingItems = List.filled(logic.length + 1, false);
     }
     int precacheNum = int.parse(appdata.settings[28]) + index;
     for (; index < precacheNum; index++) {
-      if (index >= logic.urls.length || logic.requestedLoadingItems[index]) return;
-      precacheImage(
-          createImageProvider(type, logic, index, target),
-          context);
+      if (index >= logic.urls.length || logic.requestedLoadingItems[index])
+        return;
+      precacheImage(createImageProvider(type, logic, index, target), context);
     }
-    if(ImageManager.loadingItems.isEmpty){
+    if (ImageManager.loadingItems.isEmpty) {
       precacheNum += 3;
       for (; index < precacheNum; index++) {
-        if (index >= logic.urls.length || logic.requestedLoadingItems[index]) return;
-        precacheImage(
-            createImageProvider(type, logic, index, target),
-            context);
+        if (index >= logic.urls.length || logic.requestedLoadingItems[index])
+          return;
+        precacheImage(createImageProvider(type, logic, index, target), context);
       }
     }
   }
 }
-
-
-
-
-
-

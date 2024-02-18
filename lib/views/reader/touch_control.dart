@@ -138,7 +138,7 @@ class TapController {
     }
 
     if (appdata.settings[9] == "4") {
-      logic.data.scrollManager!.tapDown(event);
+      logic.scrollManager!.tapDown(event);
     }
 
     if (logic.tools &&
@@ -217,7 +217,7 @@ class TapController {
     _tapDownPointer = null;
 
     if (appdata.settings[9] == "4") {
-      logic.data.scrollManager!.tapUp(detail);
+      logic.scrollManager!.tapUp(detail);
     }
 
     if (_tapOffset != null) {
@@ -255,7 +255,7 @@ class TapController {
   }
 
   static void onPointerMove(PointerMoveEvent event){
-    final data = StateController.find<ComicReadingPageLogic>().data;
+    final logic = StateController.find<ComicReadingPageLogic>();
     if(event.pointer == _tapDownPointer?.id){
       _tapDownPointer!.offset += event.delta;
       if(_tapDownPointer!.getDistance() > 1){
@@ -263,8 +263,8 @@ class TapController {
       }
     }
     if (appdata.settings[9] == "4" &&
-        data.scrollManager!.fingers != 2) {
-      data.scrollManager!.addOffset(event.delta);
+        logic.scrollManager!.fingers != 2) {
+      logic.scrollManager!.addOffset(event.delta);
     }
   }
 

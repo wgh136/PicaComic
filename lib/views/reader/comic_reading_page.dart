@@ -1,5 +1,7 @@
 library pica_reader;
 
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,30 +9,25 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pica_comic/foundation/image_loader/stream_image_provider.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
-import 'package:pica_comic/foundation/log.dart';
-import 'package:pica_comic/network/eh_network/eh_main_network.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
-import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/keep_screen_on.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
-import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import '../../foundation/app.dart';
-import '../../foundation/image_loader/cached_image.dart';
-import '../../foundation/image_loader/eh_image_provider.dart';
-import '../../foundation/image_loader/file_image_loader.dart';
-import '../../foundation/image_loader/hitomi_image_provider.dart';
-import '../../foundation/image_loader/jm_image_provider.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
 import '../../tools/key_down_event.dart';
@@ -51,157 +48,65 @@ part 'reading_logic.dart';
 part 'tool_bar.dart';
 part 'reading_type.dart';
 part 'reading_settings.dart';
-
-
-class ReadingPageData {
-  int initialPage;
-
-  var epNames = <String>[];
-
-  ListenVolumeController? listenVolume;
-
-  ScrollManager? scrollManager;
-
-  String? message;
-
-  String target;
-
-  List<int> downloadedEps = [];
-
-  ReadingType type;
-
-  /// mirror to [ComicReadingPage.eps]
-  final List<String> eps;
-
-  Gallery? gallery;
-
-  int? jmComments;
-
-  ReadingPageData(
-      this.initialPage, this.target, this.type, this.eps, this.gallery);
-}
+part 'reading_data.dart';
 
 ///阅读器
 class ComicReadingPage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  ///目标, 对于picacg,jm,hitomi,绅士漫画是漫画id, 对于ehentai是漫画链接
-  final String target;
+  final ReadingData readingData;
 
-  ///章节信息, picacg为各章节名称 ,ehentai, hitomi此数组为空, jm为各章节id
-  final List<String> eps;
+  late final History? history = HistoryManager().findSync(readingData.id);
 
-  /// 仅用于禁漫, 各章节的名称, 添加于v2.2.6
-  final List<String> jmEpNames;
+  final int initialPage;
 
-  ///标题
-  final String title;
+  final int initialEp;
 
-  ///章节
-  ///
-  ///picacg和禁漫有效, e-hentai,绅士漫画为0
-  ///
-  /// 这里是初始值, 变量在logic中
-  ///
-  /// 注意: **从1开始**
-  final int order;
+  ReadingType get type => readingData.type;
 
-  ///eh画廊模型, 阅读非画廊此变量为null
-  final Gallery? gallery;
-
-  ///阅读类型
-  final ReadingType type;
-
-  late final History? history = HistoryManager().findSync(target);
-
-  ///一些会发生变更的信息, 全放logic里面会很乱
-  late final ReadingPageData data = ReadingPageData(
-      0,
-      (type == ReadingType.jm && eps.isNotEmpty)
-          ? eps.elementAtOrNull(order - 1) ?? eps[0]
-          : target,
-      type,
-      eps,
-      gallery);
-
-  ///阅读Hitomi画廊时使用的图片数据
-  ///
-  /// 仅Hitomi有效, 其它都为null
-  final List<HitomiFile>? images;
-
-  ComicReadingPage.picacg(this.target, this.order, this.eps, this.title,
-      {super.key, int initialPage = 1})
-      : gallery = null,
-        type = ReadingType.picacg,
-        jmEpNames = [],
-        images = null {
-    data.initialPage = initialPage;
-    StateController.put(ComicReadingPageLogic(order, data));
+  ComicReadingPage.picacg(String target, this.initialEp, List<String> eps, String title,
+      {super.key, this.initialPage = 1})
+      : readingData = PicacgReadingData(title, target, eps){
+    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
   }
 
-  ComicReadingPage.ehentai(this.target, this.gallery,
-      {super.key, int initialPage = 1})
-      : eps = [],
-        title = gallery!.title,
-        order = 0,
-        type = ReadingType.ehentai,
-        jmEpNames = [],
-        images = null {
-    data.initialPage = initialPage;
-    StateController.put(ComicReadingPageLogic(order, data));
+  ComicReadingPage.ehentai(String target, Gallery gallery,
+      {super.key, this.initialPage = 1})
+      : initialEp = 1, readingData = EhReadingData(gallery){
+    StateController.put(ComicReadingPageLogic(1, readingData, initialPage));
   }
 
-  ComicReadingPage.jmComic(this.target, this.title, this.eps, this.order, this.jmEpNames,
-      {super.key, int initialPage = 1})
-      : type = ReadingType.jm,
-        gallery = null,
-        images = null {
-    data.initialPage = initialPage;
-    StateController.put(ComicReadingPageLogic(order, data));
+  ComicReadingPage.jmComic(String target, String title, List<String> epIds, this.initialEp, List<String> epNames,
+      {super.key, this.initialPage = 1})
+      : readingData = JmReadingData(title, target, epIds, epNames){
+    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
   }
 
-  ComicReadingPage.hitomi(this.target, this.title, this.images,
-      {super.key, int initialPage = 1})
-      : eps = [],
-        order = 0,
-        jmEpNames = [],
-        type = ReadingType.hitomi,
-        gallery = null {
-    data.initialPage = initialPage;
-    StateController.put(ComicReadingPageLogic(order, data));
+  ComicReadingPage.hitomi(String target, String title, List<HitomiFile> images,
+      {super.key, this.initialPage = 1})
+      : initialEp = 1, readingData = HitomiReadingData(title, target, images){
+    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
   }
 
-  ComicReadingPage.htmanga(this.target, this.title,
-      {super.key, int initialPage = 1})
-      : eps = [],
-        order = 0,
-        jmEpNames = [],
-        gallery = null,
-        type = ReadingType.htManga,
-        images = null {
-    data.initialPage = initialPage;
-    StateController.put(ComicReadingPageLogic(order, data));
+  ComicReadingPage.htmanga(String target, String title,
+      {super.key, this.initialPage = 1})
+      : initialEp = 1, readingData = HtReadingData(title, target){
+    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
   }
 
-  ComicReadingPage.nhentai(this.target, this.title,
-      {super.key, int initialPage = 1})
-      : eps = [],
-        order = 0,
-        gallery = null,
-        jmEpNames = [],
-        type = ReadingType.nhentai,
-        images = null {
-    data.initialPage = initialPage;
-    StateController.put(ComicReadingPageLogic(order, data));
+  ComicReadingPage.nhentai(String target, String title,
+      {super.key, this.initialPage = 1})
+      : initialEp = 1, readingData = NhentaiReadingData(title, target){
+    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
   }
 
   _updateHistory(ComicReadingPageLogic? logic) {
-    if (type.hasEps) {
+    if (readingData.type.hasEps) {
       if (logic!.order == 1 && logic.index == 1) {
         history?.ep = 0;
         history?.page = 0;
       } else {
-        if (logic.order == eps.length &&
+        if (logic.order == readingData.eps?.length &&
             logic.index == logic.length) {
           history?.ep = 0;
           history?.page = 0;
@@ -245,8 +150,8 @@ class ComicReadingPage extends StatelessWidget {
       logic.clearPhotoViewControllers();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-      if (data.listenVolume != null) {
-        data.listenVolume!.stop();
+      if (logic.listenVolume != null) {
+        logic.listenVolume!.stop();
       }
       if (appdata.settings[14] == "1") {
         cancelKeepScreenOn();
@@ -256,7 +161,7 @@ class ComicReadingPage extends StatelessWidget {
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
       // 更新本地收藏
-      LocalFavoritesManager().onReadEnd(target);
+      LocalFavoritesManager().onReadEnd(readingData.id);
       // 保存历史记录
       if(history != null) {
         _updateHistory(logic);
@@ -288,20 +193,7 @@ class ComicReadingPage extends StatelessWidget {
         body: StateBuilder<ComicReadingPageLogic>(builder: (logic) {
           if (logic.isLoading) {
             history?.readEpisode.add(logic.order);
-            //加载信息
-            if (type == ReadingType.ehentai) {
-              loadGalleryInfo(logic);
-            } else if (type == ReadingType.picacg) {
-              loadComicInfo(logic);
-            } else if (type == ReadingType.jm) {
-              loadJmComicInfo(logic);
-            } else if (type == ReadingType.hitomi) {
-              loadHitomiData(logic);
-            } else if (type == ReadingType.htManga) {
-              loadHtmangaData(logic);
-            } else {
-              loadNhentaiData(logic);
-            }
+            loadInfo(logic);
             return const DecoratedBox(
               decoration: BoxDecoration(color: Colors.black),
               child: Center(
@@ -310,32 +202,32 @@ class ComicReadingPage extends StatelessWidget {
             );
           } else if (logic.urls.isNotEmpty) {
             if (logic.readingMethod == ReadingMethod.topToBottomContinuously &&
-                data.initialPage != 1) {
+                !logic.haveUsedInitialPage) {
               Future.microtask(() {
-                logic.jumpToPage(data.initialPage);
-                data.initialPage = 1;
+                logic.jumpToPage(initialPage);
+                logic.haveUsedInitialPage = true;
               });
             }
             //监听音量键
             if (appdata.settings[7] == "1") {
               if (appdata.settings[9] != "4") {
-                data.listenVolume = ListenVolumeController(
+                logic.listenVolume = ListenVolumeController(
                     () => logic.jumpToLastPage(), () => logic.jumpToNextPage());
               } else {
-                data.listenVolume = ListenVolumeController(
+                logic.listenVolume = ListenVolumeController(
                     () => logic.scrollController
                         .jumpTo(logic.scrollController.position.pixels - 400),
                     () => logic.scrollController
                         .jumpTo(logic.scrollController.position.pixels + 400));
               }
-              data.listenVolume!.listenVolumeChange();
-            } else if (data.listenVolume != null) {
-              data.listenVolume!.stop();
-              data.listenVolume = null;
+              logic.listenVolume!.listenVolumeChange();
+            } else if (logic.listenVolume != null) {
+              logic.listenVolume!.stop();
+              logic.listenVolume = null;
             }
 
             if (appdata.settings[9] == "4") {
-              data.scrollManager ??= ScrollManager(logic);
+              logic.scrollManager ??= ScrollManager(logic);
             }
 
             var body = Listener(
@@ -346,9 +238,7 @@ class ComicReadingPage extends StatelessWidget {
               onPointerCancel: TapController.onTapCancel,
               child: Stack(
                 children: [
-                  buildComicView(logic, context, (logic.downloaded && type == ReadingType.jm)
-                      ? "jm$target"
-                      : data.target,),
+                  buildComicView(logic, context, readingData.id,),
                   if (MediaQuery.of(context).platformBrightness ==
                           Brightness.dark &&
                       appdata.settings[18] == "1")
@@ -365,7 +255,7 @@ class ComicReadingPage extends StatelessWidget {
                     ),
 
                   if(appdata.settings[57] == "1")
-                    buildPageInfoText(logic, type.hasEps, context,
+                    buildPageInfoText(logic, context,
                         jm: type == ReadingType.jm),
 
                   //底部工具栏
@@ -394,7 +284,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   Widget buildErrorView(
-      ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
+      ComicReadingPageLogic logic, BuildContext context) {
     return DecoratedBox(
         decoration: const BoxDecoration(color: Colors.black),
         child: SafeArea(
@@ -431,7 +321,7 @@ class ComicReadingPage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  data.message ?? "未知错误".tl,
+                  logic.errorMessage ?? "未知错误".tl,
                   style: const TextStyle(
                     color: Colors.white,
                   ),
@@ -452,7 +342,7 @@ class ComicReadingPage extends StatelessWidget {
                         Expanded(
                           child: FilledButton(
                             onPressed: () {
-                              comicReadingPageLogic.change();
+                              logic.change();
                             },
                             child: Text("重试".tl),
                           ),
@@ -492,176 +382,11 @@ class ComicReadingPage extends StatelessWidget {
         )));
   }
 
-  void loadComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
-    int? epLength;
-    try {
-      if (downloadManager.downloaded.contains(data.target)) {
-        var downloadedItem = await downloadManager.getComicFromId(data.target);
-        data.downloadedEps = downloadedItem.downloadedChapters;
-        if (downloadedItem.downloadedChapters
-            .contains(comicReadingPageLogic.order - 1)) {
-          comicReadingPageLogic.downloaded = true;
-          epLength = await downloadManager.getEpLength(
-              data.target, comicReadingPageLogic.order);
-        } else {
-          comicReadingPageLogic.downloaded = false;
-        }
-      } else {
-        comicReadingPageLogic.downloaded = false;
-      }
-    } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
-      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
-      comicReadingPageLogic.downloaded = false;
-    }
-    if(data.epNames.isEmpty){
-      data.epNames.addAll(eps);
-    }
-    comicReadingPageLogic.tools = false;
-    if (comicReadingPageLogic.downloaded && epLength != null) {
-      comicReadingPageLogic.urls = List.filled(epLength, "");
-      comicReadingPageLogic.change();
-    } else {
-      network
-          .getComicContent(data.target, comicReadingPageLogic.order)
-          .then((l) {
-        if (l.error) {
-          data.message = l.errorMessageWithoutNull;
-        } else {
-          comicReadingPageLogic.urls = List.generate(
-              l.data.length, (index) => getImageUrl(l.data[index]));
-        }
-        comicReadingPageLogic.change();
-      });
-    }
-  }
-
-  void loadGalleryInfo(ComicReadingPageLogic logic) async {
-    try {
-      if (downloadManager.downloaded
-          .contains(getGalleryId(gallery!.link))) {
-        logic.downloaded = true;
-        for (int i = 0;
-            i <
-                await downloadManager
-                    .getComicLength(getGalleryId(gallery!.link));
-            i++) {
-          logic.urls.add("");
-        }
-        logic.change();
-        return;
-      }
-    } catch (e) {
-      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
-      logic.downloaded = false;
-    }
-    EhNetwork().loadingReaderLinks.clear();
-    var maxPage = int.parse(gallery!.maxPage);
-    logic.urls = List.filled(maxPage, "");
-    await Future.delayed(const Duration(milliseconds: 200));
-    logic.change();
-  }
-
-  void loadJmComicInfo(ComicReadingPageLogic comicReadingPageLogic) async {
-    int? epLength;
-    try {
-      if (downloadManager.downloaded.contains("jm$target")) {
-        var downloadedItem =
-            await downloadManager.getJmComicFormId("jm$target");
-        if (downloadedItem.downloadedChapters
-            .contains(comicReadingPageLogic.order - 1)) {
-          comicReadingPageLogic.downloaded = true;
-          data.downloadedEps = downloadedItem.downloadedChapters;
-          epLength = await downloadManager.getEpLength(
-              "jm$target", comicReadingPageLogic.order);
-        } else {
-          comicReadingPageLogic.downloaded = false;
-        }
-      } else {
-        comicReadingPageLogic.downloaded = false;
-      }
-    } catch (e) {
-      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
-      comicReadingPageLogic.downloaded = false;
-    }
-    comicReadingPageLogic.tools = false;
-
-    String getEpName(int index){
-      var name = "第 @c 章".tlParams({"c": (index + 1).toString()});
-      final epName = jmEpNames.elementAtOrNull(index);
-      if(epName != null && epName != ""){
-        name += ": $epName";
-      }
-      return name;
-    }
-
-    data.epNames.addAll(List.generate(eps.length, (index) => getEpName(index)));
-
-    if (comicReadingPageLogic.downloaded && epLength != null) {
-      comicReadingPageLogic.urls = List.filled(epLength, "");
-      comicReadingPageLogic.change();
-      return;
-    }
-    var res = await JmNetwork().getChapter(data.target);
-    data.jmComments = res.subData;
-    if (res.error) {
-      data.message = res.errorMessage ?? "网络错误".tl;
-    } else {
-      comicReadingPageLogic.urls = res.data;
-    }
-    comicReadingPageLogic.isLoading = false;
-    comicReadingPageLogic.update();
-  }
-
-  void loadHitomiData(ComicReadingPageLogic logic) async {
-    logic.images = images!;
-    logic.urls = List.filled(images!.length, "");
-    if (downloadManager.downloaded.contains("hitomi$target")) {
-      logic.downloaded = true;
-    }
-    await Future.delayed(const Duration(milliseconds: 200));
-    logic.isLoading = false;
-    logic.update();
-  }
-
-  void loadHtmangaData(ComicReadingPageLogic logic) async {
-    try {
-      if (downloadManager.downloaded.contains("Ht$target")) {
-        logic.downloaded = true;
-        var length = await downloadManager.getComicLength("Ht$target");
-        logic.urls = List.filled(length, "");
-        logic.change();
-        return;
-      }
-    } catch (e) {
-      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
-      logic.downloaded = false;
-    }
-    var res = await HtmangaNetwork().getImages(target);
-    if (res.error) {
-      data.message = res.errorMessage;
-    } else {
-      logic.urls = res.data;
-    }
-    logic.isLoading = false;
-    logic.update();
-  }
-
-  void loadNhentaiData(ComicReadingPageLogic logic) async {
-    try {
-      if (downloadManager.downloaded.contains("nhentai$target")) {
-        logic.downloaded = true;
-        logic.urls = List.filled(await downloadManager.getComicLength("nhentai$target"), "");
-        logic.change();
-        return;
-      }
-    } catch (e) {
-      showMessage(App.globalContext, "Unable to find data, trying to get it from the network");
-      logic.downloaded = false;
-    }
-    var res = await NhentaiNetwork().getImages(target);
-    if (res.error) {
-      data.message = res.errorMessage;
+  void loadInfo(ComicReadingPageLogic logic) async{
+    logic.urls = [];
+    var res = await readingData.loadEp(logic.order);
+    if(res.error){
+      logic.errorMessage = res.errorMessage;
     } else {
       logic.urls = res.data;
     }
@@ -670,7 +395,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   Widget buildEpsView() {
-    return EpsView(type, eps, data);
+    return EpsView(readingData);
   }
 
   void openEpsDrawer() {
@@ -734,11 +459,19 @@ class ComicReadingPage extends StatelessWidget {
   String getImageKey(int index) {
     var logic = StateController.find<ComicReadingPageLogic>();
     if (type == ComicType.ehentai) {
-      return "${gallery!.link}${index + 1}";
+      return "${readingData.id}${index + 1}";
     }
     return type == ReadingType.hitomi
-        ? logic.images[index].hash
-        : logic.urls[index];
+        ? (readingData as HitomiReadingData).images[index].hash : logic.urls[index];
+  }
+
+  Future<File> _getFileFromStream(Stream<DownloadProgress> stream) async{
+    await for(var event in stream){
+      if(event.finished){
+        return event.getFile();
+      }
+    }
+    throw "failed";
   }
 
   void share() async {
@@ -750,24 +483,11 @@ class ComicReadingPage extends StatelessWidget {
     if (index == null) {
       return;
     }
-    if (logic.downloaded) {
-      var id = data.target;
-      if (type == ReadingType.ehentai) {
-        id = getGalleryId(data.target);
-      }
-      if (type == ReadingType.jm) {
-        id = "jm$target";
-      } else if (type == ReadingType.hitomi) {
-        id = "hitomi$target";
-      } else if (type == ReadingType.htManga) {
-        id = "Ht$target";
-      } else if (type == ReadingType.nhentai) {
-        id = "nhentai$target";
-      }
-      shareImageFromDisk(downloadManager.getImage(id, logic.order, index).path);
-    } else {
-      shareImageFromCache(getImageKey(index), data.target, true);
-    }
+
+    var file = await _getFileFromStream(
+        readingData.loadImage(logic.order, index, logic.urls[index]));
+
+    shareImage(file);
   }
 
   Future<String?> _persistentCurrentImage() async{
@@ -779,24 +499,11 @@ class ComicReadingPage extends StatelessWidget {
     if(index == null){
       return null;
     }
-    if (logic.downloaded) {
-      var id = data.target;
-      if (type == ReadingType.ehentai) {
-        id = getGalleryId(data.target);
-      }
-      if (type == ReadingType.jm) {
-        id = "jm$target";
-      } else if (type == ReadingType.hitomi) {
-        id = "hitomi$target";
-      } else if (type == ReadingType.htManga) {
-        id = "Ht$target";
-      } else if (type == ReadingType.nhentai) {
-        id = "nhentai$target";
-      }
-      return persistentCurrentImage(file: downloadManager.getImage(id, logic.order, index));
-    } else {
-      return persistentCurrentImage(urlOrHash: getImageKey(index));
-    }
+
+    var file = await _getFileFromStream(
+        readingData.loadImage(logic.order, index, logic.urls[index]));
+
+    return persistentCurrentImage(file);
   }
 
   void saveCurrentImage() async {
@@ -808,24 +515,11 @@ class ComicReadingPage extends StatelessWidget {
     if (index == null) {
       return;
     }
-    if (logic.downloaded) {
-      var id = data.target;
-      if (type == ReadingType.ehentai) {
-        id = getGalleryId(data.target);
-      }
-      if (type == ReadingType.jm) {
-        id = "jm$target";
-      } else if (type == ReadingType.hitomi) {
-        id = "hitomi$target";
-      } else if (type == ReadingType.htManga) {
-        id = "Ht$target";
-      } else if (type == ReadingType.nhentai) {
-        id = "nhentai$target";
-      }
-      saveImageFromDisk(downloadManager.getImage(id, logic.order, index).path);
-    } else {
-      saveImage(getImageKey(index), data.target, reading: true);
-    }
+
+    var file = await _getFileFromStream(
+        readingData.loadImage(logic.order, index, logic.urls[index]));
+
+    saveImage(file);
   }
 
   Widget? buildEpChangeButton(ComicReadingPageLogic logic) {

@@ -107,28 +107,29 @@ extension ToolBar on ComicReadingPage{
                         onPressed: () async{
                           try {
                             final id = "${logic.data.type}-${logic.data
-                                .target}";
+                                .id}";
                             var image = await _persistentCurrentImage();
                             if (image != null) {
                               image = image.split("/").last;
                               var otherInfo = <String, dynamic>{};
                               if (logic.data.type == ReadingType.ehentai) {
                                 otherInfo["gallery"] =
-                                    logic.data.gallery!.toJson();
+                                    (logic.data as EhReadingData).gallery.toJson();
                               } else
                               if (logic.data.type == ReadingType.hitomi) {
                                 otherInfo["hitomi"] =
-                                    images!.map((e) => e.toMap()).toList();
-                                otherInfo["galleryId"] = target;
+                                    (readingData as HitomiReadingData).images
+                                        .map((e) => e.toMap()).toList();
+                                otherInfo["galleryId"] = readingData.id;
                               } else if (logic.data.type == ReadingType.jm) {
-                                otherInfo["jmEpNames"] = jmEpNames;
-                                otherInfo["epsId"] = eps[logic.index-1];
-                                otherInfo["bookId"] = target;
+                                otherInfo["jmEpNames"] = readingData.eps!.values.toList();
+                                otherInfo["epsId"] = readingData.eps!.keys.elementAt(logic.index-1);
+                                otherInfo["bookId"] = readingData.id;
                               }
-                              otherInfo["eps"] = eps;
+                              otherInfo["eps"] = readingData.eps?.keys.toList() ?? [];
                               otherInfo["url"] = logic.urls[logic.index-1];
                               ImageFavoriteManager.add(ImageFavorite(
-                                  id, image, title, logic.order, logic.index,
+                                  id, image, readingData.title, logic.order, logic.index,
                                   otherInfo));
                               showToast(message: "成功收藏图片".tl);
                             }
@@ -353,7 +354,7 @@ extension ToolBar on ComicReadingPage{
                     child: Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
-                        title,
+                        readingData.title,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 20),
                       ),
@@ -393,22 +394,17 @@ extension ToolBar on ComicReadingPage{
   }
 
   ///显示当前的章节和页面位置
-  Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic, bool showEps,
+  Widget buildPageInfoText(ComicReadingPageLogic comicReadingPageLogic,
       BuildContext context, {bool jm = false}) {
-    var epsText = "";
-    if (eps.isNotEmpty && !jm) {
-      epsText = eps.elementAtOrNull(comicReadingPageLogic.order - 1) ?? "";
+    var epName = readingData.eps?.values.elementAtOrNull(comicReadingPageLogic.order - 1) ?? "E1";
+    if(epName.length > 8){
+      epName = "${epName.substring(0, 8)}...";
     }
-    if (jm) {
-      epsText = "第 @c 章".tlParams({"c": comicReadingPageLogic.order.toString()});
-    }
-
     return Positioned(
         bottom: 13,
         left: 25,
-        child: showEps
-            ? Text(
-          "$epsText: ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
+        child: readingData.hasEp
+            ? Text("$epName : ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
           style: TextStyle(
               color: comicReadingPageLogic.tools
                   ? Theme.of(context).colorScheme.onSurface

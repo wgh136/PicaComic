@@ -29,6 +29,12 @@ class ComicReadingPageLogic extends StateController {
 
   var photoViewControllers = <int, PhotoViewController>{};
 
+  ListenVolumeController? listenVolume;
+
+  ScrollManager? scrollManager;
+
+  String? errorMessage;
+
   void clearPhotoViewControllers(){
     photoViewControllers.forEach((key, value) => value.dispose());
     photoViewControllers.clear();
@@ -43,6 +49,8 @@ class ComicReadingPageLogic extends StateController {
   bool get isCtrlPressed => HardwareKeyboard.instance.isControlPressed;
 
   List<bool> requestedLoadingItems = [];
+
+  bool haveUsedInitialPage = false;
 
   static int _getIndex(int initPage) {
     if (appdata.settings[9] == "5" || appdata.settings[9] == "6") {
@@ -60,12 +68,12 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
-  ComicReadingPageLogic(this.order, this.data)
+  ComicReadingPageLogic(this.order, this.data, int initialPage)
       : pageController =
-            PageController(initialPage: _getPage(data.initialPage)),
-        index = _getIndex(data.initialPage);
+            PageController(initialPage: _getPage(initialPage)),
+        index = _getIndex(initialPage);
 
-  ReadingPageData data;
+  ReadingData data;
 
   bool isLoading = true;
 
@@ -109,9 +117,6 @@ class ComicReadingPageLogic extends StateController {
   ///所有的图片链接
   var urls = <String>[];
 
-  ///hitomi阅读使用的图片数据
-  var images = <HitomiFile>[];
-
   ///章节部件
   var epsWidgets = <Widget>[];
 
@@ -120,7 +125,6 @@ class ComicReadingPageLogic extends StateController {
 
   void reload() {
     index = 1;
-    data.initialPage = 1;
     pageController = PageController(initialPage: 1);
     isLoading = true;
     update();
@@ -189,12 +193,9 @@ class ComicReadingPageLogic extends StateController {
   }
 
   void jumpToNextChapter() {
-    data.initialPage = 1;
-    var type = data.type;
     var eps = data.eps;
-    eps.remove("");
     showFloatingButtonValue = 0;
-    if (eps.isEmpty || order == eps.length) {
+    if (!data.hasEp || order == eps?.length) {
       if(readingMethod != ReadingMethod.topToBottomContinuously){
         if (readingMethod.index < 3) {
           pageController.animatedJumpToPage(urls.length);
@@ -212,9 +213,17 @@ class ComicReadingPageLogic extends StateController {
     urls = [];
     isLoading = true;
     tools = false;
-    if (type == ReadingType.jm) {
-      data.target = eps[order - 1];
-    }
+    index = 1;
+    pageController = PageController(initialPage: 1);
+    clearPhotoViewControllers();
+    update();
+  }
+
+  void jumpTpChapter(int index){
+    order = index;
+    urls = [];
+    isLoading = true;
+    tools = false;
     index = 1;
     pageController = PageController(initialPage: 1);
     clearPhotoViewControllers();
@@ -222,11 +231,8 @@ class ComicReadingPageLogic extends StateController {
   }
 
   void jumpToLastChapter() {
-    data.initialPage = 1;
-    var type = data.type;
-    var eps = data.eps;
     showFloatingButtonValue = 0;
-    if(order == 1 || !type.hasEps){
+    if(order == 1 || !data.hasEp){
       if(readingMethod != ReadingMethod.topToBottomContinuously){
         pageController.animatedJumpToPage(1);
       } else {
@@ -241,9 +247,6 @@ class ComicReadingPageLogic extends StateController {
     urls = [];
     isLoading = true;
     tools = false;
-    if (type == ReadingType.jm) {
-      data.target = eps[order - 1];
-    }
     pageController = PageController(initialPage: 1);
     index = 1;
     clearPhotoViewControllers();
