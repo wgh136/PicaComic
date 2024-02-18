@@ -26,8 +26,13 @@ typedef ComicListBuilder = Future<Res<List<BaseComic>>> Function(int page);
 
 typedef LoginFunction = Future<Res<bool>> Function(String, String);
 
+typedef LoadComicFunc = Future<Res<ComicInfoData>> Function(String id);
+
 class ComicSource {
   static List<ComicSource> sources = [];
+
+  static ComicSource? find(String key) =>
+      sources.firstWhereOrNull((element) => element.key == key);
 
   static Future<void> init() async {
     final path = "${App.dataPath}/comic_source";
@@ -69,7 +74,7 @@ class ComicSource {
   final List<SettingItem> settings;
 
   /// Load comic info.
-  final Future<ComicInfoData> Function(String id)? loadComicInfo;
+  final LoadComicFunc? loadComicInfo;
 
   /// Load comic pages.
   final Future<List<String>> Function(String id, String? ep)? loadComicPages;
@@ -201,32 +206,30 @@ enum SettingType {
   input,
 }
 
-class ComicChapter {
-  final String id;
-  final String name;
-
-  const ComicChapter(this.id, this.name);
-}
-
 class ComicInfoData {
   final String title;
 
   final String? subTitle;
 
+  final String cover;
+
   final String? description;
 
   final Map<String, List<String>> tags;
 
-  final List<ComicChapter>? chapters;
+  /// id-name
+  final Map<String, String>? chapters;
 
   final List<String>? thumbnails;
 
-  final Future<List<String>> Function(String id, int page)? thumbnailLoader;
+  final Future<Res<List<String>>> Function(String id, int page)? thumbnailLoader;
+
+  final int thumbnailMaxPage;
 
   final List<BaseComic>? suggestions;
 
-  const ComicInfoData(this.title, this.subTitle, this.description, this.tags,
-      this.chapters, this.thumbnails, this.thumbnailLoader, this.suggestions);
+  const ComicInfoData(this.title, this.subTitle, this.cover, this.description, this.tags,
+      this.chapters, this.thumbnails, this.thumbnailLoader, this.thumbnailMaxPage, this.suggestions);
 }
 
 typedef CategoryComicsLoader = Future<Res<List<BaseComic>>> Function(

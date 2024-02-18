@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/base_comic.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
+import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 
 import '../../foundation/app.dart';
@@ -13,13 +15,15 @@ import '../widgets/search.dart';
 
 class _SearchPageComicList extends ComicsPage<BaseComic>{
   const _SearchPageComicList({super.key, required this.loader, required this.keyword,
-    required this.options, required this.head});
+    required this.options, required this.head, required this.sourceKey});
 
   final SearchFunction loader;
 
   final String keyword;
 
   final List<String> options;
+
+  final String sourceKey;
 
   @override
   final Widget head;
@@ -58,23 +62,21 @@ class _SearchPageComicList extends ComicsPage<BaseComic>{
         name: item.title,
         subTitle_: item.subTitle,
         tags: item.tags,
-        onTap: onTap);
-  }
-
-  void onTap() {
-    // TODO
+        onTap: () => MainPage.to(() => CustomComicPage(sourceKey: sourceKey, id: item.id)));
   }
 }
 
 class CustomSearchPage extends StatefulWidget {
   const CustomSearchPage({required this.keyword, required this.options,
-    required this.loader, super.key});
+    required this.loader, required this.sourceKey, super.key});
 
   final String keyword;
 
   final SearchFunction loader;
 
   final List<String> options;
+
+  final String sourceKey;
 
   @override
   State<CustomSearchPage> createState() => _CustomSearchPageState();
@@ -115,6 +117,7 @@ class _CustomSearchPageState extends State<CustomSearchPage> {
         child: _SearchPageComicList(
           keyword: keyword,
           loader: widget.loader,
+          sourceKey: widget.sourceKey,
           key: Key(keyword + widget.options.toString()),
           head: SliverPersistentHeader(
             floating: true,

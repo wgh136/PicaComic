@@ -30,9 +30,10 @@ class ComicSourceParser {
     final categoryComicsData =
         _loadCategoryComicsData(document["categoryComics"]);
     final searchData = _loadSearchData(document["search"]);
+    final loadComicFunc = _parseLoadComicFunc(document["comic"]);
 
     return ComicSource(name, key, account, categoryPageData, categoryComicsData, null,
-        explorePageData, searchData, [], null, null, null);
+        explorePageData, searchData, [], loadComicFunc, null, null);
   }
 
   AccountConfig? _loadAccountConfig(Map<String, dynamic> document) {
@@ -240,5 +241,39 @@ class ComicSourceParser {
         return Res.error(e.toString());
       }
     });
+  }
+
+  LoadComicFunc? _parseLoadComicFunc(Map<String, dynamic>? doc){
+    if(doc == null) return null;
+
+    var loadJs = doc["loadInfo"];
+
+    return (id) async{
+      try{
+        final key = await JsEngine().runProtectedWithKey(
+            "$loadJs\nloadInfo(${jsonEncode(id)})", _key!);
+        var res = await JsEngine().wait(key);
+        var tags = <String, List<String>>{};
+        (res["tags"] as Map<String, dynamic>?)?.forEach(
+                (key, value) => tags[key] = List.from(value));
+        return Res(ComicInfoData(
+            res["title"],
+            res["subTitle"],
+            res["cover"],
+            res["description"],
+            tags,
+            Map.from(res["chapters"]),
+            ListOrNull.from(res["thumbnails"]),
+            // TODO: implement thumbnailLoader
+            null,
+            res["thumbnailMaxPage"] ?? 1,
+            (res["suggestions"] as List?)?.map((e) => CustomComic.fromJson(e)).toList()
+        ));
+      }
+      catch(e, s){
+        log("$e\n$s", "Network", LogLevel.error);
+        return Res.error(e.toString());
+      }
+    };
   }
 }

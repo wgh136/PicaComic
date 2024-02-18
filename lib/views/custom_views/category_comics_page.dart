@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:pica_comic/comic_source/comic_source.dart";
 import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/network/res.dart";
+import "package:pica_comic/views/custom_views/comic_page.dart";
+import "package:pica_comic/views/main_page.dart";
 import "package:pica_comic/views/page_template/comics_page.dart";
 import "package:pica_comic/views/widgets/appbar.dart";
 
@@ -60,6 +62,7 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
           options: optionsValue,
           param: widget.param,
           head: buildOptions(),
+          sourceKey: widget.sourceKey,
         ))
       ],
     );
@@ -114,7 +117,7 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
 
 class _CustomCategoryComicsList extends ComicsPage<BaseComic>{
   const _CustomCategoryComicsList({super.key, required this.loader, required this.category,
-    required this.options, this.param, required this.head});
+    required this.options, this.param, required this.head, required this.sourceKey});
 
   final CategoryComicsLoader loader;
 
@@ -123,6 +126,8 @@ class _CustomCategoryComicsList extends ComicsPage<BaseComic>{
   final List<String> options;
 
   final String? param;
+
+  final String sourceKey;
 
   @override
   final Widget head;
@@ -161,10 +166,6 @@ class _CustomCategoryComicsList extends ComicsPage<BaseComic>{
         name: item.title,
         subTitle_: item.subTitle,
         tags: item.tags,
-        onTap: onTap);
-  }
-
-  void onTap() {
-    // TODO
+        onTap: () => MainPage.to(() => CustomComicPage(sourceKey: sourceKey, id: item.id)));
   }
 }

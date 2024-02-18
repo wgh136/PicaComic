@@ -3,6 +3,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/res.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/general_interface/category.dart';
@@ -11,6 +12,7 @@ import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
+import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
@@ -347,7 +349,7 @@ class _CustomExplorePageState extends StateWithController<_CustomExplorePage> {
     }
   }
 
-  Widget buildComicList() => _ComicList(data.loadPage!, tag.toString());
+  Widget buildComicList() => _ComicList(data.loadPage!, tag.toString(), comicSourceKey);
 
   void load() async{
     var res = await data.loadMultiPart!();
@@ -429,7 +431,7 @@ class _CustomExplorePageState extends StateWithController<_CustomExplorePage> {
             name: item.title,
             subTitle_: item.subTitle,
             tags: item.tags,
-            onTap: onTap);
+            onTap: () => MainPage.to(() => CustomComicPage(sourceKey: comicSourceKey, id: item.id)));
       },
       childCount: part.comics.length,
     ), gridDelegate: SliverGridDelegateWithComics());
@@ -448,19 +450,17 @@ class _CustomExplorePageState extends StateWithController<_CustomExplorePage> {
       StateController.findOrNull<ComicsPageLogic>(tag: tag.toString())?.refresh();
     }
   }
-
-  void onTap() {
-    // TODO
-  }
 }
 
 class _ComicList extends ComicsPage<BaseComic> {
-  const _ComicList(this.builder, this.tag);
+  const _ComicList(this.builder, this.tag, this.sourceKey);
 
   @override
   final String tag;
 
   final ComicListBuilder builder;
+
+  final String sourceKey;
 
   @override
   Future<Res<List<BaseComic>>> getComics(int i) {
@@ -493,10 +493,6 @@ class _ComicList extends ComicsPage<BaseComic> {
         name: item.title,
         subTitle_: item.subTitle,
         tags: item.tags,
-        onTap: onTap);
-  }
-
-  void onTap() {
-    // TODO
+        onTap: () => MainPage.to(() => CustomComicPage(sourceKey: sourceKey, id: item.id)));
   }
 }
