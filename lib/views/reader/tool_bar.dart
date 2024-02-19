@@ -106,7 +106,7 @@ extension ToolBar on ComicReadingPage{
                         icon: const Icon(Icons.favorite),
                         onPressed: () async{
                           try {
-                            final id = "${logic.data.type}-${logic.data
+                            final id = "${logic.data.sourceKey}-${logic.data
                                 .id}";
                             var image = await _persistentCurrentImage();
                             if (image != null) {
@@ -126,7 +126,12 @@ extension ToolBar on ComicReadingPage{
                                 otherInfo["epsId"] = readingData.eps!.keys.elementAt(logic.index-1);
                                 otherInfo["bookId"] = readingData.id;
                               }
-                              otherInfo["eps"] = readingData.eps?.keys.toList() ?? [];
+                              if(logic.data.type != ComicType.other) {
+                                otherInfo["eps"] =
+                                    readingData.eps?.keys.toList() ?? [];
+                              } else {
+                                otherInfo["eps"] = readingData.eps;
+                              }
                               otherInfo["url"] = logic.urls[logic.index-1];
                               ImageFavoriteManager.add(ImageFavorite(
                                   id, image, readingData.title, logic.order, logic.index,

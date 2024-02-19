@@ -357,10 +357,19 @@ void readWithKey(String key, String target, int ep, int page, String title,
     default:
       var source = ComicSource.find(key);
       if(source == null)  throw "Unknown source $key";
-      var history = History(HistoryType(source.intKey), DateTime.now(), title, "",
-          otherInfo["cover"], 0, 0, target);
-      HistoryManager().addHistory(history);
+      if(otherInfo["cover"] != null) {
+        var history = History(
+            HistoryType(source.intKey),
+            DateTime.now(),
+            title,
+            "",
+            otherInfo["cover"],
+            0,
+            0,
+            target);
+        HistoryManager().addHistory(history);
+      }
       App.globalTo(() => ComicReadingPage(
-          CustomReadingData(target, title, source, otherInfo["eps"]), page, ep));
+          CustomReadingData(target, title, source, Map.from(otherInfo["eps"])), page, ep));
   }
 }

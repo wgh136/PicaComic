@@ -104,7 +104,7 @@ class EhReadingData extends ReadingData {
   bool get hasEp => eps != null;
 
   @override
-  String get sourceKey => "eh";
+  String get sourceKey => "ehentai";
 
   @override
   ComicType get type => ComicType.ehentai;

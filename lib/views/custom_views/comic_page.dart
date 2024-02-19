@@ -24,7 +24,10 @@ class CustomComicPage extends ComicPage<ComicInfoData>{
 
   @override
   void continueRead(History history) {
-    // TODO: implement continueRead
+    readWithKey(sourceKey, id, history.ep, history.page, data!.title, {
+      "eps": data!.chapters,
+      "cover": data!.cover
+    });
   }
 
   @override

@@ -28,6 +28,12 @@ final class HistoryType {
   }
 
   const HistoryType(this.value);
+
+  @override
+  bool operator==(Object other) => other is HistoryType && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 base class History extends LinkedListEntry<History> {
