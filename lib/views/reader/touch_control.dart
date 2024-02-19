@@ -195,7 +195,7 @@ class TapController {
           child: Text("退出".tl),
           onTap: () => App.globalBack(),
         ),
-        if(logic.data.type.hasEps)
+        if(logic.data.hasEp)
           PopupMenuItem(
             onTap: logic.openEpsView,
             child: Text("章节".tl),

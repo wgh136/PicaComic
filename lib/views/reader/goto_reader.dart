@@ -1,3 +1,4 @@
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
@@ -354,6 +355,9 @@ void readWithKey(String key, String target, int ep, int page, String title,
       App.globalTo(() => ComicReadingPage.nhentai(target, title,
           initialPage: page));
     default:
-      throw UnimplementedError();
+      var source = ComicSource.find(key);
+      if(source == null)  throw "Unknown source $key";
+      App.globalTo(() => ComicReadingPage(
+          CustomReadingData(target, title, source, otherInfo["eps"]), page, ep));
   }
 }

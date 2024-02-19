@@ -6,6 +6,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
+import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 
@@ -59,8 +60,11 @@ class CustomComicPage extends ComicPage<ComicInfoData>{
   int? get pages => null;
 
   @override
-  // TODO: implement readButton
-  FilledButton get readButton => FilledButton(onPressed: (){}, child: Text("从头开始".tl));
+  FilledButton get readButton => FilledButton(onPressed: (){
+    readWithKey(sourceKey, id, 1, 1, data!.title, {
+      "eps": data!.chapters,
+    });
+  }, child: Text("从头开始".tl));
 
   @override
   SliverGrid? recommendationBuilder(ComicInfoData data) {

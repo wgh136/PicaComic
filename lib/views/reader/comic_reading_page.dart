@@ -9,6 +9,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/image_loader/stream_image_provider.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/download.dart';
@@ -64,6 +65,10 @@ class ComicReadingPage extends StatelessWidget {
 
   ReadingType get type => readingData.type;
 
+  ComicReadingPage(this.readingData, this.initialPage, this.initialEp, {super.key}){
+    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+  }
+
   ComicReadingPage.picacg(String target, this.initialEp, List<String> eps, String title,
       {super.key, this.initialPage = 1})
       : readingData = PicacgReadingData(title, target, eps){
@@ -101,7 +106,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   _updateHistory(ComicReadingPageLogic? logic) {
-    if (readingData.type.hasEps) {
+    if (readingData.hasEp) {
       if (logic!.order == 1 && logic.index == 1) {
         history?.ep = 0;
         history?.page = 0;
@@ -259,7 +264,7 @@ class ComicReadingPage extends StatelessWidget {
                         jm: type == ReadingType.jm),
 
                   //底部工具栏
-                  buildBottomToolBar(logic, context, type.hasEps),
+                  buildBottomToolBar(logic, context, readingData.hasEp),
 
                   ...buildButtons(logic, context),
 
@@ -353,7 +358,7 @@ class ComicReadingPage extends StatelessWidget {
                         Expanded(
                             child: FilledButton(
                           onPressed: () {
-                            if (!type.hasEps) {
+                            if (!readingData.hasEp) {
                               showMessage(context, "没有其它章节".tl);
                               return;
                             }
@@ -523,7 +528,7 @@ class ComicReadingPage extends StatelessWidget {
   }
 
   Widget? buildEpChangeButton(ComicReadingPageLogic logic) {
-    if (!type.hasEps) return null;
+    if (!readingData.hasEp) return null;
     switch (logic.showFloatingButtonValue) {
       case -1:
         return FloatingActionButton(

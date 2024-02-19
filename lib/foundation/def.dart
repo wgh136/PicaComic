@@ -10,8 +10,6 @@ enum ComicType {
   nhentai,
   other;
 
-  bool get hasEps => [0, 2].contains(index);
-
   @override
   toString() => name;
 }

@@ -28,6 +28,8 @@ typedef LoginFunction = Future<Res<bool>> Function(String, String);
 
 typedef LoadComicFunc = Future<Res<ComicInfoData>> Function(String id);
 
+typedef LoadComicPagesFunc = Future<Res<List<String>>> Function(String id, String? ep);
+
 class ComicSource {
   static List<ComicSource> sources = [];
 
@@ -77,7 +79,7 @@ class ComicSource {
   final LoadComicFunc? loadComicInfo;
 
   /// Load comic pages.
-  final Future<List<String>> Function(String id, String? ep)? loadComicPages;
+  final LoadComicPagesFunc? loadComicPages;
 
   /// Load image. The imageKey usually is the url of image.
   ///

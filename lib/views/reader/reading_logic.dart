@@ -117,12 +117,6 @@ class ComicReadingPageLogic extends StateController {
   ///所有的图片链接
   var urls = <String>[];
 
-  ///章节部件
-  var epsWidgets = <Widget>[];
-
-  ///是否是已下载的漫画
-  bool downloaded = false;
-
   void reload() {
     index = 1;
     pageController = PageController(initialPage: 1);
@@ -219,12 +213,12 @@ class ComicReadingPageLogic extends StateController {
     update();
   }
 
-  void jumpTpChapter(int index){
+  void jumpToChapter(int index){
     order = index;
     urls = [];
     isLoading = true;
     tools = false;
-    index = 1;
+    this.index = 1;
     pageController = PageController(initialPage: 1);
     clearPhotoViewControllers();
     update();

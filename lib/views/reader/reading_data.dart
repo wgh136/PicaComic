@@ -296,3 +296,45 @@ class NhentaiReadingData extends ReadingData {
     return ImageManager().getImage(url);
   }
 }
+
+class CustomReadingData extends ReadingData{
+  CustomReadingData(this.id, this.title, this.source, this.eps);
+
+  final ComicSource source;
+
+  @override
+  String get downloadId => "custom$sourceKey$id";
+
+  @override
+  final Map<String, String>? eps;
+
+  @override
+  bool get hasEp => eps != null;
+
+  @override
+  String id;
+
+  @override
+  final String title;
+
+  @override
+  Future<Res<List<String>>> loadEpNetwork(int ep) {
+    if(hasEp){
+      return source.loadComicPages!(id, eps!.keys.elementAtOrNull(ep-1) ?? id);
+    } else {
+      return source.loadComicPages!(id, null);
+    }
+  }
+
+  @override
+  Stream<DownloadProgress> loadImageNetwork(int ep, int page, String url) {
+    return ImageManager().getImage(url);
+  }
+
+  @override
+  String get sourceKey => source.key;
+
+  @override
+  ComicType get type => ComicType.other;
+
+}

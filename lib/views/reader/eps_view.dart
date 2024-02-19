@@ -24,7 +24,7 @@ class _EpsViewState extends State<EpsView> {
           InkWell(
             onTap: (){
               Navigator.pop(App.globalContext!);
-              logic.jumpTpChapter(index+1);
+              logic.jumpToChapter(index+1);
             },
             child: SizedBox(
               height: 60,

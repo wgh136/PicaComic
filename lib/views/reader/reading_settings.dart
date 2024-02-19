@@ -305,7 +305,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               i = 1;
             }),
           ),
-          if (!logic.downloaded &&
+          if (!logic.data.downloaded &&
               (logic.data.type == ReadingType.picacg ||
                   logic.data.type == ReadingType.jm))
             ListTile(

@@ -31,9 +31,10 @@ class ComicSourceParser {
         _loadCategoryComicsData(document["categoryComics"]);
     final searchData = _loadSearchData(document["search"]);
     final loadComicFunc = _parseLoadComicFunc(document["comic"]);
+    final loadComicPagesFunc = _parseLoadComicPagesFunc(document["comic"]);
 
     return ComicSource(name, key, account, categoryPageData, categoryComicsData, null,
-        explorePageData, searchData, [], loadComicFunc, null, null);
+        explorePageData, searchData, [], loadComicFunc, loadComicPagesFunc, null);
   }
 
   AccountConfig? _loadAccountConfig(Map<String, dynamic> document) {
@@ -269,6 +270,25 @@ class ComicSourceParser {
             res["thumbnailMaxPage"] ?? 1,
             (res["suggestions"] as List?)?.map((e) => CustomComic.fromJson(e)).toList()
         ));
+      }
+      catch(e, s){
+        log("$e\n$s", "Network", LogLevel.error);
+        return Res.error(e.toString());
+      }
+    };
+  }
+
+  LoadComicPagesFunc? _parseLoadComicPagesFunc(Map<String, dynamic>? doc){
+    if(doc == null) return null;
+
+    var loadJs = doc["loadEp"];
+
+    return (id, ep) async{
+      try{
+        final key = await JsEngine().runProtectedWithKey(
+            "$loadJs\nloadEp(${jsonEncode(id)}, $ep)", _key!);
+        var res = await JsEngine().wait(key);
+        return Res(List.from(res["images"]));
       }
       catch(e, s){
         log("$e\n$s", "Network", LogLevel.error);
