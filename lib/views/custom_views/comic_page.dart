@@ -63,6 +63,7 @@ class CustomComicPage extends ComicPage<ComicInfoData>{
   FilledButton get readButton => FilledButton(onPressed: (){
     readWithKey(sourceKey, id, 1, 1, data!.title, {
       "eps": data!.chapters,
+      "cover": data!.cover
     });
   }, child: Text("从头开始".tl));
 

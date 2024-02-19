@@ -22,6 +22,7 @@ class ComicSourceParser {
     final String key =
         document["key"] ?? (throw ComicSourceParseException("key is required"));
     _key = key;
+    _checkKeyValidation();
 
     final account = _loadAccountConfig(document);
     final explorePageData = _loadExploreData(document["explore"] ?? const {});
@@ -35,6 +36,13 @@ class ComicSourceParser {
 
     return ComicSource(name, key, account, categoryPageData, categoryComicsData, null,
         explorePageData, searchData, [], loadComicFunc, loadComicPagesFunc, null);
+  }
+
+  _checkKeyValidation(){
+    // 仅允许数字和字母以及下划线
+    if(!_key!.contains(RegExp(r"^[a-zA-Z0-9_]+$"))){
+      throw ComicSourceParseException("key $_key is invalid");
+    }
   }
 
   AccountConfig? _loadAccountConfig(Map<String, dynamic> document) {

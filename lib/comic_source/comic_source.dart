@@ -36,6 +36,9 @@ class ComicSource {
   static ComicSource? find(String key) =>
       sources.firstWhereOrNull((element) => element.key == key);
 
+  static ComicSource? fromIntKey(int key) =>
+      sources.firstWhereOrNull((element) => element.key.hashCode == key);
+
   static Future<void> init() async {
     final path = "${App.dataPath}/comic_source";
     await for (var entity in Directory(path).list()) {
@@ -53,6 +56,10 @@ class ComicSource {
 
   /// Identifier of this source.
   final String key;
+
+  int get intKey{
+    return key.hashCode;
+  }
 
   /// Account config.
   final AccountConfig? account;

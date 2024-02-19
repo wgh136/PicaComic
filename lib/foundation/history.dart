@@ -2,21 +2,31 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part "image_favorites.dart";
 
-enum HistoryType {
-  picacg(0),
-  ehentai(1),
-  jmComic(2),
-  hitomi(3),
-  htmanga(4),
-  nhentai(5);
+final class HistoryType {
+  static HistoryType get picacg => const HistoryType(0);
+  static HistoryType get ehentai => const HistoryType(1);
+  static HistoryType get jmComic => const HistoryType(2);
+  static HistoryType get hitomi => const HistoryType(3);
+  static HistoryType get htmanga => const HistoryType(4);
+  static HistoryType get nhentai => const HistoryType(5);
 
   final int value;
+
+  String get name{
+    if(value >=0 && value <= 5){
+      return ["picacg", "ehentai", "jmComic", "hitomi", "htmanga", "nhentai"][value];
+    } else {
+      return ComicSource.fromIntKey(value)!.name;
+    }
+  }
+
   const HistoryType(this.value);
 }
 
@@ -60,7 +70,7 @@ base class History extends LinkedListEntry<History> {
       };
 
   History.fromMap(Map<String, dynamic> map)
-      : type = HistoryType.values[map["type"]],
+      : type = HistoryType(map["type"]),
         time = DateTime.fromMillisecondsSinceEpoch(map["time"]),
         title = map["title"],
         subtitle = map["subtitle"],
@@ -78,7 +88,7 @@ base class History extends LinkedListEntry<History> {
   }
 
   History.fromRow(Row row)
-      : type = HistoryType.values[row["type"]],
+      : type = HistoryType(row["type"]),
         time = DateTime.fromMillisecondsSinceEpoch(row["time"]),
         title = row["title"],
         subtitle = row["subtitle"],
@@ -183,7 +193,7 @@ class HistoryManager {
         insert into history (target, title, subtitle, cover, time, type, ep, page, readEpisode, max_page)
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       """, [newItem.target, newItem.title, newItem.subtitle, newItem.cover,
-        newItem.time.millisecondsSinceEpoch, newItem.type.index, newItem.ep,
+        newItem.time.millisecondsSinceEpoch, newItem.type.value, newItem.ep,
         newItem.page, newItem.readEpisode.join(','), newItem.maxPage]);
     } else {
       _db.execute("""
