@@ -2,13 +2,11 @@ import "package:flutter/material.dart";
 import "package:pica_comic/comic_source/comic_source.dart";
 import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/network/res.dart";
-import "package:pica_comic/views/custom_views/comic_page.dart";
-import "package:pica_comic/views/main_page.dart";
 import "package:pica_comic/views/page_template/comics_page.dart";
 import "package:pica_comic/views/widgets/appbar.dart";
 
 import "../../network/base_comic.dart";
-import "../widgets/normal_comic_tile.dart";
+import "custom_comic_tile.dart";
 
 class CategoryComicsPage extends StatefulWidget {
   const CategoryComicsPage({required this.category, this.param, required this.sourceKey,
@@ -160,12 +158,6 @@ class _CustomCategoryComicsList extends ComicsPage<BaseComic>{
 
   @override
   Widget buildItem(BuildContext context, BaseComic item) {
-    return NormalComicTile(
-        description_: item.description,
-        coverPath: item.cover,
-        name: item.title,
-        subTitle_: item.subTitle,
-        tags: item.tags,
-        onTap: () => MainPage.to(() => CustomComicPage(sourceKey: sourceKey, id: item.id)));
+    return CustomComicTile(item as CustomComic);
   }
 }

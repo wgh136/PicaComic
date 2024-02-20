@@ -93,6 +93,8 @@ class ComicSource {
   /// Default is send a http get request to [imageKey].
   final Future<Uint8List>? Function(String imageKey)? loadImage;
 
+  final String? matchBriefIdReg;
+
   var data = <String, dynamic>{};
 
   Future<void> loadData() async {
@@ -122,7 +124,8 @@ class ComicSource {
       this.settings,
       this.loadComicInfo,
       this.loadComicPages,
-      this.loadImage);
+      this.loadImage,
+      this.matchBriefIdReg);
 }
 
 class AccountConfig {
@@ -237,8 +240,48 @@ class ComicInfoData {
 
   final List<BaseComic>? suggestions;
 
+  final String sourceKey;
+
+  final String comicId;
+
   const ComicInfoData(this.title, this.subTitle, this.cover, this.description, this.tags,
-      this.chapters, this.thumbnails, this.thumbnailLoader, this.thumbnailMaxPage, this.suggestions);
+      this.chapters, this.thumbnails, this.thumbnailLoader, this.thumbnailMaxPage,
+      this.suggestions, this.sourceKey, this.comicId);
+
+  Map<String, dynamic> toJson() {
+    return {
+      "title": title,
+      "subTitle": subTitle,
+      "cover": cover,
+      "description": description,
+      "tags": tags,
+      "chapters": chapters,
+      "sourceKey": sourceKey,
+      "comicId": comicId,
+    };
+  }
+
+  static Map<String, List<String>> _generateMap(Map<String, dynamic> map){
+    var res = <String, List<String>>{};
+    map.forEach((key, value) {
+      res[key] = List<String>.from(value);
+    });
+    return res;
+  }
+
+  ComicInfoData.fromJson(Map<String, dynamic> json):
+        title = json["title"],
+        subTitle = json["subTitle"],
+        cover = json["cover"],
+        description = json["description"],
+        tags = _generateMap(json["tags"]),
+        chapters = Map<String, String>.from(json["chapters"]),
+        sourceKey = json["sourceKey"],
+        comicId = json["comicId"],
+        thumbnails = null,
+        thumbnailLoader = null,
+        thumbnailMaxPage = 0,
+        suggestions = null;
 }
 
 typedef CategoryComicsLoader = Future<Res<List<BaseComic>>> Function(

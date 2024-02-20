@@ -303,7 +303,7 @@ class CustomReadingData extends ReadingData{
   final ComicSource source;
 
   @override
-  String get downloadId => "custom$sourceKey$id";
+  String get downloadId => DownloadManager().generateId(sourceKey, id);
 
   @override
   final Map<String, String>? eps;

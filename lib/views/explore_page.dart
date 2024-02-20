@@ -3,7 +3,6 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/res.dart';
-import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/eh_views/eh_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
 import 'package:pica_comic/views/general_interface/category.dart';
@@ -12,18 +11,17 @@ import 'package:pica_comic/views/hitomi_views/hitomi_home_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
-import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
-import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../foundation/app.dart';
 import '../foundation/ui_mode.dart';
 import '../network/hitomi_network/hitomi_main_network.dart';
+import 'custom_views/custom_comic_tile.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage(this.pages, {Key? key}) : super(key: key);
@@ -425,13 +423,7 @@ class _CustomExplorePageState extends StateWithController<_CustomExplorePage> {
     return SliverGrid(delegate: SliverChildBuilderDelegate(
       (context, index){
         final item = part.comics[index];
-        return NormalComicTile(
-            description_: item.description,
-            coverPath: item.cover,
-            name: item.title,
-            subTitle_: item.subTitle,
-            tags: item.tags,
-            onTap: () => MainPage.to(() => CustomComicPage(sourceKey: comicSourceKey, id: item.id)));
+        return CustomComicTile(item as CustomComic);
       },
       childCount: part.comics.length,
     ), gridDelegate: SliverGridDelegateWithComics());
@@ -487,12 +479,6 @@ class _ComicList extends ComicsPage<BaseComic> {
 
   @override
   Widget buildItem(BuildContext context, BaseComic item) {
-    return NormalComicTile(
-        description_: item.description,
-        coverPath: item.cover,
-        name: item.title,
-        subTitle_: item.subTitle,
-        tags: item.tags,
-        onTap: () => MainPage.to(() => CustomComicPage(sourceKey: sourceKey, id: item.id)));
+    return CustomComicTile(item as CustomComic);
   }
 }

@@ -36,7 +36,7 @@ abstract class DownloadedItem{
 }
 
 enum DownloadType{
-  picacg, ehentai, jm, hitomi, htmanga, nhentai;
+  picacg, ehentai, jm, hitomi, htmanga, nhentai, other;
 
   ComicType toComicType() => switch(this){
     picacg => ComicType.picacg,
@@ -45,6 +45,7 @@ enum DownloadType{
     hitomi => ComicType.hitomi,
     htmanga => ComicType.htManga,
     nhentai => ComicType.nhentai,
+    other => ComicType.other
   };
 }
 
@@ -145,7 +146,7 @@ abstract class DownloadingItem{
     var currentKey = _runtimeKey;
     try{
       notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
-          "共${downloadManager.downloading.length}项任务");
+          "${downloadManager.downloading.length} Tasks");
 
       // get image links and cover
       links ??= await getLinks();
@@ -157,7 +158,7 @@ abstract class DownloadingItem{
         var urls = links![ep]!;
         while(index < urls.length && currentKey == _runtimeKey){
           notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
-              "共${downloadManager.downloading.length}项任务");
+              "${downloadManager.downloading.length} Tasks");
           for(int i=0; i<allowedLoadingNumbers; i++){
             if(index+i >= urls.length)  break;
             loadImageToCache(urls[index+i]);

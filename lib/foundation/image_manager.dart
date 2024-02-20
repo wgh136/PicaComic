@@ -157,21 +157,20 @@ class ImageManager {
       final savePath =
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, url, savePath);
-      var headers_ = headers ?? {
-        "user-agent": webUA,
-      };
+      headers = headers ?? {};
+      headers["User-Agent"] ??= webUA;
       if (url.contains("nhentai")) {
         var cookies = await NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse(url));
         var res = "";
         for (var cookie in cookies) {
           res += "${cookie.name}=${cookie.value}; ";
         }
-        headers_["Cookie"] = res;
+        headers["Cookie"] = res;
       }
-      headers_["Connection"] = "keep-alive";
+      headers["Connection"] = "keep-alive";
       var dioRes = await dio.get<ResponseBody>(url,
           options: Options(
-              responseType: ResponseType.stream, headers: headers_));
+              responseType: ResponseType.stream, headers: headers));
       if (dioRes.data == null) {
         throw Exception("Empty Data");
       }

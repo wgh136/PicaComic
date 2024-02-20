@@ -37,13 +37,14 @@ Future<void> init() async{
     }
     await checkDownloadPath();
 
+    await ComicSource.init();
+
     await Future.wait([
       downloadManager.init(),
       NhentaiNetwork().init(),
       JmNetwork().init(),
       LocalFavoritesManager().init(),
       HistoryManager().init(),
-      ComicSource.init(),
     ]);
   }
   catch(e, s){

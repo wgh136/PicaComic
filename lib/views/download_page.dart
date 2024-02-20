@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/custom_download_model.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/download_model.dart';
@@ -10,6 +11,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
@@ -55,6 +57,12 @@ extension ReadComic on DownloadedItem{
     } else if (comic.type == DownloadType.nhentai){
       readNhentai(NhentaiComic(comic.id.replaceFirst("nhentai", ""), comic.name, comic.subTitle,
           (comic as NhentaiDownloadedComic).cover, {}, false, [], [], ""));
+    } else if (comic.type == DownloadType.other){
+      var comic_ = (comic as CustomDownloadedItem);
+      readWithKey(comic_.sourceKey, comic_.comicId, 1, 1, comic_.name, {
+        "eps": comic_.chapters,
+        "cover": comic_.cover
+      });
     }
   }
 }
@@ -715,6 +723,7 @@ class DownloadPage extends StatelessWidget {
                                   FavoriteItem.fromHitomi((comic as DownloadedHitomiComic).comic.toBrief(comic.link, comic.cover)),
                               DownloadType.htmanga =>
                                   FavoriteItem.fromHtcomic((comic as DownloadedHtComic).comic.toBrief()),
+                              DownloadType.other => throw UnimplementedError()  // TODO
                             });
                           }
                         }
@@ -863,6 +872,9 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             MainPage.to(() => NhentaiComicPage(
                                 (widget.item as NhentaiDownloadedComic)
                                     .id.replaceFirst("nhentai", "")));
+                          } else if(widget.item is CustomDownloadedItem){
+                            var comic = (widget.item as CustomDownloadedItem);
+                            MainPage.to(() => CustomComicPage(sourceKey: comic.sourceKey, id: comic.comicId));
                           }
                         },
                         child: Text("查看详情".tl)),
@@ -920,6 +932,12 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
     } else if (comic.type == DownloadType.nhentai){
       readNhentai(NhentaiComic(comic.id.replaceFirst("nhentai", ""), comic.name, comic.subTitle,
           (comic as NhentaiDownloadedComic).cover, {}, false, [], [], ""));
+    } else if (comic.type == DownloadType.other){
+      var comic_ = (comic as CustomDownloadedItem);
+      readWithKey(comic_.sourceKey, comic_.comicId, i + 1, 1, comic_.name, {
+        "eps": comic_.chapters,
+        "cover": comic_.cover
+      });
     }
   }
 }

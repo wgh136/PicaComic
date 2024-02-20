@@ -1,5 +1,6 @@
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -8,6 +9,7 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/favorites/network_to_local.dart';
@@ -257,7 +259,7 @@ class LocalFavoriteTile extends ComicTile {
   }();
 
   void showInfo() {
-    switch (comic.type) {
+    switch (comic.type.comicType) {
       case ComicType.picacg:
         MainPage.to(() => PicacgComicPage(ComicItemBrief(
             comic.name, comic.author, 0, comic.coverPath, comic.target, [],
@@ -291,8 +293,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.nhentai:
         MainPage.to(() => NhentaiComicPage(comic.target));
       default:
-        // TODO: implement custom comic source.
-        throw UnimplementedError();
+        MainPage.to(() => CustomComicPage(sourceKey: comic.type.comicSource.key, id: comic.target));
     }
   }
 
@@ -443,7 +444,7 @@ class LocalFavoriteTile extends ComicTile {
         return;
       }
     }
-    switch (comic.type) {
+    switch (comic.type.comicType) {
       case ComicType.picacg:
         {
           bool cancel = false;
@@ -545,8 +546,26 @@ class LocalFavoriteTile extends ComicTile {
           }
         }
       default:
-        // TODO: implement custom comic source.
-        throw UnimplementedError();
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
+          var res = await comic.type.comicSource.loadComicInfo!(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            var history = await HistoryManager().find(comic.target);
+            readWithKey(comic.type.comicSource.key, comic.target,
+                history?.ep ?? 1, history?.page ?? 1, title, {
+                  "eps": res.data.chapters,
+                  "cover": comic.coverPath
+                });
+          }
+        }
     }
   }
 
@@ -713,7 +732,7 @@ Future<void> checkFolder(String name) async{
   Stream<(int current, int total)> check() async*{
     for(var comic in comics){
       bool available = true;
-      switch(comic.type){
+      switch(comic.type.comicType){
         case ComicType.picacg:
           var res = await PicacgNetwork().getComicInfo(comic.target);
           if(res.error && !res.errorMessageWithoutNull.contains("404")){
@@ -757,7 +776,12 @@ Future<void> checkFolder(String name) async{
             available = false;
           }
         default:
-          available = true;
+          var res = await comic.type.comicSource.loadComicInfo!(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
       }
       if(!available){
         unavailableNum++;

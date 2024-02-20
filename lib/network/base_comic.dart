@@ -33,22 +33,15 @@ class CustomComic extends BaseComic{
   @override
   final String description;
 
-  const CustomComic(this.title, this.subTitle, this.cover, this.id, this.tags, this.description);
+  final String sourceKey;
 
-  CustomComic.fromJson(Map<String, dynamic> json)
+  const CustomComic(this.title, this.subTitle, this.cover, this.id, this.tags, this.description, this.sourceKey);
+
+  CustomComic.fromJson(Map<String, dynamic> json, this.sourceKey)
       : title = json["title"],
         subTitle = json["subTitle"] ?? "",
         cover = json["cover"],
         id = json["id"],
         tags = List<String>.from(json["tags"] ?? []),
         description = json["description"] ?? "";
-
-  Map<String, dynamic> toJson() => {
-    "title": title,
-    "subTitle": subTitle,
-    "cover": cover,
-    "id": id,
-    "tags": tags,
-    "description": description,
-  };
 }

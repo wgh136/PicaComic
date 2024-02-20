@@ -35,7 +35,8 @@ class ComicSourceParser {
     final loadComicPagesFunc = _parseLoadComicPagesFunc(document["comic"]);
 
     return ComicSource(name, key, account, categoryPageData, categoryComicsData, null,
-        explorePageData, searchData, [], loadComicFunc, loadComicPagesFunc, null);
+        explorePageData, searchData, [], loadComicFunc, loadComicPagesFunc, null,
+        document["comic"]["matchBriefIdRegex"]);
   }
 
   _checkKeyValidation(){
@@ -114,7 +115,7 @@ class ComicSourceParser {
                 .map((e) => ExplorePagePart(
                     e,
                     (res[e] as List)
-                        .map<CustomComic>((e) => CustomComic.fromJson(e))
+                        .map<CustomComic>((e) => CustomComic.fromJson(e, _key!))
                         .toList(),
                     null))
                 .toList());
@@ -205,7 +206,7 @@ class ComicSourceParser {
         return Res(
             List.generate(
                 res["comics"].length,
-                    (index) => CustomComic.fromJson(res["comics"][index])),
+                    (index) => CustomComic.fromJson(res["comics"][index], _key!)),
             subData: res["maxPage"]);
       }
       catch(e, s){
@@ -242,7 +243,7 @@ class ComicSourceParser {
         return Res(
             List.generate(
                 res["comics"].length,
-                    (index) => CustomComic.fromJson(res["comics"][index])),
+                    (index) => CustomComic.fromJson(res["comics"][index], _key!)),
             subData: res["maxPage"]);
       }
       catch(e, s){
@@ -276,7 +277,9 @@ class ComicSourceParser {
             // TODO: implement thumbnailLoader
             null,
             res["thumbnailMaxPage"] ?? 1,
-            (res["suggestions"] as List?)?.map((e) => CustomComic.fromJson(e)).toList()
+            (res["suggestions"] as List?)?.map((e) => CustomComic.fromJson(e, _key!)).toList(),
+            _key!,
+            id
         ));
       }
       catch(e, s){

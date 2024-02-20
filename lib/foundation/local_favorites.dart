@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -15,6 +16,7 @@ import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'dart:io';
 import '../network/base_comic.dart';
@@ -27,17 +29,51 @@ String getCurTime() {
       .substring(0, 19);
 }
 
+final class FavoriteType{
+  final int key;
+
+  const FavoriteType(this.key);
+
+  static FavoriteType get picacg => const FavoriteType(0);
+  static FavoriteType get ehentai => const FavoriteType(1);
+  static FavoriteType get jm => const FavoriteType(2);
+  static FavoriteType get hitomi => const FavoriteType(3);
+  static FavoriteType get htManga => const FavoriteType(4);
+  static FavoriteType get nhentai => const FavoriteType(6);
+
+  ComicType get comicType{
+    if(key >= 0 && key <= 6){
+      return ComicType.values[key];
+    }
+    return ComicType.other;
+  }
+
+  ComicSource get comicSource{
+    return ComicSource.sources
+        .firstWhereOrNull((element) => element.intKey == key)
+        ?? (throw "Comic Source Not Found");
+  }
+
+  String get name{
+    if(comicType != ComicType.other){
+      return comicType.name;
+    } else {
+      return comicSource.name;
+    }
+  }
+}
+
 class FavoriteItem {
   String name;
   String author;
-  ComicType type;
+  FavoriteType type;
   List<String> tags;
   String target;
   String coverPath;
   String time = getCurTime();
 
   String toDownloadId() {
-    return switch (type) {
+    return switch (type.comicType) {
       ComicType.picacg => target,
       ComicType.ehentai => getGalleryId(target),
       ComicType.jm => "jm$target",
@@ -46,14 +82,14 @@ class FavoriteItem {
           : target,
       ComicType.htManga => "ht$target",
       ComicType.nhentai => "nhentai$target",
-      _ => throw UnimplementedError()
+      _ => DownloadManager().generateId(type.comicSource.key, target)
     };
   }
 
   FavoriteItem.fromPicacg(ComicItemBrief comic)
       : name = comic.title,
         author = comic.author,
-        type = ComicType.picacg,
+        type = FavoriteType.picacg,
         tags = comic.tags,
         target = comic.id,
         coverPath = comic.path;
@@ -61,7 +97,7 @@ class FavoriteItem {
   FavoriteItem.fromEhentai(EhGalleryBrief comic)
       : name = comic.title,
         author = comic.uploader,
-        type = ComicType.ehentai,
+        type = FavoriteType.ehentai,
         tags = comic.tags,
         target = comic.link,
         coverPath = comic.coverPath;
@@ -69,7 +105,7 @@ class FavoriteItem {
   FavoriteItem.fromJmComic(JmComicBrief comic)
       : name = comic.name,
         author = comic.author,
-        type = ComicType.jm,
+        type = FavoriteType.jm,
         tags = [],
         target = comic.id,
         coverPath = getJmCoverUrl(comic.id);
@@ -77,7 +113,7 @@ class FavoriteItem {
   FavoriteItem.fromHitomi(HitomiComicBrief comic)
       : name = comic.name,
         author = comic.artist,
-        type = ComicType.hitomi,
+        type = FavoriteType.hitomi,
         tags =
             List.generate(comic.tags.length, (index) => comic.tags[index].name),
         target = comic.link,
@@ -86,7 +122,7 @@ class FavoriteItem {
   FavoriteItem.fromHtcomic(HtComicBrief comic)
       : name = comic.name,
         author = "${comic.pages}Pages",
-        type = ComicType.htManga,
+        type = FavoriteType.htManga,
         tags = [],
         target = comic.id,
         coverPath = comic.image;
@@ -94,7 +130,15 @@ class FavoriteItem {
   FavoriteItem.fromNhentai(NhentaiComicBrief comic)
       : name = comic.title,
         author = "",
-        type = ComicType.nhentai,
+        type = FavoriteType.nhentai,
+        tags = comic.tags,
+        target = comic.id,
+        coverPath = comic.cover;
+
+  FavoriteItem.custom(CustomComic comic)
+      : name = comic.title,
+        author = comic.subTitle,
+        type = FavoriteType(comic.sourceKey.hashCode),
         tags = comic.tags,
         target = comic.id,
         coverPath = comic.cover;
@@ -102,7 +146,7 @@ class FavoriteItem {
   Map<String, dynamic> toJson() => {
         "name": name,
         "author": author,
-        "type": type.index,
+        "type": type.key,
         "tags": tags,
         "target": target,
         "coverPath": coverPath,
@@ -112,7 +156,7 @@ class FavoriteItem {
   FavoriteItem.fromJson(Map<String, dynamic> json)
       : name = json["name"],
         author = json["author"],
-        type = ComicType.values[json["type"]],
+        type = FavoriteType(json["type"]),
         tags = List<String>.from(json["tags"]),
         target = json["target"],
         coverPath = json["coverPath"],
@@ -121,7 +165,7 @@ class FavoriteItem {
   FavoriteItem.fromRow(Row row)
       : name = row["name"],
         author = row["author"],
-        type = ComicType.values[row["type"]],
+        type = FavoriteType(row["type"]),
         tags = (row["tags"] as String).split(","),
         target = row["target"],
         coverPath = row["cover_path"],
@@ -140,8 +184,9 @@ class FavoriteItem {
       return FavoriteItem.fromHtcomic(comic);
     } else if(comic is NhentaiComicBrief){
       return FavoriteItem.fromNhentai(comic);
+    } else if(comic is CustomComic){
+      return FavoriteItem.custom(comic);
     }
-    // TODO: implement custom comic source
     throw UnimplementedError();
   }
 
@@ -425,19 +470,19 @@ class LocalFavoritesManager {
     if (order != null) {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
-        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
+        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.key}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', $order);
       """);
     } else if (appdata.settings[53] == "0") {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
-        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
+        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.key}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${maxValue(folder) + 1});
       """);
     } else {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
-        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
+        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.key}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${minValue(folder) - 1});
       """);
     }
@@ -481,10 +526,8 @@ class LocalFavoritesManager {
         await EhNetwork().getCookies(false);
       }
       var res = await (ImageManager().getImage(item.coverPath, {
-        if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
-        if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
-          "User-Agent": webUA,
-        if (item.type == ComicType.hitomi) "Referer": "https://hitomi.la/"
+        if (item.type == FavoriteType.ehentai) "cookie": EhNetwork().cookiesStr,
+        if (item.type == FavoriteType.hitomi) "Referer": "https://hitomi.la/"
       }).last);
       file.createSync(recursive: true);
       file.writeAsBytesSync(res.getFile().readAsBytesSync());

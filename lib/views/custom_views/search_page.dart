@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/base_comic.dart';
-import 'package:pica_comic/views/custom_views/comic_page.dart';
-import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 
 import '../../foundation/app.dart';
 import '../../network/res.dart';
-import '../widgets/normal_comic_tile.dart';
 import '../widgets/search.dart';
+import 'custom_comic_tile.dart';
 
 class _SearchPageComicList extends ComicsPage<BaseComic>{
   const _SearchPageComicList({super.key, required this.loader, required this.keyword,
@@ -56,13 +54,7 @@ class _SearchPageComicList extends ComicsPage<BaseComic>{
 
   @override
   Widget buildItem(BuildContext context, BaseComic item) {
-    return NormalComicTile(
-        description_: item.description,
-        coverPath: item.cover,
-        name: item.title,
-        subTitle_: item.subTitle,
-        tags: item.tags,
-        onTap: () => MainPage.to(() => CustomComicPage(sourceKey: sourceKey, id: item.id)));
+    return CustomComicTile(item as CustomComic);
   }
 }
 
