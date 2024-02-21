@@ -36,8 +36,13 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
                   ? const Icon(Icons.bookmark_add_outlined)
                   : const Icon(Icons.bookmark_add),
               onPressed: () => favoriteComic(FavoriteComicWidget(
-                havePlatformFavorite: false,
-                needLoadFolderData: false,
+                havePlatformFavorite: comicSource!.favoriteData != null && comicSource!.isLogin,
+                needLoadFolderData: comicSource!.favoriteData?.multiFolder ?? false,
+                folders: {
+                  if(!(comicSource!.favoriteData?.multiFolder ?? false))
+                    '0': comicSource!.name
+                },
+                initialFolder: (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
                 target: id,
                 setFavorite: (b) {
                   if (favorite != b) {
@@ -45,11 +50,34 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
                     update();
                   }
                 },
-                selectFolderCallback: (folder, page) {
-                  LocalFavoritesManager().addComic(
-                      folder,
-                      toLocalFavoriteItem());
-                  showMessage(context, "成功添加收藏".tl);
+                selectFolderCallback: (folder, type) {
+                  if(type == 1){
+                    LocalFavoritesManager().addComic(
+                        folder,
+                        toLocalFavoriteItem());
+                    showMessage(context, "成功添加收藏".tl);
+                  } else {
+                    showMessage(context, "正在添加收藏".tl);
+                    comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true).then((value) {
+                      hideMessage(context);
+                      if (value.error) {
+                        showMessage(context, "添加收藏失败".tl);
+                      } else {
+                        showMessage(context, "成功添加收藏".tl);
+                      }
+                    });
+                  }
+                },
+                cancelPlatformFavorite: () {
+                  showMessage(context, "正在取消收藏".tl);
+                  comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false).then((value) {
+                    hideMessage(context);
+                    if (value.error) {
+                      showMessage(context, "取消收藏失败".tl);
+                    } else {
+                      showMessage(context, "成功取消收藏".tl);
+                    }
+                  });
                 },
               )),
             ),
@@ -138,7 +166,6 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
 
   @override
   Future<bool> loadFavorite(ComicInfoData data) async {
-    // TODO: implement loadFavorite
     return false;
   }
 

@@ -1,5 +1,7 @@
 part of comic_source;
 
+typedef AddOrDelFavFunc = Future<Res<bool>> Function(String comicId, String folderId, bool isAdding);
+
 class FavoriteData{
   final String key;
 
@@ -21,6 +23,8 @@ class FavoriteData{
   /// A value of null disables this feature
   final String? allFavoritesId;
 
+  final AddOrDelFavFunc? addOrDelFavorite;
+
   const FavoriteData({
     required this.key,
     required this.title,
@@ -29,7 +33,8 @@ class FavoriteData{
     this.loadFolders,
     this.deleteFolder,
     this.addFolder,
-    this.allFavoritesId});
+    this.allFavoritesId,
+    this.addOrDelFavorite});
 }
 
 FavoriteData getFavoriteData(String key){
@@ -45,10 +50,6 @@ FavoriteData getFavoriteData(String key){
     case "nhentai":
       return nhentaiFavorites;
   }
-  return loadFavoritesDataFromConfig(key);
-}
-
-FavoriteData loadFavoritesDataFromConfig(String key){
-  // TODO
-  throw UnimplementedError();
+  var source = ComicSource.find(key) ?? (throw "Unknown source key: $key");
+  return source.favoriteData!;
 }

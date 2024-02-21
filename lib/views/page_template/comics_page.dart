@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
@@ -6,6 +7,7 @@ import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/views/custom_views/custom_comic_tile.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/hitomi_views/hi_widgets.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_tile.dart';
@@ -556,7 +558,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
       case 6:
         return NhentaiComicTile(item as NhentaiComicBrief);
       default:
-        throw UnimplementedError();
+        return CustomComicTile(item as CustomComic);
     }
   }
 }

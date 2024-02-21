@@ -406,6 +406,9 @@ Map<String, String> networkFavorites(){
     "ehentai": "ehentai",
     "jm": "禁漫天堂".tl,
     "htmanga": "绅士漫画".tl,
-    "nhentai": "nhentai"
+    "nhentai": "nhentai",
+    for(var source in ComicSource.sources)
+      if(source.favoriteData != null)
+        source.key: source.favoriteData!.title
   };
 }

@@ -41,6 +41,10 @@ class ComicSource {
 
   static Future<void> init() async {
     final path = "${App.dataPath}/comic_source";
+    if(! (await Directory(path).exists())){
+      Directory(path).create();
+      return;
+    }
     await for (var entity in Directory(path).list()) {
       if (entity is File && entity.path.endsWith(".toml")) {
         var source =
@@ -97,6 +101,8 @@ class ComicSource {
 
   var data = <String, dynamic>{};
 
+  bool get isLogin => data["account"] != null;
+
   Future<void> loadData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
     if (await file.exists()) {
@@ -110,6 +116,19 @@ class ComicSource {
       await file.create(recursive: true);
     }
     await file.writeAsString(jsonEncode(data));
+  }
+
+  Future<bool> reLogin() async{
+    if(data["account"] == null){
+      return false;
+    }
+    final List accountData = data["account"];
+    var res = await account!.login!(accountData[0], accountData[1]);
+    if (res.error) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   ComicSource(

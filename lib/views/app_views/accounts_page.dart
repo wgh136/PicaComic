@@ -658,7 +658,7 @@ class AccountsPage extends StatelessWidget {
 
     yield const Divider();
     for(var element in sources){
-      final bool logged = element.data["logged_in"] == true;
+      final bool logged = element.isLogin;
       yield Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Text(
@@ -705,7 +705,7 @@ class AccountsPage extends StatelessWidget {
         yield ListTile(
           title: Text("退出登录".tl),
           onTap: (){
-            element.data["logged_in"] = false;
+            element.data["account"] = null;
             JsEngine().clearCookies(element.account!.logoutDeleteCookies);
             element.data.removeWhere((key, value) => element.account!.logoutDeleteData.contains(key));
             logic.update();
