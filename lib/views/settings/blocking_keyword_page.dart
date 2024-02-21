@@ -1,8 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
-import '../../base.dart';
-import 'package:pica_comic/tools/translations.dart';
+part of pica_settings;
 
 class BlockingKeywordPageLogic extends StateController{
   var keywords = appdata.blockingKeyword;

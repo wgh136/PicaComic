@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
-import 'package:pica_comic/views/settings/jm_settings.dart';
+import 'package:pica_comic/views/settings/settings_page.dart';
 import '../../foundation/app.dart';
 import '../../network/res.dart';
 import '../page_template/comics_page.dart';

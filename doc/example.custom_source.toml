@@ -1,44 +1,12 @@
-# 自定义漫画源
+name = "爱看漫"
 
-> **警告: 此功能尚未完成, 正式版与此将会有很多不同**
-> 
-> 欢迎提供建议
-
-## 简介
-
-本项目使用 toml 文件作为配置文件, 使用js代码完成数据加载的逻辑, 可以实现:
-- 浏览漫画
-- 搜索漫画
-- 查看漫画详情
-- 阅读漫画
-- 下载漫画
-- 登录
-- 网络收藏和本地收藏
-- 历史记录
-
-## 开始编写漫画源
-
-> 你可以在此文档的目录中找到一个示例的配置文件
-
-### 基本信息
-
-```toml
-name = "漫画源"
-
-key = "abcd"
+# 唯一标识符
+key = "ikmmh"
 
 version = "1.0.0"
 
-url = "https://example.com"
-```
+url = ""
 
-`key`用于标识此漫画源, 用户的所有漫画源的key都不应该相同, 若有重复, 只有第一个被加载
-`url`为此配置文件的url, 用于更新
-
-### 账号
-
-示例:
-```toml
 [account]
 
 [account.login]
@@ -76,25 +44,8 @@ cookies = [
 data = []
 
 [account.register]
-website = "https://ymcdnyfqdapp.ikmmh.com/user/register/"
-```
+website = "https://ymcdnyfqdapp.ikmmh.com/user/register/" # 在登录页面显示一个注册按钮, 点击后在浏览器打开此网页
 
-#### 登录
-需要实现函数`async function login(account, pwd)`. 
-如果成功, 使用`success`函数返回任意结果; 
-如果失败, 使用`error`函数返回错误.
-
-#### 注销
-需要完成`cookies`和`data`字段, 用于清除登录信息
-
-#### 注册
-需要提供注册页面的url
-
-### 探索页面
-一个漫画源可以拥有多个探索页面
-
-示例:
-```toml
 [explore]
 
 [[explore.pages]]
@@ -150,30 +101,7 @@ async function loadMultiPart(){
 #   // 此函数返回结果见文档中的数据结构部分
 # }
 # """
-```
 
-探索页面有两种类型:
-- `multiPageComicList`: 多页漫画列表
-- `singlePageWithMultiPart`: 单页多部分漫画列表
-
-#### 加载多部分
-需要实现函数`async function loadMultiPart()`.
-如果成功, 使用`success`函数返回结果, 结果应该是一个map, 其中key为该部分的名称, value为漫画简略信息的数组
-
-#### 加载多页面漫画列表
-如果类型为`multiPageComicList`, 需要提供`loadPage`函数
-需要实现函数`async function loadPage(page)`.
-返回结果见此文档的数据结构部分
-
-### 分类页面
-
-本app中的分类页面指的是静态的, 列出所有分类tag的页面.
-对于单个漫画源, 仅可以有一个分类页面
-
-> 注意: 排行榜尚未实现
-
-示例:
-```toml
 [category]
 # title同时会被作为分类页面的key, 请确保其唯一性
 title = "爱看漫"
@@ -194,14 +122,7 @@ itemType = "category"
 # 如果提供该字段, 其长度必须与categories相等,
 # 加载分类页面的函数的参数中的param将不为null
 categoryParams = ['1', '2', '3', '4', '5', '6', '7']
-```
 
-### 分类漫画页面
-
-分类漫画页面指的是根据分类tag列出漫画的页面, 可以拥有一些选项, 例如排序, 筛选等
-
-示例:
-```toml
 [categoryComics]
 load = """
 async function load(category, param, options, page){
@@ -276,26 +197,7 @@ content = """
 6-未分类
 """
 notShowWhen = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
-```
 
-#### 提供选项
-提供一个数组, 其中每一个元素, 都包含`content`和`notShowWhen`字段
-
-`content`用于提供分类页面的选项, `notShowWhen`提供一个列表, 当分类页面的名称为列表中的任意一个时, 将不会显示此选项
-
-#### 加载漫画
-需要实现函数`async function load(category, param, options, page)`.
-
-`category`为分类页面的名称, `param`为分类页面的参数, `options`为提供的选项值列表, `page`为当前页面序号.
-
-如果成功, 使用`success`函数返回结果, 结果应该包含`comics`和`maxPage`字段, `comics`为漫画列表, `maxPage`为最大页数.
-
-### 搜索
-
-与分类漫画页面类似
-
-示例:
-```toml
 [search]
 load = """
 async function load(keyword, options, page){
@@ -331,27 +233,8 @@ async function load(keyword, options, page){
 }
 """
 
-[[search.options]]
-label = "排序模式"
-content = """
-1-最新
-2-最热
-3-评分
-"""
-```
-
-### 网络收藏
-
-提供添加和删除收藏功能, 加载收藏列表功能
-
-> 注意: 多收藏夹式的收藏功能尚未实现
-
-示例:
-```toml
 [favorite]
-# 是否是多收藏夹
-multiFolder = false 
-# 添加或者删除收藏, 如果是添加收藏, isAdding为true
+multiFolder = false
 addOrDelFavorite = """
 async function addOrDelFavorite(comicId, folderId, isAdding){
     let id = comicId.split("/")[4]
@@ -435,29 +318,7 @@ async function loadComics(page, folder){
     }
 }
 """
-```
 
-对于收藏功能, 如果返回结果为`error("Login expired")`, 将会自动重新登录, 并且重试
-
-#### 添加或删除收藏
-需要实现函数`async function addOrDelFavorite(comicId, folderId, isAdding)`
-- comicId: 漫画的id
-- folderId: 收藏夹的id, 如果是多收藏夹, 需要使用此字段, 否则可以忽略
-- isAdding: 是否是添加收藏
-- 如果成功, 使用`success`函数返回任意结果;
-
-#### 加载收藏列表
-需要实现函数`async function loadComics(page, folder)`
-- page: 当前页数
-- folder: 当前收藏夹的id, 如果是多收藏夹, 需要使用此字段, 否则可以忽略
-- 返回结果应该包含`comics`和`maxPage`字段, `comics`为漫画列表, `maxPage`为最大页数.
-
-### 加载漫画信息
-
-此部分用于加载漫画的详细信息和章节图片
-
-示例:
-```toml
 [comic]
 
 loadInfo = """
@@ -536,222 +397,6 @@ async function loadEp(comicId, epId){
     }
 }
 """
-```
 
-#### 加载漫画详情
-需要实现函数`async function loadInfo(id)`
-- id: 通过漫画简略信息得到的id
-- 返回结果详见此文档的数据结构部分
-
-#### 加载章节图片
-需要实现函数`async function loadEp(comicId, epId)`
-- comicId: 通过漫画简略信息得到的id
-- epId: 章节id, 如果是多章节, 需要使用此字段, 否则可以忽略
-
-### 设置
-
-漫画源配置文件可以向app的设置页面提供一些设置项
-
-> TODO: 设置项尚未实现
-
-## js代码
-
-使用js代码完成加载数据的操作, 以下为预定义的一些接口
-
-### 网络请求
-
-#### 发送网络请求
-xhr和fetch均不可使用, 以下代码通过与dart交互实现网络请求:
-
-网络请求始终返回string类型的数据, 请自行解析json或者html
-
-```js
-class Network {
-    static async sendRequest(method, url, headers, data) {
-        // 实现省略
-    }
-
-    static async get(url, headers) {
-        return this.sendRequest('GET', url, headers);
-    }
-
-    static async post(url, headers, data) {
-        return this.sendRequest('POST', url, headers, data);
-    }
-
-    static async put(url, headers, data) {
-        return this.sendRequest('PUT', url, headers, data);
-    }
-
-    static async patch(url, headers, data) {
-        return this.sendRequest('PATCH', url, headers, data);
-    }
-}
-```
-
-
-#### cookie
-cookie将被自动持久化储存
-
-// TODO: 修改cookie
-
-### 数据
-
-#### 持久化数据
-
-使用json格式持久化数据
-
-使用此函数写入数据
-
-`function setData(key, data)`
-
-- key: string 此数据的标识符
-- data: any
-
-读取数据
-
-`function loadData(key)`
-
-- key: string 数据的标识符
-- return: any
-
-#### 临时数据
-
-在js运行时启动时, 定义了此变量
-
-`let tempData = {}`
-
-向该变量写入数据即可
-
-### 日志
-
-使用此函数记录日志
-
-`function log(level, title, content)`
-
-- level: string 仅接受 'error', 'warning', 'info'
-- title: string
-- content: string
-
-### 返回结果
-
-在所有需要编写js代码的地方, 都需要编写一个函数, 例如登录:
-```js
-async function login(username, password) {
-    let res = await Network.post('https://example.com/login', {
-        'Content-Type': 'application/json'
-    }, JSON.stringify({
-        username: username,
-        password: password
-    }));
-    
-    if(res.status !== 200) {
-        sendError("登录失败")
-    } else {
-        success("ok")
-    }
-}
-```
-
-使用`success`函数返回结果, 使用`sendError`函数返回错误
-
-### 解析html
-
-由于处于非浏览器环境, 无法使用`DOMParser`
-
-为了实现解析html, 并且减少第三方库的依赖, 采用了与Dart端交互的方式实现解析html
-
-#### api
-
-加载html
-
-`let document = new HtmlDocument(html)`
-
-获取元素
-
-`let element = document.querySelector(selector)`
-
-`let elements = document.querySelectorAll(selector)`
-
-使用元素
-
-`let attributes = element.attributes`
-
-`let text = element.text`
-
-`let children = element.children`
-
-`let element1 = element.querySelector(selector)`
-
-`let elements1 = element.querySelectorAll(selector)`
-
-
-### 数据结构
-
-#### 漫画信息
-
-此数据结构用于加载漫画列表中的漫画的简略信息
-
-```
-{
-    title: string,
-    subtitle: string?,
-    cover: string,
-    id: string,
-    tags: string[],
-    description: string?,
-}
-```
-
-- id: 用于加载漫画的详细信息, 可以是漫画的url, 也可以是漫画的id
-- description: 漫画的某种信息, 取决于漫画源的提供的数据, 可以是上传时间, 语言, 等等
-
-#### 漫画详细信息
-
-此数据结构用于显示漫画的详细信息
-
-```
-{
-    title: string,
-    subtitle: string?,
-    cover: string,
-    description: string?,
-    tags: map<string, string[]>,
-    chapters: map<string, string>?,
-    thumbnails: string[]?,
-    thumbnailLoader: string?,
-    thumbnailMaxPage: number?,
-    suggestions: {
-        title: string,
-        subtitle: string?,
-        cover: string,
-        id: string,
-        tags: string[],
-        description: string?,
-    }[],
-}
-```
-
-- chapters: 漫画的章节, key为章节id, value为章节标题
-- thumbnails: 漫画的缩略图, 用于显示章节列表的缩略图
-- thumbnailLoader: (尚未实现)加载缩略图的函数
-- thumbnailMaxPage: (尚未实现)缩略图的最大页数
-- suggestions: 推荐的漫画, 用于显示在漫画详情页的推荐列表
-
-#### 漫画列表
-
-此数据结构为加载漫画列表的某一页返回的数据
-
-```
-{
-    comics: {
-        title: string,
-        subtitle: string?,
-        cover: string,
-        id: string,
-        tags: string[],
-        description: string?,
-    }[],
-    maxPage: number,
-}
-```
+# 适用于漫画的id是url时, 提取id用于漫画储存的正则表达式
+matchBriefIdRegex = "https://ymcdnyfqdapp.ikmmh.com/book/(\\d+)/"

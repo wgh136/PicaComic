@@ -1,24 +1,4 @@
-import 'package:flutter/services.dart';
-import 'package:pica_comic/comic_source/comic_source.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/main.dart';
-import 'package:pica_comic/network/download.dart';
-import 'package:pica_comic/network/webdav.dart';
-import 'package:pica_comic/views/explore_page.dart';
-import 'package:pica_comic/views/welcome_page.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import '../../network/update.dart';
-import '../../tools/io_tools.dart';
-import '../../network/http_client.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
-import '../widgets/value_listenable_widget.dart';
-import 'package:pica_comic/tools/translations.dart';
+part of pica_settings;
 
 void findUpdate(BuildContext context) {
   showMessage(context, "正在检查更新".tl, time: 2);

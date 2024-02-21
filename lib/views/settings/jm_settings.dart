@@ -1,12 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/tools/extensions.dart';
-import '../../base.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_network.dart';
-import '../widgets/select.dart';
-import 'package:pica_comic/tools/translations.dart';
-
-import '../widgets/show_message.dart';
+part of pica_settings;
 
 ///设置分类中漫画排序模式, 返回设置是否发生变化
 Future<bool> setJmComicsOrder(BuildContext context, {bool search = false}) async{

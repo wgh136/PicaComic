@@ -47,12 +47,23 @@ class ComicSource {
     }
     await for (var entity in Directory(path).list()) {
       if (entity is File && entity.path.endsWith(".toml")) {
-        var source =
-            await ComicSourceParser().parse(await entity.readAsString());
-        await source.loadData();
-        sources.add(source);
+        try {
+          var source =
+          await ComicSourceParser().parse(
+              await entity.readAsString(), entity.absolute.path);
+          await source.loadData();
+          sources.add(source);
+        }
+        catch(e, s){
+          log("$e\n$s", "ComicSource", LogLevel.error);
+        }
       }
     }
+  }
+
+  static reload() async{
+    sources.clear();
+    await init();
   }
 
   /// Name of this source.
@@ -103,6 +114,10 @@ class ComicSource {
 
   bool get isLogin => data["account"] != null;
 
+  final String filePath;
+
+  final String url;
+
   Future<void> loadData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
     if (await file.exists()) {
@@ -144,7 +159,9 @@ class ComicSource {
       this.loadComicInfo,
       this.loadComicPages,
       this.loadImage,
-      this.matchBriefIdReg);
+      this.matchBriefIdReg,
+      this.filePath,
+      this.url);
 }
 
 class AccountConfig {

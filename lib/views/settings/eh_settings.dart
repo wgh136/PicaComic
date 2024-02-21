@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/network/eh_network/eh_main_network.dart';
-import '../../base.dart';
-import '../widgets/select.dart';
+part of pica_settings;
 
 class EhSettings extends StatefulWidget {
   const EhSettings(this.popUp, {Key? key}) : super(key: key);

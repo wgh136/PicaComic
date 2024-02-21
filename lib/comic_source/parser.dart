@@ -17,12 +17,38 @@ class ComicSourceParser {
 
   String? _name;
 
-  Future<ComicSource> parse(String toml) async {
+  Future<ComicSource> createAndParse(String toml, String fileName) async{
+    if(!fileName.endsWith("toml")){
+      fileName = "$fileName.toml";
+    }
+    var file = File("${App.dataPath}/comic_source/$fileName");
+    if(file.existsSync()){
+      int i = 0;
+      while(file.existsSync()){
+        file = File("${App.dataPath}/comic_source/$fileName($i).toml");
+        i++;
+      }
+    }
+    await file.writeAsString(toml);
+    try{
+      return await parse(toml, fileName);
+    } catch (e) {
+      await file.delete();
+      rethrow;
+    }
+  }
+
+  Future<ComicSource> parse(String toml, String filePath) async {
     var document = TomlDocument.parse(toml).toMap();
     _name = document["name"] ??
         (throw ComicSourceParseException("name is required"));
     final String key =
         document["key"] ?? (throw ComicSourceParseException("key is required"));
+    for(var source in ComicSource.sources){
+      if(source.key == key){
+        throw ComicSourceParseException("key($key) already exists");
+      }
+    }
     _key = key;
     _checkKeyValidation();
 
@@ -50,7 +76,9 @@ class ComicSourceParser {
         loadComicFunc,
         loadComicPagesFunc,
         null,
-        document["comic"]["matchBriefIdRegex"]);
+        document["comic"]["matchBriefIdRegex"],
+        filePath,
+        document["url"] ?? "");
   }
 
   _checkKeyValidation() {
@@ -102,11 +130,7 @@ class ComicSourceParser {
       return const [];
     }
     var pages = <ExplorePageData>[];
-    for (var element in doc["pages"]) {
-      if (element is! String || doc[element] is! Map) {
-        continue;
-      }
-      Map<String, dynamic> page = doc[element];
+    for (var page in doc["pages"]) {
       final String title = page["title"];
       final String type = page["type"];
       final String? loadMultiPartJs = page["loadMultiPart"];
@@ -139,7 +163,20 @@ class ComicSourceParser {
           }
         };
       } else if (loadPageJs != null) {
-        // TODO
+        loadPage = (int page) async {
+          try {
+            var key = await JsEngine().runProtectedWithKey(
+                "$loadPageJs\nloadPage($page);", _key!);
+            var res = await JsEngine().wait(key);
+            return Res(
+                List.generate(res["comics"].length,
+                        (index) => CustomComic.fromJson(res["comics"][index], _key!)),
+                subData: res["maxPage"]);
+          } catch (e, s) {
+            log("$e\n$s", "Data Analysis", LogLevel.error);
+            return Res.error(e.toString());
+          }
+        };
       }
       pages.add(ExplorePageData(
           title,
@@ -163,12 +200,10 @@ class ComicSourceParser {
 
     final String title = doc["title"];
     final bool? enableRankingPage = doc["enableRankingPage"];
-    final List<String> parts = List.from(doc["parts"]);
 
     var categoryParts = <BaseCategoryPart>[];
 
-    for (var part in parts) {
-      var c = doc[part];
+    for (var c in doc["parts"]) {
       final String name = c["name"];
       final String type = c["type"];
       final List<String> tags = List.from(c["categories"]);
@@ -354,19 +389,31 @@ class ComicSourceParser {
     }
     final String loadComicJs = doc["loadComics"];
     Future<Res<List<BaseComic>>> loadComic(int page, [String? folder]) async {
-      try {
-        final key = await JsEngine().runProtectedWithKey(
-            "$loadComicJs\nloadComics($page, ${jsonEncode(folder)})",
-            _key!);
-        var res = await JsEngine().wait(key);
-        return Res(
-            List.generate(res["comics"].length,
-                (index) => CustomComic.fromJson(res["comics"][index], _key!)),
-            subData: res["maxPage"]);
-      } catch (e, s) {
-        log("$e\n$s", "Network", LogLevel.error);
-        return Res.error(e.toString());
+      Future<Res<List<BaseComic>>> func() async{
+        try {
+          final key = await JsEngine().runProtectedWithKey(
+              "$loadComicJs\nloadComics($page, ${jsonEncode(folder)})",
+              _key!);
+          var res = await JsEngine().wait(key);
+          return Res(
+              List.generate(res["comics"].length,
+                      (index) => CustomComic.fromJson(res["comics"][index], _key!)),
+              subData: res["maxPage"]);
+        } catch (e, s) {
+          log("$e\n$s", "Network", LogLevel.error);
+          return Res.error(e.toString());
+        }
       }
+      var res = await func();
+      if (res.error && res.errorMessage!.contains("Login expired")) {
+        var reLoginRes = await ComicSource.find(_key!)!.reLogin();
+        if (!reLoginRes) {
+          return const Res.error("Login expired and re-login failed");
+        } else {
+          return func();
+        }
+      }
+      return res;
     }
 
     return FavoriteData(

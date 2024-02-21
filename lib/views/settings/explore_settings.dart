@@ -1,17 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/comic_source/comic_source.dart';
-import 'package:pica_comic/main.dart';
-import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/settings/app_settings.dart';
-import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
-import 'package:pica_comic/views/settings/multi_pages_filter.dart';
-import 'package:pica_comic/views/widgets/select.dart';
-import 'package:pica_comic/views/widgets/stateful_switch.dart';
-
-import '../../foundation/app.dart';
-import '../widgets/pop_up_widget.dart';
+part of pica_settings;
 
 Widget buildExploreSettings(BuildContext context, bool popUp) {
   var comicTileSettings = appdata.settings[44].split(',');

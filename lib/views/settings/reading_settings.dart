@@ -1,8 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/material.dart';
-import '../../base.dart';
-import '../widgets/select.dart';
-import 'package:pica_comic/tools/translations.dart';
+part of pica_settings;
 
 class ReadingSettings extends StatefulWidget {
   const ReadingSettings(this.popUp, {super.key});

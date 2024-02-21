@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../../base.dart';
-import '../../foundation/app.dart';
+part of pica_settings;
 
 class MultiPagesFilter extends StatefulWidget {
   const MultiPagesFilter(this.title, this.settingsIndex, this.pages, {super.key});

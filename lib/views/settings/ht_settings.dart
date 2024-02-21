@@ -1,9 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import '../../base.dart';
+part of pica_settings;
 
 class HtSettings extends StatefulWidget {
   const HtSettings(this.popUp, {super.key});

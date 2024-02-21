@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/tools/translations.dart';
-import '../../base.dart';
-import '../../foundation/local_favorites.dart';
-import '../widgets/select.dart';
+part of pica_settings;
 
 class LocalFavoritesSettings extends StatefulWidget {
   const LocalFavoritesSettings({super.key});

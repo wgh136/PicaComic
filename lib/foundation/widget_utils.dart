@@ -21,6 +21,14 @@ extension WidgetExtension on Widget{
     return Padding(padding: EdgeInsets.only(bottom: padding), child: this);
   }
 
+  Widget paddingVertical(double padding){
+    return Padding(padding: EdgeInsets.symmetric(vertical: padding), child: this);
+  }
+
+  Widget paddingHorizontal(double padding){
+    return Padding(padding: EdgeInsets.symmetric(horizontal: padding), child: this);
+  }
+
   Widget paddingAll(double padding){
     return Padding(padding: EdgeInsets.all(padding), child: this);
   }
