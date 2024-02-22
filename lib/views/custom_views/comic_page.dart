@@ -148,7 +148,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   @override
   EpsData? get eps => data!.chapters != null
       ? EpsData(data!.chapters!.values.toList(), (ep) {
-          readWithKey(sourceKey, id, ep, 1, data!.title,
+          readWithKey(sourceKey, id, ep+1, 1, data!.title,
               {"eps": data!.chapters, "cover": data!.cover});
         })
       : null;

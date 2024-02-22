@@ -10,6 +10,7 @@ import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 
 import '../../foundation/app.dart';
+import '../widgets/comic_tile.dart';
 import '../widgets/show_message.dart';
 
 class NetworkFavoritePage extends StatelessWidget {
@@ -64,6 +65,24 @@ class _NormalFavoritePage extends ComicsPage<BaseComic>{
 
   @override
   bool get showBackWhenError => false;
+  
+  @override
+  List<ComicTileMenuOption>? get addonMenuOptions => [
+    if(data.addOrDelFavorite != null)
+      ComicTileMenuOption("取消收藏".tl, Icons.playlist_remove_outlined, (id) {
+        if(id == null) return;
+        showMessage(null, "正在取消收藏".tl, time: 10);
+        data.addOrDelFavorite!(id, "0", false).then((res) {
+          hideMessage(null);
+          if(res.error){
+            showMessage(null, res.errorMessage!);
+          } else {
+            showMessage(null, "取消收藏成功".tl);
+            refresh();
+          }
+        });
+      })
+  ];
 
 }
 

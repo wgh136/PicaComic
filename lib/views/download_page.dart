@@ -142,14 +142,14 @@ class DownloadPage extends StatelessWidget {
         init: DownloadPageLogic(),
         builder: (logic) {
           if (logic.loading) {
-            getComics(logic).then((v) {
+            Future.wait([getComics(logic), Future.delayed(const Duration(milliseconds: 300))]).then((v) {
               logic.resetSelected(logic.comics.length);
               logic.change();
             });
             return Scaffold(
               appBar: AppBar(),
-              body: Center(
-                child: Text("加载中".tl),
+              body: const Center(
+                child: CircularProgressIndicator(),
               ),
             );
           } else {

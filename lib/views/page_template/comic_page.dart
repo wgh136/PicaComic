@@ -27,6 +27,8 @@ import '../widgets/show_message.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/foundation/stack.dart' as stack;
 
+import 'dart:math' as math;
+
 @immutable
 class EpsData {
   /// episodes text
@@ -72,6 +74,7 @@ class ComicPageLogic<T extends Object> extends StateController {
   bool favorite = false;
   History? history;
   bool reverseEpsOrder = false;
+  bool showFullEps = false;
 
   void get(Future<Res<T>> Function() loadData,
       Future<bool> Function(T) loadFavorite, String id) async {
@@ -749,10 +752,16 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
     yield const SliverPadding(padding: EdgeInsets.all(6));
 
+    int length = eps!.eps.length;
+
+    if(!_logic.showFullEps){
+      length = math.min(length, 20);
+    }
+
     yield SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate(childCount: eps!.eps.length,
+        delegate: SliverChildBuilderDelegate(childCount: length,
                 (context, i) {
               if(_logic.reverseEpsOrder){
                 i = eps!.eps.length - i - 1;
@@ -795,6 +804,21 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
       ),
     );
+
+    if(eps!.eps.length > 20 && !_logic.showFullEps){
+      yield SliverToBoxAdapter(
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: (){
+              _logic.showFullEps = true;
+              _logic.update();
+            },
+            child: Text("显示全部".tl),
+          ).paddingTop(8).paddingRight(8),
+        ),
+      );
+    }
   }
 
   List<Widget> buildIntroduction(BuildContext context) {

@@ -17,7 +17,7 @@ import '../widgets/loading.dart';
 
 class HiComicTile extends ComicTile {
   final HitomiComicBrief comic;
-  const HiComicTile(this.comic, {super.key});
+  const HiComicTile(this.comic, {super.key, this.addonMenuOptions});
   
   List<String> _generateTags(List<Tag> tags){
     var res = <String>[];
@@ -99,6 +99,9 @@ class HiComicTile extends ComicTile {
 
   @override
   String get comicID => comic.link;
+
+  @override
+  final List<ComicTileMenuOption>? addonMenuOptions;
 }
 
 class ComicDescription extends StatelessWidget {
@@ -156,8 +159,10 @@ class ComicDescription extends StatelessWidget {
 }
 
 class HitomiComicTileDynamicLoading extends StatefulWidget {
-  const HitomiComicTileDynamicLoading(this.id, {Key? key}) : super(key: key);
+  const HitomiComicTileDynamicLoading(this.id, {Key? key, this.addonMenuOptions}) : super(key: key);
   final int id;
+
+  final List<ComicTileMenuOption>? addonMenuOptions;
 
   @override
   State<HitomiComicTileDynamicLoading> createState() => _HitomiComicTileDynamicLoadingState();
@@ -208,7 +213,7 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
 
       return buildLoadingWidget();
     }else{
-      return HiComicTile(comic!);
+      return HiComicTile(comic!, addonMenuOptions: widget.addonMenuOptions);
     }
   }
 

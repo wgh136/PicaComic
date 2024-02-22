@@ -382,7 +382,7 @@ extension ImageExt on ComicReadingPage {
   ImageProvider createImageProvider(
       ReadingType type, ComicReadingPageLogic logic, int index, String target) {
     return StreamImageProvider(
-        logic.data.loadImage(logic.order, index, logic.urls[index]),
+        () => logic.data.loadImage(logic.order, index, logic.urls[index]),
         "${logic.data.id} ${logic.order} $index}");
   }
 
@@ -431,15 +431,17 @@ extension ImageExt on ComicReadingPage {
     }
     int precacheNum = int.parse(appdata.settings[28]) + index;
     for (; index < precacheNum; index++) {
-      if (index >= logic.urls.length || logic.requestedLoadingItems[index])
+      if (index >= logic.urls.length || logic.requestedLoadingItems[index]) {
         return;
+      }
       precacheImage(createImageProvider(type, logic, index, target), context);
     }
     if (ImageManager.loadingItems.isEmpty) {
       precacheNum += 3;
       for (; index < precacheNum; index++) {
-        if (index >= logic.urls.length || logic.requestedLoadingItems[index])
+        if (index >= logic.urls.length || logic.requestedLoadingItems[index]) {
           return;
+        }
         precacheImage(createImageProvider(type, logic, index, target), context);
       }
     }

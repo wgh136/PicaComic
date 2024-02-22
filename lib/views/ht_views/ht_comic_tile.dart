@@ -71,7 +71,7 @@ class HtComicTile extends ComicTile {
 
 class HtComicTileInFavoritePage extends HtComicTile {
   const HtComicTileInFavoritePage(
-      {super.key, required super.comic, required this.refresh});
+      {super.key, required super.comic, required this.refresh, this.addonMenuOptions});
 
   final void Function() refresh;
 
@@ -168,4 +168,7 @@ class HtComicTileInFavoritePage extends HtComicTile {
 
   @override
   FavoriteItem? get favoriteItem => FavoriteItem.fromHtcomic(comic);
+
+  @override
+  final List<ComicTileMenuOption>? addonMenuOptions;
 }

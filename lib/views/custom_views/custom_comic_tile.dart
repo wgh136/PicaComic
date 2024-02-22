@@ -9,7 +9,7 @@ import '../../foundation/image_loader/cached_image.dart';
 import '../widgets/animated_image.dart';
 
 class CustomComicTile extends ComicTile{
-  const CustomComicTile(this.comic, {super.key});
+  const CustomComicTile(this.comic, {super.key, this.addonMenuOptions});
 
   final CustomComic comic;
 
@@ -43,4 +43,9 @@ class CustomComicTile extends ComicTile{
   @override
   List<String>? get tags => comic.tags;
 
+  @override
+  final List<ComicTileMenuOption>? addonMenuOptions;
+
+  @override
+  String? get comicID => comic.id;
 }

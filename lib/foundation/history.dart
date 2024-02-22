@@ -264,13 +264,13 @@ class HistoryManager {
   }
 
   /// 获取最近一周的阅读数据, 用于生成图表, List中的元素是当天阅读的漫画数量
-  List<int> getWeekData(){
+  List<int> getWeekData(int days){
     var res = _db.select("""
       select * from history
-      where time > ${DateTime.now().add(const Duration(days: -6)).millisecondsSinceEpoch}
+      where time > ${DateTime.now().add(Duration(days: 1-days)).millisecondsSinceEpoch}
       order by time ASC;
     """);
-    var data = List<int>.filled(7, 0);
+    var data = List<int>.filled(days, 0);
     for(var element in res){
       var time = DateTime.fromMillisecondsSinceEpoch(element["time"] as int);
       data[DateTime.now().difference(time).inDays]++;

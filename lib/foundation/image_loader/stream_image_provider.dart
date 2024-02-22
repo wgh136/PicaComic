@@ -11,9 +11,9 @@ class StreamImageProvider
     extends BaseImageProvider<StreamImageProvider> {
 
   /// Image provider with [Stream<DownloadProgress>].
-  const StreamImageProvider(this.stream, this.key);
+  const StreamImageProvider(this.streamBuilder, this.key);
 
-  final Stream<DownloadProgress> stream;
+  final Stream<DownloadProgress> Function() streamBuilder;
 
   @override
   final String key;
@@ -26,7 +26,7 @@ class StreamImageProvider
     );
     DownloadProgress? finishProgress;
 
-    await for (var progress in stream) {
+    await for (var progress in streamBuilder()) {
       if (progress.currentBytes == progress.expectedBytes) {
         finishProgress = progress;
       }

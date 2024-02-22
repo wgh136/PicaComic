@@ -23,6 +23,7 @@ import '../../base.dart';
 import '../../foundation/app.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
+import '../widgets/comic_tile.dart';
 import '../widgets/list_loading.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -52,7 +53,7 @@ class ComicsPageLogic<T> extends StateController {
   bool showFloatingButton = true;
 
   void get(Future<Res<List<T>>> Function(int) getComics) async {
-    if(loadingData) return;
+    if (loadingData) return;
     loadingData = true;
     if (comics == null) {
       var res = await getComics(1);
@@ -82,7 +83,6 @@ class ComicsPageLogic<T> extends StateController {
       update();
     }
     loadingData = false;
-
   }
 
   void loadNextPage(Future<Res<List<T>>> Function(int) getComics) async {
@@ -161,6 +161,8 @@ abstract class ComicsPage<T> extends StatelessWidget {
   ///加载时显示返回按钮
   bool get showBackWhenLoading => showTitle;
 
+  List<ComicTileMenuOption>? get addonMenuOptions => null;
+
   ///刷新页面
   void refresh() {
     StateController.find<ComicsPageLogic<T>>(tag: tag).refresh_();
@@ -182,14 +184,14 @@ abstract class ComicsPage<T> extends StatelessWidget {
       }
     }
 
-    Widget? removeSliver(Widget? widget){
-      if(widget == null) return null;
+    Widget? removeSliver(Widget? widget) {
+      if (widget == null) return null;
 
-      if(widget is SliverToBoxAdapter){
+      if (widget is SliverToBoxAdapter) {
         return widget.child;
       }
 
-      if(widget is SliverPersistentHeader){
+      if (widget is SliverPersistentHeader) {
         return null;
       }
 
@@ -213,20 +215,20 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 Expanded(
                   child: !showBackWhenLoading
                       ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
+                          child: CircularProgressIndicator(),
+                        )
                       : showLoading(context),
                 )
               ],
             );
-          } else if (logic.message != null){
+          } else if (logic.message != null) {
             return Column(
               children: [
                 removeSliver(head) ?? const SizedBox(),
                 Expanded(
-                  child: showNetworkError(
-                    logic.message ?? "Network Error", logic.refresh_, context,
-                  showBack: showBackWhenError))
+                    child: showNetworkError(logic.message ?? "Network Error",
+                        logic.refresh_, context,
+                        showBack: showBackWhenError))
               ],
             );
           } else {
@@ -284,33 +286,39 @@ abstract class ComicsPage<T> extends StatelessWidget {
                         actions: tailing != null ? [tailing!] : null,
                       ),
                   if (head != null) head!,
-                  if(showPageIndicator && appdata.settings[64] == "0" && comics![logic.current]!.length > 4)
+                  if (showPageIndicator &&
+                      appdata.settings[64] == "0" &&
+                      comics![logic.current]!.length > 4)
                     buildPageSelector(context, logic),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: comics?[logic.current]!.length,
-                            (context, i) {
-                          return buildItem(context, comics![logic.current]![i]);
-                        }),
+                        (context, i) {
+                      return buildItem(context, comics![logic.current]![i]);
+                    }),
                     gridDelegate: SliverGridDelegateWithComics(),
                   ),
-                  if(showPageIndicator && appdata.settings[64] == "0")
+                  if (showPageIndicator && appdata.settings[64] == "0")
                     buildPageSelector(context, logic),
-                  SliverPadding(padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).padding.bottom))
+                  SliverPadding(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).padding.bottom))
                 ],
               );
 
               body = NotificationListener<ScrollUpdateNotification>(
-                onNotification: (notifications){
-                  if(notifications.scrollDelta != null){
-                    if(notifications.scrollDelta! > 0 && logic.showFloatingButton){
+                onNotification: (notifications) {
+                  if (notifications.scrollDelta != null) {
+                    if (notifications.scrollDelta! > 0 &&
+                        logic.showFloatingButton) {
                       logic.showFloatingButton = false;
                       logic.update();
-                    } else if((notifications.scrollDelta! < 0
-                        || notifications.metrics.pixels == notifications.metrics.minScrollExtent
-                        || notifications.metrics.pixels == notifications.metrics.maxScrollExtent)
-                        && !logic.showFloatingButton){
+                    } else if ((notifications.scrollDelta! < 0 ||
+                            notifications.metrics.pixels ==
+                                notifications.metrics.minScrollExtent ||
+                            notifications.metrics.pixels ==
+                                notifications.metrics.maxScrollExtent) &&
+                        !logic.showFloatingButton) {
                       logic.showFloatingButton = true;
                       logic.update();
                     }
@@ -320,19 +328,18 @@ abstract class ComicsPage<T> extends StatelessWidget {
                 child: body,
               );
 
-              if(showPageIndicator && appdata.settings[64] == "1"){
+              if (showPageIndicator && appdata.settings[64] == "1") {
                 return Stack(
                   children: [
                     Positioned.fill(
                       child: body,
                     ),
                     Positioned(
-                      left: 0,
-                      right: 12,
-                      top: 0,
-                      bottom: 0,
-                      child: buildPageSelectorRight(context, logic)
-                    )
+                        left: 0,
+                        right: 12,
+                        top: 0,
+                        bottom: 0,
+                        child: buildPageSelectorRight(context, logic))
                   ],
                 );
               } else {
@@ -342,8 +349,11 @@ abstract class ComicsPage<T> extends StatelessWidget {
           }
         });
 
-    if(head != null && UiMode.m1(context)) {
-      body = SafeArea(bottom: false,child: body,);
+    if (head != null && UiMode.m1(context)) {
+      body = SafeArea(
+        bottom: false,
+        child: body,
+      );
     }
 
     if (withScaffold) {
@@ -363,7 +373,7 @@ abstract class ComicsPage<T> extends StatelessWidget {
     }
   }
 
-  Widget buildPageSelector(BuildContext context, ComicsPageLogic logic){
+  Widget buildPageSelector(BuildContext context, ComicsPageLogic logic) {
     return SliverToBoxAdapter(
       child: Material(
         color: Colors.transparent,
@@ -374,8 +384,11 @@ abstract class ComicsPage<T> extends StatelessWidget {
             height: 42,
             child: Row(
               children: [
-                const SizedBox(width: 16,),
-                FilledButton.tonal(onPressed: () => prevPage(logic), child: Text("上一页".tl)),
+                const SizedBox(
+                  width: 16,
+                ),
+                FilledButton.tonal(
+                    onPressed: () => prevPage(logic), child: Text("上一页".tl)),
                 const Spacer(),
                 ActionChip(
                   label: Text(
@@ -387,8 +400,11 @@ abstract class ComicsPage<T> extends StatelessWidget {
                   side: BorderSide.none,
                 ),
                 const Spacer(),
-                FilledButton.tonal(onPressed: () => nextPage(logic), child: Text("下一页".tl)),
-                const SizedBox(width: 16,),
+                FilledButton.tonal(
+                    onPressed: () => nextPage(logic), child: Text("下一页".tl)),
+                const SizedBox(
+                  width: 16,
+                ),
               ],
             ),
           ),
@@ -397,71 +413,80 @@ abstract class ComicsPage<T> extends StatelessWidget {
     );
   }
 
-  Widget buildPageSelectorRight(BuildContext context, ComicsPageLogic logic){
+  Widget buildPageSelectorRight(BuildContext context, ComicsPageLogic logic) {
     return Align(
-      alignment: Alignment.centerRight,
-      child: AnimatedSlide(
-        offset: logic.showFloatingButton ? const Offset(0, 0) : const Offset(1.5, 0),
-        duration: const Duration(milliseconds: 200),
-        child: Material(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(16),
-          elevation: 3,
-          child: SizedBox(
-            height: 156,
-            width: 58,
-            child: Column(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                    onTap: (){
-                      prevPage(logic);
-                    },
-                    child: const SizedBox.expand(
-                      child: Center(
-                        child: Icon(Icons.keyboard_arrow_left),
+        alignment: Alignment.centerRight,
+        child: AnimatedSlide(
+          offset: logic.showFloatingButton
+              ? const Offset(0, 0)
+              : const Offset(1.5, 0),
+          duration: const Duration(milliseconds: 200),
+          child: Material(
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(16),
+            elevation: 3,
+            child: SizedBox(
+              height: 156,
+              width: 58,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16)),
+                      onTap: () {
+                        prevPage(logic);
+                      },
+                      child: const SizedBox.expand(
+                        child: Center(
+                          child: Icon(Icons.keyboard_arrow_left),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const Divider(height: 1,),
-                Expanded(
-                  child: InkWell(
-                    onTap: (){
+                  const Divider(
+                    height: 1,
+                  ),
+                  Expanded(
+                      child: InkWell(
+                    onTap: () {
                       selectPage(logic);
                     },
                     child: SizedBox.expand(
                       child: Center(
-                        child: Text("${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
+                        child: Text(
+                            "${logic.current}/${logic.maxPage?.toString() ?? "?"}"),
                       ),
                     ),
-                  )
-                ),
-                const Divider(height: 1,),
-                Expanded(
-                  child: InkWell(
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
-                    onTap: (){
-                      nextPage(logic);
-                    },
-                    child: const SizedBox.expand(
-                      child: Center(
-                        child: Icon(Icons.keyboard_arrow_right),
+                  )),
+                  const Divider(
+                    height: 1,
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                          bottomRight: Radius.circular(16)),
+                      onTap: () {
+                        nextPage(logic);
+                      },
+                      child: const SizedBox.expand(
+                        child: Center(
+                          child: Icon(Icons.keyboard_arrow_right),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ));
+        ));
   }
 
-  void nextPage(ComicsPageLogic logic){
-    if (logic.current == logic.maxPage ||
-        logic.current == 0) {
+  void nextPage(ComicsPageLogic logic) {
+    if (logic.current == logic.maxPage || logic.current == 0) {
       showMessage(App.globalContext, "已经是最后一页了".tl);
     } else {
       logic.current++;
@@ -469,9 +494,8 @@ abstract class ComicsPage<T> extends StatelessWidget {
     }
   }
 
-  void prevPage(ComicsPageLogic logic){
-    if (logic.current == 1 ||
-        logic.current == 0) {
+  void prevPage(ComicsPageLogic logic) {
+    if (logic.current == 1 || logic.current == 0) {
       showMessage(App.globalContext, "已经是第一页了".tl);
     } else {
       logic.current--;
@@ -479,86 +503,90 @@ abstract class ComicsPage<T> extends StatelessWidget {
     }
   }
 
-  void selectPage(ComicsPageLogic logic) async{
+  void selectPage(ComicsPageLogic logic) async {
     String res = "";
     await showDialog(
-    context: App.globalContext!,
-    builder: (dialogContext) {
-      var controller =
-      TextEditingController();
-      return SimpleDialog(
-        title: const Text("切换页面"),
-        children: [
-          const SizedBox(
-            width: 300,
-          ),
-          Padding(
-            padding:
-            const EdgeInsets.fromLTRB(
-                16, 10, 16, 20),
-            child: TextField(
-              decoration: InputDecoration(
-                border:
-                const OutlineInputBorder(),
-                labelText: "页码".tl,
-                suffixText:
-                "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
+        context: App.globalContext!,
+        builder: (dialogContext) {
+          var controller = TextEditingController();
+          return SimpleDialog(
+            title: const Text("切换页面"),
+            children: [
+              const SizedBox(
+                width: 300,
               ),
-              controller: controller,
-              onSubmitted: (s) {
-                res = s;
-                App.globalBack();
-              },
-            ),
-          ),
-          Center(
-            child: FilledButton(
-              child: Text("提交".tl),
-              onPressed: () {
-                res = controller.text;
-                App.globalBack();
-              },
-            ),
-          )
-        ],
-      );
-    });
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: "页码".tl,
+                    suffixText:
+                        "${"输入范围: ".tl}1-${logic.maxPage?.toString() ?? "?"}",
+                  ),
+                  controller: controller,
+                  onSubmitted: (s) {
+                    res = s;
+                    App.globalBack();
+                  },
+                ),
+              ),
+              Center(
+                child: FilledButton(
+                  child: Text("提交".tl),
+                  onPressed: () {
+                    res = controller.text;
+                    App.globalBack();
+                  },
+                ),
+              )
+            ],
+          );
+        });
     if (res.isNum) {
       int i = int.parse(res);
-      if (logic.maxPage == null ||
-          (i > 0 && i <= logic.maxPage!)) {
+      if (logic.maxPage == null || (i > 0 && i <= logic.maxPage!)) {
         logic.current = i;
         logic.update();
         return;
       }
     }
     if (res != "") {
-      showMessage(App.globalContext, "输入的数字不正确");
+      showMessage(App.globalContext, "输入的数字不正确".tl);
     }
   }
 
-  Widget buildItem(BuildContext context, T item){
+  Widget buildItem(BuildContext context, T item) {
     switch (type.index) {
       case 0:
-        return PicComicTile(item as ComicItemBrief);
+        return PicComicTile(item as ComicItemBrief,
+            addonMenuOptions: addonMenuOptions);
       case 1:
         return EhGalleryTile(item as EhGalleryBrief);
       case 2:
-        return JmComicTile(item as JmComicBrief);
+        return JmComicTile(item as JmComicBrief,
+            addonMenuOptions: addonMenuOptions);
       case 3:
         if (item is int) {
-          return HitomiComicTileDynamicLoading(item);
+          return HitomiComicTileDynamicLoading(item,
+              addonMenuOptions: addonMenuOptions);
         } else {
-          return HiComicTile(item as HitomiComicBrief);
+          return HiComicTile(item as HitomiComicBrief,
+              addonMenuOptions: addonMenuOptions);
         }
       case 4:
         return HtComicTile(comic: item as HtComicBrief);
       case 5:
-        return HtComicTileInFavoritePage(comic: item as HtComicBrief, refresh: refresh);
+        return HtComicTileInFavoritePage(
+            comic: item as HtComicBrief,
+            refresh: refresh,
+            addonMenuOptions: addonMenuOptions);
       case 6:
-        return NhentaiComicTile(item as NhentaiComicBrief);
+        return NhentaiComicTile(item as NhentaiComicBrief,
+            addonMenuOptions: addonMenuOptions);
       default:
-        return CustomComicTile(item as CustomComic);
+        return CustomComicTile(item as CustomComic,
+            addonMenuOptions: addonMenuOptions);
     }
   }
 }
