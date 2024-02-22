@@ -68,10 +68,12 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
-  ComicReadingPageLogic(this.order, this.data, int initialPage)
+  ComicReadingPageLogic(this.order, this.data, int initialPage, this.updateHistory)
       : pageController =
             PageController(initialPage: _getPage(initialPage)),
-        index = _getIndex(initialPage);
+        _index = _getIndex(initialPage);
+
+  final void Function() updateHistory;
 
   ReadingData data;
 
@@ -103,7 +105,16 @@ class ComicReadingPageLogic extends StateController {
   }
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
-  int index;
+  int _index;
+
+  ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
+  int get index => _index;
+
+  ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
+  set index(int value) {
+    _index = value;
+    updateHistory();
+  }
 
   ///当前的章节位置, 从1开始
   int order;

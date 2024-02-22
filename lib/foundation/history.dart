@@ -212,15 +212,17 @@ class HistoryManager {
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
-  Future<void> saveReadHistory(History history) async {
+  Future<void> saveReadHistory(History history, [bool updateMePage = true]) async {
     _db.execute("""
         update history
         set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?, max_page = ?
         where target == ?;
     """, [history.ep, history.page, history.readEpisode.join(','), history.maxPage, history.target]);
-    scheduleMicrotask(() {
-      StateController.findOrNull(tag: "me_page")?.update();
-    });
+    if(updateMePage){
+      scheduleMicrotask(() {
+        StateController.findOrNull(tag: "me_page")?.update();
+      });
+    }
   }
 
   void clearHistory() {

@@ -64,6 +64,20 @@ class _EhSettingsState extends State<EhSettings> {
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.notes),
+              title: Text("优先显示副标题".tl),
+              subtitle: Text("适用于已下载的画廊".tl),
+              trailing: Switch(
+                value: appdata.settings[78] == "1",
+                onChanged: (b) {
+                  setState(() {
+                    appdata.settings[78] = b ? "1" : "0";
+                  });
+                  appdata.updateSettings();
+                },
+              ),
+            ),
+            ListTile(
               leading: const Icon(Icons.request_page_rounded),
               title: Text("配置文件".tl),
               trailing: const Icon(Icons.chevron_right),

@@ -40,7 +40,6 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../widgets/select.dart';
 
-
 part 'eps_view.dart';
 part 'image_view.dart';
 part 'image.dart';
@@ -65,47 +64,89 @@ class ComicReadingPage extends StatelessWidget {
 
   ReadingType get type => readingData.type;
 
-  ComicReadingPage(this.readingData, this.initialPage, this.initialEp, {super.key}){
-    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+  ComicReadingPage(this.readingData, this.initialPage, this.initialEp,
+      {super.key}) {
+    StateController.put(ComicReadingPageLogic(
+        initialEp,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
-  ComicReadingPage.picacg(String target, this.initialEp, List<String> eps, String title,
+  ComicReadingPage.picacg(
+      String target, this.initialEp, List<String> eps, String title,
       {super.key, this.initialPage = 1})
-      : readingData = PicacgReadingData(title, target, eps){
-    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+      : readingData = PicacgReadingData(title, target, eps) {
+    StateController.put(ComicReadingPageLogic(
+        initialEp,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
   ComicReadingPage.ehentai(String target, Gallery gallery,
       {super.key, this.initialPage = 1})
-      : initialEp = 1, readingData = EhReadingData(gallery){
-    StateController.put(ComicReadingPageLogic(1, readingData, initialPage));
+      : initialEp = 1,
+        readingData = EhReadingData(gallery) {
+    StateController.put(ComicReadingPageLogic(
+        1,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
-  ComicReadingPage.jmComic(String target, String title, List<String> epIds, this.initialEp, List<String> epNames,
+  ComicReadingPage.jmComic(String target, String title, List<String> epIds,
+      this.initialEp, List<String> epNames,
       {super.key, this.initialPage = 1})
-      : readingData = JmReadingData(title, target, epIds, epNames){
-    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+      : readingData = JmReadingData(title, target, epIds, epNames) {
+    StateController.put(ComicReadingPageLogic(
+        initialEp,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
   ComicReadingPage.hitomi(String target, String title, List<HitomiFile> images,
       {super.key, this.initialPage = 1})
-      : initialEp = 1, readingData = HitomiReadingData(title, target, images){
-    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+      : initialEp = 1,
+        readingData = HitomiReadingData(title, target, images) {
+    StateController.put(ComicReadingPageLogic(
+        initialEp,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
   ComicReadingPage.htmanga(String target, String title,
       {super.key, this.initialPage = 1})
-      : initialEp = 1, readingData = HtReadingData(title, target){
-    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+      : initialEp = 1,
+        readingData = HtReadingData(title, target) {
+    StateController.put(ComicReadingPageLogic(
+        initialEp,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
   ComicReadingPage.nhentai(String target, String title,
       {super.key, this.initialPage = 1})
-      : initialEp = 1, readingData = NhentaiReadingData(title, target){
-    StateController.put(ComicReadingPageLogic(initialEp, readingData, initialPage));
+      : initialEp = 1,
+        readingData = NhentaiReadingData(title, target) {
+    StateController.put(ComicReadingPageLogic(
+        initialEp,
+        readingData,
+        initialPage,
+        () => _updateHistory(
+            StateController.find<ComicReadingPageLogic>(), false)));
   }
 
-  _updateHistory(ComicReadingPageLogic? logic) {
+  _updateHistory(ComicReadingPageLogic? logic, bool updateMePage) {
     if (readingData.hasEp) {
       if (logic!.order == 1 && logic.index == 1) {
         history?.ep = 0;
@@ -129,6 +170,8 @@ class ComicReadingPage extends StatelessWidget {
         history?.page = logic.index;
       }
     }
+    history!.maxPage = logic.length;
+    HistoryManager().saveReadHistory(history!, updateMePage);
   }
 
   @override
@@ -138,7 +181,7 @@ class ComicReadingPage extends StatelessWidget {
       if (appdata.settings[14] == "1") {
         setKeepScreenOn();
       }
-      if(appdata.settings[76] == "1"){
+      if (appdata.settings[76] == "1") {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight
@@ -168,13 +211,11 @@ class ComicReadingPage extends StatelessWidget {
       // 更新本地收藏
       LocalFavoritesManager().onReadEnd(readingData.id);
       // 保存历史记录
-      if(history != null) {
-        _updateHistory(logic);
-        history!.maxPage = logic.length;
-        HistoryManager().saveReadHistory(history!);
+      if (history != null) {
+        _updateHistory(logic, true);
       }
       // 退出全屏
-      if(logic.isFullScreen){
+      if (logic.isFullScreen) {
         logic.fullscreen();
       }
       // 更新漫画详情页面
@@ -183,7 +224,7 @@ class ComicReadingPage extends StatelessWidget {
           ComicPage.tagsStack.last.updateHistory(history);
         }
       });
-      if(appdata.settings[76] == "1"){
+      if (appdata.settings[76] == "1") {
         SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       }
     }, builder: (logic) {
@@ -243,7 +284,11 @@ class ComicReadingPage extends StatelessWidget {
               onPointerCancel: TapController.onTapCancel,
               child: Stack(
                 children: [
-                  buildComicView(logic, context, readingData.id,),
+                  buildComicView(
+                    logic,
+                    context,
+                    readingData.id,
+                  ),
                   if (MediaQuery.of(context).platformBrightness ==
                           Brightness.dark &&
                       appdata.settings[18] == "1")
@@ -259,7 +304,7 @@ class ComicReadingPage extends StatelessWidget {
                       ),
                     ),
 
-                  if(appdata.settings[57] == "1")
+                  if (appdata.settings[57] == "1")
                     buildPageInfoText(logic, context,
                         jm: type == ReadingType.jm),
 
@@ -288,8 +333,7 @@ class ComicReadingPage extends StatelessWidget {
     });
   }
 
-  Widget buildErrorView(
-      ComicReadingPageLogic logic, BuildContext context) {
+  Widget buildErrorView(ComicReadingPageLogic logic, BuildContext context) {
     return DecoratedBox(
         decoration: const BoxDecoration(color: Colors.black),
         child: SafeArea(
@@ -387,10 +431,10 @@ class ComicReadingPage extends StatelessWidget {
         )));
   }
 
-  void loadInfo(ComicReadingPageLogic logic) async{
+  void loadInfo(ComicReadingPageLogic logic) async {
     logic.urls = [];
     var res = await readingData.loadEp(logic.order);
-    if(res.error){
+    if (res.error) {
       logic.errorMessage = res.errorMessage;
     } else {
       logic.urls = res.data;
@@ -467,12 +511,13 @@ class ComicReadingPage extends StatelessWidget {
       return "${readingData.id}${index + 1}";
     }
     return type == ReadingType.hitomi
-        ? (readingData as HitomiReadingData).images[index].hash : logic.urls[index];
+        ? (readingData as HitomiReadingData).images[index].hash
+        : logic.urls[index];
   }
 
-  Future<File> _getFileFromStream(Stream<DownloadProgress> stream) async{
-    await for(var event in stream){
-      if(event.finished){
+  Future<File> _getFileFromStream(Stream<DownloadProgress> stream) async {
+    await for (var event in stream) {
+      if (event.finished) {
         return event.getFile();
       }
     }
@@ -495,13 +540,13 @@ class ComicReadingPage extends StatelessWidget {
     shareImage(file);
   }
 
-  Future<String?> _persistentCurrentImage() async{
+  Future<String?> _persistentCurrentImage() async {
     var logic = StateController.find<ComicReadingPageLogic>();
     int? index = logic.index - 1;
     if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
       index = await selectImage();
     }
-    if(index == null){
+    if (index == null) {
       return null;
     }
 

@@ -569,7 +569,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 res += ":$text";
               }
               appdata.favoriteTags.add(res);
-              appdata.writeData();
+              appdata.writeHistory();
             },
           )
       ];
