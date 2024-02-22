@@ -97,9 +97,13 @@ class DownloadManager{
     }else{
       path = appdata.settings[22];
     }
-    var file = Directory(path!);
-    if(! await file.exists()){
-      await file.create(recursive: true);
+    var dir = Directory(path!);
+    if(! await dir.exists()){
+      await dir.create(recursive: true);
+    }
+    var file = File("$path/.nomedia");
+    if(!file.existsSync()){
+      await file.create();
     }
   }
 
