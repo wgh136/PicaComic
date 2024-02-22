@@ -13,6 +13,14 @@ extension ScrollExtension on ScrollController {
   }
 }
 
+const Set<PointerDeviceKind> _kTouchLikeDeviceTypes = <PointerDeviceKind>{
+  PointerDeviceKind.touch,
+  PointerDeviceKind.mouse,
+  PointerDeviceKind.stylus,
+  PointerDeviceKind.invertedStylus,
+  PointerDeviceKind.unknown
+};
+
 extension ImageExt on ComicReadingPage {
   /// build comic image
   Widget buildComicView(
@@ -26,6 +34,8 @@ extension ImageExt on ComicReadingPage {
         itemCount: logic.urls.length,
         addSemanticIndexes: false,
         scrollController: logic.scrollController,
+        scrollBehavior: const MaterialScrollBehavior()
+            .copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
         physics: (logic.noScroll || logic.isCtrlPressed || logic.mouseScroll)
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
