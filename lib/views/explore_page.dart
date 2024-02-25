@@ -368,7 +368,7 @@ class _CustomExplorePageState extends StateWithController<_CustomExplorePage> {
         child: CircularProgressIndicator(),
       );
     } else if(message != null){
-      return showNetworkError(message, refresh, context);
+      return showNetworkError(message, refresh, context, showBack: false);
     } else {
       return buildPage();
     }

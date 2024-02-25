@@ -113,7 +113,20 @@ class ComicReadingPageLogic extends StateController {
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
   set index(int value) {
     _index = value;
+    for (var element in _indexChangeCallbacks) {
+      element(value);
+    }
     updateHistory();
+  }
+
+  final _indexChangeCallbacks = <void Function(int)>[];
+
+  void addIndexChangeCallback(void Function(int) callback){
+    _indexChangeCallbacks.add(callback);
+  }
+
+  void removeIndexChangeCallback(void Function(int) callback){
+    _indexChangeCallbacks.remove(callback);
   }
 
   ///当前的章节位置, 从1开始
@@ -189,11 +202,18 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
-  void jumpToPage(int i) {
+  void jumpToPage(int i, [bool updateWidget = false]) {
+    i = i.clamp(1, length);
     if (appdata.settings[9] != "4") {
       pageController.jumpToPage(i);
     } else {
       itemScrollController.jumpTo(index: i - 1);
+    }
+    if(index != i){
+      index = i;
+    }
+    if(updateWidget){
+      update(["ToolBar"]);
     }
   }
 

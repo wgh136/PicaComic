@@ -21,6 +21,146 @@ const Set<PointerDeviceKind> _kTouchLikeDeviceTypes = <PointerDeviceKind>{
   PointerDeviceKind.unknown
 };
 
+class _Scrollbar extends StatefulWidget {
+  const _Scrollbar(this.child);
+
+  final Widget child;
+
+  @override
+  State<_Scrollbar> createState() => _ScrollbarState();
+}
+
+class _ScrollbarState extends State<_Scrollbar> {
+  final _logic = StateController.find<ComicReadingPageLogic>();
+
+  bool show = false;
+
+  int timeout = 0;
+
+  void onIndexChange(int index){
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    _logic.addIndexChangeCallback(onIndexChange);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _logic.removeIndexChangeCallback(onIndexChange);
+    super.dispose();
+  }
+
+  void startTimeout(){
+    if(timeout != 0){
+      timeout = 5;
+      return;
+    }
+    timeout = 5;
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      timeout--;
+      if(timeout == 0){
+        timer.cancel();
+        setState(() {
+          show = false;
+        });
+        return;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var index = _logic.index;
+    var maxPage = _logic.length;
+    final height = MediaQuery.of(context).size.height;
+    final outlineColor = Theme.of(context).colorScheme.outlineVariant;
+    return Stack(
+      children: [
+        Positioned.fill(child: NotificationListener<ScrollUpdateNotification>(
+          onNotification: (notification){
+            setState(() {
+              show = true;
+            });
+            startTimeout();
+            return false;
+          },
+          child: widget.child,
+        )),
+        if(show)
+          Positioned(
+            right: 4,
+            top: (index-1) / (maxPage) * height,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onVerticalDragUpdate: (details) {
+                  var dy = details.globalPosition.dy;
+                  var value = (dy / height * maxPage).round();
+                  if(value != index) {
+                    _logic.jumpToPage(value, true);
+                  }
+                },
+                child: Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                  borderRadius: BorderRadius.circular(16),
+                  elevation: 2,
+                  child: SizedBox(
+                    height: 64,
+                    width: 22,
+                    child: Column(
+                      children: [
+                        const Spacer(),
+                        CustomPaint(
+                          size: const Size(22, 2),
+                          painter: _HorizontalLinePainter(color: outlineColor),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomPaint(
+                          size: const Size(22, 2),
+                          painter: _HorizontalLinePainter(color: outlineColor),
+                        ),
+                        const SizedBox(height: 8),
+                        CustomPaint(
+                          size: const Size(22, 2),
+                          painter: _HorizontalLinePainter(color: outlineColor),
+                        ),
+                        const Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _HorizontalLinePainter extends CustomPainter {
+  const _HorizontalLinePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2;
+    canvas.drawLine(Offset(2, size.height / 2), Offset(size.width-2, size.height / 2), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
+
+
 extension ImageExt on ComicReadingPage {
   /// build comic image
   Widget buildComicView(
@@ -28,15 +168,15 @@ extension ImageExt on ComicReadingPage {
     ScrollExtension.futurePosition = null;
 
     Widget buildType4() {
-      return ScrollablePositionedList.builder(
+      return _Scrollbar(ScrollablePositionedList.builder(
         itemScrollController: logic.itemScrollController,
         itemPositionsListener: logic.itemScrollListener,
         itemCount: logic.urls.length,
         addSemanticIndexes: false,
         scrollController: logic.scrollController,
         scrollBehavior: const MaterialScrollBehavior()
-            .copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
-        physics: (logic.noScroll || logic.isCtrlPressed || logic.mouseScroll)
+            .copyWith(scrollbars: false, dragDevices: _kTouchLikeDeviceTypes),
+        physics: (logic.noScroll || logic.isCtrlPressed)
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
@@ -60,7 +200,7 @@ extension ImageExt on ComicReadingPage {
             fit: BoxFit.cover,
           );
         },
-      );
+      ));
     }
 
     Widget buildType123() {

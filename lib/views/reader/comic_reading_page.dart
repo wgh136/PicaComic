@@ -1,5 +1,6 @@
 library pica_reader;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/gestures.dart';
