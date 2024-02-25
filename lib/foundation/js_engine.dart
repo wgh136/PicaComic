@@ -5,6 +5,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -120,7 +121,6 @@ class JsEngine with _JSEngineApi{
         responseType: ResponseType.plain, validateStatus: (status) => true));
     _cookieJar ??= PersistCookieJar(
         storage: FileStorage("${App.dataPath}/comic_source/cookies/"));
-
     _dio!.interceptors.add(CookieManager(_cookieJar!));
 
     while (_jsRuntime != null) {
@@ -138,34 +138,38 @@ class JsEngine with _JSEngineApi{
           String? error;
 
           try {
+            var headers = req["headers"] ?? {};
+            if(headers["user-agent"] == null && headers["User-Agent"] == null){
+              headers["User-Agent"] = webUA;
+            }
             response = switch (req["http_method"]) {
               "GET" =>
               await _dio!.get<String>(
                 req["url"],
-                options: Options(headers: req["headers"]),
+                options: Options(headers: headers),
               ),
               "POST" =>
               await _dio!.post<String>(
                 req["url"],
                 data: req["data"],
-                options: Options(headers: req["headers"]),
+                options: Options(headers: headers),
               ),
               "PUT" =>
               await _dio!.put<String>(
                 req["url"],
                 data: req["data"],
-                options: Options(headers: req["headers"]),
+                options: Options(headers: headers),
               ),
               "PATCH" =>
               await _dio!.patch<String>(
                 req["url"],
                 data: req["data"],
-                options: Options(headers: req["headers"]),
+                options: Options(headers: headers),
               ),
               "DELETE" =>
               await _dio!.delete<String>(
                 req["url"],
-                options: Options(headers: req["headers"]),
+                options: Options(headers: headers),
               ),
               _ => throw "Unknown http method: ${req["http_method"]}",
             };
@@ -177,18 +181,16 @@ class JsEngine with _JSEngineApi{
 
           response?.headers.forEach((name, values) => headers[name] = values.join(','));
 
-          if (response != null) {
-            var res = _jsRuntime?.evaluate(
-              "Network.responseCallback("
-                  "${req["requestId"]}, "
-                  "${response.statusCode}, "
-                  "${jsonEncode(headers)}, "
-                  "${jsonEncode(response.data)}, "
-                  "${jsonEncode(error)});",
-            );
-            if(res?.isError ?? false){
-              log("Failed to send network result to JS Engine: \n $res", "JS Engine", LogLevel.error);
-            }
+          var res = _jsRuntime?.evaluate(
+            "Network.responseCallback("
+                "${req["requestId"]}, "
+                "${response?.statusCode}, "
+                "${jsonEncode(headers)}, "
+                "${jsonEncode(response?.data)}, "
+                "${jsonEncode(error)});",
+          );
+          if(res?.isError ?? false){
+            log("Failed to send network result to JS Engine: \n $res", "JS Engine", LogLevel.error);
           }
         });
       }
