@@ -150,7 +150,10 @@ class JmReadingData extends ReadingData {
   }
 
   JmReadingData(this.title, this.id, List<String> epIds, List<String> epNames)
-      : eps = generateMap(epIds, epNames);
+      : eps = generateMap(epIds, epNames){
+    print(epIds);
+    print(epNames);
+  }
 
   @override
   bool get hasEp => true;
@@ -166,7 +169,7 @@ class JmReadingData extends ReadingData {
 
   @override
   Future<Res<List<String>>> loadEpNetwork(int ep) async{
-    var res = await JmNetwork().getChapter(eps.keys.elementAtOrNull(ep) ?? id);
+    var res = await JmNetwork().getChapter(eps.keys.elementAtOrNull(ep-1) ?? id);
     commentsLength = res.subData;
     return res;
   }
@@ -181,7 +184,7 @@ class JmReadingData extends ReadingData {
       }
     }
     return ImageManager().getJmImage(url, null,
-        epsId: eps.keys.elementAtOrNull(ep) ?? id,
+        epsId: eps.keys.elementAtOrNull(ep-1) ?? id,
         scrambleId: "220980",
         bookId: bookId);
   }

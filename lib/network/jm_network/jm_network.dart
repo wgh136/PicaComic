@@ -373,13 +373,16 @@ class JmNetwork {
       }
       if(page == null) {
         if (document.querySelector("ul.pagination-lg") != null) {
-          var maxPage = int.tryParse((document
-              .querySelectorAll("ul.pagination-lg > li")
-              .last.firstChild
-              ?.attributes["href"]
-              ?.split("=")
-              .last) ?? "1");
-          for (int i = 2; i <= (maxPage ?? 1); i++) {
+          var epIndex = document.querySelectorAll("ul.pagination-lg > li > a")
+              .map((e) => RegExp("page=(\\d+)").firstMatch(e.attributes["href"]!)!.group(1)!)
+              .map((e) => int.tryParse(e) ?? 0);
+          var maxPage = 1;
+          for (var i in epIndex) {
+            if (i > maxPage) {
+              maxPage = i;
+            }
+          }
+          for (int i = 2; i <= maxPage; i++) {
             var res = await getChapter(id, i);
             if(res.error){
               return Res.fromErrorRes(res);
