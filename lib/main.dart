@@ -66,13 +66,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     setNetworkProxy();
     scheduleMicrotask(() {
-      if (state == AppLifecycleState.resumed) {
-        if (appdata.settings[13] == "1" && appdata.flag && !AuthPage.lock) {
-          appdata.flag = false;
+      if (state == AppLifecycleState.inactive) {
+        if(!AuthPage.lock && appdata.settings[13] == "1"){
+          AuthPage.initial = false;
           App.to(App.globalContext!, () => const AuthPage());
         }
-      } else if (state == AppLifecycleState.paused) {
-        appdata.flag = true;
       }
 
       if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >

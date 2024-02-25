@@ -405,7 +405,7 @@ class DownloadPage extends StatelessWidget {
                 actions: [
                   TextButton(
                       onPressed: () => App.globalBack(),
-                      child: const Text("取消")),
+                      child: Text("取消".tl)),
                   TextButton(
                       onPressed: () async {
                         App.globalBack();

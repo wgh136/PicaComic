@@ -552,9 +552,9 @@ void setCacheLimit(BuildContext context) async{
                   ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: Text("缓存大小限制"),
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text("缓存大小限制".tl),
               ),
               ValueListenableWidget<String>(
                 initialValue: appdata.settings[35],
@@ -578,15 +578,16 @@ void setCacheLimit(BuildContext context) async{
                 ),
               ),
               SizedBox(
-                height: 20,
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.info_outline, size: 16,),
-                      Text("仅在退出阅读器时检查缓存是否超出限制".tl)
-                    ],
-                  ),
+                width: double.infinity,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.info_outline, size: 16,),
+                    const SizedBox(width: 4,),
+                    Expanded(
+                      child: Text("仅在退出阅读器时检查缓存是否超出限制".tl, maxLines: 2,),
+                    )
+                  ],
                 ),
               )
             ],
@@ -679,8 +680,8 @@ void exportDataSetting(BuildContext context){
 void importDataSetting(BuildContext context){
   showDialog(context: context, builder: (context) => AlertDialog(
     title: Text("导入用户数据".tl),
-    content: Text("将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl+
-        "\n如果导入的数据中包含下载数据, 则当前的下载数据也将被覆盖".tl),
+    content: Text("${"将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl}"
+        "\n${"如果导入的数据中包含下载数据, 则当前的下载数据也将被覆盖".tl}"),
     actions: [
       TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
       TextButton(onPressed: (){

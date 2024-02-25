@@ -29,9 +29,6 @@ class Appdata {
   late List<String> searchHistory;
   Set<String> favoriteTags = {};
 
-  ///用于身份认证页面判断当前状态
-  bool flag = true;
-
   ///历史记录管理器, 可以通过factory构造函数访问, 也可以通过这里访问
   var history = HistoryManager();
 
