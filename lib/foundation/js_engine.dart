@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_js/flutter_js.dart';
@@ -12,6 +14,7 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:html/parser.dart' as html;
 import 'package:html/dom.dart' as dom;
+import 'package:pica_comic/tools/extensions.dart';
 
 class JavaScriptRuntimeException implements Exception {
   final String message;
@@ -91,8 +94,8 @@ class JsEngine with _JSEngineApi{
               String key = message["key"];
               String dataKey = message["data_key"];
               return ComicSource.sources
-                  .firstWhere((element) => element.key == key)
-                  .data[dataKey];
+                  .firstWhereOrNull((element) => element.key == key)
+                  ?.data[dataKey];
             }
 
           case 'save_data':
@@ -112,6 +115,14 @@ class JsEngine with _JSEngineApi{
           case 'html':
             {
               return handleHtmlCallback(message);
+            }
+          case 'convert':
+            {
+              return _convert(message);
+            }
+          case "random":
+            {
+              return _randomInt(message["min"], message["max"]);
             }
         }
       }
@@ -387,6 +398,24 @@ mixin class _JSEngineApi{
       await _cookieJar!.delete(uri);
     }
   }
+
+  String _convert(Map<String, dynamic> data) {
+    String type = data["type"];
+    String value = data["value"];
+    bool isEncode = data["isEncode"];
+    switch (type) {
+      case "base64":
+        return isEncode ? base64Encode(utf8.encode(value)) : utf8.decode(base64Decode(value));
+      case "md5":
+        return isEncode ? md5.convert(utf8.encode(value)).toString() : value;
+      default:
+        return value;
+    }
+  }
+
+  int _randomInt(int min, int max) {
+    return (min + (max - min) * math.Random().nextDouble()).toInt();
+  }
 }
 
 const _jsInit = '''
@@ -396,6 +425,43 @@ class NetworkResponse {
         this.headers = headers;
         this.body = body;
     }
+}
+
+class Convert {    
+    static encodeBase64(value) {
+        return sendMessage('message', JSON.stringify({
+            method: "convert",
+            type: "base64",
+            value: value,
+            isEncode: true
+        }));
+    }
+    
+    static decodeBase64(value) {
+        return sendMessage('message', JSON.stringify({
+            method: "convert",
+            type: "base64",
+            value: value,
+            isEncode: false
+        }));
+    }
+
+    static md5(value) {
+        return sendMessage('message', JSON.stringify({
+            method: "convert",
+            type: "md5",
+            value: value,
+            isEncode: true
+        }));
+    }
+}
+
+function randomInt(min, max) {
+    return sendMessage('message', JSON.stringify({
+        method: 'random',                               
+        min: min,
+        max: max
+    }));
 }
 
 class _Timer{

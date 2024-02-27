@@ -70,10 +70,10 @@ class AppHttpAdapter implements HttpClientAdapter{
     LogManager.addLog(LogLevel.info, "Network",
         "${options.method} ${options.path}\nheaders:\n${options.headers.toString()}\ndata:${options.data}");
     if(appdata.settings[58] == "0"){
-      return await adapter.fetch(options, requestStream, cancelFuture);
+      return checkCookie(await adapter.fetch(options, requestStream, cancelFuture));
     }
     if(!changeHost(options)){
-      return await adapter.fetch(options, requestStream, cancelFuture);
+      return checkCookie(await adapter.fetch(options, requestStream, cancelFuture));
     }
     if(options.headers["host"] == null && options.headers["Host"] == null){
       options.headers["host"] = options.uri.host;
@@ -103,9 +103,42 @@ class AppHttpAdapter implements HttpClientAdapter{
         res = await adapter.fetch(options, requestStream, cancelFuture);
       }
     }
-    return res;
+    return checkCookie(res);
   }
 
+  /// 检查cookie是否合法, 去除无效cookie
+  ResponseBody checkCookie(ResponseBody res){
+    if(res.headers["set-cookie"] == null){
+      return res;
+    }
+
+    var cookies = <String>[];
+
+    var invalid = <String>[];
+
+    for(var cookie in res.headers["set-cookie"]!){
+      try{
+        Cookie.fromSetCookieValue(cookie);
+        cookies.add(cookie);
+      }
+      catch(e){
+       invalid.add(cookie);
+      }
+    }
+
+    if(cookies.isNotEmpty){
+      res.headers["set-cookie"] = cookies;
+    }
+    else{
+      res.headers.remove("set-cookie");
+    }
+
+    if(invalid.isNotEmpty){
+      res.headers["invalid-cookie"] = invalid;
+    }
+
+    return res;
+  }
 }
 
 Dio logDio([BaseOptions? options, bool http2 = false]) {

@@ -593,7 +593,9 @@ class Network {
 #### cookie
 cookie将被自动持久化储存
 
-// TODO: 修改cookie
+由于dart的cookie校验严格, 不符合规范的cookie会被放到响应头的`invalid-cookie`中, 且此部分cookie不会被持久化储存
+
+很多老旧的网站会使用不符合规范的cookie, 请注意
 
 ### 数据
 
@@ -685,6 +687,20 @@ async function login(username, password) {
 
 `let elements1 = element.querySelectorAll(selector)`
 
+### 加密解密
+
+#### base64
+```js
+let data = "<data>"
+let encodedData = Convert.encodeBase64(data)
+let decodedData = Convert.decodeBase64(data)
+```
+
+#### md5
+```js
+let data = "<data>"
+let encodedData = Convert.md5(data)
+```
 
 ### 数据结构
 

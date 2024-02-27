@@ -51,7 +51,6 @@ class ComicSource {
           var source =
           await ComicSourceParser().parse(
               await entity.readAsString(), entity.absolute.path);
-          await source.loadData();
           sources.add(source);
         }
         catch(e, s){

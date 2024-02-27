@@ -74,8 +74,8 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
         title: const Text("Reload Configs"),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("cancel")),
-          TextButton(onPressed: () {
-            ComicSource.reload();
+          TextButton(onPressed: () async{
+            await ComicSource.reload();
             MyApp.updater?.call();
           }, child: const Text("continue")),
         ],

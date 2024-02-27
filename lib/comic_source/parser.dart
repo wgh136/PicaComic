@@ -63,12 +63,7 @@ class ComicSourceParser {
     final loadComicPagesFunc = _parseLoadComicPagesFunc(document["comic"]);
     final favoriteData = _loadFavoriteData(document["favorite"]);
 
-    final initJs = document["init"];
-    if(initJs != null) {
-      JsEngine().runProtectedWithKey("$initJs\ninit()", key);
-    }
-
-    return ComicSource(
+    var source =  ComicSource(
         _name!,
         key,
         account,
@@ -84,6 +79,17 @@ class ComicSourceParser {
         document["comic"]?["matchBriefIdRegex"],
         filePath,
         document["url"] ?? "");
+
+    await source.loadData();
+
+    final initJs = document["init"];
+    if(initJs != null) {
+      // delay 50ms to wait for data loading
+      Future.delayed(const Duration(milliseconds: 50),
+              () => JsEngine().runProtectedWithKey("$initJs\ninit()", key));
+    }
+
+    return source;
   }
 
   _checkKeyValidation() {
@@ -108,9 +114,10 @@ class ComicSourceParser {
               "$loginJs\nlogin(${jsonEncode(account)}, ${jsonEncode(pwd)})",
               _key!);
           await JsEngine().wait(key);
-          ComicSource.sources
-              .firstWhere((element) => element.key == _key)
-              .data["account"] = <String>[account, pwd];
+          var source = ComicSource.sources
+              .firstWhere((element) => element.key == _key);
+          source.data["account"] = <String>[account, pwd];
+          source.saveData();
           return const Res(true);
         } catch (e, s) {
           log("$e\n$s", "Network", LogLevel.error);
