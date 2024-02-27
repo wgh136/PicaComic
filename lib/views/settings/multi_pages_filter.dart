@@ -61,7 +61,7 @@ class _MultiPagesFilterState extends State<MultiPagesFilter> {
       ),
     );
 
-    return ListTile(title: Text(widget.pages[key]!), key: Key(key), trailing: removeButton,);
+    return ListTile(title: Text(widget.pages[key] ?? "(Invalid) $key"), key: Key(key), trailing: removeButton,);
   }
 
   void showAddDialog(){

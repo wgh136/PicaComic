@@ -57,62 +57,68 @@ class JsEngine with _JSEngineApi{
   }
 
   dynamic _messageReceiver(dynamic message) {
-    if (message is Map<String, dynamic>) {
-      String method = message["method"];
-      switch (method) {
-        case "log":
-          {
-            String level = message["level"];
-            LogManager.addLog(
-                switch (level) {
-                  "error" => LogLevel.error,
-                  "warning" => LogLevel.warning,
-                  "info" => LogLevel.info,
-                  _ => LogLevel.warning
-                },
-                message["title"],
-                message["content"]);
-          }
-        case 'return':
-          {
-            int key = message["key"];
-            if (message["data"] != null) {
-              _responseData[key] = message["data"];
-            } else {
-              _responseData[key] = JavaScriptRuntimeException(
-                  message["errorMessage"] ?? "Unknown error");
+    try {
+      if (message is Map<String, dynamic>) {
+        String method = message["method"];
+        switch (method) {
+          case "log":
+            {
+              String level = message["level"];
+              LogManager.addLog(
+                  switch (level) {
+                    "error" => LogLevel.error,
+                    "warning" => LogLevel.warning,
+                    "info" => LogLevel.info,
+                    _ => LogLevel.warning
+                  },
+                  message["title"],
+                  message["content"]);
             }
-            Future.delayed(
-                const Duration(seconds: 20), () => _responseData[key] = null);
-          }
-        case 'load_data':
-          {
-            String key = message["key"];
-            String dataKey = message["data_key"];
-            return ComicSource.sources
-                .firstWhere((element) => element.key == key)
-                .data[dataKey];
-          }
+          case 'return':
+            {
+              int key = message["key"];
+              if (message["data"] != null) {
+                _responseData[key] = message["data"];
+              } else {
+                _responseData[key] = JavaScriptRuntimeException(
+                    message["errorMessage"] ?? "Unknown error");
+              }
+              Future.delayed(
+                  const Duration(seconds: 20), () => _responseData[key] = null);
+            }
+          case 'load_data':
+            {
+              String key = message["key"];
+              String dataKey = message["data_key"];
+              return ComicSource.sources
+                  .firstWhere((element) => element.key == key)
+                  .data[dataKey];
+            }
 
-        case 'save_data':
-          {
-            String key = message["key"];
-            String dataKey = message["data_key"];
-            var data = message["data"];
-            var source = ComicSource.sources
-                .firstWhere((element) => element.key == key);
-            source.data[dataKey] = data;
-            source.saveData();
-          }
-        case 'http':
-          {
-            _networkRequests.add(message);
-          }
-        case 'html':
-          {
-            return handleHtmlCallback(message);
-          }
+          case 'save_data':
+            {
+              String key = message["key"];
+              String dataKey = message["data_key"];
+              var data = message["data"];
+              var source = ComicSource.sources
+                  .firstWhere((element) => element.key == key);
+              source.data[dataKey] = data;
+              source.saveData();
+            }
+          case 'http':
+            {
+              _networkRequests.add(message);
+            }
+          case 'html':
+            {
+              return handleHtmlCallback(message);
+            }
+        }
       }
+    }
+    catch(e, s){
+      log("Failed to handle message: $message\n$e\n$s", "JsEngine", LogLevel.error);
+      rethrow;
     }
   }
 
@@ -128,73 +134,78 @@ class JsEngine with _JSEngineApi{
 
       _jsRuntime!.executePendingJob();
 
-      var requests = List<Map<String, dynamic>>.from(_networkRequests);
+      _handleHttpRequests();
 
-      _networkRequests.clear();
-
-      for (var req in requests) {
-        Future.sync(() async {
-          Response<String>? response;
-          String? error;
-
-          try {
-            var headers = req["headers"] ?? {};
-            if(headers["user-agent"] == null && headers["User-Agent"] == null){
-              headers["User-Agent"] = webUA;
-            }
-            response = switch (req["http_method"]) {
-              "GET" =>
-              await _dio!.get<String>(
-                req["url"],
-                options: Options(headers: headers),
-              ),
-              "POST" =>
-              await _dio!.post<String>(
-                req["url"],
-                data: req["data"],
-                options: Options(headers: headers),
-              ),
-              "PUT" =>
-              await _dio!.put<String>(
-                req["url"],
-                data: req["data"],
-                options: Options(headers: headers),
-              ),
-              "PATCH" =>
-              await _dio!.patch<String>(
-                req["url"],
-                data: req["data"],
-                options: Options(headers: headers),
-              ),
-              "DELETE" =>
-              await _dio!.delete<String>(
-                req["url"],
-                options: Options(headers: headers),
-              ),
-              _ => throw "Unknown http method: ${req["http_method"]}",
-            };
-          } catch (e) {
-            error = e.toString();
-          }
-
-          Map<String, String> headers = {};
-
-          response?.headers.forEach((name, values) => headers[name] = values.join(','));
-
-          var res = _jsRuntime?.evaluate(
-            "Network.responseCallback("
-                "${req["requestId"]}, "
-                "${response?.statusCode}, "
-                "${jsonEncode(headers)}, "
-                "${jsonEncode(response?.data)}, "
-                "${jsonEncode(error)});",
-          );
-          if(res?.isError ?? false){
-            log("Failed to send network result to JS Engine: \n $res", "JS Engine", LogLevel.error);
-          }
-        });
-      }
       await Future.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
+  void _handleHttpRequests(){
+    var requests = List<Map<String, dynamic>>.from(_networkRequests);
+
+    _networkRequests.clear();
+
+    for (var req in requests) {
+      Future.sync(() async {
+        Response<String>? response;
+        String? error;
+
+        try {
+          var headers = Map<String, dynamic>.from(req["headers"] ?? {});
+          if(headers["user-agent"] == null && headers["User-Agent"] == null){
+            headers["User-Agent"] = webUA;
+          }
+          response = switch (req["http_method"]) {
+            "GET" =>
+            await _dio!.get<String>(
+              req["url"],
+              options: Options(headers: headers),
+            ),
+            "POST" =>
+            await _dio!.post<String>(
+              req["url"],
+              data: req["data"],
+              options: Options(headers: headers),
+            ),
+            "PUT" =>
+            await _dio!.put<String>(
+              req["url"],
+              data: req["data"],
+              options: Options(headers: headers),
+            ),
+            "PATCH" =>
+            await _dio!.patch<String>(
+              req["url"],
+              data: req["data"],
+              options: Options(headers: headers),
+            ),
+            "DELETE" =>
+            await _dio!.delete<String>(
+              req["url"],
+              options: Options(headers: headers),
+            ),
+            _ => throw "Unknown http method: ${req["http_method"]}",
+          };
+        } catch (e) {
+          error = e.toString();
+        }
+
+        Map<String, String> headers = {};
+
+        response?.headers.forEach((name, values) => headers[name] = values.join(','));
+
+        var res = _jsRuntime?.evaluate(
+          "Network.responseCallback("
+              "${req["requestId"]}, "
+              "${response?.statusCode}, "
+              "${jsonEncode(headers)}, "
+              "${jsonEncode(response?.data)}, "
+              "${jsonEncode(error)});",
+        );
+        if(res?.isError ?? false){
+          log("Failed to send network result to JS Engine: \n $res", "JS Engine", LogLevel.error);
+        }
+      });
     }
   }
 
@@ -206,7 +217,7 @@ class JsEngine with _JSEngineApi{
     }
   }
 
-  void runProtected(String js) {
+  void runCodeProtected(String js) {
     var res = _jsRuntime!.evaluate('''
       function pica_protected_zone(){
         $js
@@ -347,8 +358,20 @@ mixin class _JSEngineApi{
                     (e) => Cookie(e["name"], e["value"])).toList());
         return null;
       case "get":
-        return _cookieJar!.loadForRequest(Uri.parse(data["url"]));
-        // TODO
+        return Future(() async{
+          var cookies = await _cookieJar!.loadForRequest(Uri.parse(data["url"]));
+          return cookies.map((e) => {
+            "name": e.name,
+            "value": e.value,
+            "domain": e.domain,
+            "path": e.path,
+            "expires": e.expires,
+            "max-age": e.maxAge,
+            "secure": e.secure,
+            "httpOnly": e.httpOnly,
+            "session": e.expires == null,
+          }).toList();
+        });
     }
   }
 
@@ -444,12 +467,13 @@ class Network {
                 timeout--;
                 if (timeout <= 0) {
                     interval.cancel();
-                    reject('timeout');
+                    reject(`Http Request Timeout: url: \${url}; method: \${method}; id: \${id}`);
                 }
                 if (this.requestResponse[id] !== undefined) {
                     interval.cancel();
-                    let response = this.requestResponse[this.requestId];
-                    delete this.requestResponse[this.requestId];
+                    let response = this.requestResponse[id];
+                    delete this.requestResponse[id];
+                    log("info", "JS Engine", `Receive http response: url: \${url}; method: \${method}; id: \${id}`);
                     if(response.error !== undefined && response.error !== null){
                         reject(response.error)
                     } else {

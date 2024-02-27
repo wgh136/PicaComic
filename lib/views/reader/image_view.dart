@@ -75,8 +75,8 @@ class _ScrollbarState extends State<_Scrollbar> {
   Widget build(BuildContext context) {
     var index = _logic.index;
     var maxPage = _logic.length;
-    final height = MediaQuery.of(context).size.height;
-    final outlineColor = Theme.of(context).colorScheme.outlineVariant;
+    final height = MediaQuery.of(context).size.height - 64;
+    final outlineColor = Theme.of(context).colorScheme.outline;
     return Stack(
       children: [
         Positioned.fill(child: NotificationListener<ScrollUpdateNotification>(
@@ -91,17 +91,18 @@ class _ScrollbarState extends State<_Scrollbar> {
         )),
         if(show)
           Positioned(
-            right: 4,
+            right: 2,
             top: (index-1) / (maxPage) * height,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onVerticalDragUpdate: (details) {
-                  var dy = details.globalPosition.dy;
+                  var dy = details.globalPosition.dy-32;
                   var value = (dy / height * maxPage).round();
                   if(value != index) {
                     _logic.jumpToPage(value, true);
                   }
+                  startTimeout();
                 },
                 child: Material(
                   color: Theme.of(context).colorScheme.surface,

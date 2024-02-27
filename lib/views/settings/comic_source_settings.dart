@@ -39,9 +39,18 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if(App.isWindows)
-                IconButton(onPressed: () => edit(source), icon: const Icon(Icons.edit_note)),
-              IconButton(onPressed: () => update(source), icon: const Icon(Icons.update)),
-              IconButton(onPressed: () => delete(source), icon: const Icon(Icons.delete)),
+                Tooltip(
+                  message: "Edit",
+                  child: IconButton(onPressed: () => edit(source), icon: const Icon(Icons.edit_note)),
+                ),
+              Tooltip(
+                message: "Update",
+                child: IconButton(onPressed: () => update(source), icon: const Icon(Icons.update)),
+              ),
+              Tooltip(
+                message: "Delete",
+                child: IconButton(onPressed: () => delete(source), icon: const Icon(Icons.delete)),
+              ),
             ],
           ),
         ),
@@ -50,10 +59,12 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
   }
 
   void delete(ComicSource source){
-    var file = File(source.filePath);
-    file.delete();
-    ComicSource.sources.remove(source);
-    MyApp.updater?.call();
+    showConfirmDialog(App.globalContext!, "删除".tl, "要删除此漫画源吗?".tl, () {
+      var file = File(source.filePath);
+      file.delete();
+      ComicSource.sources.remove(source);
+      MyApp.updater?.call();
+    });
   }
 
   void edit(ComicSource source) async{

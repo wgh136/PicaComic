@@ -1142,6 +1142,7 @@ If you find a problem while using it, please check if it's a problem with your d
       "适用于已下载的画廊": "For downloaded galleries",
       "配置文件": "Profile",
       "最近": "Recent",
+      "要删除此漫画源吗?" : "Do you want to delete this comic source?",
     }
   };
 }

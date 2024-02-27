@@ -63,6 +63,11 @@ class ComicSourceParser {
     final loadComicPagesFunc = _parseLoadComicPagesFunc(document["comic"]);
     final favoriteData = _loadFavoriteData(document["favorite"]);
 
+    final initJs = document["init"];
+    if(initJs != null) {
+      JsEngine().runProtectedWithKey("$initJs\ninit()", key);
+    }
+
     return ComicSource(
         _name!,
         key,
@@ -76,7 +81,7 @@ class ComicSourceParser {
         loadComicFunc,
         loadComicPagesFunc,
         null,
-        document["comic"]["matchBriefIdRegex"],
+        document["comic"]?["matchBriefIdRegex"],
         filePath,
         document["url"] ?? "");
   }
@@ -287,7 +292,7 @@ class ComicSourceParser {
     return SearchPageData(options, (keyword, page, searchOption) async {
       try {
         final key = await JsEngine().runProtectedWithKey(
-            "$loadJs\nload(${jsonEncode(keyword)}, $page, ${jsonEncode(searchOption)})",
+            "$loadJs\nload(${jsonEncode(keyword)}, ${jsonEncode(searchOption)}, $page)",
             _key!);
         var res = await JsEngine().wait(key);
         return Res(
@@ -329,7 +334,8 @@ class ComicSourceParser {
                 ?.map((e) => CustomComic.fromJson(e, _key!))
                 .toList(),
             _key!,
-            id));
+            id,
+            isFavorite: res["isFavorite"],));
       } catch (e, s) {
         log("$e\n$s", "Network", LogLevel.error);
         return Res.error(e.toString());
@@ -345,7 +351,7 @@ class ComicSourceParser {
     return (id, ep) async {
       try {
         final key = await JsEngine().runProtectedWithKey(
-            "$loadJs\nloadEp(${jsonEncode(id)}, $ep)", _key!);
+            "$loadJs\nloadEp(${jsonEncode(id)}, ${jsonEncode(ep)})", _key!);
         var res = await JsEngine().wait(key);
         return Res(List.from(res["images"]));
       } catch (e, s) {

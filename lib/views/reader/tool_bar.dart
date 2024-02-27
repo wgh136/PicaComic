@@ -415,31 +415,36 @@ extension ToolBar on ComicReadingPage {
 
   ///显示当前的章节和页面位置
   Widget buildPageInfoText(
-      ComicReadingPageLogic comicReadingPageLogic, BuildContext context,
-      {bool jm = false}) {
-    var epName = readingData.eps?.values
-            .elementAtOrNull(comicReadingPageLogic.order - 1) ??
-        "E1";
-    if (epName.length > 8) {
-      epName = "${epName.substring(0, 8)}...";
-    }
+      ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
     return Positioned(
-        bottom: 13,
-        left: 25,
-        child: readingData.hasEp
-            ? Text(
-                "$epName : ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
-                style: TextStyle(
-                    color: comicReadingPageLogic.tools
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Colors.white),
-              )
-            : Text(
-                "${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
-                style: TextStyle(
-                    color: comicReadingPageLogic.tools
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Colors.white),
-              ));
+      bottom: 13,
+      left: 25,
+      child: StateBuilder<ComicReadingPageLogic>(
+        id: "ToolBar",
+        builder: (logic){
+          var epName = readingData.eps?.values
+              .elementAtOrNull(comicReadingPageLogic.order - 1) ??
+              "E1";
+          if (epName.length > 8) {
+            epName = "${epName.substring(0, 8)}...";
+          }
+          return readingData.hasEp
+              ? Text(
+            "$epName : ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
+            style: TextStyle(
+                color: comicReadingPageLogic.tools
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Colors.white),
+          )
+              : Text(
+            "${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
+            style: TextStyle(
+                color: comicReadingPageLogic.tools
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Colors.white),
+          );
+        },
+      ),
+    );
   }
 }

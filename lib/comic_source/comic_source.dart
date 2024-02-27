@@ -280,9 +280,11 @@ class ComicInfoData {
 
   final String comicId;
 
+  final bool? isFavorite;
+
   const ComicInfoData(this.title, this.subTitle, this.cover, this.description, this.tags,
       this.chapters, this.thumbnails, this.thumbnailLoader, this.thumbnailMaxPage,
-      this.suggestions, this.sourceKey, this.comicId);
+      this.suggestions, this.sourceKey, this.comicId, {this.isFavorite});
 
   Map<String, dynamic> toJson() {
     return {
@@ -294,6 +296,7 @@ class ComicInfoData {
       "chapters": chapters,
       "sourceKey": sourceKey,
       "comicId": comicId,
+      "isFavorite": isFavorite,
     };
   }
 
@@ -317,7 +320,8 @@ class ComicInfoData {
         thumbnails = null,
         thumbnailLoader = null,
         thumbnailMaxPage = 0,
-        suggestions = null;
+        suggestions = null,
+        isFavorite = json["isFavorite"];
 }
 
 typedef CategoryComicsLoader = Future<Res<List<BaseComic>>> Function(

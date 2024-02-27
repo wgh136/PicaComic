@@ -11,17 +11,17 @@ class LogManager {
 
   static const maxLogLength = 3000;
 
-  static const maxLogNumber = 400;
+  static const maxLogNumber = 200;
 
   static bool ignoreLimitation = false;
 
   static void addLog(LogLevel level, String title, String content) {
-    if (kDebugMode) {
-      print(content);
-    }
-
     if (!ignoreLimitation && content.length > maxLogLength) {
       content = "${content.substring(0, maxLogLength)}...";
+    }
+
+    if (kDebugMode) {
+      print(content);
     }
 
     _logs.add(Log(level, title, content));

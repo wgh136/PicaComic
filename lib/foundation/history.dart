@@ -23,7 +23,7 @@ final class HistoryType {
     if(value >=0 && value <= 5){
       return ["picacg", "ehentai", "jmComic", "hitomi", "htmanga", "nhentai"][value];
     } else {
-      return ComicSource.fromIntKey(value)!.name;
+      return ComicSource.fromIntKey(value)?.name ?? "Unknown";
     }
   }
 
