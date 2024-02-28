@@ -54,6 +54,10 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
             ],
           ),
         ),
+        ListTile(
+          title: const Text("Version"),
+          subtitle: Text(source.version),
+        )
       ],
     );
   }
@@ -138,14 +142,26 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
                 url = value;
               },
               onSubmitted: handleAddSource
-            ).paddingHorizontal(16).paddingBottom(16),
+            ).paddingHorizontal(16).paddingBottom(32),
             Row(
               children: [
                 TextButton(onPressed: chooseFile, child: Text("选择文件".tl)).paddingLeft(8),
                 const Spacer(),
-                TextButton(onPressed: help, child: Text("帮助".tl)).paddingRight(8),
+                TextButton(onPressed: (){
+                  showDialog(context: context, builder: (context) => AlertDialog(
+                    title: const Text("错误"),
+                    content: const Text("还没做"),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context),
+                          child: const Text("取消")),
+                    ],
+                  ));
+                }, child: Text("浏览列表".tl)),
+                const Spacer(),
+                TextButton(onPressed: help, child: Text("查看帮助".tl)).paddingRight(8),
               ],
-            )
+            ),
+
           ],
         ),
       ),

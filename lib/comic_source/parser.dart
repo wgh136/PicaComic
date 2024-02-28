@@ -78,7 +78,8 @@ class ComicSourceParser {
         null,
         document["comic"]?["matchBriefIdRegex"],
         filePath,
-        document["url"] ?? "");
+        document["url"] ?? "",
+        document["version"] ?? "1.0.0");
 
     await source.loadData();
 

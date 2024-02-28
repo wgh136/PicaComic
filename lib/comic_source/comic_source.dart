@@ -117,6 +117,8 @@ class ComicSource {
 
   final String url;
 
+  final String version;
+
   Future<void> loadData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
     if (await file.exists()) {
@@ -160,7 +162,8 @@ class ComicSource {
       this.loadImage,
       this.matchBriefIdReg,
       this.filePath,
-      this.url);
+      this.url,
+      this.version);
 }
 
 class AccountConfig {
