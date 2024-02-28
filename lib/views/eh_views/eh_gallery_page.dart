@@ -38,133 +38,8 @@ class EhGalleryPage extends ComicPage<Gallery> {
         MainPage.to(() => EhSearchPage("\"$title\"".trim()));
       };
 
-  Widget get buildButtons => SegmentedButton<int>(
-        segments: [
-          ButtonSegment(
-            icon: Icon(
-              Icons.star,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text("评分".tl),
-            value: 1,
-          ),
-          ButtonSegment(
-            icon: !favorite
-                ? Icon(
-                    Icons.bookmark_add_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                  )
-                : Icon(
-                    Icons.bookmark_add,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-            value: 2,
-          ),
-          ButtonSegment(
-            icon: Icon(
-              Icons.comment_outlined,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text("评论".tl),
-            value: 3,
-          ),
-        ],
-        onSelectionChanged: (set) {
-          void func1() {
-            starRating(context, data!.auth!);
-          }
-
-          void func2() {
-            favoriteComic(FavoriteComicWidget(
-              havePlatformFavorite: appdata.ehAccount != "",
-              needLoadFolderData: false,
-              folders: Map<String, String>.fromIterable(
-                EhNetwork().folderNames,
-              ),
-              favoriteOnPlatform: data!.favorite,
-              target: link,
-              setFavorite: (b) {
-                if (favorite != b) {
-                  favorite = b;
-                  update();
-                }
-              },
-              selectFolderCallback: (folder, page) async {
-                if (page == 0) {
-                  showMessage(context, "正在添加收藏".tl);
-                  var res = await EhNetwork().favorite(
-                      data!.auth!["gid"]!, data!.auth!["token"]!,
-                      id: EhNetwork().folderNames.indexOf(folder).toString());
-                  res ? (data!.favorite = true) : null;
-                  showMessage(App.globalContext, res ? "成功添加收藏".tl : "网络错误".tl);
-                } else {
-                  LocalFavoritesManager().addComic(
-                      folder, FavoriteItem.fromEhentai(data!.toBrief()));
-                  showMessage(App.globalContext, "成功添加收藏".tl);
-                }
-              },
-              cancelPlatformFavorite: () {
-                EhNetwork()
-                    .unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
-              },
-            ));
-          }
-
-          void func3() {
-            showComments(context, link, data!.uploader);
-          }
-
-          switch (set.first) {
-            case 1:
-              func1();
-              break;
-            case 2:
-              func2();
-              break;
-            case 3:
-              func3();
-              break;
-          }
-        },
-        selected: const {},
-        emptySelectionAllowed: true,
-      );
-
-  @override
-  Row get actions => Row(
-        children: [
-          Expanded(
-            child: buildButtons,
-          ),
-        ],
-      );
-
   @override
   String get cover => data!.coverPath;
-
-  @override
-  FilledButton get downloadButton => FilledButton(
-        onPressed: () {
-          final id = getGalleryId(data!.link);
-          if (downloadManager.downloaded.contains(id)) {
-            showMessage(context, "已下载".tl);
-            return;
-          }
-          for (var i in downloadManager.downloading) {
-            if (i.id == id) {
-              showMessage(context, "下载中".tl);
-              return;
-            }
-          }
-          downloadManager.addEhDownload(data!);
-          showMessage(context, "已加入下载队列".tl);
-        },
-        child: (downloadManager.downloaded
-                .contains(getGalleryId(data!.link)))
-            ? Text("已下载".tl)
-            : Text("下载".tl),
-      );
 
   @override
   EpsData? get eps => null;
@@ -214,17 +89,6 @@ class EhGalleryPage extends ComicPage<Gallery> {
   Future<bool> loadFavorite(Gallery data) async {
     return data.favorite ||
         (await LocalFavoritesManager().find(data.link)).isNotEmpty;
-  }
-
-  @override
-  FilledButton get readButton => FilledButton(
-        onPressed: () => readEhGallery(data!, 1),
-        child: Text("从头开始".tl),
-      );
-
-  @override
-  void continueRead(History history) {
-    readEhGallery(data!, history.page);
   }
 
   @override
@@ -373,9 +237,14 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  Widget get buildMoreInfo => SizedBox(
+  Widget get buildMoreInfo => MouseRegion(
+    cursor: SystemMouseCursors.click,
+    child: GestureDetector(
+      onTap: () => starRating(context, data!.auth!),
+      child: SizedBox(
         height: 30,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             for (int i = 0; i < (data!.stars ~/ 0.5) ~/ 2; i++)
               Icon(
@@ -390,8 +259,8 @@ class EhGalleryPage extends ComicPage<Gallery> {
                 color: Theme.of(context).colorScheme.secondary,
               ),
             for (int i = 0;
-                i < (5 - (data!.stars ~/ 0.5) ~/ 2 - (data!.stars ~/ 0.5) % 2);
-                i++)
+            i < (5 - (data!.stars ~/ 0.5) ~/ 2 - (data!.stars ~/ 0.5) % 2);
+            i++)
               const Icon(
                 Icons.star_border,
                 size: 30,
@@ -402,7 +271,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
             if (data!.rating != null) Text(data!.rating!)
           ],
         ),
-      );
+      ),
+    ),
+  );
 
   @override
   String get id => link;
@@ -412,6 +283,69 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromEhentai(data!.toBrief());
+
+  @override
+  void download() {
+    final id = getGalleryId(data!.link);
+    if (downloadManager.downloaded.contains(id)) {
+      showMessage(context, "已下载".tl);
+      return;
+    }
+    for (var i in downloadManager.downloading) {
+      if (i.id == id) {
+        showMessage(context, "下载中".tl);
+        return;
+      }
+    }
+    downloadManager.addEhDownload(data!);
+    showMessage(context, "已加入下载队列".tl);
+  }
+
+  @override
+  void openFavoritePanel() {
+    favoriteComic(FavoriteComicWidget(
+      havePlatformFavorite: appdata.ehAccount != "",
+      needLoadFolderData: false,
+      folders: Map<String, String>.fromIterable(
+        EhNetwork().folderNames,
+      ),
+      favoriteOnPlatform: data!.favorite,
+      target: link,
+      setFavorite: (b) {
+        if (favorite != b) {
+          favorite = b;
+          update();
+        }
+      },
+      selectFolderCallback: (folder, page) async {
+        if (page == 0) {
+          showMessage(context, "正在添加收藏".tl);
+          var res = await EhNetwork().favorite(
+              data!.auth!["gid"]!, data!.auth!["token"]!,
+              id: EhNetwork().folderNames.indexOf(folder).toString());
+          res ? (data!.favorite = true) : null;
+          showMessage(App.globalContext, res ? "成功添加收藏".tl : "网络错误".tl);
+        } else {
+          LocalFavoritesManager().addComic(
+              folder, FavoriteItem.fromEhentai(data!.toBrief()));
+          showMessage(App.globalContext, "成功添加收藏".tl);
+        }
+      },
+      cancelPlatformFavorite: () {
+        EhNetwork()
+            .unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
+      },
+    ));
+  }
+
+  @override
+  void read(History? history) {
+    readEhGallery(data!, history?.page);
+  }
+
+  @override
+  ActionFunc? get openComments =>
+          () => showComments(context, link, data!.uploader);
 }
 
 class RatingLogic extends StateController {

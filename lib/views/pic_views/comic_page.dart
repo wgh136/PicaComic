@@ -27,97 +27,68 @@ import 'package:pica_comic/tools/translations.dart';
 class PicacgComicPage extends ComicPage<ComicItem> {
   final ComicItemBrief comic;
   const PicacgComicPage(this.comic, {super.key});
-  
-  Widget get buildButtons => SegmentedButton<int>(
-    segments: [
-      ButtonSegment(
-        icon: Icon((data!.isLiked) ? Icons.favorite : Icons.favorite_border,
-          color: Theme.of(context).colorScheme.primary,),
-        label: Text(data!.likes.toString()),
-        value: 1,
-      ),
-      ButtonSegment(
-        icon: !favorite ?
-          Icon(Icons.bookmark_add_outlined, color: Theme.of(context).colorScheme.primary,) :
-          Icon(Icons.bookmark_add, color: Theme.of(context).colorScheme.primary,),
-        label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-        value: 2,
-      ),
-      ButtonSegment(
-        icon: Icon(Icons.comment_outlined, color: Theme.of(context).colorScheme.primary,),
-        label: Text(data!.comments.toString()),
-        value: 3,
-      ),
-    ],
-    onSelectionChanged: (set){
-      void func1(){
-        network.likeOrUnlikeComic(comic.id);
-        data!.isLiked = !data!.isLiked;
-        update();
-      }
-
-      void func2(){
-        favoriteComic(FavoriteComicWidget(
-          havePlatformFavorite: appdata.token != "",
-          needLoadFolderData: false,
-          folders: const {"Picacg": "Picacg"},
-          initialFolder: data!.isFavourite?null:"Picacg",
-          favoriteOnPlatform: data!.isFavourite,
-          target: comic.id,
-          setFavorite: (b){
-            if(favorite != b){
-              favorite = b;
-              update();
-            }
-          },
-          cancelPlatformFavorite: (){
-            network.favouriteOrUnfavouriteComic(comic.id);
-            data!.isFavourite = false;
-            update();
-          },
-          selectFolderCallback: (name, p){
-            if(p == 0){
-              network.favouriteOrUnfavouriteComic(comic.id);
-              data!.isFavourite = true;
-              update();
-            }else{
-              showMessage(App.globalContext, "已添加至收藏夹:".tl + name);
-              LocalFavoritesManager().addComic(
-                  name, FavoriteItem.fromPicacg(comic));
-            }
-          },
-        ));
-      }
-
-      switch(set.first){
-        case 1: func1();break;
-        case 2: func2();break;
-        case 3: showComments(App.globalContext!, comic.id); break;
-      }
-    },
-    selected: const {},
-    emptySelectionAllowed: true,
-  );
 
   @override
-  Row get actions => Row(
-        children: [
-          Expanded(child: buildButtons,)
-        ],
-      );
+  ActionFunc? get onLike => (){
+    network.likeOrUnlikeComic(comic.id);
+    data!.isLiked = !data!.isLiked;
+    update();
+  };
+
+  @override
+  String? get likeCount => data!.likes.toString();
+
+  @override
+  bool get isLiked => data!.isLiked;
+
+  @override
+  void openFavoritePanel() {
+    favoriteComic(FavoriteComicWidget(
+      havePlatformFavorite: appdata.token != "",
+      needLoadFolderData: false,
+      folders: const {"Picacg": "Picacg"},
+      initialFolder: data!.isFavourite?null:"Picacg",
+      favoriteOnPlatform: data!.isFavourite,
+      target: comic.id,
+      setFavorite: (b){
+        if(favorite != b){
+          favorite = b;
+          update();
+        }
+      },
+      cancelPlatformFavorite: (){
+        network.favouriteOrUnfavouriteComic(comic.id);
+        data!.isFavourite = false;
+        update();
+      },
+      selectFolderCallback: (name, p){
+        if(p == 0){
+          network.favouriteOrUnfavouriteComic(comic.id);
+          data!.isFavourite = true;
+          update();
+        }else{
+          showMessage(App.globalContext, "已添加至收藏夹:".tl + name);
+          LocalFavoritesManager().addComic(
+              name, FavoriteItem.fromPicacg(comic));
+        }
+      },
+    ));
+  }
+
+  @override
+  ActionFunc? get openComments =>
+          () => showComments(App.globalContext!, comic.id);
+
+  @override
+  String? get commentsCount => data!.comments.toString();
 
   @override
   String get cover => getImageUrl(comic.path);
 
   @override
-  FilledButton get downloadButton => FilledButton(
-        onPressed: () {
-          downloadComic(data!, context, data!.eps);
-        },
-        child: (downloadManager.downloaded.contains(comic.id))
-            ? Text("修改".tl)
-            : Text("下载".tl),
-      );
+  void download() {
+    _downloadComic(data!, context, data!.eps);
+  }
 
   @override
   EpsData? get eps => EpsData(data!.eps, (i) async{
@@ -136,14 +107,8 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   int? get pages => data?.pagesCount;
 
   @override
-  FilledButton get readButton => FilledButton(
-        onPressed: () => readPicacgComic(data!, data!.eps, false),
-        child: Text("从头开始".tl),
-      );
-
-  @override
-  void continueRead(History history) {
-    readPicacgComic(data!, data!.eps, true);
+  void read(History? history) {
+    readPicacgComic(data!, data!.eps, history != null);
   }
 
   @override
@@ -263,7 +228,7 @@ class ComicPageLogic extends StateController {
   }
 }
 
-void downloadComic(
+void _downloadComic(
     ComicItem comic, BuildContext context, List<String> eps) async {
   for (var i in downloadManager.downloading) {
     if (i.id == comic.id) {

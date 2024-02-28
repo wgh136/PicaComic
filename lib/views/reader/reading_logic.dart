@@ -71,7 +71,9 @@ class ComicReadingPageLogic extends StateController {
   ComicReadingPageLogic(this.order, this.data, int initialPage, this.updateHistory)
       : pageController =
             PageController(initialPage: _getPage(initialPage)),
-        _index = _getIndex(initialPage);
+        _index = _getIndex(initialPage) {
+    order <= 0 ? order = 1 : order;
+  }
 
   final void Function() updateHistory;
 

@@ -27,71 +27,6 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   final String id;
 
   @override
-  Row? get actions => Row(
-        children: [
-          Expanded(
-            child: ActionChip(
-              label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-              avatar: !favorite
-                  ? const Icon(Icons.bookmark_add_outlined)
-                  : const Icon(Icons.bookmark_add),
-              onPressed: () => favoriteComic(FavoriteComicWidget(
-                havePlatformFavorite: comicSource!.favoriteData != null && comicSource!.isLogin,
-                needLoadFolderData: comicSource!.favoriteData?.multiFolder ?? false,
-                folders: {
-                  if(!(comicSource!.favoriteData?.multiFolder ?? false))
-                    '0': comicSource!.name
-                },
-                initialFolder: (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
-                target: id,
-                setFavorite: (b) {
-                  if (favorite != b) {
-                    favorite = b;
-                    update();
-                  }
-                },
-                selectFolderCallback: (folder, type) {
-                  if(type == 1){
-                    LocalFavoritesManager().addComic(
-                        folder,
-                        toLocalFavoriteItem());
-                    showMessage(context, "成功添加收藏".tl);
-                  } else {
-                    showMessage(context, "正在添加收藏".tl);
-                    comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true).then((value) {
-                      hideMessage(context);
-                      if (value.error) {
-                        showMessage(context, "添加收藏失败".tl);
-                      } else {
-                        showMessage(context, "成功添加收藏".tl);
-                      }
-                    });
-                  }
-                },
-                cancelPlatformFavorite: () {
-                  showMessage(context, "正在取消收藏".tl);
-                  comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false).then((value) {
-                    hideMessage(context);
-                    if (value.error) {
-                      showMessage(context, "取消收藏失败".tl);
-                    } else {
-                      showMessage(context, "成功取消收藏".tl);
-                    }
-                  });
-                },
-              )),
-            ),
-          ),
-        ],
-      );
-
-  @override
-  void continueRead(History history) {
-    readWithKey(sourceKey, id, history.ep, history.page, data!.title,
-        {"eps": data!.chapters, "cover": data!.cover});
-  }
-
-  @override
   String get cover => data!.cover;
 
   void downloadComic() async {
@@ -142,8 +77,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   }
 
   @override
-  FilledButton get downloadButton =>
-      FilledButton(onPressed: downloadComic, child: Text("下载".tl));
+  void download() => downloadComic();
 
   @override
   EpsData? get eps => data!.chapters != null
@@ -173,12 +107,10 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   int? get pages => null;
 
   @override
-  FilledButton get readButton => FilledButton(
-      onPressed: () {
-        readWithKey(sourceKey, id, 1, 1, data!.title,
-            {"eps": data!.chapters, "cover": data!.cover});
-      },
-      child: Text("从头开始".tl));
+  void read(History? history) {
+    readWithKey(sourceKey, id, history?.ep ?? 1, history?.page ?? 1, data!.title,
+        {"eps": data!.chapters, "cover": data!.cover});
+  }
 
   @override
   SliverGrid? recommendationBuilder(ComicInfoData data) {
@@ -239,4 +171,53 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
 
   @override
   Card? get uploaderInfo => null;
+
+  @override
+  void openFavoritePanel() {
+    favoriteComic(FavoriteComicWidget(
+      havePlatformFavorite: comicSource!.favoriteData != null && comicSource!.isLogin,
+      needLoadFolderData: comicSource!.favoriteData?.multiFolder ?? false,
+      folders: {
+        if(!(comicSource!.favoriteData?.multiFolder ?? false))
+          '0': comicSource!.name
+      },
+      initialFolder: (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
+      target: id,
+      setFavorite: (b) {
+        if (favorite != b) {
+          favorite = b;
+          update();
+        }
+      },
+      selectFolderCallback: (folder, type) {
+        if(type == 1){
+          LocalFavoritesManager().addComic(
+              folder,
+              toLocalFavoriteItem());
+          showMessage(context, "成功添加收藏".tl);
+        } else {
+          showMessage(context, "正在添加收藏".tl);
+          comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true).then((value) {
+            hideMessage(context);
+            if (value.error) {
+              showMessage(context, "添加收藏失败".tl);
+            } else {
+              showMessage(context, "成功添加收藏".tl);
+            }
+          });
+        }
+      },
+      cancelPlatformFavorite: () {
+        showMessage(context, "正在取消收藏".tl);
+        comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false).then((value) {
+          hideMessage(context);
+          if (value.error) {
+            showMessage(context, "取消收藏失败".tl);
+          } else {
+            showMessage(context, "成功取消收藏".tl);
+          }
+        });
+      },
+    ));
+  }
 }
