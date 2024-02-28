@@ -369,6 +369,7 @@ class JmNetwork {
       var document = parse(res.data);
       var images = <String>[];
       for (var s in document.querySelectorAll("div.center.scramble-page")) {
+        if(s.id.isEmpty)  continue;
         images.add(getJmImageUrl(s.id, id));
       }
       if(page == null) {

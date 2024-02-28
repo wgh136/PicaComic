@@ -135,16 +135,41 @@ class JmDownloadingItem extends DownloadingItem {
   @override
   int get allowedLoadingNumbers => 3;
 
+  Future<void> getOneEp(int key, Map<int, List<String>> res) async{
+    if(res[key] != null) return;
+
+    int retry = 0;
+
+    while (retry < 3) {
+      try {
+        res[key] = (await JmNetwork().getChapter(comic.series[key]!)).data;
+        return;
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 3));
+        retry++;
+      }
+    }
+
+    throw Exception("Failed to get chapter");
+  }
+
   @override
   Future<Map<int, List<String>>> getLinks() async {
     if (comic.series.isEmpty) {
       comic.series[1] = id.replaceFirst("jm", "");
     }
     var res = <int, List<String>>{};
+    var futures = <Future>[];
     for (var key in comic.series.keys.toList()) {
       if (!_downloadEps.contains(key-1)) continue;
-      res[key] = (await JmNetwork().getChapter(comic.series[key]!)).data;
+      futures.add(getOneEp(key, res));
+      await Future.delayed(const Duration(milliseconds: 200));
+      if(futures.length % 5 == 0){
+        await Future.wait(futures);
+        futures.clear();
+      }
     }
+    await Future.wait(futures);
     return res;
   }
 

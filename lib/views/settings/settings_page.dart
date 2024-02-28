@@ -558,6 +558,18 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
             },
           ),
         ),
+        ListTile(
+          title: Text("下载并行".tl),
+          leading: const Icon(Icons.download),
+          trailing: Select(
+            initialValue: ["1", "2", "4", "6", "8", "16"].indexOf(appdata.settings[79]),
+            values: const ["1", "2", "4", "6", "8", "16"],
+            whenChange: (value) {
+              appdata.settings[79] = ["1", "2", "4", "6", "8", "16"][value];
+              appdata.updateSettings();
+            },
+          ),
+        ),
         if(App.isAndroid)
           ListTile(
             title: Text("应用链接".tl),

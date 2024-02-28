@@ -121,14 +121,38 @@ class CustomDownloadingItem extends DownloadingItem {
     "User-Agent": webUA,
   };
 
+  Future<void> getOneEp(int i, Map<int, List<String>> links) async{
+    if(links[i+1] != null) return;
+
+    int retry = 0;
+
+    while (retry < 3) {
+      try {
+        links[i+1] = (await source.loadComicPages!(comic.comicId, comic.chapters!.keys.elementAt(i))).data;
+        return;
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 3));
+        retry++;
+      }
+    }
+
+    throw Exception("Failed to get chapters");
+  }
+
   @override
   Future<Map<int, List<String>>> getLinks() async{
     var links = <int, List<String>>{};
     if(comic.chapters != null){
+      var futures = <Future>[];
       for(var i in _downloadEps){
-        var res = await source.loadComicPages!(comic.comicId, comic.chapters!.keys.elementAt(i));
-        links[i+1] = res.data;
+        futures.add(getOneEp(i, links));
+        await Future.delayed(const Duration(milliseconds:200));
+        if(futures.length % 5 == 0){
+          await Future.wait(futures);
+          futures.clear();
+        }
       }
+      await Future.wait(futures);
     } else {
       var res = await source.loadComicPages!(comic.comicId, null);
       links[0] = res.data;

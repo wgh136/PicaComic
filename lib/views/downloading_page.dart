@@ -115,6 +115,14 @@ class DownloadingTile extends StatelessWidget {
   final void Function() onComicPositionChange;
   const DownloadingTile(this.comic,this.cancel, this.onComicPositionChange, {super.key});
 
+  String getProgressText(DownloadingProgressController controller){
+    if(controller.pagesCount == 0){
+      return "获取图片信息...".tl;
+    }
+
+    return "${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -165,7 +173,7 @@ class DownloadingTile extends StatelessWidget {
                       children: [
                         Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
                         const Spacer(),
-                        Text("${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
+                        Text(getProgressText(controller), style: const TextStyle(fontSize: 12),),
                         const SizedBox(height: 3,),
                         LinearProgressIndicator(
                           value: controller.value,

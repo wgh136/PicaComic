@@ -106,7 +106,7 @@ abstract class DownloadingItem{
 
   String? get imageExtension => null;
 
-  int get allowedLoadingNumbers => 5;
+  int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
 
   DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
