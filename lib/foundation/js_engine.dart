@@ -55,7 +55,10 @@ class JsEngine with _JSEngineApi{
     _closed = false;
     _jsRuntime = getJavascriptRuntime(xhr: false);
     _jsRuntime!.onMessage("message", _messageReceiver);
-    _jsRuntime!.evaluate(_jsInit);
+    var res = _jsRuntime!.evaluate(_jsInit);
+    if(res.isError){
+      log("Failed to init JS Engine: \n $res", "JsEngine", LogLevel.error);
+    }
     _loop();
   }
 
