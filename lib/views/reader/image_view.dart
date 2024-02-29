@@ -35,6 +35,8 @@ class _ScrollbarState extends State<_Scrollbar> {
 
   bool show = false;
 
+  bool isMouse = false;
+
   int timeout = 0;
 
   void onIndexChange(int index){
@@ -77,67 +79,75 @@ class _ScrollbarState extends State<_Scrollbar> {
     var maxPage = _logic.length;
     final height = MediaQuery.of(context).size.height - 64;
     final outlineColor = Theme.of(context).colorScheme.outline;
-    return Stack(
-      children: [
-        Positioned.fill(child: NotificationListener<ScrollUpdateNotification>(
-          onNotification: (notification){
-            setState(() {
-              show = true;
-            });
-            startTimeout();
-            return false;
-          },
-          child: widget.child,
-        )),
-        if(show)
-          Positioned(
-            right: 2,
-            top: (index-1) / (maxPage) * height,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  var dy = details.globalPosition.dy-32;
-                  var value = (dy / height * maxPage).round();
-                  if(value != index) {
-                    _logic.jumpToPage(value, true);
-                  }
-                  startTimeout();
-                },
-                child: Material(
-                  color: Theme.of(context).colorScheme.surface,
-                  surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-                  borderRadius: BorderRadius.circular(16),
-                  elevation: 2,
-                  child: SizedBox(
-                    height: 64,
-                    width: 22,
-                    child: Column(
-                      children: [
-                        const Spacer(),
-                        CustomPaint(
-                          size: const Size(22, 2),
-                          painter: _HorizontalLinePainter(color: outlineColor),
-                        ),
-                        const SizedBox(height: 8),
-                        CustomPaint(
-                          size: const Size(22, 2),
-                          painter: _HorizontalLinePainter(color: outlineColor),
-                        ),
-                        const SizedBox(height: 8),
-                        CustomPaint(
-                          size: const Size(22, 2),
-                          painter: _HorizontalLinePainter(color: outlineColor),
-                        ),
-                        const Spacer(),
-                      ],
+    return MouseRegion(
+      onHover: (event){
+        isMouse = true;
+      },
+      child: Stack(
+        children: [
+          Positioned.fill(child: NotificationListener<ScrollUpdateNotification>(
+            onNotification: (notification){
+              if(!isMouse){
+                return false;
+              }
+              setState(() {
+                show = true;
+              });
+              startTimeout();
+              return false;
+            },
+            child: widget.child,
+          )),
+          if(show)
+            Positioned(
+              right: 2,
+              top: (index-1) / (maxPage) * height,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onVerticalDragUpdate: (details) {
+                    var dy = details.globalPosition.dy-32;
+                    var value = (dy / height * maxPage).round();
+                    if(value != index) {
+                      _logic.jumpToPage(value, true);
+                    }
+                    startTimeout();
+                  },
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                    borderRadius: BorderRadius.circular(16),
+                    elevation: 2,
+                    child: SizedBox(
+                      height: 48,
+                      width: 16,
+                      child: Column(
+                        children: [
+                          const Spacer(),
+                          CustomPaint(
+                            size: const Size(22, 2),
+                            painter: _HorizontalLinePainter(color: outlineColor),
+                          ),
+                          const SizedBox(height: 8),
+                          CustomPaint(
+                            size: const Size(22, 2),
+                            painter: _HorizontalLinePainter(color: outlineColor),
+                          ),
+                          const SizedBox(height: 8),
+                          CustomPaint(
+                            size: const Size(22, 2),
+                            painter: _HorizontalLinePainter(color: outlineColor),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
