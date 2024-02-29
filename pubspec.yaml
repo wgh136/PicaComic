@@ -155,9 +155,9 @@ flutter:
 
   fonts:
     # Font used in building windows applications
-    - family: font
-      fonts:
-        - asset: fonts/NotoSansSC-Regular.otf
+    #- family: font
+    #  fonts:
+    #    - asset: fonts/NotoSansSC-Regular.otf
 
     - family: font2
       fonts:
