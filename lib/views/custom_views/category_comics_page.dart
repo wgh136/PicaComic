@@ -3,7 +3,6 @@ import "package:pica_comic/comic_source/comic_source.dart";
 import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/network/res.dart";
 import "package:pica_comic/views/page_template/comics_page.dart";
-import "package:pica_comic/views/widgets/appbar.dart";
 
 import "../../network/base_comic.dart";
 import "custom_comic_tile.dart";
@@ -48,21 +47,23 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CustomAppbar(
-          title: Text(widget.category),
-        ),
-        Expanded(child: _CustomCategoryComicsList(
-          key: ValueKey("${widget.category} with ${widget.param} and $optionsValue"),
-          loader: data.load,
-          category: widget.category,
-          options: optionsValue,
-          param: widget.param,
-          head: buildOptions(),
-          sourceKey: widget.sourceKey,
-        ))
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.category),
+      ),
+      body: Column(
+        children: [
+          Expanded(child: _CustomCategoryComicsList(
+            key: ValueKey("${widget.category} with ${widget.param} and $optionsValue"),
+            loader: data.load,
+            category: widget.category,
+            options: optionsValue,
+            param: widget.param,
+            head: buildOptions(),
+            sourceKey: widget.sourceKey,
+          ))
+        ],
+      ),
     );
   }
 

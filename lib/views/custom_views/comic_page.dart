@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -9,12 +10,15 @@ import 'package:pica_comic/views/general_interface/search.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
+import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 import '../../foundation/app.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/base_comic.dart';
+import '../widgets/comment.dart';
 import '../widgets/select_download_eps.dart';
+import '../widgets/show_error.dart';
 import '../widgets/side_bar.dart';
 import 'custom_comic_tile.dart';
 
@@ -82,7 +86,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   @override
   EpsData? get eps => data!.chapters != null
       ? EpsData(data!.chapters!.values.toList(), (ep) {
-          readWithKey(sourceKey, id, ep+1, 1, data!.title,
+          readWithKey(sourceKey, id, ep + 1, 1, data!.title,
               {"eps": data!.chapters, "cover": data!.cover});
         })
       : null;
@@ -108,8 +112,8 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
 
   @override
   void read(History? history) {
-    readWithKey(sourceKey, id, history?.ep ?? 1, history?.page ?? 1, data!.title,
-        {"eps": data!.chapters, "cover": data!.cover});
+    readWithKey(sourceKey, id, history?.ep ?? 1, history?.page ?? 1,
+        data!.title, {"eps": data!.chapters, "cover": data!.cover});
   }
 
   @override
@@ -159,14 +163,8 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   FavoriteItem toLocalFavoriteItem() {
     var tags = <String>[];
     data!.tags.forEach((key, value) => tags.addAll(value));
-    return FavoriteItem.fromBaseComic(CustomComic(
-        data!.title,
-        data!.subTitle ?? "",
-        data!.cover,
-        id,
-        tags,
-        "",
-        sourceKey));
+    return FavoriteItem.fromBaseComic(CustomComic(data!.title,
+        data!.subTitle ?? "", data!.cover, id, tags, "", sourceKey));
   }
 
   @override
@@ -175,13 +173,15 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   @override
   void openFavoritePanel() {
     favoriteComic(FavoriteComicWidget(
-      havePlatformFavorite: comicSource!.favoriteData != null && comicSource!.isLogin,
+      havePlatformFavorite:
+          comicSource!.favoriteData != null && comicSource!.isLogin,
       needLoadFolderData: comicSource!.favoriteData?.multiFolder ?? false,
       folders: {
-        if(!(comicSource!.favoriteData?.multiFolder ?? false))
+        if (!(comicSource!.favoriteData?.multiFolder ?? false))
           '0': comicSource!.name
       },
-      initialFolder: (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
+      initialFolder:
+          (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
       target: id,
       setFavorite: (b) {
         if (favorite != b) {
@@ -190,14 +190,13 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
         }
       },
       selectFolderCallback: (folder, type) {
-        if(type == 1){
-          LocalFavoritesManager().addComic(
-              folder,
-              toLocalFavoriteItem());
+        if (type == 1) {
+          LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
           showMessage(context, "成功添加收藏".tl);
         } else {
           showMessage(context, "正在添加收藏".tl);
-          comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true).then((value) {
+          comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true)
+              .then((value) {
             hideMessage(context);
             if (value.error) {
               showMessage(context, "添加收藏失败".tl);
@@ -209,7 +208,8 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
       },
       cancelPlatformFavorite: () {
         showMessage(context, "正在取消收藏".tl);
-        comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false).then((value) {
+        comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false)
+            .then((value) {
           hideMessage(context);
           if (value.error) {
             showMessage(context, "取消收藏失败".tl);
@@ -219,5 +219,193 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
         });
       },
     ));
+  }
+
+  @override
+  ActionFunc? get openComments => comicSource!.commentsLoader != null
+      ? () {
+          showSideBar(App.globalContext!,
+              _CommentsPage(data: data!, source: comicSource!),
+              title: "评论".tl);
+        }
+      : null;
+}
+
+class _CommentsPage extends StatefulWidget {
+  const _CommentsPage({required this.data, required this.source, this.replyId});
+
+  final ComicInfoData data;
+
+  final ComicSource source;
+
+  final String? replyId;
+
+  @override
+  State<_CommentsPage> createState() => _CommentsPageState();
+}
+
+class _CommentsPageState extends State<_CommentsPage> {
+  bool _loading = true;
+  List<Comment>? _comments;
+  String? _error;
+  int _page = 1;
+  int? maxPage;
+  var controller = TextEditingController();
+  bool sending = false;
+
+  void firstLoad() async {
+    var res = await widget.source.commentsLoader!(
+        widget.data.comicId, widget.data.subId, 1, widget.replyId);
+    if (res.error) {
+      setState(() {
+        _error = res.errorMessage;
+        _loading = false;
+      });
+    } else {
+      setState(() {
+        _comments = res.data;
+        _loading = false;
+        maxPage = res.subData;
+      });
+    }
+  }
+
+  void loadMore() async {
+    var res = await widget.source.commentsLoader!(
+        widget.data.comicId, widget.data.subId, _page + 1, widget.replyId);
+    if (res.error) {
+      showMessage(null, res.errorMessage ?? "Unknown Error");
+    } else {
+      setState(() {
+        _comments!.addAll(res.data);
+        _page++;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      firstLoad();
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (_error != null) {
+      return showNetworkError(_error!, () {
+        setState(() {
+          _loading = true;
+        });
+      }, context, showBack: false);
+    } else {
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _comments!.length + 1,
+              itemBuilder: (context, index) {
+                if (index == _comments!.length) {
+                  if (_page < maxPage!) {
+                    loadMore();
+                    return const ListLoadingIndicator();
+                  } else {
+                    return const SizedBox();
+                  }
+                }
+
+                bool enableReply = _comments![index].replyCount != null;
+
+                return CommentTile(
+                  avatarUrl: _comments![index].avatar,
+                  name: _comments![index].userName,
+                  time: _comments![index].time,
+                  content: _comments![index].content,
+                  comments: _comments![index].replyCount,
+                  onTap: enableReply
+                      ? () {
+                    showSideBar(
+                        context,
+                        _CommentsPage(
+                          data: widget.data,
+                          source: widget.source,
+                          replyId: _comments![index].id,
+                        ),
+                        title: "回复".tl);
+                  }
+                      : null,
+                );
+              },
+            ),
+          ),
+          buildBottom(context)
+        ],
+      );
+    }
+  }
+
+  Widget buildBottom(BuildContext context) {
+    if(widget.source.sendCommentFunc == null){
+      return const SizedBox(height: 0,);
+    }
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16))
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+        child: Material(
+          child: Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant.withAlpha(160),
+                borderRadius: const BorderRadius.all(Radius.circular(30))
+            ),
+            child: Row(
+              children: [
+                Expanded(child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        hintText: "评论".tl
+                    ),
+                    minLines: 1,
+                    maxLines: 5,
+                  ),
+                )),
+                sending?const Padding(
+                  padding: EdgeInsets.all(8.5),
+                  child: SizedBox(width: 23,height: 23,child: CircularProgressIndicator(),),
+                ):IconButton(onPressed: () async{
+                  if(controller.text.isEmpty){
+                    return;
+                  }
+                  setState(() {
+                    sending = true;
+                  });
+                  var b = await widget.source.sendCommentFunc!(widget.data.comicId, widget.data.subId, controller.text, widget.replyId);
+                  if(!b.error){
+                    controller.text = "";
+                    setState(() {
+                      sending = false;
+                      _loading = true;
+                      _comments?.clear();
+                      _page = 1;
+                      maxPage = null;
+                    });
+                  }else{
+                    showMessage(App.globalContext, b.errorMessageWithoutNull);
+                    setState(() {
+                      sending = false;
+                    });
+                  }
+                }, icon: Icon(Icons.send, color: Theme.of(context).colorScheme.secondary,))
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

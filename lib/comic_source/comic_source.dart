@@ -30,6 +30,12 @@ typedef LoadComicFunc = Future<Res<ComicInfoData>> Function(String id);
 
 typedef LoadComicPagesFunc = Future<Res<List<String>>> Function(String id, String? ep);
 
+typedef CommentsLoader = Future<Res<List<Comment>>>
+    Function(String id, String? subId, int page, String? replyTo);
+
+typedef SendCommentFunc = Future<Res<bool>>
+    Function(String id, String? subId, String content, String? replyTo);
+
 class ComicSource {
   static List<ComicSource> sources = [];
 
@@ -119,6 +125,10 @@ class ComicSource {
 
   final String version;
 
+  final CommentsLoader? commentsLoader;
+
+  final SendCommentFunc? sendCommentFunc;
+
   Future<void> loadData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
     if (await file.exists()) {
@@ -163,7 +173,9 @@ class ComicSource {
       this.matchBriefIdReg,
       this.filePath,
       this.url,
-      this.version);
+      this.version,
+      this.commentsLoader,
+      this.sendCommentFunc);
 }
 
 class AccountConfig {
@@ -284,9 +296,11 @@ class ComicInfoData {
 
   final bool? isFavorite;
 
+  final String? subId;
+
   const ComicInfoData(this.title, this.subTitle, this.cover, this.description, this.tags,
       this.chapters, this.thumbnails, this.thumbnailLoader, this.thumbnailMaxPage,
-      this.suggestions, this.sourceKey, this.comicId, {this.isFavorite});
+      this.suggestions, this.sourceKey, this.comicId, {this.isFavorite, this.subId});
 
   Map<String, dynamic> toJson() {
     return {
@@ -299,6 +313,7 @@ class ComicInfoData {
       "sourceKey": sourceKey,
       "comicId": comicId,
       "isFavorite": isFavorite,
+      "subId": subId,
     };
   }
 
@@ -323,7 +338,8 @@ class ComicInfoData {
         thumbnailLoader = null,
         thumbnailMaxPage = 0,
         suggestions = null,
-        isFavorite = json["isFavorite"];
+        isFavorite = json["isFavorite"],
+        subId = json["subId"];
 }
 
 typedef CategoryComicsLoader = Future<Res<List<BaseComic>>> Function(
@@ -353,4 +369,15 @@ class CategoryComicsOptions{
   final List<String> notShowWhen;
 
   const CategoryComicsOptions(this.options, this.notShowWhen);
+}
+
+class Comment{
+  final String userName;
+  final String? avatar;
+  final String content;
+  final String? time;
+  final int? replyCount;
+  final String? id;
+
+  const Comment(this.userName, this.avatar, this.content, this.time, this.replyCount, this.id);
 }

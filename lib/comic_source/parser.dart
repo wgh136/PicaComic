@@ -62,6 +62,8 @@ class ComicSourceParser {
     final loadComicFunc = _parseLoadComicFunc(document["comic"]);
     final loadComicPagesFunc = _parseLoadComicPagesFunc(document["comic"]);
     final favoriteData = _loadFavoriteData(document["favorite"]);
+    final commentsLoader = _parseCommentsLoader(document["comic"]);
+    final sendCommentFunc = _parseSendCommentFunc(document["comic"]);
 
     var source =  ComicSource(
         _name!,
@@ -79,7 +81,9 @@ class ComicSourceParser {
         document["comic"]?["matchBriefIdRegex"],
         filePath,
         document["url"] ?? "",
-        document["version"] ?? "1.0.0");
+        document["version"] ?? "1.0.0",
+        commentsLoader,
+        sendCommentFunc);
 
     await source.loadData();
 
@@ -343,7 +347,8 @@ class ComicSourceParser {
                 .toList(),
             _key!,
             id,
-            isFavorite: res["isFavorite"],));
+            isFavorite: res["isFavorite"],
+            subId: res["subId"],));
       } catch (e, s) {
         log("$e\n$s", "Network", LogLevel.error);
         return Res.error(e.toString());
@@ -436,5 +441,43 @@ class ComicSourceParser {
         multiFolder: multiFolder,
         loadComic: loadComic,
         addOrDelFavorite: addOrDelFavFunc);
+  }
+
+  CommentsLoader? _parseCommentsLoader(Map<String, dynamic>? doc){
+    if(doc?["loadComments"] == null) return null;
+    final String loadCommentsJs = doc!["loadComments"];
+    return (id, subId, page, replyTo) async {
+      try {
+        final key = await JsEngine().runProtectedWithKey(
+            "$loadCommentsJs\nloadComments(${jsonEncode(id)}, ${jsonEncode(subId)}, $page, ${jsonEncode(replyTo)})",
+            _key!);
+        var res = await JsEngine().wait(key);
+        return Res(
+            (res["comments"] as List).map((e) => Comment(
+                e["userName"], e["avatar"], e["content"], e["time"], e["replyCount"], e["id"].toString()
+            )).toList(),
+            subData: res["maxPage"]);
+      } catch (e, s) {
+        log("$e\n$s", "Network", LogLevel.error);
+        return Res.error(e.toString());
+      }
+    };
+  }
+
+  SendCommentFunc? _parseSendCommentFunc(Map<String, dynamic>? doc){
+    if(doc?["sendComment"] == null) return null;
+    final String sendCommentJs = doc!["sendComment"];
+    return (id, subId, content, replyTo) async {
+      try {
+        final key = await JsEngine().runProtectedWithKey(
+            "$sendCommentJs\nsendComment(${jsonEncode(id)}, ${jsonEncode(subId)}, ${jsonEncode(content)}, ${jsonEncode(replyTo)})",
+            _key!);
+        await JsEngine().wait(key);
+        return const Res(true);
+      } catch (e, s) {
+        log("$e\n$s", "Network", LogLevel.error);
+        return Res.error(e.toString());
+      }
+    };
   }
 }

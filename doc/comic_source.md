@@ -35,6 +35,19 @@ url = "https://example.com"
 `key`用于标识此漫画源, 用户的所有漫画源的key都不应该相同, 若有重复, 只有第一个被加载
 `url`为此配置文件的url, 用于更新
 
+### 初始化
+
+初始化代码会在导入漫画源和app启动时执行
+```toml
+
+init = """
+function init(){
+    
+}
+"""
+
+```
+
 ### 账号
 
 示例:
@@ -543,6 +556,96 @@ async function loadEp(comicId, epId){
 - id: 通过漫画简略信息得到的id
 - 返回结果详见此文档的数据结构部分
 
+#### 漫画评论
+
+示例:
+```toml
+loadComments = """
+async function loadComments(comicId, subId, page, replyTo){
+    try{
+        let url = `https://api.copymanga.tv/api/v3/comments?comic_id=${subId}&limit=20&offset=${(page-1)*20}`;
+        if(replyTo){
+            url = url + `&reply_id=${replyTo}&_update=true`;
+        }
+        let res = await Network.get(
+            url,
+            tempData.copyHeaders,
+        );
+
+        if (res.status !== 200){
+            throw `Invalid status code: ${res.status}`;
+        }
+
+        let data = JSON.parse(res.body);
+
+        let total = data.results.total;
+
+        success({
+            comments: data.results.list.map(e => {
+                return {
+                    userName: e.user_name,
+                    avatar: e.user_avatar,
+                    content: e.comment,
+                    time: e.create_at,
+                    replyCount: e.count,
+                    id: e.id,
+                }
+            }),
+            maxPage: (total - (total % 20)) / 20 + 1,
+        })
+    }
+    catch (e){
+        error(e.toString());
+    }
+}
+"""
+
+sendComment = """
+async function sendComment(comicId, subId, content, replyTo){
+    let token = loadData("token");
+    if(!token){
+        error("未登录");
+    }
+    if(!replyTo){
+        replyTo = '';
+    }
+    try{
+        let res = await Network.post(
+            `https://api.copymanga.tv/api/v3/member/comment`,
+            {
+                ...tempData.copyHeaders,
+                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            },
+            `comic_id=${subId}&comment=${encodeURIComponent(content)}&reply_id=${replyTo}`,
+        );
+
+        if (res.status !== 200){
+            throw `Invalid status code: ${res.status}`;
+        } else {
+            success("ok")
+        }
+    }
+    catch (e){
+        error(e.toString());
+    }
+}
+"""
+```
+
+##### 加载评论
+需要实现函数`async function loadComments(comicId, subId, page, replyTo)`
+- comicId: 通过漫画简略信息得到的id
+- subId: 此漫画的另一个标识符, 在加载漫画详细信息时提供, 如果没有提供, 此参数为null
+- page: 当前页数
+- replyTo: 回复的评论的id, 如果为null, 则为加载评论, 否则为加载回复
+
+##### 发送评论
+需要实现函数`async function sendComment(comicId, subId, content, replyTo)`
+- comicId: 通过漫画简略信息得到的id
+- subId: 此漫画的另一个标识符, 在加载漫画详细信息时提供, 如果没有提供, 此参数为null
+- content: 评论内容
+- replyTo: 回复的评论的id, 如果为null, 则为发送评论, 否则为发送回复
+
 #### 加载章节图片
 需要实现函数`async function loadEp(comicId, epId)`
 - comicId: 通过漫画简略信息得到的id
@@ -745,6 +848,7 @@ let encodedData = Convert.md5(data)
         tags: string[],
         description: string?,
     }[],
+    subId: string?,
 }
 ```
 
@@ -753,6 +857,7 @@ let encodedData = Convert.md5(data)
 - thumbnailLoader: (尚未实现)加载缩略图的函数
 - thumbnailMaxPage: (尚未实现)缩略图的最大页数
 - suggestions: 推荐的漫画, 用于显示在漫画详情页的推荐列表
+- subId: 此漫画的另一个标识符, 可选, 加载评论和发送评论的函数中有此参数
 
 #### 漫画列表
 
@@ -767,6 +872,22 @@ let encodedData = Convert.md5(data)
         id: string,
         tags: string[],
         description: string?,
+    }[],
+    maxPage: number,
+}
+```
+
+#### 漫画评论
+
+```
+{
+    comments: {
+        userName: string,
+        avatar: string?,
+        content: string,
+        time: string?,
+        replyCount: number?,
+        id: string?,
     }[],
     maxPage: number,
 }
