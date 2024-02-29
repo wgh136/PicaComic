@@ -94,7 +94,8 @@ class ComicsPageLogic<T> extends StateController {
       showMessage(App.globalContext, res.errorMessage!);
     } else {
       if (res.data.isEmpty) {
-        maxPage = current;
+        // 等待一会儿再加载, 避免因为某些错误导致无限加载
+        await Future.delayed(const Duration(seconds: 1));
         update();
       } else {
         comics!.addAll(res.data);
