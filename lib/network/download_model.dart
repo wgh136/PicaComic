@@ -230,7 +230,7 @@ abstract class DownloadingItem{
     _runtimeKey++;
     notifications.endProgress();
     stopAllStream();
-    ImageManager.loadingItems.clear();
+    ImageManager.clearTasks();
   }
 
   /// stop downloading

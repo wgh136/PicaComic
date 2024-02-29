@@ -39,6 +39,12 @@ class ImageManager {
     }
   }
 
+  static bool get haveTask => loadingItems.isNotEmpty;
+
+  static void clearTasks() {
+    loadingItems.clear();
+  }
+
   ImageManager._create();
 
   Map<String, String>? _paths;

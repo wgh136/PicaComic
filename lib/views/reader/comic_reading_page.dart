@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/foundation/image_loader/file_image_loader.dart';
 import 'package:pica_comic/foundation/image_loader/stream_image_provider.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/download.dart';
@@ -218,6 +219,9 @@ class ComicReadingPage extends StatelessWidget {
       // 退出全屏
       if (logic.isFullScreen) {
         logic.fullscreen();
+      }
+      if(!DownloadManager().isDownloading){
+        ImageManager.clearTasks();
       }
       // 更新漫画详情页面
       Future.microtask(() {

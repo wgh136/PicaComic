@@ -81,7 +81,9 @@ class _ScrollbarState extends State<_Scrollbar> {
     final outlineColor = Theme.of(context).colorScheme.outline;
     return MouseRegion(
       onHover: (event){
-        isMouse = true;
+        if(event.kind == PointerDeviceKind.mouse) {
+          isMouse = true;
+        }
       },
       child: Stack(
         children: [
@@ -542,9 +544,8 @@ extension ImageExt on ComicReadingPage {
   /// create a image provider
   ImageProvider createImageProvider(
       ReadingType type, ComicReadingPageLogic logic, int index, String target) {
-    return StreamImageProvider(
-        () => logic.data.loadImage(logic.order, index, logic.urls[index]),
-        "${logic.data.id} ${logic.order} $index}");
+
+    return logic.data.createImageProvider(logic.order, index, logic.urls[index]);
   }
 
   /// check current location of [PageView], update location when it is out of range.
@@ -597,7 +598,7 @@ extension ImageExt on ComicReadingPage {
       }
       precacheImage(createImageProvider(type, logic, index, target), context);
     }
-    if (ImageManager.loadingItems.isEmpty) {
+    if (!ImageManager.haveTask) {
       precacheNum += 3;
       for (; index < precacheNum; index++) {
         if (index >= logic.urls.length || logic.requestedLoadingItems[index]) {

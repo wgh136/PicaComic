@@ -54,6 +54,14 @@ abstract class ReadingData {
     }
   }
 
+  ImageProvider createImageProvider(int ep, int page, String url){
+    if (downloaded && checkEpDownloaded(ep)){
+      return FileImageProvider(downloadId, hasEp ? ep : 0, page);
+    } else {
+      return StreamImageProvider(() => loadImage(ep, page, url), "$id$ep$page");
+    }
+  }
+
   Future<Res<List<String>>> loadEpNetwork(int ep);
 
   Stream<DownloadProgress> loadImageNetwork(int ep, int page, String url);

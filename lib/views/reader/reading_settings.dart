@@ -379,7 +379,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   "分流6".tl,
                 ],
                 whenChange: (i) {
-                  ImageManager.loadingItems.clear();
                   appdata.settings[37] = i.toString();
                   appdata.updateSettings();
                 },
