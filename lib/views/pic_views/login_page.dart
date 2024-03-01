@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/views/pic_views/register.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../foundation/app.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../base.dart';
@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
             message: "转到注册".tl,
             child: TextButton(
               child: Text("转到注册".tl),
-              onPressed: ()=>App.off(context, ()=>const RegisterPage()),
+              onPressed: () => launchUrlString("https://manhuabika.com/pregister/?"),
             ),
           )
         ],
