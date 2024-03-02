@@ -58,9 +58,23 @@ final class FavoriteType{
     if(comicType != ComicType.other){
       return comicType.name;
     } else {
-      return comicSource.name;
+      try {
+        return comicSource.name;
+      }
+      catch(e){
+        return "**Unknown**";
+      }
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FavoriteType && other.key == key;
+  }
+
+  @override
+  int get hashCode => key.hashCode;
+
 }
 
 class FavoriteItem {
@@ -72,18 +86,32 @@ class FavoriteItem {
   String coverPath;
   String time = getCurTime();
 
+  bool get available {
+    if(type.key <= 6 && type.key >= 0){
+      return true;
+    }
+    return ComicSource.sources
+        .firstWhereOrNull((element) => element.intKey == type.key) != null;
+  }
+
   String toDownloadId() {
-    return switch (type.comicType) {
-      ComicType.picacg => target,
-      ComicType.ehentai => getGalleryId(target),
-      ComicType.jm => "jm$target",
-      ComicType.hitomi => RegExp(r"\d+(?=\.html)").hasMatch(target)
-          ? "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)?[0]}"
-          : target,
-      ComicType.htManga => "ht$target",
-      ComicType.nhentai => "nhentai$target",
-      _ => DownloadManager().generateId(type.comicSource.key, target)
-    };
+    try {
+      return switch (type.comicType) {
+        ComicType.picacg => target,
+        ComicType.ehentai => getGalleryId(target),
+        ComicType.jm => "jm$target",
+        ComicType.hitomi =>
+        RegExp(r"\d+(?=\.html)").hasMatch(target)
+            ? "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)?[0]}"
+            : target,
+        ComicType.htManga => "ht$target",
+        ComicType.nhentai => "nhentai$target",
+        _ => DownloadManager().generateId(type.comicSource.key, target)
+      };
+    }
+    catch(e){
+      return "**Invalid ID**";
+    }
   }
 
   FavoriteItem.fromPicacg(ComicItemBrief comic)
@@ -698,5 +726,13 @@ class LocalFavoritesManager {
       }
     }
     return resComics;
+  }
+
+  void editTags(String target, String folder, List<String> tags){
+    _db.execute("""
+        update "$folder"
+        set tags = '${tags.join(",")}'
+        where target == '${target.toParam}';
+      """);
   }
 }

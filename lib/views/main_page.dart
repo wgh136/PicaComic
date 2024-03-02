@@ -9,10 +9,10 @@ import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
+import 'package:pica_comic/views/favorites/main_favorites_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
-import 'package:pica_comic/views/favorites/favorites_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
@@ -82,7 +82,7 @@ class _MainPageState extends State<MainPage> {
 
   final pages = [
     const MePage(key: Key("0"),),
-    const LocalFavoritesPage(key: Key("1"),),
+    FavoritesPage(key: Key("1"),),
     const ExplorePageWithGetControl(key: Key("2"),),
     const AllCategoryPage(key: Key("3"),),
   ];

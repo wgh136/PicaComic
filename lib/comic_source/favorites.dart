@@ -53,3 +53,20 @@ FavoriteData getFavoriteData(String key){
   var source = ComicSource.find(key) ?? (throw "Unknown source key: $key");
   return source.favoriteData!;
 }
+
+FavoriteData? getFavoriteDataOrNull(String key){
+  switch(key){
+    case "picacg":
+      return picacgFavorites;
+    case "ehentai":
+      return ehFavorites;
+    case "jm":
+      return jmFavorites;
+    case "htmanga":
+      return htFavorites;
+    case "nhentai":
+      return nhentaiFavorites;
+  }
+  var source = ComicSource.find(key);
+  return source?.favoriteData;
+}

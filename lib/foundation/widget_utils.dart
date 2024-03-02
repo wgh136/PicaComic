@@ -40,4 +40,20 @@ extension WidgetExtension on Widget{
   Widget toAlign(AlignmentGeometry alignment){
     return Align(alignment: alignment, child: this);
   }
+
+  Widget sliverPadding(EdgeInsetsGeometry padding){
+    return SliverPadding(padding: padding, sliver: this);
+  }
+
+  Widget sliverPaddingAll(double padding){
+    return SliverPadding(padding: EdgeInsets.all(padding), sliver: this);
+  }
+
+  Widget sliverPaddingVertical(double padding){
+    return SliverPadding(padding: EdgeInsets.symmetric(vertical: padding), sliver: this);
+  }
+
+  Widget sliverPaddingHorizontal(double padding){
+    return SliverPadding(padding: EdgeInsets.symmetric(horizontal: padding), sliver: this);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/history.dart';
@@ -12,6 +13,7 @@ import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/favorites/main_favorites_page.dart';
 import 'package:pica_comic/views/favorites/network_to_local.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
@@ -372,6 +374,10 @@ class LocalFavoriteTile extends ComicTile {
             text: "复制到".tl,
             onClick: copyTo,
           ),
+          DesktopMenuEntry(
+            text: "编辑标签".tl,
+            onClick: editTags,
+          ),
         ]);
   }
 
@@ -425,6 +431,14 @@ class LocalFavoriteTile extends ComicTile {
                   onTap: () {
                     App.globalBack();
                     copyTo();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.edit_note),
+                  title: Text("编辑标签".tl),
+                  onTap: () {
+                    App.globalBack();
+                    editTags();
                   },
                 ),
                 const SizedBox(
@@ -617,6 +631,10 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onTap_() {
+    if(!comic.available){
+      showToast(message: "无效的漫画".tl);
+      return;
+    }
     if(appdata.settings[60] == "0"){
       showInfo();
     } else {
@@ -626,6 +644,88 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   String get comicID => comic.target;
+
+  void editTags(){
+    showDialog(context: App.globalContext!, builder: (context){
+      var tags = comic.tags;
+      var controller = TextEditingController();
+      return SimpleDialog(
+        elevation: 1,
+        title: Text("编辑标签".tl),
+        children: [
+          StatefulBuilder(builder: (context, setState) => SizedBox(
+            width: 400,
+            child: Column(
+              children: [
+                Wrap(
+                  children: tags.map((e) => Container(
+                    margin: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(e),
+                        const SizedBox(width: 4,),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          child: const Icon(Icons.close, size: 20,),
+                          onTap: (){
+                            tags.remove(e);
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
+                  )).toList(),
+                ),
+                const SizedBox(height: 8,),
+                SizedBox(
+                  height: 56,
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: const UnderlineInputBorder(),
+                      suffix: IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: (){
+                          var value = controller.text;
+                          if(value.isNotEmpty){
+                            controller.clear();
+                            tags.add(value);
+                            setState(() {});
+                          }
+                        },
+                      ).paddingTop(8),
+                    ),
+                    onSubmitted: (value){
+                      if(value.isNotEmpty){
+                        tags.add(value);
+                        controller.clear();
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ).paddingHorizontal(36),
+                const SizedBox(height: 16,),
+                Center(
+                  child: FilledButton(onPressed: (){
+                    LocalFavoritesManager().editTags(comic.target, folderName, tags);
+                    App.globalBack();
+                    StateController.findOrNull<FavoritesPageController>()?.update();
+                    StateController.findOrNull(tag: "local_search_page")?.update();
+                  }, child: Text("提交".tl)),
+                )
+              ],
+            ),
+          ))
+        ],
+      );
+    });
+  }
 }
 
 class LocalFavoritesFolder extends StatefulWidget {
