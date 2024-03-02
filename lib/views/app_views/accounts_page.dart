@@ -182,7 +182,7 @@ class AccountsPage extends StatelessWidget {
                               ),
                             ),
                             onTap: () async {
-                              if (App.isWindows) {
+                              if (App.isDesktop) {
                                 const XTypeGroup typeGroup = XTypeGroup(
                                   label: 'images',
                                   extensions: <String>['jpg', 'png'],

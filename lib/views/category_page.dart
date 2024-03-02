@@ -200,14 +200,16 @@ class CategoryPage extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         onTap: () => onClick(tag, param),
         child: Card(
           margin: EdgeInsets.zero,
+          elevation: 1,
+          //shadowColor: Colors.transparent,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(translateTag(tag)),
           ),
         ),

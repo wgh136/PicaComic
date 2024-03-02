@@ -17,7 +17,7 @@ void saveImage(File file) async{
           quality: 100,
           name: file.name);
       showToast(message: "已保存".tl);
-  }else if(App.isWindows){
+  }else if(App.isDesktop){
     try {
       final String? path = (await getSaveLocation(suggestedName: file.name))?.path;
       if (path != null) {

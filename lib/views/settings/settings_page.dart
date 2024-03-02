@@ -472,13 +472,11 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
                   subtitle: Text(
                       "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
                   onTap: () {
-                    if (App.isAndroid || App.isIOS || App.isWindows) {
-                      showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl, () {
-                        eraseCache();
-                        logic.size = 0;
-                        logic.update();
-                      });
-                    }
+                    showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl, () {
+                      eraseCache();
+                      logic.size = 0;
+                      logic.update();
+                    });
                   },
                 );
               }
