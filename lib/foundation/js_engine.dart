@@ -83,6 +83,11 @@ class JsEngine with _JSEngineApi{
           case 'return':
             {
               int key = message["key"];
+
+              if(_responseData[key] != null){
+                return;
+              }
+
               if (message["data"] != null) {
                 _responseData[key] = message["data"];
               } else {

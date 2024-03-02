@@ -148,14 +148,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
                 TextButton(onPressed: chooseFile, child: Text("选择文件".tl)).paddingLeft(8),
                 const Spacer(),
                 TextButton(onPressed: (){
-                  showDialog(context: context, builder: (context) => AlertDialog(
-                    title: const Text("错误"),
-                    content: const Text("还没做"),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(context),
-                          child: const Text("取消")),
-                    ],
-                  ));
+                  launchUrlString("https://github.com/wgh136/pica_configs/tree/master");
                 }, child: Text("浏览列表".tl)),
                 const Spacer(),
                 TextButton(onPressed: help, child: Text("查看帮助".tl)).paddingRight(8),
@@ -184,7 +177,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
   }
 
   void help(){
-
+    launchUrlString("https://github.com/wgh136/PicaComic/blob/master/doc/comic_source.md");
   }
 
   void handleAddSource(String url) async{

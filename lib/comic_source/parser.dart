@@ -468,16 +468,28 @@ class ComicSourceParser {
     if(doc?["sendComment"] == null) return null;
     final String sendCommentJs = doc!["sendComment"];
     return (id, subId, content, replyTo) async {
-      try {
-        final key = await JsEngine().runProtectedWithKey(
-            "$sendCommentJs\nsendComment(${jsonEncode(id)}, ${jsonEncode(subId)}, ${jsonEncode(content)}, ${jsonEncode(replyTo)})",
-            _key!);
-        await JsEngine().wait(key);
-        return const Res(true);
-      } catch (e, s) {
-        log("$e\n$s", "Network", LogLevel.error);
-        return Res.error(e.toString());
+      Future<Res<bool>> func() async{
+        try {
+          final key = await JsEngine().runProtectedWithKey(
+              "$sendCommentJs\nsendComment(${jsonEncode(id)}, ${jsonEncode(subId)}, ${jsonEncode(content)}, ${jsonEncode(replyTo)})",
+              _key!);
+          await JsEngine().wait(key);
+          return const Res(true);
+        } catch (e, s) {
+          log("$e\n$s", "Network", LogLevel.error);
+          return Res.error(e.toString());
+        }
       }
+      var res = await func();
+      if(res.error && res.errorMessage!.contains("Login expired")){
+        var reLoginRes = await ComicSource.find(_key!)!.reLogin();
+        if (!reLoginRes) {
+          return const Res.error("Login expired and re-login failed");
+        } else {
+          return func();
+        }
+      }
+      return res;
     };
   }
 }
