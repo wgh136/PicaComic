@@ -149,9 +149,17 @@ class ImageManager {
         }
       }
 
-      if(url.contains("s.exhentai.org") || url.contains("ehgt.org")) {
-        await Future.delayed(Duration(seconds: 2 * ehLoading));
+      if(url.contains("s.exhentai.org")){
+        // s.exhentai.org 有严格的加载限制
+        url = url.replaceFirst("s.exhentai.org", "ehgt.org");
+      }
+
+      if(url.contains("ehgt.org")) {
+        while(ehLoading >= 5){
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
         ehLoading++;
+        Future.delayed(const Duration(seconds: 3), () => ehLoading--);
       }
 
       //生成文件名
@@ -208,9 +216,6 @@ class ImageManager {
       rethrow;
     } finally {
       loadingItems.remove(url);
-      if(url.contains("s.exhentai.org") || url.contains("ehgt.org")){
-        ehLoading--;
-      }
     }
   }
 

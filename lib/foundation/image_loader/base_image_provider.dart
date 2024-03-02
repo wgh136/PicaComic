@@ -49,7 +49,7 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>> extends ImagePr
           if(e.toString().contains("Your IP address")){
             rethrow;
           }
-          if(e.toString().contains("404")){
+          if(e.toString().contains("404") || e.toString().contains("403")){
             rethrow;
           }
           if(e.toString().contains("handshake")){

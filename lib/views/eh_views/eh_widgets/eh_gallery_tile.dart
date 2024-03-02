@@ -112,7 +112,6 @@ class EhGalleryTile extends ComicTile {
             "Cookie": EhNetwork().cookiesStr,
             "User-Agent": webUA,
             "Referer": EhNetwork().ehBaseUrl,
-            "host": Uri.parse(gallery.coverPath).host
           },
         ),
         fit: BoxFit.cover,
