@@ -282,7 +282,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           borderRadius: BorderRadius.circular(16),
           child: Container(
             width: double.infinity,
-            height: 64,
+            height: 58,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             decoration: BoxDecoration(
               color: selected ? colors.tertiaryContainer.withAlpha(150) : null,
@@ -301,7 +301,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
               if (selected) const Icon(Icons.arrow_right)
             ]),
           ),
-        ),
+        ).paddingVertical(4),
       );
     }
 

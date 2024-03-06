@@ -176,6 +176,25 @@ class ComicSource {
       this.version,
       this.commentsLoader,
       this.sendCommentFunc);
+
+  ComicSource.unknown(this.key):
+        name = "Unknown",
+        account = null,
+        categoryData = null,
+        categoryComicsData = null,
+        favoriteData = null,
+        explorePages = [],
+        searchPageData = null,
+        settings = [],
+        loadComicInfo = null,
+        loadComicPages = null,
+        loadImage = null,
+        matchBriefIdReg = null,
+        filePath = "",
+        url = "",
+        version = "",
+        commentsLoader = null,
+        sendCommentFunc = null;
 }
 
 class AccountConfig {

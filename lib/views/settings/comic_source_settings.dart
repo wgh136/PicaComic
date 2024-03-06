@@ -205,6 +205,28 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
   Future<void> addSource(String toml, String fileName) async{
     var comicSource = await ComicSourceParser().createAndParse(toml, fileName);
     ComicSource.sources.add(comicSource);
+    var explorePages = appdata.settings[77].split(',');
+    for(var page in comicSource.explorePages){
+      if(!explorePages.contains(page)){
+        explorePages.add(page.title);
+      }
+    }
+    appdata.settings[77] = explorePages.join(',');
+    if(comicSource.categoryData != null &&
+        !appdata.settings[67].contains(comicSource.categoryData!.title)){
+      if(appdata.settings[67].isNotEmpty){
+        appdata.settings[67] += ",";
+      }
+      appdata.settings[67] += comicSource.categoryData!.title;
+    }
+    if(comicSource.favoriteData != null &&
+        !appdata.settings[68].contains(comicSource.key)){
+      if(appdata.settings[68].isNotEmpty){
+        appdata.settings[68] += ",";
+      }
+      appdata.settings[68] += comicSource.key;
+    }
+    appdata.updateSettings();
     MyApp.updater?.call();
   }
 }
