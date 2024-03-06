@@ -323,7 +323,7 @@ extension ToolBar on ComicReadingPage {
               ),
             Positioned(
               left: 5,
-              top: 5,
+              top: 5 + MediaQuery.of(context).padding.top,
               child: IconButton(
                 iconSize: 30,
                 icon: const Icon(Icons.close),

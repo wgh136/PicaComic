@@ -52,6 +52,8 @@ class ComicReadingPageLogic extends StateController {
 
   bool haveUsedInitialPage = false;
 
+  var focusNode = FocusNode();
+
   static int _getIndex(int initPage) {
     if (appdata.settings[9] == "5" || appdata.settings[9] == "6") {
       return initPage % 2 == 1 ? initPage : initPage - 1;
@@ -327,6 +329,7 @@ class ComicReadingPageLogic extends StateController {
     const channel = MethodChannel("pica_comic/full_screen");
     channel.invokeMethod("set", !isFullScreen);
     isFullScreen = !isFullScreen;
+    focusNode.requestFocus();
   }
 
   void handleKeyboard(KeyEvent event) {

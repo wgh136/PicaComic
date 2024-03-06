@@ -492,6 +492,7 @@ extension ImageExt on ComicReadingPage {
     }
 
     return Positioned.fill(
+      top: App.isDesktop ? MediaQuery.of(context).padding.top : 0,
       child: Listener(
         onPointerSignal: onPointerSignal,
         onPointerPanZoomUpdate: (event) {

@@ -1,5 +1,7 @@
 part of pica_reader;
 
+const _kMaxTapOffset = 10.0;
+
 /// Control scroll when readingMethod is [ReadingMethod.topToBottomContinuously]
 /// and the image has been enlarge
 class ScrollManager {
@@ -222,7 +224,7 @@ class TapController {
 
     if (_tapOffset != null) {
       var distance = detail.position.dy - _tapOffset!.dy;
-      if (distance > 0.1 || distance < -0.1) {
+      if (distance > _kMaxTapOffset || distance < -_kMaxTapOffset) {
         return;
       }
       _tapOffset = null;
@@ -324,8 +326,10 @@ class TapController {
       logic.update(["ToolBar"]);
       if (logic.tools) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        StateController.findOrNull<WindowFrameController>()?.resetTheme();
       } else {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        StateController.findOrNull<WindowFrameController>()?.setDarkTheme();
       }
     }
   }

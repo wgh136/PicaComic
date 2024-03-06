@@ -195,7 +195,7 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
       logic.openEpsView = openEpsDrawer;
       Future.microtask(() =>
-          StateController.find<WindowFrameController>().setDarkTheme());
+          StateController.findOrNull<WindowFrameController>()?.setDarkTheme());
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -236,7 +236,7 @@ class ComicReadingPage extends StatelessWidget {
         SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       }
       Future.microtask(() =>
-          StateController.find<WindowFrameController>().resetTheme());
+          StateController.findOrNull<WindowFrameController>()?.resetTheme());
     }, builder: (logic) {
       return Scaffold(
         backgroundColor: Colors.black,
@@ -329,7 +329,7 @@ class ComicReadingPage extends StatelessWidget {
             );
 
             return KeyboardListener(
-              focusNode: FocusNode(),
+              focusNode: logic.focusNode,
               autofocus: true,
               onKeyEvent: logic.handleKeyboard,
               child: body,
@@ -337,7 +337,7 @@ class ComicReadingPage extends StatelessWidget {
           } else {
             return buildErrorView(logic, context);
           }
-        }).paddingTop(App.isDesktop ? MediaQuery.of(context).padding.top : 0),
+        }),
       );
     });
   }
