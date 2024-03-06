@@ -1,6 +1,6 @@
 part of pica_reader;
 
-const _kMaxTapOffset = 10.0;
+const _kMaxTapOffset = 4.0;
 
 /// Control scroll when readingMethod is [ReadingMethod.topToBottomContinuously]
 /// and the image has been enlarge

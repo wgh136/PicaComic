@@ -12,7 +12,7 @@ extension PageControllerExtension on PageController{
 
 class ComicReadingPageLogic extends StateController {
   ///控制页面, 用于非从上至下(连续)阅读方式
-  PageController pageController;
+  late PageController pageController;
 
   ///用于从上至下(连续)阅读方式, 跳转至指定项目
   var itemScrollController = ItemScrollController();
@@ -70,12 +70,16 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
-  ComicReadingPageLogic(this.order, this.data, int initialPage, this.updateHistory)
-      : pageController =
-            PageController(initialPage: _getPage(initialPage)),
-        _index = _getIndex(initialPage) {
+  ComicReadingPageLogic(this.order, this.data, int initialPage, this.updateHistory){
+    if(initialPage <= 0){
+      initialPage = 1;
+    }
+    pageController =
+        PageController(initialPage: _getPage(initialPage));
+    _index = _getIndex(initialPage);
     order <= 0 ? order = 1 : order;
   }
+
 
   final void Function() updateHistory;
 
@@ -109,7 +113,7 @@ class ComicReadingPageLogic extends StateController {
   }
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
-  int _index;
+  late int _index;
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
   int get index => _index;

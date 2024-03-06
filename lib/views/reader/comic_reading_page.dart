@@ -258,7 +258,7 @@ class ComicReadingPage extends StatelessWidget {
             );
           } else if (logic.urls.isNotEmpty) {
             if (logic.readingMethod == ReadingMethod.topToBottomContinuously &&
-                !logic.haveUsedInitialPage) {
+                !logic.haveUsedInitialPage && initialPage != 0) {
               Future.microtask(() {
                 logic.jumpToPage(initialPage);
                 logic.haveUsedInitialPage = true;
