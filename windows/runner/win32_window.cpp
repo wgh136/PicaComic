@@ -18,7 +18,7 @@ namespace {
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
-constexpr const wchar_t kWindowClassName[] = L"Pica_Comic_Window";
+constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
 
 /// Registry key for app theme preference.
 ///
@@ -62,7 +62,7 @@ class WindowClassRegistrar {
  public:
   ~WindowClassRegistrar() = default;
 
-  // Returns the singleton registar instance.
+  // Returns the singleton registrar instance.
   static WindowClassRegistrar* GetInstance() {
     if (!instance_) {
       instance_ = new WindowClassRegistrar();
@@ -207,8 +207,7 @@ bool Win32Window::Create(const std::wstring& title,
 }
 
 bool Win32Window::Show() {
-    readPlacement(window_handle_);
-    return ShowWindow(window_handle_, SW_SHOWNORMAL);
+  return ShowWindow(window_handle_, SW_SHOWNORMAL);
 }
 
 // static
@@ -231,44 +230,14 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
   return DefWindowProc(window, message, wparam, lparam);
 }
 
-void Win32Window::writePlacement(HWND hwnd) {
-    WINDOWPLACEMENT windowsPlacement{};
-    GetWindowPlacement(hwnd, &windowsPlacement);
-
-    wchar_t appDataPath[MAX_PATH];
-    GetEnvironmentVariableW(L"APPDATA", appDataPath, MAX_PATH);
-    std::wstring path{appDataPath};
-    path += L"\\com.kokoiro.xyz\\pica_comic";
-    if (!std::filesystem::exists(path)) {
-        std::filesystem::create_directories(path);
-    }
-    path += L"\\location.data";
-
-    std::ofstream file(path, std::ios::binary);
-    if (!file.is_open()) {
-        // handle error: failed to open file
-        return;
-    }
-    file.write(reinterpret_cast<const char*>(&windowsPlacement), sizeof(WINDOWPLACEMENT));
-}
-
 LRESULT
 Win32Window::MessageHandler(HWND hwnd,
                             UINT const message,
                             WPARAM const wparam,
                             LPARAM const lparam) noexcept {
   switch (message) {
-    case WM_GETMINMAXINFO:
-    {
-      MINMAXINFO* pMinMaxInfo = (MINMAXINFO*)lparam;
-        
-      pMinMaxInfo->ptMinTrackSize.x = 400;
-
-      return 0;
-    }
     case WM_DESTROY:
       window_handle_ = nullptr;
-      writePlacement(hwnd);
       Destroy();
       if (quit_on_close_) {
         PostQuitMessage(0);
@@ -370,15 +339,7 @@ void Win32Window::UpdateTheme(HWND const window) {
 
   if (result == ERROR_SUCCESS) {
     BOOL enable_dark_mode = light_mode == 0;
-    COLORREF color;
-    if(enable_dark_mode)
-    {
-      color = 0x333333;
-    }else
-    {
-      color = 0xF1F1F1;
-    }
-    DwmSetWindowAttribute(window, DWMWA_CAPTION_COLOR,
-                          &color, sizeof(color));
+    DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE,
+                          &enable_dark_mode, sizeof(enable_dark_mode));
   }
 }

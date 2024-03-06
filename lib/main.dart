@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +19,7 @@ import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/views/widgets/window_frame.dart';
 import 'network/picacg_network/methods.dart';
 import 'network/webdav.dart';
 
@@ -36,6 +37,17 @@ void main(){
     network = PicacgNetwork(appdata.token);
     setNetworkProxy();
     runApp(const MyApp());
+    if(App.isDesktop){
+      doWhenWindowReady(() {
+        final win = appWindow;
+        const initialSize = Size(900, 720);
+        win.minSize = initialSize;
+        win.size = initialSize;
+        win.alignment = Alignment.center;
+        win.title = "Pica Comic";
+        win.show();
+      });
+    }
   }, (error, stack) {
     LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
   });
@@ -219,11 +231,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           Locale('en', 'US')
         ],
         builder: (context, widget) {
-          if (Platform.isWindows) {
-            var channel = const MethodChannel("pica_comic/title_bar");
-            channel.invokeMethod(
-                "color", Theme.of(context).colorScheme.surface.value);
-          }
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
                 "${details.exception}\n${details.stack}");
@@ -233,10 +240,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ),
             );
           };
-          if (widget != null) return OverlayWidget(widget);
+          if (widget != null) {
+            widget = OverlayWidget(widget);
+            if(App.isDesktop) {
+              widget = WindowFrame(widget);
+            }
+            return widget;
+          }
           throw ('widget is null');
         },
       );
     });
   }
 }
+

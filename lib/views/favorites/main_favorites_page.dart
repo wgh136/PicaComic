@@ -33,7 +33,8 @@ const _kSecondaryTopBarHeight = 48.0;
 class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
   FavoritesPage({super.key});
 
-  final controller = StateController.putIfNotExists(FavoritesPageController());
+  final controller = StateController
+      .putIfNotExists<FavoritesPageController>(FavoritesPageController());
 
   @override
   Widget build(BuildContext context) {
@@ -441,6 +442,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     }
 
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: MediaQuery.removePadding(
           key: Key(folder),
           removeTop: true,

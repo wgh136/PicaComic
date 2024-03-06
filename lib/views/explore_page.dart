@@ -434,6 +434,7 @@ class _CustomExplorePageState extends StateWithController<_CustomExplorePage> {
 
   @override
   void refresh() {
+    message = null;
     if (data.loadMultiPart != null) {
       setState(() {
         loading = true;

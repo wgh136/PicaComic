@@ -30,6 +30,7 @@ import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
+import 'package:pica_comic/views/widgets/window_frame.dart';
 import '../../foundation/app.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/hitomi_network/hitomi_models.dart';
@@ -193,6 +194,8 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
       logic.openEpsView = openEpsDrawer;
+      Future.microtask(() =>
+          StateController.find<WindowFrameController>().setDarkTheme());
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -232,6 +235,8 @@ class ComicReadingPage extends StatelessWidget {
       if (appdata.settings[76] == "1") {
         SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       }
+      Future.microtask(() =>
+          StateController.find<WindowFrameController>().resetTheme());
     }, builder: (logic) {
       return Scaffold(
         backgroundColor: Colors.black,
@@ -332,7 +337,7 @@ class ComicReadingPage extends StatelessWidget {
           } else {
             return buildErrorView(logic, context);
           }
-        }),
+        }).paddingTop(App.isDesktop ? MediaQuery.of(context).padding.top : 0),
       );
     });
   }

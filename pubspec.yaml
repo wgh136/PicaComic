@@ -95,6 +95,7 @@ dependencies:
     git:
         url: https://github.com/wgh136/flutter_js
   collection: 1.18.0
+  bitsdojo_window: 0.1.6
 
 dev_dependencies:
   flutter_test:

@@ -146,9 +146,8 @@ class DownloadPage extends StatelessWidget {
               logic.resetSelected(logic.comics.length);
               logic.change();
             });
-            return Scaffold(
-              appBar: AppBar(),
-              body: const Center(
+            return const Scaffold(
+              body: Center(
                 child: CircularProgressIndicator(),
               ),
             );
