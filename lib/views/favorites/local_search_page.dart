@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/favorites/main_favorites_page.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 
 import '../../foundation/app.dart';
 import '../../foundation/local_favorites.dart';
@@ -86,6 +89,25 @@ class _LocalSearchPageState extends StateWithController<LocalSearchPage> {
                         controller.clear();
                         setState(() {
                           keyword = "";
+                        });
+                      },
+                    ),
+                  ),
+                if(comics.isNotEmpty)
+                  Tooltip(
+                    message: "create folder",
+                    child: IconButton(
+                      icon: const Icon(Icons.create_new_folder_outlined),
+                      onPressed: (){
+                        showConfirmDialog(
+                          App.globalContext!,
+                          "创建收藏夹".tl,
+                          "从当前的搜索结果创建新的收藏夹".tl, () {
+                            var name = LocalFavoritesManager().createFolder("search result", true);
+                            for(var comic in comics){
+                              LocalFavoritesManager().addComic(name, comic.comic);
+                            }
+                            StateController.findOrNull<FavoritesPageController>()?.update();
                         });
                       },
                     ),

@@ -219,6 +219,15 @@ class FavoriteItem {
   }
 
   FavoriteItem(this.name, this.author, this.type, this.tags, this.target, this.coverPath);
+
+  @override
+  bool operator ==(Object other) {
+    return other is FavoriteItem && other.target == target;
+  }
+
+  @override
+  int get hashCode => target.hashCode;
+
 }
 
 class FavoriteItemWithFolderInfo {
@@ -226,6 +235,15 @@ class FavoriteItemWithFolderInfo {
   String folder;
 
   FavoriteItemWithFolderInfo(this.comic, this.folder);
+
+  @override
+  bool operator ==(Object other) {
+    return other is FavoriteItemWithFolderInfo && other.comic == comic
+        && other.folder == folder;
+  }
+
+  @override
+  int get hashCode => comic.hashCode ^ folder.hashCode;
 }
 
 class FolderSync {
@@ -443,7 +461,7 @@ class LocalFavoritesManager {
   }
 
   /// create a folder
-  void createFolder(String name, [bool renameWhenInvalidName = false]) {
+  String createFolder(String name, [bool renameWhenInvalidName = false]) {
     if (name.isEmpty) {
       if (renameWhenInvalidName) {
         int i = 0;
@@ -457,11 +475,12 @@ class LocalFavoritesManager {
     }
     if (folderNames.contains(name)) {
       if (renameWhenInvalidName) {
+        var prevName = name;
         int i = 0;
         while (folderNames.contains(i.toString())) {
           i++;
         }
-        name = i.toString();
+        name = prevName + i.toString();
       } else {
         throw Exception("Folder is existing");
       }
@@ -479,6 +498,7 @@ class LocalFavoritesManager {
       );
     """);
     saveData();
+    return name;
   }
 
   /// add comic to a folder
@@ -710,7 +730,9 @@ class LocalFavoritesManager {
   }
 
   List<FavoriteItemWithFolderInfo> search(String keyword) {
-    var resComics = <FavoriteItemWithFolderInfo>[];
+    var keywordList = keyword.split(" ");
+    keyword = keywordList.first;
+    var comics = <FavoriteItemWithFolderInfo>[];
     for (var table in folderNames) {
       keyword = "%$keyword%";
       var res = _db.select("""
@@ -718,14 +740,30 @@ class LocalFavoritesManager {
         WHERE name LIKE ? OR author LIKE ? OR tags LIKE ?;
       """, [keyword, keyword, keyword]);
       for (var comic in res) {
-        resComics.add(
+        comics.add(
             FavoriteItemWithFolderInfo(FavoriteItem.fromRow(comic), table));
       }
-      if (resComics.length > 200) {
+      if (comics.length > 200) {
         break;
       }
     }
-    return resComics;
+
+    bool test(FavoriteItemWithFolderInfo comic, String keyword){
+      if(comic.comic.name.contains(keyword)){
+        return true;
+      } else if(comic.comic.author.contains(keyword)){
+        return true;
+      } else if(comic.comic.tags.any((element) => element.contains(keyword))){
+        return true;
+      }
+      return false;
+    }
+
+    for (var i = 1; i < keywordList.length; i++) {
+      comics = comics.where((element) => test(element, keywordList[i])).toList();
+    }
+
+    return comics;
   }
 
   void editTags(String target, String folder, List<String> tags){
