@@ -103,8 +103,10 @@ class CustomDownloadingItem extends DownloadingItem {
   String get cover => comic.cover;
 
   @override
+  bool get haveEps => comic.chapters != null;
+
+  @override
   Future<Uint8List> getImage(String link) async{
-    print("Downloading Image: $link");
     await for(var s in ImageManager().getImage(link)){
       if(s.finished){
         var file = s.getFile();

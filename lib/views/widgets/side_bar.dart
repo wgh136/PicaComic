@@ -254,7 +254,7 @@ void showSideBar(BuildContext context, Widget widget,
     {String? title,
     bool showBarrier = true,
     bool useSurfaceTintColor = false,
-    double width = 550,
+    double width = 450,
     bool addTopPadding = false}) {
   Navigator.of(context).push(SideBarRoute(title, widget,
       showBarrier: showBarrier,

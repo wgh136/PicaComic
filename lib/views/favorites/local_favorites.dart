@@ -41,6 +41,18 @@ import '../../network/picacg_network/methods.dart';
 import '../../tools/io_tools.dart';
 import '../main_page.dart';
 
+extension LocalFavoritesDownload on FavoriteItem{
+  void addDownload(){
+    try {
+      DownloadManager().addFavoriteDownload(this);
+    }
+    catch(e){
+      log("Failed to add a download.\n Missing comic source config file.",
+          "Download", LogLevel.error);
+    }
+  }
+}
+
 class CreateFolderDialog extends StatelessWidget {
   const CreateFolderDialog({Key? key}) : super(key: key);
 
@@ -378,6 +390,13 @@ class LocalFavoriteTile extends ComicTile {
             text: "编辑标签".tl,
             onClick: editTags,
           ),
+          DesktopMenuEntry(
+            text: "下载".tl,
+            onClick: () {
+              comic.addDownload();
+              showToast(message: "已添加下载任务".tl);
+            },
+          ),
         ]);
   }
 
@@ -439,6 +458,14 @@ class LocalFavoriteTile extends ComicTile {
                   onTap: () {
                     App.globalBack();
                     editTags();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.search),
+                  title: Text("下载".tl),
+                  onTap: () {
+                    comic.addDownload();
+                    showToast(message: "已添加下载任务".tl);
                   },
                 ),
                 const SizedBox(

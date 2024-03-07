@@ -132,9 +132,6 @@ class JmDownloadingItem extends DownloadingItem {
     throw Exception("Failed to download image");
   }
 
-  @override
-  int get allowedLoadingNumbers => 3;
-
   Future<void> getOneEp(int key, Map<int, List<String>> res) async{
     if(res[key] != null) return;
 

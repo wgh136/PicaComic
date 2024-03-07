@@ -189,7 +189,7 @@ extension ImageExt on ComicReadingPage {
         scrollController: logic.scrollController,
         scrollBehavior: const MaterialScrollBehavior()
             .copyWith(scrollbars: false, dragDevices: _kTouchLikeDeviceTypes),
-        physics: (logic.noScroll || logic.isCtrlPressed)
+        physics: (logic.noScroll || logic.isCtrlPressed || logic.mouseScroll)
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
@@ -468,7 +468,7 @@ extension ImageExt on ComicReadingPage {
     }
 
     void onPointerSignal(PointerSignalEvent pointerSignal) {
-      logic.mouseScroll = true;
+      logic.mouseScroll = pointerSignal is PointerScrollEvent;
       if (pointerSignal is PointerScrollEvent && !logic.isCtrlPressed) {
         if (logic.readingMethod != ReadingMethod.topToBottomContinuously) {
           pointerSignal.scrollDelta.dy > 0

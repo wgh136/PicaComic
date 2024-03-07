@@ -36,7 +36,7 @@ abstract class DownloadedItem{
 }
 
 enum DownloadType{
-  picacg, ehentai, jm, hitomi, htmanga, nhentai, other;
+  picacg, ehentai, jm, hitomi, htmanga, nhentai, other, favorite;
 
   ComicType toComicType() => switch(this){
     picacg => ComicType.picacg,
@@ -45,7 +45,8 @@ enum DownloadType{
     hitomi => ComicType.hitomi,
     htmanga => ComicType.htManga,
     nhentai => ComicType.nhentai,
-    other => ComicType.other
+    other => ComicType.other,
+    favorite => ComicType.other,
   };
 }
 
@@ -137,14 +138,15 @@ abstract class DownloadingItem{
     }
   }
 
-  void onStart(){}
+  FutureOr<void> onStart(){}
 
   /// begin or continue downloading
   void start() async{
-    onStart();
     _runtimeKey++;
     var currentKey = _runtimeKey;
     try{
+      await onStart();
+      if(_runtimeKey != currentKey)  return;
       notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
           "${downloadManager.downloading.length} Tasks");
 

@@ -296,6 +296,13 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
             export(folder);
           },
         ),
+        PopupMenuItem(
+          child: Text("下载全部".tl),
+          onTap: (){
+            App.globalBack();
+            addDownload(folder);
+          },
+        ),
       ]
     );
   }
@@ -333,6 +340,12 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
         text: "导出".tl,
         onClick: (){
           export(folder);
+        }
+      ),
+      DesktopMenuEntry(
+        text: "下载全部".tl,
+        onClick: (){
+          addDownload(folder);
         }
       ),
     ]);
@@ -374,6 +387,13 @@ mixin class _LocalFavoritesManager{
       showMessage(App.globalContext, e.toString());
       log("$e\n$s", "IO", LogLevel.error);
     }
+  }
+
+  void addDownload(String folder){
+    for(var comic in LocalFavoritesManager().getAllComics(folder)){
+      comic.addDownload();
+    }
+    showToast(message: "已添加下载任务".tl);
   }
 }
 

@@ -301,6 +301,8 @@ class _CommentsPageState extends State<_CommentsPage> {
         children: [
           Expanded(
             child: ListView.builder(
+              primary: false,
+              padding: EdgeInsets.zero,
               itemCount: _comments!.length + 1,
               itemBuilder: (context, index) {
                 if (index == _comments!.length) {

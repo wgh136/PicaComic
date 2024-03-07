@@ -502,7 +502,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       child: Wrap(
         alignment: center ? WrapAlignment.center : WrapAlignment.start,
         children: [
-          buildItem("阅读".tl, Icons.menu_book, () => read(logic.history)),
+          buildItem("从头开始".tl, Icons.not_started_outlined, () => read(null)),
+          if(logic.history != null)
+            buildItem("继续阅读".tl, Icons.menu_book, () => read(logic.history)),
           buildItem("复制".tl, Icons.copy, () {
             var text = title!;
             if(url != null){

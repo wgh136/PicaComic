@@ -126,9 +126,9 @@ class DownloadingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(left: 8,right: 8, bottom: 8),
       child: SizedBox(
-        height: 100,
+        height: 114,
         width: double.infinity,
         child: Row(
           children: [
@@ -146,8 +146,8 @@ class DownloadingTile extends StatelessWidget {
                           "User-Agent": webUA
                         }
                     ),
-                    width: 80,
-                    fit: BoxFit.fitHeight,
+                    width: 76,
+                    fit: BoxFit.cover,
                     errorBuilder: (context,a,b){
                       return const Center(
                         child: Icon(Icons.error),
@@ -155,7 +155,7 @@ class DownloadingTile extends StatelessWidget {
                     },
                   ),
                 )),
-            const SizedBox(width: 5,),
+            const SizedBox(width: 8,),
             Expanded(
                 flex: 4,
                 child: StateBuilder(

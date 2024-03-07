@@ -41,7 +41,7 @@ void main(){
       doWhenWindowReady(() {
         final win = appWindow;
         const initialSize = Size(900, 720);
-        win.minSize = initialSize;
+        win.minSize = const Size(600, 400);
         win.size = initialSize;
         win.alignment = Alignment.center;
         win.title = "Pica Comic";

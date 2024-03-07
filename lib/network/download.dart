@@ -5,11 +5,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/custom_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/network/favorite_download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
@@ -154,19 +156,20 @@ class DownloadManager{
       for (var item in json["downloading"]) {
         downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
       }
-      for(var entry in Directory(path!).listSync()){
-        if(entry is Directory){
-          var infoFile = File("${entry.path}/info.json");
-          if(infoFile.existsSync()){
-            downloaded.add(entry.name);
-          }
-        }
-      }
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "IO", "Failed to read downloaded information\n$e\n$s");
       file.deleteSync();
       await _saveInfo();
+    }
+
+    for(var entry in Directory(path!).listSync()){
+      if(entry is Directory){
+        var infoFile = File("${entry.path}/info.json");
+        if(infoFile.existsSync()){
+          downloaded.add(entry.name);
+        }
+      }
     }
 
     //迁移旧版本的数据
@@ -313,6 +316,27 @@ class DownloadManager{
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
     downloading.addLast(CustomDownloadingItem(comic, downloadEps, path!, _whenFinish, _whenError, _saveInfo, id));
+    _saveInfo();
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  void addFavoriteDownload(FavoriteItem comic){
+    var id = switch(comic.type.key){
+      0 => comic.target,
+      1 => getGalleryId(comic.target),
+      2 => "jm${comic.target}",
+      3 => "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(comic.target)![0]!}",
+      4 => "Ht${comic.target}",
+      6 => "nhentai${comic.target}",
+      _ => generateId(comic.type.comicSource.key, comic.target)
+    };
+    var downloadPath = Directory("$path$pathSep$id");
+    downloadPath.create(recursive: true);
+    downloading.addLast(FavoriteDownloading(comic, path!, _whenFinish,
+        _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -567,6 +591,7 @@ DownloadingItem downloadingItemFromMap(
     case 4: return DownloadingHtComic.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 5: return NhentaiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 6: return CustomDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    case 7: return FavoriteDownloading.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     default: throw UnimplementedError();
   }
 }

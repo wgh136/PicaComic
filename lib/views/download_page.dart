@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/custom_download_model.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
@@ -219,6 +220,10 @@ class DownloadPage extends StatelessWidget {
 
   Widget buildItem(BuildContext context, DownloadPageLogic logic, int index) {
     bool selected = logic.selected[index];
+    var type = logic.comics[index].type.name;
+    if(logic.comics[index].type == DownloadType.other){
+      type = (logic.comics[index] as CustomDownloadedItem).sourceName;
+    }
     return Padding(
       padding: const EdgeInsets.all(2),
       child: Container(
@@ -231,7 +236,7 @@ class DownloadPage extends StatelessWidget {
           name: logic.comics[index].name,
           author: logic.comics[index].subTitle,
           imagePath: downloadManager.getCover(logic.comics[index].id),
-          type: logic.comics[index].type.name,
+          type: type,
           tag: logic.comics[index].tags,
           onTap: () async {
             if (logic.selecting) {
@@ -337,41 +342,7 @@ class DownloadPage extends StatelessWidget {
     );
   }
 
-  void toComicInfoPage(DownloadedItem comic){
-    switch (comic.type.index) {
-      case 0:
-        MainPage.to(() => PicacgComicPage(
-            (comic as DownloadedComic)
-                .comicItem
-                .toBrief()));
-        break;
-      case 1:
-        MainPage.to(() => EhGalleryPage(
-            (comic as DownloadedGallery)
-                .gallery
-                .toBrief()));
-        break;
-      case 2:
-        MainPage.to(() => JmComicPage(
-            (comic as DownloadedJmComic)
-                .comic
-                .id));
-        break;
-      case 3:
-        MainPage.to(() => HitomiComicPage(
-            (comic as DownloadedHitomiComic)
-                .toBrief()));
-        break;
-      case 4:
-        MainPage.to(() => HtComicPage(
-            (comic as DownloadedHtComic)
-                .comic.toBrief()));
-      case 5:
-        MainPage.to(() => NhentaiComicPage(
-            (comic as NhentaiDownloadedComic)
-                .id.replaceFirst("nhentai", "")));
-    }
-  }
+  void toComicInfoPage(DownloadedItem comic) => _toComicInfoPage(comic);
 
   void showInfo(int index, DownloadPageLogic logic, BuildContext context) {
     if (UiMode.m1(context)) {
@@ -722,7 +693,19 @@ class DownloadPage extends StatelessWidget {
                                   FavoriteItem.fromHitomi((comic as DownloadedHitomiComic).comic.toBrief(comic.link, comic.cover)),
                               DownloadType.htmanga =>
                                   FavoriteItem.fromHtcomic((comic as DownloadedHtComic).comic.toBrief()),
-                              DownloadType.other => throw UnimplementedError()  // TODO
+                              DownloadType.other => (){
+                                var c = (comic as CustomDownloadedItem);
+                                return FavoriteItem.custom(CustomComic(
+                                  c.name,
+                                  c.subTitle,
+                                  c.cover,
+                                  c.comicId,
+                                  c.tags,
+                                  "",
+                                  c.sourceKey
+                                ));
+                              }(),
+                              DownloadType.favorite => throw UnimplementedError(),
                             });
                           }
                         }
@@ -759,7 +742,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
   late final comic = widget.item;
 
   deleteEpisode(int i){
-    showConfirmDialog(context, "确认删除", "要删除这个章节吗", () async{
+    showConfirmDialog(context, "确认删除".tl, "要删除这个章节吗".tl, () async{
       var message = await DownloadManager().deleteEpisode(comic, i);
       if(message == null) {
         setState(() {});
@@ -845,36 +828,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                     child: FilledButton(
                         onPressed: () {
                           App.globalBack();
-                          if (widget.item is DownloadedComic) {
-                            MainPage.to(() => PicacgComicPage(
-                                (widget.item as DownloadedComic)
-                                    .comicItem
-                                    .toBrief()));
-                          } else if (widget.item is DownloadedGallery) {
-                            MainPage.to(() => EhGalleryPage(
-                                (widget.item as DownloadedGallery)
-                                    .gallery
-                                    .toBrief()));
-                          } else if (widget.item is DownloadedJmComic) {
-                            MainPage.to(() => JmComicPage(
-                                (widget.item as DownloadedJmComic).comic.id));
-                          } else if (widget.item is DownloadedHitomiComic) {
-                            MainPage.to(() => HitomiComicPage(
-                                (widget.item as DownloadedHitomiComic)
-                                    .toBrief()));
-                          } else if (widget.item is DownloadedHtComic) {
-                            MainPage.to(() => HtComicPage(
-                                (widget.item as DownloadedHtComic)
-                                    .comic
-                                    .toBrief()));
-                          } else if(widget.item is NhentaiDownloadedComic){
-                            MainPage.to(() => NhentaiComicPage(
-                                (widget.item as NhentaiDownloadedComic)
-                                    .id.replaceFirst("nhentai", "")));
-                          } else if(widget.item is CustomDownloadedItem){
-                            var comic = (widget.item as CustomDownloadedItem);
-                            MainPage.to(() => CustomComicPage(sourceKey: comic.sourceKey, id: comic.comicId));
-                          }
+                          _toComicInfoPage(widget.item);
                         },
                         child: Text("查看详情".tl)),
                   ),
@@ -995,4 +949,36 @@ class DownloadedComicTile extends ComicTile {
       required this.type,
       required this.tag,
       super.key});
+}
+
+void _toComicInfoPage(DownloadedItem comic){
+  if (comic is DownloadedComic) {
+    MainPage.to(() => PicacgComicPage(
+        (comic)
+            .comicItem
+            .toBrief()));
+  } else if (comic is DownloadedGallery) {
+    MainPage.to(() => EhGalleryPage(
+        (comic)
+            .gallery
+            .toBrief()));
+  } else if (comic is DownloadedJmComic) {
+    MainPage.to(() => JmComicPage(
+        (comic).comic.id));
+  } else if (comic is DownloadedHitomiComic) {
+    MainPage.to(() => HitomiComicPage(
+        comic
+            .toBrief()));
+  } else if (comic is DownloadedHtComic) {
+    MainPage.to(() => HtComicPage(
+        comic
+            .comic
+            .toBrief()));
+  } else if(comic is NhentaiDownloadedComic){
+    MainPage.to(() => NhentaiComicPage(
+        comic
+            .id.replaceFirst("nhentai", "")));
+  } else if(comic is CustomDownloadedItem){
+    MainPage.to(() => CustomComicPage(sourceKey: comic.sourceKey, id: comic.comicId));
+  }
 }
