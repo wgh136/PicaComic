@@ -29,7 +29,7 @@ void openTool(){
         title: Text("图片搜索 [搜图bot酱]".tl),
         onTap: () async{
           App.globalBack();
-          if(App.isMobile) {
+          if(App.isMobile || App.isMacOS) {
             MainPage.to(() => AppWebview(
               initialUrl: "https://soutubot.moe/",
               onNavigation: (uri){
@@ -58,7 +58,7 @@ void openTool(){
         title: Text("图片搜索 [SauceNAO]".tl),
         onTap: () async{
           App.globalBack();
-          if(App.isMobile) {
+          if(App.isMobile || App.isMacOS) {
             MainPage.to(() => AppWebview(
               initialUrl: "https://saucenao.com/",
               onNavigation: (uri){
