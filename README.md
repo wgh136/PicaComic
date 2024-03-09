@@ -1,4 +1,4 @@
- Pica Comic
+# Pica Comic
 
 [![flutter](https://img.shields.io/badge/flutter-3.19.3-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
