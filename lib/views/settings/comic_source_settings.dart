@@ -103,15 +103,15 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
           options: Options(responseType: ResponseType.plain));
       if(cancel)  return;
       controller.close();
-      var newSource = await ComicSourceParser().parse(res.data!, source.filePath);
-      ComicSource.sources.add(newSource);
-      File(source.filePath).writeAsString(res.data!);
-      MyApp.updater?.call();
+      await ComicSourceParser().parse(res.data!, source.filePath);
+      await File(source.filePath).writeAsString(res.data!);
     }
     catch(e){
       if(cancel)  return;
       showMessage(null, e.toString());
     }
+    await ComicSource.reload();
+    MyApp.updater?.call();
   }
 
   Widget buildCard(BuildContext context){

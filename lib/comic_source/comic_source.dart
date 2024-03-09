@@ -8,9 +8,11 @@ import 'dart:math' as math;
 
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:toml/toml.dart';
 
+import '../foundation/def.dart';
 import '../foundation/js_engine.dart';
 import '../network/base_comic.dart';
 import '../network/res.dart';

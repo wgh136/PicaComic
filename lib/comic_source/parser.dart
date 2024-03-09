@@ -40,6 +40,12 @@ class ComicSourceParser {
 
   Future<ComicSource> parse(String toml, String filePath) async {
     var document = TomlDocument.parse(toml).toMap();
+    final minAppVersion = document["minAppVersion"];
+    if(minAppVersion != null){
+      if(compareSemVer(appVersion, minAppVersion)){
+        throw ComicSourceParseException("minAppVersion $minAppVersion is required");
+      }
+    }
     _name = document["name"] ??
         (throw ComicSourceParseException("name is required"));
     final String key =
