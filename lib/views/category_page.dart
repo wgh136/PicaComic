@@ -1,4 +1,4 @@
-import 'package:pica_comic/comic_source/category.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
@@ -18,7 +18,7 @@ class AllCategoryPage extends StatelessWidget {
     return StateBuilder<SimpleController>(
         tag: "category",
         builder: (controller) {
-          final categories = appdata.settings[67].split(',').map((e) => getCategoryDataWithKey(e));
+          final categories = appdata.settings[67].split(',');
           return Material(
             child: DefaultTabController(
               length: categories.length,
@@ -27,19 +27,25 @@ class AllCategoryPage extends StatelessWidget {
                 children: [
                   TabBar(
                     splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-                    tabs: [
-                      for (var c in categories)
-                        Tab(
-                          text: c.title,
-                          key: Key(c.key),
-                        )
-                    ],
+                    tabs: categories.map((e) {
+                      String title = e;
+                      try{
+                        title = getCategoryDataWithKey(e).title;
+                      }
+                      catch(e){
+                        //
+                      }
+                      return Tab(
+                        text: title,
+                        key: Key(e),
+                      );
+                    }).toList(),
                     isScrollable: true,
                     tabAlignment: TabAlignment.center,
                   ),
                   Expanded(
                     child: TabBarView(
-                        children: [for (var c in categories) CategoryPage(c)]),
+                        children: categories.map((e) => CategoryPage(e)).toList()),
                   )
                 ],
               ),
@@ -52,9 +58,11 @@ class AllCategoryPage extends StatelessWidget {
 typedef ClickTagCallback = void Function(String, String?);
 
 class CategoryPage extends StatelessWidget {
-  const CategoryPage(this.data, {super.key});
+  const CategoryPage(this.category, {super.key});
 
-  final CategoryData data;
+  final String category;
+
+  CategoryData get data => getCategoryDataWithKey(category);
 
   void handleClick(
       String tag, String? param, String type, String namespace, String key) {
@@ -85,7 +93,7 @@ class CategoryPage extends StatelessWidget {
               buildTag("随机".tl, (p0, p1) => randomComic(data.key)),
             if (data.enableRankingPage)
               buildTag("排行榜".tl, (p0, p1) => toRankingPage(data.key)),
-            if (data.enableSuggestionPage)
+            if (data.enableRecommendationPage)
               buildTag(data.recommendPageName.tl,
                   (p0, p1) => buildRecommendation(data.key))
           ],
@@ -192,14 +200,16 @@ class CategoryPage extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         onTap: () => onClick(tag, param),
         child: Card(
           margin: EdgeInsets.zero,
+          elevation: 1,
+          //shadowColor: Colors.transparent,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(translateTag(tag)),
           ),
         ),

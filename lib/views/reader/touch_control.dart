@@ -1,5 +1,7 @@
 part of pica_reader;
 
+const _kMaxTapOffset = 4.0;
+
 /// Control scroll when readingMethod is [ReadingMethod.topToBottomContinuously]
 /// and the image has been enlarge
 class ScrollManager {
@@ -138,7 +140,7 @@ class TapController {
     }
 
     if (appdata.settings[9] == "4") {
-      logic.data.scrollManager!.tapDown(event);
+      logic.scrollManager!.tapDown(event);
     }
 
     if (logic.tools &&
@@ -195,7 +197,7 @@ class TapController {
           child: Text("退出".tl),
           onTap: () => App.globalBack(),
         ),
-        if(logic.data.type.hasEps)
+        if(logic.data.hasEp)
           PopupMenuItem(
             onTap: logic.openEpsView,
             child: Text("章节".tl),
@@ -217,12 +219,12 @@ class TapController {
     _tapDownPointer = null;
 
     if (appdata.settings[9] == "4") {
-      logic.data.scrollManager!.tapUp(detail);
+      logic.scrollManager!.tapUp(detail);
     }
 
     if (_tapOffset != null) {
       var distance = detail.position.dy - _tapOffset!.dy;
-      if (distance > 0.1 || distance < -0.1) {
+      if (distance > _kMaxTapOffset || distance < -_kMaxTapOffset) {
         return;
       }
       _tapOffset = null;
@@ -255,7 +257,7 @@ class TapController {
   }
 
   static void onPointerMove(PointerMoveEvent event){
-    final data = StateController.find<ComicReadingPageLogic>().data;
+    final logic = StateController.find<ComicReadingPageLogic>();
     if(event.pointer == _tapDownPointer?.id){
       _tapDownPointer!.offset += event.delta;
       if(_tapDownPointer!.getDistance() > 1){
@@ -263,8 +265,8 @@ class TapController {
       }
     }
     if (appdata.settings[9] == "4" &&
-        data.scrollManager!.fingers != 2) {
-      data.scrollManager!.addOffset(event.delta);
+        logic.scrollManager!.fingers != 2) {
+      logic.scrollManager!.addOffset(event.delta);
     }
   }
 
@@ -324,8 +326,10 @@ class TapController {
       logic.update(["ToolBar"]);
       if (logic.tools) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        StateController.findOrNull<WindowFrameController>()?.resetTheme();
       } else {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        StateController.findOrNull<WindowFrameController>()?.setDarkTheme();
       }
     }
   }

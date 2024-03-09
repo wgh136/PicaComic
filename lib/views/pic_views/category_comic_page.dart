@@ -16,10 +16,10 @@ class ModeRadioLogic1 extends StateController{
   }
 }
 
-class CategoryComicPage extends ComicsPage<ComicItemBrief>{
+class PicacgCategoryComicPage extends ComicsPage<ComicItemBrief>{
   final String keyWord;
   final String cType;
-  const CategoryComicPage(this.keyWord, {this.cType = "c", Key? key})
+  const PicacgCategoryComicPage(this.keyWord, {this.cType = "c", Key? key})
       : super(key: key);
 
   @override

@@ -1,28 +1,59 @@
+library pica_settings;
+
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/main.dart';
+import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/network/picacg_network/methods.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
-import 'package:pica_comic/views/settings/local_favorite_settings.dart';
-import 'package:pica_comic/views/settings/network_setting.dart';
-import 'package:pica_comic/views/settings/reading_settings.dart';
-import 'package:pica_comic/views/settings/explore_settings.dart';
-import 'package:pica_comic/views/settings/ht_settings.dart';
-import 'package:pica_comic/views/settings/picacg_settings.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import '../../comic_source/comic_source.dart';
 import '../../foundation/app.dart';
+import '../../foundation/local_favorites.dart';
+import '../../network/download.dart';
+import '../../network/eh_network/eh_main_network.dart';
+import '../../network/http_client.dart';
+import '../../network/http_proxy.dart';
+import '../../network/jm_network/jm_network.dart';
+import '../../network/update.dart';
+import '../../network/webdav.dart';
+import '../../tools/background_service.dart';
 import '../../tools/debug.dart';
 import '../app_views/logs_page.dart';
+import '../explore_page.dart';
+import '../welcome_page.dart';
+import '../widgets/loading.dart';
+import '../widgets/pop_up_widget.dart';
+import '../widgets/pop_up_widget_scaffold.dart';
 import '../widgets/select.dart';
-import 'eh_settings.dart';
-import 'jm_settings.dart';
-import 'app_settings.dart';
+import '../widgets/stateful_switch.dart';
+import '../widgets/value_listenable_widget.dart';
 import 'package:pica_comic/tools/translations.dart';
+
+part "reading_settings.dart";
+part "picacg_settings.dart";
+part "network_setting.dart";
+part "multi_pages_filter.dart";
+part "local_favorite_settings.dart";
+part "jm_settings.dart";
+part "ht_settings.dart";
+part "explore_settings.dart";
+part "eh_settings.dart";
+part "comic_source_settings.dart";
+part "blocking_keyword_page.dart";
+part "app_settings.dart";
 
 class NewSettingsPage extends StatefulWidget {
   static void open([int initialPage = -1]) {
@@ -251,7 +282,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           borderRadius: BorderRadius.circular(16),
           child: Container(
             width: double.infinity,
-            height: 64,
+            height: 58,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             decoration: BoxDecoration(
               color: selected ? colors.tertiaryContainer.withAlpha(150) : null,
@@ -270,7 +301,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
               if (selected) const Icon(Icons.arrow_right)
             ]),
           ),
-        ),
+        ).paddingVertical(4),
       );
     }
 
@@ -278,25 +309,6 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
       padding: EdgeInsets.zero,
       itemCount: categories.length,
       itemBuilder: (context, index) => buildItem(categories[index].tl, index),
-    );
-  }
-
-  Widget buildComicSourceSettings() {
-    return Column(
-      children: [
-        const PicacgSettings(false),
-        const Divider(),
-        const EhSettings(false),
-        const Divider(),
-        const JmSettings(false),
-        const Divider(),
-        const HtSettings(false),
-        const Divider(),
-        // Encountering some issues, temporarily disable this option.
-        //buildNhentaiSettings(),
-        //const Divider(),
-        Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
-      ],
     );
   }
 
@@ -460,20 +472,18 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
                   subtitle: Text(
                       "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
                   onTap: () {
-                    if (App.isAndroid || App.isIOS || App.isWindows) {
-                      showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl, () {
-                        eraseCache();
-                        logic.size = 0;
-                        logic.update();
-                      });
-                    }
+                    showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl, () {
+                      eraseCache();
+                      logic.size = 0;
+                      logic.update();
+                    });
                   },
                 );
               }
             }),
         ListTile(
           leading: const Icon(Icons.chrome_reader_mode),
-          title: Text("阅读器缓存限制".tl),
+          title: Text("缓存限制".tl),
           trailing: const Icon(Icons.arrow_right),
           onTap: () => setCacheLimit(context),
         ),
@@ -543,6 +553,18 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
               appdata.settings[50] = ["", "cn", "tw", "en"][value];
               appdata.updateSettings();
               MyApp.updater?.call();
+            },
+          ),
+        ),
+        ListTile(
+          title: Text("下载并行".tl),
+          leading: const Icon(Icons.download),
+          trailing: Select(
+            initialValue: ["1", "2", "4", "6", "8", "16"].indexOf(appdata.settings[79]),
+            values: const ["1", "2", "4", "6", "8", "16"],
+            whenChange: (value) {
+              appdata.settings[79] = ["1", "2", "4", "6", "8", "16"][value];
+              appdata.updateSettings();
             },
           ),
         ),
@@ -636,7 +658,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
     final Widget body = switch (currentPage) {
       -1 => const SizedBox(),
       0 => buildExploreSettings(context, false),
-      1 => buildComicSourceSettings(),
+      1 => const ComicSourceSettings(),
       2 => const ReadingSettings(false),
       3 => buildAppearanceSettings(),
       4 => const LocalFavoritesSettings(),
@@ -651,7 +673,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
         child: CustomScrollView(
           primary: false,
           slivers: [
-            SliverAppBar.medium(
+            SliverAppBar(
                 title: Text(categories[currentPage].tl),
                 automaticallyImplyLeading: false,
                 scrolledUnderElevation: enableTwoViews ? 0 : null,

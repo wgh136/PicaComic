@@ -44,6 +44,7 @@ class PositionedList extends StatefulWidget {
     this.addSemanticIndexes = true,
     this.addRepaintBoundaries = true,
     this.addAutomaticKeepAlives = true,
+    this.scrollBehavior,
   })  : assert((positionedIndex == 0) || (positionedIndex < itemCount)),
         super(key: key);
 
@@ -87,7 +88,6 @@ class PositionedList extends StatefulWidget {
   /// See [ScrollView.reverse].
   final bool reverse;
 
-  /// {@template flutter.widgets.scroll_view.shrinkWrap}
   /// Whether the extent of the scroll view in the [scrollDirection] should be
   /// determined by the contents being viewed.
   ///
@@ -129,6 +129,8 @@ class PositionedList extends StatefulWidget {
   ///
   /// See [SliverChildBuilderDelegate.addAutomaticKeepAlives].
   final bool addAutomaticKeepAlives;
+
+  final ScrollBehavior? scrollBehavior;
 
   @override
   State<StatefulWidget> createState() => _PositionedListState();
@@ -175,6 +177,7 @@ class _PositionedListState extends State<PositionedList> {
           physics: widget.physics,
           shrinkWrap: widget.shrinkWrap,
           semanticChildCount: widget.semanticChildCount ?? widget.itemCount,
+          scrollBehavior: widget.scrollBehavior,
           slivers: <Widget>[
             if (widget.positionedIndex > 0)
               SliverPadding(

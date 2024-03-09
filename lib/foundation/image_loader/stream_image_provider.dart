@@ -1,23 +1,22 @@
 import 'dart:async' show Future, StreamController;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../network/eh_network/eh_models.dart';
 import '../image_manager.dart';
 import 'base_image_provider.dart';
-import 'eh_image_provider.dart' as image_provider;
 
 /// Function which is called after loading the image failed.
 typedef ErrorListener = void Function();
 
-class EhCachedImageProvider
-    extends BaseImageProvider<image_provider.EhCachedImageProvider> {
+class StreamImageProvider
+    extends BaseImageProvider<StreamImageProvider> {
 
-  /// Image provider for eh image.
-  const EhCachedImageProvider(this.gallery, this.page);
+  /// Image provider with [Stream<DownloadProgress>].
+  const StreamImageProvider(this.streamBuilder, this.key);
 
-  final Gallery gallery;
+  final Stream<DownloadProgress> Function() streamBuilder;
 
-  final int page;
+  @override
+  final String key;
 
   @override
   Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents) async{
@@ -25,11 +24,9 @@ class EhCachedImageProvider
         cumulativeBytesLoaded: 0,
         expectedTotalBytes: 100)
     );
-    var manager = ImageManager();
     DownloadProgress? finishProgress;
 
-    var stream = manager.getEhImageNew(gallery, page);
-    await for (var progress in stream) {
+    await for (var progress in streamBuilder()) {
       if (progress.currentBytes == progress.expectedBytes) {
         finishProgress = progress;
       }
@@ -44,10 +41,7 @@ class EhCachedImageProvider
   }
 
   @override
-  Future<EhCachedImageProvider> obtainKey(ImageConfiguration configuration) {
+  Future<StreamImageProvider> obtainKey(ImageConfiguration configuration) {
     return SynchronousFuture(this);
   }
-
-  @override
-  String get key => "${gallery.link} : $page";
 }

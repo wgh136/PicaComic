@@ -21,101 +21,52 @@ class HtComicPage extends ComicPage<HtComicInfo> {
 
   final HtComicBrief comic;
 
-  Widget get buildButtons => SegmentedButton<int>(
-        segments: [
-          ButtonSegment(
-            icon: Icon(
-              Icons.bookmark_add_outlined,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text("收藏".tl),
-            value: 1,
-          ),
-          ButtonSegment(
-            icon: Icon(
-              Icons.pages,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text("页数: ${data!.pages}"),
-            value: 2,
-          ),
-        ],
-        onSelectionChanged: (set) {
-          void func1() {
-            favoriteComic(FavoriteComicWidget(
-              havePlatformFavorite: appdata.htName != "",
-              needLoadFolderData: true,
-              foldersLoader: () => HtmangaNetwork().getFolders(),
-              target: comic.id,
-              setFavorite: (b) {},
-              selectFolderCallback: (folder, page) async {
-                if (page == 0) {
-                  showMessage(context, "正在添加收藏".tl);
-                  var res =
-                      await HtmangaNetwork().addFavorite(comic.id, folder);
-                  if (res.error) {
-                    showMessage(App.globalContext, res.errorMessageWithoutNull);
-                  } else {
-                    showMessage(App.globalContext, "成功添加收藏".tl);
-                  }
-                } else {
-                  LocalFavoritesManager()
-                      .addComic(folder, FavoriteItem.fromHtcomic(comic));
-                  showMessage(App.globalContext, "成功添加收藏".tl);
-                }
-              },
-            ));
-          }
-
-          switch (set.first) {
-            case 1:
-              func1();
-              break;
-          }
-        },
-        selected: const {},
-        emptySelectionAllowed: true,
-      );
-
   @override
-  Row? get actions => Row(
-        children: [
-          const SizedBox(
-            width: 16,
-          ),
-          Expanded(
-            child: buildButtons,
-          ),
-          const SizedBox(
-            width: 16,
-          ),
-        ],
-      );
+  void openFavoritePanel() {
+    favoriteComic(FavoriteComicWidget(
+      havePlatformFavorite: appdata.htName != "",
+      needLoadFolderData: true,
+      foldersLoader: () => HtmangaNetwork().getFolders(),
+      target: comic.id,
+      setFavorite: (b) {},
+      selectFolderCallback: (folder, page) async {
+        if (page == 0) {
+          showMessage(context, "正在添加收藏".tl);
+          var res =
+          await HtmangaNetwork().addFavorite(comic.id, folder);
+          if (res.error) {
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            showMessage(App.globalContext, "成功添加收藏".tl);
+          }
+        } else {
+          LocalFavoritesManager()
+              .addComic(folder, FavoriteItem.fromHtcomic(comic));
+          showMessage(App.globalContext, "成功添加收藏".tl);
+        }
+      },
+    ));
+  }
 
   @override
   String get cover => comic.image;
 
   @override
-  FilledButton get downloadButton => FilledButton(
-        onPressed: () {
-          final id = "Ht${data!.id}";
-          if (DownloadManager().downloaded.contains(id)) {
-            showMessage(context, "已下载".tl);
-            return;
-          }
-          for (var i in DownloadManager().downloading) {
-            if (i.id == id) {
-              showMessage(context, "下载中".tl);
-              return;
-            }
-          }
-          DownloadManager().addHtDownload(data!);
-          showMessage(context, "已加入下载队列".tl);
-        },
-        child: DownloadManager().downloaded.contains("Ht${data!.id}")
-            ? Text("已下载".tl)
-            : Text("下载".tl),
-      );
+  void download() {
+    final id = "Ht${data!.id}";
+    if (DownloadManager().downloaded.contains(id)) {
+      showMessage(context, "已下载".tl);
+      return;
+    }
+    for (var i in DownloadManager().downloading) {
+      if (i.id == id) {
+        showMessage(context, "下载中".tl);
+        return;
+      }
+    }
+    DownloadManager().addHtDownload(data!);
+    showMessage(context, "已加入下载队列".tl);
+  }
 
   @override
   void onThumbnailTapped(int index) {
@@ -136,14 +87,8 @@ class HtComicPage extends ComicPage<HtComicInfo> {
   int? get pages => null;
 
   @override
-  FilledButton get readButton => FilledButton(
-        onPressed: () => readHtmangaComic(data!, 1),
-        child: Text("从头开始".tl),
-      );
-
-  @override
-  void continueRead(History history) {
-    readHtmangaComic(data!, history.page);
+  void read(History? history) {
+    readHtmangaComic(data!, history?.page ?? 1);
   }
 
   @override

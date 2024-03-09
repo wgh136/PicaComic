@@ -29,9 +29,6 @@ class Appdata {
   late List<String> searchHistory;
   Set<String> favoriteTags = {};
 
-  ///用于身份认证页面判断当前状态
-  bool flag = true;
-
   ///历史记录管理器, 可以通过factory构造函数访问, 也可以通过这里访问
   var history = HistoryManager();
 
@@ -96,7 +93,7 @@ class Appdata {
     "https://18comic.vip", //56 jm domain
     "1", //57 show page info in reader
     "0", //58 hosts
-    "012345678", //59 explore page
+    "012345678", //59 explore page(废弃)
     "0", //60 action when local favorite is tapped
     "0", //61 check link in clipboard
     "10000", //62 漫画信息页面工具栏: "快速收藏".tl, "复制标题".tl, "复制链接".tl, "分享".tl, "搜索相似".tl
@@ -114,6 +111,9 @@ class Appdata {
     "1.0", //74 图片收藏大小
     "", //75 eh profile
     "0", //76 阅读器内固定横屏
+    "0,1,2,3,4,5,6,7,8", //77 探索页面
+    "0", //78 已下载的eh漫画优先显示副标题
+    "6", //79 下载并行
   ];
 
   ///屏蔽的关键词

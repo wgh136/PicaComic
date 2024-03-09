@@ -115,12 +115,20 @@ class DownloadingTile extends StatelessWidget {
   final void Function() onComicPositionChange;
   const DownloadingTile(this.comic,this.cancel, this.onComicPositionChange, {super.key});
 
+  String getProgressText(DownloadingProgressController controller){
+    if(controller.pagesCount == 0){
+      return "获取图片信息...".tl;
+    }
+
+    return "${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(left: 8,right: 8, bottom: 8),
       child: SizedBox(
-        height: 100,
+        height: 114,
         width: double.infinity,
         child: Row(
           children: [
@@ -138,8 +146,8 @@ class DownloadingTile extends StatelessWidget {
                           "User-Agent": webUA
                         }
                     ),
-                    width: 80,
-                    fit: BoxFit.fitHeight,
+                    width: 76,
+                    fit: BoxFit.cover,
                     errorBuilder: (context,a,b){
                       return const Center(
                         child: Icon(Icons.error),
@@ -147,7 +155,7 @@ class DownloadingTile extends StatelessWidget {
                     },
                   ),
                 )),
-            const SizedBox(width: 5,),
+            const SizedBox(width: 8,),
             Expanded(
                 flex: 4,
                 child: StateBuilder(
@@ -165,7 +173,7 @@ class DownloadingTile extends StatelessWidget {
                       children: [
                         Text(comic.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),maxLines: 3,overflow: TextOverflow.ellipsis,),
                         const Spacer(),
-                        Text("${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}",style: const TextStyle(fontSize: 12),),
+                        Text(getProgressText(controller), style: const TextStyle(fontSize: 12),),
                         const SizedBox(height: 3,),
                         LinearProgressIndicator(
                           value: controller.value,

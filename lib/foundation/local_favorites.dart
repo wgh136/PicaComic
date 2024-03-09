@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -15,6 +16,7 @@ import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'dart:io';
 import '../network/base_comic.dart';
@@ -27,33 +29,95 @@ String getCurTime() {
       .substring(0, 19);
 }
 
+final class FavoriteType{
+  final int key;
+
+  const FavoriteType(this.key);
+
+  static FavoriteType get picacg => const FavoriteType(0);
+  static FavoriteType get ehentai => const FavoriteType(1);
+  static FavoriteType get jm => const FavoriteType(2);
+  static FavoriteType get hitomi => const FavoriteType(3);
+  static FavoriteType get htManga => const FavoriteType(4);
+  static FavoriteType get nhentai => const FavoriteType(6);
+
+  ComicType get comicType{
+    if(key >= 0 && key <= 6){
+      return ComicType.values[key];
+    }
+    return ComicType.other;
+  }
+
+  ComicSource get comicSource{
+    return ComicSource.sources
+        .firstWhereOrNull((element) => element.intKey == key)
+        ?? (throw "Comic Source Not Found");
+  }
+
+  String get name{
+    if(comicType != ComicType.other){
+      return comicType.name;
+    } else {
+      try {
+        return comicSource.name;
+      }
+      catch(e){
+        return "**Unknown**";
+      }
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FavoriteType && other.key == key;
+  }
+
+  @override
+  int get hashCode => key.hashCode;
+
+}
+
 class FavoriteItem {
   String name;
   String author;
-  ComicType type;
+  FavoriteType type;
   List<String> tags;
   String target;
   String coverPath;
   String time = getCurTime();
 
+  bool get available {
+    if(type.key <= 6 && type.key >= 0){
+      return true;
+    }
+    return ComicSource.sources
+        .firstWhereOrNull((element) => element.intKey == type.key) != null;
+  }
+
   String toDownloadId() {
-    return switch (type) {
-      ComicType.picacg => target,
-      ComicType.ehentai => getGalleryId(target),
-      ComicType.jm => "jm$target",
-      ComicType.hitomi => RegExp(r"\d+(?=\.html)").hasMatch(target)
-          ? "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)?[0]}"
-          : target,
-      ComicType.htManga => "ht$target",
-      ComicType.nhentai => "nhentai$target",
-      _ => throw UnimplementedError()
-    };
+    try {
+      return switch (type.comicType) {
+        ComicType.picacg => target,
+        ComicType.ehentai => getGalleryId(target),
+        ComicType.jm => "jm$target",
+        ComicType.hitomi =>
+        RegExp(r"\d+(?=\.html)").hasMatch(target)
+            ? "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)?[0]}"
+            : target,
+        ComicType.htManga => "ht$target",
+        ComicType.nhentai => "nhentai$target",
+        _ => DownloadManager().generateId(type.comicSource.key, target)
+      };
+    }
+    catch(e){
+      return "**Invalid ID**";
+    }
   }
 
   FavoriteItem.fromPicacg(ComicItemBrief comic)
       : name = comic.title,
         author = comic.author,
-        type = ComicType.picacg,
+        type = FavoriteType.picacg,
         tags = comic.tags,
         target = comic.id,
         coverPath = comic.path;
@@ -61,7 +125,7 @@ class FavoriteItem {
   FavoriteItem.fromEhentai(EhGalleryBrief comic)
       : name = comic.title,
         author = comic.uploader,
-        type = ComicType.ehentai,
+        type = FavoriteType.ehentai,
         tags = comic.tags,
         target = comic.link,
         coverPath = comic.coverPath;
@@ -69,7 +133,7 @@ class FavoriteItem {
   FavoriteItem.fromJmComic(JmComicBrief comic)
       : name = comic.name,
         author = comic.author,
-        type = ComicType.jm,
+        type = FavoriteType.jm,
         tags = [],
         target = comic.id,
         coverPath = getJmCoverUrl(comic.id);
@@ -77,7 +141,7 @@ class FavoriteItem {
   FavoriteItem.fromHitomi(HitomiComicBrief comic)
       : name = comic.name,
         author = comic.artist,
-        type = ComicType.hitomi,
+        type = FavoriteType.hitomi,
         tags =
             List.generate(comic.tags.length, (index) => comic.tags[index].name),
         target = comic.link,
@@ -86,7 +150,7 @@ class FavoriteItem {
   FavoriteItem.fromHtcomic(HtComicBrief comic)
       : name = comic.name,
         author = "${comic.pages}Pages",
-        type = ComicType.htManga,
+        type = FavoriteType.htManga,
         tags = [],
         target = comic.id,
         coverPath = comic.image;
@@ -94,7 +158,15 @@ class FavoriteItem {
   FavoriteItem.fromNhentai(NhentaiComicBrief comic)
       : name = comic.title,
         author = "",
-        type = ComicType.nhentai,
+        type = FavoriteType.nhentai,
+        tags = comic.tags,
+        target = comic.id,
+        coverPath = comic.cover;
+
+  FavoriteItem.custom(CustomComic comic)
+      : name = comic.title,
+        author = comic.subTitle,
+        type = FavoriteType(comic.sourceKey.hashCode),
         tags = comic.tags,
         target = comic.id,
         coverPath = comic.cover;
@@ -102,7 +174,7 @@ class FavoriteItem {
   Map<String, dynamic> toJson() => {
         "name": name,
         "author": author,
-        "type": type.index,
+        "type": type.key,
         "tags": tags,
         "target": target,
         "coverPath": coverPath,
@@ -112,7 +184,7 @@ class FavoriteItem {
   FavoriteItem.fromJson(Map<String, dynamic> json)
       : name = json["name"],
         author = json["author"],
-        type = ComicType.values[json["type"]],
+        type = FavoriteType(json["type"]),
         tags = List<String>.from(json["tags"]),
         target = json["target"],
         coverPath = json["coverPath"],
@@ -121,7 +193,7 @@ class FavoriteItem {
   FavoriteItem.fromRow(Row row)
       : name = row["name"],
         author = row["author"],
-        type = ComicType.values[row["type"]],
+        type = FavoriteType(row["type"]),
         tags = (row["tags"] as String).split(","),
         target = row["target"],
         coverPath = row["cover_path"],
@@ -140,12 +212,22 @@ class FavoriteItem {
       return FavoriteItem.fromHtcomic(comic);
     } else if(comic is NhentaiComicBrief){
       return FavoriteItem.fromNhentai(comic);
+    } else if(comic is CustomComic){
+      return FavoriteItem.custom(comic);
     }
-    // TODO: implement custom comic source
     throw UnimplementedError();
   }
 
   FavoriteItem(this.name, this.author, this.type, this.tags, this.target, this.coverPath);
+
+  @override
+  bool operator ==(Object other) {
+    return other is FavoriteItem && other.target == target;
+  }
+
+  @override
+  int get hashCode => target.hashCode;
+
 }
 
 class FavoriteItemWithFolderInfo {
@@ -153,6 +235,15 @@ class FavoriteItemWithFolderInfo {
   String folder;
 
   FavoriteItemWithFolderInfo(this.comic, this.folder);
+
+  @override
+  bool operator ==(Object other) {
+    return other is FavoriteItemWithFolderInfo && other.comic == comic
+        && other.folder == folder;
+  }
+
+  @override
+  int get hashCode => comic.hashCode ^ folder.hashCode;
 }
 
 class FolderSync {
@@ -181,6 +272,7 @@ class LocalFavoritesManager {
   Future<void> init() async {
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
     _checkAndCreate();
+    await readData();
   }
 
   void _checkAndCreate() async {
@@ -369,7 +461,7 @@ class LocalFavoritesManager {
   }
 
   /// create a folder
-  void createFolder(String name, [bool renameWhenInvalidName = false]) {
+  String createFolder(String name, [bool renameWhenInvalidName = false]) {
     if (name.isEmpty) {
       if (renameWhenInvalidName) {
         int i = 0;
@@ -383,11 +475,12 @@ class LocalFavoritesManager {
     }
     if (folderNames.contains(name)) {
       if (renameWhenInvalidName) {
+        var prevName = name;
         int i = 0;
         while (folderNames.contains(i.toString())) {
           i++;
         }
-        name = i.toString();
+        name = prevName + i.toString();
       } else {
         throw Exception("Folder is existing");
       }
@@ -405,6 +498,7 @@ class LocalFavoritesManager {
       );
     """);
     saveData();
+    return name;
   }
 
   /// add comic to a folder
@@ -424,19 +518,19 @@ class LocalFavoritesManager {
     if (order != null) {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
-        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
+        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.key}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', $order);
       """);
     } else if (appdata.settings[53] == "0") {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
-        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
+        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.key}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${maxValue(folder) + 1});
       """);
     } else {
       _db.execute("""
         insert into "$folder" (target, name, author, type, tags, cover_path, time, display_order)
-        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.index}, 
+        values ('${comic.target.toParam}', '${comic.name.toParam}', '${comic.author.toParam}', ${comic.type.key}, 
           '${comic.tags.join(',').toParam}', '${comic.coverPath.toParam}', '${comic.time.toParam}', ${minValue(folder) - 1});
       """);
     }
@@ -480,10 +574,8 @@ class LocalFavoritesManager {
         await EhNetwork().getCookies(false);
       }
       var res = await (ImageManager().getImage(item.coverPath, {
-        if (item.type == ComicType.ehentai) "cookie": EhNetwork().cookiesStr,
-        if (item.type == ComicType.ehentai || item.type == ComicType.hitomi)
-          "User-Agent": webUA,
-        if (item.type == ComicType.hitomi) "Referer": "https://hitomi.la/"
+        if (item.type == FavoriteType.ehentai) "cookie": EhNetwork().cookiesStr,
+        if (item.type == FavoriteType.hitomi) "Referer": "https://hitomi.la/"
       }).last);
       file.createSync(recursive: true);
       file.writeAsBytesSync(res.getFile().readAsBytesSync());
@@ -638,7 +730,9 @@ class LocalFavoritesManager {
   }
 
   List<FavoriteItemWithFolderInfo> search(String keyword) {
-    var resComics = <FavoriteItemWithFolderInfo>[];
+    var keywordList = keyword.split(" ");
+    keyword = keywordList.first;
+    var comics = <FavoriteItemWithFolderInfo>[];
     for (var table in folderNames) {
       keyword = "%$keyword%";
       var res = _db.select("""
@@ -646,13 +740,37 @@ class LocalFavoritesManager {
         WHERE name LIKE ? OR author LIKE ? OR tags LIKE ?;
       """, [keyword, keyword, keyword]);
       for (var comic in res) {
-        resComics.add(
+        comics.add(
             FavoriteItemWithFolderInfo(FavoriteItem.fromRow(comic), table));
       }
-      if (resComics.length > 200) {
+      if (comics.length > 200) {
         break;
       }
     }
-    return resComics;
+
+    bool test(FavoriteItemWithFolderInfo comic, String keyword){
+      if(comic.comic.name.contains(keyword)){
+        return true;
+      } else if(comic.comic.author.contains(keyword)){
+        return true;
+      } else if(comic.comic.tags.any((element) => element.contains(keyword))){
+        return true;
+      }
+      return false;
+    }
+
+    for (var i = 1; i < keywordList.length; i++) {
+      comics = comics.where((element) => test(element, keywordList[i])).toList();
+    }
+
+    return comics;
+  }
+
+  void editTags(String target, String folder, List<String> tags){
+    _db.execute("""
+        update "$folder"
+        set tags = '${tags.join(",")}'
+        where target == '${target.toParam}';
+      """);
   }
 }

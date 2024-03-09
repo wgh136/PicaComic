@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/app_page_route.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/tools/app_links.dart';
@@ -8,10 +9,10 @@ import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/category_page.dart';
 import 'package:pica_comic/views/explore_page.dart';
+import 'package:pica_comic/views/favorites/main_favorites_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
-import 'package:pica_comic/views/favorites/favorites_page.dart';
 import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
@@ -80,10 +81,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   final pages = [
-    const MePage(),
-    const LocalFavoritesPage(),
-    const ExplorePageWithGetControl(),
-    const AllCategoryPage(),
+    const MePage(key: Key("0"),),
+    FavoritesPage(key: Key("1"),),
+    const ExplorePageWithGetControl(key: Key("2"),),
+    const AllCategoryPage(key: Key("3"),),
   ];
 
   void login() {
@@ -283,7 +284,7 @@ class _MainPageState extends State<MainPage> {
                         key: (MainPage.navigatorKey ??
                             (MainPage.navigatorKey = GlobalKey())),
                         onGenerateRoute: (settings) =>
-                            MaterialPageRoute(builder: (context) {
+                            AppPageRoute(preventRebuild: false, builder: (context) {
                           return Column(
                             children: [
                               if (UiMode.m1(context))
@@ -309,9 +310,10 @@ class _MainPageState extends State<MainPage> {
                                   ],
                                 ),
                               Expanded(
-                                child: AnimatedMainPage(
-                                  pages[i],
-                                  key: Key(i.toString()),
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 120),
+                                  reverseDuration: const Duration(milliseconds: 120),
+                                  child: pages[i],
                                 ),
                               ),
                               if (UiMode.m1(context))
@@ -407,44 +409,6 @@ class NavigatorItem extends StatelessWidget {
             ),
           ),
         ));
-  }
-}
-
-class AnimatedMainPage extends StatefulWidget {
-  const AnimatedMainPage(this.widget, {super.key});
-
-  final Widget widget;
-
-  @override
-  State<AnimatedMainPage> createState() => _AnimatedMainPageState();
-}
-
-class _AnimatedMainPageState extends State<AnimatedMainPage> {
-  var offset = const Offset(0, 0.05);
-
-  static bool initial = true;
-
-  @override
-  void initState() {
-    if (!initial) {
-      Future.microtask(() => setState(() {
-            offset = const Offset(0, 0);
-          }));
-    } else {
-      offset = const Offset(0, 0);
-    }
-    initial = false;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSlide(
-      offset: offset,
-      curve: Curves.ease,
-      duration: const Duration(milliseconds: 300),
-      child: widget.widget,
-    );
   }
 }
 

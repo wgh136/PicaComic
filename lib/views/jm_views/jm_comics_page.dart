@@ -6,7 +6,7 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 
 import '../../foundation/app.dart';
-import '../settings/jm_settings.dart';
+import '../settings/settings_page.dart';
 
 class JmComicsPage extends ComicsPage<JmComicBrief>{
   const JmComicsPage(this.title, this.id, {super.key});

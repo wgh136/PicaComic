@@ -15,7 +15,7 @@ import '../widgets/show_message.dart';
 class NhentaiComicTile extends ComicTile{
   final NhentaiComicBrief comic;
 
-  const NhentaiComicTile(this.comic, {super.key});
+  const NhentaiComicTile(this.comic, {super.key, this.addonMenuOptions});
 
   @override
   String get description => comic.lang;
@@ -81,4 +81,7 @@ class NhentaiComicTile extends ComicTile{
 
   @override
   String get comicID => comic.id;
+
+  @override
+  final List<ComicTileMenuOption>? addonMenuOptions;
 }

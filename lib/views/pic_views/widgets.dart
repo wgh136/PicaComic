@@ -22,61 +22,74 @@ class PicComicTile extends ComicTile {
   final String? size;
   final String? time;
   final bool downloaded;
-  const PicComicTile(this.comic,{Key? key,this.onTap,this.size,this.time,this.onLongTap,this.cached=true,this.downloaded=false}) : super(key: key);
+  const PicComicTile(this.comic,
+      {Key? key,
+      this.onTap,
+      this.size,
+      this.time,
+      this.onLongTap,
+      this.cached = true,
+      this.downloaded = false,
+      this.addonMenuOptions})
+      : super(key: key);
 
   @override
-  String get description => time==null?(!downloaded?'${comic.likes} likes':"${size??"未知"} MB"):time!;
+  String get description => time == null
+      ? (!downloaded ? '${comic.likes} likes' : "${size ?? "未知"} MB")
+      : time!;
 
   @override
   List<String>? get tags => comic.tags;
 
   @override
-  Widget get image => !downloaded?(AnimatedImage(
-    image: CachedImageProvider(
-      comic.path,
-    ),
-    fit: BoxFit.cover,
-    height: double.infinity,
-    width: double.infinity,
-    filterQuality: FilterQuality.medium,
-  )):Image.file(
-    downloadManager.getCover(comic.id),
-    fit: BoxFit.cover,
-    height: double.infinity,
-  );
+  Widget get image => !downloaded
+      ? (AnimatedImage(
+          image: CachedImageProvider(
+            comic.path,
+          ),
+          fit: BoxFit.cover,
+          height: double.infinity,
+          width: double.infinity,
+          filterQuality: FilterQuality.medium,
+        ))
+      : Image.file(
+          downloadManager.getCover(comic.id),
+          fit: BoxFit.cover,
+          height: double.infinity,
+        );
 
   @override
-  ActionFunc? get read => () async{
-    bool cancel = false;
-    showLoadingDialog(App.globalContext!, ()=>cancel=true);
-    var res = await network.getEps(comic.id);
-    if(cancel){
-      return;
-    }
-    if(res.error){
-      App.globalBack();
-      showMessage(App.globalContext, res.errorMessageWithoutNull);
-    }else{
-      App.globalBack();
-      readPicacgComic2(comic, res.data);
-    }
-  };
+  ActionFunc? get read => () async {
+        bool cancel = false;
+        showLoadingDialog(App.globalContext!, () => cancel = true);
+        var res = await network.getEps(comic.id);
+        if (cancel) {
+          return;
+        }
+        if (res.error) {
+          App.globalBack();
+          showMessage(App.globalContext, res.errorMessageWithoutNull);
+        } else {
+          App.globalBack();
+          readPicacgComic2(comic, res.data);
+        }
+      };
 
   @override
   void onLongTap_() {
-    if(onLongTap != null){
+    if (onLongTap != null) {
       onLongTap!();
-    }else{
+    } else {
       super.onLongTap_();
     }
   }
 
   @override
   void onTap_() {
-    if(onTap != null){
+    if (onTap != null) {
       onTap!();
-    }else{
-      MainPage.to(()=>PicacgComicPage(comic));
+    } else {
+      MainPage.to(() => PicacgComicPage(comic));
     }
   }
 
@@ -94,4 +107,7 @@ class PicComicTile extends ComicTile {
 
   @override
   String get comicID => comic.id;
+
+  @override
+  final List<ComicTileMenuOption>? addonMenuOptions;
 }

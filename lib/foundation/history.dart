@@ -2,22 +2,38 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part "image_favorites.dart";
 
-enum HistoryType {
-  picacg(0),
-  ehentai(1),
-  jmComic(2),
-  hitomi(3),
-  htmanga(4),
-  nhentai(5);
+final class HistoryType {
+  static HistoryType get picacg => const HistoryType(0);
+  static HistoryType get ehentai => const HistoryType(1);
+  static HistoryType get jmComic => const HistoryType(2);
+  static HistoryType get hitomi => const HistoryType(3);
+  static HistoryType get htmanga => const HistoryType(4);
+  static HistoryType get nhentai => const HistoryType(5);
 
   final int value;
+
+  String get name{
+    if(value >=0 && value <= 5){
+      return ["picacg", "ehentai", "jmComic", "hitomi", "htmanga", "nhentai"][value];
+    } else {
+      return ComicSource.fromIntKey(value)?.name ?? "Unknown";
+    }
+  }
+
   const HistoryType(this.value);
+
+  @override
+  bool operator==(Object other) => other is HistoryType && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 base class History extends LinkedListEntry<History> {
@@ -60,7 +76,7 @@ base class History extends LinkedListEntry<History> {
       };
 
   History.fromMap(Map<String, dynamic> map)
-      : type = HistoryType.values[map["type"]],
+      : type = HistoryType(map["type"]),
         time = DateTime.fromMillisecondsSinceEpoch(map["time"]),
         title = map["title"],
         subtitle = map["subtitle"],
@@ -78,7 +94,7 @@ base class History extends LinkedListEntry<History> {
   }
 
   History.fromRow(Row row)
-      : type = HistoryType.values[row["type"]],
+      : type = HistoryType(row["type"]),
         time = DateTime.fromMillisecondsSinceEpoch(row["time"]),
         title = row["title"],
         subtitle = row["subtitle"],
@@ -183,7 +199,7 @@ class HistoryManager {
         insert into history (target, title, subtitle, cover, time, type, ep, page, readEpisode, max_page)
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       """, [newItem.target, newItem.title, newItem.subtitle, newItem.cover,
-        newItem.time.millisecondsSinceEpoch, newItem.type.index, newItem.ep,
+        newItem.time.millisecondsSinceEpoch, newItem.type.value, newItem.ep,
         newItem.page, newItem.readEpisode.join(','), newItem.maxPage]);
     } else {
       _db.execute("""
@@ -196,15 +212,17 @@ class HistoryManager {
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
-  Future<void> saveReadHistory(History history) async {
+  Future<void> saveReadHistory(History history, [bool updateMePage = true]) async {
     _db.execute("""
         update history
         set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?, max_page = ?
         where target == ?;
     """, [history.ep, history.page, history.readEpisode.join(','), history.maxPage, history.target]);
-    scheduleMicrotask(() {
-      StateController.findOrNull(tag: "me_page")?.update();
-    });
+    if(updateMePage){
+      scheduleMicrotask(() {
+        StateController.findOrNull(tag: "me_page")?.update();
+      });
+    }
   }
 
   void clearHistory() {
@@ -248,13 +266,13 @@ class HistoryManager {
   }
 
   /// 获取最近一周的阅读数据, 用于生成图表, List中的元素是当天阅读的漫画数量
-  List<int> getWeekData(){
+  List<int> getWeekData(int days){
     var res = _db.select("""
       select * from history
-      where time > ${DateTime.now().add(const Duration(days: -6)).millisecondsSinceEpoch}
+      where time > ${DateTime.now().add(Duration(days: 1-days)).millisecondsSinceEpoch}
       order by time ASC;
     """);
-    var data = List<int>.filled(7, 0);
+    var data = List<int>.filled(days, 0);
     for(var element in res){
       var time = DateTime.fromMillisecondsSinceEpoch(element["time"] as int);
       data[DateTime.now().difference(time).inDays]++;

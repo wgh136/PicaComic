@@ -113,7 +113,7 @@ Future<double> calculateCacheSize() async{
   if(App.isAndroid || App.isIOS) {
     var path = await getTemporaryDirectory();
     return compute(getFolderSize, path);
-  }else if(App.isWindows){
+  }else if(App.isDesktop){
     var path = "${(await getTemporaryDirectory()).path}${pathSep}imageCache";
     var directory = Directory(path);
     if(directory.existsSync()){
@@ -127,15 +127,9 @@ Future<double> calculateCacheSize() async{
 }
 
 Future<void> eraseCache() async{
-  if(App.isAndroid || App.isIOS) {
-    imageCache.clear();
-    await ImageManager().clear();
-    await CachedNetwork.clearCache();
-  }else if(App.isWindows){
-    imageCache.clear();
-    await ImageManager().clear();
-    await CachedNetwork.clearCache();
-  }
+  imageCache.clear();
+  await ImageManager().clear();
+  await CachedNetwork.clearCache();
 }
 
 Future<void> copyDirectory(Directory source, Directory destination) async{
@@ -421,11 +415,11 @@ void saveLog(String log) async{
   var path = (await getTemporaryDirectory()).path;
   var file = File("$path${pathSep}logs.txt");
   file.writeAsStringSync(log);
-  if (App.isAndroid || App.isIOS) {
+  if (App.isMobile) {
     var params = SaveFileDialogParams(
         sourceFilePath: "$path${pathSep}logs.txt");
     await FlutterFileDialog.saveFile(params: params);
-  } else if (App.isWindows) {
+  } else {
     final String? directoryPath = await getDirectoryPath();
     if (directoryPath != null) {
       await file.copy("$directoryPath${pathSep}logs.txt");
@@ -441,10 +435,8 @@ Future<void> exportStringDataAsFile(String data, String fileName) async{
       file.createSync();
     }
     file.writeAsStringSync(data);
-    if(App.isAndroid || App.isIOS) {
-      var params = SaveFileDialogParams(sourceFilePath: file.path);
-      await FlutterFileDialog.saveFile(params: params);
-    }
+    var params = SaveFileDialogParams(sourceFilePath: file.path);
+    await FlutterFileDialog.saveFile(params: params);
   } else {
     final FileSaveLocation? result = await getSaveLocation(
         suggestedName: fileName);
@@ -465,7 +457,7 @@ Future<String?> getDataFromUserSelectedFile(List<String> extensions) async{
   if (App.isMobile) {
     var params = const OpenFileDialogParams();
     filePath = await FlutterFileDialog.pickFile(params: params);
-  } else if (App.isWindows) {
+  } else {
     XTypeGroup typeGroup = XTypeGroup(
       label: 'data',
       extensions: extensions,

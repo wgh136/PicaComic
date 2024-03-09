@@ -1,11 +1,4 @@
-import 'package:pica_comic/foundation/app.dart';
-import 'package:flutter/material.dart';
-import '../../base.dart';
-import '../../tools/background_service.dart';
-import '../widgets/select.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
-import 'package:pica_comic/tools/translations.dart';
+part of pica_settings;
 
 class PicacgSettings extends StatefulWidget {
   const PicacgSettings(this.popUp, {Key? key}) : super(key: key);
@@ -43,7 +36,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
                   appdata.appChannel = (i+1).toString();
                   appdata.writeData();
                   showMessage(App.globalContext, "正在获取分流IP".tl,time: 8);
-                  network.updateApi().then((v)=>hideMessage(App.globalContext!));
+                  PicacgNetwork().updateApi().then((v)=>hideMessage(App.globalContext!));
                 },
                 inPopUpWidget: widget.popUp,
               ),

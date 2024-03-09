@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/settings/reading_settings.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';

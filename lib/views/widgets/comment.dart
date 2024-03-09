@@ -19,7 +19,7 @@ class CommentTile extends StatelessWidget {
       this.comments,
       this.like})
       : super(key: key);
-  final String avatarUrl;
+  final String? avatarUrl;
   final String? frameUrl;
   final String name;
   final String content;
@@ -44,6 +44,7 @@ class CommentTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if(avatarUrl != null)
               Avatar(
                 size: 58,
                 avatarUrl: avatarUrl,

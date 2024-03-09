@@ -1,23 +1,4 @@
-import 'package:flutter/services.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/main.dart';
-import 'package:pica_comic/network/download.dart';
-import 'package:pica_comic/network/webdav.dart';
-import 'package:pica_comic/views/explore_page.dart';
-import 'package:pica_comic/views/welcome_page.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
-import 'package:pica_comic/views/widgets/pop_up_widget.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import '../../network/update.dart';
-import '../../tools/io_tools.dart';
-import '../../network/http_client.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
-import '../widgets/value_listenable_widget.dart';
-import 'package:pica_comic/tools/translations.dart';
+part of pica_settings;
 
 void findUpdate(BuildContext context) {
   showMessage(context, "正在检查更新".tl, time: 2);
@@ -425,11 +406,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   void dispose() {
     appdata.updateSettings();
     Future.delayed(const Duration(milliseconds: 500), () {
-      try {
-        StateController.find<ExplorePageLogic>().update();
-      } catch (e) {
-        //如果在test_network_page进行此操作将产生错误
-      }
+      StateController.findOrNull<ExplorePageLogic>()?.update();
     });
     super.dispose();
   }
@@ -440,9 +417,10 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       child: IconButton(
           onPressed: (){
             setState((){
-              appdata.settings[59] = appdata.settings[59].replaceFirst(i, "");
+              var config = appdata.settings[77].split(',');
+              config.remove(i);
+              appdata.settings[77] = config.join(',');
             });
-            appdata.updateSettings();
           },
           icon: const Icon(Icons.delete)
       ),
@@ -458,7 +436,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "6" => ListTile(title: Text("Hitomi".tl), key: Key(i), trailing: removeButton,),
       "7" => ListTile(title: Text("Nhentai".tl), key: Key(i), trailing: removeButton,),
       "8" => ListTile(title: Text("绅士漫画".tl), key: Key(i), trailing: removeButton,),
-      _ => throw UnimplementedError()
+      _ => ListTile(title: Text(i), key: Key(i), trailing: removeButton,),
     };
   }
 
@@ -473,14 +451,17 @@ class _SetExplorePagesState extends State<SetExplorePages> {
       "6" => ListTile(title: Text("Hitomi".tl), key: Key(i)),
       "7" => ListTile(title: Text("Nhentai".tl), key: Key(i)),
       "8" => ListTile(title: Text("绅士漫画".tl), key: Key(i)),
-      _ => throw UnimplementedError()
+      _ => ListTile(title: Text(i), key: Key(i)),
     };
     return InkWell(
       child: widget,
       onTap: (){
         App.back(context);
         setState(() {
-          appdata.settings[59] += i;
+          if(appdata.settings[77].isNotEmpty){
+            appdata.settings[77] += ",";
+          }
+          appdata.settings[77] += i;
         });
       },
     );
@@ -489,9 +470,15 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   @override
   Widget build(BuildContext context) {
     var notShowPages = <String>[];
-    for(int i=0; i<=8; i++){
-      if(!appdata.settings[59].contains(i.toString())){
-        notShowPages.add(i.toString());
+    var allPages = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
+    for(var source in ComicSource.sources){
+      for(var page in source.explorePages){
+        allPages.add(page.title);
+      }
+    }
+    for(var i in allPages){
+      if(!appdata.settings[77].split(',').contains(i)){
+        notShowPages.add(i);
       }
     }
     return Scaffold(
@@ -503,29 +490,21 @@ class _SetExplorePagesState extends State<SetExplorePages> {
               showDialog(context: context, builder: (context){
                 return SimpleDialog(
                   title: const Text("Add"),
-                  children: [
-                    for(var i in notShowPages)
-                      buildNotShowPageSelector(i, context)
-                  ],
+                  children: notShowPages.map((e) => buildNotShowPageSelector(e, context)).toList(),
                 );
               });
             }, icon: const Icon(Icons.add))
         ],
       ),
       body: ReorderableListView(
-        children: [
-          for(int i=0; i<appdata.settings[59].length; i++)
-            buildItem(appdata.settings[59][i])
-        ],
+        children: appdata.settings[77].split(',').map((e) => buildItem(e)).toList(),
         onReorder: (oldIndex, newIndex){
-          var settingList = List.generate(appdata.settings[59].length,
-                  (index) => appdata.settings[59][index]);
+          var settingList = appdata.settings[77].split(',');
           var element = settingList.removeAt(oldIndex);
           settingList.insert(newIndex, element);
           setState(() {
-            appdata.settings[59] = settingList.join();
+            appdata.settings[77] = settingList.join(',');
           });
-          appdata.updateSettings();
         },
       ),
     );
@@ -536,7 +515,7 @@ void setCacheLimit(BuildContext context) async{
   int? number;
   int? size;
   await showDialog(context: context, builder: (context)=>SimpleDialog(
-    title: const Text("阅读器缓存限制"),
+    title: Text("缓存限制".tl),
     children: [
       SizedBox(
         width: 400,
@@ -573,9 +552,9 @@ void setCacheLimit(BuildContext context) async{
                   ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: Text("缓存大小限制"),
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text("缓存大小限制".tl),
               ),
               ValueListenableWidget<String>(
                 initialValue: appdata.settings[35],
@@ -599,15 +578,16 @@ void setCacheLimit(BuildContext context) async{
                 ),
               ),
               SizedBox(
-                height: 20,
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.info_outline, size: 16,),
-                      Text("仅在退出阅读器时检查缓存是否超出限制".tl)
-                    ],
-                  ),
+                width: double.infinity,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.info_outline, size: 16,),
+                    const SizedBox(width: 4,),
+                    Expanded(
+                      child: Text("仅在退出阅读器时检查缓存是否超出限制".tl, maxLines: 2,),
+                    )
+                  ],
                 ),
               )
             ],
@@ -700,8 +680,8 @@ void exportDataSetting(BuildContext context){
 void importDataSetting(BuildContext context){
   showDialog(context: context, builder: (context) => AlertDialog(
     title: Text("导入用户数据".tl),
-    content: Text("将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl+
-        "\n如果导入的数据中包含下载数据, 则当前的下载数据也将被覆盖".tl),
+    content: Text("${"将导入设置, 账号, 历史记录, 下载内容, 本地收藏等数据, 现在的所有数据将会被覆盖".tl}"
+        "\n${"如果导入的数据中包含下载数据, 则当前的下载数据也将被覆盖".tl}"),
     actions: [
       TextButton(onPressed: ()=>App.globalBack(), child: Text("取消".tl)),
       TextButton(onPressed: (){

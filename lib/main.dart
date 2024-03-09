@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +7,7 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/app_page_route.dart';
 import 'package:pica_comic/init.dart';
 import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -18,6 +19,7 @@ import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/views/widgets/window_frame.dart';
 import 'network/picacg_network/methods.dart';
 import 'network/webdav.dart';
 
@@ -35,6 +37,17 @@ void main(){
     network = PicacgNetwork(appdata.token);
     setNetworkProxy();
     runApp(const MyApp());
+    if(App.isDesktop){
+      doWhenWindowReady(() {
+        final win = appWindow;
+        const initialSize = Size(900, 720);
+        win.minSize = const Size(600, 400);
+        win.size = initialSize;
+        win.alignment = Alignment.center;
+        win.title = "Pica Comic";
+        win.show();
+      });
+    }
   }, (error, stack) {
     LogManager.addLog(LogLevel.error, "Unhandled Exception", "$error\n$stack");
   });
@@ -65,13 +78,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     setNetworkProxy();
     scheduleMicrotask(() {
-      if (state == AppLifecycleState.resumed) {
-        if (appdata.settings[13] == "1" && appdata.flag && !AuthPage.lock) {
-          appdata.flag = false;
+      if (state == AppLifecycleState.inactive) {
+        if(!AuthPage.lock && appdata.settings[13] == "1"){
+          AuthPage.initial = false;
           App.to(App.globalContext!, () => const AuthPage());
         }
-      } else if (state == AppLifecycleState.paused) {
-        appdata.flag = true;
       }
 
       if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
@@ -204,11 +215,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: App.isWindows ? "font" : "",
         ),
-        home: notFirstUse
+        onGenerateRoute: (settings) => AppPageRoute(builder: (context) => notFirstUse
             ? (appdata.settings[13] == "1"
-                ? const AuthPage()
-                : const MainPage())
-            : const WelcomePage(),
+            ? const AuthPage()
+            : const MainPage())
+            : const WelcomePage()),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -220,11 +231,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           Locale('en', 'US')
         ],
         builder: (context, widget) {
-          if (Platform.isWindows) {
-            var channel = const MethodChannel("pica_comic/title_bar");
-            channel.invokeMethod(
-                "color", Theme.of(context).colorScheme.surface.value);
-          }
           ErrorWidget.builder = (details) {
             LogManager.addLog(LogLevel.error, "Unhandled Exception",
                 "${details.exception}\n${details.stack}");
@@ -234,10 +240,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ),
             );
           };
-          if (widget != null) return OverlayWidget(widget);
+          if (widget != null) {
+            widget = OverlayWidget(widget);
+            if(App.isDesktop) {
+              widget = WindowFrame(widget);
+            }
+            return widget;
+          }
           throw ('widget is null');
         },
       );
     });
   }
 }
+

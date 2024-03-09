@@ -96,3 +96,9 @@ extension MapExtension<S, T> on Map<S, List<T>>{
 
   int get totalLength => _getTotalLength();
 }
+
+class ListOrNull{
+  static List<T>? from<T>(Iterable<dynamic>? i){
+    return i == null ? null : List.from(i);
+  }
+}

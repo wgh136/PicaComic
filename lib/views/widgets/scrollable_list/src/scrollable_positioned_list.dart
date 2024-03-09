@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
@@ -51,6 +52,7 @@ class ScrollablePositionedList extends StatefulWidget {
     this.addAutomaticKeepAlives = true,
     this.addRepaintBoundaries = true,
     this.minCacheExtent, required this.scrollController,
+    this.scrollBehavior
   })  : itemPositionsNotifier = itemPositionsListener as ItemPositionsNotifier?,
         separatorBuilder = null,
         super(key: key);
@@ -77,6 +79,7 @@ class ScrollablePositionedList extends StatefulWidget {
     this.addAutomaticKeepAlives = true,
     this.addRepaintBoundaries = true,
     this.minCacheExtent,
+    this.scrollBehavior
   })  : assert(separatorBuilder != null),
         itemPositionsNotifier = itemPositionsListener as ItemPositionsNotifier?,
         super(key: key);
@@ -121,7 +124,6 @@ class ScrollablePositionedList extends StatefulWidget {
   /// See [ScrollView.reverse].
   final bool reverse;
 
-  /// {@template flutter.widgets.scroll_view.shrinkWrap}
   /// Whether the extent of the scroll view in the [scrollDirection] should be
   /// determined by the contents being viewed.
   ///
@@ -169,6 +171,8 @@ class ScrollablePositionedList extends StatefulWidget {
   /// in builds of widgets that would otherwise already be built in the
   /// cache extent.
   final double? minCacheExtent;
+
+  final ScrollBehavior? scrollBehavior;
 
   @override
   State<StatefulWidget> createState() => _ScrollablePositionedListState();
@@ -269,7 +273,7 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
 
   bool _isTransitioning = false;
 
-  var _animationController;
+  AnimationController? _animationController;
 
   @override
   void initState() {
@@ -365,6 +369,7 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
                       padding: widget.padding,
                       addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
                       addRepaintBoundaries: widget.addRepaintBoundaries,
+                      scrollBehavior: widget.scrollBehavior,
                     ),
                   ),
                 ),
@@ -395,6 +400,7 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
                         padding: widget.padding,
                         addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
                         addRepaintBoundaries: widget.addRepaintBoundaries,
+                        scrollBehavior: widget.scrollBehavior,
                       ),
                     ),
                   ),
@@ -488,7 +494,7 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
           _animationController =
               AnimationController(vsync: this, duration: duration)..forward();
           opacity.parent = _opacityAnimation(opacityAnimationWeights)
-              .animate(_animationController);
+              .animate(_animationController!);
           secondary.scrollController.jumpTo(-direction *
               (_screenScrollCount *
                       primary.scrollController.position.viewportDimension -

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/time.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
 import 'package:pica_comic/views/jm_views/jm_comic_page.dart';
@@ -15,6 +18,7 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/normal_comic_tile.dart';
+import 'package:pica_comic/views/widgets/show_message.dart';
 import '../base.dart';
 import '../foundation/app.dart';
 import '../network/jm_network/jm_image.dart';
@@ -225,8 +229,16 @@ class _HistoryPageState extends State<HistoryPage> {
             } else if (comics_[i].type == HistoryType.htmanga) {
               MainPage.to(() => HtComicPage(HtComicBrief(comics_[i].title, "",
                   comics_[i].cover, comics_[i].target, 0)));
-            } else {
+            } else if (comics_[i].type == HistoryType.nhentai){
               MainPage.to(() => NhentaiComicPage(comics_[i].target));
+            } else {
+              var key = ComicSource.sources.firstWhereOrNull(
+                (element) => element.key.hashCode == comics_[i].type.value)?.key;
+              if(key == null){
+                showToast(message: "Invalid comic source".tl);
+                return;
+              }
+              MainPage.to(() => CustomComicPage(sourceKey: key, id: comics_[i].target));
             }
           },
         );

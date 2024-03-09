@@ -1,4 +1,5 @@
 import 'package:app_links/app_links.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -7,6 +8,7 @@ import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:workmanager/workmanager.dart';
 import 'base.dart';
 import 'foundation/app.dart';
@@ -35,12 +37,17 @@ Future<void> init() async{
       );
     }
     await checkDownloadPath();
-    await downloadManager.init();
-    await NhentaiNetwork().init();
-    await JmNetwork().init();
-    await LocalFavoritesManager().init();
-    await LocalFavoritesManager().readData();
-    await HistoryManager().init();
+
+    await ComicSource.init();
+
+    await Future.wait([
+      downloadManager.init(),
+      NhentaiNetwork().init(),
+      JmNetwork().init(),
+      LocalFavoritesManager().init(),
+      HistoryManager().init(),
+      AppTranslation.init(),
+    ]);
   }
   catch(e, s){
     LogManager.addLog(LogLevel.error, "Init", "App initialization failed!\n$e$s");

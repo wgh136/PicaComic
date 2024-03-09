@@ -1,5 +1,6 @@
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -8,8 +9,10 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
+import 'package:pica_comic/views/favorites/main_favorites_page.dart';
 import 'package:pica_comic/views/favorites/network_to_local.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_comic_page.dart';
 import 'package:pica_comic/views/ht_views/ht_comic_page.dart';
@@ -36,6 +39,21 @@ import '../../network/nhentai_network/nhentai_main_network.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../tools/io_tools.dart';
 import '../main_page.dart';
+
+extension LocalFavoritesDownload on FavoriteItem{
+  void addDownload(){
+    if(DownloadManager().downloaded.contains(toDownloadId())){
+      return;
+    }
+    try {
+      DownloadManager().addFavoriteDownload(this);
+    }
+    catch(e){
+      log("Failed to add a download.\n Missing comic source config file.",
+          "Download", LogLevel.error);
+    }
+  }
+}
 
 class CreateFolderDialog extends StatelessWidget {
   const CreateFolderDialog({Key? key}) : super(key: key);
@@ -257,7 +275,7 @@ class LocalFavoriteTile extends ComicTile {
   }();
 
   void showInfo() {
-    switch (comic.type) {
+    switch (comic.type.comicType) {
       case ComicType.picacg:
         MainPage.to(() => PicacgComicPage(ComicItemBrief(
             comic.name, comic.author, 0, comic.coverPath, comic.target, [],
@@ -291,8 +309,7 @@ class LocalFavoriteTile extends ComicTile {
       case ComicType.nhentai:
         MainPage.to(() => NhentaiComicPage(comic.target));
       default:
-        // TODO: implement custom comic source.
-        throw UnimplementedError();
+        MainPage.to(() => CustomComicPage(sourceKey: comic.type.comicSource.key, id: comic.target));
     }
   }
 
@@ -371,6 +388,17 @@ class LocalFavoriteTile extends ComicTile {
             text: "复制到".tl,
             onClick: copyTo,
           ),
+          DesktopMenuEntry(
+            text: "编辑标签".tl,
+            onClick: editTags,
+          ),
+          DesktopMenuEntry(
+            text: "下载".tl,
+            onClick: () {
+              comic.addDownload();
+              showToast(message: "已添加下载任务".tl);
+            },
+          ),
         ]);
   }
 
@@ -426,6 +454,22 @@ class LocalFavoriteTile extends ComicTile {
                     copyTo();
                   },
                 ),
+                ListTile(
+                  leading: const Icon(Icons.edit_note),
+                  title: Text("编辑标签".tl),
+                  onTap: () {
+                    App.globalBack();
+                    editTags();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.search),
+                  title: Text("下载".tl),
+                  onTap: () {
+                    comic.addDownload();
+                    showToast(message: "已添加下载任务".tl);
+                  },
+                ),
                 const SizedBox(
                   height: 16,
                 ),
@@ -443,7 +487,7 @@ class LocalFavoriteTile extends ComicTile {
         return;
       }
     }
-    switch (comic.type) {
+    switch (comic.type.comicType) {
       case ComicType.picacg:
         {
           bool cancel = false;
@@ -545,8 +589,26 @@ class LocalFavoriteTile extends ComicTile {
           }
         }
       default:
-        // TODO: implement custom comic source.
-        throw UnimplementedError();
+        {
+          bool cancel = false;
+          showLoadingDialog(App.globalContext!, () => cancel = true, false);
+          var res = await comic.type.comicSource.loadComicInfo!(comic.target);
+          if (cancel) {
+            return;
+          }
+          if (res.error) {
+            App.globalBack();
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+          } else {
+            App.globalBack();
+            var history = await HistoryManager().find(comic.target);
+            readWithKey(comic.type.comicSource.key, comic.target,
+                history?.ep ?? 1, history?.page ?? 1, title, {
+                  "eps": res.data.chapters,
+                  "cover": comic.coverPath
+                });
+          }
+        }
     }
   }
 
@@ -598,6 +660,10 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onTap_() {
+    if(!comic.available){
+      showToast(message: "无效的漫画".tl);
+      return;
+    }
     if(appdata.settings[60] == "0"){
       showInfo();
     } else {
@@ -607,6 +673,88 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   String get comicID => comic.target;
+
+  void editTags(){
+    showDialog(context: App.globalContext!, builder: (context){
+      var tags = comic.tags;
+      var controller = TextEditingController();
+      return SimpleDialog(
+        elevation: 1,
+        title: Text("编辑标签".tl),
+        children: [
+          StatefulBuilder(builder: (context, setState) => SizedBox(
+            width: 400,
+            child: Column(
+              children: [
+                Wrap(
+                  children: tags.map((e) => Container(
+                    margin: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(e),
+                        const SizedBox(width: 4,),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          child: const Icon(Icons.close, size: 20,),
+                          onTap: (){
+                            tags.remove(e);
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
+                  )).toList(),
+                ),
+                const SizedBox(height: 8,),
+                SizedBox(
+                  height: 56,
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: const UnderlineInputBorder(),
+                      suffix: IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: (){
+                          var value = controller.text;
+                          if(value.isNotEmpty){
+                            controller.clear();
+                            tags.add(value);
+                            setState(() {});
+                          }
+                        },
+                      ).paddingTop(8),
+                    ),
+                    onSubmitted: (value){
+                      if(value.isNotEmpty){
+                        tags.add(value);
+                        controller.clear();
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ).paddingHorizontal(36),
+                const SizedBox(height: 16,),
+                Center(
+                  child: FilledButton(onPressed: (){
+                    LocalFavoritesManager().editTags(comic.target, folderName, tags);
+                    App.globalBack();
+                    StateController.findOrNull<FavoritesPageController>()?.update();
+                    StateController.findOrNull(tag: "local_search_page")?.update();
+                  }, child: Text("提交".tl)),
+                )
+              ],
+            ),
+          ))
+        ],
+      );
+    });
+  }
 }
 
 class LocalFavoritesFolder extends StatefulWidget {
@@ -713,7 +861,7 @@ Future<void> checkFolder(String name) async{
   Stream<(int current, int total)> check() async*{
     for(var comic in comics){
       bool available = true;
-      switch(comic.type){
+      switch(comic.type.comicType){
         case ComicType.picacg:
           var res = await PicacgNetwork().getComicInfo(comic.target);
           if(res.error && !res.errorMessageWithoutNull.contains("404")){
@@ -757,7 +905,12 @@ Future<void> checkFolder(String name) async{
             available = false;
           }
         default:
-          available = true;
+          var res = await comic.type.comicSource.loadComicInfo!(comic.target);
+          if(res.error && !res.errorMessageWithoutNull.contains("404")){
+            networkError++;
+          } else if(res.error){
+            available = false;
+          }
       }
       if(!available){
         unavailableNum++;

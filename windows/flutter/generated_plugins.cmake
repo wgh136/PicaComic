@@ -4,8 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  bitsdojo_window_windows
   dynamic_color
   file_selector_windows
+  flutter_js
   flutter_windows_webview
   local_auth_windows
   share_plus

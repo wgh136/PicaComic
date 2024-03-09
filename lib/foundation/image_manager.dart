@@ -39,6 +39,12 @@ class ImageManager {
     }
   }
 
+  static bool get haveTask => loadingItems.isNotEmpty;
+
+  static void clearTasks() {
+    loadingItems.clear();
+  }
+
   ImageManager._create();
 
   Map<String, String>? _paths;
@@ -143,9 +149,17 @@ class ImageManager {
         }
       }
 
-      if(url.contains("s.exhentai.org") || url.contains("ehgt.org")) {
-        await Future.delayed(Duration(seconds: 2 * ehLoading));
+      if(url.contains("s.exhentai.org")){
+        // s.exhentai.org 有严格的加载限制
+        url = url.replaceFirst("s.exhentai.org", "ehgt.org");
+      }
+
+      if(url.contains("ehgt.org")) {
+        while(ehLoading >= 5){
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
         ehLoading++;
+        Future.delayed(const Duration(seconds: 3), () => ehLoading--);
       }
 
       //生成文件名
@@ -157,21 +171,20 @@ class ImageManager {
       final savePath =
           "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, url, savePath);
-      var headers_ = headers ?? {
-        "user-agent": webUA,
-      };
+      headers = headers ?? {};
+      headers["User-Agent"] ??= webUA;
       if (url.contains("nhentai")) {
         var cookies = await NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse(url));
         var res = "";
         for (var cookie in cookies) {
           res += "${cookie.name}=${cookie.value}; ";
         }
-        headers_["Cookie"] = res;
+        headers["Cookie"] = res;
       }
-      headers_["Connection"] = "keep-alive";
+      headers["Connection"] = "keep-alive";
       var dioRes = await dio.get<ResponseBody>(url,
           options: Options(
-              responseType: ResponseType.stream, headers: headers_));
+              responseType: ResponseType.stream, headers: headers));
       if (dioRes.data == null) {
         throw Exception("Empty Data");
       }
@@ -198,13 +211,11 @@ class ImageManager {
       }
       await saveInfo(url, savePath);
       yield DownloadProgress(1, 1, url, savePath);
-    } catch (e) {
+    } catch (e, s) {
+      log("$e\n$s", "Network", LogLevel.error);
       rethrow;
     } finally {
       loadingItems.remove(url);
-      if(url.contains("s.exhentai.org") || url.contains("ehgt.org")){
-        ehLoading--;
-      }
     }
   }
 

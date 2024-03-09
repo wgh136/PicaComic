@@ -9,18 +9,86 @@ const int _kMaxDroppedSwipePageForwardAnimationTime = 800;
 const int _kMaxPageBackAnimationTime = 300;
 const double _kMinFlingVelocity = 1.0;
 
-class AppPageRoute<T> extends PageRoute<T> {
-  AppPageRoute(this.page, [this.enableIOSGesture = true]);
+class AppPageRoute<T> extends PageRoute<T> with _AppRouteTransitionMixin{
+  /// Construct a MaterialPageRoute whose contents are defined by [builder].
+  AppPageRoute({
+    required this.builder,
+    super.settings,
+    this.maintainState = true,
+    super.fullscreenDialog,
+    super.allowSnapshotting = true,
+    super.barrierDismissible = false,
+    this.enableIOSGesture = true,
+    this.preventRebuild = true,
+  }) {
+    assert(opaque);
+  }
 
-  Widget Function() page;
+  /// Builds the primary contents of the route.
+  final WidgetBuilder builder;
 
+  @override
+  Widget buildContent(BuildContext context) => builder(context);
+
+  @override
+  final bool maintainState;
+
+  @override
+  String get debugLabel => '${super.debugLabel}(${settings.name})';
+
+  @override
   final bool enableIOSGesture;
+
+  @override
+  final bool preventRebuild;
+}
+
+mixin _AppRouteTransitionMixin<T> on PageRoute<T> {
+  /// Builds the primary contents of the route.
+  @protected
+  Widget buildContent(BuildContext context);
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 250);
 
   @override
   Color? get barrierColor => null;
 
   @override
   String? get barrierLabel => null;
+
+  @override
+  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
+    // Don't perform outgoing animation if the next route is a fullscreen dialog.
+    return nextRoute is PageRoute && !nextRoute.fullscreenDialog;
+  }
+
+  bool get enableIOSGesture;
+
+  bool get preventRebuild;
+
+  Widget? _child;
+
+  @override
+  Widget buildPage(
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      ) {
+    Widget result;
+
+    if(preventRebuild){
+      result = _child ?? (_child = buildContent(context));
+    } else {
+      result = buildContent(context);
+    }
+
+    return Semantics(
+      scopesRoute: true,
+      explicitChildNodes: true,
+      child: result,
+    );
+  }
 
   static bool _isPopGestureEnabled<T>(PageRoute<T> route) {
     if (route.isFirst ||
@@ -37,51 +105,21 @@ class AppPageRoute<T> extends PageRoute<T> {
     return true;
   }
 
-  Widget? _child;
-
-  Widget _getChild() => _child ?? (_child = page());
-
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    final child = _getChild();
-    final Widget result = Semantics(
-      scopesRoute: true,
-      explicitChildNodes: true,
-      child: child,
-    );
-    return result;
-  }
-
-  PageTransitionsBuilder getTransition() {
-    if (App.uiMode() != UiModes.m1) {
-      return FadePageTransitionBuilder();
-    }
-    return SlidePageTransitionBuilder();
-  }
-
-  @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
-    return getTransition().buildTransitions(
+  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    return SlidePageTransitionBuilder().buildTransitions(
         this,
         context,
         animation,
         secondaryAnimation,
         App.enablePopGesture && enableIOSGesture
             ? IOSBackGestureDetector(
-                gestureWidth: _kBackGestureWidth,
-                enabledCallback: () => _isPopGestureEnabled<T>(this),
-                onStartPopGesture: () => _startPopGesture(this),
-                child: child)
+            gestureWidth: _kBackGestureWidth,
+            enabledCallback: () => _isPopGestureEnabled<T>(this),
+            onStartPopGesture: () => _startPopGesture(this),
+            child: child)
             : child);
   }
-
-  @override
-  bool get maintainState => true;
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
 
   IOSBackGestureController _startPopGesture(PageRoute<T> route) {
     return IOSBackGestureController(route.controller!, route.navigator!);
@@ -252,22 +290,6 @@ class _IOSBackGestureDetectorState extends State<IOSBackGestureDetector> {
   }
 }
 
-class FadePageTransitionBuilder extends PageTransitionsBuilder {
-  @override
-  Widget buildTransitions<T>(
-      PageRoute<T> route,
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child) {
-    return FadeTransition(
-      opacity: animation.drive(Tween(begin: 0.0, end: 1.0)
-          .chain(CurveTween(curve: Curves.fastOutSlowIn))),
-      child: child,
-    );
-  }
-}
-
 class SlidePageTransitionBuilder extends PageTransitionsBuilder {
   @override
   Widget buildTransitions<T>(
@@ -277,10 +299,29 @@ class SlidePageTransitionBuilder extends PageTransitionsBuilder {
       Animation<double> secondaryAnimation,
       Widget child) {
     return SlideTransition(
-      position: animation.drive(
-          Tween(begin: const Offset(1, 0), end: Offset.zero)
-              .chain(CurveTween(curve: Curves.fastOutSlowIn))),
-      child: child,
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.ease,
+        )),
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset.zero,
+            end: const Offset(-0.4, 0),
+          ).animate(CurvedAnimation(
+            parent: secondaryAnimation,
+            curve: Curves.ease,
+          )),
+          child: PhysicalModel(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.zero,
+            clipBehavior: Clip.hardEdge,
+            elevation: 6,
+            child: Material(child: child,),
+          ),
+        )
     );
   }
 }

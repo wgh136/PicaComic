@@ -12,7 +12,7 @@ extension PageControllerExtension on PageController{
 
 class ComicReadingPageLogic extends StateController {
   ///控制页面, 用于非从上至下(连续)阅读方式
-  PageController pageController;
+  late PageController pageController;
 
   ///用于从上至下(连续)阅读方式, 跳转至指定项目
   var itemScrollController = ItemScrollController();
@@ -29,6 +29,12 @@ class ComicReadingPageLogic extends StateController {
 
   var photoViewControllers = <int, PhotoViewController>{};
 
+  ListenVolumeController? listenVolume;
+
+  ScrollManager? scrollManager;
+
+  String? errorMessage;
+
   void clearPhotoViewControllers(){
     photoViewControllers.forEach((key, value) => value.dispose());
     photoViewControllers.clear();
@@ -40,9 +46,13 @@ class ComicReadingPageLogic extends StateController {
 
   double currentScale = 1.0;
 
-  bool isCtrlPressed = false;
+  bool get isCtrlPressed => HardwareKeyboard.instance.isControlPressed;
 
   List<bool> requestedLoadingItems = [];
+
+  bool haveUsedInitialPage = false;
+
+  var focusNode = FocusNode();
 
   static int _getIndex(int initPage) {
     if (appdata.settings[9] == "5" || appdata.settings[9] == "6") {
@@ -60,12 +70,20 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
-  ComicReadingPageLogic(this.order, this.data)
-      : pageController =
-            PageController(initialPage: _getPage(data.initialPage)),
-        index = _getIndex(data.initialPage);
+  ComicReadingPageLogic(this.order, this.data, int initialPage, this.updateHistory){
+    if(initialPage <= 0){
+      initialPage = 1;
+    }
+    pageController =
+        PageController(initialPage: _getPage(initialPage));
+    _index = _getIndex(initialPage);
+    order <= 0 ? order = 1 : order;
+  }
 
-  ReadingPageData data;
+
+  final void Function() updateHistory;
+
+  ReadingData data;
 
   bool isLoading = true;
 
@@ -95,7 +113,29 @@ class ComicReadingPageLogic extends StateController {
   }
 
   ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
-  int index;
+  late int _index;
+
+  ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
+  int get index => _index;
+
+  ///当前的页面, 0和最后一个为空白页, 用于进行章节跳转
+  set index(int value) {
+    _index = value;
+    for (var element in _indexChangeCallbacks) {
+      element(value);
+    }
+    updateHistory();
+  }
+
+  final _indexChangeCallbacks = <void Function(int)>[];
+
+  void addIndexChangeCallback(void Function(int) callback){
+    _indexChangeCallbacks.add(callback);
+  }
+
+  void removeIndexChangeCallback(void Function(int) callback){
+    _indexChangeCallbacks.remove(callback);
+  }
 
   ///当前的章节位置, 从1开始
   int order;
@@ -109,18 +149,8 @@ class ComicReadingPageLogic extends StateController {
   ///所有的图片链接
   var urls = <String>[];
 
-  ///hitomi阅读使用的图片数据
-  var images = <HitomiFile>[];
-
-  ///章节部件
-  var epsWidgets = <Widget>[];
-
-  ///是否是已下载的漫画
-  bool downloaded = false;
-
   void reload() {
     index = 1;
-    data.initialPage = 1;
     pageController = PageController(initialPage: 1);
     isLoading = true;
     update();
@@ -180,21 +210,25 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
-  void jumpToPage(int i) {
+  void jumpToPage(int i, [bool updateWidget = false]) {
+    i = i.clamp(1, length);
     if (appdata.settings[9] != "4") {
       pageController.jumpToPage(i);
     } else {
       itemScrollController.jumpTo(index: i - 1);
     }
+    if(index != i){
+      index = i;
+    }
+    if(updateWidget){
+      update(["ToolBar"]);
+    }
   }
 
   void jumpToNextChapter() {
-    data.initialPage = 1;
-    var type = data.type;
     var eps = data.eps;
-    eps.remove("");
     showFloatingButtonValue = 0;
-    if (eps.isEmpty || order == eps.length) {
+    if (!data.hasEp || order == eps?.length) {
       if(readingMethod != ReadingMethod.topToBottomContinuously){
         if (readingMethod.index < 3) {
           pageController.animatedJumpToPage(urls.length);
@@ -209,24 +243,29 @@ class ComicReadingPageLogic extends StateController {
       return;
     }
     order += 1;
-    urls.clear();
+    urls = [];
     isLoading = true;
     tools = false;
-    if (type == ReadingType.jm) {
-      data.target = eps[order - 1];
-    }
     index = 1;
     pageController = PageController(initialPage: 1);
     clearPhotoViewControllers();
     update();
   }
 
+  void jumpToChapter(int index){
+    order = index;
+    urls = [];
+    isLoading = true;
+    tools = false;
+    this.index = 1;
+    pageController = PageController(initialPage: 1);
+    clearPhotoViewControllers();
+    update();
+  }
+
   void jumpToLastChapter() {
-    data.initialPage = 1;
-    var type = data.type;
-    var eps = data.eps;
     showFloatingButtonValue = 0;
-    if(order == 1 || !type.hasEps){
+    if(order == 1 || !data.hasEp){
       if(readingMethod != ReadingMethod.topToBottomContinuously){
         pageController.animatedJumpToPage(1);
       } else {
@@ -238,12 +277,9 @@ class ComicReadingPageLogic extends StateController {
     }
 
     order -= 1;
-    urls.clear();
+    urls = [];
     isLoading = true;
     tools = false;
-    if (type == ReadingType.jm) {
-      data.target = eps[order - 1];
-    }
     pageController = PageController(initialPage: 1);
     index = 1;
     clearPhotoViewControllers();
@@ -297,36 +333,21 @@ class ComicReadingPageLogic extends StateController {
     const channel = MethodChannel("pica_comic/full_screen");
     channel.invokeMethod("set", !isFullScreen);
     isFullScreen = !isFullScreen;
+    focusNode.requestFocus();
   }
 
-  void handleKeyboard(RawKeyEvent event) {
-    isCtrlPressed = event.isControlPressed;
-    switch (event.logicalKey) {
-      case LogicalKeyboardKey.arrowDown:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowDown) || event.repeat) {
+  void handleKeyboard(KeyEvent event) {
+    if(event is KeyUpEvent){
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.arrowDown:
+        case LogicalKeyboardKey.arrowRight:
           jumpToNextPage();
-        }
-        break;
-      case LogicalKeyboardKey.arrowRight:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowRight) ||
-            event.repeat) {
-          jumpToNextPage();
-        }
-        break;
-      case LogicalKeyboardKey.arrowUp:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowUp) || event.repeat) {
+        case LogicalKeyboardKey.arrowUp:
+        case LogicalKeyboardKey.arrowLeft:
           jumpToLastPage();
-        }
-        break;
-      case LogicalKeyboardKey.arrowLeft:
-        if (!event.isKeyPressed(LogicalKeyboardKey.arrowLeft) || event.repeat) {
-          jumpToLastPage();
-        }
-        break;
-      case LogicalKeyboardKey.f12:
-        if(App.isWindows && !event.isKeyPressed(LogicalKeyboardKey.f12)) {
+        case LogicalKeyboardKey.f12:
           fullscreen();
-        }
+      }
     }
   }
 

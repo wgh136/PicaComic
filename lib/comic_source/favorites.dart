@@ -1,7 +1,6 @@
-import 'package:pica_comic/comic_source/app_build_in_favorites.dart';
+part of comic_source;
 
-import '../network/base_comic.dart';
-import '../network/res.dart';
+typedef AddOrDelFavFunc = Future<Res<bool>> Function(String comicId, String folderId, bool isAdding);
 
 class FavoriteData{
   final String key;
@@ -24,6 +23,8 @@ class FavoriteData{
   /// A value of null disables this feature
   final String? allFavoritesId;
 
+  final AddOrDelFavFunc? addOrDelFavorite;
+
   const FavoriteData({
     required this.key,
     required this.title,
@@ -32,7 +33,8 @@ class FavoriteData{
     this.loadFolders,
     this.deleteFolder,
     this.addFolder,
-    this.allFavoritesId});
+    this.allFavoritesId,
+    this.addOrDelFavorite});
 }
 
 FavoriteData getFavoriteData(String key){
@@ -48,10 +50,23 @@ FavoriteData getFavoriteData(String key){
     case "nhentai":
       return nhentaiFavorites;
   }
-  return loadFavoritesDataFromConfig(key);
+  var source = ComicSource.find(key) ?? (throw "Unknown source key: $key");
+  return source.favoriteData!;
 }
 
-FavoriteData loadFavoritesDataFromConfig(String key){
-  // TODO
-  throw UnimplementedError();
+FavoriteData? getFavoriteDataOrNull(String key){
+  switch(key){
+    case "picacg":
+      return picacgFavorites;
+    case "ehentai":
+      return ehFavorites;
+    case "jm":
+      return jmFavorites;
+    case "htmanga":
+      return htFavorites;
+    case "nhentai":
+      return nhentaiFavorites;
+  }
+  var source = ComicSource.find(key);
+  return source?.favoriteData;
 }

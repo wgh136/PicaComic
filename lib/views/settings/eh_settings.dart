@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/network/eh_network/eh_main_network.dart';
-import '../../base.dart';
-import '../widgets/select.dart';
+part of pica_settings;
 
 class EhSettings extends StatefulWidget {
   const EhSettings(this.popUp, {Key? key}) : super(key: key);
@@ -63,6 +58,20 @@ class _EhSettingsState extends State<EhSettings> {
                 onChanged: (b) {
                   setState(() {
                     appdata.settings[47] = b ? "1" : "0";
+                  });
+                  appdata.updateSettings();
+                },
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.notes),
+              title: Text("优先显示副标题".tl),
+              subtitle: Text("适用于已下载的画廊".tl),
+              trailing: Switch(
+                value: appdata.settings[78] == "1",
+                onChanged: (b) {
+                  setState(() {
+                    appdata.settings[78] = b ? "1" : "0";
                   });
                   appdata.updateSettings();
                 },

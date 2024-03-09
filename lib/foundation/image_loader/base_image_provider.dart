@@ -49,8 +49,16 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>> extends ImagePr
           if(e.toString().contains("Your IP address")){
             rethrow;
           }
+          if(e.toString().contains("404") || e.toString().contains("403")){
+            rethrow;
+          }
+          if(e.toString().contains("handshake")){
+            if(retryTime < 5){
+              retryTime = 5;
+            }
+          }
           retryTime <<= 1;
-          if(retryTime > (2 << 5) || stop){
+          if(retryTime > (2 << 4) || stop){
             rethrow;
           }
           await Future.delayed(Duration(seconds: retryTime));

@@ -1,11 +1,4 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/network/http_proxy.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import 'app_settings.dart';
+part of pica_settings;
 
 class NetworkSettings extends StatefulWidget {
   const NetworkSettings({super.key});

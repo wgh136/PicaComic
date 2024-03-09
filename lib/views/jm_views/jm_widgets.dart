@@ -16,7 +16,7 @@ import '../widgets/loading.dart';
 
 class JmComicTile extends ComicTile {
   final JmComicBrief comic;
-  const JmComicTile(this.comic, {super.key});
+  const JmComicTile(this.comic, {super.key, this.addonMenuOptions});
 
   @override
   String get description => () {
@@ -77,4 +77,7 @@ class JmComicTile extends ComicTile {
 
   @override
   String get comicID => comic.id;
+
+  @override
+  final List<ComicTileMenuOption>? addonMenuOptions;
 }

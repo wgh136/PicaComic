@@ -16,9 +16,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.3.5+234
+version: 3.0.0+300
 environment:
-  sdk: '>=3.0.0'
+  sdk: '>=3.3.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -90,6 +90,12 @@ dependencies:
       url: https://github.com/wgh136/zip_flutter
       ref: 92b7309e
   fl_chart: any
+  toml: any
+  flutter_js:
+    git:
+        url: https://github.com/wgh136/flutter_js
+  collection: 1.18.0
+  bitsdojo_window: 0.1.6
 
 dev_dependencies:
   flutter_test:
@@ -125,6 +131,7 @@ flutter:
     - images/github.png
     - images/loading.json
     - assets/tags.json
+    - assets/translation.json
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 

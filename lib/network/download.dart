@@ -3,11 +3,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/custom_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
+import 'package:pica_comic/network/favorite_download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_download_model.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
@@ -20,6 +24,7 @@ import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'nhentai_network/models.dart';
 import 'picacg_network/models.dart';
@@ -94,9 +99,13 @@ class DownloadManager{
     }else{
       path = appdata.settings[22];
     }
-    var file = Directory(path!);
-    if(! await file.exists()){
-      await file.create(recursive: true);
+    var dir = Directory(path!);
+    if(! await dir.exists()){
+      await dir.create(recursive: true);
+    }
+    var file = File("$path/.nomedia");
+    if(!file.existsSync()){
+      await file.create();
     }
   }
 
@@ -147,19 +156,20 @@ class DownloadManager{
       for (var item in json["downloading"]) {
         downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
       }
-      for(var entry in Directory(path!).listSync()){
-        if(entry is Directory){
-          var infoFile = File("${entry.path}/info.json");
-          if(infoFile.existsSync()){
-            downloaded.add(entry.name);
-          }
-        }
-      }
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "IO", "Failed to read downloaded information\n$e\n$s");
       file.deleteSync();
       await _saveInfo();
+    }
+
+    for(var entry in Directory(path!).listSync()){
+      if(entry is Directory){
+        var infoFile = File("${entry.path}/info.json");
+        if(infoFile.existsSync()){
+          downloaded.add(entry.name);
+        }
+      }
     }
 
     //迁移旧版本的数据
@@ -292,6 +302,48 @@ class DownloadManager{
     }
   }
 
+  String generateId(String source, String id){
+    var comicSource = ComicSource.find(source)!;
+    if(comicSource.matchBriefIdReg != null){
+      id = RegExp(comicSource.matchBriefIdReg!).firstMatch(id)!.group(1)!;
+    }
+    id = "$source-$id";
+    return id;
+  }
+
+  void addCustomDownload(ComicInfoData comic, List<int> downloadEps) {
+    var id = generateId(comic.sourceKey, comic.comicId);
+    var downloadPath = Directory("$path$pathSep$id");
+    downloadPath.create(recursive: true);
+    downloading.addLast(CustomDownloadingItem(comic, downloadEps, path!, _whenFinish, _whenError, _saveInfo, id));
+    _saveInfo();
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  void addFavoriteDownload(FavoriteItem comic){
+    var id = switch(comic.type.key){
+      0 => comic.target,
+      1 => getGalleryId(comic.target),
+      2 => "jm${comic.target}",
+      3 => "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(comic.target)![0]!}",
+      4 => "Ht${comic.target}",
+      6 => "nhentai${comic.target}",
+      _ => generateId(comic.type.comicSource.key, comic.target)
+    };
+    var downloadPath = Directory("$path$pathSep$id");
+    downloadPath.create(recursive: true);
+    downloading.addLast(FavoriteDownloading(comic, path!, _whenFinish,
+        _whenError, _saveInfo, id));
+    _saveInfo();
+    if(!isDownloading){
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
   ///当一个下载任务完成时, 调用此函数
   void _whenFinish() async{
     if(!downloaded.contains(downloading.first.id)) {
@@ -326,7 +378,7 @@ class DownloadManager{
   void _whenError(){
     pause();
     _error = true;
-    notifications.sendNotification("下载出错", "点击查看详情");
+    notifications.sendNotification("下载出错".tl, "点击查看详情".tl);
     _handleError?.call();
   }
 
@@ -375,7 +427,9 @@ class DownloadManager{
     var json = await file.readAsString();
     DownloadedItem comic;
     try {
-      if (id.startsWith("jm")) {
+      if(id.contains('-')){
+        comic = CustomDownloadedItem.fromJson(jsonDecode(json));
+      } else if (id.startsWith("jm")) {
         comic = DownloadedJmComic.fromMap(jsonDecode(json));
       } else if (id.startsWith("hitomi")) {
         comic = DownloadedHitomiComic.fromMap(jsonDecode(json));
@@ -431,21 +485,6 @@ class DownloadManager{
     return res;
   }
 
-  ///获取Hitomi漫画信息
-  Future<DownloadedHitomiComic> getHitomiComicFromId(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    var json = await file.readAsString();
-    var res =  DownloadedHitomiComic.fromMap(jsonDecode(json));
-    try {
-      var time = file.lastModifiedSync();
-      res.time = time;
-    }
-    catch(e){
-      //忽视
-    }
-    return res;
-  }
-
   ///删除已下载的漫画
   Future<void> delete(List<String> ids) async{
     for (var id in ids) {
@@ -488,21 +527,21 @@ class DownloadManager{
     }
   }
 
-  ///获取漫画章节的长度, 适用于picacg和禁漫
+  /// 获取漫画章节的长度, 适用于有章节的漫画
   Future<int> getEpLength(String id, int ep) async{
     var directory = Directory("$path$pathSep$id$pathSep$ep");
     var files = directory.list();
     return files.length;
   }
 
-  ///获取eh或hitomi或绅士漫画或Nhentai长度
+  /// 获取漫画的长度, 适用于无章节的漫画
   Future<int> getComicLength(String id) async{
     var directory = Directory("$path$pathSep$id");
     var files = directory.list();
     return await files.length - 2;
   }
 
-  ///获取图片, 对于 eh 和 hitomi 和 绅士漫画 和 Nhentai, ep参数为0
+  ///获取图片, 对于无章节的漫画, ep参数为0
   File getImage(String id, int ep, int index){
     String downloadPath;
     if(ep == 0){
@@ -551,6 +590,8 @@ DownloadingItem downloadingItemFromMap(
     case 3: return HitomiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 4: return DownloadingHtComic.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     case 5: return NhentaiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    case 6: return CustomDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
+    case 7: return FavoriteDownloading.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
     default: throw UnimplementedError();
   }
 }

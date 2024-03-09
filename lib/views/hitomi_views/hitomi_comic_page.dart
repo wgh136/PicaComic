@@ -32,45 +32,32 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   String? get url => comic.link;
 
   @override
-  Row? get actions => Row(
-        children: [
-          Expanded(
-            child: ActionChip(
-              label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-              avatar: !favorite
-                  ? const Icon(Icons.bookmark_add_outlined)
-                  : const Icon(Icons.bookmark_add),
-              onPressed: () => favoriteComic(FavoriteComicWidget(
-                havePlatformFavorite: false,
-                needLoadFolderData: false,
-                target: comic.link,
-                setFavorite: (b) {
-                  if (favorite != b) {
-                    favorite = b;
-                    update();
-                  }
-                },
-                selectFolderCallback: (folder, page) {
-                  LocalFavoritesManager().addComic(
-                      folder,
-                      FavoriteItem.fromHitomi(
-                          data!.toBrief(comic.link, cover)));
-                  showMessage(context, "成功添加收藏".tl);
-                },
-              )),
-            ),
-          ),
-        ],
-      );
+  void openFavoritePanel() {
+    favoriteComic(FavoriteComicWidget(
+      havePlatformFavorite: false,
+      needLoadFolderData: false,
+      target: comic.link,
+      setFavorite: (b) {
+        if (favorite != b) {
+          favorite = b;
+          update();
+        }
+      },
+      selectFolderCallback: (folder, page) {
+        LocalFavoritesManager().addComic(
+            folder,
+            FavoriteItem.fromHitomi(
+                data!.toBrief(comic.link, cover)));
+        showMessage(context, "成功添加收藏".tl);
+      },
+    ));
+  }
 
   @override
   String get cover => comic.cover;
 
   @override
-  FilledButton get downloadButton => FilledButton(
-        onPressed: () => downloadComic(data!, context, comic.cover, comic.link),
-        child: Text("下载".tl),
-      );
+  void download() => _downloadComic(data!, context, comic.cover, comic.link);
 
   @override
   EpsData? get eps => null;
@@ -102,14 +89,8 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   int? get pages => null;
 
   @override
-  FilledButton get readButton => FilledButton(
-        onPressed: () => readHitomiComic(data!, comic.cover, 1),
-        child: Text("从头开始".tl),
-      );
-
-  @override
-  void continueRead(History history) {
-    readHitomiComic(data!, comic.cover, history.page);
+  void read(History? history) {
+    readHitomiComic(data!, comic.cover, history?.page ?? 1);
   }
 
   @override
@@ -191,7 +172,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       data!.toBrief(comic.link, cover));
 }
 
-void downloadComic(
+void _downloadComic(
     HitomiComic comic, BuildContext context, String cover, String link) {
   if (downloadManager.downloaded.contains(comic.id)) {
     showMessage(context, "已下载".tl);

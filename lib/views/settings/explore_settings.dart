@@ -1,16 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/main.dart';
-import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/settings/app_settings.dart';
-import 'package:pica_comic/views/settings/blocking_keyword_page.dart';
-import 'package:pica_comic/views/settings/multi_pages_filter.dart';
-import 'package:pica_comic/views/widgets/select.dart';
-import 'package:pica_comic/views/widgets/stateful_switch.dart';
-
-import '../../foundation/app.dart';
-import '../widgets/pop_up_widget.dart';
+part of pica_settings;
 
 Widget buildExploreSettings(BuildContext context, bool popUp) {
   var comicTileSettings = appdata.settings[44].split(',');
@@ -392,7 +380,10 @@ Map<String, String> categoryPages(){
     "ehentai": "ehentai",
     "jm": "禁漫天堂".tl,
     "htmanga": "绅士漫画".tl,
-    "nhentai": "nhentai"
+    "nhentai": "nhentai",
+    for(var source in ComicSource.sources)
+      if(source.categoryData != null)
+        source.categoryData!.title: source.categoryData!.title
   };
 }
 
@@ -402,6 +393,9 @@ Map<String, String> networkFavorites(){
     "ehentai": "ehentai",
     "jm": "禁漫天堂".tl,
     "htmanga": "绅士漫画".tl,
-    "nhentai": "nhentai"
+    "nhentai": "nhentai",
+    for(var source in ComicSource.sources)
+      if(source.favoriteData != null)
+        source.key: source.favoriteData!.title
   };
 }

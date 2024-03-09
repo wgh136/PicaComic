@@ -1,11 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/views/custom_views/search_page.dart';
 import 'package:pica_comic/views/eh_views/eh_search_page.dart';
 import 'package:pica_comic/views/hitomi_views/hitomi_search.dart';
 import 'package:pica_comic/views/ht_views/ht_search_page.dart';
@@ -83,8 +85,8 @@ class _FloatingSearchBarState extends State<_FloatingSearchBar> {
                 style: textTheme.bodyLarge,
                 textAlignVertical: TextAlignVertical.center,
                 controller: widget.controller,
-                onChanged: (s){
-                  if(s.length <= 1){
+                onChanged: (s) {
+                  if (s.length <= 1) {
                     setState(() {});
                   }
                   widget.onChanged?.call(s);
@@ -102,17 +104,18 @@ class _FloatingSearchBarState extends State<_FloatingSearchBar> {
                 onSubmitted: widget.f,
               ),
             ),
-            if(widget.controller.text.isNotEmpty)
+            if (widget.controller.text.isNotEmpty)
               Tooltip(
                 message: "clear",
                 child: IconButton(
                   icon: const Icon(Icons.clear_rounded),
-                  onPressed: (){
+                  onPressed: () {
                     widget.controller.text = "";
                   },
                 ),
               ),
-            if (MediaQuery.of(context).size.width <= 950 && widget.controller.text.isEmpty)
+            if (MediaQuery.of(context).size.width <= 950 &&
+                widget.controller.text.isEmpty)
               Tooltip(
                 message: "menu",
                 child: IconButton(
@@ -128,10 +131,11 @@ class _FloatingSearchBarState extends State<_FloatingSearchBar> {
 }
 
 class PreSearchController extends StateController {
-  int target = int.parse(appdata.settings[63]);
+  String target = appdata.settings[63];
   int picComicsOrder = appdata.getSearchMode();
   int jmComicsOrder = int.parse(appdata.settings[19]);
   NhentaiSort nhentaiSort = NhentaiSort.values[int.parse(appdata.settings[39])];
+  var customSourceOptions = <String>[];
 
   var suggestions = <Pair<String, TranslationType>>[];
 
@@ -143,8 +147,21 @@ class PreSearchController extends StateController {
 
   String? language;
 
-  void updateTarget(int i) {
+  void updateCustomOptions() {
+    for (var source in ComicSource.sources) {
+      if (source.key == target &&
+          source.searchPageData?.searchOptions != null) {
+        customSourceOptions = List.generate(
+            source.searchPageData!.searchOptions!.length,
+            (index) => source
+                .searchPageData!.searchOptions![index].options.keys.first);
+      }
+    }
+  }
+
+  void updateTarget(String i) {
     target = i;
+    updateCustomOptions();
     update();
   }
 
@@ -160,6 +177,10 @@ class PreSearchController extends StateController {
     appdata.updateSettings();
     update();
   }
+
+  PreSearchController() {
+    updateCustomOptions();
+  }
 }
 
 class PreSearchPage extends StatelessWidget {
@@ -170,19 +191,21 @@ class PreSearchPage extends StatelessWidget {
 
   final searchController = StateController.put(PreSearchController());
 
+  final comicSources =
+      ComicSource.sources.where((element) => element.searchPageData != null);
+
   final FocusNode _focusNode = FocusNode();
 
-  void search([String? s, int? type]) {
+  void search([String? s, String? type]) {
     var keyword = (s ?? controller.text).trim();
     if (searchController.language != null &&
         [1, 5].contains(searchController.target)) {
       keyword += " language:${searchController.language}";
     }
     switch (type ?? searchController.target) {
-      case 0:
+      case '0':
         MainPage.to(() => SearchPage(keyword));
-        break;
-      case 1:
+      case '1':
         MainPage.to(() => EhSearchPage(
               keyword,
               fCats: searchController.ehFCats,
@@ -190,22 +213,27 @@ class PreSearchPage extends StatelessWidget {
               endPages: searchController.ehEndPage,
               minStars: searchController.ehMinStars,
             ));
-        break;
-      case 2:
+      case '2':
         MainPage.to(() => JmSearchPage(
               keyword,
               order: ComicsOrder.values[searchController.jmComicsOrder],
             ));
-        break;
-      case 3:
+      case '3':
         MainPage.to(() => HitomiSearchPage(keyword));
-        break;
-      case 4:
+      case '4':
         MainPage.to(() => HtSearchPage(keyword));
-        break;
-      case 5:
+      case '5':
         MainPage.to(() => NhentaiSearchPage(keyword));
-        break;
+      default:
+        MainPage.to(() => CustomSearchPage(
+            keyword: keyword,
+            sourceKey: type ?? searchController.target,
+            loader: comicSources
+                .firstWhere((element) =>
+                    element.key == (type ?? searchController.target))
+                .searchPageData!
+                .loadPage!,
+            options: searchController.customSourceOptions));
     }
   }
 
@@ -215,29 +243,30 @@ class PreSearchPage extends StatelessWidget {
 
     suggestions.clear();
 
-    if(canHandle(controller.text)){
+    if (canHandle(controller.text)) {
       suggestions.add(Pair("**URL**", TranslationType.other));
     } else {
       var text = controller.text;
       bool isJmId = false;
       bool isNhentaiId = false;
-      if(text.isNum){
+      if (text.isNum) {
         isJmId = true;
         isNhentaiId = true;
       } else {
         text = text.toLowerCase();
-        if(text.startsWith("jm") && text.replaceFirst("jm", "").isNum){
+        if (text.startsWith("jm") && text.replaceFirst("jm", "").isNum) {
           isJmId = true;
-        } else if(text.startsWith("nh") && text.replaceFirst("nh", "").isNum){
+        } else if (text.startsWith("nh") && text.replaceFirst("nh", "").isNum) {
           isNhentaiId = true;
-        } else if(text.startsWith("nhentai") && text.replaceFirst("nhentai", "").isNum){
+        } else if (text.startsWith("nhentai") &&
+            text.replaceFirst("nhentai", "").isNum) {
           isNhentaiId = true;
         }
       }
-      if(isJmId){
+      if (isJmId) {
         suggestions.add(Pair("**JM ID**", TranslationType.other));
       }
-      if(isNhentaiId){
+      if (isNhentaiId) {
         suggestions.add(Pair("**NH ID**", TranslationType.other));
       }
     }
@@ -280,16 +309,9 @@ class PreSearchPage extends StatelessWidget {
     find(TagsTranslation.cosplayerTags, TranslationType.cosplayer);
   }
 
-  void showMenu() {
-    scaffoldKey.currentState!.openEndDrawer();
-  }
-
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
       endDrawerEnableOpenDragGesture: false,
       floatingActionButton: FloatingActionButton(
         onPressed: search,
@@ -304,19 +326,21 @@ class PreSearchPage extends StatelessWidget {
             SizedBox(
               height: MediaQuery.of(context).padding.top,
             ),
-          _FloatingSearchBar(
-            supportingText: '${'搜索'.tl} / ${'链接'.tl} / ID',
-            f: (s) {
-              if (s == "") return;
-              search();
-            },
-            controller: controller,
-            onChanged: (s) {
-              findSuggestions();
-              searchController.update([1, 100]);
-            },
-            focusNode: _focusNode,
-            showMenu: showMenu,
+          Builder(
+            builder: (context) => _FloatingSearchBar(
+              supportingText: '${'搜索'.tl} / ${'链接'.tl} / ID',
+              f: (s) {
+                if (s == "") return;
+                search();
+              },
+              controller: controller,
+              onChanged: (s) {
+                findSuggestions();
+                searchController.update([1, 100]);
+              },
+              focusNode: _focusNode,
+              showMenu: () => Scaffold.of(context).openEndDrawer(),
+            ),
           ),
           const SizedBox(
             height: 8,
@@ -384,7 +408,10 @@ class PreSearchPage extends StatelessWidget {
             height: double.infinity,
             child: buildHistorySideBar(),
           ),
-        if (showSideBar) const VerticalDivider(width: 1,),
+        if (showSideBar)
+          const VerticalDivider(
+            width: 1,
+          ),
         Expanded(
             child: SingleChildScrollView(
           padding: showSideBar
@@ -399,15 +426,18 @@ class PreSearchPage extends StatelessWidget {
                   leading: const Icon(Icons.select_all),
                   title: Text("搜索选项".tl),
                 ),
-              buildTargetSelector(context),
-              buildSearchOptions(context),
+              buildTargetSelector(context).paddingLeft(8),
+              buildSearchOptions(context).paddingLeft(8),
               SizedBox(
                 height: MediaQuery.of(context).padding.bottom,
               ),
             ],
           ),
         )),
-        if (showSideBar) const VerticalDivider(width: 1,),
+        if (showSideBar)
+          const VerticalDivider(
+            width: 1,
+          ),
         if (showSideBar)
           SizedBox(
             width: 250 + addWidth,
@@ -448,7 +478,7 @@ class PreSearchPage extends StatelessWidget {
                 controller.text.replaceLast(words[words.length - 1], "");
           }
           if (text.contains(" ")) {
-            if (logic.target == 3 &&
+            if (logic.target == '3' &&
                 ["male", "female", "language"].contains(type?.name)) {
               text = text.replaceAll(" ", '_');
               text = "${type?.name}:$text";
@@ -456,7 +486,7 @@ class PreSearchPage extends StatelessWidget {
               text = "\"$text\"";
             }
           }
-          if (logic.target == 1) {
+          if (logic.target == '1') {
             if (type != null) {
               controller.text += "${type.name}:$text ";
             } else {
@@ -477,39 +507,43 @@ class PreSearchPage extends StatelessWidget {
           bool showMethod = MediaQuery.of(context).size.width < 600;
           bool showTranslation = App.locale.languageCode == "zh";
           Widget buildItem(Pair<String, TranslationType> value) {
-            if(value.left == "**URL**"){
+            if (value.left == "**URL**") {
               return ListTile(
                 leading: const Icon(Icons.link),
                 title: Text("打开链接".tl),
-                subtitle: Text(controller.text, maxLines: 1, overflow: TextOverflow.fade,),
+                subtitle: Text(
+                  controller.text,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                ),
                 trailing: const Icon(Icons.arrow_right),
-                onTap: (){
+                onTap: () {
                   handleAppLinks(Uri.parse(controller.text));
                 },
               );
             }
 
-            if(value.left == "**JM ID**"){
+            if (value.left == "**JM ID**") {
               var id = controller.text.nums;
               return ListTile(
                 leading: const Icon(Icons.link),
                 title: Text("打开禁漫ID".tl),
                 subtitle: Text("JM$id"),
                 trailing: const Icon(Icons.arrow_right),
-                onTap: (){
+                onTap: () {
                   MainPage.to(() => JmComicPage(id));
                 },
               );
             }
 
-            if(value.left == "**NH ID**"){
+            if (value.left == "**NH ID**") {
               var id = controller.text.nums;
               return ListTile(
                 leading: const Icon(Icons.link),
                 title: const Text("nhentai ID"),
                 subtitle: Text(id),
                 trailing: const Icon(Icons.arrow_right),
-                onTap: (){
+                onTap: () {
                   MainPage.to(() => NhentaiComicPage(id));
                 },
               );
@@ -593,7 +627,7 @@ class PreSearchPage extends StatelessWidget {
   }
 
   Widget buildTargetSelector(BuildContext context) {
-    buildItem(PreSearchController logic, int id, String text) => Padding(
+    buildItem(PreSearchController logic, String id, String text) => Padding(
           padding: const EdgeInsets.all(4),
           child: FilterChip(
             label: Text(text),
@@ -618,17 +652,19 @@ class PreSearchPage extends StatelessWidget {
               ),
               Wrap(
                 children: [
-                  buildItem(logic, 0, "Picacg"),
+                  buildItem(logic, '0', "Picacg"),
                   if (appdata.settings[21][1] == "1")
-                    buildItem(logic, 1, "EHentai"),
+                    buildItem(logic, '1', "EHentai"),
                   if (appdata.settings[21][2] == "1")
-                    buildItem(logic, 2, "JM Comic"),
+                    buildItem(logic, '2', "JM Comic"),
                   if (appdata.settings[21][3] == "1")
-                    buildItem(logic, 3, "Hitomi"),
+                    buildItem(logic, '3', "Hitomi"),
                   if (appdata.settings[21][4] == "1")
-                    buildItem(logic, 4, "绅士漫画"),
+                    buildItem(logic, '4', "绅士漫画"),
                   if (appdata.settings[21][5] == "1")
-                    buildItem(logic, 5, "Nhentai"),
+                    buildItem(logic, '5', "Nhentai"),
+                  for (var source in comicSources)
+                    buildItem(logic, source.key, source.name)
                 ],
               ),
               const SizedBox(
@@ -867,14 +903,67 @@ class PreSearchPage extends StatelessWidget {
       );
     }
 
+    Widget buildCustom(PreSearchController logic) {
+      var children = <Widget>[];
+      final searchOptions = comicSources
+              .firstWhere((element) => element.key == logic.target)
+              .searchPageData!
+              .searchOptions ??
+          <SearchOptions>[];
+      for (int i = 0; i < searchOptions.length; i++) {
+        final option = searchOptions[i];
+        children.add(Text(
+          option.label,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ));
+        children.add(Wrap(
+          runSpacing: 8,
+          spacing: 8,
+          children: option.options.entries
+              .map((e) => InkWell(
+                    onTap: () {
+                      logic.customSourceOptions[i] = e.key;
+                      logic.update();
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Material(
+                      elevation: 0.6,
+                      surfaceTintColor:
+                          Theme.of(context).colorScheme.surfaceTint,
+                      color: logic.customSourceOptions[i] == e.key
+                          ? App.colors(context).primaryContainer
+                          : null,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Text(e.value),
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ).paddingTop(8).paddingBottom(12).paddingLeft(4));
+      }
+      return SizedBox(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        ),
+      ).paddingLeft(10);
+    }
+
     return StateBuilder<PreSearchController>(
       id: "mode",
       builder: (logic) {
-        if (![0, 1, 2, 5].contains(searchController.target)) {
+        if (['3', '4'].contains(searchController.target)) {
           return const SizedBox();
         }
 
-        if (searchController.target == 1) {
+        if (!['0', '1', '2', '3', '4', '5'].contains(searchController.target)) {
+          return buildCustom(logic);
+        }
+
+        if (searchController.target == '1') {
           return buildEH();
         }
 
@@ -890,13 +979,13 @@ class PreSearchPage extends StatelessWidget {
               ),
               Wrap(
                 children: switch (logic.target) {
-                  0 => buildPicacg(logic),
-                  2 => buildJM(logic),
-                  5 => buildNhentai(logic),
+                  '0' => buildPicacg(logic),
+                  '2' => buildJM(logic),
+                  '5' => buildNhentai(logic),
                   _ => throw UnimplementedError()
                 },
               ),
-              if (logic.target == 5) buildLangSelector(),
+              if (logic.target == '5') buildLangSelector(),
               const SizedBox(
                 height: 8,
               )
@@ -935,9 +1024,9 @@ class PreSearchPage extends StatelessWidget {
                         .searchHistory[appdata.searchHistory.length - index]),
                     trailing: IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: (){
-                        appdata.searchHistory.remove(appdata
-                            .searchHistory[appdata.searchHistory.length - index]);
+                      onPressed: () {
+                        appdata.searchHistory.remove(appdata.searchHistory[
+                            appdata.searchHistory.length - index]);
                         logic.update(["history"]);
                         appdata.writeHistory();
                       },
@@ -973,14 +1062,14 @@ class PreSearchPage extends StatelessWidget {
                     title: Text(s.substring(s.indexOf(':') + 1)),
                     subtitle: Text(s.split(':').first),
                     onTap: () {
-                      int type = switch (s.split(':').first) {
-                        "Picacg" => 0,
-                        "EHentai" => 1,
-                        "JMComic" => 2,
-                        "hitomi" => 3,
-                        "HtComic" => 4,
-                        "Nhentai" => 5,
-                        _ => 0
+                      String type = switch (s.split(':').first) {
+                        "Picacg" => '0',
+                        "EHentai" => '1',
+                        "JMComic" => '2',
+                        "hitomi" => '3',
+                        "HtComic" => '4',
+                        "Nhentai" => '5',
+                        _ => s.split(':').first
                       };
                       final keyword = s.substring(s.indexOf(':') + 1);
                       search(keyword, type);

@@ -14,7 +14,7 @@ export 'package:pica_comic/foundation/def.dart';
 class ComicTileMenuOption {
   final String title;
   final IconData icon;
-  final void Function() onTap;
+  final void Function(String? comicId) onTap;
 
   const ComicTileMenuOption(this.title, this.icon, this.onTap);
 }
@@ -112,7 +112,7 @@ abstract class ComicTile extends StatelessWidget {
                             ListTile(
                               leading: Icon(option.icon),
                               title: Text(option.title),
-                              onTap: option.onTap,
+                              onTap: () => option.onTap(comicID),
                             ),
                         const SizedBox(
                           height: 16,
@@ -200,7 +200,7 @@ abstract class ComicTile extends StatelessWidget {
         for (var option in addonMenuOptions!)
           DesktopMenuEntry(
             text: option.title,
-            onClick: option.onTap,
+            onClick: () => option.onTap(comicID),
           ),
     ]);
   }

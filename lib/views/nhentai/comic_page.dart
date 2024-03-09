@@ -40,127 +40,79 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
         MainPage.to(() => NhentaiSearchPage("\"$title\"".trim()));
       };
 
-  Widget get buildButtons => SegmentedButton<int>(
-        segments: [
-          ButtonSegment(
-            icon:
-                Icon(Icons.pages, color: Theme.of(context).colorScheme.primary),
-            label: Text("${data!.tags["Pages"]?.elementAtOrNull(0) ?? ""}P"),
-            value: 1,
-          ),
-          ButtonSegment(
-            icon: !favorite
-                ? Icon(Icons.bookmark_add_outlined,
-                    color: Theme.of(context).colorScheme.primary)
-                : Icon(Icons.bookmark_add,
-                    color: Theme.of(context).colorScheme.primary),
-            label: !favorite ? Text("收藏".tl) : Text("已收藏".tl),
-            value: 2,
-          ),
-          ButtonSegment(
-            icon: Icon(Icons.comment_outlined,
-                color: Theme.of(context).colorScheme.primary),
-            label: Text("评论".tl),
-            value: 3,
-          ),
-        ],
-        onSelectionChanged: (set) {
-          void func1() {}
-
-          void func2() {
-            favoriteComic(FavoriteComicWidget(
-              havePlatformFavorite: NhentaiNetwork().logged,
-              needLoadFolderData: false,
-              favoriteOnPlatform: data!.favorite,
-              initialFolder: "0",
-              target: id,
-              setFavorite: (b) {
-                if (favorite != b) {
-                  favorite = b;
-                  update();
-                }
-              },
-              folders: const {"0": "Nhentai"},
-              selectFolderCallback: (folder, page) async {
-                if (page == 0) {
-                  showMessage(context, "正在添加收藏".tl);
-                  var res =
-                      await NhentaiNetwork().favoriteComic(id, data!.token);
-                  if (res.error) {
-                    showMessage(App.globalContext, res.errorMessageWithoutNull);
-                    return;
-                  }
-                  data!.favorite = true;
-                  showMessage(App.globalContext, "成功添加收藏".tl);
-                } else {
-                  LocalFavoritesManager().addComic(
-                      folder,
-                      FavoriteItem.fromNhentai(NhentaiComicBrief(
-                          data!.title,
-                          data!.cover,
-                          id,
-                          "Unknown",
-                          data!.tags["Tags"] ?? const <String>[])));
-                  showMessage(App.globalContext, "成功添加收藏".tl);
-                }
-              },
-              cancelPlatformFavorite: () async {
-                showMessage(context, "正在取消收藏".tl);
-                var res =
-                    await NhentaiNetwork().unfavoriteComic(id, data!.token);
-                showMessage(
-                    App.globalContext, !res.error ? "成功取消收藏".tl : "网络错误".tl);
-                data!.favorite = false;
-              },
-            ));
+  @override
+  void openFavoritePanel() {
+    favoriteComic(FavoriteComicWidget(
+      havePlatformFavorite: NhentaiNetwork().logged,
+      needLoadFolderData: false,
+      favoriteOnPlatform: data!.favorite,
+      initialFolder: "0",
+      target: id,
+      setFavorite: (b) {
+        if (favorite != b) {
+          favorite = b;
+          update();
+        }
+      },
+      folders: const {"0": "Nhentai"},
+      selectFolderCallback: (folder, page) async {
+        if (page == 0) {
+          showMessage(context, "正在添加收藏".tl);
+          var res =
+          await NhentaiNetwork().favoriteComic(id, data!.token);
+          if (res.error) {
+            showMessage(App.globalContext, res.errorMessageWithoutNull);
+            return;
           }
-
-          switch (set.first) {
-            case 1:
-              func1();
-              break;
-            case 2:
-              func2();
-              break;
-            case 3:
-              showComments(context, id);
-              break;
-          }
-        },
-        selected: const {},
-        emptySelectionAllowed: true,
-      );
+          data!.favorite = true;
+          showMessage(App.globalContext, "成功添加收藏".tl);
+        } else {
+          LocalFavoritesManager().addComic(
+              folder,
+              FavoriteItem.fromNhentai(NhentaiComicBrief(
+                  data!.title,
+                  data!.cover,
+                  id,
+                  "Unknown",
+                  data!.tags["Tags"] ?? const <String>[])));
+          showMessage(App.globalContext, "成功添加收藏".tl);
+        }
+      },
+      cancelPlatformFavorite: () async {
+        showMessage(context, "正在取消收藏".tl);
+        var res =
+        await NhentaiNetwork().unfavoriteComic(id, data!.token);
+        showMessage(
+            App.globalContext, !res.error ? "成功取消收藏".tl : "网络错误".tl);
+        data!.favorite = false;
+      },
+    ));
+  }
 
   @override
-  Row? get actions => Row(
-        children: [Expanded(child: buildButtons)],
-      );
+  ActionFunc? get openComments => (){
+    showComments(context, id);
+  };
 
   @override
   String get cover => data!.cover;
 
   @override
-  FilledButton get downloadButton => FilledButton(
-        onPressed: () {
-          final id = "nhentai${data!.id}";
-          if (DownloadManager().downloaded.contains(id)) {
-            showMessage(context, "已下载".tl);
-            return;
-          }
-          for (var i in DownloadManager().downloading) {
-            if (i.id == id) {
-              showMessage(context, "下载中".tl);
-              return;
-            }
-          }
-          DownloadManager().addNhentaiDownload(data!);
-          showMessage(context, "已加入下载队列".tl);
-        },
-        child:
-            DownloadManager().downloaded.contains("nhentai${data!.id}")
-                ? Text("已下载".tl)
-                : Text("下载".tl),
-      );
+  void download() {
+    final id = "nhentai${data!.id}";
+    if (DownloadManager().downloaded.contains(id)) {
+      showMessage(context, "已下载".tl);
+      return;
+    }
+    for (var i in DownloadManager().downloading) {
+      if (i.id == id) {
+        showMessage(context, "下载中".tl);
+        return;
+      }
+    }
+    DownloadManager().addNhentaiDownload(data!);
+    showMessage(context, "已加入下载队列".tl);
+  }
 
   @override
   EpsData? get eps => null;
@@ -175,20 +127,14 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
   Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(_id);
 
   @override
-  int? get pages => null;
+  int? get pages => int.tryParse(data!.tags["Pages"]?.elementAtOrNull(0) ?? "");
 
   @override
   String? get subTitle => data!.subTitle;
 
   @override
-  FilledButton get readButton => FilledButton(
-        child: Text("从头开始".tl),
-        onPressed: () => readNhentai(data!, 1),
-      );
-
-  @override
-  void continueRead(History history) {
-    readNhentai(data!, history.page);
+  void read(History? history) {
+    readNhentai(data!, history?.page);
   }
 
   @override

@@ -11,7 +11,7 @@ class ListenVolumeController{
   ListenVolumeController(this.whenUp,this.whenDown);
 
   void listenVolumeChange(){
-    if(App.isWindows)  return;
+    if(!App.isMobile)  return;
     _streamSubscription = channel.receiveBroadcastStream().listen((event) {
       if(event == 1){
         whenUp();
@@ -22,7 +22,7 @@ class ListenVolumeController{
   }
 
   void stop(){
-    if(App.isWindows)  return;
+    if(!App.isMobile)  return;
     _streamSubscription?.cancel();
   }
 }

@@ -34,7 +34,13 @@ class DownloadedGallery extends DownloadedItem{
   List<String> get eps => ["EP 1"];
 
   @override
-  String get name => gallery.title;
+  String get name {
+    if(appdata.settings[78] == "1"){
+      return gallery.subTitle ?? gallery.title;
+    } else {
+      return gallery.title;
+    }
+  }
 
   @override
   String get id => getGalleryId(gallery.link);

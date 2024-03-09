@@ -112,7 +112,6 @@ class EhGalleryTile extends ComicTile {
             "Cookie": EhNetwork().cookiesStr,
             "User-Agent": webUA,
             "Referer": EhNetwork().ehBaseUrl,
-            "host": Uri.parse(gallery.coverPath).host
           },
         ),
         fit: BoxFit.cover,
@@ -168,7 +167,7 @@ class EhGalleryTile extends ComicTile {
 
   @override
   List<ComicTileMenuOption>? get addonMenuOptions => !showRemoveFavorite ? null : [
-        ComicTileMenuOption("取消收藏".tl, Icons.playlist_remove_sharp, () async {
+        ComicTileMenuOption("取消收藏".tl, Icons.playlist_remove_sharp, (id) async {
           showMessage(App.globalContext!, "正在取消收藏".tl, time: 10);
           await EhNetwork().unfavorite2(getGalleryId(gallery.link));
           hideMessage(App.globalContext!);
