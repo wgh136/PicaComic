@@ -8,6 +8,7 @@ import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
 import 'package:pica_comic/tools/io_tools.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:workmanager/workmanager.dart';
 import 'base.dart';
 import 'foundation/app.dart';
@@ -45,6 +46,7 @@ Future<void> init() async{
       JmNetwork().init(),
       LocalFavoritesManager().init(),
       HistoryManager().init(),
+      AppTranslation.init(),
     ]);
   }
   catch(e, s){

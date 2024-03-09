@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/history.dart';
@@ -43,6 +42,9 @@ import '../main_page.dart';
 
 extension LocalFavoritesDownload on FavoriteItem{
   void addDownload(){
+    if(DownloadManager().downloaded.contains(toDownloadId())){
+      return;
+    }
     try {
       DownloadManager().addFavoriteDownload(this);
     }
