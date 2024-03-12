@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:pica_comic/network/http_client.dart';
@@ -38,14 +39,23 @@ class AppHttpAdapter implements HttpClientAdapter{
   final HttpClientAdapter adapter;
 
   AppHttpAdapter(bool http2):
-      adapter = http2 ? Http2Adapter(ConnectionManager(
-        idleTimeout: const Duration(seconds: 10),
+      adapter = createAdapter(http2);
+
+  static HttpClientAdapter createAdapter(bool http2){
+    if(appdata.settings[8] == "0" && appdata.settings[58] == "0" && (App.isMobile || App.isMacOS)){
+      return NativeAdapter();
+    }
+    else{
+      return http2 ? Http2Adapter(ConnectionManager(
+        idleTimeout: const Duration(seconds: 15),
         onClientCreate: (_, config) {
           if (proxyHttpOverrides?.proxyStr != null && appdata.settings[58] != "1") {
             config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
           }
         },
       ),) : IOHttpClientAdapter();
+    }
+  }
 
   @override
   void close({bool force = false}) {

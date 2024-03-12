@@ -126,7 +126,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 180,
+        height: 184,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -18,6 +18,7 @@ class App {
   static bool get isDesktop =>
       Platform.isWindows || Platform.isLinux || Platform.isMacOS;
   static bool get isMobile => Platform.isAndroid || Platform.isIOS;
+  static bool get isMacOS => Platform.isMacOS;
 
   static BuildContext? get globalContext => navigatorKey.currentContext;
 
