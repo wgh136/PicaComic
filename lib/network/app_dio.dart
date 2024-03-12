@@ -76,6 +76,23 @@ class AppHttpAdapter implements HttpClientAdapter{
 
   @override
   Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
+    int retry = 0;
+    while(true){
+      try{
+        return await fetchOnce(o, requestStream, cancelFuture);
+      }
+      catch(e){
+        LogManager.addLog(LogLevel.error, "Network", "$e\nRetrying...");
+        retry++;
+        if(retry == 3){
+          rethrow;
+        }
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+  }
+
+  Future<ResponseBody> fetchOnce(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
     var options = o.copyWith();
     LogManager.addLog(LogLevel.info, "Network",
         "${options.method} ${options.path}\nheaders:\n${options.headers.toString()}\ndata:${options.data}");
