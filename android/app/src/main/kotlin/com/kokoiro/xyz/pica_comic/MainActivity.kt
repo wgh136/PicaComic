@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Environment
 import android.Manifest
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.GoogleApiAvailability
 
 class MainActivity: FlutterFragmentActivity() {
     var volumeListen = VolumeListen()
@@ -65,6 +66,12 @@ class MainActivity: FlutterFragmentActivity() {
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             else
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"pica_comic/playServer").setMethodCallHandler{
+                _, res ->
+            val flag = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this) == com.google.android.gms.common.ConnectionResult.SUCCESS
+            res.success(flag)
         }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,"pica_comic/settings").setMethodCallHandler{

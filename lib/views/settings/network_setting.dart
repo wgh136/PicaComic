@@ -32,7 +32,7 @@ class _NetworkSettingsState extends State<NetworkSettings> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if(App.isMacOS || App.isMobile)
+        if(App.isMacOS || App.isIOS || (App.isAndroid && AppHttpAdapter.isGooglePlayAvailable))
           buildNativeCard(),
         const ListTile(
           title: Text("Http Proxy"),

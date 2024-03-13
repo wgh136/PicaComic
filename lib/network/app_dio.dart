@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:flutter/services.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
@@ -36,30 +36,56 @@ class MyLogInterceptor implements Interceptor {
 }
 
 class AppHttpAdapter implements HttpClientAdapter{
-  final HttpClientAdapter adapter;
+  HttpClientAdapter? adapter;
 
-  AppHttpAdapter(bool http2):
-      adapter = createAdapter(http2);
+  final bool http2;
 
-  static HttpClientAdapter createAdapter(bool http2){
+  AppHttpAdapter(this.http2);
+  
+  static bool? _isGooglePlayAvailable;
+
+  static bool get isGooglePlayAvailable => _isGooglePlayAvailable ?? false;
+  
+  static Future<void> _checkGooglePlayAvailable() async{
+    if(_isGooglePlayAvailable != null){
+      return;
+    }
+    try{
+      var res = await const MethodChannel("pica_comic/playServer").invokeMethod("");
+      _isGooglePlayAvailable = res == true;
+      log("Google play available: $_isGooglePlayAvailable", "Network");
+    }
+    catch(e){
+      _isGooglePlayAvailable = false;
+      log("Check google play available failed: $e", "Network", LogLevel.error);
+    }
+  }
+
+  static Future<HttpClientAdapter> createAdapter(bool http2) async{
     if(appdata.settings[8] == "0" && appdata.settings[58] == "0" && (App.isMobile || App.isMacOS)){
-      return NativeAdapter();
+      if(App.isAndroid){
+        await _checkGooglePlayAvailable();
+        if(_isGooglePlayAvailable ?? false) {
+          return NativeAdapter();
+        }
+      } else {
+        return NativeAdapter();
+      }
     }
-    else{
-      return http2 ? Http2Adapter(ConnectionManager(
-        idleTimeout: const Duration(seconds: 15),
-        onClientCreate: (_, config) {
-          if (proxyHttpOverrides?.proxyStr != null && appdata.settings[58] != "1") {
-            config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
-          }
-        },
-      ),) : IOHttpClientAdapter();
-    }
+
+    return http2 ? Http2Adapter(ConnectionManager(
+      idleTimeout: const Duration(seconds: 15),
+      onClientCreate: (_, config) {
+        if (proxyHttpOverrides?.proxyStr != null && appdata.settings[58] != "1") {
+          config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
+        }
+      },
+    ),) : IOHttpClientAdapter();
   }
 
   @override
   void close({bool force = false}) {
-    adapter.close(force: force);
+    adapter?.close(force: force);
   }
 
 
@@ -76,6 +102,7 @@ class AppHttpAdapter implements HttpClientAdapter{
 
   @override
   Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
+    adapter ??= await createAdapter(http2);
     int retry = 0;
     while(true){
       try{
@@ -97,23 +124,23 @@ class AppHttpAdapter implements HttpClientAdapter{
     LogManager.addLog(LogLevel.info, "Network",
         "${options.method} ${options.path}\nheaders:\n${options.headers.toString()}\ndata:${options.data}");
     if(appdata.settings[58] == "0"){
-      return checkCookie(await adapter.fetch(options, requestStream, cancelFuture));
+      return checkCookie(await adapter!.fetch(options, requestStream, cancelFuture));
     }
     if(!changeHost(options)){
-      return checkCookie(await adapter.fetch(options, requestStream, cancelFuture));
+      return checkCookie(await adapter!.fetch(options, requestStream, cancelFuture));
     }
     if(options.headers["host"] == null && options.headers["Host"] == null){
       options.headers["host"] = options.uri.host;
     }
     options.followRedirects = false;
-    var res = await adapter.fetch(options, requestStream, cancelFuture);
+    var res = await adapter!.fetch(options, requestStream, cancelFuture);
     while(res.statusCode < 400 && res.statusCode > 300){
       var location = res.headers["location"]!.first;
       if(location.contains("http") && Uri.tryParse(location) != null){
         if(Uri.parse(location).host != o.uri.host){
           options.path = location;
           changeHost(options);
-          res = await adapter.fetch(options, requestStream, cancelFuture);
+          res = await adapter!.fetch(options, requestStream, cancelFuture);
         } else {
           location = Uri
               .parse(location)
@@ -121,13 +148,13 @@ class AppHttpAdapter implements HttpClientAdapter{
           options.path = options.path.contains("https://")
               ? "https://${options.uri.host}$location"
               : "http://${options.uri.host}$location";
-          res = await adapter.fetch(options, requestStream, cancelFuture);
+          res = await adapter!.fetch(options, requestStream, cancelFuture);
         }
       } else {
         options.path = options.path.contains("https://")
             ? "https://${options.uri.host}$location"
             : "http://${options.uri.host}$location";
-        res = await adapter.fetch(options, requestStream, cancelFuture);
+        res = await adapter!.fetch(options, requestStream, cancelFuture);
       }
     }
     return checkCookie(res);
