@@ -247,7 +247,8 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
     if(controller.current == null){
       return const SizedBox();
     } else if(controller.isNetwork!) {
-      return NetworkFavoritePage(controller.networkData!);
+      return NetworkFavoritePage(controller.networkData!,
+        key: Key(controller.current ?? ""),);
     } else {
       return ComicsPageView(folder: controller.current!);
     }
