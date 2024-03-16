@@ -29,3 +29,36 @@ class ShowImagePage extends StatelessWidget {
     );
   }
 }
+
+class ShowImagePageWithHero extends StatelessWidget {
+  const ShowImagePageWithHero(this.url, this.tag, {super.key});
+
+  final String url;
+
+  final String tag;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("图片".tl),
+      ),
+      body: Hero(
+        tag: tag,
+        child: PhotoView(
+          minScale: PhotoViewComputedScale.contained * 0.9,
+          imageProvider: CachedImageProvider(url),
+          loadingBuilder: (context, event) {
+            return Container(
+              decoration: const BoxDecoration(color: Colors.black),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
