@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
@@ -136,7 +138,13 @@ class _WindowButtons extends StatelessWidget {
       children: [
         MinimizeWindowButton(colors: buttonColors),
         MaximizeWindowButton(colors: buttonColors),
-        CloseWindowButton(colors: closeButtonColors),
+        CloseWindowButton(colors: closeButtonColors, onPressed: (){
+          var size = appWindow.size;
+          var position = appWindow.position;
+          File("${App.dataPath}/window_placement")
+              .writeAsStringSync("${size.width}/${size.height}/${position.dx}/${position.dy}");
+          appWindow.close();
+        },),
       ],
     );
   }
