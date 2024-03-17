@@ -8,32 +8,11 @@ class NetworkSettings extends StatefulWidget {
 }
 
 class _NetworkSettingsState extends State<NetworkSettings> {
-  Widget buildNativeCard(){
-    return SizedBox(
-      width: double.infinity,
-      child: Card.outlined(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const ListTile(
-              leading: Icon(Icons.network_check),
-              title: Text("高性能的网络请求(Beta)")
-            ),
-            Text("在使用系统代理且hosts功能禁用时, 自动启用此功能\n在Android, iOS平台使用原生的网络请求框架\nWindows平台尚未实现, 在其它平台测试效果较好后实现".tl).paddingHorizontal(16),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    ).paddingHorizontal(8);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if(App.isMacOS || App.isIOS || (App.isAndroid && AppHttpAdapter.isGooglePlayAvailable))
-          buildNativeCard(),
         const ListTile(
           title: Text("Http Proxy"),
         ),

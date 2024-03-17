@@ -127,7 +127,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   @nonVirtual
   T? get data => _logic.data;
 
-  /// tag, used by Get, creating a StateController.
+  /// Used by StateController.
   ///
   /// This should be a unique identifier,
   /// to prevent loading same data when user open more than one comic page.
@@ -281,7 +281,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                               bottom: MediaQuery.of(context).padding.bottom))
                     ],
                   )),
-                  buildBottom(),
+                  if(!UiMode.m1(context))
+                    buildBottom(),
                 ],
               );
             }
@@ -526,9 +527,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget buildActions(ComicPageLogic logic, BuildContext context, bool center){
-    Widget buildItem(String title, IconData icon, VoidCallback onTap){
+    Widget buildItem(String title, IconData icon, VoidCallback onTap, [VoidCallback? onLongPress]){
       return InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: SizedBox(
           height: 72,
@@ -568,7 +570,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             }
             Share.share(text);
           }),
-          buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel),
+          buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel, (){
+            var folder = appdata.settings[51];
+            if(LocalFavoritesManager().folderNames.contains(folder)) {
+              LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
+              showToast(message: "已收藏".tl);
+            }
+          }),
           buildItem("下载".tl, Icons.download, download),
           if(onLike != null)
             buildItem(
@@ -942,7 +950,16 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               IconButton(onPressed: openComments!, icon: const Icon(Icons.comment)),
             if(onLike != null)
               IconButton(onPressed: onLike!, icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border)),
-            IconButton(onPressed: openFavoritePanel, icon: const Icon(Icons.bookmark_add_outlined)),
+            GestureDetector(
+              onLongPress: (){
+                var folder = appdata.settings[51];
+                if(LocalFavoritesManager().folderNames.contains(folder)) {
+                  LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
+                  showToast(message: "已收藏".tl);
+                }
+              },
+              child: IconButton(onPressed: openFavoritePanel, icon: const Icon(Icons.bookmark_add_outlined)),
+            ),
             const Spacer(),
             Container(
               decoration: BoxDecoration(

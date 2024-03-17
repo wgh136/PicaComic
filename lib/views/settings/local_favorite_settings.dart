@@ -14,7 +14,8 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
       children: [
         ListTile(
           leading: const Icon(Icons.book),
-          title: Text("默认收藏夹".tl),
+          title: Text("快速收藏".tl),
+          subtitle: Text("长按收藏按钮执行快速收藏".tl),
           trailing: Select(
             initialValue: LocalFavoritesManager()
                 .folderNames
