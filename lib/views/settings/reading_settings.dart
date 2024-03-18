@@ -21,89 +21,42 @@ class _ReadingSettingsState extends State<ReadingSettings> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(
-          leading: const Icon(Icons.touch_app_outlined),
-          title: Text("点按翻页".tl),
-          trailing: Switch(
-            value: pageChangeValue,
-            onChanged: (b) {
-              b ? appdata.settings[0] = "1" : appdata.settings[0] = "0";
-              setState(() => pageChangeValue = b);
-              appdata.writeData();
-            },
-          ),
-          onTap: () {},
+        SwitchSetting(
+          title: "点按翻页".tl,
+          settingsIndex: 0,
+          icon: const Icon(Icons.touch_app_outlined),
         ),
-        ListTile(
-          leading: const Icon(Icons.touch_app),
-          title: Text("反转点按翻页".tl),
-          trailing: Switch(
-            value: appdata.settings[70] == "1",
-            onChanged: (b) => setState(() {
-              appdata.settings[70] = b ? "1" : "0";
-              appdata.updateSettings();
-            }),
-          ),
+        SwitchSetting(
+          title: "点按翻页".tl,
+          settingsIndex: 70,
+          icon: const Icon(Icons.touch_app),
         ),
         if (App.isAndroid)
-          ListTile(
-            leading: const Icon(Icons.volume_mute),
-            title: Text("使用音量键翻页".tl),
-            trailing: Switch(
-              value: useVolumeKeyChangePage,
-              onChanged: (b) {
-                b ? appdata.settings[7] = "1" : appdata.settings[7] = "0";
-                setState(() => useVolumeKeyChangePage = b);
-                appdata.writeData();
-              },
-            ),
-            onTap: () {},
+          SwitchSetting(
+            title: "使用音量键翻页".tl,
+            settingsIndex: 7,
+            icon: const Icon(Icons.volume_mute),
           ),
-        ListTile(
-          leading: const Icon(Icons.control_camera),
-          title: Text("宽屏时显示控制按钮".tl),
-          onTap: () {},
-          trailing: Switch(
-            value: showThreeButton,
-            onChanged: (b) {
-              b ? appdata.settings[4] = "1" : appdata.settings[4] = "0";
-              setState(() {
-                showThreeButton = b;
-              });
-              appdata.writeData();
-            },
-          ),
+        SwitchSetting(
+          title: "宽屏时显示控制按钮".tl,
+          settingsIndex: 4,
+          icon: const Icon(Icons.control_camera),
+        ),
+        SwitchSetting(
+          title: "保持屏幕常亮".tl,
+          settingsIndex: 14,
+          icon: const Icon(Icons.screenshot_outlined),
         ),
         if (App.isAndroid)
-          ListTile(
-            leading: const Icon(Icons.screenshot_outlined),
-            title: Text("保持屏幕常亮".tl),
-            onTap: () {},
-            trailing: Switch(
-              value: keepScreenOn,
-              onChanged: (b) {
-                b ? appdata.settings[14] = "1" : appdata.settings[14] = "0";
-                setState(() {
-                  keepScreenOn = b;
-                });
-                appdata.writeData();
-              },
-            ),
+          SwitchSetting(
+            title: "保持屏幕常亮".tl,
+            settingsIndex: 14,
+            icon: const Icon(Icons.screenshot_outlined),
           ),
-        ListTile(
-          leading: const Icon(Icons.brightness_4),
-          title: Text("深色模式下降低图片亮度".tl),
-          onTap: () {},
-          trailing: Switch(
-            value: lowBrightness,
-            onChanged: (b) {
-              b ? appdata.settings[18] = "1" : appdata.settings[18] = "0";
-              setState(() {
-                lowBrightness = b;
-              });
-              appdata.writeData();
-            },
-          ),
+        SwitchSetting(
+          title: "深色模式下降低图片亮度".tl,
+          settingsIndex: 18,
+          icon: const Icon(Icons.brightness_4),
         ),
         ListTile(
           leading: const Icon(Icons.chrome_reader_mode),
@@ -140,19 +93,10 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             width: 140,
           ),
         ),
-        ListTile(
-          leading: const Icon(Icons.animation),
-          title: Text("翻页动画".tl),
-          onTap: () {},
-          trailing: Switch(
-            value: appdata.settings[36] == "1",
-            onChanged: (b) {
-              setState(() {
-                b ? appdata.settings[36] = "1" : appdata.settings[36] = "0";
-              });
-              appdata.writeData();
-            },
-          ),
+        SwitchSetting(
+          title: "翻页动画".tl,
+          settingsIndex: 36,
+          icon: const Icon(Icons.animation),
         ),
         ListTile(
           leading: const Icon(Icons.timer_sharp),
@@ -191,53 +135,26 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           ),
           title: Text("自动翻页时间间隔".tl),
         ),
-        ListTile(
-          leading: const Icon(Icons.zoom_out_map),
-          title: Text("双击缩放".tl),
-          onTap: () {},
-          trailing: Switch(
-            value: appdata.settings[49] == "1",
-            onChanged: (value) {
-              setState(() {
-                appdata.settings[49] = value ? "1" : "0";
-              });
-              appdata.updateSettings();
-            },
-          ),
+        SwitchSetting(
+          title: "双击缩放".tl,
+          settingsIndex: 49,
+          icon: const Icon(Icons.zoom_out_map),
         ),
-        ListTile(
-          leading: const Icon(Icons.zoom_in),
-          title: Text("长按缩放".tl),
-          trailing: Switch(
-            value: appdata.settings[55] == "1",
-            onChanged: (b) => setState(() {
-              appdata.settings[55] = b ? "1" : "0";
-              appdata.updateSettings();
-            }),
-          ),
+        SwitchSetting(
+          title: "长按缩放".tl,
+          settingsIndex: 55,
+          icon: const Icon(Icons.zoom_in),
         ),
-        ListTile(
-          leading: const Icon(Icons.insert_drive_file_outlined),
-          title: Text("显示页面信息".tl),
-          trailing: Switch(
-            value: appdata.settings[57] == "1",
-            onChanged: (b) => setState(() {
-              appdata.settings[57] = b ? "1" : "0";
-              appdata.updateSettings();
-            }),
-          ),
+        SwitchSetting(
+          title: "显示页面信息".tl,
+          settingsIndex: 57,
+          icon: const Icon(Icons.insert_drive_file_outlined),
         ),
         if(App.isAndroid)
-          ListTile(
-            leading: const Icon(Icons.screen_lock_landscape),
-            title: Text("固定横屏".tl),
-            trailing: Switch(
-              value: appdata.settings[76] == "1",
-              onChanged: (b) => setState(() {
-                appdata.settings[76] = b ? "1" : "0";
-                appdata.updateSettings();
-              }),
-            ),
+          SwitchSetting(
+            title: "固定横屏".tl,
+            settingsIndex: 76,
+            icon: const Icon(Icons.screen_lock_landscape),
           ),
         Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],

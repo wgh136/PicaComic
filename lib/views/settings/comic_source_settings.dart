@@ -86,7 +86,6 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
       ));
     }
     catch(e){
-      print(e);
       showToast(message: "Failed to launch vscode");
     }
   }
