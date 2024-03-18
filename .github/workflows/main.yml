@@ -19,3 +19,22 @@ jobs:
       with:
         name: app-ios.ipa
         path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/app-ios.ipa
+  Build_MacOS:
+    runs-on: macos-13
+    steps:
+    - uses: actions/checkout@v3
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        architecture: x64
+    - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
+    - run: flutter pub get
+    - run: flutter build macos --release
+    - run: |
+           cd build/macos/Build/Products/Release
+           zip -r macos-build.zip pica_comic.app
+    - uses: actions/upload-artifact@v3
+      with:
+        name: macos-build.zip
+        path: build/macos/Build/Products/Release/macos-build.zip
+ 

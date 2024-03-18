@@ -33,7 +33,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async {
             whenFinish();
           }
         }));
-  } else if (App.isMobile) {
+  } else if (App.isMobile || App.isMacOS) {
     App.globalTo(() => AppWebview(
           initialUrl: "${JmNetwork.baseUrl}/album/466419",
           singlePage: true,

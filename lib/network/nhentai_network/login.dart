@@ -40,7 +40,7 @@ void login(void Function() whenFinish) async{
           }
         }
     ));
-  } else if(App.isMobile) {
+  } else if(App.isMobile || App.isMacOS) {
     App.globalTo(() => AppWebview(
       initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       singlePage: true,

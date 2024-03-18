@@ -100,7 +100,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                           height: 40,
                           child: TextButton(
                             onPressed: () async {
-                              if (App.isAndroid || App.isIOS) {
+                              if (App.isAndroid || App.isIOS || App.isMacOS) {
                                 loginWithWebview();
                               } else {
                                 if (await FlutterWindowsWebview.isAvailable()) {
