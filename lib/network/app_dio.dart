@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/services.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:pica_comic/network/http_client.dart';
@@ -41,38 +40,8 @@ class AppHttpAdapter implements HttpClientAdapter{
   final bool http2;
 
   AppHttpAdapter(this.http2);
-  
-  static bool? _isGooglePlayAvailable;
-
-  static bool get isGooglePlayAvailable => _isGooglePlayAvailable ?? false;
-  
-  static Future<void> _checkGooglePlayAvailable() async{
-    if(_isGooglePlayAvailable != null){
-      return;
-    }
-    try{
-      var res = await const MethodChannel("pica_comic/playServer").invokeMethod("");
-      _isGooglePlayAvailable = res == true;
-      log("Google play available: $_isGooglePlayAvailable", "Network");
-    }
-    catch(e){
-      _isGooglePlayAvailable = false;
-      log("Check google play available failed: $e", "Network", LogLevel.error);
-    }
-  }
 
   static Future<HttpClientAdapter> createAdapter(bool http2) async{
-    if(appdata.settings[8] == "0" && appdata.settings[58] == "0" && (App.isMobile || App.isMacOS)){
-      if(App.isAndroid){
-        await _checkGooglePlayAvailable();
-        if(_isGooglePlayAvailable ?? false) {
-          return NativeAdapter();
-        }
-      } else {
-        return NativeAdapter();
-      }
-    }
-
     return http2 ? Http2Adapter(ConnectionManager(
       idleTimeout: const Duration(seconds: 15),
       onClientCreate: (_, config) {
