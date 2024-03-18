@@ -42,7 +42,7 @@ class ComicSourceParser {
     var document = TomlDocument.parse(toml).toMap();
     final minAppVersion = document["minAppVersion"];
     if(minAppVersion != null){
-      if(compareSemVer(appVersion, minAppVersion)){
+      if(compareSemVer(minAppVersion, appVersion)){
         throw ComicSourceParseException("minAppVersion $minAppVersion is required");
       }
     }

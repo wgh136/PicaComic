@@ -63,7 +63,7 @@ class WindowFrame extends StatelessWidget {
                     child: WindowTitleBarBox(
                       child: Row(
                         children: [
-                          buildMenuButton(controller)
+                          buildMenuButton(controller, context)
                               .toAlign(Alignment.centerLeft),
                           Expanded(
                             child: MoveWindow(
@@ -119,7 +119,7 @@ class WindowFrame extends StatelessWidget {
                               ).toAlign(Alignment.centerLeft).paddingLeft(16),
                             ),
                           ),
-                          buildMenuButton(controller)
+                          buildMenuButton(controller, context)
                               .toAlign(Alignment.centerRight),
                         ],
                       ),
@@ -131,7 +131,7 @@ class WindowFrame extends StatelessWidget {
     });
   }
 
-  Widget buildMenuButton(WindowFrameController controller) {
+  Widget buildMenuButton(WindowFrameController controller, BuildContext context) {
     return InkWell(
         onTap: () {
           controller.openSideBar();
@@ -144,7 +144,7 @@ class WindowFrame extends StatelessWidget {
               size: const Size(18, 20),
               painter: _MenuPainter(
                   color: (controller.reverseButtonColor ||
-                          Theme.of(App.globalContext!).brightness ==
+                          Theme.of(context).brightness ==
                               Brightness.dark)
                       ? Colors.white
                       : Colors.black),
