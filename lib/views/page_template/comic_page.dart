@@ -281,7 +281,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                               bottom: MediaQuery.of(context).padding.bottom))
                     ],
                   )),
-                  if(!UiMode.m1(context))
+                  if(UiMode.m1(context))
                     buildBottom(),
                 ],
               );
