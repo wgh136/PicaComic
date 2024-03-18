@@ -151,11 +151,6 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-    # Font used in building windows applications
-    - family: font
-      fonts:
-        - asset: fonts/NotoSansSC-Regular.otf
-
     - family: font2
       fonts:
         - asset: fonts/Poppins-Regular.ttf
