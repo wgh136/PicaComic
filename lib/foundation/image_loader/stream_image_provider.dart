@@ -36,7 +36,11 @@ class StreamImageProvider
       );
     }
 
-    var file = finishProgress!.getFile();
+    if(finishProgress!.data != null){
+      return finishProgress.data!;
+    }
+
+    var file = finishProgress.getFile();
     return await file.readAsBytes();
   }
 

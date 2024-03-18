@@ -79,13 +79,14 @@ Future<Uint8List> segmentationPicture(RecombinationData data) async {
   return image.encodeJpg(desImg);
 }
 
-Future<void> recombineImageAndWriteFile(RecombinationData data) async {
+Future<Uint8List> recombineImageAndWriteFile(RecombinationData data) async {
   var bytes = await segmentationPicture(data);
   var file = File(data.savePath!);
   if (file.existsSync()) {
     file.deleteSync();
   }
   file.writeAsBytesSync(bytes);
+  return bytes;
 }
 
 
@@ -105,14 +106,14 @@ int loadingItems = 0;
 final maxLoadingItems = Platform.isAndroid || Platform.isIOS ? 3 : 5;
 
 ///启动一个新的线程转换图片并且写入文件
-Future<void> startRecombineAndWriteImage(Uint8List imgData, String epsId,
+Future<Uint8List> startRecombineAndWriteImage(Uint8List imgData, String epsId,
     String scrambleId, String bookId, String savePath) async {
   while(loadingItems >= maxLoadingItems){
     await Future.delayed(const Duration(milliseconds: 100));
   }
   loadingItems++;
   try {
-    await compute(recombineImageAndWriteFile,
+    return await compute(recombineImageAndWriteFile,
         RecombinationData(imgData, epsId, scrambleId, bookId, savePath));
   }
   catch(e){
