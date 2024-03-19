@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
@@ -488,10 +489,19 @@ class _NavigateBarState extends State<NavigateBar> {
       ));
     } else if (UiMode.m2(context)) {
       return NavigationRail(
-        leading: const Padding(
-          padding: EdgeInsets.only(bottom: 20),
-          child: CircleAvatar(
-            backgroundImage: AssetImage("images/app_icon.png"),
+        leading: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(23),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: const Image(
+              image: AssetImage("images/app_icon.png"),
+              filterQuality: FilterQuality.medium,
+            ),
           ),
         ),
         selectedIndex: i,
