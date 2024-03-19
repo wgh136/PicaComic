@@ -27,7 +27,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           icon: const Icon(Icons.touch_app_outlined),
         ),
         SwitchSetting(
-          title: "点按翻页".tl,
+          title: "反转点按翻页".tl,
           settingsIndex: 70,
           icon: const Icon(Icons.touch_app),
         ),

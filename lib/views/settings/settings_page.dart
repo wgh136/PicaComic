@@ -444,19 +444,6 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           icon: const Icon(Icons.security_update),
         ),
         ListTile(
-          leading: const Icon(Icons.security_update),
-          title: Text("启动时检查更新".tl),
-          trailing: Switch(
-            value: appdata.settings[2] == "1",
-            onChanged: (b) {
-              b ? appdata.settings[2] = "1" : appdata.settings[2] = "0";
-              setState(() {});
-              appdata.writeData();
-            },
-          ),
-          onTap: () {},
-        ),
-        ListTile(
           title: Text("数据".tl),
         ),
         if (App.isDesktop || App.isAndroid)
