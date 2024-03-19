@@ -86,7 +86,6 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
       ));
     }
     catch(e){
-      print(e);
       showToast(message: "Failed to launch vscode");
     }
   }
@@ -126,7 +125,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 180,
+        height: 184,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

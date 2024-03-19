@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:flutter/services.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:pica_comic/network/http_client.dart';
@@ -35,21 +35,26 @@ class MyLogInterceptor implements Interceptor {
 }
 
 class AppHttpAdapter implements HttpClientAdapter{
-  final HttpClientAdapter adapter;
+  HttpClientAdapter? adapter;
 
-  AppHttpAdapter(bool http2):
-      adapter = http2 ? Http2Adapter(ConnectionManager(
-        idleTimeout: const Duration(seconds: 10),
-        onClientCreate: (_, config) {
-          if (proxyHttpOverrides?.proxyStr != null && appdata.settings[58] != "1") {
-            config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
-          }
-        },
-      ),) : IOHttpClientAdapter();
+  final bool http2;
+
+  AppHttpAdapter(this.http2);
+
+  static Future<HttpClientAdapter> createAdapter(bool http2) async{
+    return http2 ? Http2Adapter(ConnectionManager(
+      idleTimeout: const Duration(seconds: 15),
+      onClientCreate: (_, config) {
+        if (proxyHttpOverrides?.proxyStr != null && appdata.settings[58] != "1") {
+          config.proxy = Uri.parse('http://${proxyHttpOverrides?.proxyStr}');
+        }
+      },
+    ),) : IOHttpClientAdapter();
+  }
 
   @override
   void close({bool force = false}) {
-    adapter.close(force: force);
+    adapter?.close(force: force);
   }
 
 
@@ -66,27 +71,45 @@ class AppHttpAdapter implements HttpClientAdapter{
 
   @override
   Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
+    adapter ??= await createAdapter(http2);
+    int retry = 0;
+    while(true){
+      try{
+        return await fetchOnce(o, requestStream, cancelFuture);
+      }
+      catch(e){
+        LogManager.addLog(LogLevel.error, "Network", "$e\nRetrying...");
+        retry++;
+        if(retry == 3){
+          rethrow;
+        }
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+  }
+
+  Future<ResponseBody> fetchOnce(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
     var options = o.copyWith();
     LogManager.addLog(LogLevel.info, "Network",
         "${options.method} ${options.path}\nheaders:\n${options.headers.toString()}\ndata:${options.data}");
     if(appdata.settings[58] == "0"){
-      return checkCookie(await adapter.fetch(options, requestStream, cancelFuture));
+      return checkCookie(await adapter!.fetch(options, requestStream, cancelFuture));
     }
     if(!changeHost(options)){
-      return checkCookie(await adapter.fetch(options, requestStream, cancelFuture));
+      return checkCookie(await adapter!.fetch(options, requestStream, cancelFuture));
     }
     if(options.headers["host"] == null && options.headers["Host"] == null){
       options.headers["host"] = options.uri.host;
     }
     options.followRedirects = false;
-    var res = await adapter.fetch(options, requestStream, cancelFuture);
+    var res = await adapter!.fetch(options, requestStream, cancelFuture);
     while(res.statusCode < 400 && res.statusCode > 300){
       var location = res.headers["location"]!.first;
       if(location.contains("http") && Uri.tryParse(location) != null){
         if(Uri.parse(location).host != o.uri.host){
           options.path = location;
           changeHost(options);
-          res = await adapter.fetch(options, requestStream, cancelFuture);
+          res = await adapter!.fetch(options, requestStream, cancelFuture);
         } else {
           location = Uri
               .parse(location)
@@ -94,13 +117,13 @@ class AppHttpAdapter implements HttpClientAdapter{
           options.path = options.path.contains("https://")
               ? "https://${options.uri.host}$location"
               : "http://${options.uri.host}$location";
-          res = await adapter.fetch(options, requestStream, cancelFuture);
+          res = await adapter!.fetch(options, requestStream, cancelFuture);
         }
       } else {
         options.path = options.path.contains("https://")
             ? "https://${options.uri.host}$location"
             : "http://${options.uri.host}$location";
-        res = await adapter.fetch(options, requestStream, cancelFuture);
+        res = await adapter!.fetch(options, requestStream, cancelFuture);
       }
     }
     return checkCookie(res);

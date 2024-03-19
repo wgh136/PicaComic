@@ -202,6 +202,18 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
                 Icon(Icons.local_activity, color: Theme.of(context).colorScheme.secondary,),
                 const SizedBox(width: 8),
                 Text(data),
+                const Spacer(),
+                Container(
+                  height: 18,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8)
+                  ),
+                  child: Text(LocalFavoritesManager().count(data).toString(),
+                    style: const TextStyle(fontSize: 12),),
+                ),
+                const SizedBox(width: 12),
               ],
             ),
           ),
@@ -247,7 +259,8 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
     if(controller.current == null){
       return const SizedBox();
     } else if(controller.isNetwork!) {
-      return NetworkFavoritePage(controller.networkData!);
+      return NetworkFavoritePage(controller.networkData!,
+        key: Key(controller.current ?? ""),);
     } else {
       return ComicsPageView(folder: controller.current!);
     }

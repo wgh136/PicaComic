@@ -11,7 +11,7 @@ class LogManager {
 
   static const maxLogLength = 3000;
 
-  static const maxLogNumber = 200;
+  static const maxLogNumber = 500;
 
   static bool ignoreLimitation = false;
 
@@ -24,9 +24,15 @@ class LogManager {
       print(content);
     }
 
-    _logs.add(Log(level, title, content));
+    var newLog = Log(level, title, content);
+
+    if(newLog == _logs.lastOrNull){
+      return;
+    }
+
+    _logs.add(newLog);
     if (_logs.length > maxLogNumber) {
-      _logs.removeAt(0);
+      _logs.remove(_logs.firstWhere((element) => element.level == LogLevel.info));
     }
   }
 

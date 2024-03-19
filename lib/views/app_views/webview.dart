@@ -1,20 +1,13 @@
-import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pica_comic/tools/extensions.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_cookie_manager/webview_cookie_manager.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:image/image.dart' as image;
 import '../../foundation/ui_mode.dart';
 
 
-extension WebviewExtension on WebViewController{
+extension WebviewExtension on InAppWebViewController{
   Future<Map<String, String>?> getCookies(String url) async{
     if(url.contains("https://")){
       url.replaceAll("https://", "");
@@ -22,8 +15,8 @@ extension WebviewExtension on WebViewController{
     if(url[url.length-1] == '/'){
       url = url.substring(0, url.length-1);
     }
-    final cookieManager = WebviewCookieManager();
-    final cookies = await cookieManager.getCookies(url);
+    CookieManager cookieManager = CookieManager.instance();
+    final cookies = await cookieManager.getCookies(url: WebUri(url));
     Map<String, String> res = {};
     for(var cookie in cookies){
       res[cookie.name] = cookie.value;
@@ -32,7 +25,7 @@ extension WebviewExtension on WebViewController{
   }
 
   Future<String?> getUA() async{
-    var res = await runJavaScriptReturningResult("navigator.userAgent");
+    var res = await evaluateJavascript(source: "navigator.userAgent");
     if(res is String){
       if(res[0] == "'" || res[0] == "\"") {
         res = res.substring(1, res.length-1);
@@ -43,13 +36,12 @@ extension WebviewExtension on WebViewController{
 }
 
 class AppWebview extends StatefulWidget {
-  const AppWebview({required this.initialUrl, this.onDestroy, this.onTitleChange, this.onNavigation, this.singlePage = false, super.key});
+  const AppWebview({required this.initialUrl, this.onTitleChange,
+    this.onNavigation, this.singlePage = false, super.key});
 
   final String initialUrl;
 
-  final void Function(WebViewController)? onDestroy;
-
-  final void Function(String title)? onTitleChange;
+  final void Function(String title, InAppWebViewController controller)? onTitleChange;
 
   final bool Function(String url)? onNavigation;
 
@@ -60,93 +52,11 @@ class AppWebview extends StatefulWidget {
 }
 
 class _AppWebviewState extends State<AppWebview> {
-  late final WebViewController controller;
+  InAppWebViewController? controller;
 
   String title = "Webview";
 
-  bool loading = true;
-
-  bool destroy = false;
-
-  updateTitle() async{
-    var newTitle = await controller.getTitle();
-    if(destroy){
-      return;
-    }
-    if(newTitle != null && newTitle != title && newTitle != ""){
-      if(mounted){
-        setState(() {
-          title = newTitle;
-        });
-      }
-      widget.onTitleChange?.call(title);
-    }
-    await Future.delayed(const Duration(milliseconds: 200));
-    updateTitle();
-  }
-
-  Future<List<String>> _androidFilePicker(FileSelectorParams params) async {
-    final picker = ImagePicker();
-    final photo = await picker.pickImage(source: ImageSource.gallery);
-
-    if (photo == null) {
-      return [];
-    }
-
-    final imageData = await photo.readAsBytes();
-    final decodedImage = image.decodeImage(imageData)!;
-    final scaledImage = image.copyResize(decodedImage, width: 500);
-    final jpg = image.encodeJpg(scaledImage, quality: 90);
-
-    final filePath = (await getTemporaryDirectory()).uri.resolve(
-      './image_${DateTime.now().microsecondsSinceEpoch}.jpg',
-    );
-    final file = await File.fromUri(filePath).create(recursive: true);
-    await file.writeAsBytes(jpg, flush: true);
-
-    return [file.uri.toString()];
-  }
-
-  @override
-  void initState(){
-    super.initState();
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (s){
-            if(mounted){
-              setState(() {
-                loading = false;
-              });
-            }
-          },
-          onNavigationRequest: (request){
-            var res = widget.onNavigation?.call(request.url) ?? false;
-            if(!request.url.isURL){
-              return NavigationDecision.prevent;
-            }
-            if(res) {
-              return NavigationDecision.prevent;
-            } else {
-              return NavigationDecision.navigate;
-            }
-          }
-        ),
-      )..loadRequest(Uri.parse(widget.initialUrl));
-    if (Platform.isAndroid) {
-      final androidController = controller.platform as AndroidWebViewController;
-      androidController.setOnShowFileSelector(_androidFilePicker);
-    }
-    updateTitle();
-  }
-
-  @override
-  void dispose() {
-    destroy = true;
-    widget.onDestroy?.call(controller);
-    super.dispose();
-  }
+  double _progress = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -166,15 +76,15 @@ class _AppWebviewState extends State<AppWebview> {
             ), items: [
               PopupMenuItem(
                 child: Text("在浏览器中打开".tl),
-                onTap: () async => launchUrlString((await controller.currentUrl())!),
+                onTap: () async => launchUrlString((await controller?.getUrl())!.path),
               ),
               PopupMenuItem(
                 child: Text("复制链接".tl),
-                onTap: () async => Clipboard.setData(ClipboardData(text: (await controller.currentUrl())!)),
+                onTap: () async => Clipboard.setData(ClipboardData(text: (await controller?.getUrl())!.path)),
               ),
               PopupMenuItem(
                 child: Text("重新加载".tl),
-                onTap: () => controller.reload(),
+                onTap: () => controller?.reload(),
               ),
             ]);
           },
@@ -182,8 +92,44 @@ class _AppWebviewState extends State<AppWebview> {
       )
     ];
 
-    Widget body = loading ? const Center(child: CircularProgressIndicator(),) :
-    WebViewWidget(controller: controller,);
+    Widget body = InAppWebView(
+      initialUrlRequest: URLRequest(url: WebUri(widget.initialUrl)),
+      onTitleChanged: (c, t){
+        if(mounted){
+          setState(() {
+            title = t ?? "Webview";
+          });
+        }
+        widget.onTitleChange?.call(title, controller!);
+      },
+      shouldOverrideUrlLoading: (c, r) async {
+        var res = widget.onNavigation?.call(r.request.url?.path ?? "") ?? false;
+        if(res) {
+          return NavigationActionPolicy.CANCEL;
+        } else {
+          return NavigationActionPolicy.ALLOW;
+        }
+      },
+      onWebViewCreated: (c){
+        controller = c;
+      },
+      onProgressChanged: (c, p){
+        if(mounted){
+          setState(() {
+            _progress = p / 100;
+          });
+        }
+      },
+    );
+
+    body = Stack(
+      children: [
+        Positioned.fill(child: body),
+        if(_progress < 1.0)
+          const Positioned.fill(child: Center(
+              child: CircularProgressIndicator()))
+      ],
+    );
 
     if(useCustomAppBar){
       body = Column(

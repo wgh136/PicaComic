@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
@@ -51,44 +53,85 @@ class WindowFrame extends StatelessWidget {
               child: child,
             )),
             const _SideBar(),
-            Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Material(
-                  color: Colors.transparent,
-                  child: WindowTitleBarBox(
-                    child: Row(
-                      children: [
-                        buildMenuButton(controller)
-                            .toAlign(Alignment.centerLeft),
-                        Expanded(
-                          child: MoveWindow(
-                            child: Text(
-                              'Pica Comic',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: controller.reverseButtonColor
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
-                            ).toAlign(Alignment.centerLeft).paddingLeft(4),
+            if (!App.isMacOS)
+              Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: WindowTitleBarBox(
+                      child: Row(
+                        children: [
+                          buildMenuButton(controller, context)
+                              .toAlign(Alignment.centerLeft),
+                          Expanded(
+                            child: MoveWindow(
+                              child: Text(
+                                'Pica Comic',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: (controller.reverseButtonColor ||
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ).toAlign(Alignment.centerLeft).paddingLeft(4),
+                            ),
                           ),
-                        ),
-                        _WindowButtons(
-                          reverseColor: controller.reverseButtonColor,
-                        ),
-                      ],
+                          _WindowButtons(
+                            reverseColor: controller.reverseButtonColor,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                )),
+                  ))
+            else
+              Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: WindowTitleBarBox(
+                      child: Row(
+                        children: [
+                          MoveWindow(
+                            child: const SizedBox(
+                              height: double.infinity,
+                              width: 16,
+                            ),
+                          ),
+                          const _MacButtons(),
+                          Expanded(
+                            child: MoveWindow(
+                              child: Text(
+                                'Pica Comic',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: (controller.reverseButtonColor ||
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ).toAlign(Alignment.centerLeft).paddingLeft(16),
+                            ),
+                          ),
+                          buildMenuButton(controller, context)
+                              .toAlign(Alignment.centerRight),
+                        ],
+                      ),
+                    ),
+                  ))
           ],
         ),
       );
     });
   }
 
-  Widget buildMenuButton(WindowFrameController controller) {
+  Widget buildMenuButton(WindowFrameController controller, BuildContext context) {
     return InkWell(
         onTap: () {
           controller.openSideBar();
@@ -100,7 +143,9 @@ class WindowFrame extends StatelessWidget {
             child: CustomPaint(
               size: const Size(18, 20),
               painter: _MenuPainter(
-                  color: controller.reverseButtonColor
+                  color: (controller.reverseButtonColor ||
+                          Theme.of(context).brightness ==
+                              Brightness.dark)
                       ? Colors.white
                       : Colors.black),
             ),
@@ -136,7 +181,16 @@ class _WindowButtons extends StatelessWidget {
       children: [
         MinimizeWindowButton(colors: buttonColors),
         MaximizeWindowButton(colors: buttonColors),
-        CloseWindowButton(colors: closeButtonColors),
+        CloseWindowButton(
+          colors: closeButtonColors,
+          onPressed: () {
+            var size = appWindow.size;
+            var position = appWindow.position;
+            File("${App.dataPath}/window_placement").writeAsStringSync(
+                "${size.width}/${size.height}/${position.dx}/${position.dy}");
+            appWindow.close();
+          },
+        ),
       ],
     );
   }
@@ -205,7 +259,8 @@ class __SideBarState extends State<_SideBar>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: CurvedAnimation(parent: _controller, curve: Curves.fastEaseInToSlowEaseOut),
+        animation: CurvedAnimation(
+            parent: _controller, curve: Curves.fastEaseInToSlowEaseOut),
         builder: (context, child) {
           var value = _controller.value;
           return Stack(
@@ -221,7 +276,8 @@ class __SideBarState extends State<_SideBar>
                 ),
               )),
               Positioned(
-                left: (1 - _controller.value) * (-300),
+                left: !App.isMacOS ? (1 - _controller.value) * (-300) : null,
+                right: App.isMacOS ? (_controller.value - 1) * 300 : null,
                 top: 0,
                 bottom: 0,
                 child: Material(
@@ -260,8 +316,11 @@ class _SideBarBody extends StatelessWidget {
             title: '账号管理'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              showAdaptiveWidget(App.globalContext!,
-                  AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,));
+              showAdaptiveWidget(
+                  App.globalContext!,
+                  AccountsPage(
+                    popUp: MediaQuery.of(App.globalContext!).size.width > 600,
+                  ));
             }),
         buildItem(
             icon: Icons.history,
@@ -303,7 +362,10 @@ class _SideBarBody extends StatelessWidget {
     );
   }
 
-  Widget buildItem({required IconData icon, required String title, required VoidCallback onTap}) {
+  Widget buildItem(
+      {required IconData icon,
+      required String title,
+      required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -320,3 +382,130 @@ class _SideBarBody extends StatelessWidget {
     ).paddingHorizontal(8);
   }
 }
+
+class _MacButtons extends StatefulWidget {
+  const _MacButtons();
+
+  @override
+  State<_MacButtons> createState() => _MacButtonsState();
+}
+
+class _MacButtonsState extends State<_MacButtons> {
+  bool isHover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (event) => setState(() => isHover = true),
+      onExit: (event) => setState(() => isHover = false),
+      cursor: SystemMouseCursors.click,
+      child: SizedBox(
+        height: double.infinity,
+        width: 54,
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () => appWindow.close(),
+              child: Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: const Color(0Xffff5f57), borderRadius: BorderRadius.circular(14)),
+                child: isHover
+                    ? const Center(
+                        child: Icon(
+                          Icons.close,
+                          size: 10,
+                          color: _macButtonIconColor,
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => appWindow.minimize(),
+              child: Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: const Color(0Xfffebc2e),
+                    borderRadius: BorderRadius.circular(14)),
+                child: isHover
+                    ? Center(
+                        child: CustomPaint(
+                          painter: _MinimizePainter(),
+                          size: const Size.square(8),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => appWindow.maximizeOrRestore(),
+              child: Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: const Color(0Xff28c840),
+                    borderRadius: BorderRadius.circular(14)),
+                child: isHover
+                    ? Center(
+                        child: CustomPaint(
+                          painter: _MaximizePainter(),
+                          size: const Size.square(6),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MinimizePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var painter = Paint()
+      ..color = _macButtonIconColor
+      ..strokeWidth = 1;
+    canvas.drawLine(Offset(0, size.height / 2),
+        Offset(size.width, size.height / 2), painter);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _MaximizePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var painter = Paint()
+      ..color = _macButtonIconColor
+      ..strokeWidth = 1
+      ..style = PaintingStyle.fill;
+    var path = Path();
+    final w = size.width;
+    final h = size.height;
+    path.moveTo(0, 0);
+    path.lineTo(w*0.8, 0);
+    path.lineTo(0, h*0.8);
+    path.close();
+    canvas.drawPath(path, painter);
+    path = Path();
+    path.moveTo(w, h);
+    path.lineTo(w*0.2, h);
+    path.lineTo(w, h*0.2);
+    path.close();
+    canvas.drawPath(path, painter);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+const _macButtonIconColor = Color.fromARGB(120, 0, 0, 0);

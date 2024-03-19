@@ -38,7 +38,6 @@ import '../widgets/loading.dart';
 import '../widgets/pop_up_widget.dart';
 import '../widgets/pop_up_widget_scaffold.dart';
 import '../widgets/select.dart';
-import '../widgets/stateful_switch.dart';
 import '../widgets/value_listenable_widget.dart';
 import 'package:pica_comic/tools/translations.dart';
 
@@ -54,6 +53,7 @@ part "eh_settings.dart";
 part "comic_source_settings.dart";
 part "blocking_keyword_page.dart";
 part "app_settings.dart";
+part 'components.dart';
 
 class NewSettingsPage extends StatefulWidget {
   static void open([int initialPage = -1]) {
@@ -231,7 +231,9 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
 
   Widget buildLeft() {
     return Material(
-      color: enableTwoViews ? colors.tertiaryContainer.withAlpha(50) : null,
+      color: enableTwoViews ? colors.surface : null,
+      elevation: enableTwoViews ? 1 : 0,
+      surfaceTintColor: colors.surfaceTint,
       child: Column(
         children: [
           SizedBox(
@@ -273,6 +275,31 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
   Widget buildCategories() {
     Widget buildItem(String name, int id) {
       final bool selected = id == currentPage;
+      Widget content = Container(
+        width: double.infinity,
+        height: 58,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Row(children: [
+          Icon(icons[id]),
+          const SizedBox(
+            width: 16,
+          ),
+          Text(
+            name,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const Spacer(),
+          if (selected) const Icon(Icons.arrow_right)
+        ]),
+      );
+      if(selected){
+        content = Material(
+          borderRadius: BorderRadius.circular(16),
+          color: colors.primaryContainer,
+          elevation: 1,
+          child: content,
+        );
+      }
       return Padding(
         padding: enableTwoViews
             ? const EdgeInsets.fromLTRB(16, 0, 16, 0)
@@ -280,27 +307,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
         child: InkWell(
           onTap: () => setState(() => currentPage = id),
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: double.infinity,
-            height: 58,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-            decoration: BoxDecoration(
-              color: selected ? colors.tertiaryContainer.withAlpha(150) : null,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(children: [
-              Icon(icons[id]),
-              const SizedBox(
-                width: 16,
-              ),
-              Text(
-                name,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const Spacer(),
-              if (selected) const Icon(Icons.arrow_right)
-            ]),
-          ),
+          child: content,
         ).paddingVertical(4),
       );
     }
@@ -431,18 +438,10 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
             findUpdate(context);
           },
         ),
-        ListTile(
-          leading: const Icon(Icons.security_update),
-          title: Text("启动时检查更新".tl),
-          trailing: Switch(
-            value: appdata.settings[2] == "1",
-            onChanged: (b) {
-              b ? appdata.settings[2] = "1" : appdata.settings[2] = "0";
-              setState(() {});
-              appdata.writeData();
-            },
-          ),
-          onTap: () {},
+        SwitchSetting(
+          title: "启动时检查更新".tl,
+          settingsIndex: 2,
+          icon: const Icon(Icons.security_update),
         ),
         ListTile(
           title: Text("数据".tl),
@@ -528,18 +527,12 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
               },
             ),
           ),
-        ListTile(
-            leading: const Icon(Icons.security),
-            title: Text("需要身份验证".tl),
-            subtitle: Text("如果系统中未设置任何认证方法请勿开启".tl),
-            trailing: Switch(
-              value: appdata.settings[13] == "1",
-              onChanged: (b) {
-                b ? appdata.settings[13] = "1" : appdata.settings[13] = "0";
-                setState(() {});
-                appdata.writeData();
-              },
-            )),
+        SwitchSetting(
+          title: "需要身份验证".tl,
+          subTitle: "如果系统中未设置任何认证方法请勿开启".tl,
+          settingsIndex: 13,
+          icon: const Icon(Icons.security),
+        ),
         ListTile(
           title: Text("其它".tl),
         ),

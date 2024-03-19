@@ -127,7 +127,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   @nonVirtual
   T? get data => _logic.data;
 
-  /// tag, used by Get, creating a StateController.
+  /// Used by StateController.
   ///
   /// This should be a unique identifier,
   /// to prevent loading same data when user open more than one comic page.
@@ -264,19 +264,25 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               _logic.thumbnailsData ??= thumbnailsCreator;
               logic.controller.removeListener(scrollListener);
               logic.controller.addListener(scrollListener);
-              return CustomScrollView(
-                controller: logic.controller,
-                slivers: [
-                  buildTitle(logic),
-                  buildComicInfo(logic, context),
-                  buildTags(logic, context),
-                  ...buildEpisodeInfo(context),
-                  ...buildIntroduction(context),
-                  ...buildThumbnails(context),
-                  ...buildRecommendation(context),
-                  SliverPadding(
-                      padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).padding.bottom))
+              return Column(
+                children: [
+                  Expanded(child: CustomScrollView(
+                    controller: logic.controller,
+                    slivers: [
+                      buildTitle(logic),
+                      buildComicInfo(logic, context),
+                      buildTags(logic, context),
+                      ...buildEpisodeInfo(context),
+                      ...buildIntroduction(context),
+                      ...buildThumbnails(context),
+                      ...buildRecommendation(context),
+                      SliverPadding(
+                          padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).padding.bottom))
+                    ],
+                  )),
+                  if(UiMode.m1(context))
+                    buildBottom(),
                 ],
               );
             }
@@ -296,8 +302,48 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         child: Text(title!),
       ),
+      actions: [
+        if(UiMode.m1(context))
+          IconButton(onPressed: showMoreActions, icon: const Icon(Icons.more_horiz))
+      ],
       pinned: true,
       primary: UiMode.m1(context),
+    );
+  }
+
+  void showMoreActions(){
+    final width = MediaQuery.of(context).size.width;
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(width, 0, 0, 0),
+      items: [
+        PopupMenuItem(
+          child: Text("复制标题".tl),
+          onTap: () {
+            var text = title!;
+            if(url != null){
+              text += ":$url";
+            }
+            Clipboard.setData(ClipboardData(text: text));
+            showToast(message: "已复制".tl, icon: Icons.check);
+          },
+        ),
+        PopupMenuItem(
+          child: Text("分享".tl),
+          onTap: () {
+            var text = title!;
+            if(url != null){
+              text += ":$url";
+            }
+            Share.share(text);
+          },
+        ),
+        if(searchSimilar != null)
+          PopupMenuItem(
+            onTap: searchSimilar,
+            child: Text("搜索相似".tl),
+          ),
+      ]
     );
   }
 
@@ -354,7 +400,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 ],
               ),
             ).paddingHorizontal(10).paddingBottom(12),
-            if(width < 500)
+            if(width < 500 && !UiMode.m1(context))
               buildActions(logic, context, true).paddingHorizontal(12),
           ],
         );
@@ -371,11 +417,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
       child: SizedBox(
         width: width,
         height: height,
-        child: RoundedImage(
-          image: CachedImageProvider(cover, headers: headers),
+        child: Hero(
+          tag: "image",
+          child: RoundedImage(
+            image: CachedImageProvider(cover, headers: headers),
+          ),
         ),
       ),
-      onTap: () => App.globalTo(() => ShowImagePage(cover)),
+      onTap: () => App.globalTo(() => ShowImagePageWithHero(cover, "image")),
     );
   }
 
@@ -478,9 +527,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget buildActions(ComicPageLogic logic, BuildContext context, bool center){
-    Widget buildItem(String title, IconData icon, VoidCallback onTap){
+    Widget buildItem(String title, IconData icon, VoidCallback onTap, [VoidCallback? onLongPress]){
       return InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: SizedBox(
           height: 72,
@@ -520,7 +570,13 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             }
             Share.share(text);
           }),
-          buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel),
+          buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel, (){
+            var folder = appdata.settings[51];
+            if(LocalFavoritesManager().folderNames.contains(folder)) {
+              LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
+              showToast(message: "已收藏".tl);
+            }
+          }),
           buildItem("下载".tl, Icons.download, download),
           if(onLike != null)
             buildItem(
@@ -668,7 +724,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                       child: Center(
                         child: Text(
                           eps!.eps[i],
-                          maxLines: 2,
+                          maxLines: 1,
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -877,6 +933,61 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     } else {
       showSideBar(context, widget, title: "收藏漫画".tl, useSurfaceTintColor: true);
     }
+  }
+
+  Widget buildBottom() {
+    return Material(
+      elevation: 1,
+      surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+      child: SizedBox(
+        width: double.infinity,
+        height: 64,
+        child: Row(
+          children: [
+            const SizedBox(width: 4,),
+            IconButton(onPressed: download, icon: const Icon(Icons.download)),
+            if(openComments != null)
+              IconButton(onPressed: openComments!, icon: const Icon(Icons.comment)),
+            if(onLike != null)
+              IconButton(onPressed: onLike!, icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border)),
+            GestureDetector(
+              onLongPress: (){
+                var folder = appdata.settings[51];
+                if(LocalFavoritesManager().folderNames.contains(folder)) {
+                  LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
+                  showToast(message: "已收藏".tl);
+                }
+              },
+              child: IconButton(onPressed: openFavoritePanel, icon: const Icon(Icons.bookmark_add_outlined)),
+            ),
+            const Spacer(),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12)
+              ),
+              width: 108,
+              height: 42,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => read(_logic.history),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.play_circle_outline, size: 22,),
+                      const SizedBox(width: 8,),
+                      Text(_logic.history == null ? "开始阅读" : "继续阅读")
+                    ],
+                  ).paddingHorizontal(8),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12,)
+          ],
+        ),
+      ).paddingBottom(MediaQuery.of(context).padding.bottom),
+    );
   }
 }
 

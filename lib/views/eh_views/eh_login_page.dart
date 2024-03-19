@@ -100,7 +100,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
                           height: 40,
                           child: TextButton(
                             onPressed: () async {
-                              if (App.isAndroid || App.isIOS) {
+                              if (App.isAndroid || App.isIOS || App.isMacOS) {
                                 loginWithWebview();
                               } else {
                                 if (await FlutterWindowsWebview.isAvailable()) {
@@ -202,20 +202,18 @@ class _EhLoginPageState extends State<EhLoginPage> {
     App.globalTo(() => AppWebview(
       singlePage: true,
       initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
-      onTitleChange: (title){
+      onTitleChange: (title, controller) async{
         if (title == "E-Hentai Forums") {
+          var cookies = await controller.getCookies("https://e-hentai.org") ?? {};
+          var id = cookies["ipb_member_id"];
+          var hash = cookies["ipb_pass_hash"];
+          var igneous = cookies["igneous"];
+          try {
+            login(id!, hash!, igneous ?? "");
+          } catch (e) {
+            showMessage(App.globalContext, "登录失败".tl);
+          }
           App.back(context);
-        }
-      },
-      onDestroy: (controller) async{
-        var cookies = await controller.getCookies("https://e-hentai.org") ?? {};
-        var id = cookies["ipb_member_id"];
-        var hash = cookies["ipb_pass_hash"];
-        var igneous = cookies["igneous"];
-        try {
-          login(id!, hash!, igneous ?? "");
-        } catch (e) {
-          showMessage(App.globalContext, "登录失败".tl);
         }
       },
     ));

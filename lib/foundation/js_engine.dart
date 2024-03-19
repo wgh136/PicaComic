@@ -23,7 +23,7 @@ class JavaScriptRuntimeException implements Exception {
 
   @override
   String toString() {
-    return "JavaScriptRuntimeException: $message";
+    return "JSException: $message";
   }
 }
 

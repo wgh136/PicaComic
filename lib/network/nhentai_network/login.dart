@@ -40,37 +40,30 @@ void login(void Function() whenFinish) async{
           }
         }
     ));
-  } else if(App.isMobile) {
+  } else if(App.isMobile || App.isMacOS) {
     App.globalTo(() => AppWebview(
       initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       singlePage: true,
-      onTitleChange: (title){
-        // fix https://github.com/wgh136/PicaComic/issues/250.
-        // If the title does not contain "nhentai",
-        // it means that we are currently on the Cloudflare challenge page.
-        // So we couldn't exit Webview.
+      onTitleChange: (title, controller) async{
         if (!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
+          var ua = await controller.getUA();
+          if(ua != null){
+            NhentaiNetwork().ua = ua;
+          }
+          var cookies = await controller.getCookies("${NhentaiNetwork().baseUrl}/") ?? {};
+          List<io.Cookie> cookiesList = [];
+          cookies.forEach((key, value) {
+            var cookie = io.Cookie(key, value);
+            if(key == "sessionid" || key == "XSRF-TOKEN"){
+              NhentaiNetwork().logged = true;
+            }
+            cookie.domain = ".nhentai.net";
+            cookiesList.add(cookie);
+          });
+          await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl), cookiesList);
+          whenFinish();
           App.globalBack();
         }
-      },
-      onDestroy: (controller) async{
-        var ua = await controller.getUA();
-        if(ua != null){
-          NhentaiNetwork().ua = ua;
-        }
-        var cookies = await controller.getCookies("${NhentaiNetwork().baseUrl}/") ?? {};
-        List<io.Cookie> cookiesList = [];
-        cookies.forEach((key, value) {
-          print("$key : $value");
-          var cookie = io.Cookie(key, value);
-          if(key == "sessionid" || key == "XSRF-TOKEN"){
-            NhentaiNetwork().logged = true;
-          }
-          cookie.domain = ".nhentai.net";
-          cookiesList.add(cookie);
-        });
-        await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl), cookiesList);
-        whenFinish();
       },
     ));
   } else {

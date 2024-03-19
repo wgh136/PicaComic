@@ -75,11 +75,10 @@ class _WelcomePageState extends State<WelcomePage> {
                       "感谢使用本软件, 请注意:".tl,
                       style: const TextStyle(fontSize: 16),
                     ),
-                    Text("""
-本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, 与开发者无关.
-此项目与Picacg, e-hentai.org, JmComic, hitomi.la, 紳士漫畫, nhentai无任何关系.
-如果在使用中发现问题, 请先确认是否为自己的设备问题, 然后再进行反馈.""".tl,
-                      style: const TextStyle(fontSize: 16),
+                    Text("本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, "
+                        "与开发者无关.此项目与Picacg, e-hentai.org, JmComic, "
+                        "hitomi.la, 紳士漫畫, nhentai无任何关系.如果在使用中发现问题, "
+                        "请先确认是否为自己的设备问题, 然后再进行反馈.".tl,
                     ),
                     const SizedBox(height: 4,),
                     Row(
@@ -106,7 +105,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       child: buildShowModeSetting(),
                     ),
                     Expanded(
-                      child: buildAppearanceSettings(),
+                      child: buildAppearanceSettings(258),
                     )
                   ],
                 ),
@@ -118,11 +117,9 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             if(!showTwoPanel)
               SizedBox(
-                height: 258,
                 child: buildAppearanceSettings(),
               ),
             SizedBox(
-              //height: 576,
               child: buildReadingSettings(),
             ),
             if(showTwoPanel)
@@ -212,13 +209,13 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  Widget buildAppearanceSettings(){
+  Widget buildAppearanceSettings([double? height]){
     return Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.6),
       child: Container(
         width: double.infinity,
-        height: double.infinity,
+        height: height,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

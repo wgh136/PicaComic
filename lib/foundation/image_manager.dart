@@ -210,7 +210,7 @@ class ImageManager {
         loadingItems[url] = progress;
       }
       await saveInfo(url, savePath);
-      yield DownloadProgress(1, 1, url, savePath);
+      yield DownloadProgress(1, 1, url, savePath, Uint8List.fromList(imageData));
     } catch (e, s) {
       log("$e\n$s", "Network", LogLevel.error);
       rethrow;
@@ -475,16 +475,18 @@ class ImageManager {
         file.deleteSync();
         file.createSync();
       }
+      List<int> data = [];
       await for (var b in stream) {
         file.writeAsBytesSync(b, mode: FileMode.append);
         currentBytes += b.length;
+        data.addAll(b);
         var progress = DownloadProgress(currentBytes,
             (expectedBytes ?? currentBytes) + 1, cacheKey, savePath);
         yield progress;
         loadingItems[cacheKey] = progress;
       }
       await saveInfo(cacheKey, savePath);
-      yield DownloadProgress(1, 1, cacheKey, savePath);
+      yield DownloadProgress(1, 1, cacheKey, savePath, Uint8List.fromList(data));
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
@@ -557,7 +559,9 @@ class ImageManager {
           file.create();
         }
         var currentBytes = 0;
+        var data = <int>[];
         await for (var b in stream) {
+          data.addAll(b);
           file.writeAsBytesSync(b.toList(), mode: FileMode.append);
           currentBytes += b.length;
           var progress = DownloadProgress(
@@ -565,7 +569,8 @@ class ImageManager {
           yield progress;
           loadingItems[image.hash] = progress;
         }
-        yield DownloadProgress(currentBytes, currentBytes, url, savePath);
+        yield DownloadProgress(currentBytes, currentBytes, url, savePath,
+            Uint8List.fromList(data));
       } catch (e) {
         if (file.existsSync()) {
           file.deleteSync();
@@ -668,14 +673,14 @@ class ImageManager {
         file.create();
       }
       if (url.substring(l, r) != ".gif") {
-        await startRecombineAndWriteImage(
+        bytes = await startRecombineAndWriteImage(
             Uint8List.fromList(bytes), epsId, scrambleId, bookId, savePath);
       } else {
-        await startWriteFile(WriteInfo(savePath, bytes));
+        await File(savePath).writeAsBytes(bytes);
       }
       //告知完成
       await saveInfo(urlWithoutParam, savePath);
-      progress = DownloadProgress(1, 1, url, savePath);
+      progress = DownloadProgress(1, 1, url, savePath, Uint8List.fromList(bytes));
       yield progress;
       loadingItems[urlWithoutParam] = progress;
     } catch (e) {
@@ -739,34 +744,16 @@ class DownloadProgress {
   final int _expectedBytes;
   final String url;
   final String savePath;
+  final Uint8List? data;
 
   int get currentBytes => _currentBytes;
   int get expectedBytes => _expectedBytes;
   bool get finished => _currentBytes == _expectedBytes;
 
   const DownloadProgress(
-      this._currentBytes, this._expectedBytes, this.url, this.savePath);
+      this._currentBytes, this._expectedBytes, this.url, this.savePath, [this.data]);
 
   File getFile() => File(savePath);
-}
-
-class WriteInfo {
-  String path;
-  List<int> bytes;
-
-  WriteInfo(this.path, this.bytes);
-}
-
-Future<void> writeData(WriteInfo info) async {
-  var file = File(info.path);
-  if (!file.existsSync()) {
-    file.createSync();
-  }
-  file.writeAsBytesSync(info.bytes);
-}
-
-Future<void> startWriteFile(WriteInfo info) async {
-  return compute(writeData, info);
 }
 
 class ImageExceedError extends Error {

@@ -14,7 +14,8 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
       children: [
         ListTile(
           leading: const Icon(Icons.book),
-          title: Text("默认收藏夹".tl),
+          title: Text("快速收藏".tl),
+          subtitle: Text("长按收藏按钮执行快速收藏".tl),
           trailing: Select(
             initialValue: LocalFavoritesManager()
                 .folderNames
@@ -28,55 +29,28 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             inPopUpWidget: false,
           ),
         ),
-        ListTile(
-          leading: const Icon(Icons.bookmark_add),
-          title: Text("新收藏添加至".tl),
-          trailing: Select(
-            values: ["最后".tl, "最前".tl],
-            initialValue: int.parse(appdata.settings[53]),
-            whenChange: (i) {
-              appdata.settings[53] = i.toString();
-              appdata.updateSettings();
-            },
-          ),
+        SelectSetting(
+          icon: const Icon(Icons.bookmark_add),
+          title: "新收藏添加至".tl,
+          options: ["最后".tl, "最前".tl],
+          settingsIndex: 53,
         ),
-        ListTile(
-          leading: const Icon(Icons.move_up),
-          title: Text("阅读后移动本地收藏至".tl),
-          trailing: Select(
-            values: ["无操作".tl, "最后".tl, "最前".tl],
-            initialValue: int.parse(appdata.settings[54]),
-            whenChange: (i) {
-              appdata.settings[54] = i.toString();
-              appdata.updateSettings();
-            },
-          ),
+        SelectSetting(
+          icon: const Icon(Icons.move_up),
+          title: "阅读后移动本地收藏至".tl,
+          options: ["无操作".tl, "最后".tl, "最前".tl],
+          settingsIndex: 54,
         ),
-        ListTile(
-          leading: const Icon(Icons.touch_app),
-          title: Text("点击时的操作".tl),
-          trailing: Select(
-            values: ["查看信息".tl, "阅读".tl],
-            initialValue: int.parse(appdata.settings[60]),
-            whenChange: (i) {
-              appdata.settings[60] = i.toString();
-              appdata.updateSettings();
-            },
-          ),
+        SelectSetting(
+          icon: const Icon(Icons.touch_app),
+          title: "点击漫画时".tl,
+          options: ["查看信息".tl, "阅读".tl],
+          settingsIndex: 60,
         ),
-        ListTile(
-          leading:
-          const Icon(Icons.library_books_rounded),
-          title: Text("显示本地收藏的数量".tl),
-          trailing: Switch(
-            value: appdata.settings[65] == "1",
-            onChanged: (b){
-              setState(() {
-                appdata.settings[65] = b?"1":"0";
-              });
-              appdata.updateSettings();
-            },
-          ),
+        SwitchSetting(
+          title: "显示收藏数量".tl,
+          settingsIndex: 65,
+          icon: const Icon(Icons.library_books_rounded),
         ),
         ListTile(
           leading: const Icon(Icons.sync),

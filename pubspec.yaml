@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.0.0+300
+version: 3.0.1+300
 environment:
   sdk: '>=3.3.0'
 
@@ -29,7 +29,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: 5.3.3
+  dio: 5.4.1
   shared_preferences: ^2.0.16
   dynamic_color: ^1.6.9
   cupertino_icons: ^1.0.2
@@ -72,12 +72,6 @@ dependencies:
   app_links: 3.4.3
   flutter_reorderable_grid_view: 5.0.0-dev.7
   lottie: any
-  webview_flutter: any
-  webview_cookie_manager:
-    git:
-      url: https://github.com/wgh136/webview_cookie_manager
-      ref: master
-  webview_flutter_android: any
   webdav_client:
     git:
       url: https://github.com/wgh136/webdav_client
@@ -96,6 +90,7 @@ dependencies:
         url: https://github.com/wgh136/flutter_js
   collection: 1.18.0
   bitsdojo_window: 0.1.6
+  flutter_inappwebview: 6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -156,11 +151,6 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-    # Font used in building windows applications
-    #- family: font
-    #  fonts:
-    #    - asset: fonts/NotoSansSC-Regular.otf
-
     - family: font2
       fonts:
         - asset: fonts/Poppins-Regular.ttf
