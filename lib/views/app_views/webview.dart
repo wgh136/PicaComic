@@ -36,14 +36,12 @@ extension WebviewExtension on InAppWebViewController{
 }
 
 class AppWebview extends StatefulWidget {
-  const AppWebview({required this.initialUrl, this.onDestroy, this.onTitleChange,
+  const AppWebview({required this.initialUrl, this.onTitleChange,
     this.onNavigation, this.singlePage = false, super.key});
 
   final String initialUrl;
 
-  final void Function(InAppWebViewController)? onDestroy;
-
-  final void Function(String title)? onTitleChange;
+  final void Function(String title, InAppWebViewController controller)? onTitleChange;
 
   final bool Function(String url)? onNavigation;
 
@@ -59,15 +57,6 @@ class _AppWebviewState extends State<AppWebview> {
   String title = "Webview";
 
   double _progress = 0;
-
-  bool destroy = false;
-
-  @override
-  void dispose() {
-    destroy = true;
-    widget.onDestroy?.call(controller!);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +100,7 @@ class _AppWebviewState extends State<AppWebview> {
             title = t ?? "Webview";
           });
         }
-        widget.onTitleChange?.call(title);
+        widget.onTitleChange?.call(title, controller!);
       },
       shouldOverrideUrlLoading: (c, r) async {
         var res = widget.onNavigation?.call(r.request.url?.path ?? "") ?? false;
@@ -137,8 +126,8 @@ class _AppWebviewState extends State<AppWebview> {
       children: [
         Positioned.fill(child: body),
         if(_progress < 1.0)
-          Positioned.fill(child: Center(
-              child: CircularProgressIndicator(value: _progress,)))
+          const Positioned.fill(child: Center(
+              child: CircularProgressIndicator()))
       ],
     );
 

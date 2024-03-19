@@ -37,27 +37,25 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async {
     App.globalTo(() => AppWebview(
           initialUrl: "${JmNetwork.baseUrl}/album/466419",
           singlePage: true,
-          onTitleChange: (title) {
+          onTitleChange: (title, controller) async{
             if (title.contains("禁漫天堂")) {
+              var ua = await controller.getUA();
+              if (ua != null) {
+                JmNetwork().ua = ua;
+              }
+              var cookies = await controller.getCookies(JmNetwork.baseUrl) ?? {};
+              List<io.Cookie> cookiesList = [];
+              cookies.forEach((key, value) {
+                var cookie = io.Cookie(key, value);
+                cookie.domain = ".${Uri.parse(JmNetwork.baseUrl).host}";
+                cookiesList.add(cookie);
+              });
+              await JmNetwork()
+                  .cookieJar!
+                  .saveFromResponse(Uri.parse(JmNetwork.baseUrl), cookiesList);
+              whenFinish();
               App.globalBack();
             }
-          },
-          onDestroy: (controller) async {
-            var ua = await controller.getUA();
-            if (ua != null) {
-              JmNetwork().ua = ua;
-            }
-            var cookies = await controller.getCookies(JmNetwork.baseUrl) ?? {};
-            List<io.Cookie> cookiesList = [];
-            cookies.forEach((key, value) {
-              var cookie = io.Cookie(key, value);
-              cookie.domain = ".${Uri.parse(JmNetwork.baseUrl).host}";
-              cookiesList.add(cookie);
-            });
-            await JmNetwork()
-                .cookieJar!
-                .saveFromResponse(Uri.parse(JmNetwork.baseUrl), cookiesList);
-            whenFinish();
           },
         ));
   } else {
