@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import '../foundation/app.dart';
 import '../foundation/def.dart';
@@ -47,9 +48,10 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).padding.top,
-          ),
+          if(UiMode.m1(context))
+            SizedBox(
+              height: MediaQuery.of(context).padding.top,
+            ),
           Container(
             height: 56,
             width: double.infinity,
