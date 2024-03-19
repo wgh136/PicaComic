@@ -189,7 +189,7 @@ extension ImageExt on ComicReadingPage {
         scrollController: logic.scrollController,
         scrollBehavior: const MaterialScrollBehavior()
             .copyWith(scrollbars: false, dragDevices: _kTouchLikeDeviceTypes),
-        physics: (logic.noScroll || logic.isCtrlPressed || logic.mouseScroll)
+        physics: (logic.noScroll || logic.isCtrlPressed || (logic.mouseScroll && !App.isMacOS))
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
@@ -484,7 +484,7 @@ extension ImageExt on ComicReadingPage {
             logic.photoViewController.updateMultiple(
                 position: logic.photoViewController.position -
                     Offset(0, pointerSignal.scrollDelta.dy));
-          } else {
+          } else if (!App.isMacOS){
             logic.scrollController.smoothTo(pointerSignal.scrollDelta.dy);
           }
         }
