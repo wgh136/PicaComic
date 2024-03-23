@@ -20,7 +20,6 @@ import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import '../foundation/app.dart';
 import '../foundation/ui_mode.dart';
-import '../network/hitomi_network/hitomi_main_network.dart';
 import 'custom_views/custom_comic_tile.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -69,8 +68,7 @@ class _ExplorePageState extends State<ExplorePage>
         StateController.find<ComicsPageLogic>(tag: JmLatestPage.stateTag)
             .refresh_();
       case "6":
-        StateController.find<HitomiHomePageLogic>(
-                tag: HitomiDataUrls.homePageAll)
+        StateController.find<HitomiHomePageLogic>()
             .refresh_();
       case "7":
         StateController.find<NhentaiHomePageController>().refresh_();
