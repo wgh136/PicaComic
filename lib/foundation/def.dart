@@ -25,15 +25,15 @@ const changePoint = 600;
 const changePoint2 = 1300;
 
 const List<int> colors = [
-  0X42A5F5,
-  0X29B6F6,
-  0X5C6BC0,
-  0XAB47BC,
-  0XEC407A,
-  0X26C6DA,
-  0X26A69A,
-  0XFFEE58,
-  0X8D6E63
+  0XFF42A5F5,
+  0XFF29B6F6,
+  0XFF5C6BC0,
+  0XFFAB47BC,
+  0XFFEC407A,
+  0XFF26C6DA,
+  0XFF26A69A,
+  0XFFFFEE58,
+  0XFF8D6E63
 ];
 
 const serverDomain = "https://api.wgh136.xyz";

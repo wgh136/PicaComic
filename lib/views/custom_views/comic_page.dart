@@ -23,15 +23,18 @@ import '../widgets/side_bar.dart';
 import 'custom_comic_tile.dart';
 
 class CustomComicPage extends ComicPage<ComicInfoData> {
-  const CustomComicPage({required this.sourceKey, required this.id, super.key});
+  const CustomComicPage({required this.sourceKey, required this.id,
+    this.comicCover, super.key});
 
   final String sourceKey;
 
   @override
   final String id;
 
+  final String? comicCover;
+
   @override
-  String get cover => data!.cover;
+  String? get cover => comicCover ?? data?.cover;
 
   void downloadComic() async {
     final downloadId = DownloadManager().generateId(sourceKey, id);
@@ -157,7 +160,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   }
 
   @override
-  String? get title => data!.title;
+  String? get title => data?.title;
 
   @override
   FavoriteItem toLocalFavoriteItem() {

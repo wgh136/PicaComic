@@ -275,10 +275,17 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
   Widget buildCategories() {
     Widget buildItem(String name, int id) {
       final bool selected = id == currentPage;
-      Widget content = Container(
+
+      Widget content = AnimatedContainer(
+        key: ValueKey(id),
+        duration: const Duration(milliseconds: 300),
         width: double.infinity,
         height: 58,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        decoration: BoxDecoration(
+            color: selected ? colors.primaryContainer : null,
+            borderRadius: BorderRadius.circular(16)
+        ),
         child: Row(children: [
           Icon(icons[id]),
           const SizedBox(
@@ -292,14 +299,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           if (selected) const Icon(Icons.arrow_right)
         ]),
       );
-      if(selected){
-        content = Material(
-          borderRadius: BorderRadius.circular(16),
-          color: colors.primaryContainer,
-          elevation: 1,
-          child: content,
-        );
-      }
+
       return Padding(
         padding: enableTwoViews
             ? const EdgeInsets.fromLTRB(16, 0, 16, 0)

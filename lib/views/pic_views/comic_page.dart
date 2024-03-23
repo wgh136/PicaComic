@@ -36,7 +36,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   };
 
   @override
-  String? get likeCount => data!.likes.toString();
+  String? get likeCount => data?.likes.toString();
 
   @override
   bool get isLiked => data!.isLiked;
@@ -83,7 +83,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
   String? get commentsCount => data!.comments.toString();
 
   @override
-  String get cover => getImageUrl(comic.path);
+  String get cover => comic.path;
 
   @override
   void download() {

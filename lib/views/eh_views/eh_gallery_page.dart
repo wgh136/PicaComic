@@ -20,11 +20,16 @@ import '../reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 class EhGalleryPage extends ComicPage<Gallery> {
-  EhGalleryPage(EhGalleryBrief brief, {super.key}) : link = brief.link;
+  EhGalleryPage(EhGalleryBrief brief, {super.key})
+      : link = brief.link, comicCover = brief.coverPath, comicTitle = brief.title;
 
-  const EhGalleryPage.fromLink(this.link, {super.key});
+  const EhGalleryPage.fromLink(this.link, {super.key}): comicCover = null, comicTitle = null;
 
   final String link;
+
+  final String? comicCover;
+
+  final String? comicTitle;
 
   @override
   String get url => link;
@@ -39,7 +44,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
       };
 
   @override
-  String get cover => data!.coverPath;
+  String? get cover => comicCover ?? data?.coverPath;
 
   @override
   EpsData? get eps => null;
@@ -154,10 +159,10 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  String? get title => data!.title;
+  String? get title => comicTitle ?? data?.title;
 
   @override
-  String? get subTitle => data!.subTitle;
+  String? get subTitle => data?.subTitle;
 
   @override
   Card? get uploaderInfo => null;
