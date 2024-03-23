@@ -42,11 +42,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           settingsIndex: 4,
           icon: const Icon(Icons.control_camera),
         ),
-        SwitchSetting(
-          title: "保持屏幕常亮".tl,
-          settingsIndex: 14,
-          icon: const Icon(Icons.screenshot_outlined),
-        ),
         if (App.isAndroid)
           SwitchSetting(
             title: "保持屏幕常亮".tl,

@@ -288,57 +288,59 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Widget buildLoading(BuildContext context) {
     return Shimmer(
-        color: Theme.of(context).colorScheme.surfaceVariant,
-        colorOpacity: 0.5,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 56,
-              child: const BackButton().toAlign(Alignment.centerLeft),
-            ).paddingLeft(8),
-            SizedBox(
-              width: double.infinity,
-              child: buildComicInfo(_logic, context, false),
-            ),
-            const Divider(),
-            SizedBox(
-                width: 100,
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 18,
-                    ),
-                    Text(
-                      "信息".tl,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 18),
-                    )
-                  ],
-                )).paddingBottom(8),
-            Column(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            colorOpacity: 0.5,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(
-                  8,
-                  (index) => Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                        child: Container(
-                          width: double.infinity,
-                          height: 32,
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceVariant
-                                .withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+              children: [
+                SizedBox(
+                  height: 56,
+                  child: const BackButton().toAlign(Alignment.centerLeft),
+                ).paddingLeft(8),
+                SizedBox(
+                  width: double.infinity,
+                  child: buildComicInfo(_logic, context, false),
+                ),
+                const Divider(),
+                SizedBox(
+                    width: 100,
+                    child: Row(
+                      children: [
+                        const SizedBox(
+                          width: 18,
                         ),
-                      )),
-            )
-          ],
-        )).paddingTop(UiMode.m1(context) ? MediaQuery.of(context).padding.top : 0);
+                        Text(
+                          "信息".tl,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 18),
+                        )
+                      ],
+                    )).paddingBottom(8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(
+                      8,
+                      (index) => Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                            child: Container(
+                              width: double.infinity,
+                              height: 32,
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceVariant
+                                    .withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          )),
+                )
+              ],
+            ))
+        .paddingTop(
+            UiMode.m1(context) ? MediaQuery.of(context).padding.top : 0);
   }
 
   Widget buildTitle(ComicPageLogic<T> logic) {
@@ -352,9 +354,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         child: Text(title!),
       ),
       actions: [
-        if (UiMode.m1(context))
-          IconButton(
-              onPressed: showMoreActions, icon: const Icon(Icons.more_horiz))
+        IconButton(
+            onPressed: showMoreActions, icon: const Icon(Icons.more_horiz))
       ],
       pinned: true,
       primary: UiMode.m1(context),
@@ -378,6 +379,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               showToast(message: "已复制".tl, icon: Icons.check);
             },
           ),
+          if (url != null)
+            PopupMenuItem(
+              child: Text("复制链接".tl),
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: url!));
+                showToast(message: "已复制".tl, icon: Icons.check);
+              },
+            ),
           PopupMenuItem(
             child: Text("分享".tl),
             onTap: () {
@@ -388,11 +397,6 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
               Share.share(text);
             },
           ),
-          if (searchSimilar != null)
-            PopupMenuItem(
-              onTap: searchSimilar,
-              child: Text("搜索相似".tl),
-            ),
         ]);
   }
 
@@ -408,6 +412,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(
+                  width: 8,
+                ),
                 buildCover(context, logic, 136, 102),
                 const SizedBox(
                   width: 12,
@@ -427,7 +434,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                       if (subTitle != null)
                         SizedBox(
                           width: double.infinity,
-                          child: Text(subTitle!,
+                          child: SelectableText(subTitle!,
                               style: const TextStyle(fontSize: 14)),
                         ),
                       if (subTitle != null)
@@ -560,7 +567,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     Widget label(String text) =>
         Text(text, style: const TextStyle(fontSize: 13));
 
-    if(title){
+    if (title) {
       _logic.colorIndex++;
     }
 
@@ -593,7 +600,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           child: Card(
             margin: EdgeInsets.zero,
             color: title
-                ? Color(colors[_logic.colorIndex % colors.length]).withOpacity(0.4)
+                ? Color(colors[_logic.colorIndex % colors.length])
+                    .withOpacity(0.3)
                 : ElevationOverlay.applySurfaceTint(
                     colorScheme.surface, colorScheme.surfaceTint, 3),
             shape:
@@ -671,17 +679,11 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             alignment: center ? WrapAlignment.center : WrapAlignment.start,
             children: [
               if (width >= 500 || (width < 500 && logic.history != null))
-                buildItem("从头开始".tl, Icons.not_started_outlined, () => read(null)),
+                buildItem(
+                    "从头开始".tl, Icons.not_started_outlined, () => read(null)),
               if (logic.history != null && width >= 500)
-                buildItem("继续阅读".tl, Icons.menu_book, () => read(logic.history)),
-              buildItem("复制".tl, Icons.copy, () {
-                var text = title!;
-                if (url != null) {
-                  text += ":$url";
-                }
-                Clipboard.setData(ClipboardData(text: text));
-                showToast(message: "已复制".tl, icon: Icons.check);
-              }),
+                buildItem(
+                    "继续阅读".tl, Icons.menu_book, () => read(logic.history)),
               buildItem("分享".tl, Icons.share, () {
                 var text = title!;
                 if (url != null) {
@@ -689,25 +691,27 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 }
                 Share.share(text);
               }),
-              buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel, () {
+              buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel,
+                  () {
                 var folder = appdata.settings[51];
                 if (LocalFavoritesManager().folderNames.contains(folder)) {
-                  LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
+                  LocalFavoritesManager()
+                      .addComic(folder, toLocalFavoriteItem());
                   showToast(message: "已收藏".tl);
                 }
               }),
-              if(width >= 500)
-                buildItem("下载".tl, Icons.download, download),
+              if (width >= 500) buildItem("下载".tl, Icons.download, download),
               if (onLike != null)
                 buildItem(likeCount ?? "喜欢".tl,
                     isLiked ? Icons.favorite : Icons.favorite_border, onLike!),
               if (openComments != null)
-                buildItem(commentsCount ?? "评论".tl, Icons.comment, openComments!),
+                buildItem(
+                    commentsCount ?? "评论".tl, Icons.comment, openComments!),
               if (searchSimilar != null)
                 buildItem("相似".tl, Icons.search, searchSimilar!),
             ],
           ),
-          if(width < 500)
+          if (width < 500)
             SizedBox(
               height: 48,
               child: Row(
@@ -718,7 +722,9 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                       child: Text("下载".tl),
                     ),
                   ),
-                  const SizedBox(width: 16,),
+                  const SizedBox(
+                    width: 16,
+                  ),
                   Expanded(
                     child: FilledButton.tonal(
                       onPressed: () => read(_logic.history),
