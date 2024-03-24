@@ -180,7 +180,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   void starRating(BuildContext context, Map<String, String> auth) {
-    if (appdata.ehId == "") {
+    if (appdata.ehAccount == "") {
       showMessage(context, "未登录".tl);
       return;
     }
