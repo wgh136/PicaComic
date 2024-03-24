@@ -3,12 +3,25 @@ import 'dart:io';
 
 Map<String, dynamic>? translation;
 
+var keys = <String>[];
+
 void main() async{
   var file = File("assets/translation.json");
   var data = await file.readAsString();
   translation = jsonDecode(data);
   find(Directory('lib'));
   file = File("assets/translation.json");
+  translation!.forEach((key, value) {
+    var shouldRemove = <String>[];
+    for (var element in (value as Map<String, dynamic>).keys) {
+      if(!keys.contains(element)){
+        shouldRemove.add(element);
+      }
+    }
+    for (var element in shouldRemove) {
+      value.remove(element);
+    }
+  });
   file.writeAsString(const JsonEncoder.withIndent("  ").convert(translation));
 }
 
@@ -37,6 +50,7 @@ void find(Directory directory){
         var text = match.group(0);
         text = realText(text!);
         if(text.isEmpty)  continue;
+        keys.add(text);
         if(translation!["zh_TW"][text] == null){
           translation!["zh_TW"][text] = "";
         }
@@ -48,6 +62,7 @@ void find(Directory directory){
         var text = match.group(0);
         text = realText(text!);
         if(text.isEmpty)  continue;
+        keys.add(text);
         if(translation!["zh_TW"][text] == null){
           translation!["zh_TW"][text] = "";
         }

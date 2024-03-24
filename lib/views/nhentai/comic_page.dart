@@ -17,9 +17,11 @@ import '../widgets/show_message.dart';
 import 'comments.dart';
 
 class NhentaiComicPage extends ComicPage<NhentaiComic> {
-  const NhentaiComicPage(this._id, {super.key});
+  const NhentaiComicPage(this._id, {super.key, this.comicCover});
 
   final String _id;
+
+  final String? comicCover;
 
   @override
   String get url => "https://nhentai.net/g/$_id/";
@@ -95,7 +97,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
   };
 
   @override
-  String get cover => data!.cover;
+  String? get cover => comicCover ?? data?.cover;
 
   @override
   void download() {
@@ -127,10 +129,10 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
   Future<Res<NhentaiComic>> loadData() => NhentaiNetwork().getComicInfo(_id);
 
   @override
-  int? get pages => int.tryParse(data!.tags["Pages"]?.elementAtOrNull(0) ?? "");
+  int? get pages => int.tryParse(data?.tags["Pages"]?.elementAtOrNull(0) ?? "");
 
   @override
-  String? get subTitle => data!.subTitle;
+  String? get subTitle => data?.subTitle;
 
   @override
   void read(History? history) {
@@ -186,7 +188,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
       ThumbnailsData(data!.thumbnails, (page) async => const Res([]), 1);
 
   @override
-  String? get title => data!.title;
+  String? get title => data?.title;
 
   @override
   Card? get uploaderInfo => null;

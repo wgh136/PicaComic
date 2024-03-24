@@ -23,7 +23,7 @@ class PopUpWidget<T> extends PopupRoute<T>{
     if(!showPopUp){
       height = MediaQuery.of(context).size.height;
     }
-    return Center(
+    return MediaQuery.removePadding(removeTop: true, context: context, child: Center(
       child: Container(
         decoration: showPopUp ? const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -39,7 +39,7 @@ class PopUpWidget<T> extends PopupRoute<T>{
           ),
         ),
       ),
-    );
+    ));
   }
 
   @override

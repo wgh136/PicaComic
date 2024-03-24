@@ -176,7 +176,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
   ThumbnailsData? get thumbnailsCreator => null;
 
   @override
-  String? get title => data!.name;
+  String? get title => data?.name;
 
   @override
   Card? get uploaderInfo => null;

@@ -47,11 +47,6 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
           options: ["查看信息".tl, "阅读".tl],
           settingsIndex: 60,
         ),
-        SwitchSetting(
-          title: "显示收藏数量".tl,
-          settingsIndex: 65,
-          icon: const Icon(Icons.library_books_rounded),
-        ),
         ListTile(
           leading: const Icon(Icons.sync),
           title: Text("下拉更新拉取页数".tl),

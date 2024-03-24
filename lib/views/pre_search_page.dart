@@ -199,7 +199,7 @@ class PreSearchPage extends StatelessWidget {
   void search([String? s, String? type]) {
     var keyword = (s ?? controller.text).trim();
     if (searchController.language != null &&
-        [1, 5].contains(searchController.target)) {
+        ['1', '5'].contains(searchController.target)) {
       keyword += " language:${searchController.language}";
     }
     switch (type ?? searchController.target) {

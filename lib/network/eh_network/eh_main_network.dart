@@ -6,6 +6,7 @@ import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/js.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../base.dart';
 import '../http_client.dart';
 import 'package:html/parser.dart';
@@ -26,21 +27,18 @@ class EhNetwork {
   var folderNames = List.generate(10, (index) => "Favorite $index");
 
   EhNetwork.create() {
-    updateUrl();
     getCookies(true);
   }
 
   ///e-hentai的url
-  var _ehBaseUrl = "https://e-hentai.org";
-
-  ///e-hentai的url
-  String get ehBaseUrl => _ehBaseUrl;
-
-  ///api url
-  var _ehApiUrl = "https://api.e-hentai.org/api.php";
+  String get ehBaseUrl => appdata.settings[20] == "0"
+      ? "https://e-hentai.org"
+      : "https://exhentai.org";
 
   ///api url
-  get ehApiUrl => _ehApiUrl;
+  get ehApiUrl => appdata.settings[20] == "0"
+      ? "https://api.e-hentai.org/api.php"
+      : "https://exhentai.org/api.php";
 
   final cookieJar = PersistCookieJar(
       ignoreExpires: true, storage: FileStorage("${App.dataPath}/eh_cookies"));
@@ -48,51 +46,55 @@ class EhNetwork {
   ///给图片加载使用的cookie
   String cookiesStr = "";
 
-  ///更新画廊站点
-  void updateUrl() {
-    _ehBaseUrl = appdata.settings[20] == "0"
-        ? "https://e-hentai.org"
-        : "https://exhentai.org";
-    _ehApiUrl = appdata.settings[20] == "0"
-        ? "https://api.e-hentai.org/api.php"
-        : "https://exhentai.org/api.php";
-    getCookies(true);
-  }
+  // 用于账号详情页面显示
+  String id = "";
+  String hash = "";
+  String igneous = "";
 
   ///设置请求cookie
   Future<String> getCookies(bool setNW, [String? url]) async {
     url ??= ehBaseUrl;
-    var cookies = await cookieJar.loadForRequest(Uri.parse(url));
-    try {
-      await cookieJar.delete(Uri.parse(url), true);
-    }
-    catch(e){
-      //
-    }
-    cookies.removeWhere((element) =>
-        ["nw", "ipb_member_id", "ipb_pass_hash", "sp"].contains(element.name));
-    cookies.removeWhere(
-        (element) => element.name == "igneous" && element.value == "mystery");
-    var igneousField =
-        cookies.firstWhereOrNull((element) => element.name == "igneous");
-    if (igneousField != null && appdata.igneous != igneousField.value) {
-      appdata.igneous = igneousField.value;
-      appdata.writeData();
-    }
+
     var shouldAdd = [
-      if (setNW) Cookie("nw", "1"),
-      if (appdata.ehId != "") Cookie("ipb_member_id", appdata.ehId),
-      if (appdata.ehPassHash != "") Cookie("ipb_pass_hash", appdata.ehPassHash),
-      if (appdata.igneous != "" && igneousField == null)
-        Cookie("igneous", appdata.igneous),
+      if (setNW) Cookie("nw", "1")
+      else Cookie("nw", "0"),
       if (appdata.settings[75] != "")
         Cookie("sp", appdata.settings[75]),
     ];
-    cookies.addAll(shouldAdd);
-    await cookieJar.saveFromResponse(Uri.parse(url), cookies);
+
+    var cookies = await cookieJar.loadForRequest(Uri.parse(url));
+
+    cookies.removeWhere((element) => element.name == "nw" || element.name == "sp");
+    
+    if(appdata.ehAccount != ""
+        && cookies.every((element) => element.name != "ipb_member_id")){
+      // 迁移旧版本数据
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      id = prefs.getString("ehId") ?? "";
+      hash = prefs.getString("ehPassHash") ?? "";
+      igneous = prefs.getString("ehIgneous") ?? "";
+
+      shouldAdd.add(Cookie("ipb_member_id", id));
+      shouldAdd.add(Cookie("ipb_pass_hash", hash));
+      if(igneous.isNotEmpty) {
+        shouldAdd.add(Cookie("igneous", igneous));
+      }
+    }
+
+    await cookieJar.delete(Uri.parse(url));
+
+    await cookieJar.saveFromResponse(Uri.parse(url), shouldAdd + cookies);
+
     var res = "";
     for (var cookie in cookies) {
       res += "${cookie.name}=${cookie.value}; ";
+      if(cookie.name == "ipb_member_id"){
+        id = cookie.value;
+      } else if(cookie.name == "ipb_pass_hash"){
+        hash = cookie.value;
+      } else if(cookie.name == "igneous"){
+        igneous = cookie.value;
+      }
     }
     if (res.length < 2) {
       return "";
@@ -155,7 +157,7 @@ class EhNetwork {
     Map<String, dynamic> data, {
     Map<String, String>? headers,
   }) async {
-    await getCookies(false, _ehApiUrl);
+    await getCookies(false, ehApiUrl);
     await setNetworkProxy();
 
     try {
@@ -226,8 +228,6 @@ class EhNetwork {
   ///获取用户名, 同时用于检测cookie是否有效
   Future<bool> getUserName() async {
     try {
-      await cookieJar.deleteAll();
-      cookiesStr = "";
       var res = await request("https://forums.e-hentai.org/",
           headers: {
             "referer": "https://forums.e-hentai.org/index.php?",
@@ -243,14 +243,8 @@ class EhNetwork {
 
       var html = parse(res.data);
       var name = html.querySelector("div#userlinks > p.home > b > a");
-      if (name != null) {
-        appdata.ehAccount = name.text;
-        appdata.writeData();
-      } else {
-        appdata.ehId = "";
-        appdata.ehPassHash = "";
-        appdata.igneous = "";
-      }
+      appdata.ehAccount = name?.text ?? "";
+      appdata.updateSettings();
       return name != null;
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
@@ -574,6 +568,15 @@ class EhNetwork {
         var totalPages = document.querySelectorAll("table.ptt > tbody > tr > td > a")
             .where((element) => element.text.isNum).last.text;
         auth["thumbnailKey"] = "large thumbnail: $totalPages";
+      }
+      var archiveDownload = document.querySelectorAll('a')
+          .firstWhereOrNull((element) => element.text == "Archive Download")
+          ?.attributes["onclick"];
+      if(archiveDownload != null){
+        archiveDownload = archiveDownload.split("'")[1];
+        if(archiveDownload.isURL){
+          auth["archiveDownload"] = archiveDownload;
+        }
       }
       return Res(Gallery(
           title,
@@ -899,7 +902,7 @@ class EhNetwork {
   
   /// key - value: id - name
   Future<Res<Map<String, String>>> getProfiles() async{
-    var res = await request("$_ehBaseUrl/uconfig.php", expiredTime: CacheExpiredTime.no);
+    var res = await request("$ehBaseUrl/uconfig.php", expiredTime: CacheExpiredTime.no);
     if(res.error){
       return Res.fromErrorRes(res);
     }
@@ -909,6 +912,55 @@ class EhNetwork {
       return const Res.error("No profiles found");
     } else {
       return Res({ for (var e in options) e.attributes["value"] ?? "" : e.text });
+    }
+  }
+
+  Future<Res<ArchiveDownloadInfo>> getArchiveDownloadInfo(String url) async{
+    var res = await request(url);
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    var document = parse(res.data);
+    var body = document.querySelector("div#db")!;
+    int index = url.contains("exhentai") ? 1 : 3;
+    var origin = body.children[index].children[0];
+    var originCost = origin.querySelector("div > strong")!.text;
+    var originSize = origin.querySelector("p > strong")!.text;
+    var resample = body.children[index].children[1];
+    var resampleCost = resample.querySelector("div > strong")!.text;
+    var resampleSize = resample.querySelector("p > strong")!.text;
+    return Res(ArchiveDownloadInfo(originSize, resampleSize,
+        originCost, resampleCost));
+  }
+
+  Future<Res<String>> getArchiveDownloadLink(String apiUrl, int type) async{
+    try {
+      var data = type == 1
+          ? "dltype=res&dlcheck=Download+Original+Archive"
+          : "dltype=res&dlcheck=Download+Resample+Archive";
+      var res = await post(apiUrl, data, headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      });
+      if (res.error) {
+        return Res.fromErrorRes(res);
+      }
+      var document = parse(res.data);
+      var link = document
+          .querySelector("a")
+          ?.attributes["href"];
+      if (link == null) {
+        return const Res.error("Failed to get download link");
+      }
+      var res2 = await Dio().get<String>(link);
+      document = parse(res2.data);
+      var link2 = document
+          .querySelector("a")
+          ?.attributes["href"];
+      var host = Uri.parse(link).host;
+      return Res("https://$host$link2");
+    }
+    catch(e){
+      return Res.error(e.toString());
     }
   }
 }

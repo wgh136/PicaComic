@@ -1,11 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/net_fav_to_local.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
@@ -87,19 +90,17 @@ class _ChooseNetworkFolderWidgetState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("选择收藏夹".tl),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-                onPressed: () => App.globalBack(),
-                icon: const Icon(Icons.close)),
-          )
-        ],
-      ),
       body: Column(
         children: [
+          CustomAppbar(title: Text("选择收藏夹".tl),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: IconButton(
+                    onPressed: () => App.globalBack(),
+                    icon: const Icon(Icons.close)),
+              )
+            ],),
           Expanded(
             child: SingleChildScrollView(
               child: ExpansionPanelList(
@@ -136,7 +137,9 @@ class _ChooseNetworkFolderWidgetState
                 ),
               ],
             ),
-          )
+          ),
+          if(UiMode.m1(context))
+            SizedBox(height: MediaQuery.of(context).padding.bottom)
         ],
       ),
     );

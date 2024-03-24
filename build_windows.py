@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 fontUse = '''
     - family: font
@@ -17,3 +18,9 @@ subprocess.run(["flutter", "build", "windows"], shell=True)
 
 file = open('pubspec.yaml', 'w')
 file.write(content)
+
+os.remove("build/app-windows.zip")
+
+# 压缩build/windows/x64/runner/Release, 生成app-windows.zip, 使用tar命令
+subprocess.run(["tar", "-a", "-c", "-f", "build/app-windows.zip", "-C", "build/windows/x64/runner/Release", "."]
+               , shell=True)

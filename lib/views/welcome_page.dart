@@ -75,9 +75,9 @@ class _WelcomePageState extends State<WelcomePage> {
                       "感谢使用本软件, 请注意:".tl,
                       style: const TextStyle(fontSize: 16),
                     ),
-                    Text("本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, "
-                        "与开发者无关.此项目与Picacg, e-hentai.org, JmComic, "
-                        "hitomi.la, 紳士漫畫, nhentai无任何关系.如果在使用中发现问题, "
+                    Text("本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, ".tl+
+                        "与开发者无关.此项目与Picacg, e-hentai.org, JmComic, ".tl+
+                        "hitomi.la, 紳士漫畫, nhentai无任何关系.如果在使用中发现问题, ".tl+
                         "请先确认是否为自己的设备问题, 然后再进行反馈.".tl,
                     ),
                     const SizedBox(height: 4,),

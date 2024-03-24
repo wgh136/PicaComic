@@ -200,12 +200,6 @@ class DownloadManager{
       data["downloading"].add(item.toMap());
     }
     var file = File("$path${pathSep}newDownload.json");
-    if(! file.existsSync()){
-      await file.create();
-    }else{
-     await file.delete();
-     await file.create();
-    }
     await file.writeAsString(const JsonEncoder().convert(data));
   }
 
@@ -240,11 +234,11 @@ class DownloadManager{
   }
 
   ///添加E-Hentai下载
-  void addEhDownload(Gallery gallery){
+  void addEhDownload(Gallery gallery, [int type = 0]){
     final id = getGalleryId(gallery.link);
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(EhDownloadingItem(gallery, path!, _whenFinish, _whenError, _saveInfo, id));
+    downloading.addLast(EhDownloadingItem(gallery, path!, _whenFinish, _whenError, _saveInfo, id, type));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();

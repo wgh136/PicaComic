@@ -43,16 +43,15 @@ void main(){
         final win = appWindow;
         var file = File("${App.dataPath}/window_placement");
         win.minSize = const Size(600, 400);
+        win.alignment = Alignment.center;
         if(file.existsSync()){
           var data = file.readAsStringSync().split('/');
           if(data.length < 4){
             data = const ['','','',''];
           }
           win.size = Size(double.tryParse(data[0]) ?? 600, double.tryParse(data[1]) ?? 400);
-          win.position = Offset(double.tryParse(data[2]) ?? 10, double.tryParse(data[3]) ?? 10);
         } else {
           win.size = const Size(900, 720);
-          win.alignment = Alignment.center;
         }
         win.title = "Pica Comic";
         win.show();

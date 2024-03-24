@@ -471,18 +471,18 @@ class AccountsPage extends StatelessWidget {
       yield ExpansionTile(title: const Text("cookies"), shape: const RoundedRectangleBorder(), children: [
         ListTile(
           title: const Text("ipb_member_id"),
-          subtitle: Text(appdata.ehId),
-          onTap: () => setClipboard(appdata.ehId),
+          subtitle: Text(EhNetwork().id),
+          onTap: () => setClipboard(EhNetwork().id),
         ),
         ListTile(
           title: const Text("ipb_pass_hash"),
-          subtitle: Text(appdata.ehPassHash),
-          onTap: () => setClipboard(appdata.ehPassHash),
+          subtitle: Text(EhNetwork().hash),
+          onTap: () => setClipboard(EhNetwork().hash),
         ),
         ListTile(
           title: const Text("igneous"),
-          subtitle: Text(appdata.igneous),
-          onTap: () => setClipboard(appdata.igneous),
+          subtitle: Text(EhNetwork().igneous),
+          onTap: () => setClipboard(EhNetwork().igneous),
         ),
       ]);
     }
@@ -499,11 +499,9 @@ class AccountsPage extends StatelessWidget {
       yield ListTile(
         title: Text("退出登录".tl),
         onTap: () {
-          appdata.ehPassHash = "";
-          appdata.ehId = "";
           appdata.ehAccount = "";
-          appdata.igneous = "";
           appdata.writeData();
+          EhNetwork().cookieJar.deleteAll();
           logic.update();
         },
         trailing: const Icon(Icons.logout),

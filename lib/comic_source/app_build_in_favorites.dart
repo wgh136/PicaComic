@@ -48,6 +48,11 @@ final htFavorites = FavoriteData(
     addFolder: (name) async{
       var res = await HtmangaNetwork().createFolder(name);
       return res ? const Res(true) : const Res(false, errorMessage: "Network Error");
+    },
+    addOrDelFavorite: (id, folder, isAdding) async{
+      if(isAdding)  return const Res.error("invalid");
+      var res = await HtmangaNetwork().delFavorite(id);
+      return res;
     }
 );
 

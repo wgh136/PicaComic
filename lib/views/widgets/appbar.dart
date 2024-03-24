@@ -45,12 +45,14 @@ class CustomAppbar extends StatelessWidget {
               width: 24,
             ),
             Expanded(
-              child: Material(
-                textStyle: Theme.of(context).textTheme.headlineSmall,
+              child: DefaultTextStyle(
+                style: DefaultTextStyle.of(context).style.copyWith(
+                    fontSize: 20),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 child: title,
               ),
             ),
-            const Spacer(),
             ...?actions,
             const SizedBox(
               width: 8,

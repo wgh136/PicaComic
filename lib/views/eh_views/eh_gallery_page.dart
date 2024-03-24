@@ -20,11 +20,16 @@ import '../reader/goto_reader.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
 class EhGalleryPage extends ComicPage<Gallery> {
-  EhGalleryPage(EhGalleryBrief brief, {super.key}) : link = brief.link;
+  EhGalleryPage(EhGalleryBrief brief, {super.key})
+      : link = brief.link, comicCover = brief.coverPath, comicTitle = brief.title;
 
-  const EhGalleryPage.fromLink(this.link, {super.key});
+  const EhGalleryPage.fromLink(this.link, {super.key}): comicCover = null, comicTitle = null;
 
   final String link;
+
+  final String? comicCover;
+
+  final String? comicTitle;
 
   @override
   String get url => link;
@@ -39,7 +44,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
       };
 
   @override
-  String get cover => data!.coverPath;
+  String? get cover => comicCover ?? data?.coverPath;
 
   @override
   EpsData? get eps => null;
@@ -154,10 +159,10 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  String? get title => data!.title;
+  String? get title => comicTitle ?? data?.title;
 
   @override
-  String? get subTitle => data!.subTitle;
+  String? get subTitle => data?.subTitle;
 
   @override
   Card? get uploaderInfo => null;
@@ -175,7 +180,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   void starRating(BuildContext context, Map<String, String> auth) {
-    if (appdata.ehId == "") {
+    if (appdata.ehAccount == "") {
       showMessage(context, "未登录".tl);
       return;
     }
@@ -286,19 +291,97 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   void download() {
+    int current = 0;
+    bool loading = true;
+    ArchiveDownloadInfo? info;
+
+    showDialog(context: context, builder: (context) => Dialog(
+      child: StatefulBuilder(builder: (context, setState) {
+        void load() async{
+          if(data?.auth?["archiveDownload"] == null){
+            return;
+          }
+
+          var res = await EhNetwork().getArchiveDownloadInfo(data!.auth!["archiveDownload"]!);
+          if(res.error){
+            showToast(message: "网络错误".tl);
+          } else {
+            info = res.data;
+            loading = false;
+            setState((){});
+          }
+        }
+
+        if(loading){
+          load();
+        }
+
+        return Container(
+          width: 350,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("下载".tl, style: const TextStyle(fontSize: 20)).paddingLeft(16),
+              const Divider(),
+              RadioListTile(
+                  value: 0,
+                  groupValue: current,
+                  onChanged: (value) => setState(() => current = value as int),
+                  title: Text("普通下载".tl)
+              ),
+              ExpansionTile(
+                title: Text("归档下载".tl),
+                shape: Border.all(color: Colors.transparent),
+                children: [
+                  if(loading)
+                    const CircularProgressIndicator().paddingVertical(8).toCenter()
+                  else
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RadioListTile(
+                            value: 1,
+                            groupValue: current,
+                            onChanged: (value) => setState(() => current = value as int),
+                            title: Text("Original".tl),
+                            subtitle: Text("${info!.originCost} ${info!.originSize}"),
+                        ),
+                        RadioListTile(
+                            value: 2,
+                            groupValue: current,
+                            onChanged: (value) => setState(() => current = value as int),
+                            title: Text("Resample".tl),
+                            subtitle: Text("${info!.resampleCost} ${info!.resampleSize}"),
+                        ),
+                      ],
+                    )
+              ],),
+              FilledButton(onPressed: () {
+                startDownload(current);
+                App.back(context);
+              }, child: Text("确认".tl)).toCenter()
+            ],
+          ),
+        );
+      },),));
+  }
+
+  void startDownload(int type) {
     final id = getGalleryId(data!.link);
     if (downloadManager.downloaded.contains(id)) {
-      showMessage(context, "已下载".tl);
+      showToast(message: "已下载".tl);
       return;
     }
     for (var i in downloadManager.downloading) {
       if (i.id == id) {
-        showMessage(context, "下载中".tl);
+        showToast(message: "下载中".tl);
         return;
       }
     }
-    downloadManager.addEhDownload(data!);
-    showMessage(context, "已加入下载队列".tl);
+    downloadManager.addEhDownload(data!, type);
+    showToast(message: "已加入队列".tl);
   }
 
   @override

@@ -133,10 +133,7 @@ class Appdata {
   String picacgPassword = "";
 
   //eh相关信息
-  String ehId = "";
-  String ehPassHash = "";
   String ehAccount = "";
-  String igneous = "";
 
   //jm相关信息
   String jmName = "";
@@ -247,12 +244,9 @@ class Appdata {
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
     await s.setString("image", imageQuality);
-    await s.setString("ehId", ehId);
     await s.setString("ehAccount", ehAccount);
-    await s.setString("ehPassHash", ehPassHash);
     await s.setString("jmName", jmName);
     await s.setString("jmPwd", jmPwd);
-    await s.setString("ehIgneous", igneous);
     await s.setString("picacgAccount", picacgAccount);
     await s.setString("picacgPassword", picacgPassword);
     await s.setString("htName", htName);
@@ -293,10 +287,7 @@ class Appdata {
         }
       }
       imageQuality = s.getString("image") ?? "original";
-      ehId = s.getString("ehId") ?? "";
       ehAccount = s.getString("ehAccount") ?? "";
-      ehPassHash = s.getString("ehPassHash") ?? "";
-      igneous = s.getString("ehIgneous") ?? "";
       jmName = s.getString("jmName") ?? "";
       jmPwd = s.getString("jmPwd") ?? "";
       picacgAccount = s.getString("picacgAccount") ?? "";
@@ -316,10 +307,7 @@ class Appdata {
         "picacgAccount": picacgAccount,
         "picacgPassword": picacgPassword,
         "token": token,
-        "ehId": ehId,
-        "ehPassHash": ehPassHash,
         "ehAccount": ehAccount,
-        "igneous": igneous,
         "jmName": jmName,
         "jmPwd": jmPwd,
         "htName": htName,
@@ -343,10 +331,7 @@ class Appdata {
       picacgAccount = json["picacgAccount"];
       picacgPassword = json["picacgPassword"];
       token = json["token"];
-      ehId = json["ehId"];
-      ehPassHash = json["ehPassHash"];
       ehAccount = json["ehAccount"];
-      igneous = json["igneous"];
       jmName = json["jmName"];
       jmPwd = json["jmPwd"];
       htName = json["htName"];

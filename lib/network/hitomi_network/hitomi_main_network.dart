@@ -79,7 +79,9 @@ class HiNetwork{
       var artist = comicDiv.querySelector("div.artist-list a")?.text??"N/A";
       String cover;
       try {
-        cover = comicDiv.querySelector("div.dj-img1 > picture > source")!
+        cover = comicDiv.querySelector("div.dj-img1 > picture > source")
+            ?.attributes["data-srcset"] ??
+            comicDiv.querySelector("div.cg-img1 > picture > source")!
             .attributes["data-srcset"]!;
         cover = cover.substring(2);
         cover = "https://a$cover";
@@ -180,7 +182,7 @@ class HiNetwork{
       List<int>.from(json["related"]),
       json["type"],
       List<String>.from((json["artists"]??[]).map((e) => e["artist"]).toList()),
-      json["language_localname"],
+      json["language_localname"] ?? "",
       tags,
       json["date"],
       files,

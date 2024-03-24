@@ -395,7 +395,7 @@ class _FavoriteFolder extends ComicsPage<BaseComic>{
     "picacg" => ComicType.picacg,
     "ehentai" => ComicType.ehentai,
     "jm" => ComicType.jm,
-    "htmanga" => ComicType.htManga,
+    "htmanga" => ComicType.htFavorite,
     "nhentai" => ComicType.nhentai,
     _ => ComicType.other
   };

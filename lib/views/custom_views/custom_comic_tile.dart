@@ -28,7 +28,8 @@ class CustomComicTile extends ComicTile{
 
   @override
   void onTap_() {
-    MainPage.to(() => CustomComicPage(sourceKey: comic.sourceKey, id: comic.id));
+    MainPage.to(() => CustomComicPage(sourceKey: comic.sourceKey, id: comic.id,
+      comicCover: comic.cover,));
   }
 
   @override
