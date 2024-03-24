@@ -26,38 +26,24 @@ class EhNetwork {
   var folderNames = List.generate(10, (index) => "Favorite $index");
 
   EhNetwork.create() {
-    updateUrl();
     getCookies(true);
   }
 
   ///e-hentai的url
-  var _ehBaseUrl = "https://e-hentai.org";
-
-  ///e-hentai的url
-  String get ehBaseUrl => _ehBaseUrl;
-
-  ///api url
-  var _ehApiUrl = "https://api.e-hentai.org/api.php";
+  String get ehBaseUrl => appdata.settings[20] == "0"
+      ? "https://e-hentai.org"
+      : "https://exhentai.org";
 
   ///api url
-  get ehApiUrl => _ehApiUrl;
+  get ehApiUrl => appdata.settings[20] == "0"
+      ? "https://api.e-hentai.org/api.php"
+      : "https://exhentai.org/api.php";
 
   final cookieJar = PersistCookieJar(
       ignoreExpires: true, storage: FileStorage("${App.dataPath}/eh_cookies"));
 
   ///给图片加载使用的cookie
   String cookiesStr = "";
-
-  ///更新画廊站点
-  void updateUrl() {
-    _ehBaseUrl = appdata.settings[20] == "0"
-        ? "https://e-hentai.org"
-        : "https://exhentai.org";
-    _ehApiUrl = appdata.settings[20] == "0"
-        ? "https://api.e-hentai.org/api.php"
-        : "https://exhentai.org/api.php";
-    getCookies(true);
-  }
 
   ///设置请求cookie
   Future<String> getCookies(bool setNW, [String? url]) async {
@@ -155,7 +141,7 @@ class EhNetwork {
     Map<String, dynamic> data, {
     Map<String, String>? headers,
   }) async {
-    await getCookies(false, _ehApiUrl);
+    await getCookies(false, ehApiUrl);
     await setNetworkProxy();
 
     try {
@@ -575,6 +561,15 @@ class EhNetwork {
             .where((element) => element.text.isNum).last.text;
         auth["thumbnailKey"] = "large thumbnail: $totalPages";
       }
+      var archiveDownload = document.querySelectorAll('a')
+          .firstWhereOrNull((element) => element.text == "Archive Download")
+          ?.attributes["onclick"];
+      if(archiveDownload != null){
+        archiveDownload = archiveDownload.split("'")[1];
+        if(archiveDownload.isURL){
+          auth["archiveDownload"] = archiveDownload;
+        }
+      }
       return Res(Gallery(
           title,
           type,
@@ -899,7 +894,7 @@ class EhNetwork {
   
   /// key - value: id - name
   Future<Res<Map<String, String>>> getProfiles() async{
-    var res = await request("$_ehBaseUrl/uconfig.php", expiredTime: CacheExpiredTime.no);
+    var res = await request("$ehBaseUrl/uconfig.php", expiredTime: CacheExpiredTime.no);
     if(res.error){
       return Res.fromErrorRes(res);
     }
@@ -909,6 +904,55 @@ class EhNetwork {
       return const Res.error("No profiles found");
     } else {
       return Res({ for (var e in options) e.attributes["value"] ?? "" : e.text });
+    }
+  }
+
+  Future<Res<ArchiveDownloadInfo>> getArchiveDownloadInfo(String url) async{
+    var res = await request(url);
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    var document = parse(res.data);
+    var body = document.querySelector("div#db")!;
+    int index = url.contains("exhentai") ? 1 : 3;
+    var origin = body.children[index].children[0];
+    var originCost = origin.querySelector("div > strong")!.text;
+    var originSize = origin.querySelector("p > strong")!.text;
+    var resample = body.children[index].children[1];
+    var resampleCost = resample.querySelector("div > strong")!.text;
+    var resampleSize = resample.querySelector("p > strong")!.text;
+    return Res(ArchiveDownloadInfo(originSize, resampleSize,
+        originCost, resampleCost));
+  }
+
+  Future<Res<String>> getArchiveDownloadLink(String apiUrl, int type) async{
+    try {
+      var data = type == 1
+          ? "dltype=res&dlcheck=Download+Original+Archive"
+          : "dltype=res&dlcheck=Download+Resample+Archive";
+      var res = await post(apiUrl, data, headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      });
+      if (res.error) {
+        return Res.fromErrorRes(res);
+      }
+      var document = parse(res.data);
+      var link = document
+          .querySelector("a")
+          ?.attributes["href"];
+      if (link == null) {
+        return const Res.error("Failed to get download link");
+      }
+      var res2 = await Dio().get<String>(link);
+      document = parse(res2.data);
+      var link2 = document
+          .querySelector("a")
+          ?.attributes["href"];
+      var host = Uri.parse(link).host;
+      return Res("https://$host$link2");
+    }
+    catch(e){
+      return Res.error(e.toString());
     }
   }
 }

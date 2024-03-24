@@ -291,19 +291,97 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   void download() {
+    int current = 0;
+    bool loading = true;
+    ArchiveDownloadInfo? info;
+
+    showDialog(context: context, builder: (context) => Dialog(
+      child: StatefulBuilder(builder: (context, setState) {
+        void load() async{
+          if(data?.auth?["archiveDownload"] == null){
+            return;
+          }
+
+          var res = await EhNetwork().getArchiveDownloadInfo(data!.auth!["archiveDownload"]!);
+          if(res.error){
+            showToast(message: "网络错误".tl);
+          } else {
+            info = res.data;
+            loading = false;
+            setState((){});
+          }
+        }
+
+        if(loading){
+          load();
+        }
+
+        return Container(
+          width: 350,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("下载".tl, style: const TextStyle(fontSize: 20)).paddingLeft(16),
+              const Divider(),
+              RadioListTile(
+                  value: 0,
+                  groupValue: current,
+                  onChanged: (value) => setState(() => current = value as int),
+                  title: Text("普通下载".tl)
+              ),
+              ExpansionTile(
+                title: Text("归档下载".tl),
+                shape: Border.all(color: Colors.transparent),
+                children: [
+                  if(loading)
+                    const CircularProgressIndicator().paddingVertical(8).toCenter()
+                  else
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RadioListTile(
+                            value: 1,
+                            groupValue: current,
+                            onChanged: (value) => setState(() => current = value as int),
+                            title: Text("Original".tl),
+                            subtitle: Text("${info!.originCost} ${info!.originSize}"),
+                        ),
+                        RadioListTile(
+                            value: 2,
+                            groupValue: current,
+                            onChanged: (value) => setState(() => current = value as int),
+                            title: Text("Resample".tl),
+                            subtitle: Text("${info!.resampleCost} ${info!.resampleSize}"),
+                        ),
+                      ],
+                    )
+              ],),
+              FilledButton(onPressed: () {
+                startDownload(current);
+                App.back(context);
+              }, child: Text("确认".tl)).toCenter()
+            ],
+          ),
+        );
+      },),));
+  }
+
+  void startDownload(int type) {
     final id = getGalleryId(data!.link);
     if (downloadManager.downloaded.contains(id)) {
-      showMessage(context, "已下载".tl);
+      showToast(message: "已下载".tl);
       return;
     }
     for (var i in downloadManager.downloading) {
       if (i.id == id) {
-        showMessage(context, "下载中".tl);
+        showToast(message: "下载中".tl);
         return;
       }
     }
-    downloadManager.addEhDownload(data!);
-    showMessage(context, "已加入下载队列".tl);
+    downloadManager.addEhDownload(data!, type);
+    showToast(message: "已加入队列".tl);
   }
 
   @override

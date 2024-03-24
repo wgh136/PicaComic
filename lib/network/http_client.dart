@@ -76,6 +76,14 @@ Future<void> setNetworkProxy() async{
   }
 }
 
+void setProxy(String? proxy){
+  if(proxy != null) {
+    proxy = "PROXY $proxy;";
+  }
+  var proxyHttpOverrides = ProxyHttpOverrides(proxy);
+  HttpOverrides.global = proxyHttpOverrides;
+}
+
 class ProxyHttpOverrides extends HttpOverrides {
   String? proxy;
   ProxyHttpOverrides(this.proxy);

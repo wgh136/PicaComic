@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:pica_comic/network/app_dio.dart';
-import 'package:pica_comic/tools/extensions.dart';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
+import 'app_dio.dart';
 import 'download.dart';
 
 abstract class DownloadedItem{
@@ -147,7 +147,7 @@ abstract class DownloadingItem{
     try{
       await onStart();
       if(_runtimeKey != currentKey)  return;
-      notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
+      notifications.sendProgressNotification(downloadedPages, totalPages, "下载中".tl,
           "${downloadManager.downloading.length} Tasks");
 
       // get image links and cover
@@ -159,7 +159,7 @@ abstract class DownloadingItem{
         int ep = links!.keys.elementAt(_downloadingEp);
         var urls = links![ep]!;
         while(index < urls.length && currentKey == _runtimeKey){
-          notifications.sendProgressNotification(_downloadedNum, totalPages, "下载中".tl,
+          notifications.sendProgressNotification(downloadedPages, totalPages, "下载中".tl,
               "${downloadManager.downloading.length} Tasks");
           for(int i=0; i<allowedLoadingNumbers; i++){
             if(index+i >= urls.length)  break;

@@ -183,3 +183,13 @@ class EhImageLimit{
 
   const EhImageLimit(this.current, this.max, this.resetCost, this.kGP, this.credits);
 }
+
+class ArchiveDownloadInfo{
+  final String originSize;
+  final String resampleSize;
+  final String originCost;
+  final String resampleCost;
+
+  const ArchiveDownloadInfo(this.originSize,
+      this.resampleSize, this.originCost, this.resampleCost);
+}

@@ -31,7 +31,6 @@ class _EhSettingsState extends State<EhSettings> {
                 whenChange: (i) {
                   appdata.settings[20] = i.toString();
                   appdata.updateSettings();
-                  EhNetwork().updateUrl();
                 },
                 inPopUpWidget: widget.popUp,
               ),

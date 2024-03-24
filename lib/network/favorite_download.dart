@@ -43,7 +43,7 @@ class FavoriteDownloading extends DownloadingItem{
       case 1: {
         var gallery = await EhNetwork().getGalleryInfo(comic.target);
         downloadLogic = EhDownloadingItem(gallery.data, path,
-            whenFinish, whenError, updateInfo, id);
+            whenFinish, whenError, updateInfo, id, 0);
       }
       case 2: {
         var jmComic = await JmNetwork().getComicInfo(comic.target);
