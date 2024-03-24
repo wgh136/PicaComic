@@ -936,7 +936,7 @@ class EhNetwork {
   Future<Res<String>> getArchiveDownloadLink(String apiUrl, int type) async{
     try {
       var data = type == 1
-          ? "dltype=res&dlcheck=Download+Original+Archive"
+          ? "dltype=org&dlcheck=Download+Original+Archive"
           : "dltype=res&dlcheck=Download+Resample+Archive";
       var res = await post(apiUrl, data, headers: {
         "content-type": "application/x-www-form-urlencoded",
