@@ -917,20 +917,26 @@ class EhNetwork {
 
   Future<Res<ArchiveDownloadInfo>> getArchiveDownloadInfo(String url) async{
     var res = await request(url);
-    if(res.error){
+    if (res.error) {
       return Res.fromErrorRes(res);
     }
-    var document = parse(res.data);
-    var body = document.querySelector("div#db")!;
-    int index = url.contains("exhentai") ? 1 : 3;
-    var origin = body.children[index].children[0];
-    var originCost = origin.querySelector("div > strong")!.text;
-    var originSize = origin.querySelector("p > strong")!.text;
-    var resample = body.children[index].children[1];
-    var resampleCost = resample.querySelector("div > strong")!.text;
-    var resampleSize = resample.querySelector("p > strong")!.text;
-    return Res(ArchiveDownloadInfo(originSize, resampleSize,
-        originCost, resampleCost));
+    try {
+      var document = parse(res.data);
+      var body = document.querySelector("div#db")!;
+      int index = url.contains("exhentai") ? 1 : 3;
+      var origin = body.children[index].children[0];
+      var originCost = origin.querySelector("div > strong")!.text;
+      var originSize = origin.querySelector("p > strong")!.text;
+      var resample = body.children[index].children[1];
+      var resampleCost = resample.querySelector("div > strong")!.text;
+      var resampleSize = resample.querySelector("p > strong")!.text;
+      return Res(ArchiveDownloadInfo(originSize, resampleSize,
+          originCost, resampleCost));
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s\n${res.data}");
+      return Res.error(e.toString());
+    }
   }
 
   Future<Res<String>> getArchiveDownloadLink(String apiUrl, int type) async{
