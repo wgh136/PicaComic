@@ -244,7 +244,7 @@ class EhNetwork {
       var html = parse(res.data);
       var name = html.querySelector("div#userlinks > p.home > b > a");
       appdata.ehAccount = name?.text ?? "";
-      appdata.updateSettings();
+      appdata.writeData();
       return name != null;
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
