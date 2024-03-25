@@ -11,7 +11,11 @@ final picacgFavorites = FavoriteData(
     title: "Picacg",
     multiFolder: false,
     loadComic: (i, [folder]) => PicacgNetwork().getFavorites(i, appdata.settings[30]=="1"),
-    loadFolders: null
+    loadFolders: null,
+    addOrDelFavorite: (id, folder, isAdding) async{
+      var res = await PicacgNetwork().favouriteOrUnfavouriteComic(id);
+      return res ? const Res(true) : const Res(false, errorMessage: "Network Error");
+    }
 );
 
 /// eh较为特殊, 写统一接口有点麻烦, 不要使用这个进行构建页面
@@ -31,7 +35,12 @@ final jmFavorites = FavoriteData(
     loadFolders: () => JmNetwork().getFolders(),
     deleteFolder: (id) => JmNetwork().deleteFolder(id),
     addFolder: (name) => JmNetwork().createFolder(name),
-    allFavoritesId: "0"
+    allFavoritesId: "0",
+    addOrDelFavorite: (id, folder, isAdding) async{
+      if(isAdding)  return const Res.error("invalid");
+      var res = await JmNetwork().favorite(id, folder);
+      return res;
+    }
 );
 
 final htFavorites = FavoriteData(
@@ -61,5 +70,5 @@ final nhentaiFavorites = FavoriteData(
     title: "nhentai",
     multiFolder: false,
     loadComic: (i, [folder]) => NhentaiNetwork().getFavorites(i),
-    loadFolders: null
+    loadFolders: null,
 );

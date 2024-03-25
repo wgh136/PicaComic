@@ -307,7 +307,6 @@ class Appdata {
         "picacgAccount": picacgAccount,
         "picacgPassword": picacgPassword,
         "token": token,
-        "ehAccount": ehAccount,
         "jmName": jmName,
         "jmPwd": jmPwd,
         "htName": htName,
@@ -331,7 +330,6 @@ class Appdata {
       picacgAccount = json["picacgAccount"];
       picacgPassword = json["picacgPassword"];
       token = json["token"];
-      ehAccount = json["ehAccount"];
       jmName = json["jmName"];
       jmPwd = json["jmPwd"];
       htName = json["htName"];

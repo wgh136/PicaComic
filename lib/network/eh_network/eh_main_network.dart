@@ -244,7 +244,7 @@ class EhNetwork {
       var html = parse(res.data);
       var name = html.querySelector("div#userlinks > p.home > b > a");
       appdata.ehAccount = name?.text ?? "";
-      appdata.updateSettings();
+      appdata.writeData();
       return name != null;
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
@@ -917,26 +917,32 @@ class EhNetwork {
 
   Future<Res<ArchiveDownloadInfo>> getArchiveDownloadInfo(String url) async{
     var res = await request(url);
-    if(res.error){
+    if (res.error) {
       return Res.fromErrorRes(res);
     }
-    var document = parse(res.data);
-    var body = document.querySelector("div#db")!;
-    int index = url.contains("exhentai") ? 1 : 3;
-    var origin = body.children[index].children[0];
-    var originCost = origin.querySelector("div > strong")!.text;
-    var originSize = origin.querySelector("p > strong")!.text;
-    var resample = body.children[index].children[1];
-    var resampleCost = resample.querySelector("div > strong")!.text;
-    var resampleSize = resample.querySelector("p > strong")!.text;
-    return Res(ArchiveDownloadInfo(originSize, resampleSize,
-        originCost, resampleCost));
+    try {
+      var document = parse(res.data);
+      var body = document.querySelector("div#db")!;
+      int index = url.contains("exhentai") ? 1 : 3;
+      var origin = body.children[index].children[0];
+      var originCost = origin.querySelector("div > strong")!.text;
+      var originSize = origin.querySelector("p > strong")!.text;
+      var resample = body.children[index].children[1];
+      var resampleCost = resample.querySelector("div > strong")!.text;
+      var resampleSize = resample.querySelector("p > strong")!.text;
+      return Res(ArchiveDownloadInfo(originSize, resampleSize,
+          originCost, resampleCost));
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s\n${res.data}");
+      return Res.error(e.toString());
+    }
   }
 
   Future<Res<String>> getArchiveDownloadLink(String apiUrl, int type) async{
     try {
       var data = type == 1
-          ? "dltype=res&dlcheck=Download+Original+Archive"
+          ? "dltype=org&dlcheck=Download+Original+Archive"
           : "dltype=res&dlcheck=Download+Resample+Archive";
       var res = await post(apiUrl, data, headers: {
         "content-type": "application/x-www-form-urlencoded",
