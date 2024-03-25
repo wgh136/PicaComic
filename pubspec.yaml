@@ -71,7 +71,6 @@ dependencies:
   flutter_displaymode: 0.6.0
   app_links: 3.4.3
   flutter_reorderable_grid_view: 5.0.0-dev.7
-  lottie: any
   webdav_client:
     git:
       url: https://github.com/wgh136/webdav_client

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
@@ -14,7 +13,6 @@ import 'package:pica_comic/views/favorites/main_favorites_page.dart';
 import 'package:pica_comic/views/ht_views/home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/eh_views/eh_popular_page.dart';
-import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import 'package:pica_comic/views/settings/settings_page.dart';
 import 'package:pica_comic/views/widgets/custom_navigation_bar.dart';
@@ -188,7 +186,6 @@ class _MainPageState extends State<MainPage> {
 
   void initLogic() {
     StateController.put(HomePageLogic());
-    StateController.put(GamesPageLogic());
     StateController.put(EhHomePageLogic());
     StateController.put(EhPopularPageLogic());
     StateController.put(JmHomePageLogic());

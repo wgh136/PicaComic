@@ -13,7 +13,6 @@ import 'package:pica_comic/views/jm_views/jm_home_page.dart';
 import 'package:pica_comic/views/jm_views/jm_latest_page.dart';
 import 'package:pica_comic/views/nhentai/nhentai_main_page.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
-import 'package:pica_comic/views/pic_views/games_page.dart';
 import 'package:pica_comic/views/pic_views/home_page.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
@@ -56,8 +55,7 @@ class _ExplorePageState extends State<ExplorePage>
     switch (currentPageId) {
       case "0":
         StateController.find<HomePageLogic>().refresh_();
-      case "1":
-        StateController.find<GamesPageLogic>().refresh_();
+      case "1": {}
       case "2":
         StateController.find<EhHomePageLogic>().refresh_();
       case "3":
@@ -94,10 +92,6 @@ class _ExplorePageState extends State<ExplorePage>
           text: "Picacg".tl,
           key: const Key("Picacg"),
         ),
-      "1" => Tab(
-          text: "Picacg游戏".tl,
-          key: const Key("Picacg游戏"),
-        ),
       "2" => Tab(
           text: "Eh主页".tl,
           key: const Key("Eh主页"),
@@ -117,7 +111,6 @@ class _ExplorePageState extends State<ExplorePage>
 
   Widget buildBody(String i) => switch (i) {
       "0" => const HomePage(),
-      "1" => const GamesPage(),
       "2" => const EhHomePage(),
       "3" => const EhPopularPage(),
       "4" => const JmHomePage(),

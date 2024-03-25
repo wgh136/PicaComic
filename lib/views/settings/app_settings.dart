@@ -428,7 +428,6 @@ class _SetExplorePagesState extends State<SetExplorePages> {
 
     return switch(i){
       "0" => ListTile(title: Text("Picacg".tl), key: Key(i), trailing: removeButton,),
-      "1" => ListTile(title: Text("Picacg游戏".tl), key: Key(i), trailing: removeButton,),
       "2" => ListTile(title: Text("Eh主页".tl), key: Key(i), trailing: removeButton,),
       "3" => ListTile(title: Text("Eh热门".tl), key: Key(i), trailing: removeButton,),
       "4" => ListTile(title: Text("禁漫主页".tl), key: Key(i), trailing: removeButton,),
@@ -443,7 +442,6 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   Widget buildNotShowPageSelector(String i, BuildContext context){
     var widget =  switch(i){
       "0" => ListTile(title: Text("Picacg".tl), key: Key(i)),
-      "1" => ListTile(title: Text("Picacg游戏".tl), key: Key(i)),
       "2" => ListTile(title: Text("Eh主页".tl), key: Key(i)),
       "3" => ListTile(title: Text("Eh热门".tl), key: Key(i)),
       "4" => ListTile(title: Text("禁漫主页".tl), key: Key(i)),
@@ -470,7 +468,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
   @override
   Widget build(BuildContext context) {
     var notShowPages = <String>[];
-    var allPages = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
+    var allPages = ["0", "2", "3", "4", "5", "6", "7", "8"];
     for(var source in ComicSource.sources){
       for(var page in source.explorePages){
         allPages.add(page.title);

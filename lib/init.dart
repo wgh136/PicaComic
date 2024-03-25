@@ -37,6 +37,7 @@ Future<void> init() async{
       );
     }
     await checkDownloadPath();
+    _checkOldData();
 
     await ComicSource.init();
 
@@ -52,4 +53,8 @@ Future<void> init() async{
   catch(e, s){
     LogManager.addLog(LogLevel.error, "Init", "App initialization failed!\n$e$s");
   }
+}
+
+void _checkOldData(){
+  appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
 }

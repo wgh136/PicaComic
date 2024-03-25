@@ -16,7 +16,6 @@ import 'package:pica_comic/views/nhentai/comic_tile.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
 import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
-import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../base.dart';
@@ -219,7 +218,16 @@ abstract class ComicsPage<T> extends StatelessWidget {
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
-                      : showLoading(context),
+                      : Column(
+                          children: [
+                            const BackButton().toAlign(Alignment.centerLeft),
+                            const Expanded(
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          ]
+                  ),
                 )
               ],
             );
