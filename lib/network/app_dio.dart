@@ -20,11 +20,15 @@ class MyLogInterceptor implements Interceptor {
   @override
   void onResponse(
       Response<dynamic> response, ResponseInterceptorHandler handler) {
+    var headers = response.headers.map.map((key, value) => MapEntry(
+        key, value.length == 1 ? value.first : value.toString()));
+    headers.remove("cookie");
     LogManager.addLog(
         (response.statusCode != null && response.statusCode! < 400)
             ? LogLevel.info : LogLevel.error,
         "Network",
-        "Response ${response.realUri.toString()} ${response.statusCode}\nheaders:\n${response.headers}\n${response.data.toString()}");
+        "Response ${response.realUri.toString()} ${response.statusCode}\n"
+            "headers:\n$headers\n${response.data.toString()}");
     handler.next(response);
   }
 
