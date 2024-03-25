@@ -916,7 +916,7 @@ class EhNetwork {
   }
 
   Future<Res<ArchiveDownloadInfo>> getArchiveDownloadInfo(String url) async{
-    var res = await request(url);
+    var res = await request(url, expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res.fromErrorRes(res);
     }
@@ -957,7 +957,7 @@ class EhNetwork {
       if (link == null) {
         return const Res.error("Failed to get download link");
       }
-      var res2 = await Dio().get<String>(link);
+      var res2 = await logDio().get<String>(link);
       document = parse(res2.data);
       var link2 = document
           .querySelector("a")

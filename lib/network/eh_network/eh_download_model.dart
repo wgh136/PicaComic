@@ -142,7 +142,7 @@ class EhDownloadingItem extends DownloadingItem{
     "gallery": gallery.toJson(),
     "downloadType": downloadType,
     "_downloadLink": _downloadLink,
-    "_currentBytes": _currentBytes,
+    "_currentBytes": _writeBytes,
     "_totalBytes": _totalBytes,
     ...super.toBaseMap()
   };
@@ -156,6 +156,8 @@ class EhDownloadingItem extends DownloadingItem{
   }
 
   int? _currentBytes;
+
+  int? _writeBytes;
 
   int? _totalBytes;
 
@@ -188,6 +190,7 @@ class EhDownloadingItem extends DownloadingItem{
     if(downloadType == 0){
       return super.start();
     } else {
+      _stop = false;
       try{
         await downloadCover();
         if(gallery.auth?["archiveDownload"] == null){
@@ -208,9 +211,10 @@ class EhDownloadingItem extends DownloadingItem{
             _downloadLink!,
             "$path/$id",
             _currentBytes ?? 0,
-            (current, total){
+            (current, total, write){
               _currentBytes = current;
               _totalBytes = total;
+              _writeBytes = write;
               updateInfo?.call();
               updateUi?.call();
               if(current == total){
@@ -268,6 +272,7 @@ class EhDownloadingItem extends DownloadingItem{
       ):gallery=Gallery.fromJson(map["gallery"]),
         downloadType = map["downloadType"],
         _currentBytes = map["_currentBytes"],
+        _writeBytes = map["_currentBytes"],
         _totalBytes = map["_totalBytes"],
         _downloadLink = map["_downloadLink"],
         super.fromMap(map, whenFinish, whenError, updateInfo);
@@ -284,7 +289,7 @@ class _IsolateDownloader{
 
   int startByte;
 
-  final void Function(int current, int total) updateInfo;
+  final void Function(int current, int total, int write) updateInfo;
 
   final void Function() onError;
 
@@ -294,15 +299,17 @@ class _IsolateDownloader{
   Isolate? isolate;
 
   void stop(){
-    isolate?.kill(priority: Isolate.immediate);
-    isolate = null;
-    port.close();
+    sendPort.send("stop");
+    // wait for 100ms to prevent the isolate from being killed before the task is stopped
+    Future.delayed(const Duration(milliseconds: 100), (){
+      isolate?.kill(priority: Isolate.immediate);
+      isolate = null;
+      port.close();
+    });
   }
 
   void pause(){
-    isolate?.kill(priority: Isolate.beforeNextEvent);
-    isolate = null;
-    port.close();
+    stop();
   }
 
   void start() async{
@@ -315,11 +322,11 @@ class _IsolateDownloader{
         sendPort = message;
       } else if(message is DownloadingStatus){
         startByte = message.downloadedBytes;
-        updateInfo(message.downloadedBytes, message.totalBytes+1);
+        updateInfo(message.downloadedBytes, message.totalBytes+1, message.writeBytes);
         total = message.totalBytes;
       } else if(message == "finish"){
         isolate?.kill(priority: Isolate.immediate);
-        updateInfo(total+1, total+1);
+        updateInfo(total+1, total+1, total+1);
       } else if(message is _DownloadException){
         isolate?.kill(priority: Isolate.immediate);
         LogManager.addLog(LogLevel.error, "Download", message.message);
@@ -351,7 +358,7 @@ class _IsolateDownloader{
       task = FileDownloader(url, "$savePath/temp.zip", data.startByte, data.proxy);
 
       try {
-        await for (var status in task!.download()) {
+        await for (var status in task!.start()) {
           sendPort.send(status);
         }
         ZipFile.openAndExtract("$savePath/temp.zip", savePath);
