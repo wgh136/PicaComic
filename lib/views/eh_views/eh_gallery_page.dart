@@ -294,21 +294,30 @@ class EhGalleryPage extends ComicPage<Gallery> {
     int current = 0;
     bool loading = true;
     ArchiveDownloadInfo? info;
+    bool cancelUnlock = false;
 
     showDialog(context: context, builder: (context) => Dialog(
       child: StatefulBuilder(builder: (context, setState) {
+
         void load() async{
           if(data?.auth?["archiveDownload"] == null){
             return;
           }
 
-          var res = await EhNetwork().getArchiveDownloadInfo(data!.auth!["archiveDownload"]!);
-          if(res.error){
+          Res<ArchiveDownloadInfo> res;
+          if(cancelUnlock){
+            cancelUnlock = false;
+            res = await EhNetwork().cancelAndReloadArchiveInfo(info!);
+          } else {
+            res = await EhNetwork().getArchiveDownloadInfo(
+                data!.auth!["archiveDownload"]!);
+          }
+          if (res.error) {
             showToast(message: "网络错误".tl);
           } else {
             info = res.data;
             loading = false;
-            setState((){});
+            setState(() {});
           }
         }
 
@@ -355,6 +364,18 @@ class EhGalleryPage extends ComicPage<Gallery> {
                             title: Text("Resample".tl),
                             subtitle: Text("${info!.resampleCost} ${info!.resampleSize}"),
                         ),
+                        if(info!.cancelUnlockUrl != null)
+                          ListTile(
+                            leading: const Icon(Icons.lock_open),
+                            title: Text("取消解锁".tl),
+                            subtitle: Text("长按执行此操作".tl),
+                            onLongPress: (){
+                              setState((){
+                                cancelUnlock = true;
+                                loading = true;
+                              });
+                            },
+                          ).paddingLeft(6),
                       ],
                     )
               ],),
