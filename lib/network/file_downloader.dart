@@ -3,77 +3,119 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:pica_comic/network/http_client.dart';
+import 'package:pica_comic/tools/extensions.dart';
 
 class FileDownloader{
   final String url;
   final String savePath;
-  final int startByte;
   final String? proxy;
   final int maxConcurrent;
 
-  FileDownloader(this.url, this.savePath, this.startByte, this.proxy,
+  FileDownloader(this.url, this.savePath, this.proxy,
       {this.maxConcurrent = 4});
 
-  /// The current downloaded bytes which is written to file
-  late int _currentBytes = startByte;
+  int _currentBytes = 0;
 
-  /// The current downloaded bytes which may not be written to file
-  late int _downloadedBytes = startByte;
+  int _lastBytes = 0;
 
   late int _fileSize;
 
-  var dio = Dio();
+  final _dio = Dio();
 
-  File? file;
+  RandomAccessFile? _file;
+
+  bool _isWriting = false;
 
   int _kChunkSize = 16 * 1024 * 1024;
 
   bool _canceled = false;
 
-  Future<void> _head() async{
-    var res = await dio.head(url);
+  late List<_DownloadBlock> _blocks;
+
+  Future<void> _writeStatus() async{
+    var file = File("$savePath.download");
+    await file.writeAsString(_blocks.map((e) => e.toString()).join("\n"));
+  }
+
+  Future<void> _readStatus() async{
+    var file = File("$savePath.download");
+    if(!await file.exists()){
+      return;
+    }
+
+    var lines = await file.readAsLines();
+    _blocks = lines.map((e) => _DownloadBlock.fromString(e)).toList();
+  }
+
+  /// create file and write empty bytes
+  Future<void> _prepareFile() async{
+    var file = File(savePath);
+    if(await file.exists()){
+      if(file.lengthSync() == _fileSize && File("$savePath.download").existsSync()){
+        _file = await file.open(mode: FileMode.append);
+        return;
+      } else {
+        await file.delete();
+      }
+    }
+
+    await file.create(recursive: true);
+    _file = await file.open(mode: FileMode.append);
+    await _file!.truncate(_fileSize);
+  }
+
+  Future<void> _createTasks() async{
+    var res = await _dio.head(url);
     var length = res.headers["content-length"]?.first;
     _fileSize = length == null ? 0 : int.parse(length);
 
-    if(_fileSize > 1024 * 1024 * 1024){
-      _kChunkSize = 64 * 1024 * 1024;
-    } else if(_fileSize > 512 * 1024 * 1024){
-      _kChunkSize = 32 * 1024 * 1024;
+    await _prepareFile();
+
+    if(File("$savePath.download").existsSync()){
+      await _readStatus();
+      _currentBytes = _blocks.fold<int>(0,
+              (previousValue, element) => previousValue + element.downloadedBytes);
+    } else {
+      if (_fileSize > 1024 * 1024 * 1024) {
+        _kChunkSize = 64 * 1024 * 1024;
+      } else if (_fileSize > 512 * 1024 * 1024) {
+        _kChunkSize = 32 * 1024 * 1024;
+      }
+
+      _blocks = [];
+      for(var i = 0; i < _fileSize; i += _kChunkSize) {
+        var end = i + _kChunkSize;
+        if (end > _fileSize) {
+          _blocks.add(_DownloadBlock(i, _fileSize, 0, false));
+        } else {
+          _blocks.add(_DownloadBlock(i, i + _kChunkSize, 0, false));
+        }
+      }
     }
   }
 
   Stream<DownloadingStatus> start(){
+    setProxy(proxy);
     var stream = StreamController<DownloadingStatus>();
     _download(stream);
     return stream.stream;
   }
 
   void _reportStatus(StreamController<DownloadingStatus> stream){
-    stream.add(DownloadingStatus(_downloadedBytes, _fileSize, _currentBytes));
+    stream.add(DownloadingStatus(_currentBytes, _fileSize, 0));
   }
 
   void _download(StreamController<DownloadingStatus> resultStream) async{
     try {
-      // open file
-      file = File(savePath);
-      if (!file!.existsSync()) {
-        file!.createSync();
-      } else {
-        var length = file!.lengthSync();
-        if (length > _currentBytes) {
-          _currentBytes = 0;
-          file!.writeAsBytesSync([], mode: FileMode.write);
-        }
-      }
-      setProxy(proxy);
-
       // get file size
-      await _head();
+      await _createTasks();
 
       if (_canceled) return;
 
       // check if file is downloaded
       if (_currentBytes >= _fileSize) {
+        await _file!.close();
+        _file = null;
         _reportStatus(resultStream);
         resultStream.close();
         return;
@@ -81,98 +123,161 @@ class FileDownloader{
 
       _reportStatus(resultStream);
 
-      // download
-      while (_currentBytes < _fileSize) {
-        if (_canceled)  return;
-        await _scheduleTasks(resultStream);
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        if(_canceled || _currentBytes >= _fileSize){
+          timer.cancel();
+          return;
+        }
+        resultStream.add(DownloadingStatus(
+            _currentBytes,
+            _fileSize,
+            _currentBytes - _lastBytes
+        ));
+        _lastBytes = _currentBytes;
+      });
+
+      // start downloading
+      await _scheduleDownload();
+      await _file!.close();
+      _file = null;
+      await File("$savePath.download").delete();
+
+      // check if download is finished
+      if(_currentBytes < _fileSize){
+        throw Exception("Download failed: Expected $_fileSize bytes, "
+            "but only $_currentBytes bytes downloaded.");
       }
 
-      resultStream.add(DownloadingStatus(_currentBytes, _fileSize,
-          _currentBytes, true));
-
+      resultStream.add(DownloadingStatus(_currentBytes, _fileSize, 0, true));
       resultStream.close();
     }
     catch(e, s){
+      await _file?.close();
+      _file = null;
       resultStream.addError(e, s);
       resultStream.close();
     }
   }
 
-  Future<void> _scheduleTasks(StreamController<DownloadingStatus> resultStream) async{
-    var futures = <Future>[];
-    for(var i = 0; i < maxConcurrent; i++){
-      var start = _currentBytes + i * _kChunkSize;
-      var end = start + _kChunkSize;
-      futures.add(_fetchPart(start, end, resultStream));
+  Future<void> _scheduleDownload() async{
+    var tasks = <Future>[];
+    while(true){
+      if(tasks.length >= maxConcurrent){
+        await Future.any(tasks);
+      }
+      final block = _blocks.firstWhereOrNull((element) =>
+      !element.downloading &&
+          element.end - element.start > element.downloadedBytes
+      );
+      if(block == null){
+        break;
+      }
+      block.downloading = true;
+      var task = _fetchBlock(block);
+      task.then((value) => tasks.remove(task));
+      tasks.add(task);
     }
-    await Future.wait(futures);
+    await Future.wait(tasks);
   }
 
-  Future<void> _fetchPart(int start, int end, StreamController<DownloadingStatus> resultStream) async{
+  Future<void> _fetchBlock(_DownloadBlock block) async{
+    final start = block.start;
+    final end = block.end;
+
     if(start > _fileSize){
       return;
     }
 
-    if(end > _fileSize){
-      end = _fileSize;
-    }
-
     var options = Options(
-        responseType: ResponseType.stream,
-        headers: {
-          "Range": "bytes=$start-${end-1}",
-          "Accept": "*/*",
-          "Accept-Encoding": "deflate, gzip",
-        },
-        preserveHeaderCase: true,
+      responseType: ResponseType.stream,
+      headers: {
+        "Range": "bytes=${start + block.downloadedBytes}-${end-1}",
+        "Accept": "*/*",
+        "Accept-Encoding": "deflate, gzip",
+      },
+      preserveHeaderCase: true,
     );
-    var res = await dio.get<ResponseBody>(url, options: options);
+    var res = await _dio.get<ResponseBody>(url, options: options);
     if(_canceled) return;
     if(res.data == null){
-      throw Exception("Failed to download part $start-$end");
+      throw Exception("Failed to block $start-$end");
     }
 
     var buffer = <int>[];
-    int bytesSinceLastReport = 0;
     await for (var data in res.data!.stream) {
-      buffer.addAll(data);
-      _downloadedBytes += data.length;
-      bytesSinceLastReport += data.length;
-      if(bytesSinceLastReport > 128 * 1024){
-        _reportStatus(resultStream);
-        bytesSinceLastReport = 0;
-      }
       if(_canceled) return;
+      buffer.addAll(data);
+      if(buffer.length > 16 * 1024){
+        if(_isWriting) continue;
+        _currentBytes += buffer.length;
+        _isWriting = true;
+        await _file!.setPosition(start + block.downloadedBytes);
+        await _file!.writeFrom(buffer);
+        block.downloadedBytes += buffer.length;
+        buffer.clear();
+        await _writeStatus();
+        _isWriting = false;
+      }
     }
 
-    while(start != _currentBytes){
-      await Future.delayed(const Duration(milliseconds: 100));
+    if(buffer.isNotEmpty){
+      while(_isWriting){
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      _isWriting = true;
+      _currentBytes += buffer.length;
+      await _file!.setPosition(start + block.downloadedBytes);
+      await _file!.writeFrom(buffer);
+      block.downloadedBytes += buffer.length;
+      await _writeStatus();
+      _isWriting = false;
     }
-    file!.writeAsBytesSync(buffer, mode: FileMode.append);
-    _currentBytes = end;
-    _reportStatus(resultStream);
+
+    block.downloading = false;
   }
 
-  void stop(){
+  Future<void> stop() async{
     _canceled = true;
+    await _file?.close();
+    _file = null;
   }
 }
 
 class DownloadingStatus{
-  /// The current downloaded bytes which is written to file
+  /// The current downloaded bytes
   final int downloadedBytes;
   /// The total bytes of the file
   final int totalBytes;
-  /// The current downloaded bytes which may not be written to file
-  final int writeBytes;
   /// Whether the download is finished
   final bool isFinished;
+  /// The download speed in bytes per second
+  final int bytesPerSecond;
 
-  const DownloadingStatus(this.downloadedBytes, this.totalBytes, this.writeBytes,
+  const DownloadingStatus(this.downloadedBytes, this.totalBytes, this.bytesPerSecond,
       [this.isFinished = false]);
 
   @override
   String toString() {
     return "Downloaded: $downloadedBytes/$totalBytes ${isFinished ? "Finished" : ""}";
   }
+}
+
+class _DownloadBlock{
+  final int start;
+  final int end;
+  int downloadedBytes;
+  bool downloading;
+
+  _DownloadBlock(this.start, this.end, this.downloadedBytes, this.downloading);
+
+  @override
+  String toString() {
+    return "$start-$end-$downloadedBytes";
+  }
+
+  _DownloadBlock.fromString(String str)
+      : start = int.parse(str.split("-")[0]),
+        end = int.parse(str.split("-")[1]),
+        downloadedBytes = int.parse(str.split("-")[2]),
+        downloading = false;
 }

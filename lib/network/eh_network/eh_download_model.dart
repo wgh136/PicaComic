@@ -142,7 +142,7 @@ class EhDownloadingItem extends DownloadingItem{
     "gallery": gallery.toJson(),
     "downloadType": downloadType,
     "_downloadLink": _downloadLink,
-    "_currentBytes": _writeBytes,
+    "_currentBytes": _currentBytes,
     "_totalBytes": _totalBytes,
     ...super.toBaseMap()
   };
@@ -157,8 +157,6 @@ class EhDownloadingItem extends DownloadingItem{
 
   int? _currentBytes;
 
-  int? _writeBytes;
-
   int? _totalBytes;
 
   @override
@@ -166,7 +164,7 @@ class EhDownloadingItem extends DownloadingItem{
     if(downloadType == 0){
       return super.totalPages;
     } else {
-      return (_totalBytes ?? 1024) ~/ 1024;
+      return _totalBytes ?? 1;
     }
   }
 
@@ -175,7 +173,7 @@ class EhDownloadingItem extends DownloadingItem{
     if(downloadType == 0){
       return super.downloadedPages;
     } else {
-      return (_currentBytes ?? 0) ~/ 1024;
+      return _currentBytes ?? 0;
     }
   }
 
@@ -184,6 +182,9 @@ class EhDownloadingItem extends DownloadingItem{
   bool _stop = false;
 
   String? _downloadLink;
+
+  int _currentSpeed = 0;
+  int get currentSpeed => _currentSpeed;
 
   @override
   start() async{
@@ -210,11 +211,10 @@ class EhDownloadingItem extends DownloadingItem{
         _downloader = _IsolateDownloader(
             _downloadLink!,
             "$path/$id",
-            _currentBytes ?? 0,
-            (current, total, write){
+            (current, total, speed){
               _currentBytes = current;
               _totalBytes = total;
-              _writeBytes = write;
+              _currentSpeed = speed;
               updateInfo?.call();
               updateUi?.call();
               if(current == total){
@@ -272,7 +272,6 @@ class EhDownloadingItem extends DownloadingItem{
       ):gallery=Gallery.fromJson(map["gallery"]),
         downloadType = map["downloadType"],
         _currentBytes = map["_currentBytes"],
-        _writeBytes = map["_currentBytes"],
         _totalBytes = map["_totalBytes"],
         _downloadLink = map["_downloadLink"],
         super.fromMap(map, whenFinish, whenError, updateInfo);
@@ -287,25 +286,19 @@ class _IsolateDownloader{
 
   late SendPort sendPort;
 
-  int startByte;
-
-  final void Function(int current, int total, int write) updateInfo;
+  final void Function(int current, int total, int speed) updateInfo;
 
   final void Function() onError;
 
-  _IsolateDownloader(this.url, this.savePath, this.startByte, this.updateInfo,
+  _IsolateDownloader(this.url, this.savePath, this.updateInfo,
       this.onError);
 
   Isolate? isolate;
 
   void stop(){
     sendPort.send("stop");
-    // wait for 100ms to prevent the isolate from being killed before the task is stopped
-    Future.delayed(const Duration(milliseconds: 100), (){
-      isolate?.kill(priority: Isolate.immediate);
-      isolate = null;
-      port.close();
-    });
+    isolate = null;
+    port.close();
   }
 
   void pause(){
@@ -315,20 +308,21 @@ class _IsolateDownloader{
   void start() async{
     port = ReceivePort();
     isolate = await Isolate.spawn<_DownloadData>(run, _DownloadData(
-        port.sendPort, url, savePath, startByte, await getProxy()));
+        port.sendPort, url, savePath, await getProxy()));
     var total = 0;
     port.listen((message) {
       if(message is SendPort){
         sendPort = message;
       } else if(message is DownloadingStatus){
-        startByte = message.downloadedBytes;
-        updateInfo(message.downloadedBytes, message.totalBytes+1, message.writeBytes);
+        updateInfo(message.downloadedBytes, message.totalBytes+1, message.bytesPerSecond);
         total = message.totalBytes;
       } else if(message == "finish"){
         isolate?.kill(priority: Isolate.immediate);
-        updateInfo(total+1, total+1, total+1);
+        isolate = null;
+        updateInfo(total+1, total+1, 0);
       } else if(message is _DownloadException){
         isolate?.kill(priority: Isolate.immediate);
+        isolate = null;
         LogManager.addLog(LogLevel.error, "Download", message.message);
         onError();
       }
@@ -350,12 +344,12 @@ class _IsolateDownloader{
 
     receivePort.listen((message) {
       if(message == "stop"){
-        task?.stop();
+        task?.stop().then((value) => Isolate.current.kill());
       }
     });
 
     Future.sync(() async{
-      task = FileDownloader(url, "$savePath/temp.zip", data.startByte, data.proxy);
+      task = FileDownloader(url, "$savePath/temp.zip", data.proxy);
 
       try {
         await for (var status in task!.start()) {
@@ -391,10 +385,9 @@ class _DownloadData{
   final SendPort port;
   final String url;
   final String savePath;
-  final int startByte;
   final String? proxy;
 
-  const _DownloadData(this.port, this.url, this.savePath, this.startByte,
+  const _DownloadData(this.port, this.url, this.savePath,
       this.proxy);
 }
 
