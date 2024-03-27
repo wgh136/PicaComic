@@ -359,7 +359,6 @@ Future<void> clearAppdata() async {
   appdata = Appdata();
   await appdata.readData();
   await eraseCache();
-  network.token = "";
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
   await JmNetwork().cookieJar?.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();

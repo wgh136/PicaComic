@@ -15,7 +15,6 @@ void onStart() {
     var notifications = Notifications();
     await notifications.init();
     if (appdata.token != "") {
-      network = PicacgNetwork(appdata.token);
       var userInfo = await network.getProfile(false);
       if (userInfo.error) {
         return true;

@@ -14,6 +14,16 @@ class MyLogInterceptor implements Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     LogManager.addLog(LogLevel.error, "Network",
         "${err.requestOptions.method} ${err.requestOptions.path}\n$err");
+    switch(err.type) {
+      case DioExceptionType.badResponse:
+        var statusCode = err.response?.statusCode;
+        if(statusCode != null){
+          err = err.copyWith(message: "Invalid Status Code: $statusCode");
+        }
+      case DioExceptionType.connectionTimeout:
+        err = err.copyWith(message: "Connection Timeout");
+      default:
+    }
     handler.next(err);
   }
 

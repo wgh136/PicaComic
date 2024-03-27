@@ -21,7 +21,6 @@ import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/views/widgets/window_frame.dart';
-import 'network/picacg_network/methods.dart';
 import 'network/webdav.dart';
 
 bool notFirstUse = false;
@@ -35,7 +34,6 @@ void main(){
           "${details.exception}\n${details.stack}");
     };
     notFirstUse = appdata.firstUse[3] == "1";
-    network = PicacgNetwork(appdata.token);
     setNetworkProxy();
     runApp(const MyApp());
     if(App.isDesktop){
