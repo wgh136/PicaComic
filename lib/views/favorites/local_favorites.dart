@@ -553,7 +553,7 @@ class LocalFavoriteTile extends ComicTile {
             showMessage(App.globalContext, res.errorMessageWithoutNull);
           } else {
             App.globalBack();
-            readHitomiComic(res.data, comic.coverPath);
+            readHitomiComic(res.data, comic.coverPath, comic.target);
           }
         }
       case ComicType.htManga:

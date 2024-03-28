@@ -113,10 +113,10 @@ class ComicReadingPage extends StatelessWidget {
             StateController.find<ComicReadingPageLogic>(), false)));
   }
 
-  ComicReadingPage.hitomi(String target, String title, List<HitomiFile> images,
+  ComicReadingPage.hitomi(String target, String title, List<HitomiFile> images, String link,
       {super.key, this.initialPage = 1})
       : initialEp = 1,
-        readingData = HitomiReadingData(title, target, images) {
+        readingData = HitomiReadingData(title, target, images, link) {
     StateController.put(ComicReadingPageLogic(
         initialEp,
         readingData,
@@ -214,7 +214,7 @@ class ComicReadingPage extends StatelessWidget {
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
       // 更新本地收藏
-      LocalFavoritesManager().onReadEnd(readingData.id);
+      LocalFavoritesManager().onReadEnd(readingData.favoriteId);
       // 保存历史记录
       if (history != null) {
         _updateHistory(logic, true);

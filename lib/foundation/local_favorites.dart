@@ -21,6 +21,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'dart:io';
 import '../network/base_comic.dart';
 import '../network/webdav.dart';
+import '../views/favorites/main_favorites_page.dart';
 
 String getCurTime() {
   return DateTime.now()
@@ -292,6 +293,8 @@ class LocalFavoritesManager {
   void updateUI() {
     Future.microtask(
         () => StateController.findOrNull(tag: "me page")?.update());
+    Future.microtask(
+        () => StateController.findOrNull<FavoritesPageController>()?.update());
   }
 
   Future<List<String>> find(String target) async {

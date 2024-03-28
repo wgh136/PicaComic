@@ -21,6 +21,8 @@ abstract class ReadingData {
 
   List<int> downloadedEps = [];
 
+  String get favoriteId => id;
+
   bool checkEpDownloaded(int ep) {
     return !hasEp || downloadedEps.contains(ep-1);
   }
@@ -158,10 +160,7 @@ class JmReadingData extends ReadingData {
   }
 
   JmReadingData(this.title, this.id, List<String> epIds, List<String> epNames)
-      : eps = generateMap(epIds, epNames){
-    print(epIds);
-    print(epNames);
-  }
+      : eps = generateMap(epIds, epNames);
 
   @override
   bool get hasEp => true;
@@ -210,7 +209,9 @@ class HitomiReadingData extends ReadingData {
 
   final List<HitomiFile> images;
 
-  HitomiReadingData(this.title, this.id, this.images);
+  final String link;
+
+  HitomiReadingData(this.title, this.id, this.images, this.link);
 
   @override
   Map<String, String>? get eps => null;
@@ -226,6 +227,9 @@ class HitomiReadingData extends ReadingData {
 
   @override
   String get downloadId => "hitomi$id";
+
+  @override
+  String get favoriteId => link;
 
   @override
   Future<Res<List<String>>> loadEpNetwork(int ep) {
