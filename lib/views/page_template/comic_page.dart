@@ -202,6 +202,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Future<bool> loadFavorite(T data);
 
+  /// used for history
   String get id;
 
   /// url linked to this comic

@@ -52,7 +52,7 @@ extension ReadComic on DownloadedItem{
           (comic).comic.series.values.toList());
     } else if (comic.type == DownloadType.hitomi) {
       readHitomiComic((comic as DownloadedHitomiComic).comic,
-          (comic).cover);
+          (comic).cover, comic.link);
     } else if (comic.type == DownloadType.htmanga) {
       readHtmangaComic((comic as DownloadedHtComic).comic);
     } else if (comic.type == DownloadType.nhentai){
@@ -879,7 +879,8 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
       readEhGallery((comic as DownloadedGallery).gallery);
     } else if (comic.type == DownloadType.hitomi) {
       readHitomiComic((comic as DownloadedHitomiComic).comic,
-          (comic as DownloadedHitomiComic).cover);
+          (comic as DownloadedHitomiComic).cover,
+          (comic as DownloadedHitomiComic).link);
     } else if (comic.type == DownloadType.htmanga) {
       readHtmangaComic((comic as DownloadedHtComic).comic);
     } else if (comic.type == DownloadType.nhentai){
