@@ -18,6 +18,8 @@ import '../app_views/accounts_page.dart';
 class WindowFrameController extends StateController {
   bool reverseButtonColor = false;
 
+  bool isHideWindowFrame = false;
+
   void setDarkTheme() {
     reverseButtonColor = true;
     update();
@@ -29,6 +31,16 @@ class WindowFrameController extends StateController {
   }
 
   VoidCallback openSideBar = () {};
+
+  void hideWindowFrame() {
+    isHideWindowFrame = true;
+    update();
+  }
+
+  void showWindowFrame() {
+    isHideWindowFrame = false;
+    update();
+  }
 }
 
 class WindowFrame extends StatelessWidget {
@@ -42,6 +54,8 @@ class WindowFrame extends StatelessWidget {
         WindowFrameController());
     if (App.isMobile) return child;
     return StateBuilder<WindowFrameController>(builder: (controller) {
+      if(controller.isHideWindowFrame) return child;
+
       return WindowBorder(
         color: controller.reverseButtonColor ? Colors.black54 : Colors.white54,
         width: 1,
