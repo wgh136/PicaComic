@@ -10,13 +10,13 @@ import 'app_dio.dart';
 
 ///缓存网络请求, 仅提供get方法, 其它的没有意义
 class CachedNetwork {
-  String? _path;
+  String? path;
 
   Future<void> init() async {
-    _path =
+    path =
         "${(await getTemporaryDirectory()).path}${Platform.pathSeparator}cachedNetwork";
-    if (!Directory(_path!).existsSync()) {
-      Directory(_path!).createSync(recursive: true);
+    if (!Directory(path!).existsSync()) {
+      Directory(path!).createSync(recursive: true);
     }
   }
 
@@ -41,7 +41,7 @@ class CachedNetwork {
     if (fileName.length > 20) {
       fileName = fileName.substring(0, 21);
     }
-    var file = File(_path! + Platform.pathSeparator + fileName);
+    var file = File(path! + Platform.pathSeparator + fileName);
     if (file.existsSync()) {
       var time = file.lastModifiedSync();
       if (expiredTime == CacheExpiredTime.persistent ||
@@ -78,7 +78,7 @@ class CachedNetwork {
     if (fileName.length > 20) {
       fileName = fileName.substring(0, 21);
     }
-    var file = File(_path! + Platform.pathSeparator + fileName);
+    var file = File(path! + Platform.pathSeparator + fileName);
     if(await file.exists()){
       await file.delete();
     }

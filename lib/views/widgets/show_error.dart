@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../main_page.dart';
-import 'package:pica_comic/network/jm_network/cloudflare.dart' as jm;
 
 ///显示错误提示
 Widget showNetworkError(
@@ -52,10 +50,6 @@ Widget showNetworkError(
                 if (message == NhentaiNetwork.needCloudflareChallengeMessage)
                   FilledButton(
                       onPressed: () => bypassCloudFlare(retry),
-                      child: Text('继续'.tl))
-                else if (message == JmNetwork.cloudflareChallenge)
-                  FilledButton(
-                      onPressed: () => jm.bypassCloudFlare(retry),
                       child: Text('继续'.tl))
                 else
                   FilledButton(onPressed: retry, child: Text('重试'.tl))

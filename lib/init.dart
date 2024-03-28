@@ -12,7 +12,6 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:workmanager/workmanager.dart';
 import 'base.dart';
 import 'foundation/app.dart';
-import 'network/jm_network/jm_network.dart';
 import 'network/nhentai_network/nhentai_main_network.dart';
 
 Future<void> init() async{
@@ -44,7 +43,6 @@ Future<void> init() async{
     await Future.wait([
       downloadManager.init(),
       NhentaiNetwork().init(),
-      JmNetwork().init(),
       LocalFavoritesManager().init(),
       HistoryManager().init(),
       AppTranslation.init(),
