@@ -692,8 +692,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 }
                 Share.share(text);
               }),
-              buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel,
-                  () {
+              buildItem(favorite ? "已收藏".tl : "收藏".tl, favorite ?
+                  Icons.collections_bookmark :
+                  Icons.collections_bookmark_outlined,
+                openFavoritePanel, () {
                 var folder = appdata.settings[51];
                 if (LocalFavoritesManager().folderNames.contains(folder)) {
                   LocalFavoritesManager()
