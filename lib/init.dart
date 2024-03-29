@@ -4,6 +4,7 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/http_proxy.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
@@ -43,6 +44,7 @@ Future<void> init() async{
     await Future.wait([
       downloadManager.init(),
       NhentaiNetwork().init(),
+      JmNetwork().init(),
       LocalFavoritesManager().init(),
       HistoryManager().init(),
       AppTranslation.init(),

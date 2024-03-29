@@ -121,6 +121,10 @@ class JmNetwork {
     return res.substring(0, i + 1);
   }
 
+  Future<void> init() async{
+    loginFromAppdata();
+  }
+
   ///get请求, 返回Json数据中的data
   Future<Res<dynamic>> get(String url,
       {Map<String, String>? header,
