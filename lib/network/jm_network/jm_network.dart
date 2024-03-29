@@ -94,6 +94,8 @@ class JmNetwork {
 
   static const kJmSecret = '185Hcomic3PAPP7R';
 
+  bool _performingLogin = false;
+
   ///解密数据
   static String convertData(String input, int time) {
     //key为时间+18comicAPPContent的md5结果
@@ -128,6 +130,10 @@ class JmNetwork {
   Future<Res<dynamic>> get(String url,
       {Map<String, String>? header,
       CacheExpiredTime expiredTime = CacheExpiredTime.long}) async {
+    while(_performingLogin){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
     int time = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     var dio = CachedNetwork();
     var options = getHeader(time);
@@ -654,8 +660,10 @@ class JmNetwork {
     if (account == "") {
       return const Res(true);
     }
+    _performingLogin = true;
     var res = await post("$baseUrl/login",
         "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}");
+    _performingLogin = false;
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
