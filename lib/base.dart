@@ -116,6 +116,21 @@ class Appdata {
     "6", //79 下载并行
   ];
 
+  /// 隐式数据, 用于存储一些不需要用户设置的数据, 此数据通常为某些组件的状态, 此设置不应当被同步
+  List<String> implicitData = [
+    "1;;", //收藏夹状态
+  ];
+
+  void writeImplicitData() async {
+    var s = await SharedPreferences.getInstance();
+    await s.setStringList("implicitData", implicitData);
+  }
+
+  void readImplicitData() async {
+    var s = await SharedPreferences.getInstance();
+    implicitData = s.getStringList("implicitData") ?? implicitData;
+  }
+
   ///屏蔽的关键词
   List<String> blockingKeyword = [];
 
@@ -295,6 +310,7 @@ class Appdata {
       htName = s.getString("htName") ?? "";
       htPwd = s.getString("htPwd") ?? "";
       nhentaiData = s.getStringList("nhentaiData") ?? nhentaiData;
+      readImplicitData();
       return firstUse[3] == "1" || token != "";
     } catch (e) {
       return false;
@@ -360,7 +376,7 @@ Future<void> clearAppdata() async {
   await appdata.readData();
   await eraseCache();
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
-  await JmNetwork().cookieJar?.deleteAll();
+  await JmNetwork().cookieJar.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
 }
