@@ -176,6 +176,7 @@ class _JmSettingsState extends State<JmSettings> {
               settingsIndex: 17,
               title: "Api Domain",
               options: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl],
+              onChange: () => JmNetwork().loginFromAppdata(),
             ),
             ListTile(
               leading: const Icon(Icons.image),

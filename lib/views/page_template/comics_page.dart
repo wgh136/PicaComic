@@ -212,6 +212,8 @@ abstract class ComicsPage<T> extends StatelessWidget {
             logic.get(getComics);
             return Column(
               children: [
+                if(showTitle && UiMode.m1(context))
+                  SizedBox(height: MediaQuery.of(context).padding.top,),
                 removeSliver(head) ?? const SizedBox(),
                 Expanded(
                   child: !showBackWhenLoading

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -8,8 +10,7 @@ import '../main_page.dart';
 Widget showNetworkError(
     String? message, void Function() retry, BuildContext context,
     {bool showBack = true}) {
-  return SafeArea(
-      child: Stack(
+  Widget body = Stack(
     children: [
       if (showBack)
         Positioned(
@@ -59,5 +60,11 @@ Widget showNetworkError(
         ),
       )
     ],
-  ));
+  );
+
+  if(UiMode.m1(context)){
+    body = body.paddingTop(MediaQuery.of(context).padding.top);
+  }
+
+  return body;
 }
