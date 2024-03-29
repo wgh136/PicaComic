@@ -11,7 +11,6 @@ import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../main_page.dart';
-import '../widgets/my_icons.dart';
 
 class EhFavoritePage extends StatelessWidget {
   const EhFavoritePage({super.key});
@@ -80,11 +79,11 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
       Res<Galleries> res;
       if (folderId == -1) {
         res = await EhNetwork().getGalleries(
-            "${EhNetwork().ehBaseUrl}/favorites.php?inline_set=dm_l",
+            "${EhNetwork().ehBaseUrl}/favorites.php",
             favoritePage: true);
       } else {
         res = await EhNetwork().getGalleries(
-            "${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folderId&inline_set=dm_l",
+            "${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folderId",
             favoritePage: true);
       }
       if (res.error) {
@@ -166,7 +165,7 @@ class EhFolderTile extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: Icon(
-                  MyIcons.ehFolder,
+                  Icons.folder,
                   size: 35,
                   color: Theme.of(context).colorScheme.secondary,
                 ),

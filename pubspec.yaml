@@ -153,6 +153,3 @@ flutter:
     - family: font2
       fonts:
         - asset: fonts/Poppins-Regular.ttf
-    - family:  MyIcons
-      fonts:
-       - asset: fonts/MyIcons.ttf
