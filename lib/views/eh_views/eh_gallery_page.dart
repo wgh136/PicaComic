@@ -88,7 +88,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  int? get pages => null;
+  int? get pages => int.tryParse(data?.maxPage ?? "");
 
   @override
   Future<bool> loadFavorite(Gallery data) async {
@@ -104,9 +104,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   Map<String, List<String>>? get tags => {
-        "长度".tl: data!.maxPage.toList(),
         "类型".tl: data!.type.toList(),
         "时间".tl: data!.time.toList(),
+        "上传者".tl: data!.uploader.toList(),
         ...data!.tags
       };
 
@@ -127,6 +127,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
         namespace = entry.key;
         break;
       }
+    }
+    if(tag == data!.uploader){
+      namespace = "uploader";
     }
     if (tag.contains(" ")) {
       tag = "\"$tag\"";
@@ -252,16 +255,16 @@ class EhGalleryPage extends ComicPage<Gallery> {
           mainAxisSize: MainAxisSize.min,
           children: [
             for (int i = 0; i < (data!.stars ~/ 0.5) ~/ 2; i++)
-              Icon(
+              const Icon(
                 Icons.star,
                 size: 30,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Color(0xffffbf00),
               ),
             if ((data!.stars ~/ 0.5) % 2 == 1)
-              Icon(
+              const Icon(
                 Icons.star_half,
                 size: 30,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Color(0xffffbf00),
               ),
             for (int i = 0;
             i < (5 - (data!.stars ~/ 0.5) ~/ 2 - (data!.stars ~/ 0.5) % 2);
@@ -269,6 +272,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
               const Icon(
                 Icons.star_border,
                 size: 30,
+                color: Color(0xffffbf00),
               ),
             const SizedBox(
               width: 5,
