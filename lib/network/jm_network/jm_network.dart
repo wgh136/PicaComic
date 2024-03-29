@@ -71,8 +71,7 @@ extension _CachedNetwork on CachedNetwork {
 }
 
 class JmNetwork {
-  final baseData =
-      "key=0b931a6f4b5ccc3f8d870839d07ae7b2&view_mode_debug=1&view_mode=null";
+  static const baseData = "";
 
   final cookieJar = CookieJar(ignoreExpires: true);
 
@@ -152,7 +151,7 @@ class JmNetwork {
         print(e);
       }
       if (e.type != DioExceptionType.unknown) {
-        return Res<String>(null, errorMessage: e.message ?? "网络错误");
+        return Res<String>(null, errorMessage: e.message ?? "网络错误".tl);
       } else {
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
@@ -191,7 +190,7 @@ class JmNetwork {
         print(e);
       }
       if (e.type != DioExceptionType.unknown) {
-        return Res<String>(null, errorMessage: e.message ?? "网络错误");
+        return Res<String>(null, errorMessage: e.message ?? "网络错误".tl);
       } else {
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
@@ -200,7 +199,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-      return const Res<String>(null, errorMessage: "网络错误");
+      return Res<String>(null, errorMessage: "网络错误".tl);
     }
   }
 
@@ -248,7 +247,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -288,7 +287,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -367,7 +366,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -462,7 +461,7 @@ class JmNetwork {
       return Res(categories);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -500,7 +499,7 @@ class JmNetwork {
               .ceil());
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -543,7 +542,7 @@ class JmNetwork {
           res.data["content"].length, int.parse(res.data["total"]), 1, comics));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -632,7 +631,7 @@ class JmNetwork {
           epNames));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -725,7 +724,7 @@ class JmNetwork {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -744,7 +743,7 @@ class JmNetwork {
       return Res(folders);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -791,7 +790,7 @@ class JmNetwork {
 
   ///获取漫画图片
   Future<Res<List<String>>> getChapter(String id) async {
-    var res = await get("$baseUrl/chapter?$baseData&id=$id");
+    var res = await get("$baseUrl/chapter?&id=$id");
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
     }
@@ -803,7 +802,7 @@ class JmNetwork {
       return Res(images);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -848,7 +847,7 @@ class JmNetwork {
       return Res(comments, subData: int.parse(res.data["total"]));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -882,7 +881,7 @@ class JmNetwork {
       return Res(categories);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -916,7 +915,7 @@ class JmNetwork {
       return Res(comics);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 

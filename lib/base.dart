@@ -58,7 +58,7 @@ class Appdata {
     "111111", //21 启用的漫画源
     "", //22 下载目录, 仅Windows端, 为空表示使用App数据目录
     "0", //23 初始页面,
-    "1111111111", //24 分类页面
+    "1111111111", //24 [废弃]分类页面
     "0", //25 漫画列表显示模式
     "00", //26 已下载页面排序模式: 时间, 漫画名, 作者名, 大小
     "0", //27 颜色
@@ -284,9 +284,6 @@ class Appdata {
         for (int i = 0; i < st.length && i < settings.length; i++) {
           settings[i] = st[i];
         }
-      }
-      while (settings[24].length < 10) {
-        settings[24] += "1";
       }
       if (settings[26].length < 2) {
         settings[26] += "0";

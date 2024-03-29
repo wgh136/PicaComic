@@ -39,12 +39,6 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         options: ["顺序显示".tl, "分页显示".tl],
         settingsIndex: 25,
       ),
-      SelectSetting(
-        icon: const Icon(Icons.file_download_outlined),
-        title: "已下载的漫画排序方式".tl,
-        options: ["时间".tl, "漫画名".tl, "作者名".tl, "大小".tl],
-        settingsIndex: 26,
-      ),
       SettingsTitle("工具".tl),
       SwitchSetting(
         title: "检查剪切板中的链接".tl,

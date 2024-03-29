@@ -448,7 +448,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
 
   @override
   void read(History? history) {
-    readEhGallery(data!, history?.page);
+    readEhGallery(data!, history?.page, false);
   }
 
   @override

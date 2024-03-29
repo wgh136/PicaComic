@@ -179,10 +179,10 @@ void readPicacgComic2(ComicItemBrief comic, List<String> epsStr,
   }
 }
 
-void readEhGallery(Gallery gallery, [int? page]) async {
+void readEhGallery(Gallery gallery, [int? page, bool findHistory = true]) async {
   addEhHistory(gallery);
   var target = gallery.link;
-  var history = await appdata.history.find(target);
+  var history = findHistory ? await appdata.history.find(target) : null;
   if (page != null) {
     App.globalTo(
         () => ComicReadingPage.ehentai(
