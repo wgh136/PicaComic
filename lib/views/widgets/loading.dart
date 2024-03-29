@@ -1,56 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:pica_comic/tools/translations.dart';
 
-Widget showLoading(BuildContext context, {bool withScaffold = false}) {
-  final loading = Lottie.asset("images/loading.json",
-      width: 180,
-      height: 180,
-      delegates: LottieDelegates(
-        values: [
-          ValueDelegate.strokeColor(
-            const ['**'],
-            value: Theme.of(context).colorScheme.primary,
-          ),
-          ValueDelegate.color(
-            const ['**'],
-            value: Theme.of(context).colorScheme.primary,
-          )
-        ],
-      ));
-
-  if (withScaffold) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: loading,
-      ),
-    );
-  } else {
-    return Center(
-      child: SizedBox(
-        width: 250,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            loading,
-            const SizedBox(
-              height: 16,
-            ),
-            Center(
-              child: Text("加载中".tl),
-            ),
-            const SizedBox(
-              height: 4,
-            ),
-            TextButton(
-                onPressed: () => Navigator.pop(context), child: Text("取消".tl))
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class LoadingDialogController {
   void Function()? closeDialog;

@@ -31,7 +31,7 @@ final jmFavorites = FavoriteData(
     key: "jm",
     title: "禁漫天堂",
     multiFolder: true,
-    loadComic: (i, [folder]) => JmNetwork().getFolderComicsWithPage(folder!, i),
+    loadComic: (i, [folder]) => JmNetwork().getFolderComicsPage(folder!, i),
     loadFolders: () => JmNetwork().getFolders(),
     deleteFolder: (id) => JmNetwork().deleteFolder(id),
     addFolder: (name) => JmNetwork().createFolder(name),

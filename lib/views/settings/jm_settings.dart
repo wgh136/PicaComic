@@ -171,10 +171,12 @@ class _JmSettingsState extends State<JmSettings> {
                 inPopUpWidget: widget.popUp,
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.domain_rounded),
-              title: Text("Domain: ${appdata.settings[56].replaceFirst("https://", "")}"),
-              trailing: IconButton(onPressed: () => changeDomain(context), icon: const Icon(Icons.edit)),
+            SelectSetting(
+              icon: const Icon(Icons.domain),
+              settingsIndex: 17,
+              title: "Api Domain",
+              options: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl],
+              onChange: () => JmNetwork().loginFromAppdata(),
             ),
             ListTile(
               leading: const Icon(Icons.image),

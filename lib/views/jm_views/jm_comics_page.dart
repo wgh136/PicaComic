@@ -18,11 +18,8 @@ class JmComicsPage extends ComicsPage<JmComicBrief>{
 
   @override
   Future<Res<List<JmComicBrief>>> getComics(int i) async{
-    var res = await JmNetwork().getComicsPage(id, i, ComicsOrder.values[int.parse(appdata.settings[16])]);
-    if(res.error){
-      return Res.fromErrorRes(res);
-    }
-    return Res(res.data.$1, subData: res.data.$2);
+    return JmNetwork().getCategoryComicsNew(id,
+        ComicsOrder.values[int.parse(appdata.settings[16])], i);
   }
 
   @override

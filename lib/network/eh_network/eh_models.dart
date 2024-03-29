@@ -189,7 +189,9 @@ class ArchiveDownloadInfo{
   final String resampleSize;
   final String originCost;
   final String resampleCost;
+  final String? cancelUnlockUrl;
 
   const ArchiveDownloadInfo(this.originSize,
-      this.resampleSize, this.originCost, this.resampleCost);
+      this.resampleSize, this.originCost, this.resampleCost,
+      this.cancelUnlockUrl);
 }

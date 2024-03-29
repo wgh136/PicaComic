@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 import "package:pica_comic/base.dart";
@@ -26,6 +27,33 @@ class FavoritesPageController extends StateController{
   bool selecting = true;
 
   FavoriteData? networkData;
+
+  FavoritesPageController(){
+    var data = appdata.implicitData[0].split(";");
+    selecting = data[0] == "1";
+    if(data[1] == ""){
+      isNetwork = null;
+    } else {
+      isNetwork = data[1] == "1";
+    }
+    if(data.length > 3){
+      current = data.sublist(2).join(";");
+    } else {
+      current = data[2];
+    }
+    if(current == ""){
+      current = null;
+    }
+    if(isNetwork ?? false){
+      final folders = appdata.settings[68].split(',').map((e) => getFavoriteDataOrNull(e));
+      networkData = folders.firstWhereOrNull((element) => element?.title == current);
+      if(networkData == null){
+        current = null;
+        selecting = true;
+        isNetwork = null;
+      }
+    }
+  }
 }
 
 const _kSecondaryTopBarHeight = 48.0;
@@ -106,6 +134,8 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
                   onPressed: (){
                     controller.selecting = true;
                     controller.update();
+                    appdata.implicitData[0] = "1;;";
+                    appdata.writeImplicitData();
                   },
                 )
             ]
@@ -159,6 +189,8 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
             controller.selecting = false;
             controller.networkData = data;
             controller.update();
+            appdata.implicitData[0] = "0;1;${data?.title ?? ""}";
+            appdata.writeImplicitData();
           },
           borderRadius: BorderRadius.circular(8),
           child: Row(
@@ -192,6 +224,8 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
               controller.isNetwork = false;
               controller.selecting = false;
               controller.update();
+              appdata.implicitData[0] = "0;0;$data";
+              appdata.writeImplicitData();
             },
             onSecondaryTapUp: (details) =>
                 _showDesktopMenu(data, details.globalPosition),

@@ -111,7 +111,7 @@ class _RatingWidgetState extends State<RatingWidget> {
     int full = fullStars();
     List<Widget> children = [];
     for (int i = 0; i < full; i++) {
-      children.add(Icon(Icons.star,size: widget.size,color: Theme.of(context).colorScheme.secondary));
+      children.add(Icon(Icons.star,size: widget.size, color: const Color(0xffffbf00)));
       if (i < widget.count - 1) {
         children.add(
           SizedBox(
@@ -123,7 +123,7 @@ class _RatingWidgetState extends State<RatingWidget> {
     if (full < widget.count) {
       children.add(ClipRect(
         clipper: SMClipper(rating: star() * widget.size),
-        child: Icon(Icons.star,size: widget.size,color: Theme.of(context).colorScheme.secondary),
+        child: Icon(Icons.star,size: widget.size, color: const Color(0xffffbf00)),
       ));
     }
 
@@ -133,7 +133,7 @@ class _RatingWidgetState extends State<RatingWidget> {
   List<Widget> buildNormalRow() {
     List<Widget> children = [];
     for (int i = 0; i < widget.count; i++) {
-      children.add(Icon(Icons.star_border,size: widget.size,color: Theme.of(context).colorScheme.secondary,));
+      children.add(Icon(Icons.star_border,size: widget.size, color: const Color(0xffffbf00),));
       if (i < widget.count - 1) {
         children.add(SizedBox(
           width: widget.padding,

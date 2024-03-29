@@ -4,6 +4,7 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/http_proxy.dart';
+import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
@@ -12,7 +13,6 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:workmanager/workmanager.dart';
 import 'base.dart';
 import 'foundation/app.dart';
-import 'network/jm_network/jm_network.dart';
 import 'network/nhentai_network/nhentai_main_network.dart';
 
 Future<void> init() async{
@@ -37,6 +37,7 @@ Future<void> init() async{
       );
     }
     await checkDownloadPath();
+    _checkOldData();
 
     await ComicSource.init();
 
@@ -52,4 +53,8 @@ Future<void> init() async{
   catch(e, s){
     LogManager.addLog(LogLevel.error, "Init", "App initialization failed!\n$e$s");
   }
+}
+
+void _checkOldData(){
+  appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
 }

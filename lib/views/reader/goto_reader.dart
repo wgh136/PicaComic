@@ -179,10 +179,10 @@ void readPicacgComic2(ComicItemBrief comic, List<String> epsStr,
   }
 }
 
-void readEhGallery(Gallery gallery, [int? page]) async {
+void readEhGallery(Gallery gallery, [int? page, bool findHistory = true]) async {
   addEhHistory(gallery);
   var target = gallery.link;
-  var history = await appdata.history.find(target);
+  var history = findHistory ? await appdata.history.find(target) : null;
   if (page != null) {
     App.globalTo(
         () => ComicReadingPage.ehentai(
@@ -243,7 +243,7 @@ void readJmComic(JmComicInfo comic, List<String> eps,
   }
 }
 
-void readHitomiComic(HitomiComic comic, String cover, [int? page]) async {
+void readHitomiComic(HitomiComic comic, String cover, String link, [int? page]) async {
   await addHitomiHistory(comic, cover);
   var history = await appdata.history.find(comic.id);
   if (page != null) {
@@ -252,6 +252,7 @@ void readHitomiComic(HitomiComic comic, String cover, [int? page]) async {
               comic.id,
               comic.name,
               comic.files,
+              link,
               initialPage: page,
             ),
         preventDuplicates: false);
@@ -263,6 +264,7 @@ void readHitomiComic(HitomiComic comic, String cover, [int? page]) async {
               comic.id,
               comic.name,
               comic.files,
+              link,
               initialPage: history.page,
             ),
         preventDuplicates: false);
@@ -272,6 +274,7 @@ void readHitomiComic(HitomiComic comic, String cover, [int? page]) async {
               comic.id,
               comic.name,
               comic.files,
+              link,
             ),
         preventDuplicates: false);
   }
@@ -347,6 +350,7 @@ void readWithKey(String key, String target, int ep, int page, String title,
           (otherInfo["hitomi"] as List)
               .map((e) => HitomiFile.fromMap(e))
               .toList(),
+          target,
           initialPage: page));
     case "htManga":
       App.globalTo(() => ComicReadingPage.htmanga(target, title,

@@ -916,7 +916,7 @@ class EhNetwork {
   }
 
   Future<Res<ArchiveDownloadInfo>> getArchiveDownloadInfo(String url) async{
-    var res = await request(url);
+    var res = await request(url, expiredTime: CacheExpiredTime.no);
     if (res.error) {
       return Res.fromErrorRes(res);
     }
@@ -931,7 +931,38 @@ class EhNetwork {
       var resampleCost = resample.querySelector("div > strong")!.text;
       var resampleSize = resample.querySelector("p > strong")!.text;
       return Res(ArchiveDownloadInfo(originSize, resampleSize,
-          originCost, resampleCost));
+          originCost, resampleCost,
+          document.querySelector("form#invalidate_form")?.attributes["action"],
+      ));
+    }
+    catch(e, s){
+      LogManager.addLog(LogLevel.error, "Network", "$e\n$s\n${res.data}");
+      return Res.error(e.toString());
+    }
+  }
+
+  Future<Res<ArchiveDownloadInfo>> cancelAndReloadArchiveInfo(ArchiveDownloadInfo info) async{
+    var url = info.cancelUnlockUrl!;
+    var res = await post(url, "invalidate_sessions=1", headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    });
+    if (res.error) {
+      return Res.fromErrorRes(res);
+    }
+    try {
+      var document = parse(res.data);
+      var body = document.querySelector("div#db")!;
+      int index = url.contains("exhentai") ? 1 : 3;
+      var origin = body.children[index].children[0];
+      var originCost = origin.querySelector("div > strong")!.text;
+      var originSize = origin.querySelector("p > strong")!.text;
+      var resample = body.children[index].children[1];
+      var resampleCost = resample.querySelector("div > strong")!.text;
+      var resampleSize = resample.querySelector("p > strong")!.text;
+      return Res(ArchiveDownloadInfo(originSize, resampleSize,
+          originCost, resampleCost,
+          document.querySelector("form#invalidate_form")?.attributes["action"],
+      ));
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s\n${res.data}");
@@ -957,7 +988,7 @@ class EhNetwork {
       if (link == null) {
         return const Res.error("Failed to get download link");
       }
-      var res2 = await Dio().get<String>(link);
+      var res2 = await logDio().get<String>(link);
       document = parse(res2.data);
       var link2 = document
           .querySelector("a")

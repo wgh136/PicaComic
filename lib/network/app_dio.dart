@@ -13,7 +13,20 @@ class MyLogInterceptor implements Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     LogManager.addLog(LogLevel.error, "Network",
-        "${err.requestOptions.method} ${err.requestOptions.path}\n$err");
+        "${err.requestOptions.method} ${err.requestOptions.path}\n$err\n${err.response?.data.toString()}");
+    switch(err.type) {
+      case DioExceptionType.badResponse:
+        var statusCode = err.response?.statusCode;
+        if(statusCode != null){
+          err = err.copyWith(message: "Invalid Status Code: $statusCode");
+        }
+      case DioExceptionType.connectionTimeout:
+        err = err.copyWith(message: "Connection Timeout");
+      case DioExceptionType.receiveTimeout:
+        err = err.copyWith(message: "Receive Timeout: "
+            "This indicates that the server is too busy to respond");
+      default:
+    }
     handler.next(err);
   }
 
@@ -34,6 +47,9 @@ class MyLogInterceptor implements Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.connectTimeout = const Duration(seconds: 15);
+    options.receiveTimeout = const Duration(seconds: 15);
+    options.sendTimeout = const Duration(seconds: 15);
     handler.next(options);
   }
 }

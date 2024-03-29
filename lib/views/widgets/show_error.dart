@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:pica_comic/network/jm_network/jm_network.dart';
+import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/nhentai_network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../main_page.dart';
-import 'package:pica_comic/network/jm_network/cloudflare.dart' as jm;
 
 ///显示错误提示
 Widget showNetworkError(
     String? message, void Function() retry, BuildContext context,
     {bool showBack = true}) {
-  return SafeArea(
-      child: Stack(
+  Widget body = Stack(
     children: [
       if (showBack)
         Positioned(
@@ -53,10 +52,6 @@ Widget showNetworkError(
                   FilledButton(
                       onPressed: () => bypassCloudFlare(retry),
                       child: Text('继续'.tl))
-                else if (message == JmNetwork.cloudflareChallenge)
-                  FilledButton(
-                      onPressed: () => jm.bypassCloudFlare(retry),
-                      child: Text('继续'.tl))
                 else
                   FilledButton(onPressed: retry, child: Text('重试'.tl))
               ],
@@ -65,5 +60,11 @@ Widget showNetworkError(
         ),
       )
     ],
-  ));
+  );
+
+  if(UiMode.m1(context)){
+    body = body.paddingTop(MediaQuery.of(context).padding.top);
+  }
+
+  return body;
 }

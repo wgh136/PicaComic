@@ -58,7 +58,7 @@ class Appdata {
     "111111", //21 启用的漫画源
     "", //22 下载目录, 仅Windows端, 为空表示使用App数据目录
     "0", //23 初始页面,
-    "1111111111", //24 分类页面
+    "1111111111", //24 [废弃]分类页面
     "0", //25 漫画列表显示模式
     "00", //26 已下载页面排序模式: 时间, 漫画名, 作者名, 大小
     "0", //27 颜色
@@ -111,10 +111,25 @@ class Appdata {
     "1.0", //74 图片收藏大小
     "", //75 eh profile
     "0", //76 阅读器内固定横屏
-    "0,1,2,3,4,5,6,7,8", //77 探索页面
+    "0,2,3,4,5,6,7,8", //77 探索页面
     "0", //78 已下载的eh漫画优先显示副标题
     "6", //79 下载并行
   ];
+
+  /// 隐式数据, 用于存储一些不需要用户设置的数据, 此数据通常为某些组件的状态, 此设置不应当被同步
+  List<String> implicitData = [
+    "1;;", //收藏夹状态
+  ];
+
+  void writeImplicitData() async {
+    var s = await SharedPreferences.getInstance();
+    await s.setStringList("implicitData", implicitData);
+  }
+
+  void readImplicitData() async {
+    var s = await SharedPreferences.getInstance();
+    implicitData = s.getStringList("implicitData") ?? implicitData;
+  }
 
   ///屏蔽的关键词
   List<String> blockingKeyword = [];
@@ -270,9 +285,6 @@ class Appdata {
           settings[i] = st[i];
         }
       }
-      while (settings[24].length < 10) {
-        settings[24] += "1";
-      }
       if (settings[26].length < 2) {
         settings[26] += "0";
       }
@@ -295,6 +307,7 @@ class Appdata {
       htName = s.getString("htName") ?? "";
       htPwd = s.getString("htPwd") ?? "";
       nhentaiData = s.getStringList("nhentaiData") ?? nhentaiData;
+      readImplicitData();
       return firstUse[3] == "1" || token != "";
     } catch (e) {
       return false;
@@ -359,9 +372,8 @@ Future<void> clearAppdata() async {
   appdata = Appdata();
   await appdata.readData();
   await eraseCache();
-  network.token = "";
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
-  await JmNetwork().cookieJar?.deleteAll();
+  await JmNetwork().cookieJar.deleteAll();
   await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
 }

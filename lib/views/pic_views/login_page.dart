@@ -70,7 +70,6 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() {
                           isLogging = true;
                         });
-                        network = PicacgNetwork();
                         var fur = network.login(nameController.text, passwordController.text);
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -80,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
                         ));
                         fur.then((b){
                           if(b.success){
-                            appdata.token = network.token;
                             var i = network.getProfile();
                             i.then((t){
                               if(t.error){
@@ -128,7 +126,6 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() {
                           isLogging = true;
                         });
-                        network = PicacgNetwork();
                         var fur = network.login(nameController.text, passwordController.text);
                         showMessage(context, "登录中".tl);
                         fur.then((b){

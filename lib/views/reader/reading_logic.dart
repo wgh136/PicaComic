@@ -334,6 +334,12 @@ class ComicReadingPageLogic extends StateController {
     channel.invokeMethod("set", !isFullScreen);
     isFullScreen = !isFullScreen;
     focusNode.requestFocus();
+
+    if(isFullScreen){
+      StateController.find<WindowFrameController>().hideWindowFrame();
+    } else {
+      StateController.find<WindowFrameController>().showWindowFrame();
+    }
   }
 
   void handleKeyboard(KeyEvent event) {

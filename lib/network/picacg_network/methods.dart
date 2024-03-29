@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
@@ -16,16 +15,16 @@ const defaultAvatarUrl = "DEFAULT AVATAR URL"; //历史遗留, 不改了
 
 ///哔咔网络请求类
 class PicacgNetwork {
-  factory PicacgNetwork([String token = ""]) =>
-      cache ?? (cache = PicacgNetwork._create(token = token));
+  factory PicacgNetwork() =>
+      cache ?? (cache = PicacgNetwork._create());
 
   static PicacgNetwork? cache;
 
-  PicacgNetwork._create([this.token = ""]);
+  PicacgNetwork._create();
 
   final String apiUrl = "https://picaapi.picacomic.com";
-  InitData? initData;
-  String token;
+
+  String get token => appdata.token;
 
   var hotTags = <String>[];
 
@@ -139,7 +138,7 @@ class PicacgNetwork {
   ///登录
   Future<Res<bool>> login(String email, String password) async {
     if(token.isNotEmpty){
-      token = "";
+      appdata.token = "";
     }
     var api = "https://picaapi.picacomic.com";
     var response = await post('$api/auth/sign-in', {
@@ -152,15 +151,13 @@ class PicacgNetwork {
     var res = response.data;
     if (res["message"] == "success") {
       try {
-        token = res["data"]["token"];
+        appdata.token = res["data"]["token"];
       } catch (e) {
         return const Res(null, errorMessage: "Failed to get token\n");
       }
-      if (kDebugMode) {
-        print("Logging successfully");
-      }
       return const Res(true);
     } else {
+      await appdata.writeData();
       return Res(null, errorMessage: res["message"]);
     }
   }
@@ -1051,4 +1048,4 @@ String getImageUrl(String url) {
   return url;
 }
 
-var network = PicacgNetwork();
+PicacgNetwork get network => PicacgNetwork();

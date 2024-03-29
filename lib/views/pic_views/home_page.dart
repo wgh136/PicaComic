@@ -16,8 +16,9 @@ class HomePageLogic extends StateController{
   late List<ComicItemBrief> latestComics;
 
   void get() async{
-    var res1 = await network.getRandomComics();
-    var res2 = await network.getLatest(1);
+    var futures = await Future.wait([network.getRandomComics(), network.getLatest(1)]);
+    var res1 = futures[0];
+    var res2 = futures[1];
     if(res1.error || res2.error){
       message = res1.errorMessage ?? res2.errorMessage;
       randomComics = [];

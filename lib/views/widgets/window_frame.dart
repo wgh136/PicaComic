@@ -6,6 +6,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/app_views/image_favorites.dart';
 import 'package:pica_comic/views/download_page.dart';
+import 'package:pica_comic/views/downloading_page.dart';
 import 'package:pica_comic/views/history.dart';
 import 'package:pica_comic/views/main_page.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
@@ -16,6 +17,8 @@ import '../app_views/accounts_page.dart';
 
 class WindowFrameController extends StateController {
   bool reverseButtonColor = false;
+
+  bool isHideWindowFrame = false;
 
   void setDarkTheme() {
     reverseButtonColor = true;
@@ -28,6 +31,16 @@ class WindowFrameController extends StateController {
   }
 
   VoidCallback openSideBar = () {};
+
+  void hideWindowFrame() {
+    isHideWindowFrame = true;
+    update();
+  }
+
+  void showWindowFrame() {
+    isHideWindowFrame = false;
+    update();
+  }
 }
 
 class WindowFrame extends StatelessWidget {
@@ -41,6 +54,8 @@ class WindowFrame extends StatelessWidget {
         WindowFrameController());
     if (App.isMobile) return child;
     return StateBuilder<WindowFrameController>(builder: (controller) {
+      if(controller.isHideWindowFrame) return child;
+
       return WindowBorder(
         color: controller.reverseButtonColor ? Colors.black54 : Colors.white54,
         width: 1,
@@ -335,6 +350,13 @@ class _SideBarBody extends StatelessWidget {
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
               MainPage.to(() => const DownloadPage());
+            }),
+        buildItem(
+            icon: Icons.downloading,
+            title: '下载管理器'.tl,
+            onTap: () {
+              StateController.find<WindowFrameController>().openSideBar();
+              showAdaptiveWidget(App.globalContext!, const DownloadingPage());
             }),
         buildItem(
             icon: Icons.image_outlined,

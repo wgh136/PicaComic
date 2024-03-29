@@ -164,7 +164,7 @@ class EhDownloadingItem extends DownloadingItem{
     if(downloadType == 0){
       return super.totalPages;
     } else {
-      return (_totalBytes ?? 1024) ~/ 1024;
+      return _totalBytes ?? 1;
     }
   }
 
@@ -173,7 +173,7 @@ class EhDownloadingItem extends DownloadingItem{
     if(downloadType == 0){
       return super.downloadedPages;
     } else {
-      return (_currentBytes ?? 0) ~/ 1024;
+      return _currentBytes ?? 0;
     }
   }
 
@@ -183,11 +183,15 @@ class EhDownloadingItem extends DownloadingItem{
 
   String? _downloadLink;
 
+  int _currentSpeed = 0;
+  int get currentSpeed => _currentSpeed;
+
   @override
   start() async{
     if(downloadType == 0){
       return super.start();
     } else {
+      _stop = false;
       try{
         await downloadCover();
         if(gallery.auth?["archiveDownload"] == null){
@@ -207,10 +211,10 @@ class EhDownloadingItem extends DownloadingItem{
         _downloader = _IsolateDownloader(
             _downloadLink!,
             "$path/$id",
-            _currentBytes ?? 0,
-            (current, total){
+            (current, total, speed){
               _currentBytes = current;
               _totalBytes = total;
+              _currentSpeed = speed;
               updateInfo?.call();
               updateUi?.call();
               if(current == total){
@@ -282,46 +286,43 @@ class _IsolateDownloader{
 
   late SendPort sendPort;
 
-  int startByte;
-
-  final void Function(int current, int total) updateInfo;
+  final void Function(int current, int total, int speed) updateInfo;
 
   final void Function() onError;
 
-  _IsolateDownloader(this.url, this.savePath, this.startByte, this.updateInfo,
+  _IsolateDownloader(this.url, this.savePath, this.updateInfo,
       this.onError);
 
   Isolate? isolate;
 
   void stop(){
-    isolate?.kill(priority: Isolate.immediate);
+    sendPort.send("stop");
     isolate = null;
     port.close();
   }
 
   void pause(){
-    isolate?.kill(priority: Isolate.beforeNextEvent);
-    isolate = null;
-    port.close();
+    stop();
   }
 
   void start() async{
     port = ReceivePort();
     isolate = await Isolate.spawn<_DownloadData>(run, _DownloadData(
-        port.sendPort, url, savePath, startByte, await getProxy()));
+        port.sendPort, url, savePath, await getProxy()));
     var total = 0;
     port.listen((message) {
       if(message is SendPort){
         sendPort = message;
       } else if(message is DownloadingStatus){
-        startByte = message.downloadedBytes;
-        updateInfo(message.downloadedBytes, message.totalBytes+1);
+        updateInfo(message.downloadedBytes, message.totalBytes+1, message.bytesPerSecond);
         total = message.totalBytes;
       } else if(message == "finish"){
         isolate?.kill(priority: Isolate.immediate);
-        updateInfo(total+1, total+1);
+        isolate = null;
+        updateInfo(total+1, total+1, 0);
       } else if(message is _DownloadException){
         isolate?.kill(priority: Isolate.immediate);
+        isolate = null;
         LogManager.addLog(LogLevel.error, "Download", message.message);
         onError();
       }
@@ -343,15 +344,15 @@ class _IsolateDownloader{
 
     receivePort.listen((message) {
       if(message == "stop"){
-        task?.stop();
+        task?.stop().then((value) => Isolate.current.kill());
       }
     });
 
     Future.sync(() async{
-      task = FileDownloader(url, "$savePath/temp.zip", data.startByte, data.proxy);
+      task = FileDownloader(url, "$savePath/temp.zip", data.proxy);
 
       try {
-        await for (var status in task!.download()) {
+        await for (var status in task!.start()) {
           sendPort.send(status);
         }
         ZipFile.openAndExtract("$savePath/temp.zip", savePath);
@@ -384,10 +385,9 @@ class _DownloadData{
   final SendPort port;
   final String url;
   final String savePath;
-  final int startByte;
   final String? proxy;
 
-  const _DownloadData(this.port, this.url, this.savePath, this.startByte,
+  const _DownloadData(this.port, this.url, this.savePath,
       this.proxy);
 }
 

@@ -10,31 +10,35 @@ class JmLeaderboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        primary: UiMode.m1(context),
-        title: Text("排行榜".tl),
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: !UiMode.m1(context),
+      child: Scaffold(
+        appBar: AppBar(
+          primary: UiMode.m1(context),
+          title: Text("排行榜".tl),
+        ),
+        body: DefaultTabController(length: 4, child: Column(
+          children: [
+            TabBar(
+                splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+                tabs: [
+                  Tab(text: "总排行".tl),
+                  Tab(text: "月排行".tl),
+                  Tab(text: "周排行".tl),
+                  Tab(text: "日排行".tl),
+                ]),
+            const Expanded(child: TabBarView(
+                children: [
+                  OneJmLeaderboardPage(ComicsOrder.totalRanking),
+                  OneJmLeaderboardPage(ComicsOrder.monthRanking),
+                  OneJmLeaderboardPage(ComicsOrder.weekRanking),
+                  OneJmLeaderboardPage(ComicsOrder.dayRanking),
+                ]
+            ),)
+          ],
+        )),
       ),
-      body: DefaultTabController(length: 4, child: Column(
-        children: [
-          TabBar(
-              splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-              tabs: [
-                Tab(text: "总排行".tl),
-                Tab(text: "月排行".tl),
-                Tab(text: "周排行".tl),
-                Tab(text: "日排行".tl),
-              ]),
-          const Expanded(child: TabBarView(
-              children: [
-                OneJmLeaderboardPage(ComicsOrder.totalRanking),
-                OneJmLeaderboardPage(ComicsOrder.monthRanking),
-                OneJmLeaderboardPage(ComicsOrder.weekRanking),
-                OneJmLeaderboardPage(ComicsOrder.dayRanking),
-              ]
-          ),)
-        ],
-      )),
     );
   }
 }
@@ -45,7 +49,7 @@ class OneJmLeaderboardPage extends ComicsPage{
 
   @override
   Future<Res<List>> getComics(int i) {
-    return JmNetwork().getLeaderBoard(order, i);
+    return JmNetwork().getCategoryComicsNew("0", order, i);
   }
 
   @override

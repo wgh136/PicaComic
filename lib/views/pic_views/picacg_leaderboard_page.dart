@@ -83,7 +83,7 @@ class PicacgLeaderboardPage extends StatelessWidget{
       Tab(text: '7天'.tl),
       Tab(text: '30天'.tl),
     ];
-    return Scaffold(
+    var body = Scaffold(
       appBar: AppBar(
         primary: UiMode.m1(context),
         title: Text("排行榜".tl),),
@@ -102,6 +102,12 @@ class PicacgLeaderboardPage extends StatelessWidget{
           ],
         ),
       ),
+    );
+
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: !UiMode.m1(context),
+      child: body,
     );
   }
 }

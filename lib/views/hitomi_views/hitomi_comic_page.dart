@@ -90,7 +90,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   void read(History? history) {
-    readHitomiComic(data!, comic.cover, history?.page ?? 1);
+    readHitomiComic(data!, comic.cover, comic.link, history?.page ?? 1);
   }
 
   @override
@@ -147,7 +147,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
 
   @override
   void onThumbnailTapped(int index) {
-    readHitomiComic(data!, cover, index + 1);
+    readHitomiComic(data!, cover, comic.link, index + 1);
   }
 
   @override
@@ -162,7 +162,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   }
 
   @override
-  String get id => comic.link;
+  String get id => data!.id;
 
   @override
   String get source => "hitomi";

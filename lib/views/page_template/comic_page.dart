@@ -75,7 +75,7 @@ class ComicPageLogic<T extends Object> extends StateController {
   int colorIndex = 0;
 
   void get(Future<Res<T>> Function() loadData,
-      Future<bool> Function(T) loadFavorite, String id) async {
+      Future<bool> Function(T) loadFavorite, String Function() getId) async {
     var res = await loadData();
     if (res.error) {
       if (res.errorMessage == "Exit") {
@@ -87,7 +87,7 @@ class ComicPageLogic<T extends Object> extends StateController {
       favorite = await loadFavorite(res.data);
     }
     loading = false;
-    history = await HistoryManager().find(id);
+    history = await HistoryManager().find(getId());
     update();
   }
 
@@ -202,6 +202,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Future<bool> loadFavorite(T data);
 
+  /// used for history
   String get id;
 
   /// url linked to this comic
@@ -256,7 +257,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
             _logic.width = constraints.maxWidth;
             _logic.height = constraints.maxHeight;
             if (logic.loading) {
-              logic.get(loadData, loadFavorite, id);
+              logic.get(loadData, loadFavorite, () => id);
               return buildLoading(context);
             } else if (logic.message != null) {
               return showNetworkError(logic.message, logic.refresh_, context);
@@ -691,8 +692,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                 }
                 Share.share(text);
               }),
-              buildItem("收藏".tl, Icons.collections_bookmark, openFavoritePanel,
-                  () {
+              buildItem(favorite ? "已收藏".tl : "收藏".tl, favorite ?
+                  Icons.collections_bookmark :
+                  Icons.collections_bookmark_outlined,
+                openFavoritePanel, () {
                 var folder = appdata.settings[51];
                 if (LocalFavoritesManager().folderNames.contains(folder)) {
                   LocalFavoritesManager()

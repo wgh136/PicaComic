@@ -39,15 +39,21 @@ class DesktopMenuRoute<T> extends PopupRoute<T>{
         Positioned(
           left: left,
           top: top,
-          child: Material(
-            elevation: 1,
-            color: App.colors(context).surface,
-            surfaceTintColor: App.colors(context).surfaceTint,
-            type: MaterialType.card,
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
-              width: width,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+          child: Container(
+            width: width,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            decoration: BoxDecoration(
+                color: App.colors(context).surface,
+                borderRadius: BorderRadius.circular(4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+            ),
+            child: Material(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: entries.map((e) => buildEntry(e, context)).toList(),

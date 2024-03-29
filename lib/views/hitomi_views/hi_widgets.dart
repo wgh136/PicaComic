@@ -57,7 +57,7 @@ class HiComicTile extends ComicTile {
       showMessage(App.globalContext, res.errorMessageWithoutNull);
     }else{
       App.globalBack();
-      readHitomiComic(res.data, comic.cover);
+      readHitomiComic(res.data, comic.cover, comic.link);
     }
   };
 

@@ -118,14 +118,30 @@ const CategoryData jmCategory = CategoryData(
     categories: [
       FixedCategoryPart(
           "成人A漫",
-          ["同人", "單本", "短篇", "其他類", "韓漫"],
+          [
+            "最新A漫",
+            "同人",
+            "單本",
+            "短篇",
+            "其他類",
+            "韓漫",
+            "美漫",
+            "Cosplay",
+            "3D",
+            "禁漫漢化組"
+          ],
           "category",
           [
-            "/albums/doujin",
-            "/albums/single",
-            "/albums/short",
-            "/albums/another",
-            "/albums/hanman"
+            "0",
+            "doujin",
+            "single",
+            "short",
+            "another",
+            "hanman",
+            "meiman",
+            "another_cosplay",
+            "3D",
+            "禁漫漢化組"
           ]),
       FixedCategoryPart(
           "主題A漫",

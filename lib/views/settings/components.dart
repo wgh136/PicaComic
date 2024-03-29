@@ -70,7 +70,8 @@ class NewPageSetting extends StatelessWidget {
 
 class SelectSetting extends StatelessWidget {
   const SelectSetting({super.key, required this.icon, required this.title,
-    this.subTitle, required this.settingsIndex, required this.options});
+    this.subTitle, required this.settingsIndex, required this.options,
+    this.onChange});
 
   final Widget icon;
 
@@ -82,6 +83,8 @@ class SelectSetting extends StatelessWidget {
 
   final List<String> options;
 
+  final void Function()? onChange;
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -92,6 +95,7 @@ class SelectSetting extends StatelessWidget {
         whenChange: (i) {
           appdata.settings[settingsIndex] = i.toString();
           appdata.updateSettings();
+          onChange?.call();
         },
         values: options,
       ),
