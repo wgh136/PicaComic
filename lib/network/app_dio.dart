@@ -18,16 +18,34 @@ class MyLogInterceptor implements Interceptor {
       case DioExceptionType.badResponse:
         var statusCode = err.response?.statusCode;
         if(statusCode != null){
-          err = err.copyWith(message: "Invalid Status Code: $statusCode");
+          err = err.copyWith(message: "Invalid Status Code: $statusCode. "
+              "${_getStatusCodeInfo(statusCode)}");
         }
       case DioExceptionType.connectionTimeout:
         err = err.copyWith(message: "Connection Timeout");
       case DioExceptionType.receiveTimeout:
         err = err.copyWith(message: "Receive Timeout: "
             "This indicates that the server is too busy to respond");
-      default:
+      case DioExceptionType.unknown:
+        if(err.toString().contains("Connection terminated during handshake")) {
+          err = err.copyWith(message: "Connection terminated during handshake: "
+              "This may be caused by the firewall blocking the connection "
+              "or your requests are too frequent.");
+        }
+      default: {}
     }
     handler.next(err);
+  }
+
+  String _getStatusCodeInfo(int? statusCode){
+    if(statusCode == 403){
+      return "This may be caused by your IP being blocked by the server "
+          "or the server does not trust the client.";
+    } else if(statusCode != null && statusCode >= 500) {
+      return "This is server-side error, please try again later. "
+          "Do not report this issue.";
+    }
+    return "";
   }
 
   @override
@@ -98,7 +116,8 @@ class AppHttpAdapter implements HttpClientAdapter{
         return await fetchOnce(o, requestStream, cancelFuture);
       }
       catch(e){
-        LogManager.addLog(LogLevel.error, "Network", "$e\nRetrying...");
+        LogManager.addLog(LogLevel.error, "Network",
+            "${o.method} ${o.path}\n$e\nRetrying...");
         retry++;
         if(retry == 3){
           rethrow;
