@@ -132,7 +132,6 @@ class JmRecombine{
     if(_isolate == null){
       await _start();
     }
-    _pushTask();
     return completer.future;
   }
 
@@ -161,13 +160,13 @@ class JmRecombine{
     _receivePort = ReceivePort();
     _isolate = await Isolate.spawn(_run, _receivePort!.sendPort);
     _listen();
-    await Future.delayed(const Duration(milliseconds: 10));
   }
 
   static void _listen(){
     _receivePort!.listen((message) {
       if (message is SendPort){
         _sendPort = message;
+        _pushTask();
       } else if(message is Uint8List){
         _current!.completer!.complete(message);
         _current = null;
@@ -178,7 +177,6 @@ class JmRecombine{
 
   static void _run(SendPort port){
     _receivePort = ReceivePort();
-    port.send(_receivePort!.sendPort);
     _receivePort!.listen((message) async{
       if (message is _RecombinationTask){
         _RecombinationTask task = message;
@@ -186,6 +184,7 @@ class JmRecombine{
         port.send(bytes);
       }
     });
+    port.send(_receivePort!.sendPort);
   }
 }
 
