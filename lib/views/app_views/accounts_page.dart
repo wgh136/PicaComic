@@ -501,7 +501,8 @@ class AccountsPage extends StatelessWidget {
         onTap: () {
           appdata.ehAccount = "";
           appdata.writeData();
-          EhNetwork().cookieJar.deleteAll();
+          EhNetwork().cookieJar.deleteUri(Uri.parse("https://e-hentai.org"));
+          EhNetwork().cookieJar.deleteUri(Uri.parse("https://exhentai.org"));
           logic.update();
         },
         trailing: const Icon(Icons.logout),

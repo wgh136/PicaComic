@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/app_dio.dart';
@@ -12,7 +13,6 @@ import '../http_client.dart';
 import 'package:html/parser.dart';
 import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -40,8 +40,7 @@ class EhNetwork {
       ? "https://api.e-hentai.org/api.php"
       : "https://exhentai.org/api.php";
 
-  final cookieJar = PersistCookieJar(
-      ignoreExpires: true, storage: FileStorage("${App.dataPath}/eh_cookies"));
+  final cookieJar = SingleInstanceCookieJar.instance!;
 
   ///给图片加载使用的cookie
   String cookiesStr = "";
@@ -62,9 +61,7 @@ class EhNetwork {
         Cookie("sp", appdata.settings[75]),
     ];
 
-    var cookies = await cookieJar.loadForRequest(Uri.parse(url));
-
-    cookies.removeWhere((element) => element.name == "nw" || element.name == "sp");
+    var cookies = cookieJar.loadForRequest(Uri.parse(url));
     
     if(appdata.ehAccount != ""
         && cookies.every((element) => element.name != "ipb_member_id")){
@@ -81,9 +78,7 @@ class EhNetwork {
       }
     }
 
-    await cookieJar.delete(Uri.parse(url));
-
-    await cookieJar.saveFromResponse(Uri.parse(url), shouldAdd + cookies);
+    cookieJar.saveFromResponse(Uri.parse(url), shouldAdd);
 
     var res = "";
     for (var cookie in cookies) {
@@ -203,7 +198,7 @@ class EhNetwork {
         headers: {"user-agent": webUA, ...?headers});
 
     var dio = logDio(options)..interceptors.add(LogInterceptor());
-    dio.interceptors.add(CookieManager(cookieJar));
+    dio.interceptors.add(CookieManagerSql(cookieJar));
     try {
       var res = await dio.post<String>(url, data: data);
       return Res(res.data ?? "");

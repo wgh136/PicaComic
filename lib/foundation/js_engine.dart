@@ -5,15 +5,14 @@ import 'dart:math' as math;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
-import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:html/parser.dart' as html;
 import 'package:html/dom.dart' as dom;
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/tools/extensions.dart';
 
 class JavaScriptRuntimeException implements Exception {
@@ -144,9 +143,8 @@ class JsEngine with _JSEngineApi{
   void _loop() async {
     _dio ??= logDio(BaseOptions(
         responseType: ResponseType.plain, validateStatus: (status) => true));
-    _cookieJar ??= PersistCookieJar(
-        storage: FileStorage("${App.dataPath}/comic_source/cookies/"));
-    _dio!.interceptors.add(CookieManager(_cookieJar!));
+    _cookieJar ??= SingleInstanceCookieJar.instance!;
+    _dio!.interceptors.add(CookieManagerSql(_cookieJar!));
 
     while (_jsRuntime != null) {
       if (_closed) return;
@@ -320,7 +318,7 @@ class JsEngine with _JSEngineApi{
 mixin class _JSEngineApi{
   final Map<int, dom.Document> _documents = {};
   final Map<int, dom.Element> _elements = {};
-  CookieJar? _cookieJar;
+  CookieJarSql? _cookieJar;
 
   dynamic handleHtmlCallback(Map<String, dynamic> data) {
     switch (data["function"]) {
@@ -403,7 +401,7 @@ mixin class _JSEngineApi{
     for(var domain in domains){
       var uri = Uri.tryParse(domain);
       if(uri == null) continue;
-      await _cookieJar!.delete(uri);
+      _cookieJar!.deleteUri(uri);
     }
   }
 

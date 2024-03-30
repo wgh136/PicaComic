@@ -217,14 +217,15 @@ class _EhLoginPageState extends State<EhLoginPage> {
       logging = true;
     });
 
-    await EhNetwork().cookieJar.deleteAll();
+    EhNetwork().cookieJar.deleteUri(Uri.parse('https://e-hentai.org'));
+    EhNetwork().cookieJar.deleteUri(Uri.parse('https://exhentai.org'));
 
     var cookies = cookiesMap.entries.map((e) => Cookie(e.key, e.value)).toList();
     cookies.forEach((element) => element.domain = ".e-hentai.org");
-    await EhNetwork().cookieJar
+    EhNetwork().cookieJar
         .saveFromResponse(Uri.parse("https://e-hentai.org"), cookies);
     cookies.forEach((element) => element.domain = ".exhentai.org");
-    await EhNetwork().cookieJar
+    EhNetwork().cookieJar
         .saveFromResponse(Uri.parse("https://exhentai.org"), cookies);
 
     EhNetwork().getUserName().then((b) {
@@ -232,7 +233,8 @@ class _EhLoginPageState extends State<EhLoginPage> {
         App.back(context);
         showMessage(context, "登录成功".tl);
       } else {
-        EhNetwork().cookieJar.deleteAll();
+        EhNetwork().cookieJar.deleteUri(Uri.parse('https://e-hentai.org'));
+        EhNetwork().cookieJar.deleteUri(Uri.parse('https://exhentai.org'));
         showMessage(context, "登录失败".tl);
         setState(() {
           logging = false;

@@ -25,7 +25,7 @@ void login(void Function() whenFinish) async{
           if(!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
             webview.runScript("window.chrome.webview.postMessage(\"UA\" + navigator.userAgent)");
             var cookies = await webview.getCookies(NhentaiNetwork().baseUrl);
-            await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl),
+            NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl),
                 List<io.Cookie>.generate(cookies.length, (index){
                   var cookie = io.Cookie(cookies.keys.elementAt(index), cookies.values.elementAt(index));
                   if(cookie.name == "sessionid"){
@@ -60,7 +60,8 @@ void login(void Function() whenFinish) async{
             cookie.domain = ".nhentai.net";
             cookiesList.add(cookie);
           });
-          await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl), cookiesList);
+          NhentaiNetwork().cookieJar!.saveFromResponse(
+              Uri.parse(NhentaiNetwork().baseUrl), cookiesList);
           whenFinish();
           App.globalBack();
         }

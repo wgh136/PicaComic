@@ -1,8 +1,12 @@
+import 'dart:io' as io;
+
 import 'package:app_links/app_links.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/http_proxy.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/tools/app_links.dart';
@@ -20,6 +24,7 @@ Future<void> init() async{
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
     await appdata.readData();
     await App.init();
+    SingleInstanceCookieJar("${App.dataPath}/cookies.db");
     HttpProxyServer.createConfigFile();
     if(appdata.settings[58] == "1"){
       HttpProxyServer.startServer();
@@ -37,7 +42,7 @@ Future<void> init() async{
       );
     }
     await checkDownloadPath();
-    _checkOldData();
+    await _checkOldData();
 
     await ComicSource.init();
 
@@ -55,9 +60,57 @@ Future<void> init() async{
   }
 }
 
-void _checkOldData(){
+Future<void> _checkOldData() async{
+  // settings
   appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
   if(int.parse(appdata.settings[17]) >= 4){
     appdata.settings[17] = '0';
+  }
+
+  if(io.Directory("${App.dataPath}/comic_source/cookies/").existsSync() ||
+    io.Directory("${App.dataPath}/eh_cookies").existsSync() ||
+    io.Directory("${App.dataPath}/comic_source/cookies").existsSync()){
+    // cookies, old version use package cookie_jar
+    final cookieJars = [
+      PersistCookieJar(storage: FileStorage("${App.dataPath}/cookies")),
+      PersistCookieJar(storage: FileStorage("${App.dataPath}/eh_cookies")),
+      PersistCookieJar(storage: FileStorage("${App.dataPath}/comic_source/cookies/"))
+    ];
+    var cookies = <io.Cookie>[];
+    for (var cookie in (await cookieJars[0].loadForRequest(Uri.parse("https://nhentai.net")))) {
+      cookie.domain ??= ".nhentai.net";
+      cookies.add(cookie);
+    }
+    for (var cookie in (await cookieJars[1].loadForRequest(Uri.parse("https://e-hentai.org")))) {
+      cookie.domain ??= ".e-hentai.org";
+      cookies.add(cookie);
+    }
+    for (var cookie in (await cookieJars[1].loadForRequest(Uri.parse("https://exhentai.org")))) {
+      cookie.domain ??= ".exhentai.org";
+      cookies.add(cookie);
+    }
+    for(var file in io.Directory("${App.dataPath}/comic_source/cookies/").listSync()){
+      var domain = file.path.split("/").last;
+      if(domain == '.domains' || domain == '.index'){
+        continue;
+      }
+      if(domain.startsWith('.')){
+        domain = domain.substring(1);
+      }
+      for (var cookie in (await cookieJars[2].loadForRequest(Uri.parse("https://$domain")))) {
+        cookie.domain ??= ".$domain";
+        cookies.add(cookie);
+      }
+    }
+    try {
+      // delete old cookies
+      io.Directory("${App.dataPath}/cookies").deleteSync(recursive: true);
+      io.Directory("${App.dataPath}/eh_cookies").deleteSync(recursive: true);
+      io.Directory("${App.dataPath}/comic_source/cookies/").deleteSync(
+          recursive: true);
+    }
+    catch(e){
+      // ignore
+    }
   }
 }

@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/http_client.dart';
 import 'app_dio.dart';
 
@@ -31,7 +30,7 @@ class CachedNetwork {
 
   Future<CachedNetworkRes<String>> get(String url, BaseOptions options,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
-      CookieJar? cookieJar, bool log = true, bool http2 = false}) async {
+      CookieJarSql? cookieJar, bool log = true, bool http2 = false}) async {
     await setNetworkProxy();
     await init();
     var fileName = md5
@@ -53,7 +52,7 @@ class CachedNetwork {
     options.responseType = ResponseType.plain;
     var dio = log?logDio(options, http2):Dio(options);
     if (cookieJar != null) {
-      dio.interceptors.add(CookieManager(cookieJar));
+      dio.interceptors.add(CookieManagerSql(cookieJar));
     }
 
     var res = await dio.get(url);

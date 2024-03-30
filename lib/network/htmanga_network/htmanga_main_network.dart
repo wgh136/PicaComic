@@ -6,6 +6,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/res.dart';
@@ -37,7 +38,7 @@ class HtmangaNetwork {
             "User-Agent": webUA,
             if (headers != null) ...headers
           }),
-          cookieJar: cookieJar,
+          cookieJar: SingleInstanceCookieJar.instance,
           expiredTime: cache ? CacheExpiredTime.short : CacheExpiredTime.no);
       return Res(res.data);
     } on DioException catch (e) {

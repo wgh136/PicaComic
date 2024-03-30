@@ -73,6 +73,7 @@ extension _CachedNetwork on CachedNetwork {
 class JmNetwork {
   static const baseData = "";
 
+  // 禁漫的cookie无需持久化储存, 因为有效期非常短
   final cookieJar = CookieJar(ignoreExpires: true);
 
   var hotTags = <String>[];

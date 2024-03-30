@@ -19,7 +19,7 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
         if(title.contains("nhentai")) {
           webview.runScript("window.chrome.webview.postMessage(\"UA\" + navigator.userAgent)");
           var cookies = await webview.getCookies("https://nhentai.net");
-          await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net"),
+          NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net"),
               List<io.Cookie>.generate(cookies.length, (index){
                 var cookie = io.Cookie(cookies.keys.elementAt(index), cookies.values.elementAt(index));
                 cookie.domain = ".nhentai.net";
@@ -43,21 +43,14 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
           }
           var cookiesMap = await controller.getCookies("https://nhentai.net/") ?? {};
           var cookies = List<io.Cookie>.generate(cookiesMap.length, (index){
-            var cookie = io.Cookie(cookiesMap.keys.elementAt(index), cookiesMap.values.elementAt(index));
+            var cookie = io.Cookie(
+              cookiesMap.keys.elementAt(index),
+              cookiesMap.values.elementAt(index)
+            );
             cookie.domain = ".nhentai.net";
             return cookie;
           });
-          var current = await NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse("https://nhentai.net"));
-          NhentaiNetwork().cookieJar!.deleteAll();
-          cookies.addAll(current.where((element) {
-            for(var c in cookies){
-              if(c.name == element.name){
-                return false;
-              }
-            }
-            return true;
-          }));
-          await NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net/"), cookies);
+          NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net/"), cookies);
           whenFinish();
           App.globalBack();
         }

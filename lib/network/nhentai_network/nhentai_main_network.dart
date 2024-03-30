@@ -1,13 +1,10 @@
 import 'dart:convert';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:html/dom.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
-import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/nhentai_network/tags.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
@@ -33,7 +30,7 @@ class NhentaiNetwork {
 
   static NhentaiNetwork? _cache;
 
-  PersistCookieJar? cookieJar;
+  SingleInstanceCookieJar? cookieJar;
 
   bool logged = false;
 
@@ -43,11 +40,8 @@ class NhentaiNetwork {
       "Cloudflare Challenge";
 
   Future<void> init() async {
-    var path = (await getApplicationSupportDirectory()).path;
-    path = "$path$pathSep${"cookies"}";
-    cookieJar = PersistCookieJar(storage: FileStorage(path));
-    for (var cookie
-        in await cookieJar!.loadForRequest(Uri.parse(baseUrl))) {
+    cookieJar = SingleInstanceCookieJar.instance;
+    for (var cookie in cookieJar!.loadForRequest(Uri.parse(baseUrl))) {
       if (cookie.name == "sessionid") {
         logged = true;
       }
@@ -56,38 +50,25 @@ class NhentaiNetwork {
 
   void logout() async {
     logged = false;
-    var cookies =
-        await cookieJar!.loadForRequest(Uri.parse(baseUrl));
-    for (var c in cookies) {
-      if (c.name == "sessionid") {
-        cookies.remove(c);
-        break;
-      }
-    }
-    await cookieJar!.deleteAll();
-    await cookieJar!
-        .saveFromResponse(Uri.parse(baseUrl), cookies);
+    cookieJar!.delete(Uri.parse(baseUrl), "sessionid");
   }
 
   Future<Res<String>> get(String url) async {
     if (cookieJar == null) {
       await init();
     }
-    var dio = CachedNetwork();
+    var dio = logDio(BaseOptions(headers: {
+      "Accept":
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "Accept-Language":
+      "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
+      if (url != "$baseUrl/") "Referer": "$baseUrl/",
+      "User-Agent": ua
+    }, validateStatus: (i) => i == 200 || i == 403 || i==302,
+        followRedirects: url.contains("random") ? false : true));
+    dio.interceptors.add(CookieManagerSql(cookieJar!));
     try {
-      var res = await dio.get(
-          url,
-          BaseOptions(headers: {
-            "Accept":
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "Accept-Language":
-                "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
-            if (url != "$baseUrl/") "Referer": "$baseUrl/",
-            "User-Agent": ua
-          }, validateStatus: (i) => i == 200 || i == 403 || i==302,
-              followRedirects: url.contains("random") ? false : true),
-          expiredTime: CacheExpiredTime.no,
-          cookieJar: cookieJar);
+      var res = await dio.get(url);
       if(res.statusCode == 302){
         return Res(res.headers["Location"]?.first ?? res.headers["location"]?.first ?? "");
       }
@@ -118,7 +99,7 @@ class NhentaiNetwork {
           ...?headers
         },
         validateStatus: (i) => i == 200 || i == 403));
-    dio.interceptors.add(CookieManager(cookieJar!));
+    dio.interceptors.add(CookieManagerSql(cookieJar!));
     try {
       var res = await dio.post(url, data: data);
       if (res.statusCode == 403) {
