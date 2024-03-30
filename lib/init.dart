@@ -57,4 +57,7 @@ Future<void> init() async{
 
 void _checkOldData(){
   appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
+  if(int.parse(appdata.settings[17]) >= 4){
+    appdata.settings[17] = '0';
+  }
 }
