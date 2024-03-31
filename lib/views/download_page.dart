@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/custom_download_model.dart';
 import 'package:pica_comic/network/download.dart';
@@ -11,6 +13,7 @@ import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/tools/pdf.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/downloading_page.dart';
@@ -26,6 +29,7 @@ import 'package:pica_comic/views/widgets/appbar.dart';
 import 'package:pica_comic/views/widgets/comic_tile.dart';
 import 'package:pica_comic/views/widgets/desktop_menu.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/select.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
@@ -217,6 +221,70 @@ class DownloadPage extends StatelessWidget {
       }
     }
   }
+  
+  void downloadFont() async{
+    bool canceled = false;
+    var cancelToken = CancelToken();
+    var controller = showLoadingDialog(
+        App.globalContext!, () {
+          canceled = true;
+          cancelToken.cancel();
+    }, false, true, "Downloading");
+    var dio = logDio();
+    try {
+      await dio.download(
+        "https://raw.githubusercontent.com/wgh136/PicaComic/dev/fonts/NotoSansSC-Regular.ttf",
+        "${App.dataPath}/font.ttf",
+        cancelToken: cancelToken,
+      );
+    }
+    catch(e){
+      showToast(message: "下载失败".tl);
+      controller.close();
+      return;
+    }
+    if(!canceled) {
+      controller.close();
+      showToast(message: "下载完成".tl);
+    }
+  }
+
+  void exportAsPdf(DownloadedItem? comic, DownloadPageLogic logic) async{
+    if(comic == null){
+      for (int i = 0; i < logic.selected.length; i++) {
+        if (logic.selected[i]) {
+          comic = logic.comics[i];
+        }
+      }
+    }
+    if(comic == null){
+      showMessage(App.globalContext, "请选择一个漫画".tl);
+      return;
+    }
+    var file = File("${App.dataPath}/font.ttf");
+    if(!App.isWindows && !await file.exists()){
+      showConfirmDialog(App.globalContext!, "缺少字体".tl, 
+          "需要下载字体文件(10.1MB), 是否继续?", downloadFont);
+    } else {
+      bool canceled = false;
+      var controller = showLoadingDialog(
+          App.globalContext!, () => canceled = true, false);
+      var fileName = "${comic.name}.pdf";
+      fileName = fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '');
+      await createPdfFromComicWithIsolate(
+          title: comic.name,
+          comicPath: "${downloadManager.path}/${comic.id}",
+          savePath: "${App.cachePath}/$fileName",
+          chapters: comic.eps,
+          chapterIndexes: comic.downloadedEps
+      );
+      if(!canceled) {
+        controller.close();
+        await exportPdf("${App.cachePath}/$fileName");
+        File("${App.cachePath}/$fileName").deleteSync();
+      }
+    }
+  }
 
   Widget buildItem(BuildContext context, DownloadPageLogic logic, int index) {
     bool selected = logic.selected[index];
@@ -326,6 +394,12 @@ class DownloadPage extends StatelessWidget {
                                 }
                               });
                         }),
+                  ),
+                  DesktopMenuEntry(
+                    text: "导出为pdf".tl,
+                    onClick: () {
+                      exportAsPdf(logic.comics[index], logic);
+                    },
                   ),
                   DesktopMenuEntry(
                     text: "查看漫画详情".tl,
@@ -552,6 +626,10 @@ class DownloadPage extends StatelessWidget {
                       PopupMenuItem(
                         child: Text("导出".tl),
                         onTap: () => exportSelectedComic(context, logic),
+                      ),
+                      PopupMenuItem(
+                        child: Text("导出为pdf".tl),
+                        onTap: () => exportAsPdf(null, logic),
                       ),
                       PopupMenuItem(
                         child: Text("查看漫画详情".tl),

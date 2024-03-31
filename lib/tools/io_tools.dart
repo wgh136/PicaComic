@@ -65,6 +65,29 @@ Future<bool> exportComic(String id, String name, [List<String>? epNames]) async{
   }
 }
 
+Future<bool> exportPdf(String pdfPath) async{
+  try{
+    if(App.isMobile) {
+      var params = SaveFileDialogParams(sourceFilePath: pdfPath);
+      await FlutterFileDialog.saveFile(params: params);
+    } else {
+      final FileSaveLocation? result =
+      await getSaveLocation(suggestedName: pdfPath.split(pathSep).last);
+
+      if (result != null) {
+        const String mimeType = 'application/pdf';
+        final XFile textFile = XFile(pdfPath, mimeType: mimeType);
+        await textFile.saveTo(result.path);
+      }
+    }
+    return true;
+  }
+  catch(e){
+    return false;
+  }
+
+}
+
 class ExportComicData{
   String id;
   String? path;

@@ -90,6 +90,7 @@ dependencies:
   collection: 1.18.0
   bitsdojo_window: 0.1.6
   flutter_inappwebview: 6.0.0
+  pdf: ^3.10.8
 
 dev_dependencies:
   flutter_test:

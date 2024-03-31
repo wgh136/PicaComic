@@ -137,6 +137,18 @@ class DownloadingTile extends StatelessWidget {
   const DownloadingTile(this.comic, this.cancel, this.onComicPositionChange,
       {super.key});
 
+  String _bytesToSize(int bytes) {
+    if (bytes < 1024) {
+      return "$bytes B";
+    } else if (bytes < 1024 * 1024) {
+      return "${(bytes / 1024).toStringAsFixed(2)} KB";
+    } else if (bytes < 1024 * 1024 * 1024) {
+      return "${(bytes / 1024 / 1024).toStringAsFixed(2)} MB";
+    } else {
+      return "${(bytes / 1024 / 1024 / 1024).toStringAsFixed(2)} GB";
+    }
+  }
+
   String getProgressText(DownloadingProgressController controller) {
     if (controller.pagesCount == 0) {
       return "获取图片信息...".tl;
@@ -144,34 +156,16 @@ class DownloadingTile extends StatelessWidget {
 
     String speedInfo = "";
     if (controller.speed != null) {
-      if (controller.speed! < 1024) {
-        speedInfo = "${controller.speed}B/s";
-      } else if (controller.speed! < 1024 * 1024) {
-        speedInfo = "${(controller.speed! / 1024).toStringAsFixed(2)}KB/s";
-      } else {
-        speedInfo =
-            "${(controller.speed! / 1024 / 1024).toStringAsFixed(2)}MB/s";
-      }
+      speedInfo = "${_bytesToSize(controller.speed!)}/s";
     }
 
     String status =
         "${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}";
 
     if (speedInfo != "") {
-      // 此时controller.pagesCount为字节数
-      if (controller.pagesCount < 1024) {
-        status =
-            "${controller.downloadPages}/${controller.pagesCount}B";
-      } else if (controller.pagesCount < 1024 * 1024) {
-        status =
-            "${controller.downloadPages >> 10}/${(controller.pagesCount >> 10)}KB";
-      } else if (controller.pagesCount < 1024 * 1024 * 1024) {
-        status =
-            "${controller.downloadPages >> 20}/${(controller.pagesCount >> 20)}MB";
-      } else {
-        status =
-            "${controller.downloadPages >> 30}/${(controller.pagesCount >> 30)}GB";
-      }
+      status =
+        "${_bytesToSize(controller.downloadPages).split(' ').first}"
+            "/${_bytesToSize(controller.pagesCount)}";
     }
 
     return "$status  $speedInfo";
