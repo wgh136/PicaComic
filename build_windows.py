@@ -4,7 +4,7 @@ import os
 fontUse = '''
     - family: font
       fonts:
-        - asset: fonts/NotoSansSC-Regular.otf
+        - asset: fonts/NotoSansSC-Regular.ttf
 '''
 
 file = open('pubspec.yaml', 'r')
