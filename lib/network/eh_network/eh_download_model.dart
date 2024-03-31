@@ -95,7 +95,7 @@ class EhDownloadingItem extends DownloadingItem{
   };
 
   @override
-  String get cover => gallery.coverPath;
+  String get cover => gallery.coverPath.replaceFirst('s.exhentai.org', 'ehgt.org');
 
   ///储存画廊信息
   @override
