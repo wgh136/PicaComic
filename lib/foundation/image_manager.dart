@@ -125,15 +125,18 @@ class ImageManager {
     loadingItems.clear();
   }
 
-  int ehLoading = 0;
-
   /// 获取图片, 适用于没有任何限制的图片链接
   Stream<DownloadProgress> getImage(String url, [Map<String, String>? headers]) async* {
+    int timeout = 50;
     while (loadingItems[url] != null) {
       var progress = loadingItems[url]!;
       yield progress;
       if (progress.finished) return;
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 300));
+      timeout--;
+      if (timeout == 0) {
+        loadingItems.remove("url");
+      }
     }
     loadingItems[url] = DownloadProgress(0, 1, url, "");
     try {
@@ -154,14 +157,6 @@ class ImageManager {
         url = url.replaceFirst("s.exhentai.org", "ehgt.org");
       }
 
-      if(url.contains("ehgt.org")) {
-        while(ehLoading >= 5){
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
-        ehLoading++;
-        Future.delayed(const Duration(seconds: 3), () => ehLoading--);
-      }
-
       //生成文件名
       var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
       if (fileName.length > 10) {
@@ -174,7 +169,7 @@ class ImageManager {
       headers = headers ?? {};
       headers["User-Agent"] ??= webUA;
       if (url.contains("nhentai")) {
-        var cookies = await NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse(url));
+        var cookies = NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse(url));
         var res = "";
         for (var cookie in cookies) {
           res += "${cookie.name}=${cookie.value}; ";
