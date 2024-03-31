@@ -92,6 +92,7 @@ class Webdav {
 
   static Future<bool> downloadData([String? config]) async {
     _isOperating = true;
+    bool force = config != null;
     try {
       config ??= appdata.settings[45];
       var configs = config.split(';');
@@ -122,7 +123,7 @@ class Webdav {
           }
         }
 
-        if (maxVersion.toString() == appdata.settings[46]) {
+        if (!force && maxVersion.toString() == appdata.settings[46]) {
           LogManager.addLog(LogLevel.info, "Sync",
               "No updated version of data.\nStop downloading data.");
           return true;
