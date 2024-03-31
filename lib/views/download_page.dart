@@ -209,16 +209,16 @@ class DownloadPage extends StatelessWidget {
   }
 
   Future<void> export(DownloadPageLogic logic) async {
+    var comics = <DownloadedItem>[];
     for (int i = 0; i < logic.selected.length; i++) {
       if (logic.selected[i]) {
-        var res = await exportComic(logic.comics[i].id, logic.comics[i].name, logic.comics[i].eps);
-        App.globalBack();
-        if (res) {
-          //忽视
-        } else {
-          showMessage(App.globalContext, "导出失败");
-        }
+        comics.add(logic.comics[i]);
       }
+    }
+    var res = await exportComics(comics);
+    App.globalBack();
+    if (!res) {
+      showToast(message: "导出失败".tl);
     }
   }
   
@@ -678,9 +678,6 @@ class DownloadPage extends StatelessWidget {
   void exportSelectedComic(BuildContext context, DownloadPageLogic logic){
     if (logic.selectedNum == 0) {
       showMessage(context, "请选择漫画".tl);
-    } else if (logic.selectedNum > 1) {
-      showMessage(
-          context, "一次只能导出一部漫画".tl);
     } else {
       Future<void>.delayed(
         const Duration(milliseconds: 200),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +13,7 @@ import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/download.dart';
+import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -58,6 +60,39 @@ Future<bool> exportComic(String id, String name, [List<String>? epNames]) async{
 
     var file = File('${data.path!}$pathSep$name.zip');
     file.delete();
+    return true;
+  }
+  catch(e){
+    return false;
+  }
+}
+
+Future<bool> exportComics(List<DownloadedItem> comics) async{
+  try{
+    var exportDatas = <ExportComicData>[];
+    for(var comic in comics){
+      var id = comic.id;
+      var name = sanitizeFileName(comic.name);
+      var path = downloadManager.path;
+      var epNames = comic.eps;
+      exportDatas.add(ExportComicData(id, path, name, epNames));
+    }
+    await Isolate.run(() => runningExportComics(exportDatas));
+    if(App.isMobile) {
+      var params = SaveFileDialogParams(sourceFilePath:
+        '${downloadManager.path}/comics.zip');
+      await FlutterFileDialog.saveFile(params: params);
+    } else {
+      final FileSaveLocation? result =
+        await getSaveLocation(suggestedName: 'comics.zip');
+
+      if (result != null) {
+        const String mimeType = 'application/zip';
+        final XFile textFile = XFile(
+            '${downloadManager.path}/comics.zip', mimeType: mimeType);
+        await textFile.saveTo(result.path);
+      }
+    }
     return true;
   }
   catch(e){
@@ -124,6 +159,65 @@ Future<bool> runningExportComic(ExportComicData data) async{
         }
       }
     }
+    return true;
+  }
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+    return false;
+  }
+}
+
+Future<bool> runningExportComics(List<ExportComicData> datas) async{
+  try{
+    var result = "${datas.first.path}/comics.zip";
+    if(File(result).existsSync()){
+      File(result).deleteSync();
+    }
+    var zipFile = ZipFile.open(result);
+    for(var data in datas){
+      var id = data.id;
+      final directory = Directory('${data.path!}/$id');
+      bool isModifiedNames = false;
+      if(Directory("${directory.path}/1").existsSync() && data.epNames != null){
+        for(var entry in directory.listSync()){
+          if(entry is Directory){
+            isModifiedNames = true;
+            var index = int.parse(entry.name) - 1;
+            if(index < data.epNames!.length) {
+              entry.renameX(sanitizeFileName(data.epNames![index]));
+            }
+          }
+        }
+      }
+
+      void walk(String path){
+        for(var entry in Directory(path).listSync()){
+          if(entry is Directory){
+            walk(entry.path);
+          } else {
+            var filePathInZip = entry.path.replaceFirst(directory.path, "");
+            if(filePathInZip.startsWith('/') || filePathInZip.startsWith('\\')){
+              filePathInZip = filePathInZip.substring(1);
+            }
+            zipFile.addFile("${sanitizeFileName(data.name)}/$filePathInZip", entry.path);
+          }
+        }
+      }
+
+      walk(directory.path);
+
+      if(isModifiedNames) {
+        for (var entry in directory.listSync()) {
+          if (entry is Directory) {
+            var index = data.epNames!.indexOf(entry.name) + 1;
+            if (index > 0) {
+              entry.renameX(index.toString());
+            }
+          }
+        }
+      }
+    }
+    zipFile.close();
     return true;
   }
   catch(e, s){
