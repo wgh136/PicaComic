@@ -93,6 +93,10 @@ Future<bool> exportComics(List<DownloadedItem> comics) async{
         await textFile.saveTo(result.path);
       }
     }
+    var file = File('${downloadManager.path}/comics.zip');
+    if(file.existsSync()){
+      file.delete();
+    }
     return true;
   }
   catch(e){
@@ -114,6 +118,9 @@ Future<bool> exportPdf(String pdfPath) async{
         final XFile textFile = XFile(pdfPath, mimeType: mimeType);
         await textFile.saveTo(result.path);
       }
+    }
+    if(File(pdfPath).existsSync()){
+      File(pdfPath).delete();
     }
     return true;
   }

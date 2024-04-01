@@ -48,13 +48,26 @@ Future<void> createPdfFromComic({
       || File("$comicPath/0.jpeg").existsSync()
       || File("$comicPath/0.gif").existsSync());
 
+  void reorderFiles(List<FileSystemEntity> files) {
+    files.removeWhere((element) =>
+    element is! File ||
+        element.path.contains('info.json') ||
+        element.path.contains('cover.jpg') ||
+        element.path.contains('cover.png') ||
+        element.path.contains('cover.webp') ||
+        element.path.contains('cover.jpeg'));
+    files.sort((a, b) {
+      var aName = (a as File).path.replaceAll('\\', '/').split("/").last;
+      var bName = (b as File).path.replaceAll('\\', '/').split("/").last;
+      var aIndex = int.parse(aName.split(".").first);
+      var bIndex = int.parse(bName.split(".").first);
+      return aIndex.compareTo(bIndex);
+    });
+  }
+
   if(!multiChapters){
     var files = Directory(comicPath).listSync();
-    files.removeWhere((element) =>
-          element is! File ||
-          element.path.contains('info.json') ||
-          element.path.contains('cover'));
-    files.sort((a, b) => a.path.compareTo(b.path));
+    reorderFiles(files);
 
     for (var file in files){
       var imageData = (file as File).readAsBytesSync();
@@ -78,8 +91,7 @@ Future<void> createPdfFromComic({
       ));
 
       var files = directory.listSync();
-      files.removeWhere((element) => element is! File);
-      files.sort((a, b) => a.path.compareTo(b.path));
+      reorderFiles(files);
 
       for (var file in files){
         var imageData = (file as File).readAsBytesSync();
