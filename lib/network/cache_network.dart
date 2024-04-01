@@ -46,7 +46,7 @@ class CachedNetwork {
       if (expiredTime == CacheExpiredTime.persistent ||
           DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch <
               expiredTime.time) {
-        return CachedNetworkRes(file.readAsStringSync(), 200);
+        return CachedNetworkRes(file.readAsStringSync(), 200, url);
       }
     }
     options.responseType = ResponseType.plain;
@@ -66,7 +66,8 @@ class CachedNetwork {
       file.createSync();
       file.writeAsStringSync(res.data);
     }
-    return CachedNetworkRes(res.data ?? "", res.statusCode, res.headers.map);
+    return CachedNetworkRes(res.data ?? "", res.statusCode,
+        res.realUri.toString(), res.headers.map);
   }
 
   void delete(String url) async{
@@ -100,6 +101,7 @@ class CachedNetworkRes<T> {
   T data;
   int? statusCode;
   Map<String, List<String>> headers;
+  String url;
 
-  CachedNetworkRes(this.data, this.statusCode, [this.headers = const {}]);
+  CachedNetworkRes(this.data, this.statusCode, this.url, [this.headers = const {}]);
 }

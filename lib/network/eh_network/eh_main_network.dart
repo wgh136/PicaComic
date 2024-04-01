@@ -119,8 +119,15 @@ class EhNetwork {
       var data = await dio.get(url, options,
           cookieJar: cookieJar, expiredTime: expiredTime);
       if (data.data.isEmpty) {
-        throw Exception("Empty Data");
+        throw Exception("Empty Data. "
+            "No permission to access this page.\n"
+            "Please check your account and cookie.");
       }
+      
+      if(data.url.contains("bounce_login.php")){
+        throw Exception("需要登录或者登录过期".tl);
+      }
+      
       await getCookies(true);
       if ((data.data).substring(0, 4) == "Your") {
         dio.delete(url);
