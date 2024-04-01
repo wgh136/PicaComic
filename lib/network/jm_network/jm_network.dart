@@ -501,9 +501,16 @@ class JmNetwork {
           continue;
         }
       }
-      return Res(comics,
-          subData: (int.parse(res.data["total"]) / res.data["content"].length)
-              .ceil());
+      Object total = res.data["total"];
+      if(total is String){
+        total = int.parse(total);
+      }
+      var current = res.data["content"].length;
+      var pagesCount = 1;
+      if(current != 0){
+        pagesCount = ((total as int) / current).ceil();
+      }
+      return Res(comics, subData: pagesCount);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
