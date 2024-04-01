@@ -37,13 +37,15 @@ extension WebviewExtension on InAppWebViewController{
 
 class AppWebview extends StatefulWidget {
   const AppWebview({required this.initialUrl, this.onTitleChange,
-    this.onNavigation, this.singlePage = false, super.key});
+    this.onNavigation, this.singlePage = false, this.onStarted, super.key});
 
   final String initialUrl;
 
   final void Function(String title, InAppWebViewController controller)? onTitleChange;
 
   final bool Function(String url)? onNavigation;
+
+  final void Function(InAppWebViewController controller)? onStarted;
 
   final bool singlePage;
 
@@ -112,6 +114,7 @@ class _AppWebviewState extends State<AppWebview> {
       },
       onWebViewCreated: (c){
         controller = c;
+        widget.onStarted?.call(c);
       },
       onProgressChanged: (c, p){
         if(mounted){
