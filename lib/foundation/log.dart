@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:pica_comic/tools/extensions.dart';
 
 void log(String content, [String title = "debug", LogLevel level = LogLevel.info]){
   LogManager.addLog(level, title, content);
@@ -32,7 +33,10 @@ class LogManager {
 
     _logs.add(newLog);
     if (_logs.length > maxLogNumber) {
-      _logs.remove(_logs.firstWhere((element) => element.level == LogLevel.info));
+      var res = _logs.remove(_logs.firstWhereOrNull((element) => element.level == LogLevel.info));
+      if(!res){
+        _logs.removeAt(0);
+      }
     }
   }
 
