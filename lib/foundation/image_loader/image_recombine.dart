@@ -131,6 +131,8 @@ class JmRecombine{
     _tasks.add(task);
     if(_isolate == null){
       await _start();
+    } else {
+      _pushTask();
     }
     return completer.future;
   }
