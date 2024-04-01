@@ -38,7 +38,7 @@ extension _CachedNetwork on CachedNetwork {
       if (expiredTime == CacheExpiredTime.persistent ||
           DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch <
               expiredTime.time) {
-        return CachedNetworkRes(file.readAsStringSync(), 200);
+        return CachedNetworkRes(file.readAsStringSync(), 200, url);
       }
     }
     options.responseType = ResponseType.bytes;
@@ -49,7 +49,7 @@ extension _CachedNetwork on CachedNetwork {
     var res = await dio.get(url);
     var body = utf8.decoder.convert(res.data);
     if (res.statusCode != 200) {
-      return CachedNetworkRes(body, res.statusCode);
+      return CachedNetworkRes(body, res.statusCode, res.realUri.toString());
     }
     var json = const JsonDecoder().convert(body);
     var data = json["data"];
@@ -66,7 +66,7 @@ extension _CachedNetwork on CachedNetwork {
       file.createSync();
       file.writeAsStringSync(decodedData);
     }
-    return CachedNetworkRes(decodedData, res.statusCode);
+    return CachedNetworkRes(decodedData, res.statusCode, res.realUri.toString());
   }
 }
 
