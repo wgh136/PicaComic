@@ -61,56 +61,74 @@ Future<void> init() async{
 }
 
 Future<void> _checkOldData() async{
-  // settings
-  appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
-  if(int.parse(appdata.settings[17]) >= 4){
-    appdata.settings[17] = '0';
-  }
+  try {
+    // settings
+    appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
+    if (int.parse(appdata.settings[17]) >= 4) {
+      appdata.settings[17] = '0';
+    }
 
-  if(io.Directory("${App.dataPath}/comic_source/cookies/").existsSync() ||
-    io.Directory("${App.dataPath}/eh_cookies").existsSync() ||
-    io.Directory("${App.dataPath}/comic_source/cookies").existsSync()){
-    // cookies, old version use package cookie_jar
-    final cookieJars = [
-      PersistCookieJar(storage: FileStorage("${App.dataPath}/cookies")),
-      PersistCookieJar(storage: FileStorage("${App.dataPath}/eh_cookies")),
-      PersistCookieJar(storage: FileStorage("${App.dataPath}/comic_source/cookies/"))
-    ];
-    var cookies = <io.Cookie>[];
-    for (var cookie in (await cookieJars[0].loadForRequest(Uri.parse("https://nhentai.net")))) {
-      cookie.domain ??= ".nhentai.net";
-      cookies.add(cookie);
-    }
-    for (var cookie in (await cookieJars[1].loadForRequest(Uri.parse("https://e-hentai.org")))) {
-      cookie.domain ??= ".e-hentai.org";
-      cookies.add(cookie);
-    }
-    for (var cookie in (await cookieJars[1].loadForRequest(Uri.parse("https://exhentai.org")))) {
-      cookie.domain ??= ".exhentai.org";
-      cookies.add(cookie);
-    }
-    for(var file in io.Directory("${App.dataPath}/comic_source/cookies/").listSync()){
-      var domain = file.path.split("/").last;
-      if(domain == '.domains' || domain == '.index'){
-        continue;
-      }
-      if(domain.startsWith('.')){
-        domain = domain.substring(1);
-      }
-      for (var cookie in (await cookieJars[2].loadForRequest(Uri.parse("https://$domain")))) {
-        cookie.domain ??= ".$domain";
+    if (io.Directory("${App.dataPath}/comic_source/cookies/").existsSync() ||
+        io.Directory("${App.dataPath}/eh_cookies").existsSync() ||
+        io.Directory("${App.dataPath}/comic_source/cookies").existsSync()) {
+      // cookies, old version use package cookie_jar
+      final cookieJars = [
+        PersistCookieJar(storage: FileStorage("${App.dataPath}/cookies")),
+        PersistCookieJar(storage: FileStorage("${App.dataPath}/eh_cookies")),
+        PersistCookieJar(
+            storage: FileStorage("${App.dataPath}/comic_source/cookies/"))
+      ];
+      var cookies = <io.Cookie>[];
+      for (var cookie in (await cookieJars[0].loadForRequest(
+          Uri.parse("https://nhentai.net")))) {
+        cookie.domain ??= ".nhentai.net";
         cookies.add(cookie);
       }
+      for (var cookie in (await cookieJars[1].loadForRequest(
+          Uri.parse("https://e-hentai.org")))) {
+        cookie.domain ??= ".e-hentai.org";
+        cookies.add(cookie);
+      }
+      for (var cookie in (await cookieJars[1].loadForRequest(
+          Uri.parse("https://exhentai.org")))) {
+        cookie.domain ??= ".exhentai.org";
+        cookies.add(cookie);
+      }
+      try {
+        for (var file in io.Directory("${App.dataPath}/comic_source/cookies/")
+            .listSync()) {
+          var domain = file.path
+              .split("/")
+              .last;
+          if (domain == '.domains' || domain == '.index') {
+            continue;
+          }
+          if (domain.startsWith('.')) {
+            domain = domain.substring(1);
+          }
+          for (var cookie in (await cookieJars[2].loadForRequest(
+              Uri.parse("https://$domain")))) {
+            cookie.domain ??= ".$domain";
+            cookies.add(cookie);
+          }
+        }
+      }
+      catch(e){
+        // ignore
+      }
+      if(io.Directory("${App.dataPath}/cookies").existsSync()) {
+        io.Directory("${App.dataPath}/cookies").deleteSync(recursive: true);
+      }
+      if(io.Directory("${App.dataPath}/eh_cookies").existsSync()) {
+        io.Directory("${App.dataPath}/eh_cookies").deleteSync(recursive: true);
+      }
+      if(io.Directory("${App.dataPath}/comic_source/cookies").existsSync()) {
+        io.Directory("${App.dataPath}/comic_source/cookies").deleteSync(
+            recursive: true);
+      }
     }
-    try {
-      // delete old cookies
-      io.Directory("${App.dataPath}/cookies").deleteSync(recursive: true);
-      io.Directory("${App.dataPath}/eh_cookies").deleteSync(recursive: true);
-      io.Directory("${App.dataPath}/comic_source/cookies/").deleteSync(
-          recursive: true);
-    }
-    catch(e){
-      // ignore
-    }
+  }
+  catch(e, s){
+    LogManager.addLog(LogLevel.error, "Init", "Check old data failed!\n$e$s");
   }
 }
