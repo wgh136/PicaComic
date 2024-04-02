@@ -1,4 +1,24 @@
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:pica_comic/tools/extensions.dart';
+
+extension FileSystemEntityExt on FileSystemEntity{
+  String get name {
+    var path = this.path;
+    if(path.endsWith('/') || path.endsWith('\\')){
+      path = path.substring(0, path.length-1);
+    }
+
+    int i = path.length - 1;
+
+    while(path[i] != '\\' && path[i] != '/' && i >= 0){
+      i--;
+    }
+
+    return path.substring(i+1);
+  }
+}
 
 extension FileExtension on File{
   /// Get file size information in MB
@@ -24,9 +44,26 @@ extension DirectoryExtension on Directory{
   }
 
   Directory renameX(String newName){
-    var dirName = path.substring(0, path.lastIndexOf(Platform.pathSeparator)+1);
-    return renameSync(dirName + newName);
+    newName = sanitizeFileName(newName);
+    return renameSync(path.replaceLast(name, newName));
   }
+}
 
-  String get name => path.substring(path.lastIndexOf(Platform.pathSeparator)+1);
+String sanitizeFileName(String fileName) {
+  const maxLength = 255;
+  final invalidChars = RegExp(r'[<>:"/\\|?*]');
+  final sanitizedFileName = fileName.replaceAll(invalidChars, ' ');
+  var trimmedFileName = sanitizedFileName.trim();
+  if (trimmedFileName.isEmpty) {
+    throw Exception('Invalid File Name: Empty length.');
+  }
+  while(true){
+    final bytes = utf8.encode(trimmedFileName);
+    if (bytes.length > maxLength) {
+      trimmedFileName = trimmedFileName.substring(0, trimmedFileName.length-1);
+    }else{
+      break;
+    }
+  }
+  return trimmedFileName;
 }

@@ -215,7 +215,16 @@ class DownloadPage extends StatelessWidget {
         comics.add(logic.comics[i]);
       }
     }
-    var res = await exportComics(comics);
+    if(comics.isEmpty) {
+      return;
+    }
+    bool res;
+    if(comics.length > 1){
+      res = await exportComics(comics);
+    } else {
+      res = await exportComic(comics.first.id, comics.first.name, 
+        comics.first.eps);
+    }
     App.globalBack();
     if (!res) {
       showToast(message: "导出失败".tl);

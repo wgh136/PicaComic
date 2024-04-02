@@ -148,6 +148,9 @@ class EhNetwork {
       if (e.toString() != "null") {
         message = e.toString();
       }
+      if(message?.contains("Redirect loop") ?? false){
+        message = "Redirect loop: No permission to view this page. \nCheck your account and cookie.";
+      }
       return Res(null, errorMessage: message ?? "Network Error");
     }
   }
