@@ -1,5 +1,4 @@
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
-import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
@@ -374,6 +373,5 @@ Future<void> clearAppdata() async {
   await eraseCache();
   EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
   await JmNetwork().cookieJar.deleteAll();
-  await HtmangaNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
 }

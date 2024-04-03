@@ -8,6 +8,7 @@ import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/js_engine.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
 import 'package:pica_comic/network/nhentai_network/login.dart';
@@ -583,7 +584,7 @@ class AccountsPage extends StatelessWidget {
           onTap: () {
             appdata.htName = "";
             appdata.htPwd = "";
-            HtmangaNetwork().cookieJar.deleteAll();
+            SingleInstanceCookieJar.instance?.deleteUri(Uri.parse(HtmangaNetwork.baseUrl));
             appdata.writeData();
             logic.update();
           },

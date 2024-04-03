@@ -796,7 +796,6 @@ class JmNetwork {
         if (res.data["type"] == "add") {
           res = await post("$baseUrl/favorite", "aid=$id&$baseData");
         }
-        res = await post("$baseUrl/favorite", "aid=$id&$baseData");
         return const Res(false);
       }
     } catch (e) {

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
@@ -12,6 +10,7 @@ import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:html/parser.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/pre_search_page.dart';
 import '../../base.dart';
 
@@ -24,8 +23,6 @@ class HtmangaNetwork {
   HtmangaNetwork._create();
 
   static String get baseUrl => appdata.settings[31];
-
-  var cookieJar = CookieJar();
 
   ///基本的Get请求
   Future<Res<String>> get(String url,
@@ -40,6 +37,9 @@ class HtmangaNetwork {
           }),
           cookieJar: SingleInstanceCookieJar.instance,
           expiredTime: cache ? CacheExpiredTime.short : CacheExpiredTime.no);
+      if(res.url.contains("users-login")){
+        return Res(null, errorMessage: "未登录或登录到期".tl);
+      }
       return Res(res.data);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
@@ -60,7 +60,7 @@ class HtmangaNetwork {
       "User-Agent": webUA,
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
     }));
-    dio.interceptors.add(CookieManager(cookieJar));
+    dio.interceptors.add(CookieManagerSql(SingleInstanceCookieJar.instance!));
     try {
       var res = await dio.post(url, data: data);
       return Res(res.data);
@@ -341,8 +341,7 @@ class HtmangaNetwork {
   /// 返回Map, 值为收藏夹名，键为ID
   Future<Res<Map<String, String>>> getFolders() async {
     var res = await get(
-        "$baseUrl/users-addfav-id-210814.html"
-        "?ajax=true&_t=${Random.secure().nextDouble()}",
+        "$baseUrl/users-addfav-id-210814.html",
         cache: false);
     if (res.error) {
       return Res(null, errorMessage: res.errorMessage);
