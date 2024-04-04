@@ -121,8 +121,10 @@ void startConvert<T extends Object>(
     LocalFavoritesManager()
       .insertFolderSync(FolderSync(name, key, jsonEncode(syncData)));
   }
+  int order = 0;
   for (var comic in comics) {
-    LocalFavoritesManager().addComic(name, toLocalFavoriteFunc(comic));
+    LocalFavoritesManager().addComic(name, toLocalFavoriteFunc(comic), order);
+    order++;
   }
 }
 

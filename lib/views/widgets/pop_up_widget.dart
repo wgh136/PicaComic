@@ -19,11 +19,11 @@ class PopUpWidget<T> extends PopupRoute<T>{
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     var height = MediaQuery.of(context).size.height*0.9;
-    bool showPopUp = MediaQuery.of(context).size.width > 550;
+    bool showPopUp = MediaQuery.of(context).size.width > 420;
     if(!showPopUp){
       height = MediaQuery.of(context).size.height;
     }
-    return MediaQuery.removePadding(removeTop: true, context: context, child: Center(
+    var body = MediaQuery.removePadding(removeTop: true, context: context, child: Center(
       child: PopupIndicatorWidget(
         child: Container(
           decoration: showPopUp ? const BoxDecoration(
@@ -42,6 +42,20 @@ class PopUpWidget<T> extends PopupRoute<T>{
         ),
       ),
     ));
+
+    if(!showPopUp){
+      return ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top,
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: body,
+        ),
+      );
+    }
+    return body;
   }
 
   @override

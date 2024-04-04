@@ -32,7 +32,7 @@ class LoadComicClass {
     if (fData.key == "ehentai") {
       if (data.galleries == null) {
         Res<Galleries> res = await EhNetwork().getGalleries(
-            "${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder&inline_set=dm_l",
+            "${EhNetwork().ehBaseUrl}/favorites.php?favcat=$folder",
             favoritePage: true);
         if (res.error) {
           return Res(null, errorMessage: res.errorMessage);
