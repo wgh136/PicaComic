@@ -103,43 +103,44 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
     final iconColor = Theme.of(context).colorScheme.primary;
     return Material(
       elevation: 1,
-      child: SizedBox(
-        height: _kSecondaryTopBarHeight,
-        child: Row(
-            children: [
-              if(controller.isNetwork == null)
-                Icon(Icons.folder, color: iconColor,)
-              else if(controller.isNetwork!)
-                Icon(Icons.folder_special, color: iconColor,)
-              else
-                Icon(Icons.local_activity, color: iconColor,),
-              const SizedBox(width: 8,),
-              Text(controller.current ?? "未选择".tl, style: const TextStyle(fontSize: 16),).paddingBottom(3),
-              const Spacer(),
-              if(controller.selecting)
-                IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_up),
-                  onPressed: (){
-                    if(controller.current == null){
-                      showToast(message: "选择收藏夹".tl);
-                      return;
-                    }
-                    controller.selecting = false;
-                    controller.update();
-                  },
-                )
-              else
-                IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: (){
-                    controller.selecting = true;
-                    controller.update();
-                    appdata.implicitData[0] = "1;;";
-                    appdata.writeImplicitData();
-                  },
-                )
-            ]
-        ).paddingHorizontal(16),
+      child: InkWell(
+        hoverColor: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        onTap: (){
+          if(controller.selecting){
+            if(controller.current == null){
+              showToast(message: "选择收藏夹".tl);
+              return;
+            }
+            controller.selecting = false;
+            controller.update();
+          } else {
+            controller.selecting = true;
+            controller.update();
+            appdata.implicitData[0] = "1;;";
+            appdata.writeImplicitData();
+          }
+        },
+        child: SizedBox(
+          height: _kSecondaryTopBarHeight,
+          child: Row(
+              children: [
+                if(controller.isNetwork == null)
+                  Icon(Icons.folder, color: iconColor,)
+                else if(controller.isNetwork!)
+                  Icon(Icons.folder_special, color: iconColor,)
+                else
+                  Icon(Icons.local_activity, color: iconColor,),
+                const SizedBox(width: 8,),
+                Text(controller.current ?? "未选择".tl, style: const TextStyle(fontSize: 16),).paddingBottom(3),
+                const Spacer(),
+                if(controller.selecting)
+                  const Icon(Icons.keyboard_arrow_up)
+                else
+                  const Icon(Icons.keyboard_arrow_down),
+              ]
+          ).paddingHorizontal(16),
+        ),
       ),
     );
   }
