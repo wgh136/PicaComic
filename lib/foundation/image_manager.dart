@@ -7,10 +7,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
-import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
@@ -49,7 +49,8 @@ class ImageManager {
 
   Map<String, String>? _paths;
 
-  final dio = logDio(BaseOptions());
+  final dio = logDio(BaseOptions())
+    ..interceptors.add(CookieManagerSql(SingleInstanceCookieJar.instance!));
 
   Future<void> readData() async {
     if (_paths == null) {
@@ -126,7 +127,7 @@ class ImageManager {
   }
 
   /// 获取图片, 适用于没有任何限制的图片链接
-  Stream<DownloadProgress> getImage(String url, [Map<String, String>? headers]) async* {
+  Stream<DownloadProgress> getImage(final String url, [Map<String, String>? headers]) async* {
     int timeout = 50;
     while (loadingItems[url] != null) {
       var progress = loadingItems[url]!;
@@ -152,11 +153,6 @@ class ImageManager {
         }
       }
 
-      if(url.contains("s.exhentai.org")){
-        // s.exhentai.org 有严格的加载限制
-        url = url.replaceFirst("s.exhentai.org", "ehgt.org");
-      }
-
       //生成文件名
       var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
       if (fileName.length > 10) {
@@ -168,16 +164,13 @@ class ImageManager {
       yield DownloadProgress(0, 100, url, savePath);
       headers = headers ?? {};
       headers["User-Agent"] ??= webUA;
-      if (url.contains("nhentai")) {
-        var cookies = NhentaiNetwork().cookieJar!.loadForRequest(Uri.parse(url));
-        var res = "";
-        for (var cookie in cookies) {
-          res += "${cookie.name}=${cookie.value}; ";
-        }
-        headers["Cookie"] = res;
-      }
       headers["Connection"] = "keep-alive";
-      var dioRes = await dio.get<ResponseBody>(url,
+      var realUrl = url;
+      if(url.contains("s.exhentai.org")){
+        // s.exhentai.org 有严格的加载限制
+        realUrl = url.replaceFirst("s.exhentai.org", "ehgt.org");
+      }
+      var dioRes = await dio.get<ResponseBody>(realUrl,
           options: Options(
               responseType: ResponseType.stream, headers: headers));
       if (dioRes.data == null) {
@@ -733,7 +726,6 @@ class ImageManager {
   }
 }
 
-@immutable
 class DownloadProgress {
   final int _currentBytes;
   final int _expectedBytes;

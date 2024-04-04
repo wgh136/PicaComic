@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/downloading_page.dart';
 import '../foundation/app.dart';
 
@@ -65,8 +66,8 @@ class Notifications {
       int progress, int total, String title, String content) async {
     if (!(App.isAndroid || App.isIOS)) return;
     AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('download', '下载漫画',
-            channelDescription: '显示下载进度',
+        AndroidNotificationDetails('download', '下载漫画'.tl,
+            channelDescription: '显示下载进度'.tl,
             importance: Importance.low,
             priority: Priority.low,
             showProgress: true,
@@ -76,7 +77,8 @@ class Notifications {
             onlyAlertOnce: true,
             autoCancel: false);
     DarwinNotificationDetails ios = const DarwinNotificationDetails(
-        presentSound: false, presentAlert: false, presentBadge: false);
+        presentSound: false, presentAlert: false, presentBadge: false,
+        presentBanner: false);
     NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails, iOS: ios);
     await flutterLocalNotificationsPlugin!.show(
@@ -103,8 +105,8 @@ class Notifications {
     AndroidNotificationDetails androidNotificationDetails =
         const AndroidNotificationDetails(
       'PicaComic',
-      '通知',
-      channelDescription: '通知',
+      'notification',
+      channelDescription: 'notification',
       importance: Importance.max,
       priority: Priority.max,
     );
