@@ -448,11 +448,6 @@ class _NavigateBarState extends State<NavigateBar> {
                   padding: EdgeInsets.only(left: 16),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                          backgroundImage: AssetImage("images/app_icon.png")),
-                      SizedBox(
-                        width: 16,
-                      ),
                       Text(
                         "Pica Comic",
                         style: TextStyle(fontFamily: "font2", fontSize: 18),

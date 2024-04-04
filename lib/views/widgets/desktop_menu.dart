@@ -26,13 +26,13 @@ class DesktopMenuRoute<T> extends PopupRoute<T>{
     const width = 186.0;
     final size = MediaQuery.of(context).size;
     var left = location.dx;
-    if(left + width > size.width){
-      left = size.width - width;
+    if(left + width > size.width-10){
+      left = size.width - width-10;
     }
     var top = location.dy;
     var height = 16 + 32*entries.length;
-    if(top + height > size.height){
-      top = size.height - height;
+    if(top + height > size.height-15){
+      top = size.height - height-15;
     }
     return Stack(
       children: [
