@@ -105,7 +105,7 @@ class _AppWebviewState extends State<AppWebview> {
         widget.onTitleChange?.call(title, controller!);
       },
       shouldOverrideUrlLoading: (c, r) async {
-        var res = widget.onNavigation?.call(r.request.url?.path ?? "") ?? false;
+        var res = widget.onNavigation?.call(r.request.url?.toString() ?? "") ?? false;
         if(res) {
           return NavigationActionPolicy.CANCEL;
         } else {
