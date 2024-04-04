@@ -279,4 +279,22 @@ class HistoryManager {
     }
     return data.reversed.toList();
   }
+
+  /// 获取最近阅读的漫画
+  List<History> getRecent(){
+    var res = _db.select("""
+      select * from history
+      order by time DESC
+      limit 10;
+    """);
+    return res.map((element) => History.fromRow(element)).toList();
+  }
+
+  /// 获取历史记录的数量
+  int count(){
+    var res = _db.select("""
+      select count(*) from history;
+    """);
+    return res.first[0] as int;
+  }
 }

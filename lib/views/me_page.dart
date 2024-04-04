@@ -2,12 +2,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/views/app_views/accounts_page.dart';
 import 'package:pica_comic/views/app_views/image_favorites.dart';
 import 'package:pica_comic/views/download_page.dart';
 import 'package:pica_comic/views/tools.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import '../base.dart';
 import '../foundation/app.dart';
@@ -16,8 +18,8 @@ import 'history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'main_page.dart';
 
-class MePage extends StatelessWidget {
-  const MePage({super.key});
+class OldMePage extends StatelessWidget {
+  const OldMePage({super.key});
 
   int calcAccounts(){
     int count = 0;
@@ -78,7 +80,7 @@ class MePage extends StatelessWidget {
                           subTitle: "已登录 @a 个账号".tlParams({"a": accounts.toString()}),
                           icon: Icons.switch_account,
                           onTap: () => showAdaptiveWidget(App.globalContext!,
-                              AccountsPage(popUp: MediaQuery.of(App.globalContext!).size.width>600,)),
+                              AccountsPage()),
                         ),
                         MePageButton(
                           title: "已下载".tl,
@@ -426,5 +428,208 @@ class MePageIconClipper extends CustomClipper<Path>{
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
     return false;
   }
+}
 
+
+class MePage extends StatelessWidget {
+  const MePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: LayoutBuilder(
+        builder: (context, constrains){
+          final width = constrains.maxWidth;
+          bool shouldShowTwoPanel = width > 600;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              children: [
+                const SizedBox(height: 12,),
+                buildHistory(),
+                if(shouldShowTwoPanel)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 12,),
+                            buildAccount(width),
+                            const SizedBox(height: 12,),
+                            buildDownload(width),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12,),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 12,),
+                            buildImageFavorite(width),
+                            const SizedBox(height: 12,),
+                            buildTools(width),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  const SizedBox(height: 12,),
+                  buildAccount(width),
+                  const SizedBox(height: 12,),
+                  buildDownload(width),
+                  const SizedBox(height: 12,),
+                  buildImageFavorite(width),
+                  const SizedBox(height: 12,),
+                  buildTools(width),
+                ]
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildHistory(){
+    var history = HistoryManager().getRecent();
+    return InkWell(
+      onTap: () => MainPage.to(() => const HistoryPage()),
+      mouseCursor: SystemMouseCursors.click,
+      borderRadius: BorderRadius.circular(12),
+      child: Card.outlined(
+        margin: EdgeInsets.zero,
+        color: Colors.transparent,
+        child: Container(
+          margin: EdgeInsets.zero,
+          width: double.infinity,
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.history),
+                title: Text("${"历史记录".tl}(${HistoryManager().count()})"),
+                trailing: const Icon(Icons.chevron_right),
+                mouseCursor: SystemMouseCursors.click,
+              ),
+              SizedBox(
+                height: 128,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: history.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () => toComicPageWithHistory(history[index]),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        width: 96,
+                        height: 128,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).colorScheme.secondaryContainer,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: AnimatedImage(
+                          image: CachedImageProvider(history[index].cover),
+                          width: 96,
+                          height: 128,
+                          fit: BoxFit.cover,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ).paddingHorizontal(8),
+              const SizedBox(height: 12,)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildAccount(double width){
+    return _MePageCard(
+      icon: const Icon(Icons.switch_account),
+      title: "账号管理".tl,
+      description: "已登录 @a 个账号".tlParams({"a": calcAccounts().toString()}),
+      onTap: () => showAdaptiveWidget(App.globalContext!, AccountsPage()),
+    );
+  }
+
+  Widget buildDownload(double width){
+    return _MePageCard(
+      icon: const Icon(Icons.download_for_offline),
+      title: "已下载".tl,
+      description: "共 @a 部漫画".tlParams({"a": DownloadManager().downloaded.length.toString()}),
+      onTap: () => MainPage.to(() => const DownloadPage()),
+    );
+  }
+
+  Widget buildImageFavorite(double width){
+    return _MePageCard(
+      icon: const Icon(Icons.image),
+      title: "图片收藏".tl,
+      description: "@a 条图片收藏".tlParams({"a": ImageFavoriteManager.length.toString()}),
+      onTap: () => MainPage.to(() => const ImageFavoritesPage()),
+    );
+  }
+
+  Widget buildTools(double width){
+    return _MePageCard(
+      icon: const Icon(Icons.build_circle),
+      title: "工具".tl,
+      description: "使用工具发现更多漫画".tl,
+      onTap: openTool,
+    );
+  }
+
+  int calcAccounts(){
+    int count = 0;
+    if(appdata.picacgAccount != "") count++;
+    if(appdata.ehAccount != "") count++;
+    if(appdata.jmName != "") count++;
+    if(appdata.htName != "") count++;
+    if(NhentaiNetwork().logged) count++;
+    return count;
+  }
+}
+
+class _MePageCard extends StatelessWidget {
+  const _MePageCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.onTap,
+  });
+
+  final Widget icon;
+  final String title;
+  final String description;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Card.outlined(
+        margin: EdgeInsets.zero,
+        color: Colors.transparent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: icon,
+              title: Text(title),
+              trailing: const Icon(Icons.chevron_right),
+              mouseCursor: SystemMouseCursors.click,
+            ),
+            Text(description).paddingHorizontal(16).paddingBottom(16).paddingTop(8),
+          ],
+        ),
+      ),
+    );
+  }
 }

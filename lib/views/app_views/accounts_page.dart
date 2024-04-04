@@ -20,6 +20,7 @@ import 'package:pica_comic/views/jm_views/jm_login_page.dart';
 import 'package:pica_comic/views/pic_views/login_page.dart';
 import 'package:pica_comic/views/widgets/avatar.dart';
 import 'package:pica_comic/views/widgets/loading.dart';
+import 'package:pica_comic/views/widgets/pop_up_widget.dart';
 import 'package:pica_comic/views/widgets/pop_up_widget_scaffold.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -32,11 +33,9 @@ import 'package:pica_comic/tools/translations.dart';
 class AccountsPageLogic extends StateController {}
 
 class AccountsPage extends StatelessWidget {
-  AccountsPage({required this.popUp, super.key}) {
+  AccountsPage({super.key}) {
     StateController.put(AccountsPageLogic());
   }
-
-  final bool popUp;
 
   AccountsPageLogic get logic => StateController.find<AccountsPageLogic>();
 
@@ -65,7 +64,7 @@ class AccountsPage extends StatelessWidget {
       },
     );
 
-    if(popUp){
+    if(PopupIndicatorWidget.maybeOf(context) != null){
       return PopUpWidgetScaffold(title: "账号管理".tl, body: body);
     }else{
       return Scaffold(

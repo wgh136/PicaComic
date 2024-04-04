@@ -334,10 +334,7 @@ class _WelcomePageState extends State<WelcomePage> {
           borderRadius: BorderRadius.circular(16),
           onTap: () => showAdaptiveWidget(
               context,
-              AccountsPage(
-                popUp:
-                MediaQuery.of(context).size.width > 600,
-              )),
+              AccountsPage()),
           child: Card(
             margin: EdgeInsets.zero,
             elevation: 0,

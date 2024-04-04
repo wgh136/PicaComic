@@ -203,47 +203,38 @@ class _HistoryPageState extends State<HistoryPage> {
               "Referer": "https://hitomi.la/"
           },
           onTap: () {
-            if (comics_[i].type == HistoryType.picacg) {
-              MainPage.to(() => PicacgComicPage(comic));
-            } else if (comics_[i].type == HistoryType.ehentai) {
-              MainPage.to(() => EhGalleryPage(EhGalleryBrief(
-                  comics_[i].title,
-                  "",
-                  "",
-                  comics_[i].subtitle,
-                  comics_[i].cover,
-                  0.0,
-                  comics_[i].target, [])));
-            } else if (comics_[i].type == HistoryType.jmComic) {
-              MainPage.to(() => JmComicPage(comics_[i].target));
-            } else if (comics_[i].type == HistoryType.hitomi) {
-              MainPage.to(() => HitomiComicPage(HitomiComicBrief(
-                  comics_[i].title,
-                  "",
-                  "",
-                  [],
-                  "",
-                  "",
-                  comics_[i].target,
-                  comics_[i].cover)));
-            } else if (comics_[i].type == HistoryType.htmanga) {
-              MainPage.to(() => HtComicPage(HtComicBrief(comics_[i].title, "",
-                  comics_[i].cover, comics_[i].target, 0)));
-            } else if (comics_[i].type == HistoryType.nhentai){
-              MainPage.to(() => NhentaiComicPage(comics_[i].target));
-            } else {
-              var key = ComicSource.sources.firstWhereOrNull(
-                (element) => element.key.hashCode == comics_[i].type.value)?.key;
-              if(key == null){
-                showToast(message: "Invalid comic source".tl);
-                return;
-              }
-              MainPage.to(() => CustomComicPage(sourceKey: key, id: comics_[i].target));
-            }
+            toComicPageWithHistory(comics_[i]);
           },
         );
       }),
       gridDelegate: SliverGridDelegateWithComics(),
     );
+  }
+}
+
+void toComicPageWithHistory(History history) {
+  if (history.type == HistoryType.picacg) {
+    MainPage.to(() => PicacgComicPage(ComicItemBrief(
+        history.title, history.subtitle, 0, history.cover, history.target, [])));
+  } else if (history.type == HistoryType.ehentai) {
+    MainPage.to(() => EhGalleryPage(EhGalleryBrief(
+        history.title, "", "", history.subtitle, history.cover, 0.0, history.target, [])));
+  } else if (history.type == HistoryType.jmComic) {
+    MainPage.to(() => JmComicPage(history.target));
+  } else if (history.type == HistoryType.hitomi) {
+    MainPage.to(() => HitomiComicPage(HitomiComicBrief(
+        history.title, "", "", [], "", "", history.target, history.cover)));
+  } else if (history.type == HistoryType.htmanga) {
+    MainPage.to(() => HtComicPage(HtComicBrief(history.title, "", history.cover, history.target, 0)));
+  } else if (history.type == HistoryType.nhentai){
+    MainPage.to(() => NhentaiComicPage(history.target));
+  } else {
+    var key = ComicSource.sources.firstWhereOrNull(
+      (element) => element.key.hashCode == history.type.value)?.key;
+    if(key == null){
+      showToast(message: "Invalid comic source".tl);
+      return;
+    }
+    MainPage.to(() => CustomComicPage(sourceKey: key, id: history.target));
   }
 }

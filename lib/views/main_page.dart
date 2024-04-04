@@ -81,7 +81,7 @@ class _MainPageState extends State<MainPage> {
 
   final pages = [
     const MePage(key: Key("0"),),
-    FavoritesPage(key: Key("1"),),
+    FavoritesPage(key: const Key("1"),),
     const ExplorePageWithGetControl(key: Key("2"),),
     const AllCategoryPage(key: Key("3"),),
   ];

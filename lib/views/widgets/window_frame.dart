@@ -195,7 +195,9 @@ class _WindowButtons extends StatelessWidget {
     return Row(
       children: [
         MinimizeWindowButton(colors: buttonColors),
-        MaximizeWindowButton(colors: buttonColors),
+        appWindow.isMaximized ?
+          RestoreWindowButton(colors: buttonColors) :
+          MaximizeWindowButton(colors: buttonColors),
         CloseWindowButton(
           colors: closeButtonColors,
           onPressed: () {
@@ -333,9 +335,7 @@ class _SideBarBody extends StatelessWidget {
               StateController.find<WindowFrameController>().openSideBar();
               showAdaptiveWidget(
                   App.globalContext!,
-                  AccountsPage(
-                    popUp: MediaQuery.of(App.globalContext!).size.width > 600,
-                  ));
+                  AccountsPage());
             }),
         buildItem(
             icon: Icons.history,

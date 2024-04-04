@@ -40,7 +40,7 @@ void main(){
       doWhenWindowReady(() {
         final win = appWindow;
         var file = File("${App.dataPath}/window_placement");
-        win.minSize = const Size(600, 400);
+        win.minSize = const Size(400, 400);
         win.alignment = Alignment.center;
         if(file.existsSync()){
           var data = file.readAsStringSync().split('/');

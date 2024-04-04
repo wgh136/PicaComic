@@ -24,17 +24,19 @@ class PopUpWidget<T> extends PopupRoute<T>{
       height = MediaQuery.of(context).size.height;
     }
     return MediaQuery.removePadding(removeTop: true, context: context, child: Center(
-      child: Container(
-        decoration: showPopUp ? const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ) : null,
-        clipBehavior: showPopUp ? Clip.antiAlias : Clip.none,
-        width: 550,
-        height: height,
-        child: ClipRect(
-          child: Navigator(
-            onGenerateRoute: (settings) => MaterialPageRoute(
-              builder: (context) => widget,
+      child: PopupIndicatorWidget(
+        child: Container(
+          decoration: showPopUp ? const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ) : null,
+          clipBehavior: showPopUp ? Clip.antiAlias : Clip.none,
+          width: 550,
+          height: height,
+          child: ClipRect(
+            child: Navigator(
+              onGenerateRoute: (settings) => MaterialPageRoute(
+                builder: (context) => widget,
+              ),
             ),
           ),
         ),
@@ -52,6 +54,17 @@ class PopUpWidget<T> extends PopupRoute<T>{
           .chain(CurveTween(curve: Curves.ease))),
       child: child,
     );
+  }
+}
+
+class PopupIndicatorWidget extends InheritedWidget{
+  const PopupIndicatorWidget({super.key, required super.child});
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
+
+  static PopupIndicatorWidget? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PopupIndicatorWidget>();
   }
 }
 

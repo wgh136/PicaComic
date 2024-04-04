@@ -347,10 +347,12 @@ class DownloadPage extends StatelessWidget {
                   DesktopMenuEntry(
                     text: "删除".tl,
                     onClick: () {
-                      downloadManager.delete([logic.comics[index].id]);
-                      logic.comics.removeAt(index);
-                      logic.selected.removeAt(index);
-                      logic.update();
+                      showConfirmDialog(context, "确认删除".tl, "此操作无法撤销, 是否继续?".tl, () {
+                        downloadManager.delete([logic.comics[index].id]);
+                        logic.comics.removeAt(index);
+                        logic.selected.removeAt(index);
+                        logic.update();
+                      });
                     },
                   ),
                   DesktopMenuEntry(
