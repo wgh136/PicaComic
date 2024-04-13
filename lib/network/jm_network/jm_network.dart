@@ -600,6 +600,9 @@ class JmNetwork {
     var res = await get("$baseUrl/album?comicName=&id=$id",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
+      if(res.errorMessage!.contains("Empty data")){
+        throw Exception("漫畫不存在: id = $id");
+      }
       return Res(null, errorMessage: res.errorMessage);
     }
     try {

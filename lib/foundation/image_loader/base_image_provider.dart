@@ -65,12 +65,16 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
         }
       }
 
+      if(data!.isEmpty) {
+        throw Exception("Empty image data");
+      }
+
       try {
-        final buffer = await ImmutableBuffer.fromUint8List(data!);
+        final buffer = await ImmutableBuffer.fromUint8List(data);
         return await decode(buffer);
       } catch (e) {
         Object error = e;
-        if (data!.length < 200) { 
+        if (data.length < 200) { 
           // data is too short, it's likely that the data is text, not image
           try {
             var text = utf8.decoder.convert(data);

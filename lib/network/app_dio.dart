@@ -31,6 +31,9 @@ class MyLogInterceptor implements Interceptor {
           err = err.copyWith(message: "Connection terminated during handshake: "
               "This may be caused by the firewall blocking the connection "
               "or your requests are too frequent.");
+        } else if (err.toString().contains("Connection reset by peer")) {
+          err = err.copyWith(message: "Connection reset by peer: "
+              "The error is unrelated to app, please check your network.");
         }
       default: {}
     }
