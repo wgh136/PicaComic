@@ -611,11 +611,11 @@ class JmNetwork {
         author.add(s);
       }
       var series = <int, String>{};
-      for (var s in res.data["series"] ?? []) {
-        series[int.parse(s["sort"])] = s["id"];
-      }
       var epNames = <String>[];
+      int sort = 1;
       for (var s in res.data["series"] ?? []) {
+        series[sort] = s["id"];
+        sort++;
         var name = s["name"] as String;
         if (name.isEmpty) {
           name = "第${s["sort"]}話";
