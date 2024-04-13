@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
@@ -288,6 +289,14 @@ class LocalFavoritesManager {
       );
     """);
     }
+    if(!tables.contains('folder_order')) {
+      _db.execute("""
+      create table folder_order (
+        folder_name text primary key,
+        order_value int
+      );
+    """);
+    }
   }
 
   void updateUI() {
@@ -384,7 +393,32 @@ class LocalFavoritesManager {
   List<String> _getFolderNamesWithDB() {
     final folders = _getTablesWithDB();
     folders.remove('folder_sync');
+    folders.remove('folder_order');
+    var folderToOrder = <String, int>{};
+    for (var folder in folders) {
+      var res = _db.select("""
+        select * from folder_order
+        where folder_name == '$folder';
+      """);
+      if (res.isNotEmpty) {
+        folderToOrder[folder] = res.first["order_value"];
+      } else {
+        folderToOrder[folder] = 0;
+      }
+    }
+    folders.sort((a, b) {
+      return folderToOrder[a]! - folderToOrder[b]!;
+    });
     return folders;
+  }
+
+  void updateOrder(Map<String, int> order){
+    for (var folder in order.keys) {
+      _db.execute("""
+        insert or replace into folder_order (folder_name, order_value)
+        values ('$folder', ${order[folder]});
+      """);
+    }
   }
 
   List<FolderSync> _getFolderSyncWithDB() {

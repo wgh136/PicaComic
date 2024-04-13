@@ -1,6 +1,9 @@
+import "dart:async";
+
 import "package:collection/collection.dart";
 import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
+import "package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart";
 import "package:pica_comic/base.dart";
 import "package:pica_comic/comic_source/comic_source.dart";
 import "package:pica_comic/foundation/app.dart";
@@ -144,7 +147,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
       ),
     );
   }
-  
+
   Widget buildFoldersList(BuildContext context, double height){
     return Material(
       child: SizedBox(
@@ -211,7 +214,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
     final folders = LocalFavoritesManager().folderNames;
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedHeight(
-        maxCrossAxisExtent: 240,
+        maxCrossAxisExtent: 260,
         itemHeight: 56,
       ),
       delegate: SliverChildBuilderDelegate((context, index){
@@ -236,8 +239,10 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
                 const SizedBox(width: 16),
                 Icon(Icons.local_activity, color: Theme.of(context).colorScheme.secondary,),
                 const SizedBox(width: 8),
-                Text(data),
-                const Spacer(),
+                Expanded(
+                  child: Text(data, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                ),
+                const SizedBox(width: 8),
                 Container(
                   height: 18,
                   padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -285,6 +290,9 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
             const CreateFolderDialog()).then((value) => controller.update());
           }),
           buildItem("搜索".tl, Icons.search, () => App.to(context, () => const LocalSearchPage())),
+          buildItem("排序".tl, Icons.reorder, () {
+            MainPage.to(() => const _FoldersReorderPage());
+          })
         ],
       ).paddingHorizontal(12),
     );
@@ -596,6 +604,100 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                   text: '寻找漫画'.tl,
                 ),
               ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _FoldersReorderPage extends StatefulWidget {
+  const _FoldersReorderPage();
+
+  @override
+  State<_FoldersReorderPage> createState() => _FoldersReorderPageState();
+}
+
+class _FoldersReorderPageState extends State<_FoldersReorderPage> {
+  var folders = LocalFavoritesManager().folderNames;
+  var changed = false;
+
+  final reorderKey = UniqueKey();
+  final _scrollController = ScrollController();
+  final _key = GlobalKey();
+
+  Color lightenColor(Color color, double lightenValue) {
+    int red = (color.red + ((255 - color.red) * lightenValue)).round();
+    int green = (color.green + ((255 - color.green) * lightenValue)).round();
+    int blue = (color.blue + ((255 - color.blue) * lightenValue)).round();
+
+    return Color.fromARGB(color.alpha, red, green, blue);
+  }
+
+  @override
+  void dispose() {
+    if(changed){
+      LocalFavoritesManager().updateOrder(Map<String, int>.fromEntries(
+          folders.mapIndexed((index, element) => MapEntry(element, index))));
+      scheduleMicrotask(() {
+        StateController.find<FavoritesPageController>().update();
+      });
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var tiles = List.generate(folders.length, (index) => MouseRegion(
+      key: ValueKey(folders[index]),
+      cursor: SystemMouseCursors.click,
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Icon(Icons.local_activity, color: Theme.of(context).colorScheme.secondary,),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(folders[index], maxLines: 2, overflow: TextOverflow.ellipsis,),
+          ),
+          const SizedBox(width: 12),
+        ],
+      ),
+    ));
+
+    return Scaffold(
+      appBar: AppBar(title: Text("排序".tl)),
+      body: Column(
+        children: [
+          Expanded(
+            child: ReorderableBuilder(
+              key: reorderKey,
+              scrollController: _scrollController,
+              longPressDelay: App.isDesktop
+                  ? const Duration(milliseconds: 100)
+                  : const Duration(milliseconds: 500),
+              onReorder: (reorderFunc) {
+                changed = true;
+                setState(() {
+                  folders = reorderFunc(folders) as List<String>;
+                });
+              },
+              dragChildBoxDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: lightenColor(
+                      Theme.of(context).splashColor.withOpacity(1), 0.2)),
+              builder: (children) {
+                return GridView(
+                  key: _key,
+                  controller: _scrollController,
+                  gridDelegate: const SliverGridDelegateWithFixedHeight(
+                    maxCrossAxisExtent: 260,
+                    itemHeight: 56,
+                  ),
+                  children: children,
+                );
+              },
+              children: tiles,
             ),
           )
         ],
