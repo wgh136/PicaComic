@@ -32,10 +32,10 @@ class _NhentaiCommentsPageState extends State<NhentaiCommentsPage> {
       );
     }else if(message != null){
       return showNetworkError(message, () => setState(() {
-        loading = false;
+        loading = true;
         message = null;
         comments = null;
-      }), context);
+      }), context, showBack: false);
     }else{
       return Column(
         children: [
