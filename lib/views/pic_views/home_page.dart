@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/main_page.dart';
+import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/pic_views/picacg_latest_page.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/pic_views/widgets.dart';
@@ -57,7 +59,9 @@ class HomePage extends StatelessWidget {
           child: RefreshIndicator(
               child: CustomScrollView(
                 slivers: [
-                  buildTitle("随机".tl),
+                  buildTitle("随机".tl, TextButton(
+                      onPressed: () => MainPage.to(() => _PicacgRandomPage()),
+                      child: Text("查看更多".tl))),
                   buildComicsList(logic.randomComics),
                   buildTitle("最新".tl, TextButton(
                       onPressed: () => MainPage.to(() => const PicacgLatestPage()),
@@ -111,4 +115,23 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PicacgRandomPage extends ComicsPage<ComicItemBrief>{
+  @override
+  Future<Res<List<ComicItemBrief>>> getComics(int i) {
+    return PicacgNetwork().getRandomComics();
+  }
+
+  @override
+  String? get tag => "Picacg Random Page";
+
+  @override
+  String get title => "随机".tl;
+
+  @override
+  ComicType get type => ComicType.picacg;
+
+  @override
+  bool get withScaffold => true;
 }
