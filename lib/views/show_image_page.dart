@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
+import 'package:pica_comic/tools/save_image.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class ShowImagePage extends StatelessWidget {
@@ -42,6 +44,19 @@ class ShowImagePageWithHero extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("图片".tl),
+        actions: [
+          Tooltip(
+            message: "保存".tl,
+            child: IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: () async{
+                var file = await ImageManager().getFile(url);
+                if(file != null){
+                  saveImage(file);
+                }
+              }
+          ))
+        ],
       ),
       body: Hero(
         tag: tag,

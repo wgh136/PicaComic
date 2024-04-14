@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/download.dart';
@@ -449,6 +450,7 @@ class MePage extends StatelessWidget {
                 buildHistory(),
                 if(shouldShowTwoPanel)
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Column(
@@ -550,11 +552,30 @@ class MePage extends StatelessWidget {
   }
 
   Widget buildAccount(double width){
+    var accounts = findAccounts();
+
+    Widget buildItem(String name){
+      return Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(App.globalContext!).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(name, style: const TextStyle(fontSize: 12),).paddingTop(4),
+      );
+    }
+
     return _MePageCard(
       icon: const Icon(Icons.switch_account),
       title: "账号管理".tl,
-      description: "已登录 @a 个账号".tlParams({"a": calcAccounts().toString()}),
+      description: "已登录 @a 个账号".tlParams({"a": accounts.length.toString()}),
       onTap: () => showAdaptiveWidget(App.globalContext!, AccountsPage()),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: accounts.map((e) => buildItem(e)).toList(),
+      ).paddingHorizontal(12).paddingBottom(12)
     );
   }
 
@@ -577,22 +598,48 @@ class MePage extends StatelessWidget {
   }
 
   Widget buildTools(double width){
+    Widget buildItem(String name){
+      return Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(App.globalContext!).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(name, style: const TextStyle(fontSize: 12),).paddingTop(4),
+      );
+    }
+
     return _MePageCard(
       icon: const Icon(Icons.build_circle),
       title: "工具".tl,
       description: "使用工具发现更多漫画".tl,
       onTap: openTool,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          buildItem("Eh订阅".tl),
+          buildItem("图片搜索".tl),
+          buildItem("打开链接".tl),
+        ],
+      ).paddingHorizontal(12).paddingBottom(12),
     );
   }
 
-  int calcAccounts(){
-    int count = 0;
-    if(appdata.picacgAccount != "") count++;
-    if(appdata.ehAccount != "") count++;
-    if(appdata.jmName != "") count++;
-    if(appdata.htName != "") count++;
-    if(NhentaiNetwork().logged) count++;
-    return count;
+  List<String> findAccounts(){
+    var result = <String>[];
+    if(appdata.picacgAccount != "") result.add("Picacg");
+    if(appdata.ehAccount != "") result.add("ehentai");
+    if(appdata.jmName != "") result.add("jm");
+    if(appdata.htName != "") result.add("紳士漫畫");
+    if(NhentaiNetwork().logged) result.add("nhentai");
+    for(var source in ComicSource.sources) {
+      if(source.isLogin){
+        result.add(source.name);
+      }
+    }
+    return result;
   }
 }
 
@@ -602,12 +649,14 @@ class _MePageCard extends StatelessWidget {
     required this.title,
     required this.description,
     required this.onTap,
+    this.child,
   });
 
   final Widget icon;
   final String title;
   final String description;
   final VoidCallback onTap;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -627,6 +676,8 @@ class _MePageCard extends StatelessWidget {
               mouseCursor: SystemMouseCursors.click,
             ),
             Text(description).paddingHorizontal(16).paddingBottom(16).paddingTop(8),
+            if(child != null)
+              child!
           ],
         ),
       ),
