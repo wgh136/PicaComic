@@ -266,17 +266,12 @@ class ComicReadingPage extends StatelessWidget {
             }
             //监听音量键
             if (appdata.settings[7] == "1") {
-              if (appdata.settings[9] != "4") {
+              if(logic.listenVolume == null) {
                 logic.listenVolume = ListenVolumeController(
-                    () => logic.jumpToLastPage(), () => logic.jumpToNextPage());
-              } else {
-                logic.listenVolume = ListenVolumeController(
-                    () => logic.scrollController
-                        .jumpTo(logic.scrollController.position.pixels - 400),
-                    () => logic.scrollController
-                        .jumpTo(logic.scrollController.position.pixels + 400));
+                        () => logic.jumpToLastPage(), () =>
+                    logic.jumpToNextPage());
+                logic.listenVolume!.listenVolumeChange();
               }
-              logic.listenVolume!.listenVolumeChange();
             } else if (logic.listenVolume != null) {
               logic.listenVolume!.stop();
               logic.listenVolume = null;
