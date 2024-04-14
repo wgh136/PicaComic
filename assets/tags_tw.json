@@ -3,15 +3,15 @@
         "female": "女性",
         "male": "男性",
         "mixed": "混合",
-        "language": "语言",
+        "language": "語言",
         "other": "其他",
-        "group": "团队",
-        "artist": "艺术家",
+        "group": "團隊",
+        "artist": "藝術家",
         "cosplayer": "Coser",
         "parody": "原作",
         "character": "角色",
-        "reclass": "重新分类",
-        "temp": "临时"
+        "reclass": "重新分類",
+        "temp": "臨時"
     },
     "reclass": {
         "doujinshi": "同人志",
