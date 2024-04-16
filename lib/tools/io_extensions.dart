@@ -18,6 +18,14 @@ extension FileSystemEntityExt on FileSystemEntity{
 
     return path.substring(i+1);
   }
+
+  Future<void> deleteIgnoreError({bool recursive = false}) async{
+    try{
+      await delete(recursive: recursive);
+    }catch(e){
+      // ignore
+    }
+  }
 }
 
 extension FileExtension on File{
@@ -26,6 +34,8 @@ extension FileExtension on File{
     var bytes = lengthSync();
     return bytes/1024/1024;
   }
+
+  String get extension => path.split('.').last;
 }
 
 extension DirectoryExtension on Directory{
@@ -38,6 +48,17 @@ extension DirectoryExtension on Directory{
     for(var f in listSync(recursive: true)){
       if(FileSystemEntity.typeSync(f.path)==FileSystemEntityType.file){
         total += File(f.path).lengthSync()/1024/1024;
+      }
+    }
+    return total;
+  }
+
+  Future<int> get size async{
+    if(!existsSync()) return 0;
+    int total = 0;
+    for(var f in listSync(recursive: true)){
+      if(FileSystemEntity.typeSync(f.path)==FileSystemEntityType.file){
+        total += await File(f.path).length();
       }
     }
     return total;

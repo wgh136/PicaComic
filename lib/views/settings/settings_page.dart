@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/main.dart';
 import 'package:pica_comic/network/app_dio.dart';
@@ -453,33 +454,12 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
             trailing: const Icon(Icons.arrow_right),
             onTap: () => setDownloadFolder(),
           ),
-        StateBuilder<CalculateCacheLogic>(
-            init: CalculateCacheLogic(),
-            builder: (logic) {
-              if (logic.calculating) {
-                logic.get();
-                return ListTile(
-                  leading: const Icon(Icons.storage),
-                  title: Text("缓存大小".tl),
-                  subtitle: Text("计算中".tl),
-                  onTap: () {},
-                );
-              } else {
-                return ListTile(
-                  leading: const Icon(Icons.storage),
-                  title: Text("清除缓存".tl),
-                  subtitle: Text(
-                      "${logic.size == double.infinity ? "未知" : logic.size.toStringAsFixed(2)} MB"),
-                  onTap: () {
-                    showConfirmDialog(context, "清除缓存".tl, "确认清除缓存?".tl, () {
-                      eraseCache();
-                      logic.size = 0;
-                      logic.update();
-                    });
-                  },
-                );
-              }
-            }),
+        ListTile(
+          leading: const Icon(Icons.storage),
+          title: Text("缓存大小".tl),
+          subtitle: Text(bytesLengthToReadableSize(CacheManager().currentSize)),
+          onTap: () {},
+        ),
         ListTile(
           leading: const Icon(Icons.chrome_reader_mode),
           title: Text("缓存限制".tl),

@@ -209,7 +209,6 @@ class ComicReadingPage extends StatelessWidget {
       if (appdata.settings[14] == "1") {
         cancelKeepScreenOn();
       }
-      ImageManager().saveData();
       logic.runningAutoPageTurning = false;
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();

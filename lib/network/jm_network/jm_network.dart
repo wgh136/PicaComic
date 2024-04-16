@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/tools/translations.dart';
+import '../../foundation/cache_manager.dart';
 import '../../foundation/log.dart';
 import '../app_dio.dart';
 import '../http_client.dart';
@@ -27,27 +28,22 @@ extension _CachedNetwork on CachedNetwork {
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
       CookieJar? cookieJar}) async {
     await setNetworkProxy();
-    await init();
-    var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-    if (fileName.length > 20) {
-      fileName = fileName.substring(0, 21);
-    }
-    var file = File(path! + Platform.pathSeparator + fileName);
-    if (file.existsSync()) {
-      var time = file.lastModifiedSync();
-      if (expiredTime == CacheExpiredTime.persistent ||
-          DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch <
-              expiredTime.time) {
-        return CachedNetworkRes(file.readAsStringSync(), 200, url);
-      }
+    final key = url;
+    var cache = await CacheManager().findCache(key);
+    if (cache != null) {
+      var file = File(cache);
+      return CachedNetworkRes(await file.readAsString(), 200, url);
     }
     options.responseType = ResponseType.bytes;
     var dio = logDio(options);
     if (cookieJar != null) {
       dio.interceptors.add(CookieManager(cookieJar));
     }
-    var res = await dio.get(url);
-    var body = utf8.decoder.convert(res.data);
+    var res = await dio.get<Uint8List>(url);
+    if(res.data == null){
+      throw Exception("Empty data");
+    }
+    var body = utf8.decoder.convert(res.data!);
     if (res.statusCode != 200) {
       return CachedNetworkRes(body, res.statusCode, res.realUri.toString());
     }
@@ -60,11 +56,7 @@ extension _CachedNetwork on CachedNetwork {
     }
     var decodedData = JmNetwork.convertData(data, time);
     if (expiredTime != CacheExpiredTime.no) {
-      if (file.existsSync()) {
-        file.deleteSync();
-      }
-      file.createSync();
-      file.writeAsStringSync(decodedData);
+      await CacheManager().writeCache(key, res.data!, expiredTime.time);
     }
     return CachedNetworkRes(decodedData, res.statusCode, res.realUri.toString());
   }

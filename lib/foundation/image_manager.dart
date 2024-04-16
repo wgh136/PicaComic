@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:crypto/crypto.dart';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
@@ -12,7 +12,6 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
 import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
@@ -26,18 +25,7 @@ class ImageManager {
   static Map<String, DownloadProgress> loadingItems = {};
 
   /// Image cache manager for reader and download manager
-  factory ImageManager() {
-    createFolder();
-    return cache ?? (cache = ImageManager._create());
-  }
-
-  static void createFolder() async {
-    var folder = Directory(
-        "${(await getTemporaryDirectory()).path}${pathSep}imageCache");
-    if (!folder.existsSync()) {
-      folder.createSync(recursive: true);
-    }
-  }
+  factory ImageManager() => cache ??= ImageManager._create();
 
   static bool get haveTask => loadingItems.isNotEmpty;
 
@@ -47,84 +35,8 @@ class ImageManager {
 
   ImageManager._create();
 
-  Map<String, String>? _paths;
-
   final dio = logDio(BaseOptions())
     ..interceptors.add(CookieManagerSql(SingleInstanceCookieJar.instance!));
-
-  Future<void> readData() async {
-    if (_paths == null) {
-      var appDataPath = (await getApplicationSupportDirectory()).path;
-      var file = File("$appDataPath${pathSep}cache.json");
-      if (file.existsSync()) {
-        try {
-          _paths = Map<String, String>.from(
-              const JsonDecoder().convert(await file.readAsString()));
-        } catch (e) {
-          clear();
-          _paths = {};
-        }
-      } else {
-        _paths = {};
-      }
-    }
-  }
-
-  /// Clear image cache exceeding limit and save data into json file.
-  Future<void> saveData() async {
-    LogManager.addLog(
-        LogLevel.info, "Cache Manager", "Performing clear cache and save Data");
-    var clearNum = 0;
-    final maxNumber = int.parse(appdata.settings[34]);
-    final maxSize = int.parse(appdata.settings[35]);
-    if (_paths != null) {
-      // check the limitation of number
-      if (_paths!.length > maxNumber) {
-        var keys = _paths!.keys.toList();
-        for (int i = 0; i < maxNumber - _paths!.length; i++) {
-          var file = File(_paths![keys[i]]!);
-          if (file.existsSync()) {
-            clearNum++;
-            file.deleteSync();
-          }
-          _paths!.remove(keys[i]);
-        }
-      }
-      // check the information of size
-      var cachePath =
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache";
-      var size = Directory(cachePath).getMBSizeSync();
-      LogManager.addLog(LogLevel.info, "Cache Manager",
-          "Current cache number is ${_paths!.length}, size is ${size.toStringAsFixed(2)}MB");
-      if (size > maxSize) {
-        while (size > maxSize) {
-          var first = _paths!.keys.first;
-          var firstFile = File(_paths![first]!);
-          if (firstFile.existsSync()) {
-            clearNum++;
-            size -= firstFile.getMBSizeSync();
-            firstFile.deleteSync();
-          } else {
-            _paths!.remove(first);
-          }
-        }
-      }
-      // save info
-      var appDataPath = (await getApplicationSupportDirectory()).path;
-      var file = File("$appDataPath${pathSep}cache.json");
-      if (!file.existsSync()) {
-        await file.create();
-      }
-      if (_paths != null) {
-        await file.writeAsString(const JsonEncoder().convert(_paths),
-            mode: FileMode.writeOnly);
-      }
-      _paths = null;
-    }
-    LogManager.addLog(LogLevel.info, "Cache Manager",
-        "Cleared $clearNum caches that exceeded the limit");
-    loadingItems.clear();
-  }
 
   /// 获取图片, 适用于没有任何限制的图片链接
   Stream<DownloadProgress> getImage(final String url, [Map<String, String>? headers]) async* {
@@ -140,27 +52,20 @@ class ImageManager {
       }
     }
     loadingItems[url] = DownloadProgress(0, 1, url, "");
+    CachingFile? caching;
+
     try {
-      await readData();
-      //检查缓存
-      if (_paths![url] != null) {
-        if (File(_paths![url]!).existsSync()) {
-          yield DownloadProgress(1, 1, url, _paths![url]!);
-          loadingItems.remove(url);
-          return;
-        } else {
-          _paths!.remove(url);
-        }
+      final key = url;
+      var cache = await CacheManager().findCache(key);
+      if(cache != null){
+        yield DownloadProgress(1, 1, url, cache);
+        loadingItems.remove(url);
+        return;
       }
 
-      //生成文件名
-      var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-      if (fileName.length > 10) {
-        fileName = fileName.substring(0, 10);
-      }
-      fileName = "$fileName.jpg";
-      final savePath =
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
+      final cachingFile = await CacheManager().openWrite(key);
+      caching = cachingFile;
+      final savePath = cachingFile.file.path;
       yield DownloadProgress(0, 100, url, savePath);
       headers = headers ?? {};
       headers["User-Agent"] ??= webUA;
@@ -184,22 +89,18 @@ class ImageManager {
       } catch (e) {
         //忽略
       }
-      var file = File(savePath);
-      if (file.existsSync()) {
-        file.deleteSync();
-      }
-      file.createSync();
       await for (var res in dioRes.data!.stream) {
         imageData.addAll(res);
-        file.writeAsBytesSync(res, mode: FileMode.append);
+        await cachingFile.writeBytes(res);
         var progress = DownloadProgress(imageData.length,
             expectedBytes ?? (imageData.length + 1), url, savePath);
         yield progress;
         loadingItems[url] = progress;
       }
-      await saveInfo(url, savePath);
+      await cachingFile.close();
       yield DownloadProgress(1, 1, url, savePath, Uint8List.fromList(imageData));
     } catch (e, s) {
+      caching?.cancel();
       log("$e\n$s", "Network", LogLevel.error);
       rethrow;
     } finally {
@@ -222,18 +123,21 @@ class ImageManager {
     }
     loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
 
+    CachingFile? caching;
+
     try {
-      await readData();
-      // find cache
-      if (_paths![cacheKey] != null) {
-        if (File(_paths![cacheKey]!).existsSync()) {
-          yield DownloadProgress(1, 1, cacheKey, _paths![cacheKey]!);
-          loadingItems.remove(cacheKey);
-          return;
-        } else {
-          _paths!.remove(cacheKey);
-        }
+      final key = cacheKey;
+      var cache = await CacheManager().findCache(key);
+      if(cache != null){
+        yield DownloadProgress(1, 1, key, cache);
+        loadingItems.remove(key);
+        return;
       }
+
+      final cachingFile = await CacheManager().openWrite(key);
+      caching = cachingFile;
+      final savePath = cachingFile.file.path;
+      yield DownloadProgress(0, 100, key, savePath);
 
       final options = BaseOptions(
           followRedirects: true,
@@ -289,17 +193,7 @@ class ImageManager {
       await getShowKey();
       assert(gallery.auth?["showKey"] != null || gallery.auth?["mpvKey"] != null);
 
-      // generate file name
-      var fileName =
-          md5.convert(const Utf8Encoder().convert(cacheKey)).toString();
-      if (fileName.length > 10) {
-        fileName = fileName.substring(0, 10);
-      }
-      fileName = "$fileName.jpg";
-      final savePath =
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       yield DownloadProgress(0, 100, cacheKey, savePath);
-
 
       Response<ResponseBody>? res;
 
@@ -456,16 +350,10 @@ class ImageManager {
         }
       }
       var currentBytes = 0;
-      var file = File(savePath);
-      if (!file.existsSync()) {
-        file.create();
-      } else {
-        file.deleteSync();
-        file.createSync();
-      }
+
       List<int> data = [];
       await for (var b in stream) {
-        file.writeAsBytesSync(b, mode: FileMode.append);
+        cachingFile.writeBytes(b);
         currentBytes += b.length;
         data.addAll(b);
         var progress = DownloadProgress(currentBytes,
@@ -473,10 +361,11 @@ class ImageManager {
         yield progress;
         loadingItems[cacheKey] = progress;
       }
-      await saveInfo(cacheKey, savePath);
+      await cachingFile.close();
       yield DownloadProgress(1, 1, cacheKey, savePath, Uint8List.fromList(data));
     }
     catch(e, s){
+      caching?.cancel();
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
     }finally {
       loadingItems.remove(cacheKey);
@@ -495,23 +384,22 @@ class ImageManager {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     loadingItems[image.hash] = DownloadProgress(0, 1, image.hash, "");
+    CachingFile? caching;
+
     try {
-      await readData();
-      //检查缓存
-      if (_paths![image.hash] != null) {
-        if (File(_paths![image.hash]!).existsSync()) {
-          yield DownloadProgress(1, 1, image.hash, _paths![image.hash]!);
-          loadingItems.remove(image.hash);
-          return;
-        } else {
-          _paths!.remove(image.hash);
-        }
+      final key = image.hash;
+      var cache = await CacheManager().findCache(key);
+      if(cache != null){
+        yield DownloadProgress(1, 1, key, cache);
+        loadingItems.remove(key);
+        return;
       }
-      var directory = Directory(
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache");
-      if (!directory.existsSync()) {
-        directory.create();
-      }
+
+      final cachingFile = await CacheManager().openWrite(key);
+      caching = cachingFile;
+      final savePath = cachingFile.file.path;
+      yield DownloadProgress(0, 100, key, savePath);
+
       final gg = GG();
       var url = await gg.urlFromUrlFromHash(galleryId, image, 'webp', null);
       int l;
@@ -520,53 +408,41 @@ class ImageManager {
           break;
         }
       }
-      var fileName = image.hash + url.substring(l);
-      final savePath =
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
       var dio = logDio();
       dio.options.headers = {
         "User-Agent": webUA,
         "Referer": "https://hitomi.la/reader/$galleryId.html"
       };
-      var file = File(savePath);
+
+      var res = await dio.get<ResponseBody>(url,
+          options: Options(responseType: ResponseType.stream));
+      var stream = res.data!.stream;
+      int? expectedBytes;
       try {
-        var res = await dio.get<ResponseBody>(url,
-            options: Options(responseType: ResponseType.stream));
-        var stream = res.data!.stream;
-        int? expectedBytes;
-        try {
-          expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
-        } catch (e) {
-          try {
-            expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
-          } catch (e) {
-            //忽视
-          }
-        }
-        if (!file.existsSync()) {
-          file.create();
-        }
-        var currentBytes = 0;
-        var data = <int>[];
-        await for (var b in stream) {
-          data.addAll(b);
-          file.writeAsBytesSync(b.toList(), mode: FileMode.append);
-          currentBytes += b.length;
-          var progress = DownloadProgress(
-              currentBytes, expectedBytes ?? (currentBytes + 1), url, savePath);
-          yield progress;
-          loadingItems[image.hash] = progress;
-        }
-        yield DownloadProgress(currentBytes, currentBytes, url, savePath,
-            Uint8List.fromList(data));
+        expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
       } catch (e) {
-        if (file.existsSync()) {
-          file.deleteSync();
+        try {
+          expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
+        } catch (e) {
+          //忽视
         }
-        rethrow;
       }
-      await saveInfo(image.hash, savePath);
+      var currentBytes = 0;
+      var data = <int>[];
+      await for (var b in stream) {
+        data.addAll(b);
+        cachingFile.writeBytes(b);
+        currentBytes += b.length;
+        var progress = DownloadProgress(
+            currentBytes, expectedBytes ?? (currentBytes + 1), url, savePath);
+        yield progress;
+        loadingItems[image.hash] = progress;
+      }
+      await cachingFile.close();
+      yield DownloadProgress(currentBytes, currentBytes, url, savePath,
+          Uint8List.fromList(data));
     } catch (e) {
+      caching?.cancel();
       rethrow;
     } finally {
       loadingItems.remove(image.hash);
@@ -587,44 +463,23 @@ class ImageManager {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     loadingItems[urlWithoutParam] = DownloadProgress(0, 1, url, "");
+    CachingFile? caching;
+
     try {
-      await readData();
-      var directory = Directory(
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache");
-      if (!directory.existsSync()) {
-        directory.create();
+      final key = urlWithoutParam;
+      var cache = await CacheManager().findCache(key);
+      if(cache != null){
+        yield DownloadProgress(1, 1, url, cache);
+        loadingItems.remove(url);
+        return;
       }
-      //检查缓存
-      if (_paths![urlWithoutParam] != null) {
-        if (File(_paths![urlWithoutParam]!).existsSync()) {
-          yield DownloadProgress(1, 1, url, _paths![urlWithoutParam]!);
-          return;
-        } else {
-          _paths!.remove(urlWithoutParam);
-        }
-      }
-      //生成文件名
-      var fileName = md5.convert(const Utf8Encoder().convert(url)).toString();
-      if (fileName.length > 10) {
-        fileName = fileName.substring(0, 10);
-      }
-      int l;
-      int r = url.length;
-      for (l = url.length - 1; l >= 0; l--) {
-        if (url[l] == '.') {
-          break;
-        }
-        if (url[l] == '?') {
-          r = l;
-        }
-      }
-      fileName += url.substring(l, r);
-      fileName = fileName.replaceAll(RegExp(r"\?.+"), "");
-      final savePath =
-          "${(await getTemporaryDirectory()).path}${pathSep}imageCache$pathSep$fileName";
+
+      final cachingFile = await CacheManager().openWrite(key);
+      caching = cachingFile;
+      final savePath = cachingFile.file.path;
+      yield DownloadProgress(0, 1, url, savePath);
 
       var dio = logDio();
-      yield DownloadProgress(0, 1, url, savePath);
 
       var bytes = <int>[];
       try {
@@ -640,12 +495,8 @@ class ImageManager {
         await for (var b in stream) {
           //不直接写入文件, 因为需要对图片进行重组, 处理完成后再写入
           bytes.addAll(b.toList());
-          //构建虚假的进度条, 由于无法获取jm文件大小, 出此下策
-          //每获取到一次数据, 进度条增加1%
-          i += 5;
-          if (i > 750) {
-            i = 750;
-          }
+          //构建虚假的进度条, 因为无法获取jm文件大小
+          i = min(600, bytes.length ~/ 5000);
           var progress = DownloadProgress(i, 1000, url, savePath);
           yield progress;
           loadingItems[urlWithoutParam] = progress;
@@ -656,73 +507,40 @@ class ImageManager {
       var progress = DownloadProgress(750, 1000, url, savePath);
       yield progress;
       loadingItems[urlWithoutParam] = progress;
-      var file = File(savePath);
-      if (!file.existsSync()) {
-        file.create();
-      }
-      if (url.substring(l, r) != ".gif") {
+      if (url.split('.').last != "gif") {
         bytes = await startRecombineAndWriteImage(
             Uint8List.fromList(bytes), epsId, scrambleId, bookId, savePath);
-      } else {
-        await File(savePath).writeAsBytes(bytes);
       }
-      //告知完成
-      await saveInfo(urlWithoutParam, savePath);
+      await cachingFile.writeBytes(bytes);
+      await cachingFile.close();
       progress = DownloadProgress(1, 1, url, savePath, Uint8List.fromList(bytes));
       yield progress;
-      loadingItems[urlWithoutParam] = progress;
     } catch (e) {
+      caching?.cancel();
       rethrow;
     } finally {
-      await Future.delayed(const Duration(milliseconds: 50));
-      loadingItems.remove(url);
+      loadingItems.remove(urlWithoutParam);
     }
   }
 
-  Future<void> saveInfo(String url, String savePath) async {
-    if (_paths == null) {
-      //此时为退出了阅读器, 数据已清除
-      return;
+  Future<File?> getFile(String key) async {
+    var cache = await CacheManager().findCache(key);
+    if(cache != null){
+      return File(cache);
     }
-    _paths![url] = savePath;
-    //await saveData();
-  }
-
-  Future<File?> getFile(String url) async {
-    await readData();
-    return _paths?[url] == null ? null : File(_paths![url]!);
+    return null;
   }
 
   Future<void> clear() async {
-    var appDataPath = (await getApplicationSupportDirectory()).path;
-    var file = File("$appDataPath${pathSep}cache.json");
-    if (file.existsSync()) {
-      file.delete();
-    }
-    if (_paths != null) {
-      _paths!.clear();
-    }
-    final savePath = Directory(
-        "${(await getTemporaryDirectory()).path}${pathSep}imageCache");
-    if (savePath.existsSync()) {
-      savePath.deleteSync(recursive: true);
-    }
+    await CacheManager().clear();
   }
 
   Future<bool> find(String key) async {
-    await readData();
-    return _paths![key] != null;
+    return await CacheManager().findCache(key) != null;
   }
 
   Future<void> delete(String key) async {
-    await readData();
-    try {
-      var file = File(_paths![key]!);
-      file.deleteSync();
-      _paths!.remove(key);
-    } catch (e) {
-      //忽视
-    }
+    await CacheManager().delete(key);
   }
 }
 

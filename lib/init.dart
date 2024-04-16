@@ -12,6 +12,7 @@ import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
+import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:workmanager/workmanager.dart';
@@ -126,6 +127,16 @@ Future<void> _checkOldData() async{
         io.Directory("${App.dataPath}/comic_source/cookies").deleteSync(
             recursive: true);
       }
+    }
+
+    if(io.File("${App.dataPath}/cache.json").existsSync()){
+      io.File("${App.dataPath}/cache.json").deleteIgnoreError();
+    }
+    if(io.Directory("${App.cachePath}/imageCache").existsSync()){
+      io.Directory("${App.cachePath}/imageCache").deleteIgnoreError(recursive: true);
+    }
+    if(io.Directory("${App.cachePath}/cachedNetwork").existsSync()){
+      io.Directory("${App.cachePath}/cachedNetwork").deleteIgnoreError(recursive: true);
     }
   }
   catch(e, s){
