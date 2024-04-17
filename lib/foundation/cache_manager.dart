@@ -58,7 +58,7 @@ class CacheManager {
     await file.writeAsBytes(data);
     var expires = DateTime.now().millisecondsSinceEpoch + duration;
     _db.execute('''
-      INSERT OR REPLACE INTO cache cache (key, dir, name, expires) VALUES (?, ?, ?, ?)
+      INSERT OR REPLACE INTO cache (key, dir, name, expires) VALUES (?, ?, ?, ?)
     ''', [key, dir.toString(), name, expires]);
     if(_currentSize != null) {
       _currentSize = _currentSize! + data.length;
