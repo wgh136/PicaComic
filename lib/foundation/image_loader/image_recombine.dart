@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as image;
 import 'package:crypto/crypto.dart';
+import 'package:pica_comic/foundation/log.dart';
 
 /// 转换自 https://github.com/tonquer/JMComic-qt/blob/main/src/tools/tool.py
 int _getSegmentationNum(String epsId, String scrambleID, String pictureName) {
@@ -113,54 +114,39 @@ class JmRecombine{
 
   static ReceivePort? _receivePort;
 
+  static ReceivePort? _errorPort;
+
   static SendPort? _sendPort;
 
   static final List<_RecombinationTask> _tasks = [];
 
   static _RecombinationTask? _current;
 
-  static Timer? _timer;
-
   static Future<Uint8List> recombineImage(Uint8List imgData, String epsId,
       String scrambleId, String bookId, String savePath) async{
-    _timer?.cancel();
-    _timer = null;
     Completer<Uint8List> completer = Completer();
     _RecombinationTask task =
       _RecombinationTask(imgData, epsId, scrambleId, bookId, completer, savePath);
     _tasks.add(task);
-    if(_isolate == null){
+    if(_isolate == null && _receivePort == null){
+      _receivePort = ReceivePort();
       await _start();
-    } else {
-      _pushTask();
     }
+    _pushTask();
     return completer.future;
   }
 
   static void _pushTask(){
-    if(_tasks.isEmpty){
-      _timer ??= Timer(const Duration(seconds: 5), (){
-          if(_tasks.isEmpty){
-            _isolate!.kill(priority: Isolate.immediate);
-            _isolate = null;
-            _receivePort?.close();
-            _receivePort = null;
-            _sendPort = null;
-            _timer = null;
-          }
-        });
-      return;
-    }
-
-    if(_sendPort != null && _current == null){
+    if(_sendPort != null && _current == null && _tasks.isNotEmpty){
       _current = _tasks.removeAt(0);
       _sendPort!.send(_current!.removeCompleter());
     }
   }
 
-  static _start() async{
-    _receivePort = ReceivePort();
-    _isolate = await Isolate.spawn(_run, _receivePort!.sendPort);
+  static Future<void> _start() async{
+    _errorPort = ReceivePort();
+    _isolate = await Isolate.spawn(_run, _receivePort!.sendPort,
+        onError: _errorPort!.sendPort, debugName: "JmRecombine");
     _listen();
   }
 
@@ -169,21 +155,52 @@ class JmRecombine{
       if (message is SendPort){
         _sendPort = message;
         _pushTask();
-      } else if(message is Uint8List){
+      } else if(message is Uint8List) {
         _current!.completer!.complete(message);
         _current = null;
         _pushTask();
+      } else if(message is Exception) {
+        _current!.completer!.completeError(message);
       }
+    });
+
+    _errorPort!.listen((message) {
+      log("Receive error from Isolate#JmRecombine:\n$message", "Image",
+          LogLevel.error);
+      _handleError();
     });
   }
 
-  static void _run(SendPort port){
+  static _handleError() async{
+    _receivePort?.close();
+    _errorPort?.close();
+    _isolate = null;
+    _sendPort = null;
+    if(_current != null) {
+      _tasks.add(_current!);
+      _current = null;
+    }
+    await Future.delayed(const Duration(milliseconds: 50));
+    if(_isolate == null && _receivePort == null){
+      _receivePort = ReceivePort();
+      await _start();
+    } else {
+      _pushTask();
+    }
+  }
+
+  static void _run(SendPort port) {
     _receivePort = ReceivePort();
     _receivePort!.listen((message) async{
       if (message is _RecombinationTask){
         _RecombinationTask task = message;
-        Uint8List bytes = await _recombineImageAndWriteFile(task);
-        port.send(bytes);
+        try {
+          Uint8List bytes = await _recombineImageAndWriteFile(task);
+          port.send(bytes);
+        }
+        catch(e){
+          port.send(Exception(e.toString()));
+        }
       }
     });
     port.send(_receivePort!.sendPort);
