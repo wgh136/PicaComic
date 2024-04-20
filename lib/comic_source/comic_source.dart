@@ -10,7 +10,6 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:toml/toml.dart';
 
 import '../foundation/def.dart';
 import '../foundation/js_engine.dart';
@@ -54,10 +53,9 @@ class ComicSource {
       return;
     }
     await for (var entity in Directory(path).list()) {
-      if (entity is File && entity.path.endsWith(".toml")) {
+      if (entity is File && entity.path.endsWith(".js")) {
         try {
-          var source =
-          await ComicSourceParser().parse(
+          var source = await ComicSourceParser().parse(
               await entity.readAsString(), entity.absolute.path);
           sources.add(source);
         }
@@ -70,6 +68,7 @@ class ComicSource {
 
   static reload() async{
     sources.clear();
+    JsEngine().runCode("ComicSource.sources = {};");
     await init();
   }
 
@@ -138,12 +137,23 @@ class ComicSource {
     }
   }
 
+  bool _isSaving = false;
+  bool _haveWaitingTask = false;
+
   Future<void> saveData() async {
+    if(_haveWaitingTask)  return;
+    while(_isSaving) {
+      _haveWaitingTask = true;
+      await Future.delayed(const Duration(milliseconds: 20));
+      _haveWaitingTask = false;
+    }
+    _isSaving = true;
     var file = File("${App.dataPath}/comic_source/$key.data");
     if (!await file.exists()) {
       await file.create(recursive: true);
     }
     await file.writeAsString(jsonEncode(data));
+    _isSaving = false;
   }
 
   Future<bool> reLogin() async{
@@ -206,12 +216,10 @@ class AccountConfig {
 
   final String? registerWebsite;
 
-  final List<String> logoutDeleteCookies;
-
-  final List<String> logoutDeleteData;
+  final void Function() logout;
 
   const AccountConfig(this.login, this.loginWebsite, this.registerWebsite,
-      this.logoutDeleteCookies, this.logoutDeleteData);
+      this.logout);
 }
 
 class LoadImageRequest {
@@ -389,7 +397,9 @@ class CategoryComicsOptions{
   /// If [notShowWhen] contains category's name, the option will not be shown.
   final List<String> notShowWhen;
 
-  const CategoryComicsOptions(this.options, this.notShowWhen);
+  final List<String>? showWhen;
+
+  const CategoryComicsOptions(this.options, this.notShowWhen, this.showWhen);
 }
 
 class Comment{

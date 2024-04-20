@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
-import 'package:pica_comic/foundation/js_engine.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
@@ -705,8 +704,7 @@ class AccountsPage extends StatelessWidget {
           title: Text("退出登录".tl),
           onTap: (){
             element.data["account"] = null;
-            JsEngine().clearCookies(element.account!.logoutDeleteCookies);
-            element.data.removeWhere((key, value) => element.account!.logoutDeleteData.contains(key));
+            element.account?.logout();
             logic.update();
           },
           trailing: const Icon(Icons.logout),

@@ -16,13 +16,28 @@ class LogManager {
 
   static bool ignoreLimitation = false;
 
+  static void printWarning(String text) {
+    print('\x1B[33m$text\x1B[0m');
+  }
+
+  static void printError(String text) {
+    print('\x1B[31m$text\x1B[0m');
+  }
+
   static void addLog(LogLevel level, String title, String content) {
     if (!ignoreLimitation && content.length > maxLogLength) {
       content = "${content.substring(0, maxLogLength)}...";
     }
 
-    if (kDebugMode) {
-      print(content);
+    if(kDebugMode){
+      switch(level) {
+        case LogLevel.error:
+          printError(content);
+        case LogLevel.warning:
+          printWarning(content);
+        case LogLevel.info:
+          print(content);
+      }
     }
 
     var newLog = Log(level, title, content);

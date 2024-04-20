@@ -390,15 +390,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  flutter_js:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: e0abb61e3b77ebe3f6ffee7cd66a081dcd85cb6b
-      url: "https://github.com/wgh136/flutter_js"
-    source: git
-    version: "0.8.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -444,6 +435,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.17"
+  flutter_qjs:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "67dd0dff"
+      resolved-ref: "67dd0dff9ba6fab396b1c285563b7cccfa4f500c"
+      url: "https://github.com/wgh136/flutter_qjs"
+    source: git
+    version: "0.3.7"
   flutter_reorderable_grid_view:
     dependency: "direct main"
     description:
@@ -958,14 +958,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  sync_http:
-    dependency: transitive
-    description:
-      name: sync_http
-      sha256: "7f0cd72eca000d2e026bcd6f990b81d0ca06022ef4e32fb257b30d3d1014a961"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.1"
   term_glyph:
     dependency: transitive
     description:
@@ -990,14 +982,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.2"
-  toml:
-    dependency: "direct main"
-    description:
-      name: toml
-      sha256: "9968de24e45b632bf1a654fe1ac7b6fe5261c349243df83fd262397799c45a2d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.0"
   typed_data:
     dependency: transitive
     description:

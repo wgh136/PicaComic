@@ -6,7 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_linux
   dynamic_color
   file_selector_linux
-  flutter_js
+  flutter_qjs
   sqlite3_flutter_libs
   url_launcher_linux
 )

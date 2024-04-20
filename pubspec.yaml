@@ -83,14 +83,15 @@ dependencies:
       url: https://github.com/wgh136/zip_flutter
       ref: 92b7309e
   fl_chart: any
-  toml: any
-  flutter_js:
-    git:
-        url: https://github.com/wgh136/flutter_js
   collection: 1.18.0
   bitsdojo_window: 0.1.6
   flutter_inappwebview: 6.0.0
   pdf: ^3.10.8
+  flutter_qjs:
+    git:
+      url: https://github.com/wgh136/flutter_qjs
+      ref: 67dd0dff
+
 
 dev_dependencies:
   flutter_test:

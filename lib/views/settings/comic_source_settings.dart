@@ -162,7 +162,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
 
   void chooseFile() async{
     const XTypeGroup typeGroup = XTypeGroup(
-      extensions: <String>['toml'],
+      extensions: <String>['js'],
     );
     final XFile? file =
         await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
@@ -201,12 +201,12 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
     }
   }
 
-  Future<void> addSource(String toml, String fileName) async{
-    var comicSource = await ComicSourceParser().createAndParse(toml, fileName);
+  Future<void> addSource(String js, String fileName) async{
+    var comicSource = await ComicSourceParser().createAndParse(js, fileName);
     ComicSource.sources.add(comicSource);
     var explorePages = appdata.settings[77].split(',');
     for(var page in comicSource.explorePages){
-      if(!explorePages.contains(page)){
+      if(!explorePages.contains(page.title)){
         explorePages.add(page.title);
       }
     }
