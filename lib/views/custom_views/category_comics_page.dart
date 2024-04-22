@@ -5,6 +5,7 @@ import "package:pica_comic/network/res.dart";
 import "package:pica_comic/views/page_template/comics_page.dart";
 
 import "../../network/base_comic.dart";
+import "../widgets/appbar.dart";
 import "custom_comic_tile.dart";
 
 class CategoryComicsPage extends StatefulWidget {
@@ -54,7 +55,7 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppbar(
         title: Text(widget.category),
       ),
       body: Column(

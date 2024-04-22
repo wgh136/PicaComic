@@ -131,7 +131,7 @@ class _FloatingSearchBarState extends State<_FloatingSearchBar> {
 }
 
 class PreSearchController extends StateController {
-  String target = appdata.settings[63];
+  String target = '0';
   int picComicsOrder = appdata.getSearchMode();
   int jmComicsOrder = int.parse(appdata.settings[19]);
   NhentaiSort nhentaiSort = NhentaiSort.values[int.parse(appdata.settings[39])];
@@ -179,6 +179,15 @@ class PreSearchController extends StateController {
   }
 
   PreSearchController() {
+    var searchSource = <String>['0', '1', '2', '3', '4', '5'];
+    for(var source in ComicSource.sources){
+      searchSource.add(source.key);
+    }
+    if(int.parse(appdata.settings[63]) >= searchSource.length){
+      appdata.settings[63] = '0';
+      appdata.updateSettings();
+    }
+    target = searchSource[int.parse(appdata.settings[63])];
     updateCustomOptions();
   }
 }

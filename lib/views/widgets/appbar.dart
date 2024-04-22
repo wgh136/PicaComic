@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../foundation/ui_mode.dart';
 
-class CustomAppbar extends StatelessWidget {
+class CustomAppbar extends StatefulWidget implements PreferredSizeWidget{
   const CustomAppbar(
       {required this.title,
       this.leading,
@@ -19,21 +20,75 @@ class CustomAppbar extends StatelessWidget {
   final Color? backgroundColor;
 
   @override
+  State<CustomAppbar> createState() => _CustomAppbarState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(56);
+}
+
+class _CustomAppbarState extends State<CustomAppbar> {
+  ScrollNotificationObserverState? _scrollNotificationObserver;
+  bool _scrolledUnder = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scrollNotificationObserver?.removeListener(_handleScrollNotification);
+    _scrollNotificationObserver = ScrollNotificationObserver.maybeOf(context);
+    _scrollNotificationObserver?.addListener(_handleScrollNotification);
+  }
+
+  @override
+  void dispose() {
+    if (_scrollNotificationObserver != null) {
+      _scrollNotificationObserver!.removeListener(_handleScrollNotification);
+      _scrollNotificationObserver = null;
+    }
+    super.dispose();
+  }
+
+  void _handleScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification
+        && defaultScrollNotificationPredicate(notification)) {
+      final bool oldScrolledUnder = _scrolledUnder;
+      final ScrollMetrics metrics = notification.metrics;
+      switch (metrics.axisDirection) {
+        case AxisDirection.up:
+        // Scroll view is reversed
+          _scrolledUnder = metrics.extentAfter > 0;
+        case AxisDirection.down:
+          _scrolledUnder = metrics.extentBefore > 0;
+        case AxisDirection.right:
+        case AxisDirection.left:
+        // Scrolled under is only supported in the vertical axis, and should
+        // not be altered based on horizontal notifications of the same
+        // predicate since it could be a 2D scroller.
+          break;
+      }
+
+      if (_scrolledUnder != oldScrolledUnder) {
+        setState(() {
+          // React to a change in MaterialState.scrolledUnder
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (UiMode.m1(context)) {
-      return AppBar(
-        title: title,
-        leading: leading,
-        actions: actions,
-        backgroundColor: backgroundColor,
-      );
-    } else {
-      return SizedBox(
+    double padding = 0;
+    if(UiMode.m1(context)){
+      padding += MediaQuery.paddingOf(context).top;
+    }
+    return Material(
+      elevation: (_scrolledUnder && UiMode.m1(context)) ? 4 : 0,
+      surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+      child: SizedBox(
         height: 56,
         child: Row(
           children: [
             const SizedBox(width: 8),
-            leading ??
+            widget.leading ??
                 Tooltip(
                   message: "返回".tl,
                   child: IconButton(
@@ -50,17 +105,17 @@ class CustomAppbar extends StatelessWidget {
                     fontSize: 20),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                child: title,
+                child: widget.title,
               ),
             ),
-            ...?actions,
+            ...?widget.actions,
             const SizedBox(
               width: 8,
             )
           ],
         ),
-      );
-    }
+      ).paddingTop(padding),
+    );
   }
 }
 

@@ -6,6 +6,7 @@ import "package:pica_comic/tools/translations.dart";
 import "package:pica_comic/views/page_template/comics_page.dart";
 
 import "../../network/base_comic.dart";
+import "../widgets/appbar.dart";
 import "custom_comic_tile.dart";
 
 class RankingPage extends StatefulWidget {
@@ -43,7 +44,7 @@ class _RankingPageState extends State<RankingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppbar(
         title: Text("排行榜".tl),
       ),
       body: Column(
