@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/views/show_image_page.dart';
 import 'package:pica_comic/views/widgets/animated_image.dart';
 import '../../base.dart';
@@ -26,6 +27,10 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var avatarUrl = this.avatarUrl;
+    if(avatarUrl != null && !avatarUrl.isURL){
+      avatarUrl = null;
+    }
     return GestureDetector(
       onTap: () {
         if (couldBeShown) {
@@ -59,7 +64,7 @@ class Avatar extends StatelessWidget {
                         fit: BoxFit.cover,
                       )
                     : AnimatedImage(
-                        image: CachedImageProvider(avatarUrl!,
+                        image: CachedImageProvider(avatarUrl,
                             headers: {"User-Agent": webUA}),
                         fit: BoxFit.cover,
                         filterQuality: FilterQuality.medium),

@@ -282,6 +282,9 @@ mixin class _JSEngineApi{
           "httpOnly": e.httpOnly,
           "session": e.expires == null,
         }).toList();
+      case "delete":
+        clearCookies([data["url"]]);
+        return null;
     }
   }
 
@@ -488,6 +491,14 @@ class Network {
         return sendMessage({
             method: 'cookie',
             function: 'get',
+            url: url,
+        })
+    }
+    
+    static deleteCookies(url) {
+        sendMessage({
+            method: 'cookie',
+            function: 'delete',
             url: url,
         })
     }

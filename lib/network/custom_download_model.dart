@@ -105,9 +105,20 @@ class CustomDownloadingItem extends DownloadingItem {
   @override
   bool get haveEps => comic.chapters != null;
 
+  Stream<DownloadProgress> _getImage(String url){
+    if(source.getImageLoadingConfig != null) {
+      int ep = links!.keys.elementAt(downloadingEp);
+      var config = source.getImageLoadingConfig!(url, comic.comicId,
+          comic.chapters?.keys.elementAtOrNull(ep-1) ?? comic.comicId);
+      return ImageManager().getImage(config["url"] ?? url,
+          Map.from(config['headers'] ?? {}));
+    }
+    return ImageManager().getImage(url);
+  }
+
   @override
   Future<Uint8List> getImage(String link) async{
-    await for(var s in ImageManager().getImage(link)){
+    await for(var s in _getImage(link)){
       if(s.finished){
         var file = s.getFile();
         var data = await file.readAsBytes();
@@ -164,7 +175,7 @@ class CustomDownloadingItem extends DownloadingItem {
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(ImageManager().getImage(link).listen((event) {}));
+    addStreamSubscription(_getImage(link).listen((event) {}));
   }
 
   @override

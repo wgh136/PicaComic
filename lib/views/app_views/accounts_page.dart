@@ -710,6 +710,7 @@ class AccountsPage extends StatelessWidget {
           trailing: const Icon(Icons.logout),
         );
       }
+      yield const Divider();
     }
   }
 

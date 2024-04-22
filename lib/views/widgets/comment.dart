@@ -45,15 +45,15 @@ class CommentTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if(avatarUrl != null)
-              Avatar(
-                size: 58,
-                avatarUrl: avatarUrl,
-                frame: frameUrl,
-                slogan: slogan,
-                name: name,
-                couldBeShown: level != null,
-                level: level ?? 0,
-              ),
+                Avatar(
+                  size: 58,
+                  avatarUrl: avatarUrl,
+                  frame: frameUrl,
+                  slogan: slogan,
+                  name: name,
+                  couldBeShown: level != null,
+                  level: level ?? 0,
+                ),
               const SizedBox(
                 width: 8,
               ),

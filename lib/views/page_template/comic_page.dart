@@ -1093,6 +1093,7 @@ class FavoriteComicWidget extends StatefulWidget {
       this.initialFolder,
       this.favoriteOnPlatform = false,
       this.cancelPlatformFavorite,
+      this.cancelPlatformFavoriteWithFolder,
       required this.setFavorite,
       super.key});
 
@@ -1119,12 +1120,15 @@ class FavoriteComicWidget extends StatefulWidget {
   final String? initialFolder;
 
   /// whether this comic have been added to platform's favorite folder
-  final bool favoriteOnPlatform;
+  /// if this is null, it is required to send a request to check it
+  final bool? favoriteOnPlatform;
 
   /// identifier for the comic
   final String target;
 
   final void Function()? cancelPlatformFavorite;
+
+  final void Function(String folder)? cancelPlatformFavoriteWithFolder;
 
   final void Function(bool favorite) setFavorite;
 
@@ -1135,7 +1139,10 @@ class FavoriteComicWidget extends StatefulWidget {
 class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
   late String? selectID;
   late int page = 0;
+  /// network folders
   late Map<String, String> folders;
+  /// network folders that have been added to favorite
+  var favoritedFolders = <String>[];
   bool loadedData = false;
   List<String> addedFolders = [];
 
@@ -1178,11 +1185,13 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
                   width: 12,
                 ),
                 Text(name),
-                if (addedFolders.contains(name) && p == 1)
+                if ((addedFolders.contains(name) && p == 1)
+                    || (favoritedFolders.contains(id) && p == 0))
                   const SizedBox(
                     width: 12,
                   ),
-                if (addedFolders.contains(name) && p == 1)
+                if ((addedFolders.contains(name) && p == 1)
+                    || (favoritedFolders.contains(id) && p == 0))
                   Container(
                     width: 60,
                     height: 30,
@@ -1228,7 +1237,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       ),
     );
 
-    if (widget.favoriteOnPlatform) {
+    if (widget.favoriteOnPlatform == true) {
       platform = Center(
         child: Text("已收藏".tl),
       );
@@ -1245,7 +1254,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
               App.globalBack();
               widget.cancelPlatformFavorite?.call();
             },
-            child: const Text("取消收藏"),
+            child: Text("取消收藏".tl),
           ),
         );
       }
@@ -1259,13 +1268,15 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
           onPressed: () {
             hideMessage(context);
             App.globalBack();
-            if (addedFolders.length == 1 && !widget.favoriteOnPlatform) {
+            if (addedFolders.length == 1
+                && widget.favoriteOnPlatform == false
+                && favoritedFolders.isEmpty) {
               widget.setFavorite(false);
             }
             LocalFavoritesManager()
                 .deleteComicWithTarget(selectID!, widget.target);
           },
-          child: const Text("取消收藏"),
+          child: Text("取消收藏".tl),
         ),
       );
     } else if (widget.havePlatformFavorite &&
@@ -1278,11 +1289,25 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
           setState(() {
             loadedData = true;
             folders = res.data;
+            favoritedFolders = res.subData ?? [];
           });
         }
       });
       platform = const Center(
         child: CircularProgressIndicator(),
+      );
+    } else if (page == 0 && selectID != null && favoritedFolders.contains(selectID)) {
+      button = SizedBox(
+        height: 35,
+        width: 120,
+        child: FilledButton(
+          onPressed: () {
+            hideMessage(context);
+            App.globalBack();
+            widget.cancelPlatformFavoriteWithFolder?.call(selectID!);
+          },
+          child: Text("取消收藏".tl),
+        ),
       );
     }
 

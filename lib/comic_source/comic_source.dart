@@ -3,7 +3,6 @@ library comic_source;
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:pica_comic/foundation/app.dart';
@@ -36,6 +35,8 @@ typedef CommentsLoader = Future<Res<List<Comment>>>
 
 typedef SendCommentFunc = Future<Res<bool>>
     Function(String id, String? subId, String content, String? replyTo);
+
+typedef GetImageLoadingConfigFunc = Map<String, dynamic> Function(String imageKey, String comicId, String epId)?;
 
 class ComicSource {
   static List<ComicSource> sources = [];
@@ -109,10 +110,7 @@ class ComicSource {
   /// Load comic pages.
   final LoadComicPagesFunc? loadComicPages;
 
-  /// Load image. The imageKey usually is the url of image.
-  ///
-  /// Default is send a http get request to [imageKey].
-  final Future<Uint8List>? Function(String imageKey)? loadImage;
+  final Map<String, dynamic> Function(String imageKey, String comicId, String epId)? getImageLoadingConfig;
 
   final String? matchBriefIdReg;
 
@@ -181,7 +179,7 @@ class ComicSource {
       this.settings,
       this.loadComicInfo,
       this.loadComicPages,
-      this.loadImage,
+      this.getImageLoadingConfig,
       this.matchBriefIdReg,
       this.filePath,
       this.url,
@@ -200,7 +198,7 @@ class ComicSource {
         settings = [],
         loadComicInfo = null,
         loadComicPages = null,
-        loadImage = null,
+        getImageLoadingConfig = null,
         matchBriefIdReg = null,
         filePath = "",
         url = "",
@@ -385,7 +383,17 @@ class CategoryComicsData {
   /// [Res.subData] should be maxPage or null if there is no limit.
   final CategoryComicsLoader load;
 
-  const CategoryComicsData(this.options, this.load);
+  final RankingData? rankingData;
+
+  const CategoryComicsData(this.options, this.load, {this.rankingData});
+}
+
+class RankingData{
+  final Map<String, String> options;
+
+  final Future<Res<List<BaseComic>>> Function(String option, int page) load;
+
+  const RankingData(this.options, this.load);
 }
 
 class CategoryComicsOptions{

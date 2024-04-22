@@ -87,6 +87,7 @@ class ComicSourceParser {
     final searchData = _loadSearchData();
     final loadComicFunc = _parseLoadComicFunc();
     final loadComicPagesFunc = _parseLoadComicPagesFunc();
+    final getImageLoadingConfigFunc = _parseImageLoadingConfigFunc();
     final favoriteData = _loadFavoriteData();
     final commentsLoader = _parseCommentsLoader();
     final sendCommentFunc = _parseSendCommentFunc();
@@ -103,7 +104,7 @@ class ComicSourceParser {
         [],
         loadComicFunc,
         loadComicPagesFunc,
-        null,
+        getImageLoadingConfigFunc,
         matchBriefIdRegex,
         filePath,
         url ?? "",
@@ -202,13 +203,13 @@ class ComicSourceParser {
         loadPage = (int page) async {
           try {
             var res = await JsEngine()
-                .runCode("ComicSource.sources.$_key.explore[$i].load()");
+                .runCode("ComicSource.sources.$_key.explore[$i].load(${jsonEncode(page)})");
             return Res(
                 List.generate(res["comics"].length,
                         (index) => CustomComic.fromJson(res["comics"][index], _key!)),
                 subData: res["maxPage"]);
           } catch (e, s) {
-            log("$e\n$s", "Data Analysis", LogLevel.error);
+            log("$e\n$s", "Network", LogLevel.error);
             return Res.error(e.toString());
           }
         };
@@ -286,6 +287,34 @@ class ComicSourceParser {
             element["showWhen"] == null ? null : List.from(element["showWhen"])
           ));
     }
+    RankingData? rankingData;
+    if(_checkExists("categoryComics.ranking")){
+      var options = <String, String>{};
+      for(var option in _getValue("categoryComics.ranking.options")){
+        if(option.isEmpty || !option.contains("-")){
+          continue;
+        }
+        var split = option.split("-");
+        var key = split.removeAt(0);
+        var value = split.join("-");
+        options[key] = value;
+      }
+      rankingData = RankingData(options, (option, page) async{
+        try {
+          var res = await JsEngine().runCode("""
+            ComicSource.sources.$_key.categoryComics.ranking.load(
+              ${jsonEncode(option)}, ${jsonEncode(page)})
+          """);
+          return Res(
+              List.generate(res["comics"].length,
+                      (index) => CustomComic.fromJson(res["comics"][index], _key!)),
+              subData: res["maxPage"]);
+        } catch (e, s) {
+          log("$e\n$s", "Network", LogLevel.error);
+          return Res.error(e.toString());
+        }
+      });
+    }
     return CategoryComicsData(options, (category, param, options, page) async {
       try {
         var res = await JsEngine().runCode("""
@@ -304,7 +333,7 @@ class ComicSourceParser {
         log("$e\n$s", "Network", LogLevel.error);
         return Res.error(e.toString());
       }
-    });
+    }, rankingData: rankingData);
   }
 
   SearchPageData? _loadSearchData() {
@@ -348,7 +377,7 @@ class ComicSourceParser {
         """);
         var tags = <String, List<String>>{};
         (res["tags"] as Map<String, dynamic>?)
-            ?.forEach((key, value) => tags[key] = List.from(value));
+            ?.forEach((key, value) => tags[key] = List.from(value ?? const []));
         return Res(ComicInfoData(
             res["title"],
             res["subTitle"],
@@ -360,7 +389,7 @@ class ComicSourceParser {
             // TODO: implement thumbnailLoader
             null,
             res["thumbnailMaxPage"] ?? 1,
-            (res["suggestions"] as List?)
+            (res["recommend"] as List?)
                 ?.map((e) => CustomComic.fromJson(e, _key!))
                 .toList(),
             _key!,
@@ -447,12 +476,62 @@ class ComicSourceParser {
       return res;
     }
 
+    Future<Res<Map<String, String>>> Function([String? comicId])? loadFolders;
+
+    Future<Res<bool>> Function(String name)? addFolder;
+
+    Future<Res<bool>> Function(String key)? deleteFolder;
+
+    if(multiFolder) {
+      loadFolders = ([String? comicId]) async {
+        try {
+          var res = await JsEngine().runCode("""
+            ComicSource.sources.$_key.favorites.loadFolders(${jsonEncode(comicId)})
+          """);
+          List<String>? subData;
+          if(res["favorited"] != null){
+            subData = List.from(res["favorited"]);
+          }
+          return Res(Map.from(res["folders"]), subData: subData);
+        } catch (e, s) {
+          log("$e\n$s", "Network", LogLevel.error);
+          return Res.error(e.toString());
+        }
+      };
+      addFolder = (name) async {
+        try {
+          await JsEngine().runCode("""
+            ComicSource.sources.$_key.favorites.addFolder(${jsonEncode(name)})
+          """);
+          return const Res(true);
+        } catch (e, s) {
+          log("$e\n$s", "Network", LogLevel.error);
+          return Res.error(e.toString());
+        }
+      };
+      deleteFolder = (key) async {
+        try {
+          await JsEngine().runCode("""
+            ComicSource.sources.$_key.favorites.deleteFolder(${jsonEncode(key)})
+          """);
+          return const Res(true);
+        } catch (e, s) {
+          log("$e\n$s", "Network", LogLevel.error);
+          return Res.error(e.toString());
+        }
+      };
+    }
+
     return FavoriteData(
         key: _key!,
         title: _name!,
         multiFolder: multiFolder,
         loadComic: loadComic,
-        addOrDelFavorite: addOrDelFavFunc);
+        loadFolders: loadFolders,
+        addFolder: addFolder,
+        deleteFolder: deleteFolder,
+        addOrDelFavorite: addOrDelFavFunc,
+    );
   }
 
   CommentsLoader? _parseCommentsLoader(){
@@ -500,6 +579,18 @@ class ComicSourceParser {
         }
       }
       return res;
+    };
+  }
+
+  GetImageLoadingConfigFunc? _parseImageLoadingConfigFunc(){
+    if(!_checkExists("comic.onImageLoad")){
+      return null;
+    }
+    return (imageKey, comicId, ep) {
+      return JsEngine().runCode("""
+          ComicSource.sources.$_key.comic.onImageLoad(
+            ${jsonEncode(imageKey)}, ${jsonEncode(comicId)}, ${jsonEncode(ep)})
+        """) as Map<String, dynamic>;
     };
   }
 }

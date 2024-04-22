@@ -343,6 +343,12 @@ class CustomReadingData extends ReadingData{
 
   @override
   Stream<DownloadProgress> loadImageNetwork(int ep, int page, String url) {
+    if(source.getImageLoadingConfig != null) {
+      var config = source.getImageLoadingConfig!(url, id,
+          eps?.keys.elementAtOrNull(ep-1) ?? id);
+      return ImageManager().getImage(config["url"] ?? url,
+          Map.from(config['headers'] ?? {}));
+    }
     return ImageManager().getImage(url);
   }
 

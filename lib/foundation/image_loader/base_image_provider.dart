@@ -65,6 +65,10 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
         }
       }
 
+      if(stop) {
+        throw Exception("Image loading is stopped");
+      }
+
       if(data!.isEmpty) {
         throw Exception("Empty image data");
       }

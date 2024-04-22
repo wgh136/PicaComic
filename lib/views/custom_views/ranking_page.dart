@@ -2,43 +2,32 @@ import "package:flutter/material.dart";
 import "package:pica_comic/comic_source/comic_source.dart";
 import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/network/res.dart";
+import "package:pica_comic/tools/translations.dart";
 import "package:pica_comic/views/page_template/comics_page.dart";
 
 import "../../network/base_comic.dart";
 import "custom_comic_tile.dart";
 
-class CategoryComicsPage extends StatefulWidget {
-  const CategoryComicsPage({required this.category, this.param, required this.sourceKey,
-    super.key});
-
-  final String category;
-
-  final String? param;
+class RankingPage extends StatefulWidget {
+  const RankingPage({required this.sourceKey, super.key});
 
   final String sourceKey;
 
   @override
-  State<CategoryComicsPage> createState() => _CategoryComicsPageState();
+  State<RankingPage> createState() => _RankingPageState();
 }
 
-class _CategoryComicsPageState extends State<CategoryComicsPage> {
+class _RankingPageState extends State<RankingPage> {
   late final CategoryComicsData data;
-  late final List<CategoryComicsOptions> options;
-  late List<String> optionsValue;
+  late final Map<String, String> options;
+  late String optionValue;
 
   void findData(){
     for(final source in ComicSource.sources){
       if(source.categoryData?.key == widget.sourceKey){
         data = source.categoryComicsData!;
-        options = data.options.where((element) {
-          if(element.notShowWhen.contains(widget.category)) {
-            return false;
-          } else if(element.showWhen != null){
-            return element.showWhen!.contains(widget.category);
-          }
-          return true;
-        }).toList();
-        optionsValue = options.map((e) => e.options.keys.first).toList();
+        options = data.rankingData!.options;
+        optionValue = options.keys.first;
         return;
       }
     }
@@ -55,16 +44,14 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category),
+        title: Text("排行榜".tl),
       ),
       body: Column(
         children: [
           Expanded(child: _CustomCategoryComicsList(
-            key: ValueKey("${widget.category} with ${widget.param} and $optionsValue"),
-            loader: data.load,
-            category: widget.category,
-            options: optionsValue,
-            param: widget.param,
+            key: ValueKey("RankingPage with $optionValue"),
+            loader: data.rankingData!.load,
+            optionValue: optionValue,
             head: buildOptions(),
             sourceKey: widget.sourceKey,
           ))
@@ -73,19 +60,19 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
     );
   }
 
-  Widget buildOptionItem(String text, String value, int group, BuildContext context){
+  Widget buildOptionItem(String text, String value, BuildContext context){
     return InkWell(
       onTap: (){
-        if(value == optionsValue[group])  return;
+        if(value == optionValue)  return;
         setState(() {
-          optionsValue[group] = value;
+          optionValue = value;
         });
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
-          color: value == optionsValue[group] ?
-            Theme.of(context).colorScheme.primaryContainer : null,
+          color: value == optionValue ?
+          Theme.of(context).colorScheme.primaryContainer : null,
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -96,19 +83,14 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
 
   Widget buildOptions(){
     List<Widget> children = [];
-    for(var optionList in options){
-      children.add(Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for(var option in optionList.options.entries)
-            buildOptionItem(option.value, option.key, options.indexOf(optionList), context)
-        ],
-      ));
-      if(options.last != optionList){
-        children.add(const SizedBox(height: 8));
-      }
-    }
+    children.add(Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for(var option in options.entries)
+          buildOptionItem(option.value, option.key, context)
+      ],
+    ));
     return SliverToBoxAdapter(child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,16 +103,12 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
 }
 
 class _CustomCategoryComicsList extends ComicsPage<BaseComic>{
-  const _CustomCategoryComicsList({super.key, required this.loader, required this.category,
-    required this.options, this.param, required this.head, required this.sourceKey});
+  const _CustomCategoryComicsList({super.key, required this.loader,
+    required this.optionValue, required this.head, required this.sourceKey});
 
-  final CategoryComicsLoader loader;
+  final Future<Res<List<BaseComic>>> Function(String option, int page) loader;
 
-  final String category;
-
-  final List<String> options;
-
-  final String? param;
+  final String optionValue;
 
   final String sourceKey;
 
@@ -139,11 +117,11 @@ class _CustomCategoryComicsList extends ComicsPage<BaseComic>{
 
   @override
   Future<Res<List<BaseComic>>> getComics(int i) async{
-    return await loader(category, param, options, i);
+    return await loader(optionValue, i);
   }
 
   @override
-  String? get tag => "$category with $param and $options";
+  String? get tag => "RankingPage with $optionValue";
 
   @override
   String get title => "";

@@ -225,15 +225,23 @@ class ComicReadingPageLogic extends StateController {
     }
   }
 
+  void _jumpByDeviceType(int page){
+    if(mouseScroll){
+      pageController.jumpToPage(page);
+    } else {
+      pageController.animatedJumpToPage(page);
+    }
+  }
+
   void jumpToNextChapter() {
     var eps = data.eps;
     showFloatingButtonValue = 0;
     if (!data.hasEp || order == eps?.length) {
       if(readingMethod != ReadingMethod.topToBottomContinuously){
         if (readingMethod.index < 3) {
-          pageController.animatedJumpToPage(urls.length);
+          _jumpByDeviceType(urls.length);
         } else if (readingMethod == ReadingMethod.twoPage) {
-          pageController.animatedJumpToPage((urls.length % 2 + urls.length) ~/ 2);
+          _jumpByDeviceType((urls.length % 2 + urls.length) ~/ 2);
         }
       } else {
         jumpToPage(urls.length);
@@ -267,7 +275,7 @@ class ComicReadingPageLogic extends StateController {
     showFloatingButtonValue = 0;
     if(order == 1 || !data.hasEp){
       if(readingMethod != ReadingMethod.topToBottomContinuously){
-        pageController.animatedJumpToPage(1);
+        _jumpByDeviceType(1);
       } else {
         jumpToPage(1);
         index = 1;

@@ -173,17 +173,13 @@ extension ImageExt on ComicReadingPage {
         backgroundDecoration: const BoxDecoration(color: Colors.black),
         onPageChanged: (i) {
           if (i == 0) {
-            if (type == ReadingType.ehentai ||
-                type == ReadingType.hitomi ||
-                type == ReadingType.nhentai) {
+            if (!logic.data.hasEp) {
               logic.pageController.animatedJumpToPage(1);
               return;
             }
             logic.jumpToLastChapter();
           } else if (i == logic.urls.length + 1) {
-            if (type == ReadingType.ehentai ||
-                type == ReadingType.hitomi ||
-                type == ReadingType.nhentai) {
+            if (!logic.data.hasEp) {
               logic.pageController.animatedJumpToPage(i - 1);
               return;
             }
@@ -260,17 +256,13 @@ extension ImageExt on ComicReadingPage {
         backgroundDecoration: const BoxDecoration(color: Colors.black),
         onPageChanged: (i) {
           if (i == 0) {
-            if (type == ReadingType.ehentai ||
-                type == ReadingType.hitomi ||
-                type == ReadingType.nhentai) {
+            if (!logic.data.hasEp) {
               logic.pageController.animatedJumpToPage(1);
               return;
             }
             logic.jumpToLastChapter();
           } else if (i == (logic.urls.length / 2).ceil() + 1) {
-            if (type == ReadingType.ehentai ||
-                type == ReadingType.hitomi ||
-                type == ReadingType.nhentai) {
+            if (!logic.data.hasEp) {
               logic.pageController.animatedJumpToPage(i - 1);
               return;
             }

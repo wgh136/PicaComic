@@ -164,7 +164,10 @@ class CookieManagerSql extends Interceptor{
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers["cookie"] = cookieJar.loadForRequestCookieHeader(options.uri);
+    var cookies = cookieJar.loadForRequestCookieHeader(options.uri);
+    if(cookies.isNotEmpty){
+      options.headers["cookie"] = cookies;
+    }
     handler.next(options);
   }
 
