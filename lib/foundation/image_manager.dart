@@ -18,6 +18,12 @@ import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
 import '../network/res.dart';
 
+class BadRequestException{
+  final String message;
+
+  const BadRequestException(this.message);
+}
+
 class ImageManager {
   static ImageManager? cache;
 
@@ -102,6 +108,12 @@ class ImageManager {
     } catch (e, s) {
       caching?.cancel();
       log("$e\n$s", "Network", LogLevel.error);
+      if(e is DioException && e.type == DioExceptionType.badResponse){
+        var statusCode = e.response?.statusCode;
+        if(statusCode != null && statusCode >= 400 && statusCode < 500){
+          throw BadRequestException("Bad Request: $statusCode");
+        }
+      }
       rethrow;
     } finally {
       loadingItems.remove(url);
@@ -367,6 +379,13 @@ class ImageManager {
     catch(e, s){
       caching?.cancel();
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
+      if(e is DioException && e.type == DioExceptionType.badResponse){
+        var statusCode = e.response?.statusCode;
+        if(statusCode != null && statusCode >= 400 && statusCode < 500){
+          throw BadRequestException("Bad Request: $statusCode");
+        }
+      }
+      rethrow;
     }finally {
       loadingItems.remove(cacheKey);
     }
@@ -443,6 +462,12 @@ class ImageManager {
           Uint8List.fromList(data));
     } catch (e) {
       caching?.cancel();
+      if(e is DioException && e.type == DioExceptionType.badResponse){
+        var statusCode = e.response?.statusCode;
+        if(statusCode != null && statusCode >= 400 && statusCode < 500){
+          throw BadRequestException("Bad Request: $statusCode");
+        }
+      }
       rethrow;
     } finally {
       loadingItems.remove(image.hash);
@@ -517,6 +542,12 @@ class ImageManager {
       yield progress;
     } catch (e) {
       caching?.cancel();
+      if(e is DioException && e.type == DioExceptionType.badResponse){
+        var statusCode = e.response?.statusCode;
+        if(statusCode != null && statusCode >= 400 && statusCode < 500){
+          throw BadRequestException("Bad Request: $statusCode");
+        }
+      }
       rethrow;
     } finally {
       loadingItems.remove(urlWithoutParam);

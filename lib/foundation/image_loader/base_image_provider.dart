@@ -4,6 +4,7 @@ import 'dart:ui' as ui show Codec;
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 
 abstract class BaseImageProvider<T extends BaseImageProvider<T>>
     extends ImageProvider<T> {
@@ -49,7 +50,7 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
           if (e.toString().contains("Your IP address")) {
             rethrow;
           }
-          if (e.toString().contains("404") || e.toString().contains("403")) {
+          if (e is BadRequestException) {
             rethrow;
           }
           if (e.toString().contains("handshake")) {
