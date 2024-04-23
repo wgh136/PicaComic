@@ -63,7 +63,7 @@ class ComicSourceParser {
     var url = JsEngine().runCode("this['temp'].url");
     var matchBriefIdRegex = JsEngine().runCode("this['temp'].comic.matchBriefIdRegex");
     if(minAppVersion != null){
-      if(compareSemVer(minAppVersion, appVersion)){
+      if(compareSemVer(minAppVersion, appVersion.split('-').first)){
         throw ComicSourceParseException("minAppVersion $minAppVersion is required");
       }
     }
