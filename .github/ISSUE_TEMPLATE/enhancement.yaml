@@ -26,6 +26,7 @@ body:
         - Android
         - iOS
         - Windows
+        - macOS
         - other
     validations:
       required: false

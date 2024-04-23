@@ -20,8 +20,9 @@ body:
     id: version
     attributes:
       label: Version
-      description: 使用的APP版本/App version
-      value: "latest"
+      description: | 
+        使用的APP版本/App version
+        非最新版本请尝试更新/Please try to update if it is not the latest version
     validations:
       required: true
   - type: dropdown
@@ -33,6 +34,7 @@ body:
         - Android
         - iOS
         - Windows
+        - macOS
         - other
     validations:
       required: true
