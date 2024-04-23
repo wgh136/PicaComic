@@ -37,7 +37,7 @@ extension ImageExt on ComicReadingPage {
         scrollController: logic.scrollController,
         scrollBehavior: const MaterialScrollBehavior()
             .copyWith(scrollbars: false, dragDevices: _kTouchLikeDeviceTypes),
-        physics: (logic.noScroll || logic.isCtrlPressed || (logic.mouseScroll && !App.isMacOS))
+        physics: (logic.noScroll || logic.isCtrlPressed)
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
