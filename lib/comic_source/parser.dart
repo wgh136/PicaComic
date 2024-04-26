@@ -422,6 +422,19 @@ class ComicSourceParser {
 
     final bool multiFolder = _getValue("favorites.multiFolder");
 
+    Future<Res<T>> retryZone<T>(Future<Res<T>> Function() func) async{
+      var res = await func();
+      if (res.error && res.errorMessage!.contains("Login expired")) {
+        var reLoginRes = await ComicSource.find(_key!)!.reLogin();
+        if (!reLoginRes) {
+          return const Res.error("Login expired and re-login failed");
+        } else {
+          return func();
+        }
+      }
+      return res;
+    }
+
     Future<Res<bool>> addOrDelFavFunc(comicId, folderId, isAdding) async {
       func() async {
         try {
@@ -436,16 +449,7 @@ class ComicSourceParser {
         }
       }
 
-      var res = await func();
-      if (res.error && res.errorMessage!.contains("Login expired")) {
-        var reLoginRes = await ComicSource.find(_key!)!.reLogin();
-        if (!reLoginRes) {
-          return const Res.error("Login expired and re-login failed");
-        } else {
-          return func();
-        }
-      }
-      return res;
+      return retryZone(func);
     }
 
     Future<Res<List<BaseComic>>> loadComic(int page, [String? folder]) async {
@@ -464,16 +468,7 @@ class ComicSourceParser {
           return Res.error(e.toString());
         }
       }
-      var res = await func();
-      if (res.error && res.errorMessage!.contains("Login expired")) {
-        var reLoginRes = await ComicSource.find(_key!)!.reLogin();
-        if (!reLoginRes) {
-          return const Res.error("Login expired and re-login failed");
-        } else {
-          return func();
-        }
-      }
-      return res;
+      return retryZone(func);
     }
 
     Future<Res<Map<String, String>>> Function([String? comicId])? loadFolders;
@@ -484,19 +479,23 @@ class ComicSourceParser {
 
     if(multiFolder) {
       loadFolders = ([String? comicId]) async {
-        try {
-          var res = await JsEngine().runCode("""
+        Future<Res<Map<String, String>>> func() async{
+          try {
+            var res = await JsEngine().runCode("""
             ComicSource.sources.$_key.favorites.loadFolders(${jsonEncode(comicId)})
           """);
-          List<String>? subData;
-          if(res["favorited"] != null){
-            subData = List.from(res["favorited"]);
+            List<String>? subData;
+            if(res["favorited"] != null){
+              subData = List.from(res["favorited"]);
+            }
+            return Res(Map.from(res["folders"]), subData: subData);
+          } catch (e, s) {
+            log("$e\n$s", "Network", LogLevel.error);
+            return Res.error(e.toString());
           }
-          return Res(Map.from(res["folders"]), subData: subData);
-        } catch (e, s) {
-          log("$e\n$s", "Network", LogLevel.error);
-          return Res.error(e.toString());
         }
+
+        return retryZone(func);
       };
       addFolder = (name) async {
         try {

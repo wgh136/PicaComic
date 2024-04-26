@@ -157,6 +157,10 @@ class _MainPageState extends State<MainPage> {
         }
       });
     }
+
+    if (appdata.settings[2] == "80") {
+      ComicSourceSettings.checkCustomComicSourceUpdate();
+    }
   }
 
   void checkDownload() {

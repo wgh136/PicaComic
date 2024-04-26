@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:html/parser.dart';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
@@ -554,6 +556,98 @@ class ImageManager {
       rethrow;
     } finally {
       loadingItems.remove(urlWithoutParam);
+    }
+  }
+
+  Stream<DownloadProgress> getCustomImage(String url, String comicId, String epId, String sourceKey) async*{
+    var cacheKey = "$sourceKey$comicId$epId$url";
+    while (loadingItems[cacheKey] != null) {
+      var progress = loadingItems[cacheKey]!;
+      yield progress;
+      if (progress.finished) return;
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
+
+    var cache = await CacheManager().findCache(cacheKey);
+    if(cache != null){
+      yield DownloadProgress(1, 1, cacheKey, cache);
+      loadingItems.remove(cacheKey);
+      return;
+    }
+
+    CachingFile? caching;
+
+    var source = ComicSource.find(sourceKey) ?? (throw "Unknown Comic Source $sourceKey");
+
+    try{
+      Map<String, dynamic> config;
+
+      if(source.getImageLoadingConfig == null) {
+        config = {};
+      } else {
+        config = source.getImageLoadingConfig!(url, comicId, epId);
+      }
+
+      caching = await CacheManager().openWrite(cacheKey);
+      final savePath = caching.file.path;
+
+      var res = await dio.request<ResponseBody>(config['url'] ?? url, data: config['data'], options: Options(
+          method: config['method'] ?? 'GET',
+          headers: config['headers'] ?? {
+            'user-agent': webUA
+          },
+          responseType: ResponseType.stream
+      ));
+
+      List<int> imageData = [];
+
+      int? expectedBytes = res.data!.contentLength;
+      if(expectedBytes == -1){
+        expectedBytes = null;
+      }
+
+      bool shouldModifyData = config['onResponse'] != null;
+
+      await for(var data in res.data!.stream) {
+        if(!shouldModifyData) {
+          await caching.writeBytes(data);
+        }
+        imageData.addAll(data);
+        var progress = DownloadProgress(imageData.length,
+            expectedBytes ?? (imageData.length + 1), url, savePath);
+        yield progress;
+        loadingItems[cacheKey] = progress;
+      }
+
+      Uint8List? result;
+
+      if(shouldModifyData) {
+        var data = (config['onResponse'] as JSInvokable)(Uint8List.fromList(imageData));
+        imageData.clear();
+        if(data is! Uint8List){
+          throw "Invalid Config: onImageLoad.onResponse return invalid type\n"
+              "Expected: Uint8List(ArrayBuffer)\n"
+              "Got: ${data.runtimeType}";
+        }
+        result = data;
+        await caching.writeBytes(data);
+      }
+
+      await caching.close();
+      yield DownloadProgress(1, 1, url, savePath, result ?? Uint8List.fromList(imageData));
+    }
+    catch (e) {
+      caching?.cancel();
+      if(e is DioException && e.type == DioExceptionType.badResponse){
+        var statusCode = e.response?.statusCode;
+        if(statusCode != null && statusCode >= 400 && statusCode < 500){
+          throw BadRequestException("Bad Request: $statusCode");
+        }
+      }
+      rethrow;
+    } finally {
+      loadingItems.remove(cacheKey);
     }
   }
 

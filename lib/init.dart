@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/js_engine.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
@@ -44,6 +45,8 @@ Future<void> init() async{
     }
     await checkDownloadPath();
     await _checkOldData();
+
+    await JsEngine().init();
 
     await ComicSource.init();
 
