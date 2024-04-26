@@ -160,11 +160,7 @@ class ComicSource {
     }
     final List accountData = data["account"];
     var res = await account!.login!(accountData[0], accountData[1]);
-    if (res.error) {
-      return false;
-    } else {
-      return true;
-    }
+    return !res.error;
   }
 
   ComicSource(

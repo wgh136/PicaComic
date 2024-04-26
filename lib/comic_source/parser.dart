@@ -423,6 +423,9 @@ class ComicSourceParser {
     final bool multiFolder = _getValue("favorites.multiFolder");
 
     Future<Res<T>> retryZone<T>(Future<Res<T>> Function() func) async{
+      if(!ComicSource.find(_key!)!.isLogin){
+        throw "Login required";
+      }
       var res = await func();
       if (res.error && res.errorMessage!.contains("Login expired")) {
         var reLoginRes = await ComicSource.find(_key!)!.reLogin();
