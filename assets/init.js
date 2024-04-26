@@ -221,7 +221,32 @@ let Network = {
      * @param {string} method - The HTTP method (e.g., GET, POST, PUT, PATCH, DELETE).
      * @param {string} url - The URL to send the request to.
      * @param {Object} headers - The headers to include in the request.
-     * @param {Object} data - The data to send with the request.
+     * @param data - The data to send with the request.
+     * @returns {Promise<ArrayBuffer>} The response from the request.
+     */
+    async fetchBytes(method, url, headers, data) {
+        let result = await sendMessage({
+            method: 'http',
+            http_method: method,
+            bytes: true,
+            url: url,
+            headers: headers,
+            data: data,
+        });
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        return result;
+    },
+
+    /**
+     * Sends an HTTP request.
+     * @param {string} method - The HTTP method (e.g., GET, POST, PUT, PATCH, DELETE).
+     * @param {string} url - The URL to send the request to.
+     * @param {Object} headers - The headers to include in the request.
+     * @param data - The data to send with the request.
      * @returns {Promise<Object>} The response from the request.
      */
     async sendRequest(method, url, headers, data) {
@@ -254,7 +279,7 @@ let Network = {
      * Sends an HTTP POST request.
      * @param {string} url - The URL to send the request to.
      * @param {Object} headers - The headers to include in the request.
-     * @param {Object} data - The data to send with the request.
+     * @param data - The data to send with the request.
      * @returns {Promise<Object>} The response from the request.
      */
     async post(url, headers, data) {
@@ -265,7 +290,7 @@ let Network = {
      * Sends an HTTP PUT request.
      * @param {string} url - The URL to send the request to.
      * @param {Object} headers - The headers to include in the request.
-     * @param {Object} data - The data to send with the request.
+     * @param data - The data to send with the request.
      * @returns {Promise<Object>} The response from the request.
      */
     async put(url, headers, data) {
@@ -276,7 +301,7 @@ let Network = {
      * Sends an HTTP PATCH request.
      * @param {string} url - The URL to send the request to.
      * @param {Object} headers - The headers to include in the request.
-     * @param {Object} data - The data to send with the request.
+     * @param data - The data to send with the request.
      * @returns {Promise<Object>} The response from the request.
      */
     async patch(url, headers, data) {

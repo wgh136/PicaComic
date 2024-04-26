@@ -153,7 +153,7 @@ class JsEngine with _JSEngineApi{
   }
 
   Future<Map<String, dynamic>> _http(Map<String, dynamic> req) async{
-    Response<String>? response;
+    Response? response;
     String? error;
 
     try {
@@ -161,37 +161,11 @@ class JsEngine with _JSEngineApi{
       if(headers["user-agent"] == null && headers["User-Agent"] == null){
         headers["User-Agent"] = webUA;
       }
-      response = switch (req["http_method"]) {
-        "GET" =>
-        await _dio!.get<String>(
-          req["url"],
-          options: Options(headers: headers),
-        ),
-        "POST" =>
-        await _dio!.post<String>(
-          req["url"],
-          data: req["data"],
-          options: Options(headers: headers),
-        ),
-        "PUT" =>
-        await _dio!.put<String>(
-          req["url"],
-          data: req["data"],
-          options: Options(headers: headers),
-        ),
-        "PATCH" =>
-        await _dio!.patch<String>(
-          req["url"],
-          data: req["data"],
-          options: Options(headers: headers),
-        ),
-        "DELETE" =>
-        await _dio!.delete<String>(
-          req["url"],
-          options: Options(headers: headers),
-        ),
-        _ => throw "Unknown http method: ${req["http_method"]}",
-      };
+      response = await _dio!.request(req["url"], data: req["data"], options: Options(
+        method: req['http_method'],
+        responseType: req["bytes"] == true ? ResponseType.bytes : ResponseType.plain,
+        headers: headers
+      ));
     } catch (e) {
       error = e.toString();
     }
@@ -200,10 +174,15 @@ class JsEngine with _JSEngineApi{
 
     response?.headers.forEach((name, values) => headers[name] = values.join(','));
 
+    dynamic body = response?.data;
+    if(body is! Uint8List && body is List<int>) {
+      body = Uint8List.fromList(body);
+    }
+
     return {
       "status": response?.statusCode,
       "headers": headers,
-      "body": response?.data,
+      "body": body,
       "error": error,
     };
   }
