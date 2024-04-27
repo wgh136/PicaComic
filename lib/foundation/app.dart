@@ -106,14 +106,18 @@ class App {
 
   static bool temporaryDisablePopGesture = false;
 
-  static Locale get locale => () {
-        return switch (appdata.settings[50]) {
-          "cn" => const Locale("zh", "CN"),
-          "tw" => const Locale("zh", "TW"),
-          "en" => const Locale("en", "US"),
-          _ => PlatformDispatcher.instance.locale,
-        };
-      }.call();
+  static Locale get locale {
+    Locale deviceLocale = PlatformDispatcher.instance.locale;
+    if (deviceLocale.languageCode == "zh" && deviceLocale.scriptCode == "Hant") {
+      deviceLocale = const Locale("zh", "TW");
+    }
+    return switch (appdata.settings[50]) {
+      "cn" => const Locale("zh", "CN"),
+      "tw" => const Locale("zh", "TW"),
+      "en" => const Locale("en", "US"),
+      _ => deviceLocale,
+    };
+  }
 
 
   /// size of screen

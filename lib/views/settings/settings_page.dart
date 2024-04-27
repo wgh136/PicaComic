@@ -612,7 +612,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
         ListTile(
           leading: const Icon(Icons.support_outlined),
           title: Text("支持开发".tl),
-          onTap: () => launchUrlString("https://wgh136.github.io/post/1",
+          onTap: () => launchUrlString("https://note.wgh136.xyz/m/KG96QMR9sgubST82TeLTA8",
               mode: LaunchMode.externalApplication),
           trailing: const Icon(Icons.arrow_right),
         ),
