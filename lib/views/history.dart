@@ -215,17 +215,17 @@ class _HistoryPageState extends State<HistoryPage> {
 void toComicPageWithHistory(History history) {
   if (history.type == HistoryType.picacg) {
     MainPage.to(() => PicacgComicPage(ComicItemBrief(
-        history.title, history.subtitle, 0, history.cover, history.target, [])));
+        history.title, history.subtitle, 0, history.cover, history.target, [], ignoreExamination: true)));
   } else if (history.type == HistoryType.ehentai) {
     MainPage.to(() => EhGalleryPage(EhGalleryBrief(
-        history.title, "", "", history.subtitle, history.cover, 0.0, history.target, [])));
+        history.title, "", "", history.subtitle, history.cover, 0.0, history.target, [], ignoreExamination: true)));
   } else if (history.type == HistoryType.jmComic) {
     MainPage.to(() => JmComicPage(history.target));
   } else if (history.type == HistoryType.hitomi) {
     MainPage.to(() => HitomiComicPage(HitomiComicBrief(
         history.title, "", "", [], "", "", history.target, history.cover)));
   } else if (history.type == HistoryType.htmanga) {
-    MainPage.to(() => HtComicPage(HtComicBrief(history.title, "", history.cover, history.target, 0)));
+    MainPage.to(() => HtComicPage(HtComicBrief(history.title, "", history.cover, history.target, 0, ignoreExamination: true)));
   } else if (history.type == HistoryType.nhentai){
     MainPage.to(() => NhentaiComicPage(history.target));
   } else {

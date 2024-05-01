@@ -66,7 +66,7 @@ class HtComicInfo {
   const HtComicInfo(this.id, this.coverPath, this.name, this.category, this.pages, this.tags,
       this.description, this.uploader, this.avatar, this.uploadNum, this.thumbnails);
 
-  HtComicBrief toBrief() => HtComicBrief(name, "", coverPath, id, pages);
+  HtComicBrief toBrief() => HtComicBrief(name, "", coverPath, id, pages, ignoreExamination: true);
 
   Map<String, dynamic> toJson() => {
     "id": id,
