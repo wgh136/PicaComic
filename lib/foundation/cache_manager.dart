@@ -169,7 +169,9 @@ class CacheManager {
     var dir = row[1] as String;
     var name = row[2] as String;
     var file = File('$cachePath/$dir/$name');
+    var fileSize = 0;
     if(await file.exists()){
+      fileSize = await file.length();
       await file.delete();
     }
     _db.execute('''
@@ -177,7 +179,7 @@ class CacheManager {
       WHERE key = ?
     ''', [key]);
     if(_currentSize != null) {
-      _currentSize = _currentSize! - await file.length();
+      _currentSize = _currentSize! - fileSize;
     }
   }
 
