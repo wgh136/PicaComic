@@ -462,10 +462,15 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           onTap: () {},
         ),
         ListTile(
-          leading: const Icon(Icons.chrome_reader_mode),
-          title: Text("缓存限制".tl),
-          trailing: const Icon(Icons.arrow_right),
-          onTap: () => setCacheLimit(context),
+          leading: const Icon(Icons.delete),
+          title: Text("清除缓存".tl),
+          onTap: () {
+            CacheManager().clear().then((value) {
+              if(mounted) {
+                setState(() {});
+              }
+            });
+          },
         ),
         ListTile(
           leading: const Icon(Icons.delete),
