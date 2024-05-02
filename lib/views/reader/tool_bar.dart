@@ -295,7 +295,7 @@ extension ToolBar on ComicReadingPage {
                         comicReadingPageLogic.jumpToLastPage();
                     }
                   },
-                  iconSize: 50,
+                  iconSize: 36,
                 ),
               ),
             if (appdata.settings[9] != "4" &&
@@ -318,7 +318,7 @@ extension ToolBar on ComicReadingPage {
                         comicReadingPageLogic.jumpToNextPage();
                     }
                   },
-                  iconSize: 50,
+                  iconSize: 36,
                 ),
               ),
             Positioned(

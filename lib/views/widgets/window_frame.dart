@@ -96,7 +96,8 @@ class WindowFrame extends StatelessWidget {
                             ),
                           ),
                           _WindowButtons(
-                            reverseColor: controller.reverseButtonColor,
+                            reverseColor: (controller.reverseButtonColor &&
+                                Theme.of(context).brightness != Brightness.dark),
                           ),
                         ],
                       ),

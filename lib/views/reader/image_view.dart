@@ -64,8 +64,13 @@ extension ImageExt on ComicReadingPage {
       );
     }
 
+    final decoration = BoxDecoration(
+      color: useDarkBackground ? Colors.black : Theme.of(context).colorScheme.surface,
+    );
+
     Widget buildType123() {
       return PhotoViewGallery.builder(
+        backgroundDecoration: decoration,
         key: Key(logic.readingMethod.index.toString()),
         reverse: appdata.settings[9] == "2",
         scrollDirection:
@@ -170,7 +175,6 @@ extension ImageExt on ComicReadingPage {
             ),
           ),
         ),
-        backgroundDecoration: const BoxDecoration(color: Colors.black),
         onPageChanged: (i) {
           if (i == 0) {
             if (!logic.data.hasEp) {
@@ -195,6 +199,7 @@ extension ImageExt on ComicReadingPage {
     Widget buildType56() {
       return PhotoViewGallery.builder(
         key: Key(logic.readingMethod.index.toString()),
+        backgroundDecoration: decoration,
         itemCount: (logic.urls.length / 2).ceil() + 2,
         reverse: logic.readingMethod == ReadingMethod.twoPageReversed,
         builder: (BuildContext context, int index) {
@@ -253,7 +258,6 @@ extension ImageExt on ComicReadingPage {
               ));
         },
         pageController: logic.pageController,
-        backgroundDecoration: const BoxDecoration(color: Colors.black),
         onPageChanged: (i) {
           if (i == 0) {
             if (!logic.data.hasEp) {
@@ -282,6 +286,7 @@ extension ImageExt on ComicReadingPage {
     } else if (appdata.settings[9] == "4") {
       logic.photoViewControllers[0] ??= PhotoViewController();
       body = PhotoView.customChild(
+
           key: Key(logic.order.toString()),
           minScale: 1.0,
           maxScale: 2.5,

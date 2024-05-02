@@ -177,6 +177,8 @@ class ComicReadingPage extends StatelessWidget {
     HistoryManager().saveReadHistory(history!, updateMePage);
   }
 
+  bool get useDarkBackground => appdata.settings[81] == "1";
+
   @override
   Widget build(BuildContext context) {
     return StateBuilder<ComicReadingPageLogic>(initState: (logic) {
@@ -194,8 +196,10 @@ class ComicReadingPage extends StatelessWidget {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
       logic.openEpsView = openEpsDrawer;
-      Future.microtask(() =>
-          StateController.findOrNull<WindowFrameController>()?.setDarkTheme());
+      if(useDarkBackground) {
+        Future.microtask(() =>
+            StateController.findOrNull<WindowFrameController>()?.setDarkTheme());
+      }
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
       PaintingBinding.instance.imageCache.clear();
@@ -234,113 +238,116 @@ class ComicReadingPage extends StatelessWidget {
       if (appdata.settings[76] == "1") {
         SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       }
-      Future.microtask(() =>
-          StateController.findOrNull<WindowFrameController>()?.resetTheme());
+      if(useDarkBackground) {
+        Future.microtask(() =>
+            StateController.findOrNull<WindowFrameController>()?.resetTheme());
+      }
     }, builder: (logic) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        endDrawerEnableOpenDragGesture: false,
-        key: _scaffoldKey,
-        endDrawer: Drawer(
-          child: buildEpsView(),
+      return DefaultTextStyle.merge(
+        style: TextStyle(
+          color: useDarkBackground ? Colors.white : null,
+          fontSize: 16,
         ),
-        floatingActionButton: buildEpChangeButton(logic),
-        body: StateBuilder<ComicReadingPageLogic>(builder: (logic) {
-          if (logic.isLoading) {
-            history?.readEpisode.add(logic.order);
-            loadInfo(logic);
-            return const DecoratedBox(
-              decoration: BoxDecoration(color: Colors.black),
-              child: Center(
+        child: Scaffold(
+          backgroundColor: useDarkBackground ? Colors.black : null,
+          endDrawerEnableOpenDragGesture: false,
+          key: _scaffoldKey,
+          endDrawer: Drawer(
+            child: buildEpsView(),
+          ),
+          floatingActionButton: buildEpChangeButton(logic),
+          body: StateBuilder<ComicReadingPageLogic>(builder: (logic) {
+            if (logic.isLoading) {
+              history?.readEpisode.add(logic.order);
+              loadInfo(logic);
+              return const Center(
                 child: CircularProgressIndicator(),
-              ),
-            );
-          } else if (logic.urls.isNotEmpty) {
-            if (logic.readingMethod == ReadingMethod.topToBottomContinuously &&
-                !logic.haveUsedInitialPage && initialPage != 0) {
-              Future.microtask(() {
-                logic.jumpToPage(initialPage);
-                logic.haveUsedInitialPage = true;
-              });
-            }
-            //监听音量键
-            if (appdata.settings[7] == "1") {
-              if(logic.listenVolume == null) {
-                logic.listenVolume = ListenVolumeController(
-                        () => logic.jumpToLastPage(), () =>
-                    logic.jumpToNextPage());
-                logic.listenVolume!.listenVolumeChange();
+              );
+            } else if (logic.urls.isNotEmpty) {
+              if (logic.readingMethod == ReadingMethod.topToBottomContinuously &&
+                  !logic.haveUsedInitialPage && initialPage != 0) {
+                Future.microtask(() {
+                  logic.jumpToPage(initialPage);
+                  logic.haveUsedInitialPage = true;
+                });
               }
-            } else if (logic.listenVolume != null) {
-              logic.listenVolume!.stop();
-              logic.listenVolume = null;
-            }
+              //监听音量键
+              if (appdata.settings[7] == "1") {
+                if(logic.listenVolume == null) {
+                  logic.listenVolume = ListenVolumeController(
+                          () => logic.jumpToLastPage(), () =>
+                      logic.jumpToNextPage());
+                  logic.listenVolume!.listenVolumeChange();
+                }
+              } else if (logic.listenVolume != null) {
+                logic.listenVolume!.stop();
+                logic.listenVolume = null;
+              }
 
-            if (appdata.settings[9] == "4") {
-              logic.scrollManager ??= ScrollManager(logic);
-            }
+              if (appdata.settings[9] == "4") {
+                logic.scrollManager ??= ScrollManager(logic);
+              }
 
-            var body = Listener(
-              onPointerMove: TapController.onPointerMove,
-              onPointerUp: TapController.onTapUp,
-              onPointerDown: TapController.onTapDown,
-              behavior: HitTestBehavior.translucent,
-              onPointerCancel: TapController.onTapCancel,
-              child: Stack(
-                children: [
-                  buildComicView(
-                    logic,
-                    context,
-                    readingData.id,
-                  ),
-                  if (MediaQuery.of(context).platformBrightness ==
-                          Brightness.dark &&
-                      appdata.settings[18] == "1")
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: IgnorePointer(
-                        child: ColoredBox(
-                          color: Colors.black.withOpacity(0.2),
+              var body = Listener(
+                onPointerMove: TapController.onPointerMove,
+                onPointerUp: TapController.onTapUp,
+                onPointerDown: TapController.onTapDown,
+                behavior: HitTestBehavior.translucent,
+                onPointerCancel: TapController.onTapCancel,
+                child: Stack(
+                  children: [
+                    buildComicView(
+                      logic,
+                      context,
+                      readingData.id,
+                    ),
+                    if (MediaQuery.of(context).platformBrightness ==
+                        Brightness.dark &&
+                        appdata.settings[18] == "1")
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: IgnorePointer(
+                          child: ColoredBox(
+                            color: Colors.black.withOpacity(0.2),
+                          ),
                         ),
                       ),
-                    ),
 
-                  if (appdata.settings[57] == "1")
-                    buildPageInfoText(logic, context),
+                    if (appdata.settings[57] == "1")
+                      buildPageInfoText(logic, context),
 
-                  //底部工具栏
-                  buildBottomToolBar(logic, context, readingData.hasEp),
+                    //底部工具栏
+                    buildBottomToolBar(logic, context, readingData.hasEp),
 
-                  ...buildButtons(logic, context),
+                    ...buildButtons(logic, context),
 
-                  //顶部工具栏
-                  buildTopToolBar(logic, context),
-                ],
-              ),
-            );
+                    //顶部工具栏
+                    buildTopToolBar(logic, context),
+                  ],
+                ),
+              );
 
-            return KeyboardListener(
-              focusNode: logic.focusNode,
-              autofocus: true,
-              onKeyEvent: logic.handleKeyboard,
-              child: body,
-            );
-          } else {
-            return buildErrorView(logic, context);
-          }
-        }),
+              return KeyboardListener(
+                focusNode: logic.focusNode,
+                autofocus: true,
+                onKeyEvent: logic.handleKeyboard,
+                child: body,
+              );
+            } else {
+              return buildErrorView(logic, context);
+            }
+          }),
+        ),
       );
     });
   }
 
   Widget buildErrorView(ComicReadingPageLogic logic, BuildContext context) {
-    return DecoratedBox(
-        decoration: const BoxDecoration(color: Colors.black),
-        child: SafeArea(
-            child: Stack(
+    return SafeArea(
+        child: Stack(
           children: [
             Positioned(
               left: 8,
@@ -348,7 +355,6 @@ class ComicReadingPage extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back,
-                  color: Colors.white,
                 ),
                 onPressed: () => App.globalBack(),
               ),
@@ -362,7 +368,6 @@ class ComicReadingPage extends StatelessWidget {
                 child: Icon(
                   Icons.error_outline,
                   size: 60,
-                  color: Colors.white,
                 ),
               ),
             ),
@@ -374,9 +379,6 @@ class ComicReadingPage extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: Text(
                   logic.errorMessage ?? "未知错误".tl,
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
                 ),
               ),
             ),
@@ -404,34 +406,34 @@ class ComicReadingPage extends StatelessWidget {
                         ),
                         Expanded(
                             child: FilledButton(
-                          onPressed: () {
-                            if (!readingData.hasEp) {
-                              showMessage(context, "没有其它章节".tl);
-                              return;
-                            }
-                            if (MediaQuery.of(context).size.width > 600) {
-                              showSideBar(context, buildEpsView(),
-                                  title: null,
-                                  useSurfaceTintColor: true,
-                                  addTopPadding: true,
-                                  width: 400);
-                            } else {
-                              showModalBottomSheet(
-                                  context: context,
-                                  useSafeArea: false,
-                                  builder: (context) {
-                                    return buildEpsView();
-                                  });
-                            }
-                          },
-                          child: Text("切换章节".tl),
-                        )),
+                              onPressed: () {
+                                if (!readingData.hasEp) {
+                                  showMessage(context, "没有其它章节".tl);
+                                  return;
+                                }
+                                if (MediaQuery.of(context).size.width > 600) {
+                                  showSideBar(context, buildEpsView(),
+                                      title: null,
+                                      useSurfaceTintColor: true,
+                                      addTopPadding: true,
+                                      width: 400);
+                                } else {
+                                  showModalBottomSheet(
+                                      context: context,
+                                      useSafeArea: false,
+                                      builder: (context) {
+                                        return buildEpsView();
+                                      });
+                                }
+                              },
+                              child: Text("切换章节".tl),
+                            )),
                       ],
                     ),
                   )),
             ),
           ],
-        )));
+        ));
   }
 
   void loadInfo(ComicReadingPageLogic logic) async {

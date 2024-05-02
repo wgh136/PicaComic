@@ -151,6 +151,11 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             settingsIndex: 76,
             icon: const Icon(Icons.screen_lock_landscape),
           ),
+        SwitchSetting(
+          title: "使用深色背景".tl,
+          settingsIndex: 81,
+          icon: const Icon(Icons.dark_mode),
+        ),
         Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
       ],
     );

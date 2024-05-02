@@ -329,7 +329,9 @@ class TapController {
         StateController.findOrNull<WindowFrameController>()?.resetTheme();
       } else {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-        StateController.findOrNull<WindowFrameController>()?.setDarkTheme();
+        if(appdata.settings[81] == "1") {
+          StateController.findOrNull<WindowFrameController>()?.setDarkTheme();
+        }
       }
     }
   }
