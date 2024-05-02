@@ -116,7 +116,7 @@ class ImageManager {
       if(e is DioException && e.type == DioExceptionType.badResponse){
         var statusCode = e.response?.statusCode;
         if(statusCode != null && statusCode >= 400 && statusCode < 500){
-          throw BadRequestException("Bad Request: $statusCode");
+          throw BadRequestException(e.message.toString());
         }
       }
       rethrow;
@@ -387,7 +387,7 @@ class ImageManager {
       if(e is DioException && e.type == DioExceptionType.badResponse){
         var statusCode = e.response?.statusCode;
         if(statusCode != null && statusCode >= 400 && statusCode < 500){
-          throw BadRequestException("Bad Request: $statusCode");
+          throw BadRequestException(e.message.toString());
         }
       }
       rethrow;
@@ -470,7 +470,7 @@ class ImageManager {
       if(e is DioException && e.type == DioExceptionType.badResponse){
         var statusCode = e.response?.statusCode;
         if(statusCode != null && statusCode >= 400 && statusCode < 500){
-          throw BadRequestException("Bad Request: $statusCode");
+          throw BadRequestException(e.message.toString());
         }
       }
       rethrow;
@@ -550,7 +550,7 @@ class ImageManager {
       if(e is DioException && e.type == DioExceptionType.badResponse){
         var statusCode = e.response?.statusCode;
         if(statusCode != null && statusCode >= 400 && statusCode < 500){
-          throw BadRequestException("Bad Request: $statusCode");
+          throw BadRequestException(e.message.toString());
         }
       }
       rethrow;
@@ -642,7 +642,7 @@ class ImageManager {
       if(e is DioException && e.type == DioExceptionType.badResponse){
         var statusCode = e.response?.statusCode;
         if(statusCode != null && statusCode >= 400 && statusCode < 500){
-          throw BadRequestException("Bad Request: $statusCode");
+          throw BadRequestException(e.message.toString());
         }
       }
       rethrow;
