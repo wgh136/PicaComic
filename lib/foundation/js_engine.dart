@@ -71,7 +71,7 @@ class JsEngine with _JSEngineApi{
       (setGlobalFunc as JSInvokable)(["sendMessage", _messageReceiver]);
       setGlobalFunc.free();
       var jsInit = await rootBundle.load("assets/init.js");
-      _engine!.evaluate(utf8.decode(jsInit.buffer.asUint8List()));
+      _engine!.evaluate(utf8.decode(jsInit.buffer.asUint8List()), name: "<init>");
     }
     catch(e, s){
       log('JS Engine Init Error:\n$e\n$s', 'JS Engine', LogLevel.error);
@@ -94,7 +94,7 @@ class JsEngine with _JSEngineApi{
                     _ => LogLevel.warning
                   },
                   message["title"],
-                  message["content"]);
+                  message["content"].toString());
             }
           case 'load_data':
             {
