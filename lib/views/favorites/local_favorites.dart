@@ -197,7 +197,7 @@ class RenameFolderDialog extends StatelessWidget {
 class LocalFavoriteTile extends ComicTile {
   const LocalFavoriteTile(
       this.comic, this.folderName, this.onDelete, this._enableLongPressed,
-      {this.showFolderInfo = false, super.key});
+      {this.showFolderInfo = false, this.onLongPressed, this.onTap, super.key});
 
   final FavoriteItem comic;
 
@@ -205,7 +205,12 @@ class LocalFavoriteTile extends ComicTile {
 
   final void Function() onDelete;
 
+  /// return true to disable default action
+  final bool Function()? onTap;
+
   final bool _enableLongPressed;
+
+  final void Function()? onLongPressed;
 
   final bool showFolderInfo;
 
@@ -404,6 +409,14 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onLongTap_() {
+    if(onLongPressed != null) {
+      onLongPressed!();
+    } else {
+      showMenu();
+    }
+  }
+
+  void showMenu() {
     showDialog(
         context: App.globalContext!,
         builder: (context) => Dialog(
@@ -660,6 +673,10 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onTap_() {
+    if(onTap != null) {
+      var res = onTap!();
+      if(res) return;
+    }
     if(!comic.available){
       showToast(message: "无效的漫画".tl);
       return;
@@ -755,6 +772,52 @@ class LocalFavoriteTile extends ComicTile {
       );
     });
   }
+}
+
+void copyAllTo(String source, List<String> comics) {
+  String? folder;
+  showDialog(
+      context: App.globalContext!,
+      builder: (context) => SimpleDialog(
+        title: Text("复制到".tl),
+        children: [
+          SizedBox(
+            width: 280,
+            height: 132,
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text("收藏夹".tl),
+                  trailing: Select(
+                    outline: true,
+                    width: 156,
+                    values: LocalFavoritesManager().folderNames,
+                    initialValue: null,
+                    whenChange: (i) =>
+                    folder = LocalFavoritesManager().folderNames[i],
+                  ),
+                ),
+                const Spacer(),
+                Center(
+                  child: FilledButton(
+                    child: Text("确认".tl),
+                    onPressed: () {
+                      for(var comic in comics) {
+                        LocalFavoritesManager().addComic(folder!,
+                            LocalFavoritesManager().getComic(source, comic));
+                      }
+                      App.globalBack();
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+              ],
+            ),
+          )
+        ],
+      ));
 }
 
 class LocalFavoritesFolder extends StatefulWidget {

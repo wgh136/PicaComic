@@ -538,6 +538,17 @@ class LocalFavoritesManager {
     return name;
   }
 
+  FavoriteItem getComic(String folder, String target) {
+    var res = _db.select("""
+      select * from "$folder"
+      where target == '${target.toParam}';
+    """);
+    if (res.isEmpty) {
+      throw Exception("Comic not found");
+    }
+    return FavoriteItem.fromRow(res.first);
+  }
+
   /// add comic to a folder
   ///
   /// This method will download cover to local, to avoid problems like changing url

@@ -520,7 +520,8 @@
     "外观": "外觀",
     "关于": "關於",
     "有可用更新:": "有可用更新:",
-    "自定义漫画源": "自定義漫畫源"
+    "自定义漫画源": "自定義漫畫源",
+    "已选择 @num 个项目": "已選擇 @num 個項目"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1039,6 +1040,7 @@
     "外观": "Appearance",
     "关于": "About",
     "有可用更新:": "Updates available:",
-    "自定义漫画源": "Custom comic source"
+    "自定义漫画源": "Custom comic source",
+    "已选择 @num 个项目": "Selected @num items"
   }
 }

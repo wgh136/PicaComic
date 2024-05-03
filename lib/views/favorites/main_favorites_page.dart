@@ -27,13 +27,19 @@ class FavoritesPageController extends StateController{
 
   bool? isNetwork;
 
-  bool selecting = true;
+  bool selectingFolder = true;
 
   FavoriteData? networkData;
 
+  var selectedComics = <String>[];
+
+  var openComicMenuFuncs = <String, Function>{};
+
+  bool get isSelectingComics => selectedComics.isNotEmpty;
+
   FavoritesPageController(){
     var data = appdata.implicitData[0].split(";");
-    selecting = data[0] == "1";
+    selectingFolder = data[0] == "1";
     if(data[1] == ""){
       isNetwork = null;
     } else {
@@ -52,10 +58,18 @@ class FavoritesPageController extends StateController{
       networkData = folders.firstWhereOrNull((element) => element?.title == current);
       if(networkData == null){
         current = null;
-        selecting = true;
+        selectingFolder = true;
         isNetwork = null;
       }
     }
+  }
+
+  @override
+  void update([List<Object>? ids]) {
+    if(selectedComics.isEmpty) {
+      openComicMenuFuncs.clear();
+    }
+    super.update(ids);
   }
 }
 
@@ -89,7 +103,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
           duration: const Duration(milliseconds: 200),
           left: 0,
           right: 0,
-          bottom: controller.selecting ? 0 : constrains.maxHeight - _kSecondaryTopBarHeight,
+          bottom: controller.selectingFolder ? 0 : constrains.maxHeight - _kSecondaryTopBarHeight,
           child: buildFoldersList(context, constrains.maxHeight - _kSecondaryTopBarHeight),
         ),
         Positioned(
@@ -102,23 +116,101 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
     ));
   }
 
+  void multiSelectedMenu() {
+    final size = MediaQuery.of(App.globalContext!).size;
+    showMenu(
+      context: App.globalContext!,
+      position: RelativeRect.fromLTRB(size.width, 0, 0, size.height),
+      items: [
+        PopupMenuItem(child: Text("删除".tl), onTap: () {
+          for(var comic in controller.selectedComics) {
+            LocalFavoritesManager().deleteComicWithTarget(controller.current!, comic);
+          }
+          controller.selectedComics.clear();
+          controller.update();
+        },),
+        PopupMenuItem(child: Text("复制到".tl), onTap: () {
+          Future.delayed(
+              const Duration(milliseconds: 200),
+              () => copyAllTo(controller.current!, controller.selectedComics));
+        },),
+      ]
+    );
+  }
+
   Widget buildTopBar(BuildContext context){
     final iconColor = Theme.of(context).colorScheme.primary;
+
+    if(controller.isSelectingComics) {
+      return Material(
+        elevation: 1,
+        child: SizedBox(
+          height: _kSecondaryTopBarHeight,
+          child: Row(
+              children: [
+                Icon(Icons.local_activity, color: iconColor,),
+                const SizedBox(width: 8,),
+                Text(
+                  "已选择 @num 个项目".tlParams(
+                      {"num": controller.selectedComics.length.toString()}),
+                  style: const TextStyle(fontSize: 16),).paddingBottom(3),
+                const Spacer(),
+                Tooltip(
+                  message: "全选".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.select_all),
+                    onPressed: () {
+                      controller.selectedComics = LocalFavoritesManager()
+                          .getAllComics(controller.current!)
+                          .map((e) => e.target).toList();
+                      controller.update();
+                    },
+                  ),
+                ),
+                Tooltip(
+                  message: "取消".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.deselect),
+                    onPressed: () {
+                      controller.selectedComics.clear();
+                      controller.update();
+                    },
+                  ),
+                ),
+                Tooltip(
+                  message: "菜单".tl,
+                  child: IconButton(
+                    icon: const Icon(Icons.more_horiz),
+                    onPressed: () {
+                      if(controller.selectedComics.length == 1) {
+                        controller.openComicMenuFuncs[controller.selectedComics[0]]?.call();
+                      } else {
+                        multiSelectedMenu();
+                      }
+                    },
+                  ),
+                ),
+              ]
+          ).paddingHorizontal(16),
+        ),
+      );
+    }
+
     return Material(
       elevation: 1,
       child: InkWell(
         hoverColor: Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         onTap: (){
-          if(controller.selecting){
+          if(controller.selectingFolder){
             if(controller.current == null){
               showToast(message: "选择收藏夹".tl);
               return;
             }
-            controller.selecting = false;
+            controller.selectingFolder = false;
             controller.update();
           } else {
-            controller.selecting = true;
+            controller.selectingFolder = true;
             controller.update();
             appdata.implicitData[0] = "1;;";
             appdata.writeImplicitData();
@@ -137,7 +229,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
                 const SizedBox(width: 8,),
                 Text(controller.current ?? "未选择".tl, style: const TextStyle(fontSize: 16),).paddingBottom(3),
                 const Spacer(),
-                if(controller.selecting)
+                if(controller.selectingFolder)
                   const Icon(Icons.keyboard_arrow_up)
                 else
                   const Icon(Icons.keyboard_arrow_down),
@@ -190,7 +282,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
           onTap: (){
             controller.current = data?.title;
             controller.isNetwork = true;
-            controller.selecting = false;
+            controller.selectingFolder = false;
             controller.networkData = data;
             controller.update();
             appdata.implicitData[0] = "0;1;${data?.title ?? ""}";
@@ -226,7 +318,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
             onTap: (){
               controller.current = data;
               controller.isNetwork = false;
-              controller.selecting = false;
+              controller.selectingFolder = false;
               controller.update();
               appdata.implicitData[0] = "0;0;$data";
               appdata.writeImplicitData();
@@ -305,7 +397,30 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager{
       return NetworkFavoritePage(controller.networkData!,
         key: Key(controller.current ?? ""),);
     } else {
-      return ComicsPageView(folder: controller.current!);
+      return ComicsPageView(
+        folder: controller.current!,
+        selectedComics: controller.selectedComics,
+        onClick: (key) {
+          if(controller.isSelectingComics) {
+            if(controller.selectedComics.contains(key)) {
+              controller.selectedComics.remove(key);
+            } else {
+              controller.selectedComics.add(key);
+            }
+            controller.update();
+            return true;
+          }
+          return false;
+        },
+        onLongPressed: (key) {
+          if(controller.selectedComics.contains(key)) {
+            controller.selectedComics.remove(key);
+          } else {
+            controller.selectedComics.add(key);
+          }
+          controller.update();
+        },
+      );
     }
   }
 
@@ -454,9 +569,22 @@ mixin class _LocalFavoritesManager{
 }
 
 class ComicsPageView extends StatefulWidget {
-  const ComicsPageView({required this.folder, super.key});
+  const ComicsPageView({
+    required this.folder,
+    required this.onClick,
+    required this.selectedComics,
+    required this.onLongPressed,
+    super.key
+  });
 
   final String folder;
+
+  /// return true to disable default action
+  final bool Function(String key) onClick;
+
+  final void Function(String key) onLongPressed;
+
+  final List<String> selectedComics;
 
   @override
   State<ComicsPageView> createState() => _ComicsPageViewState();
@@ -543,12 +671,31 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                     itemCount: comics.length,
                     padding: EdgeInsets.zero,
                     itemBuilder: (BuildContext context, int index) {
-                      return LocalFavoriteTile(
-                        comics[index],
+                      var comic = comics[index];
+                      var tile = LocalFavoriteTile(
+                        comic,
                         folder,
-                            () => setState(() {}),
+                        () => setState(() {}),
                         true,
+                        onTap: () => widget.onClick(comic.target),
+                        onLongPressed: () => widget.onLongPressed(comic.target),
                         showFolderInfo: true,
+                      );
+                      StateController.find<FavoritesPageController>().openComicMenuFuncs[comic.target] = tile.showMenu;
+
+                      Color? color;
+
+                      if(widget.selectedComics.contains(comic.target)) {
+                        color = Theme.of(context).colorScheme.surfaceVariant;
+                      }
+                      return AnimatedContainer(
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                        duration: const Duration(milliseconds: 160),
+                        child: tile,
                       );
                     },
                   ),
