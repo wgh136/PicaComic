@@ -286,7 +286,7 @@ extension ImageExt on ComicReadingPage {
     } else if (appdata.settings[9] == "4") {
       logic.photoViewControllers[0] ??= PhotoViewController();
       body = PhotoView.customChild(
-
+          backgroundDecoration: decoration,
           key: Key(logic.order.toString()),
           minScale: 1.0,
           maxScale: 2.5,
