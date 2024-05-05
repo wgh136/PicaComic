@@ -136,7 +136,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
 
   @override
   void read(History? history) {
-    readNhentai(data!, history?.page);
+    readNhentai(data!, history?.page ?? 0);
   }
 
   @override
