@@ -192,6 +192,10 @@ class OverlayWidget extends StatefulWidget {
 
   final Widget child;
 
+  static void addOverlay(OverlayEntry entry) => _OverlayWidgetState.addOverlay(entry);
+
+  static void removeAll() => _OverlayWidgetState.removeAll();
+
   @override
   State<OverlayWidget> createState() => _OverlayWidgetState();
 }

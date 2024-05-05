@@ -74,8 +74,26 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   bool forceRebuild = false;
 
+  OverlayEntry? hideContentOverlay;
+
+  void hideContent(){
+    if(hideContentOverlay != null)  return;
+    hideContentOverlay = OverlayEntry(builder: (context) => Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.width,
+      color: Theme.of(context).colorScheme.surface,
+    ));
+    OverlayWidget.addOverlay(hideContentOverlay!);
+  }
+
+  void showContent(){
+    hideContentOverlay = null;
+    OverlayWidget.removeAll();
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    bool enableAuth = appdata.settings[13] == "1";
     if (App.isAndroid && appdata.settings[38] == "1") {
       try {
         FlutterDisplayMode.setHighRefreshRate();
@@ -85,11 +103,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     setNetworkProxy();
     scheduleMicrotask(() {
-      if (state == AppLifecycleState.inactive) {
+      if (state == AppLifecycleState.paused && enableAuth) {
         if(!AuthPage.lock && appdata.settings[13] == "1"){
           AuthPage.initial = false;
           App.to(App.globalContext!, () => const AuthPage());
         }
+      }
+
+      if(state == AppLifecycleState.inactive && enableAuth) {
+        hideContent();
+      } else if (state == AppLifecycleState.resumed) {
+        showContent();
       }
 
       if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
