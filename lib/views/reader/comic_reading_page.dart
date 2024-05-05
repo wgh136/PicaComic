@@ -245,7 +245,9 @@ class ComicReadingPage extends StatelessWidget {
     }, builder: (logic) {
       return DefaultTextStyle.merge(
         style: TextStyle(
-          color: useDarkBackground ? Colors.white : null,
+          color: (useDarkBackground || Theme.of(context).brightness == Brightness.dark)
+              ? Colors.white
+              : null,
           fontSize: 16,
         ),
         child: Scaffold(

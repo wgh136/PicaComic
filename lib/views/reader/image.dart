@@ -260,33 +260,38 @@ class _ComicImageState extends State<ComicImage> with WidgetsBindingObserver {
     if (_lastException != null) {
       // display error and retry button on screen
       return SizedBox(
-        height: 300,
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Text(_lastException.toString(), style: const TextStyle(color: Colors.white), maxLines: 3,),
-              ),
-            ),
-            const SizedBox(height: 4,),
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Listener(
-                onPointerDown: (details){
-                  TapController.ignoreNextTap = true;
-                  _resolveImage();
-                },
-                child: const SizedBox(
-                  width: 84,
-                  height: 36,
+        height: _cache[widget.image.hashCode]?.height ?? 300,
+        child: Center(
+          child: SizedBox(
+            height: 300,
+            child: Column(
+              children: [
+                Expanded(
                   child: Center(
-                    child: Text("Retry", style: TextStyle(color: Colors.blue),),
+                    child: Text(_lastException.toString(), maxLines: 3,),
                   ),
                 ),
-              ),
+                const SizedBox(height: 4,),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Listener(
+                    onPointerDown: (details){
+                      TapController.ignoreNextTap = true;
+                      _resolveImage();
+                    },
+                    child: const SizedBox(
+                      width: 84,
+                      height: 36,
+                      child: Center(
+                        child: Text("Retry", style: TextStyle(color: Colors.blue),),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16,),
+              ],
             ),
-            const SizedBox(height: 16,),
-          ],
+          ),
         ),
       );
     }

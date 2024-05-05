@@ -4,6 +4,7 @@ import 'dart:ui' as ui show Codec;
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 
 abstract class BaseImageProvider<T extends BaseImageProvider<T>>
@@ -78,6 +79,7 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
         final buffer = await ImmutableBuffer.fromUint8List(data);
         return await decode(buffer);
       } catch (e) {
+        await CacheManager().delete(this.key);
         Object error = e;
         if (data.length < 200) { 
           // data is too short, it's likely that the data is text, not image

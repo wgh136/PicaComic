@@ -234,14 +234,14 @@ class CachingFile{
   Future<void> writeBytes(List<int> data) async{
     _buffer.addAll(data);
     if(_buffer.length > 1024 * 1024){
-      await file.writeAsBytes(_buffer);
+      await file.writeAsBytes(_buffer, mode: FileMode.append);
       _buffer.clear();
     }
   }
 
   Future<void> close() async{
     if(_buffer.isNotEmpty){
-      await file.writeAsBytes(_buffer);
+      await file.writeAsBytes(_buffer, mode: FileMode.append);
     }
     CacheManager()._db.execute('''
       INSERT OR REPLACE INTO cache (key, dir, name, expires) VALUES (?, ?, ?, ?)
