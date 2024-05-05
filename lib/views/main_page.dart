@@ -28,6 +28,28 @@ import 'me_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+void checkClipboard() async{
+  if(appdata.settings[61] == "0"){
+    return;
+  }
+  var data = await Clipboard.getData(Clipboard.kTextPlain);
+  if(data?.text != null && canHandle(data!.text!)){
+    await Future.delayed(const Duration(milliseconds: 200));
+    showMessage(
+        App.globalContext,
+        "${"发现剪切板中的链接".tl}\n${data.text}",
+        time: 5,
+        action: TextButton(
+          child: Text("打开".tl, style: TextStyle(
+              color: App.colors(App.globalContext!).onInverseSurface),),
+          onPressed: (){
+            hideMessage(App.globalContext);
+            handleAppLinks(Uri.parse(data.text!));
+          },
+        ));
+  }
+}
+
 class Destination {
   const Destination(this.label, this.icon, this.selectedIcon);
 
@@ -225,31 +247,9 @@ class _MainPageState extends State<MainPage> {
     MainPage.toExplorePage = () => setState(() => i = 2);
 
     Future.delayed(const Duration(milliseconds: 300),
-            () => Webdav.syncData()).then(checkClipboard);
+            () => Webdav.syncData()).then((v) => checkClipboard());
 
     super.initState();
-  }
-
-  void checkClipboard(v) async{
-    if(appdata.settings[61] == "0"){
-      return;
-    }
-    var data = await Clipboard.getData(Clipboard.kTextPlain);
-    if(data?.text != null && canHandle(data!.text!)){
-      await Future.delayed(const Duration(milliseconds: 200));
-      showMessage(
-        App.globalContext,
-        "${"发现剪切板中的链接".tl}\n${data.text}",
-        time: 5,
-        action: TextButton(
-          child: Text("打开".tl, style: TextStyle(
-              color: App.colors(App.globalContext!).onInverseSurface),),
-          onPressed: (){
-            hideMessage(App.globalContext);
-            handleAppLinks(Uri.parse(data.text!));
-          },
-        ));
-    }
   }
 
   @override
