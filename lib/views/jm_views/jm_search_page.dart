@@ -43,8 +43,8 @@ class SearchPageComicsList extends ComicsPage {
 
 class JmSearchPage extends StatefulWidget {
   final String keyword;
-  final ComicsOrder order;
-  const JmSearchPage(this.keyword, {this.order = ComicsOrder.latest, Key? key})
+  final ComicsOrder? order;
+  const JmSearchPage(this.keyword, {this.order, Key? key})
       : super(key: key);
 
   @override
@@ -58,7 +58,7 @@ class _SearchPageState extends State<JmSearchPage> {
 
   @override
   void initState() {
-    order = widget.order;
+    order = widget.order ?? ComicsOrder.values[int.parse(appdata.settings[19])];
     controller.text = keyword;
     super.initState();
   }
