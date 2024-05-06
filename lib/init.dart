@@ -24,8 +24,8 @@ import 'network/nhentai_network/nhentai_main_network.dart';
 Future<void> init() async{
   try {
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
-    await appdata.readData();
     await App.init();
+    await appdata.readData();
     SingleInstanceCookieJar("${App.dataPath}/cookies.db");
     HttpProxyServer.createConfigFile();
     if(appdata.settings[58] == "1"){

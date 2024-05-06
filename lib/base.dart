@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -223,9 +227,30 @@ class Appdata {
     await s.setStringList("settings", settings);
   }
 
-  void updateSettings([bool syncData = true]) async {
-    var s = await SharedPreferences.getInstance();
-    await s.setStringList("settings", settings);
+  Future<void> readSettings(SharedPreferences s) async {
+    var settingsFile = File("${App.dataPath}/settings");
+    List<String> st;
+    if(settingsFile.existsSync()) {
+      var json = jsonDecode(await settingsFile.readAsString());
+      if(json is List){
+        st = List.from(json);
+      } else {
+        st = [];
+      }
+    } else {
+      st = s.getStringList("settings") ?? [];
+    }
+    for (int i = 0; i < st.length && i < settings.length; i++) {
+      settings[i] = st[i];
+    }
+    if (settings[26].length < 2) {
+      settings[26] += "0";
+    }
+  }
+
+  Future<void> updateSettings([bool syncData = true]) async {
+    var settingsFile = File("${App.dataPath}/settings");
+    await settingsFile.writeAsString(jsonEncode(settings));
     if(syncData) {
       Webdav.uploadData();
     }
@@ -256,7 +281,7 @@ class Appdata {
     await s.setInt("userExp", user.exp);
     await s.setString("userTitle", user.title);
     await s.setString("appChannel", appChannel);
-    await s.setStringList("settings", settings);
+    await updateSettings();
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
     await s.setString("image", imageQuality);
@@ -280,15 +305,7 @@ class Appdata {
       user.avatarUrl = s.getString("userAvatar") ?? defaultAvatarUrl;
       user.id = s.getString("userId") ?? "";
       user.exp = s.getInt("userExp") ?? 0;
-      if (s.getStringList("settings") != null) {
-        var st = s.getStringList("settings")!;
-        for (int i = 0; i < st.length && i < settings.length; i++) {
-          settings[i] = st[i];
-        }
-      }
-      if (settings[26].length < 2) {
-        settings[26] += "0";
-      }
+      await readSettings(s);
       appChannel = s.getString("appChannel") ?? "3";
       searchHistory = s.getStringList("search") ?? [];
       favoriteTags = (s.getStringList("favoriteTags") ?? []).toSet();
@@ -369,6 +386,10 @@ var notifications = Notifications();
 Future<void> clearAppdata() async {
   var s = await SharedPreferences.getInstance();
   await s.clear();
+  var settingsFile = File("${App.dataPath}/settings");
+  if(await settingsFile.exists()) {
+    await settingsFile.delete();
+  }
   appdata.history.clearHistory();
   appdata = Appdata();
   await appdata.readData();
