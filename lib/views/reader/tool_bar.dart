@@ -423,12 +423,16 @@ extension ToolBar on ComicReadingPage {
         color: useDarkBackground
           ? Colors.white
           : null,
-        foreground: Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.6
-          ..color = (useDarkBackground || Theme.of(context).brightness == Brightness.dark)
+        shadows: [
+          Shadow(
+            color: (useDarkBackground ||
+                Theme.of(context).brightness == Brightness.dark)
               ? Colors.black
               : Colors.white,
+            offset: const Offset(1, 1),
+            blurRadius: 2,
+          )
+        ],
       );
     }
 

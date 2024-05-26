@@ -4,15 +4,16 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
-  bitsdojo_window_windows
   dynamic_color
   file_selector_windows
   flutter_qjs
   flutter_windows_webview
   local_auth_windows
+  screen_retriever
   share_plus
   sqlite3_flutter_libs
   url_launcher_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

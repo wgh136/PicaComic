@@ -61,14 +61,25 @@ class MyLogInterceptor implements Interceptor {
   void onResponse(
       Response<dynamic> response, ResponseInterceptorHandler handler) {
     var headers = response.headers.map.map((key, value) => MapEntry(
-        key, value.length == 1 ? value.first : value.toString()));
+        key.toLowerCase(), value.length == 1 ? value.first : value.toString()));
     headers.remove("cookie");
+    String content;
+    if(response.data is List<int>) {
+      try {
+        content = utf8.decode(response.data, allowMalformed: false);
+      }
+      catch(e) {
+        content = "<Bytes>\nlength:${response.data.length}";
+      }
+    } else {
+      content = response.data.toString();
+    }
     LogManager.addLog(
         (response.statusCode != null && response.statusCode! < 400)
             ? LogLevel.info : LogLevel.error,
         "Network",
         "Response ${response.realUri.toString()} ${response.statusCode}\n"
-            "headers:\n$headers\n${response.data.toString()}");
+            "headers:\n$headers\n$content");
     handler.next(response);
   }
 

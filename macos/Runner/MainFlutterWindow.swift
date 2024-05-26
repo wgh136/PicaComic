@@ -1,12 +1,8 @@
 import Cocoa
 import FlutterMacOS
-import bitsdojo_window_macos
+import window_manager
 
-class MainFlutterWindow: BitsdojoWindow  {
-  override func bitsdojo_window_configure() -> UInt {
-    return BDW_CUSTOM_FRAME | BDW_HIDE_ON_STARTUP
-  }
-
+class MainFlutterWindow: NSWindow  {
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController.init()
     let windowFrame = self.frame
@@ -16,5 +12,10 @@ class MainFlutterWindow: BitsdojoWindow  {
     RegisterGeneratedPlugins(registry: flutterViewController)
 
     super.awakeFromNib()
+  }
+
+  override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
+    super.order(place, relativeTo: otherWin)
+    hiddenWindowAtLaunch()
   }
 }

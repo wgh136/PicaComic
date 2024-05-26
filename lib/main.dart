@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +19,7 @@ import 'package:pica_comic/views/welcome_page.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:pica_comic/views/widgets/window_frame.dart';
+import 'package:window_manager/window_manager.dart';
 import 'network/webdav.dart';
 
 bool notFirstUse = false;
@@ -37,22 +36,17 @@ void main(){
     setNetworkProxy();
     runApp(const MyApp());
     if(App.isDesktop){
-      doWhenWindowReady(() {
-        final win = appWindow;
-        var file = File("${App.dataPath}/window_placement");
-        win.minSize = const Size(400, 400);
-        win.alignment = Alignment.center;
-        if(file.existsSync()){
-          var data = file.readAsStringSync().split('/');
-          if(data.length < 4){
-            data = const ['','','',''];
-          }
-          win.size = Size(double.tryParse(data[0]) ?? 600, double.tryParse(data[1]) ?? 400);
-        } else {
-          win.size = const Size(900, 720);
-        }
-        win.title = "Pica Comic";
-        win.show();
+      await windowManager.ensureInitialized();
+      windowManager.waitUntilReadyToShow().then((_) async {
+        await windowManager.setTitleBarStyle(
+          TitleBarStyle.hidden,
+          windowButtonVisibility: App.isMacOS,
+        );
+        await windowManager.setMinimumSize(const Size(500, 600));
+        var placement = await WindowPlacement.loadFromFile();
+        await placement.applyToWindow();
+        await windowManager.show();
+        WindowPlacement.loop();
       });
     }
   }, (error, stack) {

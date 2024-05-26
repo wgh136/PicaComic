@@ -84,7 +84,7 @@ dependencies:
       ref: 92b7309e
   fl_chart: any
   collection: 1.18.0
-  bitsdojo_window: 0.1.6
+  window_manager:
   flutter_inappwebview: 6.0.0
   pdf: ^3.10.8
   flutter_qjs:
