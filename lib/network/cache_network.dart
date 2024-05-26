@@ -40,7 +40,7 @@ class CachedNetwork {
     if (expiredTime != CacheExpiredTime.no) {
       await CacheManager().writeCache(key, res.data!, expiredTime.time);
     }
-    return CachedNetworkRes(utf8.decoder.convert(res.data!), res.statusCode,
+    return CachedNetworkRes(utf8.decode(res.data!, allowMalformed: true), res.statusCode,
         res.realUri.toString(), res.headers.map);
   }
 
