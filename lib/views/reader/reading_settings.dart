@@ -79,11 +79,11 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                       left: -20,
                       right: 0,
                       child: Slider(
-                        max: 50,
+                        max: 40,
                         min: 0,
-                        divisions: 50,
+                        divisions: 40,
                         value: int.parse(appdata.settings[40]).toDouble(),
-                        overlayColor: MaterialStateColor.resolveWith(
+                        overlayColor: WidgetStateColor.resolveWith(
                             (states) => Colors.transparent),
                         onChanged: (v) {
                           if (v == 0) return;
@@ -235,7 +235,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                         min: 0,
                         divisions: 20,
                         value: int.parse(appdata.settings[33]).toDouble(),
-                        overlayColor: MaterialStateColor.resolveWith(
+                        overlayColor: WidgetStateColor.resolveWith(
                             (states) => Colors.transparent),
                         onChanged: (v) {
                           if (v == 0) return;

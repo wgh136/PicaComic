@@ -71,6 +71,9 @@ Future<void> _checkOldData() async{
     if (int.parse(appdata.settings[17]) >= 4) {
       appdata.settings[17] = '0';
     }
+    if(int.parse(appdata.settings[40]) > 40) {
+      appdata.settings[40] = '40';
+    }
 
     if (io.Directory("${App.dataPath}/comic_source/cookies/").existsSync() ||
         io.Directory("${App.dataPath}/eh_cookies").existsSync() ||
