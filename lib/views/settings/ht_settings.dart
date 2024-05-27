@@ -12,20 +12,17 @@ class HtSettings extends StatefulWidget {
 class _HtSettingsState extends State<HtSettings> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      child: Column(
-        children: [
-          ListTile(
-            title: Text("绅士漫画".tl),
-          ),
-          ListTile(
-            leading: const Icon(Icons.domain_rounded),
-            title: Text("Domain: ${appdata.settings[31].replaceFirst("https://", "")}"),
-            trailing: IconButton(onPressed: () => changeDomain(context), icon: const Icon(Icons.edit)),
-          )
-        ],
-      ),
+    return Column(
+      children: [
+        ListTile(
+          title: Text("绅士漫画".tl),
+        ),
+        ListTile(
+          leading: const Icon(Icons.domain_rounded),
+          title: Text("Domain: ${appdata.settings[31].replaceFirst("https://", "")}"),
+          trailing: IconButton(onPressed: () => changeDomain(context), icon: const Icon(Icons.edit)),
+        )
+      ],
     );
   }
 
