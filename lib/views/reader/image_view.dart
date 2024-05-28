@@ -196,14 +196,42 @@ extension ImageExt on ComicReadingPage {
       );
     }
 
+    Widget buildComicImageOrEmpty({
+      required int imageIndex,
+      required BoxFit fit,
+      required Alignment alignment
+    }) {
+      if(imageIndex < 0 || imageIndex >= logic.urls.length){
+        return const SizedBox();
+      }
+
+      return ComicImage(
+        key: ValueKey(imageIndex),
+        image: createImageProvider(
+            type, logic, imageIndex, target),
+        fit: fit,
+        alignment: alignment,
+      );
+    }
+
     Widget buildType56() {
+      int calcItemCount() {
+        int count = logic.urls.length ~/ 2;
+        if(logic.urls.length % 2 != 0) {
+          count++;
+        } else if(logic.singlePageForFirstScreen) {
+          count++;
+        }
+        return count + 2;
+      }
+
       return PhotoViewGallery.builder(
         key: Key(logic.readingMethod.index.toString()),
         backgroundDecoration: decoration,
-        itemCount: (logic.urls.length / 2).ceil() + 2,
+        itemCount: calcItemCount(),
         reverse: logic.readingMethod == ReadingMethod.twoPageReversed,
         builder: (BuildContext context, int index) {
-          if (index == 0 || index == (logic.urls.length / 2).ceil() + 1) {
+          if (index == 0 || index == calcItemCount() - 1) {
             return PhotoViewGalleryPageOptions.customChild(
                 child: const SizedBox());
           }
@@ -211,50 +239,40 @@ extension ImageExt on ComicReadingPage {
 
           logic.photoViewControllers[index] ??= PhotoViewController();
 
+          int firstImage = index * 2 - 2;
+          if(firstImage % 2 != 0) {
+            firstImage++;
+          }
+          if(logic.singlePageForFirstScreen) {
+            firstImage--;
+          }
+          var images = <int>[
+            firstImage,
+            firstImage+1
+          ];
+          if(logic.readingMethod == ReadingMethod.twoPageReversed) {
+            images = images.reversed.toList();
+          }
+
           return PhotoViewGalleryPageOptions.customChild(
               controller: logic.photoViewControllers[index],
               child: Row(
-                children: logic.readingMethod == ReadingMethod.twoPage
-                    ? [
-                        Expanded(
-                          child: ComicImage(
-                            image: createImageProvider(
-                                type, logic, index * 2 - 2, target),
-                            fit: BoxFit.contain,
-                            alignment: Alignment.centerRight,
-                          ),
-                        ),
-                        Expanded(
-                          child: index * 2 - 1 < logic.urls.length
-                              ? ComicImage(
-                                  image: createImageProvider(
-                                      type, logic, index * 2 - 1, target),
-                                  fit: BoxFit.contain,
-                                  alignment: Alignment.centerLeft,
-                                )
-                              : const SizedBox(),
-                        ),
-                      ]
-                    : [
-                        Expanded(
-                          child: index * 2 - 1 < logic.urls.length
-                              ? ComicImage(
-                                  image: createImageProvider(
-                                      type, logic, index * 2 - 1, target),
-                                  fit: BoxFit.contain,
-                                  alignment: Alignment.centerRight,
-                                )
-                              : const SizedBox(),
-                        ),
-                        Expanded(
-                          child: ComicImage(
-                            image: createImageProvider(
-                                type, logic, index * 2 - 2, target),
-                            fit: BoxFit.contain,
-                            alignment: Alignment.centerLeft,
-                          ),
-                        ),
-                      ],
+                children: [
+                  Expanded(
+                    child: buildComicImageOrEmpty(
+                      imageIndex: images[0],
+                      fit: BoxFit.contain,
+                      alignment: Alignment.centerRight,
+                    ),
+                  ),
+                  Expanded(
+                    child: buildComicImageOrEmpty(
+                      imageIndex: images[1],
+                      fit: BoxFit.contain,
+                      alignment: Alignment.centerLeft,
+                    ),
+                  ),
+                ],
               ));
         },
         pageController: logic.pageController,
@@ -265,14 +283,16 @@ extension ImageExt on ComicReadingPage {
               return;
             }
             logic.jumpToLastChapter();
-          } else if (i == (logic.urls.length / 2).ceil() + 1) {
+          } else if (i == calcItemCount() - 1) {
             if (!logic.data.hasEp) {
               logic.pageController.animatedJumpToPage(i - 1);
               return;
             }
             logic.jumpToNextChapter();
           } else {
-            logic.index = i * 2 - 1;
+            logic.index = logic.singlePageForFirstScreen
+                ? (i * 2 - 2).clamp(1, logic.urls.length)
+                : i * 2 - 1;
             logic.update();
           }
         },

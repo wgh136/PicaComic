@@ -124,6 +124,7 @@ class Appdata {
   /// 隐式数据, 用于存储一些不需要用户设置的数据, 此数据通常为某些组件的状态, 此设置不应当被同步
   List<String> implicitData = [
     "1;;", //收藏夹状态
+    "0", // 双页模式下第一页显示单页
   ];
 
   void writeImplicitData() async {
@@ -133,7 +134,10 @@ class Appdata {
 
   void readImplicitData() async {
     var s = await SharedPreferences.getInstance();
-    implicitData = s.getStringList("implicitData") ?? implicitData;
+    var data = s.getStringList("implicitData");
+    for(int i = 0; i < data!.length && i < implicitData.length; i++) {
+      implicitData[i] = data[i];
+    }
   }
 
   ///屏蔽的关键词

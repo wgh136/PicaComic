@@ -250,14 +250,9 @@ extension ToolBar on ComicReadingPage {
             logic.jumpToPage(i.toInt());
             logic.index = i.toInt();
             logic.update();
-          } else if (logic.readingMethod != ReadingMethod.twoPage &&
-              logic.readingMethod != ReadingMethod.twoPageReversed) {
+          } else {
             logic.index = i.toInt();
             logic.jumpToPage(i.toInt());
-            logic.update();
-          } else {
-            logic.index = i.toInt() + i.toInt() % 2 - 1;
-            logic.jumpToPage((logic.index + 2) ~/ 2);
             logic.update();
           }
         },
@@ -279,7 +274,7 @@ extension ToolBar on ComicReadingPage {
                 comicReadingPageLogic.readingMethod !=
                     ReadingMethod.topToBottom)
               Positioned(
-                left: 20,
+                left: 12,
                 top: MediaQuery.of(context).size.height / 2 - 25,
                 child: IconButton(
                   icon: const Icon(Icons.keyboard_arrow_left),
@@ -295,14 +290,14 @@ extension ToolBar on ComicReadingPage {
                         comicReadingPageLogic.jumpToLastPage();
                     }
                   },
-                  iconSize: 36,
+                  iconSize: 24,
                 ),
               ),
             if (appdata.settings[9] != "4" &&
                 comicReadingPageLogic.readingMethod !=
                     ReadingMethod.topToBottom)
               Positioned(
-                right: 20,
+                right: 12,
                 top: MediaQuery.of(context).size.height / 2 - 25,
                 child: IconButton(
                   icon: const Icon(Icons.keyboard_arrow_right),
@@ -318,14 +313,14 @@ extension ToolBar on ComicReadingPage {
                         comicReadingPageLogic.jumpToNextPage();
                     }
                   },
-                  iconSize: 36,
+                  iconSize: 24,
                 ),
               ),
             Positioned(
-              left: 5,
-              top: 5 + MediaQuery.of(context).padding.top,
+              left: 4,
+              top: 4 + MediaQuery.of(context).padding.top,
               child: IconButton(
-                iconSize: 30,
+                iconSize: 24,
                 icon: const Icon(Icons.close),
                 onPressed: () => App.globalBack(),
               ),
@@ -416,26 +411,6 @@ extension ToolBar on ComicReadingPage {
   ///显示当前的章节和页面位置
   Widget buildPageInfoText(
       ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
-    TextStyle style = const TextStyle();
-
-    if(!comicReadingPageLogic.tools) {
-      style = TextStyle(
-        color: useDarkBackground
-          ? Colors.white
-          : null,
-        shadows: [
-          Shadow(
-            color: (useDarkBackground ||
-                Theme.of(context).brightness == Brightness.dark)
-              ? Colors.black
-              : Colors.white,
-            offset: const Offset(1, 1),
-            blurRadius: 2,
-          )
-        ],
-      );
-    }
-
     return Positioned(
       bottom: 13,
       left: 25,
@@ -448,14 +423,33 @@ extension ToolBar on ComicReadingPage {
           if (epName.length > 8) {
             epName = "${epName.substring(0, 8)}...";
           }
-          return readingData.hasEp
-              ? Text(
-            "$epName : ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
-            style: style,
-          )
-              : Text(
-            "${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}",
-            style: style,
+          var text = readingData.hasEp
+              ? "$epName : ${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}"
+              : "${comicReadingPageLogic.index}/${comicReadingPageLogic.urls.length}";
+          return Stack(
+            children: [
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 14,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 1.4
+                    ..color = (useDarkBackground || Theme.of(context).brightness == Brightness.dark)
+                        ? Colors.black
+                        : Colors.white,
+                ),
+              ),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: useDarkBackground
+                      ? Colors.white
+                      : null,
+                ),
+              ),
+            ],
           );
         },
       ),

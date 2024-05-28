@@ -37,6 +37,7 @@ class _EhSettingsState extends State<EhSettings> {
         ListTile(
           leading: const Icon(Icons.image),
           title: Text("优先加载原图".tl),
+          subtitle: Text("可能导致加载失败".tl),
           trailing: Switch(
             value: appdata.settings[29] == "1",
             onChanged: (b) {

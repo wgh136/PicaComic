@@ -52,6 +52,9 @@ class ComicReadingPageLogic extends StateController {
 
   bool haveUsedInitialPage = false;
 
+  /// 双页模式下是否在第一页时显示单页
+  bool get singlePageForFirstScreen => appdata.implicitData[1] == '1';
+
   var focusNode = FocusNode();
 
   static int _getIndex(int initPage) {
@@ -212,10 +215,13 @@ class ComicReadingPageLogic extends StateController {
 
   void jumpToPage(int i, [bool updateWidget = false]) {
     i = i.clamp(1, length);
-    if (appdata.settings[9] != "4") {
+    if (readingMethod == ReadingMethod.topToBottomContinuously) {
+      itemScrollController.jumpTo(index: i - 1);
+    } else if(!readingMethod.isTwoPage){
       pageController.jumpToPage(i);
     } else {
-      itemScrollController.jumpTo(index: i - 1);
+      var index = singlePageForFirstScreen ? i ~/ 2 + 1 : (i + 1) ~/ 2;
+      pageController.jumpToPage(index);
     }
     if(index != i){
       index = i;

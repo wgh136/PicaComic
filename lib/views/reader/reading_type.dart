@@ -10,6 +10,9 @@ enum ReadingMethod {
   twoPage,
   twoPageReversed;
 
+  bool get isTwoPage => this == ReadingMethod.twoPage
+      || this == ReadingMethod.twoPageReversed;
+
   bool get useComicImage => this == ReadingMethod.topToBottomContinuously ||
       this == ReadingMethod.twoPage || this == ReadingMethod.twoPageReversed;
 }

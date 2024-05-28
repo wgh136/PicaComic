@@ -19,7 +19,7 @@ class ComicImage extends StatefulWidget {
         this.centerSlice,
         this.matchTextDirection = false,
         this.gaplessPlayback = false,
-        this.filterQuality = FilterQuality.low,
+        this.filterQuality = FilterQuality.medium,
         this.isAntiAlias = false,
         Map<String, String>? headers,
         int? cacheWidth,
