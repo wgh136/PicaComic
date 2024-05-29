@@ -398,8 +398,8 @@ class LocalFavoritesManager {
     for (var folder in folders) {
       var res = _db.select("""
         select * from folder_order
-        where folder_name == '$folder';
-      """);
+        where folder_name == ?;
+      """, [folder]);
       if (res.isNotEmpty) {
         folderToOrder[folder] = res.first["order_value"];
       } else {
@@ -686,6 +686,9 @@ class LocalFavoritesManager {
     if (folderNames.contains(after)) {
       throw "Name already exists!";
     }
+    if(after.contains('"')){
+      throw "Invalid name";
+    }
     _db.execute("""
       ALTER TABLE "$before"
       RENAME TO "$after";
@@ -693,9 +696,9 @@ class LocalFavoritesManager {
     if (folderSync.isNotEmpty) {
       _db.execute("""
       UPDATE folder_sync
-      set folder_name = '$after'
-      where folder_name == '$before'
-    """);
+      set folder_name = ?
+      where folder_name == ?
+    """, [after, before]);
     }
     saveData();
   }
