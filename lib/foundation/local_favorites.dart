@@ -416,8 +416,8 @@ class LocalFavoritesManager {
     for (var folder in order.keys) {
       _db.execute("""
         insert or replace into folder_order (folder_name, order_value)
-        values ('$folder', ${order[folder]});
-      """);
+        values (?, ?);
+      """, [folder, order[folder]]);
     }
   }
 
@@ -432,9 +432,9 @@ class LocalFavoritesManager {
   void updateFolderSyncTime(FolderSync folderSync){
     _db.execute("""
       update folder_sync
-      set time = '${folderSync.time}'
-      where folder_name == '${folderSync.folderName}'
-    """);
+      set time = ?
+      where folder_name == ?
+    """, [folderSync.time, folderSync.folderName]);
   }
   void insertFolderSync(FolderSync folderSync) {
     // 注意 syncData 不能用 toParam, 否则会没法 jsonDecode
@@ -637,8 +637,8 @@ class LocalFavoritesManager {
   /// delete a folder
   void deleteFolder(String name) {
     _db.execute("""
-      delete from folder_sync where folder_name == '$name';
-    """);
+      delete from folder_sync where folder_name == ?;
+    """, [name]);
     _db.execute("""
       drop table "$name";
     """);    
