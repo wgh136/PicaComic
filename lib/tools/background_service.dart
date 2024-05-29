@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:workmanager/workmanager.dart';
 import '../base.dart';
 import '../network/picacg_network/methods.dart';
@@ -10,6 +11,7 @@ void onStart() {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   Workmanager().executeTask((taskName, inputData) async{
+    await App.init();
     appdata = Appdata();
     await appdata.readData();
     var notifications = Notifications();
