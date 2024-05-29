@@ -14,8 +14,12 @@ jobs:
     - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
     - run: flutter pub get
     - run: flutter build ios --release --no-codesign
-    - run: bash /Users/runner/work/PicaComic/PicaComic/.github/generate_ipa.sh
-    - uses: actions/upload-artifact@v3
+    - run: |
+        mkdir -p /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/Payload
+        mv /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/Runner.app /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/Payload
+        cd /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/
+        zip -r app-ios.ipa Payload
+    - uses: actions/upload-artifact@v4
       with:
         name: app-ios.ipa
         path: /Users/runner/work/PicaComic/PicaComic/build/ios/iphoneos/app-ios.ipa
@@ -30,11 +34,8 @@ jobs:
     - run: sudo xcode-select --switch /Applications/Xcode_14.3.1.app
     - run: flutter pub get
     - run: flutter build macos --release
-    - run: |
-           cd build/macos/Build/Products/Release
-           zip -r macos-build.zip pica_comic.app
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: macos-build.zip
-        path: build/macos/Build/Products/Release/macos-build.zip
+        path: build/macos/Build/Products/Release/pica_comic.app
  
