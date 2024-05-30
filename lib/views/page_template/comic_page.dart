@@ -18,6 +18,7 @@ import '../../network/res.dart';
 import '../favorites/local_favorites.dart';
 import '../show_image_page.dart';
 import '../widgets/animations.dart';
+import '../widgets/appbar.dart';
 import '../widgets/list_loading.dart';
 import '../widgets/selectable_text.dart';
 import '../widgets/show_message.dart';
@@ -289,7 +290,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   Widget buildLoading(BuildContext context) {
     return Shimmer(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             colorOpacity: 0.5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +332,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Theme.of(context)
                                     .colorScheme
-                                    .surfaceVariant
+                                    .surfaceContainerHighest
                                     .withOpacity(0.4),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -345,10 +346,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   }
 
   Widget buildTitle(ComicPageLogic<T> logic) {
-    return SliverAppBar(
-      surfaceTintColor: logic.showAppbarTitle ? null : Colors.transparent,
-      shadowColor: Colors.transparent,
-      scrolledUnderElevation: UiMode.m1(context) ? null : 0.0,
+    return MySliverAppBar(
       title: AnimatedOpacity(
         opacity: logic.showAppbarTitle ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 200),
@@ -358,8 +356,6 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         IconButton(
             onPressed: showMoreActions, icon: const Icon(Icons.more_horiz))
       ],
-      pinned: true,
-      primary: UiMode.m1(context),
     );
   }
 
@@ -627,7 +623,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     if (logic.loading) {
       return Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.4),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
           borderRadius: BorderRadius.circular(12),
         ),
         height: 72,
@@ -901,7 +897,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           alignment: Alignment.center,
           child: FilledButton.tonal(
             style: ButtonStyle(
-              shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+              shape: WidgetStateProperty.all(const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)))),
             ),
             onPressed: () {

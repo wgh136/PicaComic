@@ -15,9 +15,6 @@ class PicacgLatestPage extends ComicsPage<ComicItemBrief>{
   }
 
   @override
-  bool get largeTitle => true;
-
-  @override
   String? get tag => "Picacg Latest";
 
   @override

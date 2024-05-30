@@ -31,9 +31,6 @@ class PicacgCategoryComicPage extends ComicsPage<ComicItemBrief>{
   }
 
   @override
-  bool get largeTitle => true;
-
-  @override
   String? get tag => keyWord;
 
   @override
