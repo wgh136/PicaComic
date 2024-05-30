@@ -494,7 +494,7 @@ class AccountsPage extends StatelessWidget {
                     onChanged: (s) => text = s,
                   ),
                   actions: [
-                    TextButton(onPressed: () => App.back(context), child: const Text("取消")),
+                    TextButton(onPressed: () => App.back(context), child: Text("取消".tl)),
                     TextButton(onPressed: () {
                       EhNetwork().igneous = text;
                       EhNetwork().cookieJar.saveFromResponse(
@@ -505,7 +505,7 @@ class AccountsPage extends StatelessWidget {
                           [Cookie("igneous", text)]);
                       Navigator.of(context).pop();
                       logic.update();
-                    }, child: const Text("确定")),
+                    }, child: Text("确定".tl)),
                   ],
                 );
               });
