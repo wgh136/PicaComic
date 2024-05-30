@@ -176,15 +176,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
   }
 
   Widget buildCard(BuildContext context){
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1,
-        ),
-      ),
+    return Card.outlined(
       child: SizedBox(
         width: double.infinity,
         child: Column(

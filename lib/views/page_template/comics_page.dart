@@ -129,9 +129,6 @@ abstract class ComicsPage<T> extends StatelessWidget {
   ///是否居中标题
   bool get centerTitle => true;
 
-  ///是否使用大标题
-  bool get largeTitle => true;
-
   ///获取图片, 参数为页面序号, **从1开始**
   ///
   /// 返回值Res的subData为页面总数
@@ -249,19 +246,10 @@ abstract class ComicsPage<T> extends StatelessWidget {
               return CustomScrollView(
                 slivers: [
                   if (showTitle)
-                    if (largeTitle)
-                      CustomSliverAppbar(
-                        title: Text(title),
-                        centerTitle: centerTitle,
-                        actions: tailing != null ? [tailing!] : null,
-                      )
-                    else
-                      SliverAppBar(
-                        title: Text(title),
-                        centerTitle: centerTitle,
-                        pinned: true,
-                        actions: tailing != null ? [tailing!] : null,
-                      ),
+                    MySliverAppBar(
+                      title: Text(title),
+                      actions: tailing != null ? [tailing!] : null,
+                    ),
                   if (head != null) head!,
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
@@ -284,19 +272,10 @@ abstract class ComicsPage<T> extends StatelessWidget {
               Widget body = CustomScrollView(
                 slivers: [
                   if (showTitle)
-                    if (largeTitle)
-                      CustomSliverAppbar(
-                        title: Text(title),
-                        centerTitle: centerTitle,
-                        actions: tailing != null ? [tailing!] : null,
-                      )
-                    else
-                      SliverAppBar(
-                        title: Text(title),
-                        centerTitle: centerTitle,
-                        pinned: true,
-                        actions: tailing != null ? [tailing!] : null,
-                      ),
+                    MySliverAppBar(
+                      title: Text(title),
+                      actions: tailing != null ? [tailing!] : null,
+                    ),
                   if (head != null) head!,
                   if (showPageIndicator &&
                       appdata.settings[64] == "0" &&

@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'dart:io';
 
-class CookieJarSql{
+class CookieJarSql {
   final Database _db;
 
-  CookieJarSql(String path): _db = sqlite3.open(path){
+  CookieJarSql(String path) : _db = sqlite3.open(path) {
     _db.execute('''
       CREATE TABLE IF NOT EXISTS cookies (
         name TEXT NOT NULL,
@@ -21,8 +22,15 @@ class CookieJarSql{
     ''');
   }
 
-  void saveFromResponse(Uri uri, List<Cookie> cookies){
-    for (var cookie in cookies){
+  void saveFromResponse(Uri uri, List<Cookie> cookies) {
+    var current = loadForRequest(uri);
+    for (var cookie in cookies) {
+      var currentCookie = current.firstWhereOrNull((element) =>
+          element.name == cookie.name &&
+          (cookie.path == null || cookie.path!.startsWith(element.path!)));
+      if (currentCookie != null) {
+        cookie.domain = currentCookie.domain;
+      }
       _db.execute('''
         INSERT OR REPLACE INTO cookies (name, value, domain, path, expires, secure, httpOnly)
         VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -38,88 +46,97 @@ class CookieJarSql{
     }
   }
 
-  List<Cookie> _loadWithDomain(String domain){
+  List<Cookie> _loadWithDomain(String domain) {
     var rows = _db.select('''
       SELECT name, value, domain, path, expires, secure, httpOnly
       FROM cookies
       WHERE domain = ?;
     ''', [domain]);
 
-    return rows.map((row) => Cookie(
-      row["name"] as String,
-      row["value"] as String,
-    )..domain = row["domain"] as String
-      ..path = row["path"] as String
-      ..expires = row["expires"] == null ? null : DateTime.fromMillisecondsSinceEpoch(row["expires"] as int)
-      ..secure = row["secure"] == 1
-      ..httpOnly = row["httpOnly"] == 1
-    ).toList();
+    return rows
+        .map((row) => Cookie(
+              row["name"] as String,
+              row["value"] as String,
+            )
+              ..domain = row["domain"] as String
+              ..path = row["path"] as String
+              ..expires = row["expires"] == null
+                  ? null
+                  : DateTime.fromMillisecondsSinceEpoch(row["expires"] as int)
+              ..secure = row["secure"] == 1
+              ..httpOnly = row["httpOnly"] == 1)
+        .toList();
   }
 
-  List<String> _getAcceptedDomains(String host){
+  List<String> _getAcceptedDomains(String host) {
     var acceptedDomains = <String>[host];
     var hostParts = host.split(".");
-    for (var i = 0; i < hostParts.length-1; i++){
+    for (var i = 0; i < hostParts.length - 1; i++) {
       acceptedDomains.add(".${hostParts.sublist(i).join(".")}");
     }
     return acceptedDomains;
   }
 
-  List<Cookie> loadForRequest(Uri uri){
+  List<Cookie> loadForRequest(Uri uri) {
     // if uri.host is example.example.com, acceptedDomains will be [".example.example.com", ".example.com", "example.com"]
     var acceptedDomains = _getAcceptedDomains(uri.host);
 
     var cookies = <Cookie>[];
-    for (var domain in acceptedDomains){
+    for (var domain in acceptedDomains) {
       cookies.addAll(_loadWithDomain(domain));
     }
 
     // check expires
-    var expires = cookies.where((cookie) => cookie.expires != null && cookie.expires!.isBefore(DateTime.now()));
-    for (var cookie in expires){
+    var expires = cookies.where((cookie) =>
+        cookie.expires != null && cookie.expires!.isBefore(DateTime.now()));
+    for (var cookie in expires) {
       _db.execute('''
         DELETE FROM cookies
         WHERE name = ? AND domain = ? AND path = ?;
       ''', [cookie.name, cookie.domain, cookie.path]);
     }
 
-    return cookies.where((element) =>
-    !expires.contains(element) && _checkPathMatch(uri, element.path)).toList();
+    return cookies
+        .where((element) =>
+            !expires.contains(element) && _checkPathMatch(uri, element.path))
+        .toList();
   }
 
-  bool _checkPathMatch(Uri uri, String? cookiePath){
-    if(cookiePath == null){
+  bool _checkPathMatch(Uri uri, String? cookiePath) {
+    if (cookiePath == null) {
       return true;
     }
 
-    if (cookiePath == uri.path){
+    if (cookiePath == uri.path) {
       return true;
     }
 
-    if (cookiePath == "/"){
+    if (cookiePath == "/") {
       return true;
     }
 
-    if (cookiePath.endsWith("/")){
+    if (cookiePath.endsWith("/")) {
       return uri.path.startsWith(cookiePath);
     }
 
     return uri.path.startsWith(cookiePath);
   }
 
-  void saveFromResponseCookieHeader(Uri uri, List<String> cookieHeader){
-    var cookies = cookieHeader.map((header) => Cookie.fromSetCookieValue(header)).toList();
+  void saveFromResponseCookieHeader(Uri uri, List<String> cookieHeader) {
+    var cookies = cookieHeader
+        .map((header) => Cookie.fromSetCookieValue(header))
+        .toList();
     saveFromResponse(uri, cookies);
   }
 
-  String loadForRequestCookieHeader(Uri uri){
+  String loadForRequestCookieHeader(Uri uri) {
     var cookies = loadForRequest(uri);
     return cookies.map((cookie) => "${cookie.name}=${cookie.value}").join("; ");
   }
 
-  void delete(Uri uri, String name){
+  void delete(Uri uri, String name) {
     var acceptedDomains = _getAcceptedDomains(uri.host);
-    for (var domain in acceptedDomains){
+    for (var domain in acceptedDomains) {
       _db.execute('''
         DELETE FROM cookies
         WHERE name = ? AND domain = ? AND path = ?;
@@ -127,9 +144,9 @@ class CookieJarSql{
     }
   }
 
-  void deleteUri(Uri uri){
+  void deleteUri(Uri uri) {
     var acceptedDomains = _getAcceptedDomains(uri.host);
-    for (var domain in acceptedDomains){
+    for (var domain in acceptedDomains) {
       _db.execute('''
         DELETE FROM cookies
         WHERE domain = ?;
@@ -137,18 +154,18 @@ class CookieJarSql{
     }
   }
 
-  void deleteAll(){
+  void deleteAll() {
     _db.execute('''
       DELETE FROM cookies;
     ''');
   }
 
-  void close(){
+  void close() {
     _db.dispose();
   }
 }
 
-class SingleInstanceCookieJar extends CookieJarSql{
+class SingleInstanceCookieJar extends CookieJarSql {
   factory SingleInstanceCookieJar(String path) =>
       instance ??= SingleInstanceCookieJar._create(path);
 
@@ -157,7 +174,7 @@ class SingleInstanceCookieJar extends CookieJarSql{
   static SingleInstanceCookieJar? instance;
 }
 
-class CookieManagerSql extends Interceptor{
+class CookieManagerSql extends Interceptor {
   final CookieJarSql cookieJar;
 
   CookieManagerSql(this.cookieJar);
@@ -165,7 +182,7 @@ class CookieManagerSql extends Interceptor{
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     var cookies = cookieJar.loadForRequestCookieHeader(options.uri);
-    if(cookies.isNotEmpty){
+    if (cookies.isNotEmpty) {
       options.headers["cookie"] = cookies;
     }
     handler.next(options);
@@ -174,9 +191,7 @@ class CookieManagerSql extends Interceptor{
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     cookieJar.saveFromResponseCookieHeader(
-      response.requestOptions.uri,
-      response.headers["set-cookie"] ?? []
-    );
+        response.requestOptions.uri, response.headers["set-cookie"] ?? []);
     handler.next(response);
   }
 

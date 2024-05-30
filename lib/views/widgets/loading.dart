@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
+
+import '../../network/res.dart';
 
 
 class LoadingDialogController {
@@ -72,4 +75,95 @@ LoadingDialogController showLoadingDialog(
   };
 
   return controller;
+}
+
+abstract class LoadingState<T extends StatefulWidget, S extends Object> extends State<T>{
+  bool isLoading = false;
+
+  S? data;
+
+  String? error;
+
+  Future<Res<S>> loadData();
+
+  Widget buildContent(BuildContext context, S data);
+
+  Widget? buildFrame(BuildContext context, Widget child) => null;
+
+  Widget buildLoading() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  void retry() {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+    loadData().then((value) {
+      if(value.success) {
+        setState(() {
+          isLoading = false;
+          data = value.data;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          error = value.errorMessage!;
+        });
+      }
+    });
+  }
+
+  Widget buildError() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(error!),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: retry,
+            child: const Text("Retry"),
+          )
+        ],
+      ),
+    ).paddingHorizontal(16);
+  }
+
+  @override
+  @mustCallSuper
+  void initState() {
+    isLoading = true;
+    loadData().then((value) {
+      if(value.success) {
+        setState(() {
+          isLoading = false;
+          data = value.data;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          error = value.errorMessage!;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child;
+
+    if(isLoading){
+      child = buildLoading();
+    } else if (error != null){
+      child = buildError();
+    } else {
+      child = buildContent(context, data!);
+    }
+
+    return buildFrame(context, child) ?? child;
+  }
 }

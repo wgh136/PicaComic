@@ -11,79 +11,78 @@ class EhSettings extends StatefulWidget {
 class _EhSettingsState extends State<EhSettings> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-        elevation: 0,
-        child: Column(
-          children: [
-            const ListTile(
-              title: Text("E-Hentai"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.domain),
-              title: Text("画廊站点".tl),
-              trailing: Select(
-                initialValue: int.parse(appdata.settings[20]),
-                width: 150,
-                values: const [
-                  "e-hentai.org",
-                  "exhentai.org",
-                ],
-                whenChange: (i) {
-                  appdata.settings[20] = i.toString();
-                  appdata.updateSettings();
-                },
-                inPopUpWidget: widget.popUp,
-              ),
-              //onTap: () => setEhDomain(context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.image),
-              title: Text("优先加载原图".tl),
-              trailing: Switch(
-                value: appdata.settings[29] == "1",
-                onChanged: (b) {
-                  setState(() {
-                    appdata.settings[29] = b ? "1" : "0";
-                  });
-                  appdata.updateSettings();
-                },
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications_off_outlined),
-              title: Text("忽略警告".tl),
-              trailing: Switch(
-                value: appdata.settings[47] == "1",
-                onChanged: (b) {
-                  setState(() {
-                    appdata.settings[47] = b ? "1" : "0";
-                  });
-                  appdata.updateSettings();
-                },
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.notes),
-              title: Text("优先显示副标题".tl),
-              subtitle: Text("适用于已下载的画廊".tl),
-              trailing: Switch(
-                value: appdata.settings[78] == "1",
-                onChanged: (b) {
-                  setState(() {
-                    appdata.settings[78] = b ? "1" : "0";
-                  });
-                  appdata.updateSettings();
-                },
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.request_page_rounded),
-              title: Text("配置文件".tl),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => App.to(context, () => const EhProfileSelectPage()),
-            )
-          ],
-        ));
+    return Column(
+      children: [
+        const ListTile(
+          title: Text("E-Hentai"),
+        ),
+        ListTile(
+          leading: const Icon(Icons.domain),
+          title: Text("画廊站点".tl),
+          trailing: Select(
+            initialValue: int.parse(appdata.settings[20]),
+            width: 150,
+            values: const [
+              "e-hentai.org",
+              "exhentai.org",
+            ],
+            whenChange: (i) {
+              appdata.settings[20] = i.toString();
+              appdata.updateSettings();
+            },
+            inPopUpWidget: widget.popUp,
+          ),
+          //onTap: () => setEhDomain(context),
+        ),
+        ListTile(
+          leading: const Icon(Icons.image),
+          title: Text("优先加载原图".tl),
+          subtitle: Text("可能导致加载失败".tl),
+          trailing: Switch(
+            value: appdata.settings[29] == "1",
+            onChanged: (b) {
+              setState(() {
+                appdata.settings[29] = b ? "1" : "0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.notifications_off_outlined),
+          title: Text("忽略警告".tl),
+          trailing: Switch(
+            value: appdata.settings[47] == "1",
+            onChanged: (b) {
+              setState(() {
+                appdata.settings[47] = b ? "1" : "0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.notes),
+          title: Text("优先显示副标题".tl),
+          subtitle: Text("适用于已下载的画廊".tl),
+          trailing: Switch(
+            value: appdata.settings[78] == "1",
+            onChanged: (b) {
+              setState(() {
+                appdata.settings[78] = b ? "1" : "0";
+              });
+              appdata.updateSettings();
+            },
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.request_page_rounded),
+          title: Text("配置文件".tl),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => App.to(context, () => const EhProfileSelectPage()),
+        )
+      ],
+    );
   }
 }
 

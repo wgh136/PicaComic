@@ -524,7 +524,7 @@ class ImageManager {
         int i = 0;
         await for (var b in stream) {
           //不直接写入文件, 因为需要对图片进行重组, 处理完成后再写入
-          bytes.addAll(b.toList());
+          bytes.addAll(b);
           //构建虚假的进度条, 因为无法获取jm文件大小
           i = min(600, bytes.length ~/ 5000);
           var progress = DownloadProgress(i, 1000, url, savePath);

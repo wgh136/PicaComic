@@ -95,9 +95,17 @@ class DownloadManager{
   Future<void> _getPath() async{
     if(appdata.settings[22] == "") {
       final appPath = await getApplicationSupportDirectory();
-      path = "${appPath.path}${pathSep}download";
+      path = "${appPath.path}/download";
     }else{
       path = appdata.settings[22];
+    }
+    if(App.isIOS) {
+      if(path!.startsWith('/var/mobile/Containers/Data/Application/')){
+        if(!Directory(path!).existsSync()) {
+          final appPath = await getApplicationSupportDirectory();
+          path = "${appPath.path}/download";
+        }
+      }
     }
     var dir = Directory(path!);
     if(! await dir.exists()){

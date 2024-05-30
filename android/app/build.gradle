@@ -81,6 +81,16 @@ android {
         release {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.release
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def abi = output.getFilter(com.android.build.OutputFile.ABI)
+                    if (abi != null) {   // null for the universal-debug, universal-release variants
+                        outputFileName = "PicaComic-${variant.versionName}-${abi}.apk"
+                    } else {
+                        outputFileName = "PicaComic-${variant.versionName}.apk"
+                    }
+                }
+            }
         }
     }
     namespace 'com.kokoiro.xyz.pica_comic'

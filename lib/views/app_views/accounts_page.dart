@@ -482,6 +482,35 @@ class AccountsPage extends StatelessWidget {
           title: const Text("igneous"),
           subtitle: Text(EhNetwork().igneous),
           onTap: () => setClipboard(EhNetwork().igneous),
+          trailing: IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () {
+              showDialog(context: context, builder: (context) {
+                String text = EhNetwork().igneous;
+                return AlertDialog(
+                  title: const Text("igneous"),
+                  content: TextField(
+                    controller: TextEditingController(text: text),
+                    onChanged: (s) => text = s,
+                  ),
+                  actions: [
+                    TextButton(onPressed: () => App.back(context), child: Text("取消".tl)),
+                    TextButton(onPressed: () {
+                      EhNetwork().igneous = text;
+                      EhNetwork().cookieJar.saveFromResponse(
+                        Uri.parse("https://exhentai.org"),
+                          [Cookie("igneous", text)]);
+                      EhNetwork().cookieJar.saveFromResponse(
+                          Uri.parse("https://e-hentai.org"),
+                          [Cookie("igneous", text)]);
+                      Navigator.of(context).pop();
+                      logic.update();
+                    }, child: Text("确定".tl)),
+                  ],
+                );
+              });
+            },
+          ),
         ),
       ]);
     }

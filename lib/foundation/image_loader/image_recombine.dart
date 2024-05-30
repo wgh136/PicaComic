@@ -161,6 +161,8 @@ class JmRecombine{
         _pushTask();
       } else if(message is Exception) {
         _current!.completer!.completeError(message);
+        _current = null;
+        _pushTask();
       }
     });
 

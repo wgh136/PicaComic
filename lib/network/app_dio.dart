@@ -61,14 +61,25 @@ class MyLogInterceptor implements Interceptor {
   void onResponse(
       Response<dynamic> response, ResponseInterceptorHandler handler) {
     var headers = response.headers.map.map((key, value) => MapEntry(
-        key, value.length == 1 ? value.first : value.toString()));
+        key.toLowerCase(), value.length == 1 ? value.first : value.toString()));
     headers.remove("cookie");
+    String content;
+    if(response.data is List<int>) {
+      try {
+        content = utf8.decode(response.data, allowMalformed: false);
+      }
+      catch(e) {
+        content = "<Bytes>\nlength:${response.data.length}";
+      }
+    } else {
+      content = response.data.toString();
+    }
     LogManager.addLog(
         (response.statusCode != null && response.statusCode! < 400)
             ? LogLevel.info : LogLevel.error,
         "Network",
         "Response ${response.realUri.toString()} ${response.statusCode}\n"
-            "headers:\n$headers\n${response.data.toString()}");
+            "headers:\n$headers\n$content");
     handler.next(response);
   }
 
@@ -87,6 +98,8 @@ class AppHttpAdapter implements HttpClientAdapter{
   final bool http2;
 
   AppHttpAdapter(this.http2);
+
+  static Map<String, int> _counters = {};
 
   static Future<HttpClientAdapter> createAdapter(bool http2) async{
     return http2 ? Http2Adapter(ConnectionManager(
@@ -120,15 +133,23 @@ class AppHttpAdapter implements HttpClientAdapter{
   Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
     adapter ??= await createAdapter(http2);
     int retry = 0;
+    var host = o.uri.host;
+    while(_counters[host] != null && _counters[host]! > 12){
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    _counters[host] = (_counters[host] ?? 0) + 1;
     while(true){
       try{
-        return await fetchOnce(o, requestStream, cancelFuture);
+        var res = await fetchOnce(o, requestStream, cancelFuture);
+        _counters[host] = (_counters[host] ?? 0) - 1;
+        return res;
       }
       catch(e){
         LogManager.addLog(LogLevel.error, "Network",
             "${o.method} ${o.path}\n$e\nRetrying...");
         retry++;
-        if(retry == 3){
+        if(retry == 2){
+          _counters[host] = (_counters[host] ?? 0) - 1;
           rethrow;
         }
         await Future.delayed(const Duration(seconds: 1));

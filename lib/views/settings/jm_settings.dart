@@ -118,83 +118,81 @@ class JmSettings extends StatefulWidget {
 class _JmSettingsState extends State<JmSettings> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-        elevation: 0,
-        child: Column(
-          children: [
-            ListTile(
-              title: Text("禁漫天堂".tl),
-            ),
-            ListTile(
-              leading: const Icon(Icons.sort),
-              title: Text("分类中漫画排序模式".tl),
-              trailing: Select(
-                initialValue: int.parse(appdata.settings[16]),
-                values: [
-                  "最新".tl, "总排行".tl, "月排行".tl, "周排行".tl, "日排行".tl, "最多图片".tl, "最多喜欢".tl
-                ],
-                whenChange: (i){
-                  appdata.settings[16] = i.toString();
-                  appdata.updateSettings();
-                },
-                inPopUpWidget: widget.popUp,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.manage_search_outlined),
-              title: Text("搜索中漫画排序模式".tl),
-              trailing: Select(
-                initialValue: int.parse(appdata.settings[19]),
-                values: [
-                  "最新".tl, "最多点击".tl, "月排行".tl, "周排行".tl, "日排行".tl, "最多图片".tl, "最多喜欢".tl
-                ],
-                whenChange: (i){
-                  appdata.settings[19] = i.toString();
-                  appdata.updateSettings();
-                },
-                disabledValues: const [2,3,4],
-                inPopUpWidget: widget.popUp,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.favorite_border),
-              title: Text("收藏夹中漫画排序模式".tl),
-              trailing: Select(
-                initialValue: int.parse(appdata.settings[42]),
-                values: [
-                  "最新收藏".tl, "最新更新".tl
-                ],
-                whenChange: (i){
-                  appdata.settings[42] = i.toString();
-                  appdata.updateSettings();
-                },
-                inPopUpWidget: widget.popUp,
-              ),
-            ),
-            SelectSetting(
-              icon: const Icon(Icons.domain),
-              settingsIndex: 17,
-              title: "Api Domain",
-              options: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl],
-              onChange: () => JmNetwork().loginFromAppdata(),
-            ),
-            ListTile(
-              leading: const Icon(Icons.image),
-              title: Text("图片分流".tl),
-              trailing: Select(
-                initialValue: int.parse(appdata.settings[37]),
-                values: [
-                  "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl
-                ],
-                whenChange: (i){
-                  appdata.settings[37] = i.toString();
-                  appdata.updateSettings();
-                },
-                inPopUpWidget: widget.popUp,
-              ),
-            ),
-          ],
-        ));
+    return Column(
+      children: [
+        ListTile(
+          title: Text("禁漫天堂".tl),
+        ),
+        ListTile(
+          leading: const Icon(Icons.sort),
+          title: Text("分类中漫画排序模式".tl),
+          trailing: Select(
+            initialValue: int.parse(appdata.settings[16]),
+            values: [
+              "最新".tl, "总排行".tl, "月排行".tl, "周排行".tl, "日排行".tl, "最多图片".tl, "最多喜欢".tl
+            ],
+            whenChange: (i){
+              appdata.settings[16] = i.toString();
+              appdata.updateSettings();
+            },
+            inPopUpWidget: widget.popUp,
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.manage_search_outlined),
+          title: Text("搜索中漫画排序模式".tl),
+          trailing: Select(
+            initialValue: int.parse(appdata.settings[19]),
+            values: [
+              "最新".tl, "最多点击".tl, "月排行".tl, "周排行".tl, "日排行".tl, "最多图片".tl, "最多喜欢".tl
+            ],
+            whenChange: (i){
+              appdata.settings[19] = i.toString();
+              appdata.updateSettings();
+            },
+            disabledValues: const [2,3,4],
+            inPopUpWidget: widget.popUp,
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.favorite_border),
+          title: Text("收藏夹中漫画排序模式".tl),
+          trailing: Select(
+            initialValue: int.parse(appdata.settings[42]),
+            values: [
+              "最新收藏".tl, "最新更新".tl
+            ],
+            whenChange: (i){
+              appdata.settings[42] = i.toString();
+              appdata.updateSettings();
+            },
+            inPopUpWidget: widget.popUp,
+          ),
+        ),
+        SelectSetting(
+          icon: const Icon(Icons.domain),
+          settingsIndex: 17,
+          title: "Api Domain",
+          options: ["分流1".tl, "分流2".tl, "分流3".tl, "分流4".tl],
+          onChange: () => JmNetwork().loginFromAppdata(),
+        ),
+        ListTile(
+          leading: const Icon(Icons.image),
+          title: Text("图片分流".tl),
+          trailing: Select(
+            initialValue: int.parse(appdata.settings[37]),
+            values: [
+              "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl
+            ],
+            whenChange: (i){
+              appdata.settings[37] = i.toString();
+              appdata.updateSettings();
+            },
+            inPopUpWidget: widget.popUp,
+          ),
+        ),
+      ],
+    );
   }
 
   void changeDomain(BuildContext context){

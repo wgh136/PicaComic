@@ -102,27 +102,27 @@ class _EhLoginPageState extends State<EhLoginPage> {
                     const SizedBox(
                       height: 10,
                     ),
-                      Center(
-                        child: SizedBox(
-                          height: 40,
-                          child: TextButton(
-                            onPressed: loginWithWebview,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text("在Webview中登录".tl),
-                                const Icon(
-                                  Icons.arrow_outward,
-                                  size: 15,
-                                )
-                              ],
-                            ),
+                    Center(
+                      child: SizedBox(
+                        height: 40,
+                        child: TextButton(
+                          onPressed: loginWithWebview,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("在Webview中登录".tl),
+                              const Icon(
+                                Icons.arrow_outward,
+                                size: 15,
+                              )
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 5,
-                      ),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
                     Center(
                       child: SizedBox(
                         height: 40,
@@ -153,38 +153,18 @@ class _EhLoginPageState extends State<EhLoginPage> {
     );
   }
 
-  void loginWithWebview() async{
-    if (App.isAndroid || App.isIOS || App.isMacOS) {
+  void loginWithWebview() async {
+    if (App.isMobile) {
       App.globalTo(() => AppWebview(
-        singlePage: true,
-        initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
-        onTitleChange: (title, controller) async{
-          if (title == "E-Hentai Forums") {
-            var cookies1 = await controller.getCookies("https://e-hentai.org") ?? {};
-            var cookies2 = await controller.getCookies("https://exhentai.org") ?? {};
-            var cookies = <String, String>{};
-            cookies1.forEach((key, value) {
-              cookies[key] = value;
-            });
-            cookies2.forEach((key, value) {
-              cookies[key] = value;
-            });
-            loginWithCookies(cookies);
-            App.globalBack();
-          }
-        },
-      ));
-    } else if(App.isWindows){
-      if (await FlutterWindowsWebview.isAvailable()) {
-        var webview = FlutterWindowsWebview();
-        webview.launchWebview(
-            "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
-            WebviewOptions(onTitleChange: (s) async {
-              if (s == "E-Hentai Forums") {
-                var cookies1 = await webview.getCookies("https://e-hentai.org");
-                var cookies2 = await webview
-                    .getCookies("https://exhentai.org");
-                webview.close();
+            singlePage: true,
+            initialUrl:
+                "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
+            onTitleChange: (title, controller) async {
+              if (title == "E-Hentai Forums") {
+                var cookies1 =
+                    await controller.getCookies("https://e-hentai.org") ?? {};
+                var cookies2 =
+                    await controller.getCookies("https://exhentai.org") ?? {};
                 var cookies = <String, String>{};
                 cookies1.forEach((key, value) {
                   cookies[key] = value;
@@ -193,10 +173,54 @@ class _EhLoginPageState extends State<EhLoginPage> {
                   cookies[key] = value;
                 });
                 loginWithCookies(cookies);
+                App.globalBack();
               }
-            }));
+            },
+          ));
+    } else if (App.isWindows) {
+      if (await FlutterWindowsWebview.isAvailable()) {
+        var webview = FlutterWindowsWebview();
+        webview.launchWebview(
+            "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
+            WebviewOptions(onTitleChange: (s) async {
+          if (s == "E-Hentai Forums") {
+            var cookies1 = await webview.getCookies("https://e-hentai.org");
+            var cookies2 = await webview.getCookies("https://exhentai.org");
+            webview.close();
+            var cookies = <String, String>{};
+            cookies1.forEach((key, value) {
+              cookies[key] = value;
+            });
+            cookies2.forEach((key, value) {
+              cookies[key] = value;
+            });
+            loginWithCookies(cookies);
+          }
+        }));
+      } else if (App.isMacOS) {
+        var webview =
+            MacWebview(onTitleChange: (title, controller, browser) async {
+          if (title == "E-Hentai Forums") {
+            var cookies1 =
+                await controller.getCookies("https://e-hentai.org") ?? {};
+            var cookies2 =
+                await controller.getCookies("https://exhentai.org") ?? {};
+            var cookies = <String, String>{};
+            cookies1.forEach((key, value) {
+              cookies[key] = value;
+            });
+            cookies2.forEach((key, value) {
+              cookies[key] = value;
+            });
+            loginWithCookies(cookies);
+            browser.close();
+          }
+        });
+        await webview.openUrlRequest(
+          urlRequest: URLRequest(url: WebUri("https://nhentai.net")),
+        );
       } else {
-        showMessage(App.globalContext, "Webview不可用");
+        showMessage(App.globalContext, "Unsupported device".tl);
       }
     }
   }
@@ -205,14 +229,12 @@ class _EhLoginPageState extends State<EhLoginPage> {
     loginWithCookies({
       "ipb_member_id": id,
       "ipb_pass_hash": hash,
-      if(igneous != "")
-        "igneous": igneous,
-      if(star != "")
-        "star": star,
+      if (igneous != "") "igneous": igneous,
+      if (star != "") "star": star,
     });
   }
 
-  void loginWithCookies(Map<String, String> cookiesMap) async{
+  void loginWithCookies(Map<String, String> cookiesMap) async {
     setState(() {
       logging = true;
     });
@@ -220,12 +242,15 @@ class _EhLoginPageState extends State<EhLoginPage> {
     EhNetwork().cookieJar.deleteUri(Uri.parse('https://e-hentai.org'));
     EhNetwork().cookieJar.deleteUri(Uri.parse('https://exhentai.org'));
 
-    var cookies = cookiesMap.entries.map((e) => Cookie(e.key, e.value)).toList();
+    var cookies =
+        cookiesMap.entries.map((e) => Cookie(e.key, e.value)).toList();
     cookies.forEach((element) => element.domain = ".e-hentai.org");
-    EhNetwork().cookieJar
+    EhNetwork()
+        .cookieJar
         .saveFromResponse(Uri.parse("https://e-hentai.org"), cookies);
     cookies.forEach((element) => element.domain = ".exhentai.org");
-    EhNetwork().cookieJar
+    EhNetwork()
+        .cookieJar
         .saveFromResponse(Uri.parse("https://exhentai.org"), cookies);
 
     EhNetwork().getUserName().then((b) {

@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
@@ -40,7 +41,35 @@ void login(void Function() whenFinish) async{
           }
         }
     ));
-  } else if(App.isMobile || App.isMacOS) {
+  } else if(App.isMacOS) {
+    var webview = MacWebview(
+        onTitleChange: (title, controller, browser) async{
+          if(title == null) return;
+          if(!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
+            var ua = await controller.getUA();
+            if(ua != null){
+              NhentaiNetwork().ua = ua;
+            }
+            var cookiesMap = await controller.getCookies("${NhentaiNetwork().baseUrl}/") ?? {};
+            NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl),
+                List<io.Cookie>.generate(cookiesMap.length, (index){
+                  var cookie = io.Cookie(cookiesMap.keys.elementAt(index), cookiesMap.values.elementAt(index));
+                  if(cookie.name == "sessionid"){
+                    NhentaiNetwork().logged = true;
+                  }
+                  cookie.domain = ".nhentai.net";
+                  return cookie;
+                })
+            );
+            browser.close();
+            whenFinish();
+          }
+        }
+    );
+    await webview.openUrlRequest(
+      urlRequest: URLRequest(url: WebUri("${NhentaiNetwork().baseUrl}/login/?next=/")),
+    );
+  } else if(App.isMobile) {
     App.globalTo(() => AppWebview(
       initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       singlePage: true,

@@ -8,15 +8,22 @@ import 'package:pica_comic/views/eh_views/eh_gallery_page.dart';
 import 'package:pica_comic/views/eh_views/eh_widgets/eh_gallery_tile.dart';
 import 'package:pica_comic/views/page_template/comics_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
+import 'package:pica_comic/views/widgets/loading.dart';
 import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
 import '../main_page.dart';
 
-class EhFavoritePage extends StatelessWidget {
+class EhFavoritePage extends StatefulWidget {
   const EhFavoritePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<EhFavoritePage> createState() => _EhFavoritePageState();
+}
+
+class _EhFavoritePageState extends LoadingState<EhFavoritePage, Object> {
+
+  @override
+  Widget buildContent(BuildContext context, data) {
     int num = 0;
     for(var folder in EhNetwork().folderNames){
       if(folder.contains('(') && folder.contains(')')) {
@@ -54,6 +61,13 @@ class EhFavoritePage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  @override
+  Future<Res<Object>> loadData() {
+    return EhNetwork().getGalleries(
+        "${EhNetwork().ehBaseUrl}/favorites.php",
+        favoritePage: true);
   }
 }
 

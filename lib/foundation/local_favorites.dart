@@ -398,8 +398,8 @@ class LocalFavoritesManager {
     for (var folder in folders) {
       var res = _db.select("""
         select * from folder_order
-        where folder_name == '$folder';
-      """);
+        where folder_name == ?;
+      """, [folder]);
       if (res.isNotEmpty) {
         folderToOrder[folder] = res.first["order_value"];
       } else {
@@ -416,8 +416,8 @@ class LocalFavoritesManager {
     for (var folder in order.keys) {
       _db.execute("""
         insert or replace into folder_order (folder_name, order_value)
-        values ('$folder', ${order[folder]});
-      """);
+        values (?, ?);
+      """, [folder, order[folder]]);
     }
   }
 
@@ -432,9 +432,9 @@ class LocalFavoritesManager {
   void updateFolderSyncTime(FolderSync folderSync){
     _db.execute("""
       update folder_sync
-      set time = '${folderSync.time}'
-      where folder_name == '${folderSync.folderName}'
-    """);
+      set time = ?
+      where folder_name == ?
+    """, [folderSync.time, folderSync.folderName]);
   }
   void insertFolderSync(FolderSync folderSync) {
     // 注意 syncData 不能用 toParam, 否则会没法 jsonDecode
@@ -637,8 +637,8 @@ class LocalFavoritesManager {
   /// delete a folder
   void deleteFolder(String name) {
     _db.execute("""
-      delete from folder_sync where folder_name == '$name';
-    """);
+      delete from folder_sync where folder_name == ?;
+    """, [name]);
     _db.execute("""
       drop table "$name";
     """);    
@@ -686,6 +686,9 @@ class LocalFavoritesManager {
     if (folderNames.contains(after)) {
       throw "Name already exists!";
     }
+    if(after.contains('"')){
+      throw "Invalid name";
+    }
     _db.execute("""
       ALTER TABLE "$before"
       RENAME TO "$after";
@@ -693,9 +696,9 @@ class LocalFavoritesManager {
     if (folderSync.isNotEmpty) {
       _db.execute("""
       UPDATE folder_sync
-      set folder_name = '$after'
-      where folder_name == '$before'
-    """);
+      set folder_name = ?
+      where folder_name == ?
+    """, [after, before]);
     }
     saveData();
   }
