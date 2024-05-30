@@ -25,7 +25,7 @@ if os.path.exists("build/app-windows.zip"):
 version = str.split(str.split(content, 'version: ')[1], '+')[0]
 
 # 压缩build/windows/x64/runner/Release, 生成app-windows.zip, 使用tar命令
-subprocess.run(["tar", "-a", "-c", "-f", f"build/windows/PicaComic-${version}-windows.zip", "-C", "build/windows/x64/runner/Release", "."]
+subprocess.run(["tar", "-a", "-c", "-f", f"build/windows/PicaComic-{version}-windows.zip", "-C", "build/windows/x64/runner/Release", "."]
                , shell=True)
 
 issContent = ""
