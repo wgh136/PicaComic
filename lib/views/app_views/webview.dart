@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/material.dart';
 import '../../foundation/ui_mode.dart';
 
+export 'package:flutter_inappwebview/flutter_inappwebview.dart' show WebUri, URLRequest;
 
 extension WebviewExtension on InAppWebViewController{
   Future<Map<String, String>?> getCookies(String url) async{
@@ -156,3 +157,29 @@ class _AppWebviewState extends State<AppWebview> {
   }
 }
 
+class MacWebview extends InAppBrowser {
+  final void Function(
+      InAppWebViewController controller,
+      InAppBrowser brower
+    )? onStarted;
+
+  final void Function(
+      String? title,
+      InAppWebViewController controller,
+      InAppBrowser brower
+      )? onTitleChange;
+
+  MacWebview({this.onStarted, this.onTitleChange}) : super();
+
+  @override
+  void onBrowserCreated() {
+    onStarted?.call(webViewController!, this);
+    super.onBrowserCreated();
+  }
+
+  @override
+  void onTitleChanged(String? title) {
+    onTitleChange?.call(title, webViewController!, this);
+    super.onTitleChanged(title);
+  }
+}

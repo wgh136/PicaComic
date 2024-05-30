@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
@@ -35,7 +36,32 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
         }
       }
     ));
-  } else if(App.isMobile || App.isMacOS) {
+  } else if(App.isMacOS) {
+    var webview = MacWebview(
+      onStarted: (controller, browser) async{
+        var ua = await controller.getUA();
+        if(ua != null){
+          NhentaiNetwork().ua = ua;
+        }
+        var cookiesMap = await controller.getCookies("https://nhentai.net/") ?? {};
+        _saveCookies(cookiesMap);
+      },
+      onTitleChange: (title, controller, browser) async{
+        if (title?.contains("nhentai") ?? false) {
+          var ua = await controller.getUA();
+          if(ua != null){
+            NhentaiNetwork().ua = ua;
+          }
+          var cookiesMap = await controller.getCookies("https://nhentai.net/") ?? {};
+          _saveCookies(cookiesMap);
+          browser.close();
+        }
+      }
+    );
+    await webview.openUrlRequest(
+      urlRequest: URLRequest(url: WebUri("https://nhentai.net")),
+    );
+  } else if(App.isMobile) {
     App.globalTo(() => AppWebview(
       initialUrl: "https://nhentai.net",
       singlePage: true,
