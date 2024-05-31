@@ -49,6 +49,8 @@ class ImageManager {
   final dio = logDio(BaseOptions())
     ..interceptors.add(CookieManagerSql(SingleInstanceCookieJar.instance!));
 
+  int ehgtLoading = 0;
+
   /// 获取图片, 适用于没有任何限制的图片链接
   Stream<DownloadProgress> getImage(final String url, [Map<String, String>? headers]) async* {
     int timeout = 50;
@@ -86,6 +88,18 @@ class ImageManager {
         // s.exhentai.org 有严格的加载限制
         realUrl = url.replaceFirst("s.exhentai.org", "ehgt.org");
       }
+      if(realUrl.contains("ehgt.org")) {
+        print(ehgtLoading);
+        if(ehgtLoading < 3) {
+          ehgtLoading++;
+          await Future.delayed(const Duration(milliseconds: 10));
+        } else {
+          while(ehgtLoading > 2) {
+            await Future.delayed(const Duration(milliseconds: 200));
+          }
+          ehgtLoading++;
+        }
+      }
       var dioRes = await dio.get<ResponseBody>(realUrl,
           options: Options(
               responseType: ResponseType.stream, headers: headers));
@@ -121,6 +135,9 @@ class ImageManager {
       }
       rethrow;
     } finally {
+      if(url.contains("ehgt.org") || url.contains("s.exhentai.org")) {
+        ehgtLoading--;
+      }
       loadingItems.remove(url);
     }
   }

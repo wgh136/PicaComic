@@ -95,6 +95,7 @@ class ProxyHttpOverrides extends HttpOverrides {
     final client = super.createHttpClient(context);
     client.connectionTimeout = const Duration(seconds: 5);
     client.findProxy = (uri) => proxy??"DIRECT";
+    client.idleTimeout = const Duration(seconds: 100);
     client.badCertificateCallback = (X509Certificate cert, String host, int port){
       return true;
       final ipv4RegExp = RegExp(
