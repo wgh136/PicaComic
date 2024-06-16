@@ -368,8 +368,50 @@ class _SideBarBody extends StatelessWidget {
   }
 }
 
-class WindowButtons extends StatelessWidget {
+class WindowButtons extends StatefulWidget {
   const WindowButtons({super.key});
+
+  @override
+  State<WindowButtons> createState() => _WindowButtonsState();
+}
+
+class _WindowButtonsState extends State<WindowButtons> with WindowListener{
+  bool isMaximized = false;
+
+  @override
+  void initState() {
+    windowManager.addListener(this);
+    windowManager.isMaximized().then((value) {
+      if(value) {
+        setState(() {
+          isMaximized = true;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onWindowMaximize() {
+    setState(() {
+      isMaximized = true;
+    });
+    super.onWindowMaximize();
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    setState(() {
+      isMaximized = false;
+    });
+    super.onWindowUnmaximize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -394,31 +436,26 @@ class WindowButtons extends StatelessWidget {
               }
             },
           ),
-          FutureBuilder<bool>(
-            future: windowManager.isMaximized(),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              if (snapshot.data == true) {
-                return WindowButton(
-                  icon: RestoreIcon(
-                    color: color,
-                  ),
-                  hoverColor: hoverColor,
-                  onPressed: () {
-                    windowManager.unmaximize();
-                  },
-                );
-              }
-              return WindowButton(
-                icon: MaximizeIcon(
-                  color: color,
-                ),
-                hoverColor: hoverColor,
-                onPressed: () {
-                  windowManager.maximize();
-                },
-              );
-            },
-          ),
+          if (isMaximized)
+            WindowButton(
+              icon: RestoreIcon(
+                color: color,
+              ),
+              hoverColor: hoverColor,
+              onPressed: () {
+                windowManager.unmaximize();
+              },
+            )
+          else
+            WindowButton(
+              icon: MaximizeIcon(
+                color: color,
+              ),
+              hoverColor: hoverColor,
+              onPressed: () {
+                windowManager.maximize();
+              },
+            ),
           WindowButton(
             icon: CloseIcon(
               color: color,
@@ -432,7 +469,7 @@ class WindowButtons extends StatelessWidget {
             onPressed: () {
               windowManager.close();
             },
-          ),
+          )
         ],
       ),
     );
