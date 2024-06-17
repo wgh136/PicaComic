@@ -741,11 +741,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                   text: '前往'.tl,
                 ),
                 TextSpan(
-                    text: '探索页面'.tl,
-                    style: TextStyle(color: App.colors(context).primary),
-                    recognizer:  TapGestureRecognizer()..onTap = () {
-                      MainPage.toExplorePage?.call();
-                    }
+                  text: '探索页面'.tl,
                 ),
                 TextSpan(
                   text: '寻找漫画'.tl,
