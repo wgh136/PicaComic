@@ -132,7 +132,13 @@ abstract class ComicTile extends StatelessWidget {
   }
 
   Widget buildFavoriteDialog() {
-    String? folder;
+    String? folder = appdata.settings[51];
+    int? initialFolderIndex =
+      LocalFavoritesManager().folderNames.indexOf(appdata.settings[51]);
+    if(initialFolderIndex == -1) {
+      folder = null;
+      initialFolderIndex = null;
+    }
     return SimpleDialog(
       title: Text("添加收藏".tl),
       children: [
@@ -142,8 +148,8 @@ abstract class ComicTile extends StatelessWidget {
             outline: true,
             width: 156,
             values: LocalFavoritesManager().folderNames,
-            initialValue: LocalFavoritesManager().folderNames.indexOf(appdata.settings[51]),
-            whenChange: (i) => folder = LocalFavoritesManager().folderNames[i],
+            initialValue: initialFolderIndex,
+            onChange: (i) => folder = LocalFavoritesManager().folderNames[i],
           ),
         ),
         const SizedBox(

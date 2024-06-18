@@ -92,7 +92,7 @@ class SelectSetting extends StatelessWidget {
       title: Text(title),
       trailing: Select(
         initialValue: int.parse(appdata.settings[settingsIndex]),
-        whenChange: (i) {
+        onChange: (i) {
           appdata.settings[settingsIndex] = i.toString();
           appdata.updateSettings();
           onChange?.call();

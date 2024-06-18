@@ -6,7 +6,7 @@ class Select extends StatefulWidget {
   const Select({
     required this.initialValue,
     this.width=120,
-    required this.whenChange,
+    required this.onChange,
     Key? key,
     required this.values,
     bool? inPopUpWidget,
@@ -20,7 +20,7 @@ class Select extends StatefulWidget {
   ///宽度
   final double width;
   ///发生改变时的回调
-  final void Function(int) whenChange;
+  final void Function(int) onChange;
   final List<int> disabledValues;
   final bool outline;
 
@@ -56,10 +56,11 @@ class _SelectState extends State<Select> {
                 if(! widget.disabledValues.contains(i))
                   PopupMenuItem(
                     value: i,
+                    height: App.isDesktop ? 32 : 42,
                     onTap: (){
                       setState(() {
                         value = i;
-                        widget.whenChange(i);
+                        widget.onChange(i);
                       });
                     },
                     child: Text(widget.values[i]),

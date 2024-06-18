@@ -198,7 +198,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               trailing: Select(
                 initialValue: int.parse(appdata.settings[41]),
                 values: ["容纳".tl, "适应宽度".tl, "适应高度".tl],
-                whenChange: (int i) {
+                onChange: (int i) {
                   appdata.settings[41] = i.toString();
                   appdata.updateSettings();
                   logic.photoViewController.resetWithNewBoxFit(switch(i){
@@ -354,7 +354,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               trailing: Select(
                 initialValue: int.parse(appdata.appChannel) - 1,
                 values: ["分流1".tl, "分流2".tl, "分流3".tl],
-                whenChange: (i) {
+                onChange: (i) {
                   appdata.appChannel = (i + 1).toString();
                   appdata.writeData();
                   showMessage(App.globalContext, "正在获取分流IP".tl, time: 8);
@@ -379,7 +379,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                   "分流5".tl,
                   "分流6".tl,
                 ],
-                whenChange: (i) {
+                onChange: (i) {
                   appdata.settings[37] = i.toString();
                   appdata.updateSettings();
                 },

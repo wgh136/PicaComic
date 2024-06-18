@@ -66,7 +66,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               "双页".tl,
               "双页(反向)".tl
             ],
-            whenChange: (i) {
+            onChange: (i) {
               appdata.settings[9] = (i + 1).toString();
               appdata.updateSettings();
             },
@@ -80,7 +80,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           trailing: Select(
             initialValue: ["0", "1", "2", "3", "4", "5", "10", "15"].indexOf(appdata.settings[28]),
             values: const ["0", "1", "2", "3", "4", "5", "10", "15"],
-            whenChange: (i) {
+            onChange: (i) {
               appdata.settings[28] = ["0", "1", "2", "3", "4", "5", "10", "15"][i];
               appdata.updateSettings();
             },

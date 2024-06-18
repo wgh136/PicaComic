@@ -121,7 +121,7 @@ class _HitomiHomePageState extends State<HitomiHomePage> {
                   child: Select(
                     values: ["最新".tl, "热门 | 今天".tl, "热门 | 一周".tl, "热门 | 本月".tl, "热门 | 一年".tl],
                     initialValue: 0,
-                    whenChange: (i) => setState(() {
+                    onChange: (i) => setState(() {
                       type = ["index", "popular/today", "popular/week"
                         , "popular/month", "popular/year"][i];
                     }),
@@ -133,7 +133,7 @@ class _HitomiHomePageState extends State<HitomiHomePage> {
                     width: 100,
                     values: const ["All", "中文", "日本語", "English"],
                     initialValue: 0,
-                    whenChange: (i) => setState(() {
+                    onChange: (i) => setState(() {
                       lang = ["-all", "-chinese", "-japanese", "-english"][i];
                     }),
                   ),

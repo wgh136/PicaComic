@@ -77,7 +77,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         title: Text("漫画块显示模式".tl),
         trailing: Select(
           initialValue: int.parse(appdata.settings[44].split(',').first),
-          whenChange: (i) {
+          onChange: (i) {
             var settings = appdata.settings[44].split(',');
             settings[0] = i.toString();
             if(settings.length == 1){

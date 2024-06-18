@@ -245,7 +245,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   "Yellow",
                   "Brown"
                 ],
-                whenChange: (i) {
+                onChange: (i) {
                   appdata.settings[27] = i.toString();
                   appdata.updateSettings();
                   MyApp.updater?.call();
@@ -260,7 +260,7 @@ class _WelcomePageState extends State<WelcomePage> {
               trailing: Select(
                 initialValue: int.parse(appdata.settings[32]),
                 values: ["跟随系统".tl, "禁用".tl, "启用".tl],
-                whenChange: (i) {
+                onChange: (i) {
                   appdata.settings[32] = i.toString();
                   appdata.updateSettings();
                   MyApp.updater?.call();
@@ -273,7 +273,7 @@ class _WelcomePageState extends State<WelcomePage> {
               title: Text("漫画块显示模式".tl),
               trailing: Select(
                 initialValue: int.parse(appdata.settings[44].split(',').first),
-                whenChange: (i) {
+                onChange: (i) {
                   var settings = appdata.settings[44].split(',');
                   settings[0] = i.toString();
                   if(settings.length == 1){

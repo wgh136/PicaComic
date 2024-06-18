@@ -556,7 +556,7 @@ class DownloadPage extends StatelessWidget {
                             title: Text("漫画排序模式".tl),
                             trailing: Select(
                               initialValue: int.parse(appdata.settings[26][0]),
-                              whenChange: (i){
+                              onChange: (i){
                                 appdata.settings[26] = appdata.settings[26].setValueAt(i.toString(), 0);
                                 appdata.updateSettings();
                                 changed = true;
@@ -750,7 +750,7 @@ class DownloadPage extends StatelessWidget {
                       width: 156,
                       values: LocalFavoritesManager().folderNames,
                       initialValue: null,
-                      whenChange: (i) =>
+                      onChange: (i) =>
                       folder = LocalFavoritesManager().folderNames[i],
                     ),
                   ),

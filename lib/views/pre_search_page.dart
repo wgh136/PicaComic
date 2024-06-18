@@ -766,7 +766,7 @@ class PreSearchPage extends StatelessWidget {
             ),
             Select(
               initialValue: languages.indexOf(searchController.language ?? ""),
-              whenChange: (i) => searchController.language = languages[i],
+              onChange: (i) => searchController.language = languages[i],
               values: languages,
               outline: true,
             ),
@@ -897,7 +897,7 @@ class PreSearchPage extends StatelessWidget {
                 ),
                 Select(
                   initialValue: searchController.ehMinStars,
-                  whenChange: (i) => searchController.ehMinStars = i,
+                  onChange: (i) => searchController.ehMinStars = i,
                   values: const ["0", "1", "2", "3", "4", "5"],
                   outline: true,
                 ),
