@@ -23,9 +23,9 @@ class BlockingKeywordPage extends StatelessWidget {
             builder: (dialogContext)=>StateBuilder<BlockingKeywordPageLogic>(builder: (logic)=>SimpleDialog(
               title: Text("添加屏蔽关键词".tl),
               children: [
-                const SizedBox(width: 400,),
+                const SizedBox(width: 300,),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   child: TextField(
                     controller: logic.controller,
                     decoration: InputDecoration(
@@ -33,6 +33,7 @@ class BlockingKeywordPage extends StatelessWidget {
                       hintText: "添加关键词".tl
                     ),
                     onEditingComplete: (){
+                      if(logic.controller.text == "") return;
                       appdata.blockingKeyword.add(logic.controller.text);
                       logic.update();
                       App.globalBack();
@@ -41,10 +42,12 @@ class BlockingKeywordPage extends StatelessWidget {
                     },
                   ),
                 ),
+                const SizedBox(height: 8,),
                 Center(
                   child: FilledButton(
                     child: Text("提交".tl),
                     onPressed: (){
+                      if(logic.controller.text == "")  return;
                       appdata.blockingKeyword.add(logic.controller.text);
                       logic.update();
                       App.globalBack();
