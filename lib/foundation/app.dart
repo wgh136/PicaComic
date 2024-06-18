@@ -22,8 +22,6 @@ class App {
 
   static BuildContext? get globalContext => navigatorKey.currentContext;
 
-  static final messageKey = GlobalKey<ScaffoldMessengerState>();
-
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   /// get ui mode

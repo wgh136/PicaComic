@@ -20,17 +20,17 @@ import '../app_views/accounts_page.dart';
 const _kTitleBarHeight = 32.0;
 
 class WindowFrameController extends StateController {
-  bool reverseButtonColor = false;
+  bool useDarkTheme = false;
 
   bool isHideWindowFrame = false;
 
   void setDarkTheme() {
-    reverseButtonColor = true;
+    useDarkTheme = true;
     update();
   }
 
   void resetTheme() {
-    reverseButtonColor = false;
+    useDarkTheme = false;
     update();
   }
 
@@ -88,7 +88,7 @@ class WindowFrame extends StatelessWidget {
                               'Pica Comic',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: (controller.reverseButtonColor ||
+                                color: (controller.useDarkTheme ||
                                         Theme.of(context).brightness ==
                                             Brightness.dark)
                                     ? Colors.white
@@ -99,7 +99,7 @@ class WindowFrame extends StatelessWidget {
                         ),
                         Theme(
                           data: Theme.of(context).copyWith(
-                            brightness: controller.reverseButtonColor
+                            brightness: controller.useDarkTheme
                                 ? Brightness.dark
                                 : null,
                           ),
@@ -135,7 +135,7 @@ class WindowFrame extends StatelessWidget {
                               'Pica Comic',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: (controller.reverseButtonColor ||
+                                color: (controller.useDarkTheme ||
                                         Theme.of(context).brightness ==
                                             Brightness.dark)
                                     ? Colors.white
@@ -168,7 +168,7 @@ class WindowFrame extends StatelessWidget {
             child: CustomPaint(
               size: const Size(18, 20),
               painter: _MenuPainter(
-                  color: (controller.reverseButtonColor ||
+                  color: (controller.useDarkTheme ||
                           Theme.of(context).brightness == Brightness.dark)
                       ? Colors.white
                       : Colors.black),
@@ -305,14 +305,14 @@ class _SideBarBody extends StatelessWidget {
             title: '历史记录'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => const HistoryPage());
+              MainPage.to(() => const HistoryPage(), preventDuplicate: true);
             }),
         buildItem(
             icon: Icons.download_outlined,
             title: '已下载'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => const DownloadPage());
+              MainPage.to(() => const DownloadPage(), preventDuplicate: true);
             }),
         buildItem(
             icon: Icons.downloading,
@@ -326,7 +326,7 @@ class _SideBarBody extends StatelessWidget {
             title: '图片收藏'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => const ImageFavoritesPage());
+              MainPage.to(() => const ImageFavoritesPage(), preventDuplicate: true);
             }),
         const Divider().paddingHorizontal(8),
         buildItem(
@@ -334,7 +334,7 @@ class _SideBarBody extends StatelessWidget {
             title: '搜索'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => PreSearchPage());
+              MainPage.to(() => PreSearchPage(), preventDuplicate: true);
             }),
         buildItem(
             icon: Icons.settings,

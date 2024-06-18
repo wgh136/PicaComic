@@ -225,7 +225,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return MaterialApp(
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
-        scaffoldMessengerKey: App.messageKey,
         navigatorKey: App.navigatorKey,
         theme: ThemeData(
           colorScheme: (colorScheme ??

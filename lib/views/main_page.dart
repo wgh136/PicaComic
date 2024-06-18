@@ -51,22 +51,27 @@ void checkClipboard() async{
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
-  @protected
-  static GlobalKey<NavigatorState>? navigatorKey;
+  static GlobalKey<NavigatorState>? _navigatorKey;
 
-  static void to(Widget Function() widget) async {
-    while (navigatorKey == null) {
+  static NaviObserver? _observer;
+
+  static void to(Widget Function() widget, {bool preventDuplicate = false}) async {
+    while (_navigatorKey == null) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    App.to(navigatorKey!.currentContext!, widget);
+    if(preventDuplicate) {
+      var page = widget();
+      if("/${page.runtimeType}" == _observer?.routes.last.toString())  return;
+    }
+    App.to(_navigatorKey!.currentContext!, widget);
   }
 
   static canPop() =>
-      Navigator.of(navigatorKey?.currentContext ?? App.globalContext!).canPop();
+      Navigator.of(_navigatorKey?.currentContext ?? App.globalContext!).canPop();
 
   static void back() {
     if (canPop()) {
-      navigatorKey?.currentState?.pop();
+      _navigatorKey?.currentState?.pop();
     }
   }
 
@@ -220,7 +225,7 @@ class _MainPageState extends State<MainPage> {
 
     Future.delayed(const Duration(milliseconds: 300),
             () => Webdav.syncData()).then((v) => checkClipboard());
-
+    MainPage._observer = observer;
     super.initState();
   }
 
@@ -273,7 +278,7 @@ class _MainPageState extends State<MainPage> {
             observers: [
               observer
             ],
-            key: MainPage.navigatorKey ??= GlobalKey(),
+            key: MainPage._navigatorKey ??= GlobalKey(),
             onGenerateRoute: (settings) =>
                 AppPageRoute(
                   preventRebuild: false,
@@ -285,7 +290,7 @@ class _MainPageState extends State<MainPage> {
         );
       },
       onPageChange: (index) {
-        MainPage.navigatorKey!.currentState?.pushAndRemoveUntil(
+        MainPage._navigatorKey!.currentState?.pushAndRemoveUntil(
             AppPageRoute(
               preventRebuild: false,
               isRootRoute: true,

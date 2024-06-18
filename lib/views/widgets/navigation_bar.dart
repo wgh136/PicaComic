@@ -401,7 +401,7 @@ class _SideNaviWidgetState extends State<_SideNaviWidget> {
           margin: const EdgeInsets.symmetric(vertical: 4),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           width: double.infinity,
-          height: widget.showTitle ? 36 : 32,
+          height: widget.showTitle ? 42 : 32,
           decoration: BoxDecoration(
             color: widget.enabled
                 ? colorScheme.primaryContainer
@@ -460,7 +460,7 @@ class _PaneActionWidgetState extends State<_PaneActionWidget> {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             width: double.infinity,
-            height: widget.showTitle ? 36 : 32,
+            height: widget.showTitle ? 42 : 32,
             decoration: BoxDecoration(
                 color: isHovering
                     ? colorScheme.surfaceContainerHigh
