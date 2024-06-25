@@ -94,7 +94,7 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
         body: CustomScrollView(
       slivers: [
-        CustomSmallSliverAppbar(
+        MySliverAppBar(
           title: buildTitle(),
           actions: [
             Tooltip(

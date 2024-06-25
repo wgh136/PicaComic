@@ -306,7 +306,7 @@ class DownloadPage extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             color: selected
-                ? Theme.of(context).colorScheme.surfaceVariant
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : Colors.transparent,
             borderRadius: const BorderRadius.all(Radius.circular(16))),
         child: DownloadedComicTile(
@@ -516,7 +516,7 @@ class DownloadPage extends StatelessWidget {
   }
 
   Widget buildAppbar(BuildContext context, DownloadPageLogic logic)
-    => CustomSmallSliverAppbar(
+    => MySliverAppBar(
       leading: logic.selecting
           ? IconButton(
               onPressed: () {
@@ -533,9 +533,6 @@ class DownloadPage extends StatelessWidget {
           : IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back)),
-      backgroundColor: (logic.selecting && UiMode.m1(context))
-          ? Theme.of(context).colorScheme.secondaryContainer
-          : null,
       title: buildTitle(context, logic),
       actions: [
         if (!logic.selecting && !logic.searchMode)
@@ -870,7 +867,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             const BorderRadius.all(Radius.circular(16)),
                         color: downloadedEps.contains(i)
                             ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.surfaceVariant,
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                       ),
                       child: Row(
                         children: [

@@ -623,7 +623,7 @@ class EhNetwork {
             "未知";
         var infoStr = c.getElementsByClassName("c3")[0].text;
         var time = infoStr.substring(10, infoStr.indexOf(" by"));
-        var content = c.getElementsByClassName("c6")[0].text;
+        var content = c.getElementsByClassName("c6")[0].innerHtml;
         resComments.add(Comment(name, content, time));
       }
       return Res(resComments);
