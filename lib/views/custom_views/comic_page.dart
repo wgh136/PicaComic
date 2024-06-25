@@ -380,7 +380,7 @@ class _CommentsPageState extends State<_CommentsPage> {
         child: Material(
           child: Container(
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant.withAlpha(160),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(160),
                 borderRadius: const BorderRadius.all(Radius.circular(30))
             ),
             child: Row(

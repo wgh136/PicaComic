@@ -101,7 +101,6 @@ class _HitomiHomePageState extends State<HitomiHomePage> {
   @override
   Widget build(BuildContext context) {
     var url = "https://ltn.hitomi.la/$type$lang.nozomi";
-    print(url);
     return Column(
       children: [
         Material(

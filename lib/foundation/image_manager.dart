@@ -89,7 +89,6 @@ class ImageManager {
         realUrl = url.replaceFirst("s.exhentai.org", "ehgt.org");
       }
       if(realUrl.contains("ehgt.org")) {
-        print(ehgtLoading);
         if(ehgtLoading < 3) {
           ehgtLoading++;
           await Future.delayed(const Duration(milliseconds: 10));

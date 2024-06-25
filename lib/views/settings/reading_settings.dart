@@ -109,7 +109,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                       min: 0,
                       divisions: 20,
                       value: int.parse(appdata.settings[33]).toDouble(),
-                      overlayColor: MaterialStateColor.resolveWith(
+                      overlayColor: WidgetStateColor.resolveWith(
                           (states) => Colors.transparent),
                       onChanged: (v) {
                         if (v == 0) return;

@@ -176,7 +176,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
       return super.thumbnailImageBuilder(index, imageUrl);
     }
     return ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: EhThumbnailLoader(
           image: CachedImageProvider(imageUrl), index: index),
     );

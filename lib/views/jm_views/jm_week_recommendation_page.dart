@@ -58,7 +58,7 @@ class JmWeekRecommendationPage extends StatelessWidget {
                 width: MediaQuery.of(context).size.width>250+titleLength?250:MediaQuery.of(context).size.width-titleLength,
                 height: 40,
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: const BorderRadius.all(Radius.circular(16))
                 ),
                 child: Row(

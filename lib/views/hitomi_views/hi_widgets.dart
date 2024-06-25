@@ -283,7 +283,7 @@ class _HitomiComicTileDynamicLoadingState extends State<HitomiComicTileDynamicLo
     }
 
     return Shimmer(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: buildPlaceHolder(),
     );
   }
