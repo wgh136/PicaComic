@@ -262,7 +262,7 @@ class _MainPageState extends State<MainPage> {
         PaneActionEntry(
           icon: Icons.search,
           label: "搜索".tl,
-          onTap: () => MainPage.to(() => PreSearchPage())
+          onTap: () => MainPage.to(() => PreSearchPage(), preventDuplicate: true)
         ),
         PaneActionEntry(
             icon: Icons.settings,

@@ -56,4 +56,26 @@ extension WidgetExtension on Widget{
   Widget sliverPaddingHorizontal(double padding){
     return SliverPadding(padding: EdgeInsets.symmetric(horizontal: padding), sliver: this);
   }
+
+  Widget toSliver(){
+    return SliverToBoxAdapter(child: this);
+  }
+
+  Widget fixWidth(double width){
+    return SizedBox(width: width, child: this);
+  }
+
+  Widget fixHeight(double height){
+    return SizedBox(height: height, child: this);
+  }
+}
+
+extension ContextExt on BuildContext {
+  EdgeInsets get padding => MediaQuery.of(this).padding;
+
+  double get width => MediaQuery.of(this).size.width;
+
+  double get height => MediaQuery.of(this).size.height;
+
+  EdgeInsets get viewInsets => MediaQuery.of(this).viewInsets;
 }
