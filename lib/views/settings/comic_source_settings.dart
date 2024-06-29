@@ -222,7 +222,11 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
         await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
     if(file == null)  return;
     try{
-      await addSource(await file.readAsString(), file.name);
+      var fileName = file.name;
+      // file.readAsString 会导致中文乱码
+      var bytes = await file.readAsBytes();
+      var content = utf8.decode(bytes);
+      await addSource(content, fileName);
     }
     catch(e){
       showMessage(null, e.toString());
