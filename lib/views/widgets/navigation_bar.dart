@@ -184,7 +184,11 @@ class _NaviPaneState extends State<NaviPane> with SingleTickerProviderStateMixin
           controller.stop();
         }
       }
-      controller.animateTo(target);
+      controller.animateTo(
+        target,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.ease
+      );
       animationTarget = target;
     }
   }

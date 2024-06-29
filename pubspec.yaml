@@ -131,7 +131,7 @@ flutter:
     - images/avatar.png
     - images/avatar_small.png
     - images/github.png
-    - images/loading.json
+    - images/app_icon_no_bg.png
     - assets/tags.json
     - assets/translation.json
     - assets/init.js

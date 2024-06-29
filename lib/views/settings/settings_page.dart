@@ -570,15 +570,18 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
   Widget buildAbout() {
     return Column(
       children: [
-        const SizedBox(
+        SizedBox(
           height: 130,
           width: double.infinity,
           child: Center(
-            child: SizedBox(
-              width: 100,
-              height: 100,
-              child: CircleAvatar(
-                backgroundImage: AssetImage("images/app_icon.png"),
+            child: Container(
+              width: 156,
+              height: 156,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20)),
+              child: const Image(
+                image: AssetImage("images/app_icon_no_bg.png"),
+                filterQuality: FilterQuality.medium,
               ),
             ),
           ),

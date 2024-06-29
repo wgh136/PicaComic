@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/foundation/app.dart';
 
 const minFlyoutWidth = 256.0;
 const minFlyoutHeight = 128.0;
@@ -170,7 +171,7 @@ class FlyoutContent extends StatelessWidget {
             children: [
               Text(title,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14)),
+                      fontWeight: FontWeight.bold, fontSize: 16)),
               if (content != null)
                 Padding(
                   padding: const EdgeInsets.all(8),
@@ -187,7 +188,7 @@ class FlyoutContent extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ).paddingAll(4),
     );
   }
 }
