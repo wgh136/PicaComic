@@ -384,7 +384,7 @@ class ComicSourceParser {
             res["cover"],
             res["description"],
             tags,
-            Map.from(res["chapters"]),
+            res["chapters"] == null ? null : Map.from(res["chapters"]),
             ListOrNull.from(res["thumbnails"]),
             // TODO: implement thumbnailLoader
             null,
