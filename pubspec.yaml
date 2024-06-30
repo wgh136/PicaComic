@@ -90,7 +90,7 @@ dependencies:
   flutter_qjs:
     git:
       url: https://github.com/wgh136/flutter_qjs
-      ref: db2b2d0c
+      ref: ade0b9d
 
 dependency_overrides:
   flutter_inappwebview_android:
