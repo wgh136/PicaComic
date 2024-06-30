@@ -107,7 +107,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
 
   @override
   Future<bool> loadFavorite(ComicInfoData data) async {
-    return false;
+    return data.isFavorite ?? false;
   }
 
   @override
@@ -174,6 +174,12 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   Card? get uploaderInfo => null;
 
   @override
+  bool? get favoriteOnPlatformInitial => data?.isFavorite;
+
+  ComicPageLogic<ComicInfoData> get logic =>
+      StateController.find<ComicPageLogic<ComicInfoData>>(tag: tag);
+
+  @override
   void openFavoritePanel() {
     favoriteComic(FavoriteComicWidget(
       havePlatformFavorite:
@@ -195,7 +201,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
           update();
         }
       },
-      favoriteOnPlatform: data!.isFavorite,
+      favoriteOnPlatform: logic.favoriteOnPlatform,
       selectFolderCallback: (folder, type) {
         if (type == 1) {
           LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
@@ -208,6 +214,10 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
             if (value.error) {
               showMessage(context, "添加收藏失败".tl);
             } else {
+              if (!comicSource!.favoriteData!.multiFolder) {
+                logic.favoriteOnPlatform = true;
+                update();
+              }
               showMessage(context, "成功添加收藏".tl);
             }
           });
@@ -221,6 +231,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
           if (value.error) {
             showMessage(context, "取消收藏失败".tl);
           } else {
+            logic.favoriteOnPlatform = false;
             showMessage(context, "成功取消收藏".tl);
           }
         });

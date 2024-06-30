@@ -74,6 +74,7 @@ class ComicPageLogic<T extends Object> extends StateController {
   bool reverseEpsOrder = false;
   bool showFullEps = false;
   int colorIndex = 0;
+  bool? favoriteOnPlatform;
 
   void get(Future<Res<T>> Function() loadData,
       Future<bool> Function(T) loadFavorite, String Function() getId) async {
@@ -223,6 +224,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   FavoriteItem toLocalFavoriteItem();
 
+  bool? get favoriteOnPlatformInitial => null;
+
   void scrollListener() {
     try {
       var logic = _logic;
@@ -250,6 +253,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           init: ComicPageLogic<T>(),
           initState: (logic) {
             tagsStack.push(_logic);
+            _logic.favoriteOnPlatform = favoriteOnPlatformInitial;
           },
           dispose: (logic) {
             tagsStack.pop();
