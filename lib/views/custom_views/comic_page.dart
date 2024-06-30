@@ -163,6 +163,18 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   }
 
   @override
+  Widget thumbnailImageBuilder(int index, String imageUrl) {
+    return Image(
+      image: StreamImageProvider(
+          () => ImageManager().getCustomThumbnail(imageUrl, sourceKey),
+          imageUrl
+      ),
+      fit: BoxFit.contain,
+      errorBuilder: (context, s, d) => const Icon(Icons.error),
+    );
+  }
+
+  @override
   String? get title => data?.title;
 
   @override
