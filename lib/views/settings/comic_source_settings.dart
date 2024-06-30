@@ -100,7 +100,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if(App.isWindows)
+              if(App.isDesktop)
                 Tooltip(
                   message: "Edit",
                   child: IconButton(onPressed: () => edit(source), icon: const Icon(Icons.edit_note)),
@@ -126,6 +126,21 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
 
   void delete(ComicSource source){
     showConfirmDialog(App.globalContext!, "删除".tl, "要删除此漫画源吗?".tl, () {
+      var explorePages = appdata.settings[77].split(',');
+      var thisExplorePages = source.explorePages.map((e) => e.title).toList();
+      explorePages.removeWhere((element) => thisExplorePages.contains(element));
+      appdata.settings[77] = explorePages.join(',');
+      if(source.categoryData != null){
+        var categories = appdata.settings[67].split(',');
+        categories.removeWhere((element) => element == source.categoryData!.title);
+        appdata.settings[67] = categories.join(',');
+      }
+      if(source.favoriteData != null){
+        var favorites = appdata.settings[68].split(',');
+        favorites.removeWhere((element) => element == source.key);
+        appdata.settings[68] = favorites.join(',');
+      }
+      appdata.writeData();
       var file = File(source.filePath);
       file.delete();
       ComicSource.sources.remove(source);
