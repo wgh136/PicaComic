@@ -6,13 +6,17 @@ import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import '../../base.dart';
+import '../../comic_source/comic_source.dart';
 import '../../foundation/app.dart';
+import '../../foundation/image_loader/stream_image_provider.dart';
+import '../../foundation/image_manager.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
 import '../favorites/local_favorites.dart';
@@ -496,6 +500,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     if (headers["host"] == null && headers["Host"] == null) {
       headers["host"] = Uri.parse(cover!).host;
     }
+    ImageProvider image;
+    if(this is CustomComicPage) {
+      image = StreamImageProvider(
+          () => ImageManager().getCustomThumbnail(cover!, (data as ComicInfoData).sourceKey),
+          cover!);
+    } else {
+      image = CachedImageProvider(cover!, headers: headers);
+    }
     return GestureDetector(
       child: Container(
         width: width,
@@ -508,7 +520,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         child: Hero(
           tag: "image",
           child: Image(
-            image: CachedImageProvider(cover!, headers: headers),
+            image: image,
             fit: BoxFit.cover,
           ),
         ),

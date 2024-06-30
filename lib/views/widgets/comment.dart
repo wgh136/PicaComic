@@ -17,6 +17,7 @@ class CommentTile extends StatelessWidget {
       this.likes,
       this.liked,
       this.comments,
+      this.leading,
       this.like})
       : super(key: key);
   final String? avatarUrl;
@@ -32,6 +33,7 @@ class CommentTile extends StatelessWidget {
   final void Function()? onTap;
   final Widget? tailing;
   final void Function()? like;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +56,8 @@ class CommentTile extends StatelessWidget {
                   couldBeShown: level != null,
                   level: level ?? 0,
                 ),
+              if(leading != null)
+                leading!,
               const SizedBox(
                 width: 8,
               ),

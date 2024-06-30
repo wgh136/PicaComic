@@ -88,6 +88,7 @@ class ComicSourceParser {
     final loadComicFunc = _parseLoadComicFunc();
     final loadComicPagesFunc = _parseLoadComicPagesFunc();
     final getImageLoadingConfigFunc = _parseImageLoadingConfigFunc();
+    final getThumbnailLoadingConfigFunc = _parseThumbnailLoadingConfigFunc();
     final favoriteData = _loadFavoriteData();
     final commentsLoader = _parseCommentsLoader();
     final sendCommentFunc = _parseSendCommentFunc();
@@ -105,6 +106,7 @@ class ComicSourceParser {
         loadComicFunc,
         loadComicPagesFunc,
         getImageLoadingConfigFunc,
+        getThumbnailLoadingConfigFunc,
         matchBriefIdRegex,
         filePath,
         url ?? "",
@@ -592,6 +594,17 @@ class ComicSourceParser {
       return JsEngine().runCode("""
           ComicSource.sources.$_key.comic.onImageLoad(
             ${jsonEncode(imageKey)}, ${jsonEncode(comicId)}, ${jsonEncode(ep)})
+        """) as Map<String, dynamic>;
+    };
+  }
+
+  GetThumbnailLoadingConfigFunc? _parseThumbnailLoadingConfigFunc(){
+    if(!_checkExists("comic.onThumbnailLoad")){
+      return null;
+    }
+    return (imageKey) {
+      return JsEngine().runCode("""
+          ComicSource.sources.$_key.comic.onThumbnailLoad(${jsonEncode(imageKey)})
         """) as Map<String, dynamic>;
     };
   }

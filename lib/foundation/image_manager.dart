@@ -53,17 +53,7 @@ class ImageManager {
 
   /// 获取图片, 适用于没有任何限制的图片链接
   Stream<DownloadProgress> getImage(final String url, [Map<String, String>? headers]) async* {
-    int timeout = 50;
-    while (loadingItems[url] != null) {
-      var progress = loadingItems[url]!;
-      yield progress;
-      if (progress.finished) return;
-      await Future.delayed(const Duration(milliseconds: 300));
-      timeout--;
-      if (timeout == 0) {
-        loadingItems.remove("url");
-      }
-    }
+    await wait(url);
     loadingItems[url] = DownloadProgress(0, 1, url, "");
     CachingFile? caching;
 
@@ -148,12 +138,7 @@ class ImageManager {
     final gid = getGalleryId(galleryLink);
 
     // check whether this image is loading
-    while (loadingItems[cacheKey] != null) {
-      var progress = loadingItems[cacheKey]!;
-      yield progress;
-      if (progress.finished) return;
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+    await wait(cacheKey);
     loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
 
     CachingFile? caching;
@@ -417,12 +402,7 @@ class ImageManager {
   /// 使用hash标识图片
   Stream<DownloadProgress> getHitomiImage(
       HitomiFile image, String galleryId) async* {
-    while (loadingItems[image.hash] != null) {
-      var progress = loadingItems[image.hash]!;
-      yield progress;
-      if (progress.finished) return;
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+    await wait(image.hash);
     loadingItems[image.hash] = DownloadProgress(0, 1, image.hash, "");
     CachingFile? caching;
 
@@ -502,12 +482,7 @@ class ImageManager {
       required String bookId}) async* {
     bookId = bookId.replaceAll(RegExp(r"\..+"), "");
     final urlWithoutParam = url.replaceAll(RegExp(r"\?.+"), "");
-    while (loadingItems[urlWithoutParam] != null) {
-      var progress = loadingItems[urlWithoutParam]!;
-      yield progress;
-      if (progress.finished) return;
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+    await wait(urlWithoutParam);
     loadingItems[urlWithoutParam] = DownloadProgress(0, 1, url, "");
     CachingFile? caching;
 
@@ -577,12 +552,7 @@ class ImageManager {
 
   Stream<DownloadProgress> getCustomImage(String url, String comicId, String epId, String sourceKey) async*{
     var cacheKey = "$sourceKey$comicId$epId$url";
-    while (loadingItems[cacheKey] != null) {
-      var progress = loadingItems[cacheKey]!;
-      yield progress;
-      if (progress.finished) return;
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+    await wait(cacheKey);
     loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
 
     var cache = await CacheManager().findCache(cacheKey);
@@ -603,6 +573,106 @@ class ImageManager {
         config = {};
       } else {
         config = source.getImageLoadingConfig!(url, comicId, epId);
+      }
+
+      caching = await CacheManager().openWrite(cacheKey);
+      final savePath = caching.file.path;
+
+      var res = await dio.request<ResponseBody>(config['url'] ?? url, data: config['data'], options: Options(
+          method: config['method'] ?? 'GET',
+          headers: config['headers'] ?? {
+            'user-agent': webUA
+          },
+          responseType: ResponseType.stream
+      ));
+
+      List<int> imageData = [];
+
+      int? expectedBytes = res.data!.contentLength;
+      if(expectedBytes == -1){
+        expectedBytes = null;
+      }
+
+      bool shouldModifyData = config['onResponse'] != null;
+
+      await for(var data in res.data!.stream) {
+        if(!shouldModifyData) {
+          await caching.writeBytes(data);
+        }
+        imageData.addAll(data);
+        var progress = DownloadProgress(imageData.length,
+            expectedBytes ?? (imageData.length + 1), url, savePath);
+        yield progress;
+        loadingItems[cacheKey] = progress;
+      }
+
+      Uint8List? result;
+
+      if(shouldModifyData) {
+        var data = (config['onResponse'] as JSInvokable)(Uint8List.fromList(imageData));
+        imageData.clear();
+        if(data is! Uint8List){
+          throw "Invalid Config: onImageLoad.onResponse return invalid type\n"
+              "Expected: Uint8List(ArrayBuffer)\n"
+              "Got: ${data.runtimeType}";
+        }
+        result = data;
+        await caching.writeBytes(data);
+      }
+
+      await caching.close();
+      yield DownloadProgress(1, 1, url, savePath, result ?? Uint8List.fromList(imageData));
+    }
+    catch (e) {
+      caching?.cancel();
+      if(e is DioException && e.type == DioExceptionType.badResponse){
+        var statusCode = e.response?.statusCode;
+        if(statusCode != null && statusCode >= 400 && statusCode < 500){
+          throw BadRequestException(e.message.toString());
+        }
+      }
+      rethrow;
+    } finally {
+      loadingItems.remove(cacheKey);
+    }
+  }
+
+  Future<void> wait(String cacheKey) {
+    int timeout = 50;
+    return Future.doWhile(() async {
+      await Future.delayed(const Duration(milliseconds: 300));
+      timeout--;
+      if (timeout == 0) {
+        loadingItems.remove(cacheKey);
+        return false;
+      }
+      return loadingItems[cacheKey] != null;
+    });
+  }
+
+  Stream<DownloadProgress> getCustomThumbnail(String url, String sourceKey) async*{
+    var cacheKey = "$sourceKey$url";
+    await wait(cacheKey);
+    loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
+
+    var cache = await CacheManager().findCache(cacheKey);
+    if(cache != null){
+      yield DownloadProgress(1, 1, cacheKey, cache);
+      loadingItems.remove(cacheKey);
+      return;
+    }
+
+    CachingFile? caching;
+
+    var source = ComicSource.find(sourceKey) ?? (throw "Unknown Comic Source $sourceKey");
+
+    try{
+      Map<String, dynamic> config;
+
+      if(source.getThumbnailLoadingConfig == null) {
+        config = {};
+      } else {
+        config = source.getThumbnailLoadingConfig!(url);
       }
 
       caching = await CacheManager().openWrite(cacheKey);

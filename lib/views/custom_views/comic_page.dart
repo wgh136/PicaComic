@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/image_loader/stream_image_provider.dart';
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/res.dart';
@@ -9,6 +11,7 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/general_interface/search.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
+import 'package:pica_comic/views/widgets/animated_image.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/list_loading.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
@@ -23,8 +26,8 @@ import '../widgets/side_bar.dart';
 import 'custom_comic_tile.dart';
 
 class CustomComicPage extends ComicPage<ComicInfoData> {
-  const CustomComicPage({required this.sourceKey, required this.id,
-    this.comicCover, super.key});
+  const CustomComicPage(
+      {required this.sourceKey, required this.id, this.comicCover, super.key});
 
   final String sourceKey;
 
@@ -190,8 +193,8 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
           '0': comicSource!.name
       },
       foldersLoader: comicSource?.favoriteData?.loadFolders == null
-        ? null
-        : () => comicSource!.favoriteData!.loadFolders!(data!.comicId),
+          ? null
+          : () => comicSource!.favoriteData!.loadFolders!(data!.comicId),
       initialFolder:
           (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
       target: id,
@@ -309,7 +312,7 @@ class _CommentsPageState extends State<_CommentsPage> {
       setState(() {
         _comments!.addAll(res.data);
         _page++;
-        if(maxPage == null && res.data.isEmpty) {
+        if (maxPage == null && res.data.isEmpty) {
           maxPage = _page;
         }
       });
@@ -339,7 +342,7 @@ class _CommentsPageState extends State<_CommentsPage> {
               itemCount: _comments!.length + 1,
               itemBuilder: (context, index) {
                 if (index == _comments!.length) {
-                  if (_page < (maxPage ?? _page+1)) {
+                  if (_page < (maxPage ?? _page + 1)) {
                     loadMore();
                     return const ListLoadingIndicator();
                   } else {
@@ -350,22 +353,37 @@ class _CommentsPageState extends State<_CommentsPage> {
                 bool enableReply = _comments![index].replyCount != null;
 
                 return CommentTile(
-                  avatarUrl: _comments![index].avatar,
+                  leading: _comments![index].avatar == null ? null : Container(
+                    width: 40,
+                    height: 40,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color:
+                            Theme.of(context).colorScheme.secondaryContainer),
+                    child: AnimatedImage(
+                      image: StreamImageProvider(
+                          () => ImageManager().getCustomThumbnail(
+                              _comments![index].avatar!, widget.data.sourceKey),
+                          _comments![index].avatar!),
+                    ),
+                  ),
+                  avatarUrl: null,
                   name: _comments![index].userName,
                   time: _comments![index].time,
                   content: _comments![index].content,
                   comments: _comments![index].replyCount,
                   onTap: enableReply
                       ? () {
-                    showSideBar(
-                        context,
-                        _CommentsPage(
-                          data: widget.data,
-                          source: widget.source,
-                          replyId: _comments![index].id,
-                        ),
-                        title: "回复".tl);
-                  }
+                          showSideBar(
+                              context,
+                              _CommentsPage(
+                                data: widget.data,
+                                source: widget.source,
+                                replyId: _comments![index].id,
+                              ),
+                              title: "回复".tl);
+                        }
                       : null,
                 );
               },
@@ -378,64 +396,83 @@ class _CommentsPageState extends State<_CommentsPage> {
   }
 
   Widget buildBottom(BuildContext context) {
-    if(widget.source.sendCommentFunc == null){
-      return const SizedBox(height: 0,);
+    if (widget.source.sendCommentFunc == null) {
+      return const SizedBox(
+        height: 0,
+      );
     }
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16))
-      ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         child: Material(
           child: Container(
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(160),
-                borderRadius: const BorderRadius.all(Radius.circular(30))
-            ),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withAlpha(160),
+                borderRadius: const BorderRadius.all(Radius.circular(30))),
             child: Row(
               children: [
-                Expanded(child: Padding(
+                Expanded(
+                    child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   child: TextField(
                     controller: controller,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         isCollapsed: true,
-                        hintText: "评论".tl
-                    ),
+                        hintText: "评论".tl),
                     minLines: 1,
                     maxLines: 5,
                   ),
                 )),
-                sending?const Padding(
-                  padding: EdgeInsets.all(8.5),
-                  child: SizedBox(width: 23,height: 23,child: CircularProgressIndicator(),),
-                ):IconButton(onPressed: () async{
-                  if(controller.text.isEmpty){
-                    return;
-                  }
-                  setState(() {
-                    sending = true;
-                  });
-                  var b = await widget.source.sendCommentFunc!(widget.data.comicId, widget.data.subId, controller.text, widget.replyId);
-                  if(!b.error){
-                    controller.text = "";
-                    setState(() {
-                      sending = false;
-                      _loading = true;
-                      _comments?.clear();
-                      _page = 1;
-                      maxPage = null;
-                    });
-                  }else{
-                    showMessage(App.globalContext, b.errorMessageWithoutNull);
-                    setState(() {
-                      sending = false;
-                    });
-                  }
-                }, icon: Icon(Icons.send, color: Theme.of(context).colorScheme.secondary,))
+                sending
+                    ? const Padding(
+                        padding: EdgeInsets.all(8.5),
+                        child: SizedBox(
+                          width: 23,
+                          height: 23,
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : IconButton(
+                        onPressed: () async {
+                          if (controller.text.isEmpty) {
+                            return;
+                          }
+                          setState(() {
+                            sending = true;
+                          });
+                          var b = await widget.source.sendCommentFunc!(
+                              widget.data.comicId,
+                              widget.data.subId,
+                              controller.text,
+                              widget.replyId);
+                          if (!b.error) {
+                            controller.text = "";
+                            setState(() {
+                              sending = false;
+                              _loading = true;
+                              _comments?.clear();
+                              _page = 1;
+                              maxPage = null;
+                            });
+                          } else {
+                            showMessage(
+                                App.globalContext, b.errorMessageWithoutNull);
+                            setState(() {
+                              sending = false;
+                            });
+                          }
+                        },
+                        icon: Icon(
+                          Icons.send,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ))
               ],
             ),
           ),
