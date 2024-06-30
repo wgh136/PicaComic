@@ -193,6 +193,9 @@ class JmComicPage extends ComicPage<JmComicInfo> {
       [],
       [],
       ignoreExamination: true));
+
+  @override
+  String get downloadedId => "jm${data!.id}";
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context) async {

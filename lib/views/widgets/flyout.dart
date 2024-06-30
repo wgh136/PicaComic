@@ -24,6 +24,8 @@ class Flyout extends StatefulWidget {
       this.enableDoubleTap = false,
       this.enableLongPress = false,
       this.enableSecondaryTap = false,
+      this.withInkWell = false,
+      this.borderRadius = 0,
       this.controller,
       this.navigator});
 
@@ -38,6 +40,10 @@ class Flyout extends StatefulWidget {
   final bool enableLongPress;
 
   final bool enableSecondaryTap;
+
+  final bool withInkWell;
+
+  final double borderRadius;
 
   final NavigatorState? navigator;
 
@@ -66,6 +72,16 @@ class _FlyoutState extends State<Flyout> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.withInkWell) {
+      return InkWell(
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        onTap: widget.enableTap ? show : null,
+        onDoubleTap: widget.enableDoubleTap ? show : null,
+        onLongPress: widget.enableLongPress ? show : null,
+        onSecondaryTap: widget.enableSecondaryTap ? show : null,
+        child: widget.child,
+      );
+    }
     return GestureDetector(
       onTap: widget.enableTap ? show : null,
       onDoubleTap: widget.enableDoubleTap ? show : null,

@@ -203,4 +203,7 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
       id,
       "Unknown",
       data!.tags["Tags"] ?? const <String>[]));
+
+  @override
+  String get downloadedId => "nhentai${data!.id}";
 }

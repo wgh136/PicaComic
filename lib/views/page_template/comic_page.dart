@@ -7,6 +7,7 @@ import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/views/custom_views/comic_page.dart';
+import 'package:pica_comic/views/widgets/flyout.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
@@ -229,6 +230,8 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   FavoriteItem toLocalFavoriteItem();
 
   bool? get favoriteOnPlatformInitial => null;
+
+  String get downloadedId;
 
   void scrollListener() {
     try {
@@ -724,6 +727,52 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     commentsCount ?? "评论".tl, Icons.comment, openComments!),
               if (searchSimilar != null)
                 buildItem("相似".tl, Icons.search, searchSimilar!),
+              if(downloadManager.downloaded.contains(downloadedId))
+                Flyout(
+                  enableTap: true,
+                  navigator: App.navigatorKey.currentState!,
+                  withInkWell: true,
+                  borderRadius: 8,
+                  flyoutBuilder: (context) => FlyoutContent(
+                    title: "是否删除下载".tl,
+                    actions: [
+                      TextButton(
+                        onPressed: () async{
+                          Navigator.of(context).pop();
+                          await downloadManager.delete([downloadedId]);
+                          showToast(message: "已删除".tl);
+                          logic.update();
+                        },
+                        child: Text("删除".tl),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("取消".tl),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    height: 72,
+                    width: 64,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12,),
+                        Icon(
+                          Icons.delete_outline,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 8,),
+                        Text(
+                          "删除下载".tl,
+                          style: const TextStyle(fontSize: 12),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
           if (width < 500)

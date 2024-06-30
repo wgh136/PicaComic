@@ -163,6 +163,9 @@ class HtComicPage extends ComicPage<HtComicInfo> {
 
   @override
   FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromHtcomic(comic);
+
+  @override
+  String get downloadedId => "Ht${data!.id}";
 }
 
 class HtComicPageLogic extends StateController {

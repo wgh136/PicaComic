@@ -528,7 +528,8 @@
     "要清空历史记录吗?" : "要清空歷史記錄嗎?",
     "要清空收藏吗?" : "要清空收藏嗎?",
     "是否退出程序？" : "是否退出程序？",
-    "不再提示": "不再提示"
+    "不再提示": "不再提示",
+    "删除下载": "刪除下載"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1056,6 +1057,7 @@
     "要清空历史记录吗?" : "Do you want to clear the history?",
     "要清空收藏吗?" : "Do you want to clear the favorites?",
     "是否退出程序？" : "Exit the program?",
-    "不再提示": "Do not show again"
+    "不再提示": "Do not show again",
+    "删除下载": "Delete download"
   }
 }

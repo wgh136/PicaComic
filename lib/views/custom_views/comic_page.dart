@@ -274,6 +274,9 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
               title: "评论".tl);
         }
       : null;
+
+  @override
+  String get downloadedId => downloadManager.generateId(source, id);
 }
 
 class _CommentsPage extends StatefulWidget {

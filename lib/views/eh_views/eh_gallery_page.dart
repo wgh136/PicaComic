@@ -454,6 +454,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
   @override
   ActionFunc? get openComments =>
           () => showComments(context, link, data!.uploader);
+
+  @override
+  String get downloadedId => getGalleryId(link);
 }
 
 class RatingLogic extends StateController {
