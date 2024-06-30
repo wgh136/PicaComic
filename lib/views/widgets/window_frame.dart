@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/app_views/image_favorites.dart';
@@ -467,7 +468,49 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener{
             ),
             hoverColor: Colors.red,
             onPressed: () {
-              windowManager.close();
+              if(appdata.implicitData[2] == '0') {
+                showDialog(context: App.navigatorKey.currentContext!, builder: (context) {
+                  bool isCheck = false;
+                  return AlertDialog(
+                    title: Text('是否退出程序？'.tl),
+                    content: StatefulBuilder(builder: (context, setState) {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: isCheck,
+                            onChanged: (value) {
+                              setState(() {
+                                isCheck = value!;
+                              });
+                            },
+                          ),
+                          Text('不再提示'.tl),
+                        ],
+                      );
+                    }),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('否'.tl),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if(isCheck) {
+                            appdata.implicitData[2] = '1';
+                            appdata.writeImplicitData();
+                          }
+                          windowManager.close();
+                        },
+                        child: Text('是'.tl),
+                      ),
+                    ],
+                  );
+                });
+              } else {
+                windowManager.close();
+              }
             },
           )
         ],

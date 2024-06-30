@@ -526,7 +526,9 @@
     "首页显示单张图片": "首頁顯示單張圖片",
     "要删除此项目吗?" : "要刪除此項目嗎?",
     "要清空历史记录吗?" : "要清空歷史記錄嗎?",
-    "要清空收藏吗?" : "要清空收藏嗎?"
+    "要清空收藏吗?" : "要清空收藏嗎?",
+    "是否退出程序？" : "是否退出程序？",
+    "不再提示": "不再提示"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1052,6 +1054,8 @@
     "首页显示单张图片": "Show single image on first page",
     "要删除此项目吗?" : "Do you want to delete this item?",
     "要清空历史记录吗?" : "Do you want to clear the history?",
-    "要清空收藏吗?" : "Do you want to clear the favorites?"
+    "要清空收藏吗?" : "Do you want to clear the favorites?",
+    "是否退出程序？" : "Exit the program?",
+    "不再提示": "Do not show again"
   }
 }

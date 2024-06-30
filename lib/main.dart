@@ -24,8 +24,8 @@ import 'network/webdav.dart';
 
 bool notFirstUse = false;
 
-void main(){
-  runZonedGuarded(() async{
+void main() {
+  runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await init();
     FlutterError.onError = (details) {
@@ -35,7 +35,7 @@ void main(){
     notFirstUse = appdata.firstUse[3] == "1";
     setNetworkProxy();
     runApp(const MyApp());
-    if(App.isDesktop){
+    if (App.isDesktop) {
       await windowManager.ensureInitialized();
       windowManager.waitUntilReadyToShow().then((_) async {
         await windowManager.setTitleBarStyle(
@@ -70,17 +70,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   OverlayEntry? hideContentOverlay;
 
-  void hideContent(){
-    if(hideContentOverlay != null)  return;
-    hideContentOverlay = OverlayEntry(builder: (context) => Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
-      color: Theme.of(context).colorScheme.surface,
-    ));
+  void hideContent() {
+    if (hideContentOverlay != null) return;
+    hideContentOverlay = OverlayEntry(
+        builder: (context) => Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.width,
+              color: Theme.of(context).colorScheme.surface,
+            ));
     OverlayWidget.addOverlay(hideContentOverlay!);
   }
 
-  void showContent(){
+  void showContent() {
     hideContentOverlay = null;
     OverlayWidget.removeAll();
   }
@@ -98,14 +99,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     setNetworkProxy();
     scheduleMicrotask(() {
       if (state == AppLifecycleState.hidden && enableAuth) {
-        if(!AuthPage.lock && appdata.settings[13] == "1"){
+        if (!AuthPage.lock && appdata.settings[13] == "1") {
           AuthPage.initial = false;
           AuthPage.lock = true;
           App.to(App.globalContext!, () => const AuthPage());
         }
       }
 
-      if(state == AppLifecycleState.inactive && enableAuth) {
+      if (state == AppLifecycleState.inactive && enableAuth) {
         hideContent();
       } else if (state == AppLifecycleState.resumed) {
         showContent();
@@ -241,11 +242,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           useMaterial3: true,
           fontFamily: App.isWindows ? "font" : "",
         ),
-        onGenerateRoute: (settings) => AppPageRoute(builder: (context) => notFirstUse
-            ? (appdata.settings[13] == "1"
-            ? const AuthPage()
-            : const MainPage())
-            : const WelcomePage()),
+        onGenerateRoute: (settings) => AppPageRoute(
+            builder: (context) => notFirstUse
+                ? (appdata.settings[13] == "1"
+                    ? const AuthPage()
+                    : const MainPage())
+                : const WelcomePage()),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -268,8 +270,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           };
           if (widget != null) {
             widget = OverlayWidget(widget);
-            if(App.isDesktop) {
-              widget = WindowFrame(widget);
+            if (App.isDesktop) {
+              widget = Shortcuts(
+                shortcuts: {
+                  LogicalKeySet(LogicalKeyboardKey.escape): VoidCallbackIntent(
+                    () {
+                      if (App.canPop) {
+                        App.globalBack();
+                      } else {
+                        MainPage.back();
+                      }
+                    },
+                  ),
+                },
+                child: WindowFrame(widget),
+              );
             }
             return widget;
           }
@@ -279,4 +294,3 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
   }
 }
-
