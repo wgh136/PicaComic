@@ -255,6 +255,7 @@ Future<void> copyDirectory(Directory source, Directory destination) async {
     }
   } catch (e, s) {
     LogManager.addLog(LogLevel.error, "IO", "$e\n$s");
+    rethrow;
   }
 }
 
