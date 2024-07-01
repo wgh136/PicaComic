@@ -6,6 +6,8 @@ import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+import '../http_client.dart';
+
 
 void login(void Function() whenFinish) async{
   if(NhentaiNetwork().baseUrl.contains("xxx")){
@@ -38,7 +40,8 @@ void login(void Function() whenFinish) async{
             webview.close();
             whenFinish();
           }
-        }
+        },
+        proxy: proxyHttpOverrides?.proxyStr,
     ));
   } else if(App.isMacOS) {
     var webview = MacWebview(

@@ -6,6 +6,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 
+import '../network/http_client.dart';
 import '../tools/app_links.dart';
 import 'app_views/webview.dart';
 import 'eh_views/subscription.dart';
@@ -47,7 +48,8 @@ void openTool(){
                         return true;
                       }
                       return false;
-                    }
+                    },
+                    proxy: proxyHttpOverrides?.proxyStr,
                 )
             );
           }
@@ -76,7 +78,8 @@ void openTool(){
                         return true;
                       }
                       return false;
-                    }
+                    },
+                    proxy: proxyHttpOverrides?.proxyStr,
                 )
             );
           }

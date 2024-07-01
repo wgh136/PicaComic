@@ -5,6 +5,7 @@ import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import '../../views/app_views/webview.dart';
+import '../http_client.dart';
 
 void _saveCookies(Map<String, String> cookies) {
   NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse("https://nhentai.net"),
@@ -33,7 +34,8 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
           webview.close();
           whenFinish();
         }
-      }
+      },
+      proxy: proxyHttpOverrides?.proxyStr,
     ));
   } else if(App.isMacOS) {
     var webview = MacWebview(
