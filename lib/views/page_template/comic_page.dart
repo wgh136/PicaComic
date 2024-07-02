@@ -521,14 +521,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: Hero(
-          tag: "image",
+          tag: "image$tag",
           child: Image(
             image: image,
             fit: BoxFit.cover,
           ),
         ),
       ),
-      onTap: () => App.globalTo(() => ShowImagePageWithHero(cover!, "image")),
+      onTap: () => App.globalTo(() => ShowImagePageWithHero(cover!, "image$tag")),
     );
   }
 
