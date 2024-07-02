@@ -138,18 +138,7 @@ class _NaviPaneState extends State<NaviPane> with SingleTickerProviderStateMixin
       _kBottomBarHeight + MediaQuery.of(context).padding.bottom;
 
   void onNavigatorStateChange() {
-    Future.doWhile(() async{
-      if (widget.observer.routes.lastOrNull is! PageRoute) {
-        return false;
-      }
-      var route = widget.observer.routes.last as PageRoute;
-      if (route.animation!.status != AnimationStatus.completed) {
-        await Future.delayed(const Duration(milliseconds: 10));
-        return true;
-      }
-      onRebuild(context);
-      return false;
-    });
+    onRebuild(context);
   }
 
   @override

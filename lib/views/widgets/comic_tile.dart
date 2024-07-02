@@ -227,8 +227,12 @@ abstract class ComicTile extends StatelessWidget {
       return child;
     }
 
-    bool isFavorite = LocalFavoritesManager().favoritedTargets.contains(comicID);
-    var history = HistoryManager().findSync(comicID!);
+    var isFavorite = appdata.settings[72] == '1'
+      ? LocalFavoritesManager().favoritedTargets.contains(comicID)
+      : false;
+    var history = appdata.settings[73] == '1'
+      ? HistoryManager().findSync(comicID!)
+      : null;
     if(history?.page == 0){
       history!.page = 1;
     }
