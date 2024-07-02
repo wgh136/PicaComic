@@ -98,9 +98,9 @@ class _FloatingSearchBarState extends State<FloatingSearchBar> {
                 ),
               ),
               Tooltip(
-                message: "切换源".tl,
+                message: "切换搜索源".tl,
                 child: IconButton(
-                  icon: const Icon(Icons.burst_mode_outlined),
+                  icon: const Icon(Icons.swap_horiz),
                   onPressed: changeSource,
                 ),
               ),
