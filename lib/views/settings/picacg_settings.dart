@@ -30,7 +30,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               "分流2".tl,
               "分流3".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.appChannel = (i+1).toString();
               appdata.writeData();
               showMessage(App.globalContext, "正在获取分流IP".tl,time: 8);
@@ -50,7 +50,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
               "高".tl,
               "原图".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.setQuality(i+1);
             },
             inPopUpWidget: widget.popUp,
@@ -63,7 +63,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             values: [
               "新到书".tl,"旧到新".tl,"最多喜欢".tl,"最多指名".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.setSearchMode(i);
             },
             inPopUpWidget: widget.popUp,
@@ -111,7 +111,7 @@ class _PicacgSettingsState extends State<PicacgSettings> {
             values: [
               "旧到新".tl, "新到书".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.settings[30] = i.toString();
               appdata.updateSettings();
             },

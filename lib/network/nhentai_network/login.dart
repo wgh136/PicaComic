@@ -1,11 +1,12 @@
 import 'dart:io' as io;
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/app_views/webview.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
+
+import '../http_client.dart';
 
 
 void login(void Function() whenFinish) async{
@@ -39,7 +40,8 @@ void login(void Function() whenFinish) async{
             webview.close();
             whenFinish();
           }
-        }
+        },
+        proxy: proxyHttpOverrides?.proxyStr,
     ));
   } else if(App.isMacOS) {
     var webview = MacWebview(

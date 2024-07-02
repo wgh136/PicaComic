@@ -2,13 +2,21 @@ import 'package:dio/dio.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/app_dio.dart';
 
+String? _updateInfo;
+
+Future<String> getLatestVersion() async {
+  var dio = logDio();
+  var res = await dio
+      .get("https://api.github.com/repos/wgh136/PicaComic/releases/latest");
+  _updateInfo = res.data["body"];
+  return (res.data["tag_name"] as String).replaceFirst("v", "");
+}
+
 Future<bool?> checkUpdate() async {
   try {
     var version = appVersion;
-    var dio = logDio();
-    var res = await dio.get("$serverDomain/version");
-    var s = res.data;
-    return compareSemVer(s, version); //有更新返回true
+    var res = await getLatestVersion();
+    return compareSemVer(res, version);
   } catch (e) {
     return null;
   }
@@ -53,16 +61,16 @@ bool compareSemVer(String ver1, String ver2) {
 }
 
 Future<String?> getUpdatesInfo() async {
-  try {
-    var dio = Dio();
-    var res = await dio.get("$serverDomain/updates");
-    var s = res.data;
-    return s;
-  } catch (e) {
-    return null;
+  if(_updateInfo == null)  return null;
+  _updateInfo!.replaceAll('\r\n', '\n');
+  var lines = _updateInfo!.split("\n");
+  if(lines.length > 5) {
+    lines.add("...");
+    return lines.sublist(5).join("\n");
   }
+  return _updateInfo;
 }
 
 Future<String> getDownloadUrl() async {
-  return "$serverDomain/download";
+  return "https://github.com/wgh136/PicaComic/releases/latest";
 }

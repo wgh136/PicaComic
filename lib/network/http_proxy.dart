@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'package:pica_comic/foundation/log.dart';
 import '../foundation/app.dart';
 
 class HttpProxyRequest {

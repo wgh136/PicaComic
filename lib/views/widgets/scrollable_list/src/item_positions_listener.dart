@@ -42,9 +42,9 @@ class ItemPosition {
   final double itemTrailingEdge;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) return false;
-    final ItemPosition otherPosition = other;
+    final otherPosition = other as ItemPosition;
     return otherPosition.index == index &&
         otherPosition.itemLeadingEdge == itemLeadingEdge &&
         otherPosition.itemTrailingEdge == itemTrailingEdge;

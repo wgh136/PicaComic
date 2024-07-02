@@ -49,7 +49,6 @@ class JmCommentsPageLogic extends StateController {
     }
     var res = await jmNetwork.getComment(id, page + 1);
     totalComments = res.subData ?? totalComments;
-    print(totalComments);
     if (res.error) {
       return;
     } else {
@@ -59,7 +58,7 @@ class JmCommentsPageLogic extends StateController {
     }
   }
 
-  void refresh_(){
+  void refresh_() {
     comments = null;
     message = null;
     page = 1;
@@ -70,7 +69,9 @@ class JmCommentsPageLogic extends StateController {
 }
 
 class JmCommentsPage extends StatelessWidget {
-  const JmCommentsPage(this.id, this.totalComments, {this.mode,this.popUp = false, Key? key}) : super(key: key);
+  const JmCommentsPage(this.id, this.totalComments,
+      {this.mode, this.popUp = false, Key? key})
+      : super(key: key);
   final String id;
   final bool popUp;
   final String? mode;
@@ -93,63 +94,80 @@ class JmCommentsPage extends StatelessWidget {
               children: [
                 Expanded(
                     child: CustomScrollView(
-                      slivers: [
-                        SliverList(
-                            delegate: SliverChildBuilderDelegate(childCount: logic.comments!.length,
-                                (context, index) {
-                          if (index == logic.comments!.length - 1) {
-                            logic.loadMore(id);
-                          }
-                          return CommentTile(
-                            avatarUrl: logic.comments![index].avatar,
-                            name: logic.comments![index].name,
-                            content: logic.comments![index].content,
-                            comments: logic.comments![index].reply.length,
-                            onTap: () => showReply(
-                                context, logic.comments![index].reply, logic.comments![index]),
-                            time: logic.comments![index].time,
-                          );
-                        })),
-                        if (logic.totalComments > logic.comments!.length)
-                          const SliverToBoxAdapter(
-                            child: ListLoadingIndicator(),
-                          ),
-                        SliverPadding(padding: EdgeInsets.only(top: MediaQuery.of(App.globalContext!).padding.bottom))
-                      ],
+                  slivers: [
+                    SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                            childCount: logic.comments!.length,
+                            (context, index) {
+                      if (index == logic.comments!.length - 1) {
+                        logic.loadMore(id);
+                      }
+                      return CommentTile(
+                        avatarUrl: logic.comments![index].avatar,
+                        name: logic.comments![index].name,
+                        content: logic.comments![index].content,
+                        comments: logic.comments![index].reply.length,
+                        onTap: () => showReply(
+                            context,
+                            logic.comments![index].reply,
+                            logic.comments![index]),
+                        time: logic.comments![index].time,
+                      );
+                    })),
+                    if (logic.totalComments > logic.comments!.length)
+                      const SliverToBoxAdapter(
+                        child: ListLoadingIndicator(),
+                      ),
+                    SliverPadding(
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(App.globalContext!)
+                                .padding
+                                .bottom))
+                  ],
                 )),
                 Container(
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceTint.withAlpha(0),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceTint
+                          .withAlpha(0),
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16))),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceVariant.withAlpha(160),
-                          borderRadius: const BorderRadius.all(Radius.circular(30))),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withAlpha(160),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(30))),
                       child: Row(
                         children: [
                           Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                                child: TextField(
-                                  controller: logic.controller,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    isCollapsed: true,
-                                    hintText: "评论".tl,
-                                  ),
-                                  minLines: 1,
-                                  maxLines: 5,
-                                ),
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            child: TextField(
+                              controller: logic.controller,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                isCollapsed: true,
+                                hintText: "评论".tl,
+                              ),
+                              minLines: 1,
+                              maxLines: 5,
+                            ),
                           )),
                           IconButton(
                               onPressed: () async {
                                 showMessage(context, "正在发送评论".tl);
-                                var res = await JmNetwork().comment(id, logic.controller.text);
-                                if(res.error){
-                                  showMessage(App.globalContext, res.errorMessage!);
-                                }else{
+                                var res = await JmNetwork()
+                                    .comment(id, logic.controller.text);
+                                if (res.error) {
+                                  showMessage(
+                                      App.globalContext, res.errorMessage!);
+                                } else {
                                   showMessage(App.globalContext, "成功发表评论".tl);
                                   logic.refresh_();
                                 }
@@ -208,7 +226,8 @@ void showReply(BuildContext context, List<Comment> comments, Comment replyTo) {
       showBarrier: false);
 }
 
-void showComments(BuildContext context, String id, int totalComments, [String? mode]) {
+void showComments(BuildContext context, String id, int totalComments,
+    [String? mode]) {
   showSideBar(
       context,
       JmCommentsPage(

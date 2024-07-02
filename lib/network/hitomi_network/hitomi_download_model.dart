@@ -58,7 +58,7 @@ class DownloadedHitomiComic extends DownloadedItem {
 }
 
 class HitomiDownloadingItem extends DownloadingItem {
-  HitomiDownloadingItem(this.comic, super.path, this._coverPath, this.link, super.whenFinish,
+  HitomiDownloadingItem(this.comic, this._coverPath, this.link, super.whenFinish,
       super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.hitomi});
 
@@ -96,14 +96,14 @@ class HitomiDownloadingItem extends DownloadingItem {
   String get title => comic.name;
 
   @override
-  Future<Uint8List> getImage(String link) async{
+  Future<(Uint8List, String)> getImage(String link) async{
     await for(var s in ImageManager().getHitomiImage(HitomiFile.fromMap(
         const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))){
       if(s.finished){
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
-        return data;
+        return (data, s.ext ?? "jpg");
       }
     }
     throw Exception("Fail to download image");

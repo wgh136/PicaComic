@@ -99,8 +99,6 @@ class AppHttpAdapter implements HttpClientAdapter{
 
   AppHttpAdapter(this.http2);
 
-  static Map<String, int> _counters = {};
-
   static Future<HttpClientAdapter> createAdapter(bool http2) async{
     return http2 ? Http2Adapter(ConnectionManager(
       idleTimeout: const Duration(seconds: 15),
@@ -133,15 +131,9 @@ class AppHttpAdapter implements HttpClientAdapter{
   Future<ResponseBody> fetch(RequestOptions o, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async{
     adapter ??= await createAdapter(http2);
     int retry = 0;
-    var host = o.uri.host;
-    while(_counters[host] != null && _counters[host]! > 12){
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    _counters[host] = (_counters[host] ?? 0) + 1;
     while(true){
       try{
         var res = await fetchOnce(o, requestStream, cancelFuture);
-        _counters[host] = (_counters[host] ?? 0) - 1;
         return res;
       }
       catch(e){
@@ -149,7 +141,6 @@ class AppHttpAdapter implements HttpClientAdapter{
             "${o.method} ${o.path}\n$e\nRetrying...");
         retry++;
         if(retry == 2){
-          _counters[host] = (_counters[host] ?? 0) - 1;
           rethrow;
         }
         await Future.delayed(const Duration(seconds: 1));

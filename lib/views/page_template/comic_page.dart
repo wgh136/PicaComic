@@ -6,13 +6,18 @@ import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/views/custom_views/comic_page.dart';
+import 'package:pica_comic/views/widgets/flyout.dart';
 import 'package:pica_comic/views/widgets/grid_view_delegate.dart';
 import 'package:pica_comic/views/widgets/show_error.dart';
 import 'package:pica_comic/views/widgets/side_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import '../../base.dart';
+import '../../comic_source/comic_source.dart';
 import '../../foundation/app.dart';
+import '../../foundation/image_loader/stream_image_provider.dart';
+import '../../foundation/image_manager.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/res.dart';
 import '../favorites/local_favorites.dart';
@@ -74,6 +79,7 @@ class ComicPageLogic<T extends Object> extends StateController {
   bool reverseEpsOrder = false;
   bool showFullEps = false;
   int colorIndex = 0;
+  bool? favoriteOnPlatform;
 
   void get(Future<Res<T>> Function() loadData,
       Future<bool> Function(T) loadFavorite, String Function() getId) async {
@@ -143,7 +149,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   String? get cover;
 
   /// callback when user tap on a tag
-  void tapOnTags(String tag);
+  void tapOnTag(String tag, String key);
 
   void read(History? history);
 
@@ -223,6 +229,10 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
 
   FavoriteItem toLocalFavoriteItem();
 
+  bool? get favoriteOnPlatformInitial => null;
+
+  String get downloadedId;
+
   void scrollListener() {
     try {
       var logic = _logic;
@@ -250,6 +260,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
           init: ComicPageLogic<T>(),
           initState: (logic) {
             tagsStack.push(_logic);
+            _logic.favoriteOnPlatform = favoriteOnPlatformInitial;
           },
           dispose: (logic) {
             tagsStack.pop();
@@ -492,6 +503,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
     if (headers["host"] == null && headers["Host"] == null) {
       headers["host"] = Uri.parse(cover!).host;
     }
+    ImageProvider image;
+    if(this is CustomComicPage) {
+      image = StreamImageProvider(
+          () => ImageManager().getCustomThumbnail(cover!, (data as ComicInfoData).sourceKey),
+          cover!);
+    } else {
+      image = CachedImageProvider(cover!, headers: headers);
+    }
     return GestureDetector(
       child: Container(
         width: width,
@@ -502,14 +521,14 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: Hero(
-          tag: "image",
+          tag: "image$tag",
           child: Image(
-            image: CachedImageProvider(cover!, headers: headers),
+            image: image,
             fit: BoxFit.cover,
           ),
         ),
       ),
-      onTap: () => App.globalTo(() => ShowImagePageWithHero(cover!, "image")),
+      onTap: () => App.globalTo(() => ShowImagePageWithHero(cover!, "image$tag")),
     );
   }
 
@@ -583,7 +602,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
-          onTap: title ? null : () => tapOnTags(text),
+          onTap: title ? null : () => tapOnTag(text, key),
           onSecondaryTapDown: (details) {
             showMenu(
                 context: App.globalContext!,
@@ -708,6 +727,52 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
                     commentsCount ?? "评论".tl, Icons.comment, openComments!),
               if (searchSimilar != null)
                 buildItem("相似".tl, Icons.search, searchSimilar!),
+              if(downloadManager.downloaded.contains(downloadedId))
+                Flyout(
+                  enableTap: true,
+                  navigator: App.navigatorKey.currentState!,
+                  withInkWell: true,
+                  borderRadius: 8,
+                  flyoutBuilder: (context) => FlyoutContent(
+                    title: "是否删除下载".tl,
+                    actions: [
+                      TextButton(
+                        onPressed: () async{
+                          Navigator.of(context).pop();
+                          await downloadManager.delete([downloadedId]);
+                          showToast(message: "已删除".tl);
+                          logic.update();
+                        },
+                        child: Text("删除".tl),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("取消".tl),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    height: 72,
+                    width: 64,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12,),
+                        Icon(
+                          Icons.delete_outline,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 8,),
+                        Text(
+                          "删除下载".tl,
+                          style: const TextStyle(fontSize: 12),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
           if (width < 500)

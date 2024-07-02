@@ -37,6 +37,7 @@ typedef SendCommentFunc = Future<Res<bool>>
     Function(String id, String? subId, String content, String? replyTo);
 
 typedef GetImageLoadingConfigFunc = Map<String, dynamic> Function(String imageKey, String comicId, String epId)?;
+typedef GetThumbnailLoadingConfigFunc = Map<String, dynamic> Function(String imageKey)?;
 
 class ComicSource {
   static List<ComicSource> sources = [];
@@ -112,6 +113,8 @@ class ComicSource {
 
   final Map<String, dynamic> Function(String imageKey, String comicId, String epId)? getImageLoadingConfig;
 
+  final Map<String, dynamic> Function(String imageKey)? getThumbnailLoadingConfig;
+
   final String? matchBriefIdReg;
 
   var data = <String, dynamic>{};
@@ -176,6 +179,7 @@ class ComicSource {
       this.loadComicInfo,
       this.loadComicPages,
       this.getImageLoadingConfig,
+      this.getThumbnailLoadingConfig,
       this.matchBriefIdReg,
       this.filePath,
       this.url,
@@ -195,6 +199,7 @@ class ComicSource {
         loadComicInfo = null,
         loadComicPages = null,
         getImageLoadingConfig = null,
+        getThumbnailLoadingConfig = null,
         matchBriefIdReg = null,
         filePath = "",
         url = "",

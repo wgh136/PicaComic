@@ -26,7 +26,7 @@ class _EhSettingsState extends State<EhSettings> {
               "e-hentai.org",
               "exhentai.org",
             ],
-            whenChange: (i) {
+            onChange: (i) {
               appdata.settings[20] = i.toString();
               appdata.updateSettings();
             },

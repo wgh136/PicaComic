@@ -119,65 +119,6 @@ class _CustomAppbarState extends State<CustomAppbar> {
   }
 }
 
-class CustomSmallSliverAppbar extends StatelessWidget {
-  const CustomSmallSliverAppbar(
-      {required this.title,
-      this.leading,
-      this.actions,
-      this.backgroundColor,
-      super.key});
-
-  final Widget title;
-
-  final Widget? leading;
-
-  final List<Widget>? actions;
-
-  final Color? backgroundColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
-      title: title,
-      leading: leading,
-      actions: actions,
-      scrolledUnderElevation: UiMode.m1(context) ? null : 0.0,
-      backgroundColor: backgroundColor,
-      primary: UiMode.m1(context),
-    );
-  }
-}
-
-class CustomSliverAppbar extends StatelessWidget {
-  const CustomSliverAppbar(
-      {required this.title,
-      this.leading,
-      this.actions,
-      super.key,
-      required this.centerTitle});
-
-  final Widget title;
-
-  final Widget? leading;
-
-  final List<Widget>? actions;
-
-  final bool centerTitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverAppBar.large(
-      title: title,
-      leading: leading,
-      actions: actions,
-      scrolledUnderElevation: UiMode.m1(context) ? null : 0,
-      centerTitle: centerTitle,
-      primary: UiMode.m1(context),
-    );
-  }
-}
-
 class MySliverAppBar extends StatelessWidget {
   const MySliverAppBar({super.key, required this.title, this.leading, this.actions});
 

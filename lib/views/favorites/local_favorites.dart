@@ -647,7 +647,7 @@ class LocalFavoriteTile extends ComicTile {
                       width: 156,
                       values: LocalFavoritesManager().folderNames,
                       initialValue: null,
-                      whenChange: (i) =>
+                      onChange: (i) =>
                       folder = LocalFavoritesManager().folderNames[i],
                     ),
                   ),
@@ -793,7 +793,7 @@ void copyAllTo(String source, List<String> comics) {
                     width: 156,
                     values: LocalFavoritesManager().folderNames,
                     initialValue: null,
-                    whenChange: (i) =>
+                    onChange: (i) =>
                     folder = LocalFavoritesManager().folderNames[i],
                   ),
                 ),

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 ///显示侧边栏的变换
@@ -66,6 +67,8 @@ class SideBarRoute<T> extends PopupRoute<T> {
 
     final sideBarWidth = min(width, MediaQuery.of(context).size.width);
 
+    bool enableDrag = false;
+
     return Stack(
       alignment: Alignment.centerRight,
       children: [
@@ -86,7 +89,13 @@ class SideBarRoute<T> extends PopupRoute<T> {
               ),
               height: MediaQuery.of(context).size.height,
               child: GestureDetector(
+                onHorizontalDragStart: (details) {
+                  if(details.kind == PointerDeviceKind.touch) {
+                    enableDrag = true;
+                  }
+                },
                 onHorizontalDragUpdate: (details){
+                  if(!enableDrag) return;
                   shouldPop = details.delta.dx > 0;
                   location = location - details.delta.dx;
                   if(location > 0){
@@ -95,6 +104,8 @@ class SideBarRoute<T> extends PopupRoute<T> {
                   stateUpdater((){});
                 },
                 onHorizontalDragEnd: (details){
+                  if(!enableDrag) return;
+                  enableDrag = false;
                   if(shouldPop && ((location != 0 && location < 0 - sideBarWidth/2)
                       || (details.primaryVelocity != null && details.primaryVelocity! > 1.0))){
                     Navigator.of(context).pop();
@@ -113,6 +124,9 @@ class SideBarRoute<T> extends PopupRoute<T> {
                       }
                     }();
                   }
+                },
+                onHorizontalDragCancel: () {
+                  enableDrag = false;
                 },
                 child: Material(
                   child: ClipRect(

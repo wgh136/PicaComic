@@ -132,7 +132,13 @@ abstract class ComicTile extends StatelessWidget {
   }
 
   Widget buildFavoriteDialog() {
-    String? folder;
+    String? folder = appdata.settings[51];
+    int? initialFolderIndex =
+      LocalFavoritesManager().folderNames.indexOf(appdata.settings[51]);
+    if(initialFolderIndex == -1) {
+      folder = null;
+      initialFolderIndex = null;
+    }
     return SimpleDialog(
       title: Text("添加收藏".tl),
       children: [
@@ -142,8 +148,8 @@ abstract class ComicTile extends StatelessWidget {
             outline: true,
             width: 156,
             values: LocalFavoritesManager().folderNames,
-            initialValue: LocalFavoritesManager().folderNames.indexOf(appdata.settings[51]),
-            whenChange: (i) => folder = LocalFavoritesManager().folderNames[i],
+            initialValue: initialFolderIndex,
+            onChange: (i) => folder = LocalFavoritesManager().folderNames[i],
           ),
         ),
         const SizedBox(
@@ -220,11 +226,21 @@ abstract class ComicTile extends StatelessWidget {
     if(comicID == null){
       return child;
     }
-    bool isFavorite = LocalFavoritesManager().findSync(comicID!).isNotEmpty;
-    var history = HistoryManager().findSync(comicID!);
+
+    var isFavorite = appdata.settings[72] == '1'
+      ? LocalFavoritesManager().favoritedTargets.contains(comicID)
+      : false;
+    var history = appdata.settings[73] == '1'
+      ? HistoryManager().findSync(comicID!)
+      : null;
     if(history?.page == 0){
       history!.page = 1;
     }
+
+    if (!isFavorite && history == null) {
+      return child;
+    }
+
     return Stack(
       children: [
         Positioned.fill(
@@ -241,7 +257,7 @@ abstract class ComicTile extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Row(
               children: [
-                if (isFavorite && showFavorite && appdata.settings[72] == "1")
+                if (isFavorite)
                   Container(
                     height: 24,
                     width: 24,
@@ -252,7 +268,7 @@ abstract class ComicTile extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                if (history != null && appdata.settings[73] == "1")
+                if (history != null)
                   Container(
                     height: 24,
                     color: Colors.blue.withOpacity(0.9),
@@ -273,51 +289,47 @@ abstract class ComicTile extends StatelessWidget {
   Widget _buildDetailedMode(BuildContext context) {
     return LayoutBuilder(builder: (context, constrains) {
       final height = constrains.maxHeight - 16;
-      return Material(
-        color: Colors.transparent,
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: onTap_,
-            onLongPress: enableLongPressed ? onLongTap_ : null,
-            onSecondaryTapDown: onSecondaryTap_,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
-              child: Row(
-                children: [
-                  Container(
-                      width: height * 0.68,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(8)),
-                      clipBehavior: Clip.antiAlias,
-                      child: image),
-                  SizedBox.fromSize(
-                    size: const Size(16, 5),
+      return InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap_,
+          onLongPress: enableLongPressed ? onLongTap_ : null,
+          onSecondaryTapDown: onSecondaryTap_,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
+            child: Row(
+              children: [
+                Container(
+                    width: height * 0.68,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                        color:
+                        Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(8)),
+                    clipBehavior: Clip.antiAlias,
+                    child: image),
+                SizedBox.fromSize(
+                  size: const Size(16, 5),
+                ),
+                Expanded(
+                  child: _ComicDescription(
+                    //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
+                    title: pages == null
+                        ? title.replaceAll("\n", "")
+                        : "[${pages}P]${title.replaceAll("\n", "")}",
+                    user: subTitle,
+                    description: description,
+                    subDescription: buildSubDescription(context),
+                    badge: badge,
+                    tags: tags,
+                    maxLines: maxLines,
                   ),
-                  Expanded(
-                    child: _ComicDescription(
-                      //标题中不应出现换行符, 爬虫可能多爬取换行符, 为避免麻烦, 直接在此处删去
-                      title: pages == null
-                          ? title.replaceAll("\n", "")
-                          : "[${pages}P]${title.replaceAll("\n", "")}",
-                      user: subTitle,
-                      description: description,
-                      subDescription: buildSubDescription(context),
-                      badge: badge,
-                      tags: tags,
-                      maxLines: maxLines,
-                    ),
-                  ),
-                  //const Center(
-                  //  child: Icon(Icons.arrow_right),
-                  //)
-                ],
-              ),
-            )),
-      );
+                ),
+                //const Center(
+                //  child: Icon(Icons.arrow_right),
+                //)
+              ],
+            ),
+          ));
     });
   }
 
@@ -412,117 +424,103 @@ class _ComicDescription extends StatelessWidget {
     if(tags != null){
       tags!.removeWhere((element) => element.removeAllBlank == "");
     }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(1.0, 0.0, 0.0, 0.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14.0,
-            ),
-            maxLines: maxLines,
-            overflow: TextOverflow.ellipsis,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14.0,
           ),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),
-          if (user != "")
-            Text(
-              user,
-              style: const TextStyle(fontSize: 10.0),
-              maxLines: 1,
-            ),
-          if (user != "")
-            const Padding(padding: EdgeInsets.symmetric(vertical: 1.0)),
+          maxLines: maxLines,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (user != "")
+          Text(
+            user,
+            style: const TextStyle(fontSize: 10.0),
+            maxLines: 1,
+          ),
+        const SizedBox(
+          height: 4,
+        ),
+        if (tags != null)
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                const SizedBox(
-                  height: 5,
-                ),
-                if (tags != null)
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => Padding(
-                        padding:
-                            EdgeInsets.only(bottom: constraints.maxHeight % 23),
-                        child: Wrap(
-                          runAlignment: WrapAlignment.start,
-                          clipBehavior: Clip.antiAlias,
-                          crossAxisAlignment: WrapCrossAlignment.end,
-                          children: [
-                            for (var s in tags!)
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 4, 3),
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(3, 1, 3, 3),
-                                  decoration: BoxDecoration(
-                                    color: s == "Unavailable"
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .errorContainer
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .secondaryContainer,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(8)),
-                                  ),
-                                  child: Text(
-                                    s,
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                const SizedBox(
-                  height: 2,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+            child: LayoutBuilder(
+              builder: (context, constraints) => Padding(
+                padding:
+                EdgeInsets.only(bottom: constraints.maxHeight % 23),
+                child: Wrap(
+                  runAlignment: WrapAlignment.start,
+                  clipBehavior: Clip.antiAlias,
+                  crossAxisAlignment: WrapCrossAlignment.end,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (subDescription != null) subDescription!,
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              fontSize: 12.0,
-                            ),
+                    for (var s in tags!)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 4, 3),
+                        child: Container(
+                          padding:
+                          const EdgeInsets.fromLTRB(3, 1, 3, 3),
+                          decoration: BoxDecoration(
+                            color: s == "Unavailable"
+                                ? Theme.of(context)
+                                .colorScheme
+                                .errorContainer
+                                : Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(8)),
                           ),
-                        ],
-                      ),
-                    ),
-                    if (badge != null)
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).colorScheme.tertiaryContainer,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Text(
-                          badge!,
-                          style: const TextStyle(fontSize: 12),
+                          child: Text(
+                            s,
+                            style: const TextStyle(fontSize: 12),
+                          ),
                         ),
                       )
                   ],
-                )
-              ],
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        const SizedBox(
+          height: 2,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (subDescription != null) subDescription!,
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+                decoration: BoxDecoration(
+                  color:
+                  Theme.of(context).colorScheme.tertiaryContainer,
+                  borderRadius:
+                  const BorderRadius.all(Radius.circular(8)),
+                ),
+                child: Text(
+                  badge!,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              )
+          ],
+        )
+      ],
     );
   }
 }

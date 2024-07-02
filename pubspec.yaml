@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.1.3+313
+version: 3.1.4+314
 environment:
   sdk: '>=3.3.0'
 
@@ -39,7 +39,7 @@ dependencies:
   photo_view:
     git:
       url: https://github.com/wgh136/photo_view
-      ref: main
+      ref: ee7e3628
   url_launcher: ^6.1.8
   path_provider: ^2.0.12
   file_selector: ^1.0.1
@@ -60,7 +60,7 @@ dependencies:
   flutter_windows_webview:
     git:
       url: https://github.com/wgh136/flutter_windows_webview
-      ref: master
+      ref: 9e7a954
   workmanager:
     git:
       url: https://github.com/wgh136/flutter_workmanager
@@ -90,7 +90,7 @@ dependencies:
   flutter_qjs:
     git:
       url: https://github.com/wgh136/flutter_qjs
-      ref: db2b2d0c
+      ref: ade0b9d
 
 dependency_overrides:
   flutter_inappwebview_android:
@@ -131,7 +131,7 @@ flutter:
     - images/avatar.png
     - images/avatar_small.png
     - images/github.png
-    - images/loading.json
+    - images/app_icon_no_bg.png
     - assets/tags.json
     - assets/translation.json
     - assets/init.js

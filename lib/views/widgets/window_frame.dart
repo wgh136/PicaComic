@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/app_views/image_favorites.dart';
@@ -20,17 +21,17 @@ import '../app_views/accounts_page.dart';
 const _kTitleBarHeight = 32.0;
 
 class WindowFrameController extends StateController {
-  bool reverseButtonColor = false;
+  bool useDarkTheme = false;
 
   bool isHideWindowFrame = false;
 
   void setDarkTheme() {
-    reverseButtonColor = true;
+    useDarkTheme = true;
     update();
   }
 
   void resetTheme() {
-    reverseButtonColor = false;
+    useDarkTheme = false;
     update();
   }
 
@@ -88,7 +89,7 @@ class WindowFrame extends StatelessWidget {
                               'Pica Comic',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: (controller.reverseButtonColor ||
+                                color: (controller.useDarkTheme ||
                                         Theme.of(context).brightness ==
                                             Brightness.dark)
                                     ? Colors.white
@@ -99,7 +100,7 @@ class WindowFrame extends StatelessWidget {
                         ),
                         Theme(
                           data: Theme.of(context).copyWith(
-                            brightness: controller.reverseButtonColor
+                            brightness: controller.useDarkTheme
                                 ? Brightness.dark
                                 : null,
                           ),
@@ -135,7 +136,7 @@ class WindowFrame extends StatelessWidget {
                               'Pica Comic',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: (controller.reverseButtonColor ||
+                                color: (controller.useDarkTheme ||
                                         Theme.of(context).brightness ==
                                             Brightness.dark)
                                     ? Colors.white
@@ -168,7 +169,7 @@ class WindowFrame extends StatelessWidget {
             child: CustomPaint(
               size: const Size(18, 20),
               painter: _MenuPainter(
-                  color: (controller.reverseButtonColor ||
+                  color: (controller.useDarkTheme ||
                           Theme.of(context).brightness == Brightness.dark)
                       ? Colors.white
                       : Colors.black),
@@ -305,14 +306,14 @@ class _SideBarBody extends StatelessWidget {
             title: '历史记录'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => const HistoryPage());
+              MainPage.to(() => const HistoryPage(), preventDuplicate: true);
             }),
         buildItem(
             icon: Icons.download_outlined,
             title: '已下载'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => const DownloadPage());
+              MainPage.to(() => const DownloadPage(), preventDuplicate: true);
             }),
         buildItem(
             icon: Icons.downloading,
@@ -326,7 +327,7 @@ class _SideBarBody extends StatelessWidget {
             title: '图片收藏'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => const ImageFavoritesPage());
+              MainPage.to(() => const ImageFavoritesPage(), preventDuplicate: true);
             }),
         const Divider().paddingHorizontal(8),
         buildItem(
@@ -334,7 +335,7 @@ class _SideBarBody extends StatelessWidget {
             title: '搜索'.tl,
             onTap: () {
               StateController.find<WindowFrameController>().openSideBar();
-              MainPage.to(() => PreSearchPage());
+              MainPage.to(() => PreSearchPage(), preventDuplicate: true);
             }),
         buildItem(
             icon: Icons.settings,
@@ -368,8 +369,50 @@ class _SideBarBody extends StatelessWidget {
   }
 }
 
-class WindowButtons extends StatelessWidget {
+class WindowButtons extends StatefulWidget {
   const WindowButtons({super.key});
+
+  @override
+  State<WindowButtons> createState() => _WindowButtonsState();
+}
+
+class _WindowButtonsState extends State<WindowButtons> with WindowListener{
+  bool isMaximized = false;
+
+  @override
+  void initState() {
+    windowManager.addListener(this);
+    windowManager.isMaximized().then((value) {
+      if(value) {
+        setState(() {
+          isMaximized = true;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onWindowMaximize() {
+    setState(() {
+      isMaximized = true;
+    });
+    super.onWindowMaximize();
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    setState(() {
+      isMaximized = false;
+    });
+    super.onWindowUnmaximize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -394,31 +437,26 @@ class WindowButtons extends StatelessWidget {
               }
             },
           ),
-          FutureBuilder<bool>(
-            future: windowManager.isMaximized(),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              if (snapshot.data == true) {
-                return WindowButton(
-                  icon: RestoreIcon(
-                    color: color,
-                  ),
-                  hoverColor: hoverColor,
-                  onPressed: () {
-                    windowManager.unmaximize();
-                  },
-                );
-              }
-              return WindowButton(
-                icon: MaximizeIcon(
-                  color: color,
-                ),
-                hoverColor: hoverColor,
-                onPressed: () {
-                  windowManager.maximize();
-                },
-              );
-            },
-          ),
+          if (isMaximized)
+            WindowButton(
+              icon: RestoreIcon(
+                color: color,
+              ),
+              hoverColor: hoverColor,
+              onPressed: () {
+                windowManager.unmaximize();
+              },
+            )
+          else
+            WindowButton(
+              icon: MaximizeIcon(
+                color: color,
+              ),
+              hoverColor: hoverColor,
+              onPressed: () {
+                windowManager.maximize();
+              },
+            ),
           WindowButton(
             icon: CloseIcon(
               color: color,
@@ -430,9 +468,51 @@ class WindowButtons extends StatelessWidget {
             ),
             hoverColor: Colors.red,
             onPressed: () {
-              windowManager.close();
+              if(appdata.implicitData[2] == '0') {
+                showDialog(context: App.navigatorKey.currentContext!, builder: (context) {
+                  bool isCheck = false;
+                  return AlertDialog(
+                    title: Text('是否退出程序？'.tl),
+                    content: StatefulBuilder(builder: (context, setState) {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: isCheck,
+                            onChanged: (value) {
+                              setState(() {
+                                isCheck = value!;
+                              });
+                            },
+                          ),
+                          Text('不再提示'.tl),
+                        ],
+                      );
+                    }),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('否'.tl),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if(isCheck) {
+                            appdata.implicitData[2] = '1';
+                            appdata.writeImplicitData();
+                          }
+                          windowManager.close();
+                        },
+                        child: Text('是'.tl),
+                      ),
+                    ],
+                  );
+                });
+              } else {
+                windowManager.close();
+              }
             },
-          ),
+          )
         ],
       ),
     );

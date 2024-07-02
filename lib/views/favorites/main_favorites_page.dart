@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:collection/collection.dart";
-import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 import "package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart";
 import "package:pica_comic/base.dart";
@@ -686,7 +685,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                       Color? color;
 
                       if(widget.selectedComics.contains(comic.target)) {
-                        color = Theme.of(context).colorScheme.surfaceVariant;
+                        color = Theme.of(context).colorScheme.surfaceContainerHighest;
                       }
                       return AnimatedContainer(
                         decoration: BoxDecoration(
@@ -741,11 +740,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                   text: '前往'.tl,
                 ),
                 TextSpan(
-                    text: '探索页面'.tl,
-                    style: TextStyle(color: App.colors(context).primary),
-                    recognizer:  TapGestureRecognizer()..onTap = () {
-                      MainPage.toExplorePage?.call();
-                    }
+                  text: '探索页面'.tl,
                 ),
                 TextSpan(
                   text: '寻找漫画'.tl,

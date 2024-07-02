@@ -58,25 +58,47 @@ class _DownloadingPageState extends State<DownloadingPage> {
         padding: EdgeInsets.zero,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return SizedBox(
-              height: 60,
-              child: MaterialBanner(
-                  leading: downloadManager.isDownloading
-                      ? const Icon(
-                          Icons.downloading,
-                          color: Colors.blue,
-                        )
-                      : const Icon(
-                          Icons.pause_circle_outline_outlined,
-                          color: Colors.red,
-                        ),
-                  content: downloadManager.error
-                      ? Text("下载出错".tl)
-                      : Text("${"@length 项下载任务".tlParams({
-                              "length":
-                                  downloadManager.downloading.length.toString()
-                            })}${downloadManager.isDownloading ? " 下载中".tl : (downloadManager.downloading.isNotEmpty ? " 已暂停".tl : "")}"),
-                  actions: [
+            String downloadStatus;
+            if (downloadManager.isDownloading) {
+              downloadStatus = " 下载中".tl;
+            } else if (downloadManager.downloading.isNotEmpty) {
+              downloadStatus = " 已暂停".tl;
+            } else {
+              downloadStatus = "";
+            }
+
+            String downloadTaskText = "@length 项下载任务".tlParams(
+                {"length": downloadManager.downloading.length.toString()});
+
+            String displayText = downloadManager.error
+                ? "下载出错".tl
+                : downloadTaskText + downloadStatus;
+            return Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            color:
+                                Theme.of(context).colorScheme.outlineVariant))),
+                height: 48,
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    downloadManager.isDownloading
+                        ? const Icon(
+                            Icons.downloading,
+                            color: Colors.blue,
+                          )
+                        : const Icon(
+                            Icons.pause_circle_outline_outlined,
+                            color: Colors.red,
+                          ),
+                    const SizedBox(
+                      width: 12,
+                    ),
+                    Text(displayText),
+                    const Spacer(),
                     if (downloadManager.downloading.isNotEmpty)
                       TextButton(
                         onPressed: () {
@@ -90,11 +112,12 @@ class _DownloadingPageState extends State<DownloadingPage> {
                             : (downloadManager.error
                                 ? Text("重试".tl)
                                 : Text("继续".tl)),
-                      )
-                    else
-                      const Text(""),
-                  ]),
-            );
+                      ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                  ],
+                ));
           } else {
             return widgets[index - 1];
           }
@@ -163,9 +186,8 @@ class DownloadingTile extends StatelessWidget {
         "${"已下载".tl}${controller.downloadPages}/${controller.pagesCount}";
 
     if (speedInfo != "") {
-      status =
-        "${_bytesToSize(controller.downloadPages).split(' ').first}"
-            "/${_bytesToSize(controller.pagesCount)}";
+      status = "${_bytesToSize(controller.downloadPages).split(' ').first}"
+          "/${_bytesToSize(controller.pagesCount)}";
     }
 
     return "$status  $speedInfo";

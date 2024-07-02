@@ -81,7 +81,7 @@ abstract class DownloadingItem{
   int _retryTimes = 0;
 
   /// download path
-  final String path;
+  String get path => DownloadManager().path ?? (throw "Download path is null");
 
   /// headers for downloading cover
   Map<String, String> get headers => {};
@@ -109,7 +109,7 @@ abstract class DownloadingItem{
 
   int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
 
-  DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
+  DownloadingItem(this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
     var file = File("$path$pathSep$id${pathSep}cover.jpg");
@@ -165,12 +165,9 @@ abstract class DownloadingItem{
             if(index+i >= urls.length)  break;
             loadImageToCache(urls[index+i]);
           }
-          var bytes = await getImage(urls[index]);
-          String fileExtension = imageExtension ??
-              '.${urls[index].split('/').lastOrNull?.split('?').firstOrNull?.split(".").last}';
-          // Check fileExtension is really an image extension
-          if(!["jpg", "jpeg", "png", "gif", "webp"].contains(fileExtension)){
-            fileExtension = ".jpg";
+          var (bytes, ext) = await getImage(urls[index]);
+          if(!ext.startsWith(".")){
+            ext = ".$ext";
           }
           if(bytes.isEmpty){
             throw Exception("Fail to download image: data is empty.");
@@ -178,9 +175,9 @@ abstract class DownloadingItem{
           if(currentKey != _runtimeKey)  return;
           File file;
           if(haveEps) {
-            file = File("$path$pathSep$id$pathSep$ep$pathSep$index$fileExtension");
+            file = File("$path$pathSep$id$pathSep$ep$pathSep$index$ext");
           }else{
-            file = File("$path$pathSep$id$pathSep$index$fileExtension");
+            file = File("$path$pathSep$id$pathSep$index$ext");
           }
           if(await file.exists()){
             await file.delete();
@@ -269,7 +266,6 @@ abstract class DownloadingItem{
     return {
       "id": id,
       "type": type.index,
-      "path": path,
       "_downloadedNum": _downloadedNum,
       "_downloadingEp": _downloadingEp,
       "index": index,
@@ -282,7 +278,6 @@ abstract class DownloadingItem{
   DownloadingItem.fromMap(Map<String, dynamic> map, this.whenFinish,this.whenError,this.updateInfo):
       id = map["id"],
       type = DownloadType.values[map["type"]],
-      path = map["path"],
       _downloadedNum = map["_downloadedNum"],
       _downloadingEp = map["_downloadingEp"],
       index = map["index"],
@@ -309,7 +304,7 @@ abstract class DownloadingItem{
 
   void loadImageToCache(String link);
 
-  Future<Uint8List> getImage(String link);
+  Future<(Uint8List data, String ext)> getImage(String link);
 
   ///获取封面链接
   String get cover;

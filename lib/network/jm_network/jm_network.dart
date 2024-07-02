@@ -389,15 +389,19 @@ class JmNetwork {
       String keyword, int page, ComicsOrder order) async {
     appdata.searchHistory.remove(keyword);
     appdata.searchHistory.add(keyword);
+    keyword = keyword.trim();
+    keyword = keyword.replaceAll('  ', ' ');
+    keyword = Uri.encodeComponent(keyword);
+    keyword = keyword.replaceAll('%20', '+');
     appdata.writeHistory();
     Res res;
     if (page != 1) {
       res = await get(
-          "$baseUrl/search?&search_query=${Uri.encodeComponent(keyword)}&o=$order&page=$page",
+          "$baseUrl/search?&search_query=$keyword&o=$order&page=$page",
           expiredTime: CacheExpiredTime.no);
     } else {
       res = await get(
-          "$baseUrl/search?&search_query=${Uri.encodeComponent(keyword)}&o=$order",
+          "$baseUrl/search?&search_query=$keyword&o=$order",
           expiredTime: CacheExpiredTime.no);
     }
     if (res.error) {

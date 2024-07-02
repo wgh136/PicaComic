@@ -18,7 +18,7 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
 
 class FavoriteDownloading extends DownloadingItem{
-  FavoriteDownloading(this.comic, super.path, super.whenFinish, super.whenError,
+  FavoriteDownloading(this.comic, super.whenFinish, super.whenError,
       super.updateInfo, super.id, {super.type = DownloadType.favorite});
 
   FavoriteItem comic;
@@ -37,12 +37,12 @@ class FavoriteDownloading extends DownloadingItem{
       case 0: {
         var comicItem = await PicacgNetwork().getComicInfo(comic.target);
         downloadLogic = PicDownloadingItem(
-            comicItem.data, path, List.generate(comicItem.data.eps.length,
+            comicItem.data, List.generate(comicItem.data.eps.length,
                 (index) => index), whenFinish, whenError, updateInfo, id);
       }
       case 1: {
         var gallery = await EhNetwork().getGalleryInfo(comic.target);
-        downloadLogic = EhDownloadingItem(gallery.data, path,
+        downloadLogic = EhDownloadingItem(gallery.data,
             whenFinish, whenError, updateInfo, id, 0);
       }
       case 2: {
@@ -51,27 +51,27 @@ class FavoriteDownloading extends DownloadingItem{
         if(downloadedEp.isEmpty) {
           downloadedEp.add(0);
         }
-        downloadLogic = JmDownloadingItem(jmComic.data, path, downloadedEp,
+        downloadLogic = JmDownloadingItem(jmComic.data, downloadedEp,
             whenFinish, whenError, updateInfo, id);
       }
       case 3: {
         var hitomiComic = await HiNetwork().getComicInfo(comic.target);
-        downloadLogic = HitomiDownloadingItem(hitomiComic.data, path,
+        downloadLogic = HitomiDownloadingItem(hitomiComic.data,
             comic.coverPath, comic.target, whenFinish, whenError, updateInfo, id);
       }
       case 4: {
         var htComic = await HtmangaNetwork().getComicInfo(comic.target);
-        downloadLogic = DownloadingHtComic(htComic.data, path, whenFinish, whenError, updateInfo, id);
+        downloadLogic = DownloadingHtComic(htComic.data, whenFinish, whenError, updateInfo, id);
       }
       case 6: {
         var nhComic = await NhentaiNetwork().getComicInfo(comic.target);
-        downloadLogic = NhentaiDownloadingItem(nhComic.data, path, whenFinish, whenError, updateInfo, id);
+        downloadLogic = NhentaiDownloadingItem(nhComic.data, whenFinish, whenError, updateInfo, id);
       }
       default: {
         var comicSource = comic.type.comicSource;
         var comicInfoData = await comicSource.loadComicInfo!(comic.target);
         var downloadedEp = List.generate(comicInfoData.data.chapters?.length ?? 0, (index) => index);
-        downloadLogic = CustomDownloadingItem(comicInfoData.data, downloadedEp, path,
+        downloadLogic = CustomDownloadingItem(comicInfoData.data, downloadedEp,
             whenFinish, whenError, updateInfo, id);
       }
     }
@@ -85,7 +85,7 @@ class FavoriteDownloading extends DownloadingItem{
   String get cover => comic.coverPath;
 
   @override
-  Future<Uint8List> getImage(String link) => downloadLogic.getImage(link);
+  Future<(Uint8List, String)> getImage(String link) => downloadLogic.getImage(link);
 
   @override
   Future<Map<int, List<String>>> getLinks() => downloadLogic.getLinks();

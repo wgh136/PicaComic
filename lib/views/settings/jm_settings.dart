@@ -131,7 +131,7 @@ class _JmSettingsState extends State<JmSettings> {
             values: [
               "最新".tl, "总排行".tl, "月排行".tl, "周排行".tl, "日排行".tl, "最多图片".tl, "最多喜欢".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.settings[16] = i.toString();
               appdata.updateSettings();
             },
@@ -146,7 +146,7 @@ class _JmSettingsState extends State<JmSettings> {
             values: [
               "最新".tl, "最多点击".tl, "月排行".tl, "周排行".tl, "日排行".tl, "最多图片".tl, "最多喜欢".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.settings[19] = i.toString();
               appdata.updateSettings();
             },
@@ -162,7 +162,7 @@ class _JmSettingsState extends State<JmSettings> {
             values: [
               "最新收藏".tl, "最新更新".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.settings[42] = i.toString();
               appdata.updateSettings();
             },
@@ -184,7 +184,7 @@ class _JmSettingsState extends State<JmSettings> {
             values: [
               "分流1".tl,"分流2".tl,"分流3".tl,"分流4".tl, "分流5".tl, "分流6".tl
             ],
-            whenChange: (i){
+            onChange: (i){
               appdata.settings[37] = i.toString();
               appdata.updateSettings();
             },

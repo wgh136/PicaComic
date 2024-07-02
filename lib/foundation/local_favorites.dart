@@ -553,6 +553,7 @@ class LocalFavoritesManager {
   ///
   /// This method will download cover to local, to avoid problems like changing url
   void addComic(String folder, FavoriteItem comic, [int? order]) async {
+    _modifiedAfterLastCache = true;
     if (!folderNames.contains(folder)) {
       throw Exception("Folder does not exists");
     }
@@ -636,6 +637,7 @@ class LocalFavoritesManager {
 
   /// delete a folder
   void deleteFolder(String name) {
+    _modifiedAfterLastCache = true;
     _db.execute("""
       delete from folder_sync where folder_name == ?;
     """, [name]);
@@ -651,11 +653,13 @@ class LocalFavoritesManager {
   }
 
   void deleteComic(String folder, FavoriteItem comic) {
+    _modifiedAfterLastCache = true;
     deleteComicWithTarget(folder, comic.target);
     checkAndDeleteCover(comic);
   }
 
   void deleteComicWithTarget(String folder, String target) {
+    _modifiedAfterLastCache = true;
     _db.execute("""
       delete from "$folder"
       where target == '${target.toParam}';
@@ -704,6 +708,7 @@ class LocalFavoritesManager {
   }
 
   void onReadEnd(String target) async {
+    _modifiedAfterLastCache = true;
     bool isModified = false;
     for (final folder in folderNames) {
       var rows = _db.select("""
@@ -823,5 +828,29 @@ class LocalFavoritesManager {
         set tags = '${tags.join(",")}'
         where target == '${target.toParam}';
       """);
+  }
+
+  var _cachedFavoritedTargets = <String>{};
+
+  Set<String> get favoritedTargets {
+    if (_modifiedAfterLastCache) {
+      _cacheFavoritedTargets();
+    }
+    return _cachedFavoritedTargets;
+  }
+
+  bool _modifiedAfterLastCache = true;
+
+  void _cacheFavoritedTargets() {
+    _modifiedAfterLastCache = false;
+    _cachedFavoritedTargets.clear();
+    for (var folder in folderNames) {
+      var res = _db.select("""
+        select target from "$folder";
+      """);
+      for (var row in res) {
+        _cachedFavoritedTargets.add(row["target"]);
+      }
+    }
   }
 }

@@ -170,7 +170,7 @@ class JmComicPage extends ComicPage<JmComicInfo> {
       };
 
   @override
-  void tapOnTags(String tag) => MainPage.to(() => JmSearchPage(tag));
+  void tapOnTag(String tag, String key) => MainPage.to(() => JmSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => null;
@@ -193,6 +193,9 @@ class JmComicPage extends ComicPage<JmComicInfo> {
       [],
       [],
       ignoreExamination: true));
+
+  @override
+  String get downloadedId => "jm${data!.id}";
 }
 
 void downloadComic(JmComicInfo comic, BuildContext context) async {

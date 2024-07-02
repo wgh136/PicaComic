@@ -1,6 +1,6 @@
 # Pica Comic
 
-[![flutter](https://img.shields.io/badge/flutter-3.19.3-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.22.2-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)

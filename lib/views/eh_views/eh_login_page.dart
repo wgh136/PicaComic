@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
+import '../../network/http_client.dart';
 
 class EhLoginPage extends StatefulWidget {
   const EhLoginPage({Key? key}) : super(key: key);
@@ -182,21 +183,25 @@ class _EhLoginPageState extends State<EhLoginPage> {
         var webview = FlutterWindowsWebview();
         webview.launchWebview(
             "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
-            WebviewOptions(onTitleChange: (s) async {
-          if (s == "E-Hentai Forums") {
-            var cookies1 = await webview.getCookies("https://e-hentai.org");
-            var cookies2 = await webview.getCookies("https://exhentai.org");
-            webview.close();
-            var cookies = <String, String>{};
-            cookies1.forEach((key, value) {
-              cookies[key] = value;
-            });
-            cookies2.forEach((key, value) {
-              cookies[key] = value;
-            });
-            loginWithCookies(cookies);
-          }
-        }));
+            WebviewOptions(
+                proxy: proxyHttpOverrides?.proxyStr,
+                onTitleChange: (s) async {
+                  if (s == "E-Hentai Forums") {
+                    var cookies1 =
+                        await webview.getCookies("https://e-hentai.org");
+                    var cookies2 =
+                        await webview.getCookies("https://exhentai.org");
+                    webview.close();
+                    var cookies = <String, String>{};
+                    cookies1.forEach((key, value) {
+                      cookies[key] = value;
+                    });
+                    cookies2.forEach((key, value) {
+                      cookies[key] = value;
+                    });
+                    loginWithCookies(cookies);
+                  }
+                }));
       } else if (App.isMacOS) {
         var webview =
             MacWebview(onTitleChange: (title, controller, browser) async {

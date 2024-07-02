@@ -30,9 +30,18 @@ class CacheManager {
         key TEXT PRIMARY KEY NOT NULL,
         dir TEXT NOT NULL,
         name TEXT NOT NULL,
-        expires INTEGER NOT NULL
+        expires INTEGER NOT NULL,
+        type TEXT
       )
     ''');
+    // 旧版本的表中没有type字段，需要添加
+    try {
+      _db.execute('''
+        ALTER TABLE cache ADD COLUMN type TEXT
+      ''');
+    } catch (e) {
+      // ignore
+    }
     compute((path) => Directory(path).size, cachePath)
         .then((value) => _currentSize = value);
   }
@@ -42,6 +51,25 @@ class CacheManager {
   /// set cache size limit in bytes
   void setLimitSize(int size){
     _limitSize = size;
+  }
+
+  void setType(String key, String? type){
+    _db.execute('''
+      UPDATE cache
+      SET type = ?
+      WHERE key = ?
+    ''', [type, key]);
+  }
+
+  String? getType(String key){
+    var res = _db.select('''
+      SELECT type FROM cache
+      WHERE key = ?
+    ''', [key]);
+    if(res.isEmpty){
+      return null;
+    }
+    return res.first[0];
   }
 
   Future<void> writeCache(String key, Uint8List data, [int duration = 7 * 24 * 60 * 60 * 1000]) async{

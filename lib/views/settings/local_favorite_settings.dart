@@ -20,7 +20,7 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             initialValue: LocalFavoritesManager()
                 .folderNames
                 .indexOf(appdata.settings[51]),
-            whenChange: (i) {
+            onChange: (i) {
               appdata.settings[51] =
               LocalFavoritesManager().folderNames[i];
               appdata.updateSettings();
@@ -54,7 +54,7 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             initialValue: ["1", "2", "3", "4", "5", "10", "99"]
                 .indexOf(appdata.settings[71]),
             values: const ["1", "2", "3", "4", "5", "10", "99"],
-            whenChange: (i) {
+            onChange: (i) {
               appdata.settings[71] = ["1", "2", "3", "4", "5", "10", "99"][i];
               appdata.updateSettings();
             },

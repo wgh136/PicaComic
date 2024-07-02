@@ -121,7 +121,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       App.locale.languageCode == "zh";
 
   @override
-  void tapOnTags(String tag) {
+  void tapOnTag(String tag, String key) {
     MainPage.to(() => HitomiSearchPage(tag));
   }
 
@@ -170,6 +170,9 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
   @override
   FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromHitomi(
       data!.toBrief(comic.link, cover));
+
+  @override
+  String get downloadedId => "hitomi${data!.id}";
 }
 
 void _downloadComic(

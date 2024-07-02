@@ -409,7 +409,8 @@ class PicacgNetwork {
     try {
       while (flag) {
         i++;
-        var res = await get("$apiUrl/comics/$id/eps?page=$i");
+        var res = await get("$apiUrl/comics/$id/eps?page=$i",
+            expiredTime: CacheExpiredTime.no);
         if (res.error) {
           return Res(null, errorMessage: res.errorMessage);
         } else if (res.data["data"]["eps"]["pages"] == i) {

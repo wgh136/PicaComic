@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/base_comic.dart';
@@ -306,7 +307,7 @@ class DownloadPage extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             color: selected
-                ? Theme.of(context).colorScheme.surfaceVariant
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : Colors.transparent,
             borderRadius: const BorderRadius.all(Radius.circular(16))),
         child: DownloadedComicTile(
@@ -420,6 +421,15 @@ class DownloadPage extends StatelessWidget {
                       });
                     },
                   ),
+                  DesktopMenuEntry(
+                    text: "复制路径".tl,
+                    onClick: () {
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        var path = "${downloadManager.path}/${logic.comics[index].id}";
+                        Clipboard.setData(ClipboardData(text: path));
+                      });
+                    },
+                  ),
                 ]);
           },
         ),
@@ -516,7 +526,7 @@ class DownloadPage extends StatelessWidget {
   }
 
   Widget buildAppbar(BuildContext context, DownloadPageLogic logic)
-    => CustomSmallSliverAppbar(
+    => MySliverAppBar(
       leading: logic.selecting
           ? IconButton(
               onPressed: () {
@@ -533,9 +543,6 @@ class DownloadPage extends StatelessWidget {
           : IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back)),
-      backgroundColor: (logic.selecting && UiMode.m1(context))
-          ? Theme.of(context).colorScheme.secondaryContainer
-          : null,
       title: buildTitle(context, logic),
       actions: [
         if (!logic.selecting && !logic.searchMode)
@@ -556,7 +563,7 @@ class DownloadPage extends StatelessWidget {
                             title: Text("漫画排序模式".tl),
                             trailing: Select(
                               initialValue: int.parse(appdata.settings[26][0]),
-                              whenChange: (i){
+                              onChange: (i){
                                 appdata.settings[26] = appdata.settings[26].setValueAt(i.toString(), 0);
                                 appdata.updateSettings();
                                 changed = true;
@@ -750,7 +757,7 @@ class DownloadPage extends StatelessWidget {
                       width: 156,
                       values: LocalFavoritesManager().folderNames,
                       initialValue: null,
-                      whenChange: (i) =>
+                      onChange: (i) =>
                       folder = LocalFavoritesManager().folderNames[i],
                     ),
                   ),
@@ -870,7 +877,7 @@ class _DownloadedComicInfoViewState extends State<DownloadedComicInfoView> {
                             const BorderRadius.all(Radius.circular(16)),
                         color: downloadedEps.contains(i)
                             ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.surfaceVariant,
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                       ),
                       child: Row(
                         children: [

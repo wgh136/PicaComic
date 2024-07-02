@@ -344,7 +344,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
                 "Yellow",
                 "Brown"
               ],
-              whenChange: (i) {
+              onChange: (i) {
                 appdata.settings[27] = i.toString();
                 appdata.updateSettings();
                 MyApp.updater?.call();
@@ -358,7 +358,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
             trailing: Select(
               initialValue: int.parse(appdata.settings[32]),
               values: ["跟随系统".tl, "禁用".tl, "启用".tl],
-              whenChange: (i) {
+              onChange: (i) {
                 appdata.settings[32] = i.toString();
                 appdata.updateSettings();
                 MyApp.updater?.call();
@@ -528,7 +528,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           trailing: Select(
             initialValue: ["", "cn", "tw", "en"].indexOf(appdata.settings[50]),
             values: const ["System", "中文(简体)", "中文(繁體)", "English"],
-            whenChange: (value) {
+            onChange: (value) {
               appdata.settings[50] = ["", "cn", "tw", "en"][value];
               appdata.updateSettings();
               MyApp.updater?.call();
@@ -541,7 +541,7 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
           trailing: Select(
             initialValue: ["1", "2", "4", "6", "8", "16"].indexOf(appdata.settings[79]),
             values: const ["1", "2", "4", "6", "8", "16"],
-            whenChange: (value) {
+            onChange: (value) {
               appdata.settings[79] = ["1", "2", "4", "6", "8", "16"][value];
               appdata.updateSettings();
             },
@@ -570,15 +570,18 @@ class _NewSettingsPageState extends State<NewSettingsPage> implements PopEntry{
   Widget buildAbout() {
     return Column(
       children: [
-        const SizedBox(
+        SizedBox(
           height: 130,
           width: double.infinity,
           child: Center(
-            child: SizedBox(
-              width: 100,
-              height: 100,
-              child: CircleAvatar(
-                backgroundImage: AssetImage("images/app_icon.png"),
+            child: Container(
+              width: 156,
+              height: 156,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20)),
+              child: const Image(
+                image: AssetImage("images/app_icon_no_bg.png"),
+                filterQuality: FilterQuality.medium,
               ),
             ),
           ),

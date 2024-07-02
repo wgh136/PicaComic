@@ -102,7 +102,7 @@ class HtComicPage extends ComicPage<HtComicInfo> {
       {"分类".tl: data!.category.toList(), "标签".tl: data!.tags.keys.toList()};
 
   @override
-  void tapOnTags(String tag) => MainPage.to(() => HtSearchPage(tag));
+  void tapOnTag(String tag, String key) => MainPage.to(() => HtSearchPage(tag));
 
   @override
   ThumbnailsData? get thumbnailsCreator => ThumbnailsData(
@@ -163,6 +163,9 @@ class HtComicPage extends ComicPage<HtComicInfo> {
 
   @override
   FavoriteItem toLocalFavoriteItem() => FavoriteItem.fromHtcomic(comic);
+
+  @override
+  String get downloadedId => "Ht${data!.id}";
 }
 
 class HtComicPageLogic extends StateController {

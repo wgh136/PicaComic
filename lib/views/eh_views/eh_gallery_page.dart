@@ -120,7 +120,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  void tapOnTags(String tag) {
+  void tapOnTag(String tag, String key) {
     var namespace = "";
     for (var entry in data!.tags.entries) {
       if (entry.value.contains(tag)) {
@@ -176,7 +176,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
       return super.thumbnailImageBuilder(index, imageUrl);
     }
     return ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: EhThumbnailLoader(
           image: CachedImageProvider(imageUrl), index: index),
     );
@@ -321,7 +321,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
           } else {
             info = res.data;
             loading = false;
-            setState(() {});
+            if(context.mounted) {
+              setState(() {});
+            }
           }
         }
 
@@ -454,6 +456,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
   @override
   ActionFunc? get openComments =>
           () => showComments(context, link, data!.uploader);
+
+  @override
+  String get downloadedId => getGalleryId(link);
 }
 
 class RatingLogic extends StateController {
