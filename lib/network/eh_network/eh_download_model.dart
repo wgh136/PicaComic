@@ -109,13 +109,13 @@ class EhDownloadingItem extends DownloadingItem{
   String get title => gallery.title;
 
   @override
-  Future<Uint8List> getImage(String link) async{
+  Future<(Uint8List, String)> getImage(String link) async{
     await for(var s in ImageManager().getEhImageNew(gallery, int.parse(link))){
       if(s.finished){
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
-        return data;
+        return (data, s.ext ?? "jpg");
       }
     }
     throw Exception("Failed to download Image");

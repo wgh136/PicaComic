@@ -109,7 +109,7 @@ class JmDownloadingItem extends DownloadingItem {
   String get title => comic.name;
 
   @override
-  Future<Uint8List> getImage(String link) async{
+  Future<(Uint8List, String)> getImage(String link) async{
     var bookId = "";
     for (int i = link.length - 1; i >= 0; i--) {
       if (link[i] == '/') {
@@ -126,7 +126,7 @@ class JmDownloadingItem extends DownloadingItem {
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
-        return data;
+        return (data, s.ext ?? "jpg");
       }
     }
     throw Exception("Failed to download image");

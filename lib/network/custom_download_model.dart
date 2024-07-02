@@ -117,13 +117,13 @@ class CustomDownloadingItem extends DownloadingItem {
   }
 
   @override
-  Future<Uint8List> getImage(String link) async{
+  Future<(Uint8List, String)> getImage(String link) async{
     await for(var s in _getImage(link)){
       if(s.finished){
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
-        return data;
+        return (data, s.ext ?? "jpg");
       }
     }
     throw Exception("Fail to download Image");

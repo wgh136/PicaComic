@@ -321,7 +321,9 @@ class EhGalleryPage extends ComicPage<Gallery> {
           } else {
             info = res.data;
             loading = false;
-            setState(() {});
+            if(context.mounted) {
+              setState(() {});
+            }
           }
         }
 

@@ -276,7 +276,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
       : null;
 
   @override
-  String get downloadedId => downloadManager.generateId(source, id);
+  String get downloadedId => downloadManager.generateId(comicSource!.key, id);
 }
 
 class _CommentsPage extends StatefulWidget {

@@ -85,7 +85,7 @@ class FavoriteDownloading extends DownloadingItem{
   String get cover => comic.coverPath;
 
   @override
-  Future<Uint8List> getImage(String link) => downloadLogic.getImage(link);
+  Future<(Uint8List, String)> getImage(String link) => downloadLogic.getImage(link);
 
   @override
   Future<Map<int, List<String>>> getLinks() => downloadLogic.getLinks();

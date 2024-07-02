@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/base_comic.dart';
@@ -417,6 +418,15 @@ class DownloadPage extends StatelessWidget {
                     onClick: () {
                       Future.delayed(const Duration(milliseconds: 300), () {
                         toComicInfoPage(logic.comics[index]);
+                      });
+                    },
+                  ),
+                  DesktopMenuEntry(
+                    text: "复制路径".tl,
+                    onClick: () {
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        var path = "${downloadManager.path}/${logic.comics[index].id}";
+                        Clipboard.setData(ClipboardData(text: path));
                       });
                     },
                   ),

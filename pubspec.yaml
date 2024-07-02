@@ -39,7 +39,7 @@ dependencies:
   photo_view:
     git:
       url: https://github.com/wgh136/photo_view
-      ref: main
+      ref: ee7e3628
   url_launcher: ^6.1.8
   path_provider: ^2.0.12
   file_selector: ^1.0.1

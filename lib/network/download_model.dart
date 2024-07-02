@@ -165,12 +165,9 @@ abstract class DownloadingItem{
             if(index+i >= urls.length)  break;
             loadImageToCache(urls[index+i]);
           }
-          var bytes = await getImage(urls[index]);
-          String fileExtension = imageExtension ??
-              '.${urls[index].split('/').lastOrNull?.split('?').firstOrNull?.split(".").last}';
-          // Check fileExtension is really an image extension
-          if(!["jpg", "jpeg", "png", "gif", "webp"].contains(fileExtension)){
-            fileExtension = ".jpg";
+          var (bytes, ext) = await getImage(urls[index]);
+          if(!ext.startsWith(".")){
+            ext = ".$ext";
           }
           if(bytes.isEmpty){
             throw Exception("Fail to download image: data is empty.");
@@ -178,9 +175,9 @@ abstract class DownloadingItem{
           if(currentKey != _runtimeKey)  return;
           File file;
           if(haveEps) {
-            file = File("$path$pathSep$id$pathSep$ep$pathSep$index$fileExtension");
+            file = File("$path$pathSep$id$pathSep$ep$pathSep$index$ext");
           }else{
-            file = File("$path$pathSep$id$pathSep$index$fileExtension");
+            file = File("$path$pathSep$id$pathSep$index$ext");
           }
           if(await file.exists()){
             await file.delete();
@@ -307,7 +304,7 @@ abstract class DownloadingItem{
 
   void loadImageToCache(String link);
 
-  Future<Uint8List> getImage(String link);
+  Future<(Uint8List data, String ext)> getImage(String link);
 
   ///获取封面链接
   String get cover;
