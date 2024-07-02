@@ -451,6 +451,48 @@ class NhentaiNetwork {
       return const Res(true);
     }
   }
+
+  Future<Res<List<NhentaiComicBrief>>> getCategoryComics(String path, int page, NhentaiSort sort) async {
+    var param = switch(sort) {
+      NhentaiSort.recent => '/',
+      NhentaiSort.popularToday => '/popular-today',
+      NhentaiSort.popularWeek => '/popular-week',
+      NhentaiSort.popularMonth => '/popular-month',
+      NhentaiSort.popularAll => '/popular'
+    };
+    var res = await get("$baseUrl$path$param?page=$page");
+    if (res.error) {
+      return Res.fromErrorRes(res);
+    }
+    try {
+      var document = parse(res.data);
+
+      var comicDoms = document.querySelectorAll("div.gallery");
+
+      var results = document.querySelector("div#content > h1")!.text;
+
+      Future.microtask(() {
+        try{
+          StateController.find<PreSearchController>().update();
+        }
+        catch(e){
+          //
+        }
+      });
+
+      if (comicDoms.isEmpty) {
+        return const Res([], subData: 0);
+      }
+
+      return Res(removeNullValue(
+          List.generate(
+              comicDoms.length, (index) => parseComic(comicDoms[index]))),
+          subData: (int.parse(results.nums) / comicDoms.length).ceil());
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
+      return Res(null, errorMessage: "Failed to Parse Data: $e");
+    }
+  }
 }
 
 enum NhentaiSort{

@@ -3,6 +3,7 @@ import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/views/nhentai/comic_tile.dart';
+import 'package:pica_comic/views/nhentai/nhentai_category.dart';
 import 'package:pica_comic/views/nhentai/search_page.dart';
 import 'package:pica_comic/views/page_template/comic_page.dart';
 import 'package:pica_comic/views/reader/goto_reader.dart';
@@ -173,14 +174,26 @@ class NhentaiComicPage extends ComicPage<NhentaiComic> {
   Map<String, List<String>>? get tags => generateTags();
 
   @override
-  void tapOnTags(String tag) {
+  void tapOnTag(String tag, String key) {
     if (tag.contains(" ")) {
-      tag = "\"$tag\"";
+      tag = tag.replaceAll(' ', '-');
     }
-    if((data!.tags["Artists"] ?? []).contains(tag.replaceAll("\"", ""))){
-      tag = "Artist:$tag";
+    String? category = switch(key) {
+      "Parodies" => "/parody/$tag",
+      "Character" => "/character/$tag",
+      "Tags" => "/tag/$tag",
+      "Artists" => "/artist/$tag",
+      "Groups" => "/group/$tag",
+      "Languages" => "/language/$tag",
+      "Categories" => "/category/$tag",
+      _ => null
+    };
+
+    if(category == null) {
+      MainPage.to(() => NhentaiSearchPage(tag));
+    } else {
+      MainPage.to(() => NhentaiCategory(category));
     }
-    MainPage.to(() => NhentaiSearchPage(tag));
   }
 
   @override

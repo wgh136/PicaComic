@@ -149,7 +149,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
   String? get cover;
 
   /// callback when user tap on a tag
-  void tapOnTags(String tag);
+  void tapOnTag(String tag, String key);
 
   void read(History? history);
 
@@ -602,7 +602,7 @@ abstract class ComicPage<T extends Object> extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(4, 4, 4, 4),
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
-          onTap: title ? null : () => tapOnTags(text),
+          onTap: title ? null : () => tapOnTag(text, key),
           onSecondaryTapDown: (details) {
             showMenu(
                 context: App.globalContext!,

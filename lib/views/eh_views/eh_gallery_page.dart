@@ -120,7 +120,7 @@ class EhGalleryPage extends ComicPage<Gallery> {
   }
 
   @override
-  void tapOnTags(String tag) {
+  void tapOnTag(String tag, String key) {
     var namespace = "";
     for (var entry in data!.tags.entries) {
       if (entry.value.contains(tag)) {

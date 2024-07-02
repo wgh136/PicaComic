@@ -146,7 +146,7 @@ class CustomComicPage extends ComicPage<ComicInfoData> {
   Map<String, List<String>>? get tags => data!.tags;
 
   @override
-  void tapOnTags(String tag) {
+  void tapOnTag(String tag, String key) {
     toSearchPage(comicSource!.key, tag);
   }
 

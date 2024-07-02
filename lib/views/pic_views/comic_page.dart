@@ -132,7 +132,7 @@ class PicacgComicPage extends ComicPage<ComicItem> {
       };
 
   @override
-  void tapOnTags(String tag){
+  void tapOnTag(String tag, String key){
     if(data!.categories.contains(tag)){
       MainPage.to(() => PicacgCategoryComicPage(tag));
     } else if(data!.author == tag){

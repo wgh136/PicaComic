@@ -121,7 +121,7 @@ class HitomiComicPage extends ComicPage<HitomiComic> {
       App.locale.languageCode == "zh";
 
   @override
-  void tapOnTags(String tag) {
+  void tapOnTag(String tag, String key) {
     MainPage.to(() => HitomiSearchPage(tag));
   }
 
