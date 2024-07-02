@@ -138,8 +138,17 @@ class _NaviPaneState extends State<NaviPane> with SingleTickerProviderStateMixin
       _kBottomBarHeight + MediaQuery.of(context).padding.bottom;
 
   void onNavigatorStateChange() {
-    Future.delayed(const Duration(milliseconds: 200), () {
+    Future.doWhile(() async{
+      if (widget.observer.routes.lastOrNull is! PageRoute) {
+        return false;
+      }
+      var route = widget.observer.routes.last as PageRoute;
+      if (route.animation!.status != AnimationStatus.completed) {
+        await Future.delayed(const Duration(milliseconds: 10));
+        return true;
+      }
       onRebuild(context);
+      return false;
     });
   }
 
@@ -186,7 +195,7 @@ class _NaviPaneState extends State<NaviPane> with SingleTickerProviderStateMixin
       }
       controller.animateTo(
         target,
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 160),
         curve: Curves.ease
       );
       animationTarget = target;
