@@ -81,7 +81,7 @@ abstract class DownloadingItem{
   int _retryTimes = 0;
 
   /// download path
-  final String path;
+  String get path => DownloadManager().path ?? (throw "Download path is null");
 
   /// headers for downloading cover
   Map<String, String> get headers => {};
@@ -109,7 +109,7 @@ abstract class DownloadingItem{
 
   int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
 
-  DownloadingItem(this.path, this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
+  DownloadingItem(this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
     var file = File("$path$pathSep$id${pathSep}cover.jpg");
@@ -269,7 +269,6 @@ abstract class DownloadingItem{
     return {
       "id": id,
       "type": type.index,
-      "path": path,
       "_downloadedNum": _downloadedNum,
       "_downloadingEp": _downloadingEp,
       "index": index,
@@ -282,7 +281,6 @@ abstract class DownloadingItem{
   DownloadingItem.fromMap(Map<String, dynamic> map, this.whenFinish,this.whenError,this.updateInfo):
       id = map["id"],
       type = DownloadType.values[map["type"]],
-      path = map["path"],
       _downloadedNum = map["_downloadedNum"],
       _downloadingEp = map["_downloadingEp"],
       index = map["index"],

@@ -63,7 +63,7 @@ class NhentaiDownloadedComic extends DownloadedItem{
 }
 
 class NhentaiDownloadingItem extends DownloadingItem{
-  NhentaiDownloadingItem(this.comic, super.path, super.whenFinish, super.whenError, super.updateInfo, super.id, {super.type = DownloadType.nhentai});
+  NhentaiDownloadingItem(this.comic, super.whenFinish, super.whenError, super.updateInfo, super.id, {super.type = DownloadType.nhentai});
 
   final NhentaiComic comic;
 

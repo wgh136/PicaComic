@@ -54,7 +54,7 @@ class DownloadedHtComic extends DownloadedItem{
 }
 
 class DownloadingHtComic extends DownloadingItem{
-  DownloadingHtComic(this.comic, super.path,
+  DownloadingHtComic(this.comic,
       super.whenFinish, super.whenError, super.updateInfo, super.id,
       {super.type=DownloadType.htmanga});
 

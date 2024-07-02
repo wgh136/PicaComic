@@ -88,7 +88,7 @@ class CustomDownloadedItem extends DownloadedItem {
 }
 
 class CustomDownloadingItem extends DownloadingItem {
-  CustomDownloadingItem(this.comic, this._downloadEps, super.path,
+  CustomDownloadingItem(this.comic, this._downloadEps,
       super.whenFinish, super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.other})
       : source = ComicSource.find(comic.sourceKey)!;

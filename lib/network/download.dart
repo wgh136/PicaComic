@@ -233,7 +233,7 @@ class DownloadManager{
   void addPicDownload(ComicItem comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${comic.id}");
     downloadPath.create(recursive: true);
-    downloading.addLast(PicDownloadingItem(comic, path!, downloadEps, _whenFinish, _whenError, _saveInfo, comic.id));
+    downloading.addLast(PicDownloadingItem(comic, downloadEps, _whenFinish, _whenError, _saveInfo, comic.id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -246,7 +246,7 @@ class DownloadManager{
     final id = getGalleryId(gallery.link);
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(EhDownloadingItem(gallery, path!, _whenFinish, _whenError, _saveInfo, id, type));
+    downloading.addLast(EhDownloadingItem(gallery, _whenFinish, _whenError, _saveInfo, id, type));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -258,7 +258,7 @@ class DownloadManager{
   void addJmDownload(JmComicInfo comic, List<int> downloadEps){
     var downloadPath = Directory("$path$pathSep${"jm"}${comic.id}");
     downloadPath.create(recursive: true);
-    downloading.addLast(JmDownloadingItem(comic, path!, downloadEps, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
+    downloading.addLast(JmDownloadingItem(comic, downloadEps, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -271,7 +271,7 @@ class DownloadManager{
     final id = "hitomi${comic.id}";
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(HitomiDownloadingItem(comic, path!, cover, link, _whenFinish, _whenError, _saveInfo, id));
+    downloading.addLast(HitomiDownloadingItem(comic, cover, link, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -284,7 +284,7 @@ class DownloadManager{
     final id = "Ht${comic.id}";
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(DownloadingHtComic(comic, path!, _whenFinish, _whenError, _saveInfo, id));
+    downloading.addLast(DownloadingHtComic(comic, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -296,7 +296,7 @@ class DownloadManager{
     final id = "nhentai${comic.id}";
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(NhentaiDownloadingItem(comic, path!, _whenFinish, _whenError, _saveInfo, id));
+    downloading.addLast(NhentaiDownloadingItem(comic, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -317,7 +317,7 @@ class DownloadManager{
     var id = generateId(comic.sourceKey, comic.comicId);
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(CustomDownloadingItem(comic, downloadEps, path!, _whenFinish, _whenError, _saveInfo, id));
+    downloading.addLast(CustomDownloadingItem(comic, downloadEps, _whenFinish, _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){
       downloading.first.start();
@@ -337,7 +337,7 @@ class DownloadManager{
     };
     var downloadPath = Directory("$path$pathSep$id");
     downloadPath.create(recursive: true);
-    downloading.addLast(FavoriteDownloading(comic, path!, _whenFinish,
+    downloading.addLast(FavoriteDownloading(comic, _whenFinish,
         _whenError, _saveInfo, id));
     _saveInfo();
     if(!isDownloading){

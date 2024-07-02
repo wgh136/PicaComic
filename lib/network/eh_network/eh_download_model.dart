@@ -73,7 +73,6 @@ class DownloadedGallery extends DownloadedItem{
 class EhDownloadingItem extends DownloadingItem{
   EhDownloadingItem(
       this.gallery,
-      super.path,
       super.whenFinish,
       super.whenError,
       super.updateInfo,

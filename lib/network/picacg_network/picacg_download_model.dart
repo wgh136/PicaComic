@@ -72,7 +72,6 @@ class DownloadedComic extends DownloadedItem{
 class PicDownloadingItem extends DownloadingItem {
   PicDownloadingItem(
       this.comic,
-      super.path,
       this._downloadEps,
       super.whenFinish,
       super.whenError,

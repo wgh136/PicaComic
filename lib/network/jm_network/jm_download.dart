@@ -73,7 +73,7 @@ class DownloadedJmComic extends DownloadedItem {
 }
 
 class JmDownloadingItem extends DownloadingItem {
-  JmDownloadingItem(this.comic, super.path, this._downloadEps, super.whenFinish,
+  JmDownloadingItem(this.comic, this._downloadEps, super.whenFinish,
       super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.jm});
 

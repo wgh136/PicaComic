@@ -58,7 +58,7 @@ class DownloadedHitomiComic extends DownloadedItem {
 }
 
 class HitomiDownloadingItem extends DownloadingItem {
-  HitomiDownloadingItem(this.comic, super.path, this._coverPath, this.link, super.whenFinish,
+  HitomiDownloadingItem(this.comic, this._coverPath, this.link, super.whenFinish,
       super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.hitomi});
 
