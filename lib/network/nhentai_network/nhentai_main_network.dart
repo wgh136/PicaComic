@@ -368,9 +368,15 @@ class NhentaiNetwork {
         var images = <String>[];
 
         for (var image in galleryData["images"]["pages"]) {
+          var extension = switch(image["t"]) {
+            "j" => "jpg",
+            "p" => "png",
+            "g" => "gif",
+            _ => "jpg"
+          };
           images.add(
               "https://i7.nhentai.net/galleries/$mediaId/${images.length + 1}"
-                  ".${image["t"] == 'j' ? 'jpg' : 'png'}");
+                  ".$extension");
         }
         return Res(images);
       } else if(baseUrl.contains("xxx")){
