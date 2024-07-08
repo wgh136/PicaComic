@@ -32,11 +32,11 @@ class LogManager {
     if(kDebugMode){
       switch(level) {
         case LogLevel.error:
-          printError(content);
+          printError(title + ": " + content);
         case LogLevel.warning:
-          printWarning(content);
+          printWarning(title + ": " + content);
         case LogLevel.info:
-          print(content);
+          print(title + ": " + content);
       }
     }
 

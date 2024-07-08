@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
@@ -136,6 +137,10 @@ class Appdata {
   void readImplicitData() async {
     var s = await SharedPreferences.getInstance();
     var data = s.getStringList("implicitData");
+    if (data == null) {
+      writeImplicitData();
+      return;
+    }
     for(int i = 0; i < data!.length && i < implicitData.length; i++) {
       implicitData[i] = data[i];
     }
@@ -373,11 +378,16 @@ class Appdata {
       if(json["history"] != null) {
         history.readDataFromJson(json["history"]);
       }
-      blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
-      favoriteTags = Set.from(json["favoriteTags"] ?? favoriteTags);
+      // merge data
+      blockingKeyword =
+          Set<String>.from(((json["blockingKeywords"] ?? []) + blockingKeyword) as List)
+              .toList();
+      favoriteTags =
+          Set.from((json["favoriteTags"] ?? []) + List.from(favoriteTags));
       writeData(false);
       return true;
-    } catch (e) {
+    } catch (e,s) {
+      LogManager.addLog(LogLevel.error, "Appdata.readDataFromJson", "error reading appdata$e\n$s");
       readData();
       return false;
     }

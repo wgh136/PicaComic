@@ -351,11 +351,14 @@ class LocalFavoritesManager {
             as Map<String, dynamic>;
 
         for (var key in data.keys.toList()) {
-          List<FavoriteItem> comics = [];
+          Set<FavoriteItem> comics = {};
           for (var comic in data[key]!) {
             comics.add(FavoriteItem.fromJson(comic));
           }
-          allComics[key] = comics;
+          if (allComics.containsKey(key)) {
+            comics.addAll(allComics[key]!);
+          }
+          allComics[key] = comics.toList();
         }
 
         await clearAll();
@@ -374,11 +377,56 @@ class LocalFavoritesManager {
       }
     } else if ((file = File("${App.dataPath}/local_favorite_temp.db"))
         .existsSync()) {
-      _db.dispose();
-      await Future.delayed(const Duration(milliseconds: 100));
-      var newPath = "${App.dataPath}/local_favorite.db";
-      file = file.renameSync(newPath);
-      init();
+      var tmp_db = sqlite3.open(file.path);
+
+      final folders = tmp_db
+          .select("SELECT name FROM sqlite_master WHERE type='table';")
+          .map((element) => element["name"] as String)
+          .toList();
+      folders.remove('folder_sync');
+      folders.remove('folder_order');
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager.readData", "read folders from local database $folders");
+      var folderToOrder = <String, int>{};
+      for (var folder in folders) {
+        var res = tmp_db.select("""
+        select * from folder_order
+        where folder_name == ?;
+      """, [folder]);
+        if (res.isNotEmpty) {
+          folderToOrder[folder] = res.first["order_value"];
+        } else {
+          folderToOrder[folder] = 0;
+        }
+      }
+      folders.sort((a, b) {
+        return folderToOrder[a]! - folderToOrder[b]!;
+      });
+      var res = <FavoriteItemWithFolderInfo>[];
+      for (final folder in folders) {
+        var comics = tmp_db.select("""
+        select * from "$folder";
+      """);
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager.readData", "read $folder gets ${comics.length} comics");
+        res.addAll(comics.map((element) =>
+            FavoriteItemWithFolderInfo(FavoriteItem.fromRow(element), folder)));
+      }
+      var skips = 0;
+      for(var comic in res){
+        if(!folderNames.contains(comic.folder)){
+          createFolder(comic.folder);
+        }
+        if(!comicExists(comic.folder,comic.comic.target)){
+          addComic(comic.folder, comic.comic);
+          LogManager.addLog(LogLevel.info, "LocalFavoritesManager", "add comic ${comic.comic.target} to ${comic.folder}");
+        }else{
+          skips++;
+        }
+      }
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager", "skipped $skips comics, total ${res.length}");
+      tmp_db.dispose();
+      file.deleteSync();
+    }else{
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager", "no local favorites db file found");
     }
   }
 
@@ -537,7 +585,13 @@ class LocalFavoritesManager {
     saveData();
     return name;
   }
-
+  bool comicExists(String folder, String target) {
+    var res = _db.select("""
+      select * from "$folder"
+      where target == '${target.toParam}';
+    """);
+    return res.isNotEmpty;
+  }
   FavoriteItem getComic(String folder, String target) {
     var res = _db.select("""
       select * from "$folder"
