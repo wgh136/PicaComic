@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/views/app_views/webview.dart';
+import 'package:pica_comic/views/eh_views/eh_widgets/eh_user_cookie_parser.dart';
 import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -23,6 +24,23 @@ class _EhLoginPageState extends State<EhLoginPage> {
   final c3 = TextEditingController();
   final c4 = TextEditingController();
   bool logging = false;
+  late EhUserCookieParserController cookieParserController;
+
+  @override
+  void initState() {
+    super.initState();
+    cookieParserController = EhUserCookieParserController();
+  }
+
+  @override
+  void dispose() {
+    c1.dispose();
+    c2.dispose();
+    c3.dispose();
+    c4.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +57,14 @@ class _EhLoginPageState extends State<EhLoginPage> {
                 width: 400,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "  Cookies".tl,
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                    _buildHeader(cookieParserController),
                     const SizedBox(
                       height: 3,
+                    ),
+                    EhUserCookieParser(
+                      controller: cookieParserController,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(5),
@@ -151,6 +170,64 @@ class _EhLoginPageState extends State<EhLoginPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Row _buildHeader(EhUserCookieParserController cookieParserController) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            "  Cookies".tl,
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          child: cookieParserController.visible
+              ? _buildCookieParserButtonGroup(cookieParserController)
+              : TextButton(
+                  onPressed: () {
+                    if (cookieParserController.visible) return;
+                    cookieParserController.show();
+                    setState(() {});
+                  },
+                  child: Text('通过 cookie 身份信息快速填写'.tl),
+                ),
+        )
+      ],
+    );
+  }
+
+  Row _buildCookieParserButtonGroup(
+      EhUserCookieParserController cookieParserController) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextButton(
+          onPressed: () {
+            cookieParserController.hide();
+            setState(() {});
+          },
+          child: Text('隐藏'.tl),
+        ),
+        const SizedBox(width: 16),
+        FilledButton(
+          onPressed: () {
+            final cookieMap = cookieParserController.parse();
+            setState(() {
+              c1.text = cookieMap['ipb_member_id'] ?? '';
+              c2.text = cookieMap['ipb_pass_hash'] ?? '';
+              c3.text = cookieMap['igneous'] ?? '';
+              c4.text = cookieMap['star'] ?? '';
+            });
+          },
+          child: Text('解析'.tl),
+        ),
+      ],
     );
   }
 
