@@ -227,6 +227,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
           },
           child: Text('解析'.tl),
         ),
+        const SizedBox(width: 4),
       ],
     );
   }
