@@ -54,6 +54,7 @@ class ComicsPageLogic<T> extends StateController {
   void get(Future<Res<List<T>>> Function(int) getComics) async {
     if (loadingData) return;
     loadingData = true;
+    Future.microtask(() => update());
     if (comics == null) {
       var res = await getComics(1);
       if (res.error) {
@@ -70,6 +71,7 @@ class ComicsPageLogic<T> extends StateController {
         }
       }
       loading = false;
+      loadingData = false;
       update();
     } else {
       var res = await getComics(current);
@@ -79,31 +81,43 @@ class ComicsPageLogic<T> extends StateController {
         dividedComics![current] = res.data;
       }
       loading = false;
+      loadingData = false;
       update();
     }
-    loadingData = false;
   }
+
+  int _emptyPageCount = 0;
 
   void loadNextPage(Future<Res<List<T>>> Function(int) getComics) async {
     if (maxPage != null && current >= maxPage!) return;
     if (loadingData) return;
     loadingData = true;
+    Future.microtask(() => update());
     var res = await getComics(current + 1);
     if (res.error) {
       showMessage(App.globalContext, res.errorMessage!);
     } else {
+      if(res.subData is int) {
+        maxPage = res.subData;
+      }
       if (res.data.isEmpty) {
+        _emptyPageCount++;
+        if(_emptyPageCount > 3 && maxPage == null) {
+          // 某些漫画源不会返回总页数, 而app的网络代码会根据用户设置进行屏蔽操作
+          // 空页面既可能是因为没有更多页面, 也可能是因为被屏蔽了
+          // 如果连续3次加载空页面, 则认为已经加载完毕
+          maxPage = current;
+        }
         // 等待一会儿再加载, 避免因为某些错误导致无限加载
         await Future.delayed(const Duration(seconds: 1));
-        current++;
-        update();
       } else {
+        _emptyPageCount = 0;
         comics!.addAll(res.data);
-        current++;
-        update();
       }
     }
+    current++;
     loadingData = false;
+    update();
   }
 
   void refresh_() {
@@ -209,24 +223,24 @@ abstract class ComicsPage<T> extends StatelessWidget {
             logic.get(getComics);
             return Column(
               children: [
-                if(showTitle && UiMode.m1(context))
-                  SizedBox(height: MediaQuery.of(context).padding.top,),
+                if (showTitle && UiMode.m1(context))
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.top,
+                  ),
                 removeSliver(head) ?? const SizedBox(),
                 Expanded(
                   child: !showBackWhenLoading
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
-                      : Column(
-                          children: [
-                            const BackButton().toAlign(Alignment.centerLeft),
-                            const Expanded(
-                              child: Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            )
-                          ]
-                  ),
+                      : Column(children: [
+                          const BackButton().toAlign(Alignment.centerLeft),
+                          const Expanded(
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        ]),
                 )
               ],
             );
@@ -261,9 +275,16 @@ abstract class ComicsPage<T> extends StatelessWidget {
                     }),
                     gridDelegate: SliverGridDelegateWithComics(),
                   ),
-                  if (logic.current < (logic.maxPage ?? 114514))
+                  if (logic.current < (logic.maxPage ?? 114514) &&
+                      logic.loadingData)
                     const SliverToBoxAdapter(
                       child: ListLoadingIndicator(),
+                    )
+                  else
+                    const SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 80,
+                      ),
                     )
                 ],
               );

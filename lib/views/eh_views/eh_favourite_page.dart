@@ -112,16 +112,20 @@ class EhFavoritePageFolder extends ComicsPage<EhGalleryBrief> {
     if (data.comics[i] != null) {
       return Res(data.comics[i]!);
     } else {
+      int? maxPage;
       while (data.comics[i] == null) {
         data.page++;
         if (!await EhNetwork().getNextPageGalleries(data.galleries!)) {
-          return const Res(null, errorMessage: "网络错误");
+          return Res(null, errorMessage: "网络错误".tl);
         }
         data.comics[data.page] = [];
         data.comics[data.page]!.addAll(data.galleries!.galleries);
         data.galleries!.galleries.clear();
+        if (data.galleries?.next == null) {
+          maxPage = data.page;
+        }
       }
-      return Res(data.comics[i]);
+      return Res(data.comics[i], subData: maxPage);
     }
   }
 
