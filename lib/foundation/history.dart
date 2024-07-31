@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/webdav.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -124,11 +125,33 @@ class HistoryManager {
 
   Future<void> tryUpdateDb() async{
     var file = File("${App.dataPath}/history_temp.db");
-    if(file.existsSync()){
-      _db.dispose();
-      file.renameSync("${App.dataPath}/history.db");
-      await init();
+    if(!file.existsSync()){
+      LogManager.addLog(LogLevel.info, "HistoryManager.tryUpdateDb", "db file not exist");
+      return;
     }
+    var __db = sqlite3.open(file.path);
+    var _newHistory = __db.select("""
+      select * from history
+      order by time DESC;
+    """);
+    var newHistory =
+        _newHistory.map((element) => History.fromRow(element)).toList();
+    if (file.existsSync()) {
+      var skips = 0;
+      for (var history in newHistory) {
+        if (findSync(history.target) == null) {
+          addHistory(history);
+          LogManager.addLog(LogLevel.info, "HistoryManager",
+              "merge history ${history.target}");
+        } else {
+          skips++;
+        }
+      }
+      LogManager.addLog(LogLevel.info, "HistoryManager",
+          "merge history, skipped $skips, added ${newHistory.length - skips}");
+    }
+    __db.dispose();
+    file.deleteSync();
   }
 
   Future<void> init() async {
@@ -175,9 +198,9 @@ class HistoryManager {
     for (var h in json) {
       history.add(History.fromMap((h as Map<String, dynamic>)));
     }
-    clearHistory();
+    // do not clear previous history
     for(var element in history){
-      addHistory(element);
+      if (findSync(element.target) == null) addHistory(element);
     }
     vacuum();
   }
