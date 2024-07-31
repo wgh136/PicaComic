@@ -135,8 +135,8 @@ class Appdata {
 
   void readImplicitData() async {
     var s = await SharedPreferences.getInstance();
-    var data = s.getStringList("implicitData");
-    for(int i = 0; i < data!.length && i < implicitData.length; i++) {
+    var data = s.getStringList("implicitData") ?? [];
+    for (int i = 0; i < data.length && i < implicitData.length; i++) {
       implicitData[i] = data[i];
     }
   }
@@ -235,9 +235,9 @@ class Appdata {
   Future<void> readSettings(SharedPreferences s) async {
     var settingsFile = File("${App.dataPath}/settings");
     List<String> st;
-    if(settingsFile.existsSync()) {
+    if (settingsFile.existsSync()) {
       var json = jsonDecode(await settingsFile.readAsString());
-      if(json is List){
+      if (json is List) {
         st = List.from(json);
       } else {
         st = [];
@@ -256,7 +256,7 @@ class Appdata {
   Future<void> updateSettings([bool syncData = true]) async {
     var settingsFile = File("${App.dataPath}/settings");
     await settingsFile.writeAsString(jsonEncode(settings));
-    if(syncData) {
+    if (syncData) {
       Webdav.uploadData();
     }
   }
@@ -273,7 +273,7 @@ class Appdata {
   }
 
   Future<void> writeData([bool sync = true]) async {
-    if(sync) {
+    if (sync) {
       Webdav.uploadData();
     }
     var s = await SharedPreferences.getInstance();
@@ -370,7 +370,7 @@ class Appdata {
       jmPwd = json["jmPwd"];
       htName = json["htName"];
       htPwd = json["htPwd"];
-      if(json["history"] != null) {
+      if (json["history"] != null) {
         history.readDataFromJson(json["history"]);
       }
       blockingKeyword = List.from(json["blockingKeywords"] ?? blockingKeyword);
@@ -392,7 +392,7 @@ Future<void> clearAppdata() async {
   var s = await SharedPreferences.getInstance();
   await s.clear();
   var settingsFile = File("${App.dataPath}/settings");
-  if(await settingsFile.exists()) {
+  if (await settingsFile.exists()) {
     await settingsFile.delete();
   }
   appdata.history.clearHistory();
