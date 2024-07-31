@@ -51,7 +51,7 @@ See [https://docs.flutter.dev/](https://docs.flutter.dev/)
 The image restructuring algorithm used to display jm images is from this project.
 
 ### Tags Translation
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=EhTagTranslation&repo=Database)](https://github.com/EhTagTranslation/Database**)**
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=EhTagTranslation&repo=Database)](https://github.com/EhTagTranslation/Database)
 
 The Chinese translation of the manga tags is from this project.
 
