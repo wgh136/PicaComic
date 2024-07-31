@@ -396,6 +396,7 @@ Future<bool> importData([String? filePath]) async {
       filePath = file?.path;
     }
     if (filePath == null) {
+      LogManager.addLog(LogLevel.error, "importData", "filePath is null");
       return false;
     }
   }
@@ -451,7 +452,9 @@ Future<bool> importData([String? filePath]) async {
         //忽略
       }
       return json;
-    } catch (e) {
+    } catch (e,s) {
+        LogManager.addLog(LogLevel.error, "importData.closure",
+            "failed to compute data\n$e\n$s");
       return null;
     }
   }, [
@@ -462,6 +465,8 @@ Future<bool> importData([String? filePath]) async {
     (enableCheck ? "1" : "0")
   ]);
   if (data == null) {
+    LogManager.addLog(
+        LogLevel.error, "importData","failed to compute data");
     return false;
   }
   var json = const JsonDecoder().convert(data);
@@ -474,11 +479,14 @@ Future<bool> importData([String? filePath]) async {
         "Appdata",
         "The data file version is $fileVersion, while the app data version is "
             "$appVersion\nStop importing data");
-    return true;
   }
   var prevAccounts = [appdata.picacgAccount, appdata.jmName, appdata.htName];
   var dataReadRes = appdata.readDataFromJson(json);
   if (!dataReadRes) {
+    LogManager.addLog(
+        LogLevel.error,
+        "Appdata",
+        "appdata.readDataFromJson(json) failed");
     return false;
   }
   if (appdata.picacgAccount != prevAccounts[0]) {
