@@ -2,6 +2,7 @@ import subprocess
 import os
 
 fontUse = '''
+  fonts:
     - family: font
       fonts:
         - asset: fonts/NotoSansSC-Regular.ttf

@@ -32,7 +32,6 @@ dependencies:
   dio: 5.4.1
   shared_preferences: ^2.0.16
   dynamic_color: ^1.6.9
-  cupertino_icons: ^1.0.2
   crypto: any
   pointycastle: ^3.7.3
   uuid: ^3.0.7
@@ -82,7 +81,6 @@ dependencies:
     git:
       url: https://github.com/wgh136/zip_flutter
       ref: 92b7309e
-  fl_chart: any
   collection: 1.18.0
   window_manager:
   flutter_inappwebview: 6.0.0
@@ -159,7 +157,3 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
-  fonts:
-    - family: font2
-      fonts:
-        - asset: fonts/Poppins-Regular.ttf
