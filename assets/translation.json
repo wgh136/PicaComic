@@ -530,7 +530,11 @@
     "是否退出程序？" : "是否退出程序？",
     "不再提示": "不再提示",
     "删除下载": "刪除下載",
-    "复制路径": "複製路徑"
+    "复制路径": "複製路徑",
+    "通过 cookie 身份信息快速填写": "通過 cookie 身份信息快速填寫",
+    "解析": "解析",
+    "空的内容不能解析哦": "空的內容不能解析哦",
+    "cookie 信息格式可能有误": "cookie 格式可能有誤"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1060,6 +1064,10 @@
     "是否退出程序？" : "Exit the program?",
     "不再提示": "Do not show again",
     "删除下载": "Delete download",
-    "复制路径": "Copy path"
+    "复制路径": "Copy path",
+    "通过 cookie 身份信息快速填写": "Quickly fill in identity information through cookies",
+    "解析": "Parse",
+    "空的内容不能解析哦": "Empty content cannot be parsed",
+    "cookie 信息格式可能有误": "Cookie information format may be incorrect"
   }
 }
