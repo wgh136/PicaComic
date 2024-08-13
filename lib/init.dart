@@ -10,25 +10,33 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/http_proxy.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
+import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'base.dart';
+import 'comic_source/built_in/ehentai.dart';
+import 'comic_source/built_in/ht_manga.dart';
+import 'comic_source/built_in/jm.dart';
+import 'comic_source/built_in/nhentai.dart';
+import 'comic_source/built_in/picacg.dart';
 import 'foundation/app.dart';
 import 'network/nhentai_network/nhentai_main_network.dart';
 
-Future<void> init() async{
+Future<void> init() async {
   try {
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
     await App.init();
     await appdata.readData();
     SingleInstanceCookieJar("${App.dataPath}/cookies.db");
     HttpProxyServer.createConfigFile();
-    if(appdata.settings[58] == "1"){
+    if (appdata.settings[58] == "1") {
       HttpProxyServer.startServer();
     }
     startClearCache();
@@ -58,20 +66,20 @@ Future<void> init() async{
       HistoryManager().init(),
       AppTranslation.init(),
     ]);
-  }
-  catch(e, s){
-    LogManager.addLog(LogLevel.error, "Init", "App initialization failed!\n$e$s");
+  } catch (e, s) {
+    LogManager.addLog(
+        LogLevel.error, "Init", "App initialization failed!\n$e$s");
   }
 }
 
-Future<void> _checkOldData() async{
+Future<void> _checkOldData() async {
   try {
     // settings
     appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
     if (int.parse(appdata.settings[17]) >= 4) {
       appdata.settings[17] = '0';
     }
-    if(int.parse(appdata.settings[40]) > 40) {
+    if (int.parse(appdata.settings[40]) > 40) {
       appdata.settings[40] = '40';
     }
     appdata.blockingKeyword.removeWhere((value) => value.isEmpty);
@@ -87,66 +95,131 @@ Future<void> _checkOldData() async{
             storage: FileStorage("${App.dataPath}/comic_source/cookies/"))
       ];
       var cookies = <io.Cookie>[];
-      for (var cookie in (await cookieJars[0].loadForRequest(
-          Uri.parse("https://nhentai.net")))) {
+      for (var cookie in (await cookieJars[0]
+          .loadForRequest(Uri.parse("https://nhentai.net")))) {
         cookie.domain ??= ".nhentai.net";
         cookies.add(cookie);
       }
-      for (var cookie in (await cookieJars[1].loadForRequest(
-          Uri.parse("https://e-hentai.org")))) {
+      for (var cookie in (await cookieJars[1]
+          .loadForRequest(Uri.parse("https://e-hentai.org")))) {
         cookie.domain ??= ".e-hentai.org";
         cookies.add(cookie);
       }
-      for (var cookie in (await cookieJars[1].loadForRequest(
-          Uri.parse("https://exhentai.org")))) {
+      for (var cookie in (await cookieJars[1]
+          .loadForRequest(Uri.parse("https://exhentai.org")))) {
         cookie.domain ??= ".exhentai.org";
         cookies.add(cookie);
       }
       try {
         for (var file in io.Directory("${App.dataPath}/comic_source/cookies/")
             .listSync()) {
-          var domain = file.path
-              .split("/")
-              .last;
+          var domain = file.path.split("/").last;
           if (domain == '.domains' || domain == '.index') {
             continue;
           }
           if (domain.startsWith('.')) {
             domain = domain.substring(1);
           }
-          for (var cookie in (await cookieJars[2].loadForRequest(
-              Uri.parse("https://$domain")))) {
+          for (var cookie in (await cookieJars[2]
+              .loadForRequest(Uri.parse("https://$domain")))) {
             cookie.domain ??= ".$domain";
             cookies.add(cookie);
           }
         }
-      }
-      catch(e){
-        // ignore
-      }
-      if(io.Directory("${App.dataPath}/cookies").existsSync()) {
+      } finally {}
+      if (io.Directory("${App.dataPath}/cookies").existsSync()) {
         io.Directory("${App.dataPath}/cookies").deleteSync(recursive: true);
       }
-      if(io.Directory("${App.dataPath}/eh_cookies").existsSync()) {
+      if (io.Directory("${App.dataPath}/eh_cookies").existsSync()) {
         io.Directory("${App.dataPath}/eh_cookies").deleteSync(recursive: true);
       }
-      if(io.Directory("${App.dataPath}/comic_source/cookies").existsSync()) {
-        io.Directory("${App.dataPath}/comic_source/cookies").deleteSync(
-            recursive: true);
+      if (io.Directory("${App.dataPath}/comic_source/cookies").existsSync()) {
+        io.Directory("${App.dataPath}/comic_source/cookies")
+            .deleteSync(recursive: true);
       }
     }
 
-    if(io.File("${App.dataPath}/cache.json").existsSync()){
+    if (io.File("${App.dataPath}/cache.json").existsSync()) {
       io.File("${App.dataPath}/cache.json").deleteIgnoreError();
     }
-    if(io.Directory("${App.cachePath}/imageCache").existsSync()){
-      io.Directory("${App.cachePath}/imageCache").deleteIgnoreError(recursive: true);
+    if (io.Directory("${App.cachePath}/imageCache").existsSync()) {
+      io.Directory("${App.cachePath}/imageCache")
+          .deleteIgnoreError(recursive: true);
     }
-    if(io.Directory("${App.cachePath}/cachedNetwork").existsSync()){
-      io.Directory("${App.cachePath}/cachedNetwork").deleteIgnoreError(recursive: true);
+    if (io.Directory("${App.cachePath}/cachedNetwork").existsSync()) {
+      io.Directory("${App.cachePath}/cachedNetwork")
+          .deleteIgnoreError(recursive: true);
     }
-  }
-  catch(e, s){
+    await _checkAccountData();
+  } catch (e, s) {
     LogManager.addLog(LogLevel.error, "Init", "Check old data failed!\n$e$s");
   }
+}
+
+Future<void> _checkAccountData() async {
+  var s = await SharedPreferences.getInstance();
+  if (s.getString('picacgAccount') != null) {
+    var account = s.getString('picacgAccount');
+    var pwd = s.getString('picacgPassword');
+    var token = s.getString('token');
+    picacg.data['account'] = [account, pwd];
+    picacg.data['token'] = token;
+    picacg.data['user'] = Profile(
+      s.getString("userId") ?? "",
+      s.getString("userAvatar") ?? '',
+      s.getString("userEmail") ?? "",
+      s.getInt("userExp") ?? 0,
+      s.getInt("userLevel") ?? 0,
+      s.getString("userName") ?? "",
+      s.getString("userTitle") ?? "",
+      false,
+      '',
+      '',
+    ).toJson();
+    picacg.data['appChannel'] = s.getString("appChannel") ?? "3";
+    picacg.data['imageQuality'] = s.getString('image') ?? "original";
+    await picacg.saveData();
+    await s.remove('picacgAccount');
+  } else {
+    return;
+  }
+  if(s.getString("jmName") != null) {
+    var account = s.getString('jmName');
+    var pwd = s.getString('jmPwd');
+    jm.data['account'] = [account, pwd];
+    jm.data['name'] = account;
+    await s.remove("jmName");
+    await jm.saveData();
+  }
+  if(s.getString("ehAccount") != null) {
+    ehentai.data['account'] = 'ok';
+    ehentai.data['name'] = s.getString("ehAccount")!;
+    await s.remove("ehAccount");
+    await ehentai.saveData();
+  }
+  if(s.getString('htName') != null) {
+    var account = s.getString('htName');
+    var pwd = s.getString('htPwd');
+    htManga.data['account'] = [account, pwd];
+    htManga.data['name'] = account;
+    await s.remove('htName');
+    await htManga.saveData();
+  }
+  NhentaiNetwork().init();
+  if(NhentaiNetwork().logged) {
+    nhentai.data['account'] = 'ok';
+    await nhentai.saveData();
+  }
+  var explorePages = appdata.appSettings.explorePages;
+  var newPages = <String>[];
+  const builtInPages = ["picacg", "Eh主页", "Eh热门", "禁漫主页", "禁漫最新", "hitomi", "nhentai", "绅士漫画"];
+  for(var page in explorePages) {
+    if(int.tryParse(page) != null) {
+      newPages.addIfNotNull(builtInPages.elementAtOrNull(int.parse(page)));
+    } else {
+      newPages.add(page);
+    }
+  }
+  appdata.appSettings.explorePages = newPages;
+  await appdata.updateSettings();
 }

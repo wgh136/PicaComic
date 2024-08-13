@@ -89,6 +89,7 @@ dependencies:
     git:
       url: https://github.com/wgh136/flutter_qjs
       ref: ade0b9d
+  sliver_tools: ^0.2.12
 
 dependency_overrides:
   flutter_inappwebview_android:

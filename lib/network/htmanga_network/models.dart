@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/base_comic.dart';
 
 import '../../base.dart';
@@ -50,7 +51,7 @@ class HtComicBrief extends BaseComic{
 }
 
 @immutable
-class HtComicInfo {
+class HtComicInfo with HistoryMixin {
   final String id;
   final String coverPath;
   final String name;
@@ -93,4 +94,19 @@ class HtComicInfo {
       avatar = json["avatar"],
       uploadNum = json["uploadNum"],
       thumbnails = [];
+
+  @override
+  String get cover => coverPath;
+
+  @override
+  HistoryType get historyType => HistoryType.htmanga;
+
+  @override
+  String get subTitle => uploader;
+
+  @override
+  String get target => id;
+
+  @override
+  String get title => name;
 }

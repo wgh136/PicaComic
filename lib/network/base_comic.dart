@@ -1,4 +1,4 @@
-abstract class BaseComic{
+abstract class BaseComic {
   String get title;
 
   String get subTitle;
@@ -14,7 +14,7 @@ abstract class BaseComic{
   const BaseComic();
 }
 
-class CustomComic extends BaseComic{
+class CustomComic extends BaseComic {
   @override
   final String title;
 
@@ -35,7 +35,15 @@ class CustomComic extends BaseComic{
 
   final String sourceKey;
 
-  const CustomComic(this.title, this.subTitle, this.cover, this.id, this.tags, this.description, this.sourceKey);
+  const CustomComic(
+    this.title,
+    this.subTitle,
+    this.cover,
+    this.id,
+    this.tags,
+    this.description,
+    this.sourceKey,
+  );
 
   CustomComic.fromJson(Map json, this.sourceKey)
       : title = json["title"],

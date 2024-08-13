@@ -7,25 +7,31 @@ class CategoryData {
   /// 当使用中文语言时, 英文的分类标签将在构建页面时被翻译为中文
   final List<BaseCategoryPart> categories;
 
-  final bool enableRecommendationPage;
-
   final bool enableRankingPage;
-
-  final bool enableRandomPage;
-
-  final String recommendPageName;
 
   final String key;
 
+  final List<CategoryButtonData> buttons;
+
   /// Data class for building category page.
-  const CategoryData(
-      {required this.title,
-      required this.categories,
-      required this.enableRecommendationPage,
-      required this.enableRankingPage,
-      required this.enableRandomPage,
-      required this.key,
-      this.recommendPageName = "Recommendation"});
+  const CategoryData({
+    required this.title,
+    required this.categories,
+    required this.enableRankingPage,
+    required this.key,
+    this.buttons = const [],
+  });
+}
+
+class CategoryButtonData {
+  final String label;
+
+  final void Function() onTap;
+
+  const CategoryButtonData({
+    required this.label,
+    required this.onTap,
+  });
 }
 
 abstract class BaseCategoryPart {
@@ -94,7 +100,7 @@ class RandomCategoryPart extends BaseCategoryPart {
 }
 
 class RandomCategoryPartWithRuntimeData extends BaseCategoryPart {
-  final List<String> Function() loadTags;
+  final Iterable<String> Function() loadTags;
 
   final int randomNumber;
 
@@ -107,13 +113,26 @@ class RandomCategoryPartWithRuntimeData extends BaseCategoryPart {
   @override
   final String categoryType;
 
+  static final random = math.Random();
+
   List<String> _categories() {
     var tags = loadTags();
     if (randomNumber >= tags.length) {
-      return tags;
+      return tags.toList();
     }
-    final start = math.Random().nextInt(tags.length - randomNumber);
-    return tags.sublist(start, start + randomNumber);
+    final start = random.nextInt(tags.length - randomNumber);
+    var res = List.filled(randomNumber, '');
+    int index = -1;
+    for (var s in tags) {
+      index++;
+      if (start > index) {
+        continue;
+      } else if (index == start + randomNumber) {
+        break;
+      }
+      res[index - start] = s;
+    }
+    return res;
   }
 
   @override
@@ -125,25 +144,10 @@ class RandomCategoryPartWithRuntimeData extends BaseCategoryPart {
 }
 
 CategoryData getCategoryDataWithKey(String key) {
-  switch (key) {
-    case "picacg":
-      return picacgCategory;
-    case "ehentai":
-      return ehCategory;
-    case "jm":
-      return jmCategory;
-    case "htmanga":
-      return htCategory;
-    case "nhentai":
-      return nhCategory;
-    default:
-      {
-        for(var source in ComicSource.sources){
-          if(source.categoryData?.title == key){
-            return source.categoryData!;
-          }
-        }
-        throw "Unknown category key $key";
-      }
+  for (var source in ComicSource.sources) {
+    if (source.categoryData?.key == key) {
+      return source.categoryData!;
+    }
   }
+  throw "Unknown category key $key";
 }

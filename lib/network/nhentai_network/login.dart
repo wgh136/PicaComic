@@ -1,17 +1,17 @@
 import 'dart:io' as io;
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/app_views/webview.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/pages/webview.dart';
 
 import '../http_client.dart';
 
 
-void login(void Function() whenFinish) async{
+void nhLogin(void Function() onFinished) async{
   if(NhentaiNetwork().baseUrl.contains("xxx")){
-    showMessage(App.globalContext, "暂不支持");
+    showToast(message: "暂不支持");
     return;
   }
 
@@ -38,7 +38,7 @@ void login(void Function() whenFinish) async{
                 })
             );
             webview.close();
-            whenFinish();
+            onFinished();
           }
         },
         proxy: proxyHttpOverrides?.proxyStr,
@@ -64,7 +64,7 @@ void login(void Function() whenFinish) async{
                 })
             );
             browser.close();
-            whenFinish();
+            onFinished();
           }
         }
     );
@@ -93,12 +93,12 @@ void login(void Function() whenFinish) async{
           });
           NhentaiNetwork().cookieJar!.saveFromResponse(
               Uri.parse(NhentaiNetwork().baseUrl), cookiesList);
-          whenFinish();
+          onFinished();
           App.globalBack();
         }
       },
     ));
   } else {
-    showMessage(App.globalContext, "当前设备不支持".tl);
+    showToast(message: "当前设备不支持".tl);
   }
 }

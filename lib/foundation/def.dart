@@ -36,4 +36,11 @@ const List<int> colors = [
   0XFF8D6E63
 ];
 
-const serverDomain = "https://api.wgh136.xyz";
+const builtInSources = [
+  "picacg",
+  "ehentai",
+  "jm",
+  "hitomi",
+  "htmanga",
+  "nhentai"
+];

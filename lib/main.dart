@@ -13,13 +13,12 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/mouse_listener.dart';
 import 'package:pica_comic/network/http_client.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
-import 'package:pica_comic/views/app_views/auth_page.dart';
-import 'package:pica_comic/views/main_page.dart';
-import 'package:pica_comic/views/welcome_page.dart';
-import 'package:pica_comic/network/jm_network/jm_network.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import 'package:pica_comic/views/widgets/window_frame.dart';
+import 'package:pica_comic/pages/auth_page.dart';
+import 'package:pica_comic/pages/main_page.dart';
+import 'package:pica_comic/pages/welcome_page.dart';
+import 'package:pica_comic/components/window_frame.dart';
 import 'package:window_manager/window_manager.dart';
+import 'components/components.dart';
 import 'network/webdav.dart';
 
 bool notFirstUse = false;
@@ -115,7 +114,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       if (DateTime.now().millisecondsSinceEpoch - time.millisecondsSinceEpoch >
           7200000) {
-        JmNetwork().loginFromAppdata();
         Webdav.syncData();
         time = DateTime.now();
       }
@@ -181,25 +179,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       (context as Element).visitChildren(rebuild);
     }
 
-    final Brightness brightness =
-        View.of(context).platformDispatcher.platformBrightness;
-    if (brightness == Brightness.light) {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          statusBarColor: Colors.transparent,
-          statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarContrastEnforced: false));
-    } else {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          statusBarColor: Colors.transparent,
-          statusBarBrightness: Brightness.light,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarIconBrightness: Brightness.light,
-          systemNavigationBarContrastEnforced: false));
-    }
+    didChangePlatformBrightness();
     return DynamicColorBuilder(builder: (light, dark) {
       ColorScheme? lightColor;
       ColorScheme? darkColor;
@@ -278,7 +258,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       if (App.canPop) {
                         App.globalBack();
                       } else {
-                        MainPage.back();
+                        MainPage.of(context).back();
                       }
                     },
                   ),

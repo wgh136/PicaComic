@@ -17,12 +17,12 @@ import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
 import 'package:pica_comic/network/nhentai_network/models.dart';
 import 'package:pica_comic/network/picacg_network/models.dart';
+import 'package:pica_comic/pages/favorites/main_favorites_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'dart:io';
 import '../network/base_comic.dart';
 import '../network/webdav.dart';
-import '../views/favorites/main_favorites_page.dart';
 
 String getCurTime() {
   return DateTime.now()
@@ -31,39 +31,47 @@ String getCurTime() {
       .substring(0, 19);
 }
 
-final class FavoriteType{
+final class FavoriteType {
   final int key;
 
   const FavoriteType(this.key);
 
   static FavoriteType get picacg => const FavoriteType(0);
+
   static FavoriteType get ehentai => const FavoriteType(1);
+
   static FavoriteType get jm => const FavoriteType(2);
+
   static FavoriteType get hitomi => const FavoriteType(3);
+
   static FavoriteType get htManga => const FavoriteType(4);
+
   static FavoriteType get nhentai => const FavoriteType(6);
 
-  ComicType get comicType{
-    if(key >= 0 && key <= 6){
+  ComicType get comicType {
+    if (key >= 0 && key <= 6) {
       return ComicType.values[key];
     }
     return ComicType.other;
   }
 
-  ComicSource get comicSource{
+  ComicSource get comicSource {
+    if (key <= 6) {
+      var key = comicType.name.toLowerCase();
+      return ComicSource.find(key)!;
+    }
     return ComicSource.sources
-        .firstWhereOrNull((element) => element.intKey == key)
-        ?? (throw "Comic Source Not Found");
+            .firstWhereOrNull((element) => element.intKey == key) ??
+        (throw "Comic Source Not Found");
   }
 
-  String get name{
-    if(comicType != ComicType.other){
+  String get name {
+    if (comicType != ComicType.other) {
       return comicType.name;
     } else {
       try {
         return comicSource.name;
-      }
-      catch(e){
+      } catch (e) {
         return "**Unknown**";
       }
     }
@@ -76,7 +84,6 @@ final class FavoriteType{
 
   @override
   int get hashCode => key.hashCode;
-
 }
 
 class FavoriteItem {
@@ -89,11 +96,12 @@ class FavoriteItem {
   String time = getCurTime();
 
   bool get available {
-    if(type.key <= 6 && type.key >= 0){
+    if (type.key <= 6 && type.key >= 0) {
       return true;
     }
     return ComicSource.sources
-        .firstWhereOrNull((element) => element.intKey == type.key) != null;
+            .firstWhereOrNull((element) => element.intKey == type.key) !=
+        null;
   }
 
   String toDownloadId() {
@@ -102,19 +110,26 @@ class FavoriteItem {
         ComicType.picacg => target,
         ComicType.ehentai => getGalleryId(target),
         ComicType.jm => "jm$target",
-        ComicType.hitomi =>
-        RegExp(r"\d+(?=\.html)").hasMatch(target)
+        ComicType.hitomi => RegExp(r"\d+(?=\.html)").hasMatch(target)
             ? "hitomi${RegExp(r"\d+(?=\.html)").firstMatch(target)?[0]}"
             : target,
         ComicType.htManga => "ht$target",
         ComicType.nhentai => "nhentai$target",
         _ => DownloadManager().generateId(type.comicSource.key, target)
       };
-    }
-    catch(e){
+    } catch (e) {
       return "**Invalid ID**";
     }
   }
+
+  FavoriteItem({
+    required this.target,
+    required this.name,
+    required this.coverPath,
+    required this.author,
+    required this.type,
+    required this.tags,
+  });
 
   FavoriteItem.fromPicacg(ComicItemBrief comic)
       : name = comic.title,
@@ -144,8 +159,8 @@ class FavoriteItem {
       : name = comic.name,
         author = comic.artist,
         type = FavoriteType.hitomi,
-        tags =
-            List.generate(comic.tags.length, (index) => comic.tags[index].name),
+        tags = List.generate(
+            comic.tagList.length, (index) => comic.tagList[index].name),
         target = comic.link,
         coverPath = comic.cover;
 
@@ -203,24 +218,22 @@ class FavoriteItem {
     tags.remove("");
   }
 
-  factory FavoriteItem.fromBaseComic(BaseComic comic){
-    if(comic is ComicItemBrief){
+  factory FavoriteItem.fromBaseComic(BaseComic comic) {
+    if (comic is ComicItemBrief) {
       return FavoriteItem.fromPicacg(comic);
-    } else if(comic is EhGalleryBrief){
+    } else if (comic is EhGalleryBrief) {
       return FavoriteItem.fromEhentai(comic);
-    } else if(comic is JmComicBrief){
+    } else if (comic is JmComicBrief) {
       return FavoriteItem.fromJmComic(comic);
-    } else if(comic is HtComicBrief){
+    } else if (comic is HtComicBrief) {
       return FavoriteItem.fromHtcomic(comic);
-    } else if(comic is NhentaiComicBrief){
+    } else if (comic is NhentaiComicBrief) {
       return FavoriteItem.fromNhentai(comic);
-    } else if(comic is CustomComic){
+    } else if (comic is CustomComic) {
       return FavoriteItem.custom(comic);
     }
     throw UnimplementedError();
   }
-
-  FavoriteItem(this.name, this.author, this.type, this.tags, this.target, this.coverPath);
 
   @override
   bool operator ==(Object other) {
@@ -229,7 +242,6 @@ class FavoriteItem {
 
   @override
   int get hashCode => target.hashCode;
-
 }
 
 class FavoriteItemWithFolderInfo {
@@ -240,8 +252,9 @@ class FavoriteItemWithFolderInfo {
 
   @override
   bool operator ==(Object other) {
-    return other is FavoriteItemWithFolderInfo && other.comic == comic
-        && other.folder == folder;
+    return other is FavoriteItemWithFolderInfo &&
+        other.comic == comic &&
+        other.folder == folder;
   }
 
   @override
@@ -254,6 +267,7 @@ class FolderSync {
   String key;
   String syncData; // 内容是 json, 存一下选中的文件夹 folderId
   FolderSync(this.folderName, this.key, this.syncData);
+
   Map<String, dynamic> get syncDataObj => jsonDecode(syncData);
 }
 
@@ -289,7 +303,7 @@ class LocalFavoritesManager {
       );
     """);
     }
-    if(!tables.contains('folder_order')) {
+    if (!tables.contains('folder_order')) {
       _db.execute("""
       create table folder_order (
         folder_name text primary key,
@@ -385,7 +399,8 @@ class LocalFavoritesManager {
           .toList();
       folders.remove('folder_sync');
       folders.remove('folder_order');
-      LogManager.addLog(LogLevel.info, "LocalFavoritesManager.readData", "read folders from local database $folders");
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager.readData",
+          "read folders from local database $folders");
       var folderToOrder = <String, int>{};
       for (var folder in folders) {
         var res = tmp_db.select("""
@@ -406,27 +421,31 @@ class LocalFavoritesManager {
         var comics = tmp_db.select("""
         select * from "$folder";
       """);
-      LogManager.addLog(LogLevel.info, "LocalFavoritesManager.readData", "read $folder gets ${comics.length} comics");
+        LogManager.addLog(LogLevel.info, "LocalFavoritesManager.readData",
+            "read $folder gets ${comics.length} comics");
         res.addAll(comics.map((element) =>
             FavoriteItemWithFolderInfo(FavoriteItem.fromRow(element), folder)));
       }
       var skips = 0;
-      for(var comic in res){
-        if(!folderNames.contains(comic.folder)){
+      for (var comic in res) {
+        if (!folderNames.contains(comic.folder)) {
           createFolder(comic.folder);
         }
-        if(!comicExists(comic.folder,comic.comic.target)){
+        if (!comicExists(comic.folder, comic.comic.target)) {
           addComic(comic.folder, comic.comic);
-          LogManager.addLog(LogLevel.info, "LocalFavoritesManager", "add comic ${comic.comic.target} to ${comic.folder}");
-        }else{
+          LogManager.addLog(LogLevel.info, "LocalFavoritesManager",
+              "add comic ${comic.comic.target} to ${comic.folder}");
+        } else {
           skips++;
         }
       }
-      LogManager.addLog(LogLevel.info, "LocalFavoritesManager", "skipped $skips comics, total ${res.length}");
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager",
+          "skipped $skips comics, total ${res.length}");
       tmp_db.dispose();
       file.deleteSync();
-    }else{
-      LogManager.addLog(LogLevel.info, "LocalFavoritesManager", "no local favorites db file found");
+    } else {
+      LogManager.addLog(LogLevel.info, "LocalFavoritesManager",
+          "no local favorites db file found");
     }
   }
 
@@ -460,7 +479,7 @@ class LocalFavoritesManager {
     return folders;
   }
 
-  void updateOrder(Map<String, int> order){
+  void updateOrder(Map<String, int> order) {
     for (var folder in order.keys) {
       _db.execute("""
         insert or replace into folder_order (folder_name, order_value)
@@ -477,13 +496,14 @@ class LocalFavoritesManager {
         .toList();
   }
 
-  void updateFolderSyncTime(FolderSync folderSync){
+  void updateFolderSyncTime(FolderSync folderSync) {
     _db.execute("""
       update folder_sync
       set time = ?
       where folder_name == ?
     """, [folderSync.time, folderSync.folderName]);
   }
+
   void insertFolderSync(FolderSync folderSync) {
     // 注意 syncData 不能用 toParam, 否则会没法 jsonDecode
     _db.execute("""
@@ -501,20 +521,22 @@ class LocalFavoritesManager {
   }
 
   List<String> get folderNames => _getFolderNamesWithDB();
+
   List<FolderSync> get folderSync => _getFolderSyncWithDB();
+
   int maxValue(String folder) {
     return _db.select("""
         SELECT MAX(display_order) AS max_value
         FROM "$folder";
       """).firstOrNull?["max_value"] ?? 0;
-  } 
+  }
 
   int minValue(String folder) {
     return _db.select("""
         SELECT MIN(display_order) AS min_value
         FROM "$folder";
       """).firstOrNull?["min_value"] ?? 0;
-  } 
+  }
 
   List<FavoriteItem> getAllComics(String folder) {
     var rows = _db.select("""
@@ -585,6 +607,7 @@ class LocalFavoritesManager {
     saveData();
     return name;
   }
+
   bool comicExists(String folder, String target) {
     var res = _db.select("""
       select * from "$folder"
@@ -592,6 +615,7 @@ class LocalFavoritesManager {
     """);
     return res.isNotEmpty;
   }
+
   FavoriteItem getComic(String folder, String target) {
     var res = _db.select("""
       select * from "$folder"
@@ -697,7 +721,7 @@ class LocalFavoritesManager {
     """, [name]);
     _db.execute("""
       drop table "$name";
-    """);    
+    """);
   }
 
   void checkAndDeleteCover(FavoriteItem item) async {
@@ -744,7 +768,7 @@ class LocalFavoritesManager {
     if (folderNames.contains(after)) {
       throw "Name already exists!";
     }
-    if(after.contains('"')){
+    if (after.contains('"')) {
       throw "Invalid name";
     }
     _db.execute("""
@@ -858,25 +882,26 @@ class LocalFavoritesManager {
       }
     }
 
-    bool test(FavoriteItemWithFolderInfo comic, String keyword){
-      if(comic.comic.name.contains(keyword)){
+    bool test(FavoriteItemWithFolderInfo comic, String keyword) {
+      if (comic.comic.name.contains(keyword)) {
         return true;
-      } else if(comic.comic.author.contains(keyword)){
+      } else if (comic.comic.author.contains(keyword)) {
         return true;
-      } else if(comic.comic.tags.any((element) => element.contains(keyword))){
+      } else if (comic.comic.tags.any((element) => element.contains(keyword))) {
         return true;
       }
       return false;
     }
 
     for (var i = 1; i < keywordList.length; i++) {
-      comics = comics.where((element) => test(element, keywordList[i])).toList();
+      comics =
+          comics.where((element) => test(element, keywordList[i])).toList();
     }
 
     return comics;
   }
 
-  void editTags(String target, String folder, List<String> tags){
+  void editTags(String target, String folder, List<String> tags) {
     _db.execute("""
         update "$folder"
         set tags = '${tags.join(",")}'

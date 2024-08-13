@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/tools/extensions.dart';
@@ -7,8 +9,6 @@ import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:webdav_client/webdav_client.dart';
 import '../base.dart';
-import '../views/widgets/loading.dart';
-import '../views/widgets/show_message.dart';
 
 Future<bool> _retryZone(Future<bool> Function() fn) async {
   int time = 1;
@@ -152,19 +152,27 @@ class Webdav {
       return;
     }
     var controller = showLoadingDialog(
-        App.globalContext!, () {}, false, true, "同步数据中".tl, "隐藏".tl);
+      App.globalContext!,
+      barrierDismissible: false,
+      allowCancel: true,
+      message: "同步数据中".tl,
+      cancelButtonText: "隐藏".tl,
+    );
     var res = await _retryZone(Webdav.downloadData);
     await Future.delayed(const Duration(milliseconds: 50));
     if (!res) {
       controller.close();
       appdata.settings[45] = "${appdata.settings[45]};0";
-      showMessage(App.globalContext, "下载数据失败, 已禁用同步".tl,
-          action: SnackBarButton(
-              onTap: () {
-                appdata.settings[45] = configs.join(';');
-                syncData();
-              },
-              text: "重试".tl,));
+      showToast(
+        message: "下载数据失败, 已禁用同步".tl,
+        trailing: Button.icon(
+          onPressed: () {
+            appdata.settings[45] = configs.join(';');
+            syncData();
+          },
+          icon: const Icon(Icons.refresh),
+        ),
+      );
     } else {
       controller.close();
     }

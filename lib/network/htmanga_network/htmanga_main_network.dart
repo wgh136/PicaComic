@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:dio/dio.dart';
+import 'package:pica_comic/comic_source/built_in/ht_manga.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cache_network.dart';
@@ -9,9 +10,9 @@ import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:html/parser.dart';
+import 'package:pica_comic/pages/pre_search_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
 import '../../base.dart';
 
 class HtmangaNetwork {
@@ -23,6 +24,10 @@ class HtmangaNetwork {
   HtmangaNetwork._create();
 
   static String get baseUrl => appdata.settings[31];
+
+  void logout() {
+    SingleInstanceCookieJar.instance?.deleteUri(Uri.parse(baseUrl));
+  }
 
   ///基本的Get请求
   Future<Res<String>> get(String url,
@@ -78,7 +83,7 @@ class HtmangaNetwork {
   }
 
   ///登录
-  Future<Res<String>> login(String account, String pwd, [bool saveData = true]) async {
+  Future<Res<bool>> login(String account, String pwd, [bool saveData = true]) async {
     var res = await post("$baseUrl/users-check_login.html",
         "login_name=${Uri.encodeComponent(account)}&login_pass=${Uri.encodeComponent(pwd)}");
     if (res.error) {
@@ -87,12 +92,7 @@ class HtmangaNetwork {
     try {
       var json = const JsonDecoder().convert(res.data);
       if (json["html"].contains("登錄成功")) {
-        if(saveData) {
-          appdata.htName = account;
-          appdata.htPwd = pwd;
-          appdata.writeData();
-        }
-        return const Res("ok");
+        return const Res(true);
       }
       return Res(null, errorMessage: json["html"]);
     } catch (e) {
@@ -100,9 +100,9 @@ class HtmangaNetwork {
     }
   }
 
-  Future<Res<String>> loginFromAppdata() async {
-    if (appdata.htName == "") return const Res("ok");
-    return login(appdata.htName, appdata.htPwd, false);
+  Future<Res<bool>> loginFromAppdata() async {
+    var res = await htManga.reLogin();
+    return res ? const Res(true) : const Res.error("error");
   }
 
   Future<Res<HtHomePageData>> getHomePage() async {

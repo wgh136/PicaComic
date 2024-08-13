@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 
 @immutable
-class Res<T>{
+class Res<T> {
   ///error info
   final String? errorMessage;
 
-  String get errorMessageWithoutNull => errorMessage??"Unknown Error";
+  String get errorMessageWithoutNull => errorMessage ?? "Unknown Error";
 
   /// data
   final T? _data;
 
   /// is there an error
-  bool get error => errorMessage!=null || _data==null;
+  bool get error => errorMessage != null;
 
   /// whether succeed
   bool get success => !error;
@@ -29,11 +29,15 @@ class Res<T>{
   @override
   String toString() => _data.toString();
 
-  Res.fromErrorRes(Res another, {this.subData}):
-        _data=null,errorMessage=another.errorMessageWithoutNull;
+  Res.fromErrorRes(Res another, {this.subData})
+      : _data = null,
+        errorMessage = another.errorMessageWithoutNull;
 
   /// network result
-  const Res(this._data,{this.errorMessage, this.subData});
+  const Res(this._data, {this.errorMessage, this.subData});
 
-  const Res.error(this.errorMessage):_data=null, subData=null;
+  const Res.error(String err)
+      : _data = null,
+        subData = null,
+        errorMessage = err;
 }

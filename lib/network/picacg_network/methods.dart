@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:pica_comic/comic_source/built_in/picacg.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'dart:convert' as convert;
 import 'package:pica_comic/network/picacg_network/headers.dart';
 import 'package:pica_comic/network/http_client.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:pica_comic/pages/pre_search_page.dart';
 import '../../base.dart';
 import '../../foundation/app.dart';
 import '../../foundation/log.dart';
@@ -11,7 +12,9 @@ import '../app_dio.dart';
 import '../res.dart';
 import 'models.dart';
 
-const defaultAvatarUrl = "DEFAULT AVATAR URL"; //历史遗留, 不改了
+export "models.dart";
+
+const defaultAvatarUrl = "DEFAULT AVATAR URL";
 
 ///哔咔网络请求类
 class PicacgNetwork {
@@ -20,15 +23,19 @@ class PicacgNetwork {
 
   static PicacgNetwork? cache;
 
-  PicacgNetwork._create();
+  PicacgNetwork._create() {
+    if(picacg.data['user'] != null) {
+      try {
+        user = Profile.fromJson(picacg.data['user']);
+      } finally {}
+    }
+  }
 
   final String apiUrl = "https://picaapi.picacomic.com";
 
-  String get token => appdata.token;
+  String get token => picacg.data['token'];
 
-  var hotTags = <String>[];
-
-  Future<void> updateApi() async {}
+  Profile? user;
 
   Future<Res<Map<String, dynamic>>> get(String url,
       {CacheExpiredTime expiredTime = CacheExpiredTime.short,
@@ -135,11 +142,8 @@ class PicacgNetwork {
     }
   }
 
-  ///登录
-  Future<Res<bool>> login(String email, String password) async {
-    if(token.isNotEmpty){
-      appdata.token = "";
-    }
+  ///登录, 返回token
+  Future<Res<String>> login(String email, String password) async {
     var api = "https://picaapi.picacomic.com";
     var response = await post('$api/auth/sign-in', {
       "email": email,
@@ -151,22 +155,22 @@ class PicacgNetwork {
     var res = response.data;
     if (res["message"] == "success") {
       try {
-        appdata.token = res["data"]["token"];
+        return Res(res["data"]["token"]);
       } catch (e) {
-        return const Res(null, errorMessage: "Failed to get token\n");
+        return const Res(null, errorMessage: "Failed to get token");
       }
-      return const Res(true);
     } else {
-      await appdata.writeData();
       return Res(null, errorMessage: res["message"]);
     }
   }
 
   Future<Res<bool>> loginFromAppdata() async {
-    if (appdata.picacgAccount == "") {
-      return const Res(null, errorMessage: "No account data");
+    var res = await picacg.reLogin();
+    if(res) {
+      return const Res(true);
+    } else {
+      return const Res.error("Failed to re-login");
     }
-    return login(appdata.picacgAccount, appdata.picacgPassword);
   }
 
   ///获取用户信息
@@ -206,12 +210,13 @@ class PicacgNetwork {
     if (res.error) {
       return Res.fromErrorRes(res);
     }
-    appdata.user = res.data;
+    user = res.data;
+    picacg.data['user'] = user!.toJson();
+    picacg.saveData();
     return const Res(true);
   }
 
-  ///获取热搜词
-  Future<Res<bool>> getKeyWords() async {
+  Future<Res<List<String>>> getHotTags() async {
     var response =
         await get("$apiUrl/keywords", expiredTime: CacheExpiredTime.no);
     if (response.error) {
@@ -222,8 +227,7 @@ class PicacgNetwork {
     for (int i = 0; i < (res["data"]["keywords"] ?? []).length; i++) {
       k.add(res["data"]["keywords"][i]);
     }
-    hotTags = k;
-    return const Res(true);
+    return Res(k);
   }
 
   ///获取分类
@@ -640,7 +644,7 @@ class PicacgNetwork {
         //出现错误跳过
       }
     }
-    return Res(comics);
+    return Res(comics, subData: 1);
   }
 
   Future<Res<String>> register(

@@ -24,6 +24,8 @@ class App {
 
   static final navigatorKey = GlobalKey<NavigatorState>();
 
+  static GlobalKey<NavigatorState>? mainNavigatorKey;
+
   /// get ui mode
   static UiModes uiMode([BuildContext? context]) {
     context ??= globalContext;

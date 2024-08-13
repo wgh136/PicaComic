@@ -25,7 +25,7 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/download_page.dart';
+import 'package:pica_comic/pages/download_page.dart';
 import 'nhentai_network/models.dart';
 import 'picacg_network/models.dart';
 

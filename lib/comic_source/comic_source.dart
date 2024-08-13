@@ -1,24 +1,33 @@
 library comic_source;
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/widgets.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/update.dart';
 import 'package:pica_comic/tools/extensions.dart';
-
-import '../foundation/def.dart';
+import '../base.dart';
 import '../foundation/js_engine.dart';
 import '../network/base_comic.dart';
 import '../network/res.dart';
-import 'app_build_in_category.dart';
-import 'app_build_in_favorites.dart';
+import 'built_in/ehentai.dart';
+import 'built_in/hitomi.dart';
+import 'built_in/ht_manga.dart';
+import 'built_in/jm.dart';
+import 'built_in/nhentai.dart';
+import 'built_in/picacg.dart';
 
 part 'category.dart';
+
 part 'favorites.dart';
+
 part 'parser.dart';
 
 /// build comic list, [Res.subData] should be maxPage or null if there is no limit.
@@ -28,18 +37,23 @@ typedef LoginFunction = Future<Res<bool>> Function(String, String);
 
 typedef LoadComicFunc = Future<Res<ComicInfoData>> Function(String id);
 
-typedef LoadComicPagesFunc = Future<Res<List<String>>> Function(String id, String? ep);
+typedef LoadComicPagesFunc = Future<Res<List<String>>> Function(
+    String id, String? ep);
 
-typedef CommentsLoader = Future<Res<List<Comment>>>
-    Function(String id, String? subId, int page, String? replyTo);
+typedef CommentsLoader = Future<Res<List<Comment>>> Function(
+    String id, String? subId, int page, String? replyTo);
 
-typedef SendCommentFunc = Future<Res<bool>>
-    Function(String id, String? subId, String content, String? replyTo);
+typedef SendCommentFunc = Future<Res<bool>> Function(
+    String id, String? subId, String content, String? replyTo);
 
-typedef GetImageLoadingConfigFunc = Map<String, dynamic> Function(String imageKey, String comicId, String epId)?;
-typedef GetThumbnailLoadingConfigFunc = Map<String, dynamic> Function(String imageKey)?;
+typedef GetImageLoadingConfigFunc = Map<String, dynamic> Function(
+    String imageKey, String comicId, String epId)?;
+typedef GetThumbnailLoadingConfigFunc = Map<String, dynamic> Function(
+    String imageKey)?;
 
 class ComicSource {
+  static final builtIn = [picacg, ehentai, jm, hitomi, htManga, nhentai];
+
   static List<ComicSource> sources = [];
 
   static ComicSource? find(String key) =>
@@ -49,26 +63,33 @@ class ComicSource {
       sources.firstWhereOrNull((element) => element.key.hashCode == key);
 
   static Future<void> init() async {
+    for (var source in builtInSources) {
+      if (appdata.appSettings.isComicSourceEnabled(source)) {
+        var s = builtIn.firstWhere((e) => e.key == source);
+        sources.add(s);
+        await s.loadData();
+        s.initData?.call(s);
+      }
+    }
     final path = "${App.dataPath}/comic_source";
-    if(! (await Directory(path).exists())){
+    if (!(await Directory(path).exists())) {
       Directory(path).create();
       return;
     }
     await for (var entity in Directory(path).list()) {
       if (entity is File && entity.path.endsWith(".js")) {
         try {
-          var source = await ComicSourceParser().parse(
-              await entity.readAsString(), entity.absolute.path);
+          var source = await ComicSourceParser()
+              .parse(await entity.readAsString(), entity.absolute.path);
           sources.add(source);
-        }
-        catch(e, s){
+        } catch (e, s) {
           log("$e\n$s", "ComicSource", LogLevel.error);
         }
       }
     }
   }
 
-  static reload() async{
+  static Future reload() async {
     sources.clear();
     JsEngine().runCode("ComicSource.sources = {};");
     await init();
@@ -80,7 +101,7 @@ class ComicSource {
   /// Identifier of this source.
   final String key;
 
-  int get intKey{
+  int get intKey {
     return key.hashCode;
   }
 
@@ -111,9 +132,11 @@ class ComicSource {
   /// Load comic pages.
   final LoadComicPagesFunc? loadComicPages;
 
-  final Map<String, dynamic> Function(String imageKey, String comicId, String epId)? getImageLoadingConfig;
+  final Map<String, dynamic> Function(
+      String imageKey, String comicId, String epId)? getImageLoadingConfig;
 
-  final Map<String, dynamic> Function(String imageKey)? getThumbnailLoadingConfig;
+  final Map<String, dynamic> Function(String imageKey)?
+      getThumbnailLoadingConfig;
 
   final String? matchBriefIdReg;
 
@@ -131,6 +154,10 @@ class ComicSource {
 
   final SendCommentFunc? sendCommentFunc;
 
+  final RegExp? idMatcher;
+
+  final Widget Function(BuildContext context, String id, String? cover)? comicPageBuilder;
+
   Future<void> loadData() async {
     var file = File("${App.dataPath}/comic_source/$key.data");
     if (await file.exists()) {
@@ -142,8 +169,8 @@ class ComicSource {
   bool _haveWaitingTask = false;
 
   Future<void> saveData() async {
-    if(_haveWaitingTask)  return;
-    while(_isSaving) {
+    if (_haveWaitingTask) return;
+    while (_isSaving) {
       _haveWaitingTask = true;
       await Future.delayed(const Duration(milliseconds: 20));
       _haveWaitingTask = false;
@@ -157,14 +184,25 @@ class ComicSource {
     _isSaving = false;
   }
 
-  Future<bool> reLogin() async{
-    if(data["account"] == null){
+  Future<bool> reLogin() async {
+    if (data["account"] == null) {
       return false;
     }
     final List accountData = data["account"];
     var res = await account!.login!(accountData[0], accountData[1]);
+    if (res.error) {
+      Log.error("Failed to re-login", res.errorMessage ?? "Error");
+    }
     return !res.error;
   }
+
+  // only for built-in comic sources
+  final FutureOr<void> Function(ComicSource source)? initData;
+
+  bool get isBuiltIn => filePath == 'built-in';
+
+  final Widget Function(BuildContext, BaseComic, List<ComicTileMenuOption>?)?
+      comicTileBuilderOverride;
 
   ComicSource(
       this.name,
@@ -185,10 +223,40 @@ class ComicSource {
       this.url,
       this.version,
       this.commentsLoader,
-      this.sendCommentFunc);
+      this.sendCommentFunc)
+      : initData = null,
+        comicTileBuilderOverride = null,
+        idMatcher = null,
+        comicPageBuilder = null;
 
-  ComicSource.unknown(this.key):
-        name = "Unknown",
+  ComicSource.named({
+    required this.name,
+    required this.key,
+    this.account,
+    this.categoryData,
+    this.categoryComicsData,
+    this.favoriteData,
+    this.explorePages = const [],
+    this.searchPageData,
+    this.settings = const [],
+    this.loadComicInfo,
+    this.loadComicPages,
+    this.getImageLoadingConfig,
+    this.getThumbnailLoadingConfig,
+    this.matchBriefIdReg,
+    required this.filePath,
+    this.url = '',
+    this.version = '',
+    this.commentsLoader,
+    this.sendCommentFunc,
+    this.initData,
+    this.comicTileBuilderOverride,
+    this.idMatcher,
+    this.comicPageBuilder,
+  });
+
+  ComicSource.unknown(this.key)
+      : name = "Unknown",
         account = null,
         categoryData = null,
         categoryComicsData = null,
@@ -205,11 +273,17 @@ class ComicSource {
         url = "",
         version = "",
         commentsLoader = null,
-        sendCommentFunc = null;
+        sendCommentFunc = null,
+        initData = null,
+        comicTileBuilderOverride = null,
+        idMatcher = null,
+        comicPageBuilder = null;
 }
 
 class AccountConfig {
   final LoginFunction? login;
+
+  final FutureOr<void> Function()? onLogin;
 
   final String? loginWebsite;
 
@@ -217,8 +291,34 @@ class AccountConfig {
 
   final void Function() logout;
 
-  const AccountConfig(this.login, this.loginWebsite, this.registerWebsite,
-      this.logout);
+  final bool allowReLogin;
+
+  final List<AccountInfoItem> infoItems;
+
+  const AccountConfig(
+      this.login, this.loginWebsite, this.registerWebsite, this.logout,
+      {this.onLogin})
+      : allowReLogin = true,
+        infoItems = const [];
+
+  const AccountConfig.named({
+    this.login,
+    this.loginWebsite,
+    this.registerWebsite,
+    required this.logout,
+    this.onLogin,
+    this.allowReLogin = true,
+    this.infoItems = const [],
+  });
+}
+
+class AccountInfoItem {
+  final String title;
+  final String Function()? data;
+  final void Function()? onTap;
+  final WidgetBuilder? builder;
+
+  AccountInfoItem({required this.title, this.data, this.onTap, this.builder});
 }
 
 class LoadImageRequest {
@@ -238,7 +338,23 @@ class ExplorePageData {
 
   final Future<Res<List<ExplorePagePart>>> Function()? loadMultiPart;
 
-  ExplorePageData(this.title, this.type, this.loadPage, this.loadMultiPart);
+  /// return a `List` contains `List<BaseComic>` or `ExplorePagePart`
+  final Future<Res<List<Object>>> Function(int index)? loadMixed;
+
+  final WidgetBuilder? overridePageBuilder;
+
+  ExplorePageData(this.title, this.type, this.loadPage, this.loadMultiPart)
+      : loadMixed = null,
+        overridePageBuilder = null;
+
+  ExplorePageData.named({
+    required this.title,
+    required this.type,
+    this.loadPage,
+    this.loadMultiPart,
+    this.loadMixed,
+    this.overridePageBuilder,
+  });
 }
 
 class ExplorePagePart {
@@ -259,6 +375,8 @@ class ExplorePagePart {
 enum ExplorePageType {
   multiPageComicList,
   singlePageWithMultiPart,
+  mixed,
+  override,
 }
 
 typedef SearchFunction = Future<Res<List<BaseComic>>> Function(
@@ -268,17 +386,40 @@ class SearchPageData {
   /// If this is not null, the default value of search options will be first element.
   final List<SearchOptions>? searchOptions;
 
+  final Widget Function(BuildContext, void Function(List<String>))?
+      customOptionsBuilder;
+
+  final Widget Function(String keyword, List<String> options)?
+      overrideSearchResultBuilder;
+
   final SearchFunction? loadPage;
 
-  const SearchPageData(this.searchOptions, this.loadPage);
+  final bool enableLanguageFilter;
+
+  const SearchPageData(this.searchOptions, this.loadPage)
+      : enableLanguageFilter = false,
+        customOptionsBuilder = null,
+        overrideSearchResultBuilder = null;
+
+  const SearchPageData.named({
+    this.searchOptions,
+    this.loadPage,
+    this.enableLanguageFilter = false,
+    this.customOptionsBuilder,
+    this.overrideSearchResultBuilder,
+  });
 }
 
-class SearchOptions{
+class SearchOptions {
   final LinkedHashMap<String, String> options;
 
   final String label;
 
   const SearchOptions(this.options, this.label);
+
+  String get defaultValue => options.keys.first;
+
+  const SearchOptions.named({required this.options, required this.label});
 }
 
 class SettingItem {
@@ -296,11 +437,14 @@ enum SettingType {
   input,
 }
 
-class ComicInfoData {
+class ComicInfoData with HistoryMixin {
+  @override
   final String title;
 
+  @override
   final String? subTitle;
 
+  @override
   final String cover;
 
   final String? description;
@@ -312,7 +456,8 @@ class ComicInfoData {
 
   final List<String>? thumbnails;
 
-  final Future<Res<List<String>>> Function(String id, int page)? thumbnailLoader;
+  final Future<Res<List<String>>> Function(String id, int page)?
+      thumbnailLoader;
 
   final int thumbnailMaxPage;
 
@@ -326,9 +471,21 @@ class ComicInfoData {
 
   final String? subId;
 
-  const ComicInfoData(this.title, this.subTitle, this.cover, this.description, this.tags,
-      this.chapters, this.thumbnails, this.thumbnailLoader, this.thumbnailMaxPage,
-      this.suggestions, this.sourceKey, this.comicId, {this.isFavorite, this.subId});
+  const ComicInfoData(
+      this.title,
+      this.subTitle,
+      this.cover,
+      this.description,
+      this.tags,
+      this.chapters,
+      this.thumbnails,
+      this.thumbnailLoader,
+      this.thumbnailMaxPage,
+      this.suggestions,
+      this.sourceKey,
+      this.comicId,
+      {this.isFavorite,
+      this.subId});
 
   Map<String, dynamic> toJson() {
     return {
@@ -345,7 +502,7 @@ class ComicInfoData {
     };
   }
 
-  static Map<String, List<String>> _generateMap(Map<String, dynamic> map){
+  static Map<String, List<String>> _generateMap(Map<String, dynamic> map) {
     var res = <String, List<String>>{};
     map.forEach((key, value) {
       res[key] = List<String>.from(value);
@@ -353,8 +510,8 @@ class ComicInfoData {
     return res;
   }
 
-  ComicInfoData.fromJson(Map<String, dynamic> json):
-        title = json["title"],
+  ComicInfoData.fromJson(Map<String, dynamic> json)
+      : title = json["title"],
         subTitle = json["subTitle"],
         cover = json["cover"],
         description = json["description"],
@@ -368,6 +525,12 @@ class ComicInfoData {
         suggestions = null,
         isFavorite = json["isFavorite"],
         subId = json["subId"];
+
+  @override
+  HistoryType get historyType => HistoryType(sourceKey.hashCode);
+
+  @override
+  String get target => comicId;
 }
 
 typedef CategoryComicsLoader = Future<Res<List<BaseComic>>> Function(
@@ -387,17 +550,28 @@ class CategoryComicsData {
   final RankingData? rankingData;
 
   const CategoryComicsData(this.options, this.load, {this.rankingData});
+
+  const CategoryComicsData.named({
+    this.options = const [],
+    required this.load,
+    this.rankingData,
+  });
 }
 
-class RankingData{
+class RankingData {
   final Map<String, String> options;
 
   final Future<Res<List<BaseComic>>> Function(String option, int page) load;
 
   const RankingData(this.options, this.load);
+
+  const RankingData.named({
+    required this.options,
+    required this.load,
+  });
 }
 
-class CategoryComicsOptions{
+class CategoryComicsOptions {
   /// Use a [LinkedHashMap] to describe an option list.
   /// key is for loading comics, value is the name displayed on screen.
   /// Default value will be the first of the Map.
@@ -409,9 +583,15 @@ class CategoryComicsOptions{
   final List<String>? showWhen;
 
   const CategoryComicsOptions(this.options, this.notShowWhen, this.showWhen);
+
+  const CategoryComicsOptions.named({
+    required this.options,
+    this.notShowWhen = const [],
+    this.showWhen,
+  });
 }
 
-class Comment{
+class Comment {
   final String userName;
   final String? avatar;
   final String content;
@@ -419,5 +599,6 @@ class Comment{
   final int? replyCount;
   final String? id;
 
-  const Comment(this.userName, this.avatar, this.content, this.time, this.replyCount, this.id);
+  const Comment(this.userName, this.avatar, this.content, this.time,
+      this.replyCount, this.id);
 }

@@ -52,11 +52,7 @@ const CategoryData picacgCategory = CategoryData(
             "重口地帶"
           ],
           "category"),
-    ],
-    enableRecommendationPage: true,
-    enableRankingPage: true,
-    enableRandomPage: false,
-    recommendPageName: "推荐");
+    ], enableRankingPage: false);
 
 CategoryData ehCategory = CategoryData(
     title: "ehentai",
@@ -108,9 +104,7 @@ CategoryData ehCategory = CategoryData(
           20,
           "search_with_namespace"),
     ],
-    enableRandomPage: false,
-    enableRankingPage: true,
-    enableRecommendationPage: false);
+    enableRankingPage: true,);
 
 const CategoryData jmCategory = CategoryData(
     title: "禁漫天堂",
@@ -210,10 +204,7 @@ const CategoryData jmCategory = CategoryData(
       FixedCategoryPart(
           "其它", ['CG', '重口', '獵奇', '非H', '血腥暴力', '站長推薦'], "search"),
     ],
-    enableRandomPage: false,
-    enableRankingPage: true,
-    enableRecommendationPage: true,
-    recommendPageName: "每周必看");
+    enableRankingPage: true,);
 
 const CategoryData htCategory = CategoryData(
     title: "绅士漫画",
@@ -271,9 +262,7 @@ const CategoryData htCategory = CategoryData(
             "/albums-index-cate-21.html",
           ]),
     ],
-    enableRandomPage: false,
-    enableRankingPage: false,
-    enableRecommendationPage: false);
+    enableRankingPage: false,);
 
 final nhCategory = CategoryData(
     title: "nhentai",
@@ -284,6 +273,4 @@ final nhCategory = CategoryData(
       RandomCategoryPartWithRuntimeData(
           "Tags", () => nhentaiTags.values.toList(), 50, "search"),
     ],
-    enableRecommendationPage: false,
-    enableRankingPage: false,
-    enableRandomPage: true);
+    enableRankingPage: false);

@@ -108,11 +108,6 @@ class HiNetwork{
         }
       }
       var time = comicDiv.querySelector("div.dj-content > p")!.text;
-      //检查屏蔽词
-      if(appdata.blockingKeyword.contains(name)||
-          appdata.blockingKeyword.contains(artist)){
-        return const Res(null, errorMessage: "block");
-      }
       bool flag = false;
       for(var tag in tags){
         if(appdata.blockingKeyword.contains(tag.name)){
@@ -127,7 +122,7 @@ class HiNetwork{
     }
     catch(e, s){
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: "解析失败: ${e.toString()}");
+      return Res(null, errorMessage: e.toString());
     }
   }
 
@@ -155,6 +150,10 @@ class HiNetwork{
       id = target;
     }else {
       id = RegExp(r"\d+(?=\.html)").firstMatch(target)![0]!;
+    }
+    var brief = await getComicInfoBrief(id);
+    if(brief.error){
+      return Res(null, errorMessage: brief.errorMessage!);
     }
     var res = await get("https://ltn.hitomi.la/galleries/$id.js");
     if(res.error){
@@ -187,6 +186,7 @@ class HiNetwork{
       json["date"],
       files,
       List<String>.from((json["groups"]??[]).map((e) => e["group"]).toList()),
+      brief.data.cover,
     ));
   }
 }

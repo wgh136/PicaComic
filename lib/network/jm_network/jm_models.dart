@@ -1,3 +1,4 @@
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 
@@ -100,19 +101,7 @@ class SubCategory {
   SubCategory(this.cid, this.name, this.slug);
 }
 
-class CategoryComicsRes {
-  String category;
-  String sort;
-  int loaded;
-  int total;
-  int loadedPage = 1;
-  List<JmComicBrief> comics;
-
-  CategoryComicsRes(this.category, this.sort, this.loaded, this.total,
-      this.loadedPage, this.comics);
-}
-
-class JmComicInfo {
+class JmComicInfo with HistoryMixin {
   String name;
   String id;
   List<String> author;
@@ -194,6 +183,21 @@ class JmComicInfo {
 
   JmComicBrief toBrief() =>
       JmComicBrief(id, author.firstOrNull ?? "", name, description, [], tags, ignoreExamination: true);
+
+  @override
+  String get cover => getJmCoverUrl(id);
+
+  @override
+  HistoryType get historyType => HistoryType.jmComic;
+
+  @override
+  String get subTitle => author.firstOrNull ?? '';
+
+  @override
+  String get target => id;
+
+  @override
+  String get title => name;
 }
 
 class Comment {

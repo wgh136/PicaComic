@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/comic_source/built_in/nhentai.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
@@ -10,22 +11,23 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:pica_comic/pages/pre_search_page.dart';
 import '../app_dio.dart';
 import 'models.dart';
 import 'package:html/parser.dart';
 
 export 'models.dart';
+export 'cloudflare.dart';
 
 class NhentaiNetwork {
   factory NhentaiNetwork() => _cache ?? (_cache = NhentaiNetwork._create());
   NhentaiNetwork._create();
 
-  String get ua => appdata.nhentaiData[0];
+  String get ua => nhentai.data['ua'] ?? '';
 
   set ua(String value) {
-    appdata.nhentaiData[0] = value;
-    appdata.updateNhentai();
+    nhentai.data['ua'] = value;
+    nhentai.saveData();
   }
 
   static NhentaiNetwork? _cache;
@@ -149,15 +151,24 @@ class NhentaiNetwork {
     return List.from(list);
   }
 
-  Future<Res<NhentaiHomePageData>> getHomePage() async {
+  Future<Res<NhentaiHomePageData>> getHomePage([int? page]) async {
+    var url = baseUrl;
+    if(page != null && page != 1) {
+      url = "$url?page=$page";
+    }
     var res = await get(baseUrl);
     if (res.error) {
       return Res.fromErrorRes(res);
     }
     try {
       var document = parse(res.data);
-      var popularDoms = document.querySelectorAll(
-          "div.container.index-container.index-popular > div.gallery");
+      List<Element> popularDoms;
+      if(url == baseUrl) {
+        popularDoms = document.querySelectorAll(
+            "div.container.index-container.index-popular > div.gallery");
+      } else {
+        popularDoms = const [];
+      }
       var latest = document
           .querySelectorAll("div.container.index-container > div.gallery");
 
@@ -165,7 +176,7 @@ class NhentaiNetwork {
           removeNullValue(List.generate(
               popularDoms.length, (index) => parseComic(popularDoms[index]))),
           removeNullValue(List.generate(latest.length - popularDoms.length,
-                  (index) => parseComic(latest[index + popularDoms.length])))));
+                  (index) => parseComic(latest[index + popularDoms.length]))),));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");
       return Res(null, errorMessage: "Failed to Parse Data: $e");

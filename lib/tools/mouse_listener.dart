@@ -1,12 +1,11 @@
 import 'package:flutter/services.dart';
-import 'package:pica_comic/views/main_page.dart';
 import '../foundation/app.dart';
 
 void mouseSideButtonCallback(){
   if(App.canPop){
     App.globalBack();
-  }else{
-    MainPage.back();
+  } else if(App.mainNavigatorKey!.currentState!.canPop()){
+    App.mainNavigatorKey!.currentState!.pop();
   }
 }
 

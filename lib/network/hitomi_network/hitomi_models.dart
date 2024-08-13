@@ -1,3 +1,6 @@
+import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/network/base_comic.dart';
+
 class Tag {
   String name;
   String link;
@@ -5,18 +8,42 @@ class Tag {
   Tag(this.name, this.link);
 }
 
-class HitomiComicBrief {
+class HitomiComicBrief extends BaseComic {
   String name;
   String type;
   String lang;
-  List<Tag> tags;
+  List<Tag> tagList;
   String time;
   String artist;
   String link;
+  @override
   String cover;
 
   HitomiComicBrief(
-      this.name, this.type, this.lang, this.tags, this.time, this.artist, this.link, this.cover);
+    this.name,
+    this.type,
+    this.lang,
+    this.tagList,
+    this.time,
+    this.artist,
+    this.link,
+    this.cover,
+  );
+
+  @override
+  String get description => lang;
+
+  @override
+  String get id => link;
+
+  @override
+  String get subTitle => artist;
+
+  @override
+  List<String> get tags => tagList.map((e) => e.name).toList();
+
+  @override
+  String get title => name;
 }
 
 class ComicList {
@@ -43,8 +70,8 @@ class HitomiFile {
   int width;
   String galleryId;
 
-  HitomiFile(
-      this.name, this.hash, this.hasWebp, this.hasAvif, this.height, this.width, this.galleryId);
+  HitomiFile(this.name, this.hash, this.hasWebp, this.hasAvif, this.height,
+      this.width, this.galleryId);
 
   Map<String, dynamic> toMap() => {
         "name": name,
@@ -66,7 +93,7 @@ class HitomiFile {
         galleryId = map["galleryId"];
 }
 
-class HitomiComic {
+class HitomiComic with HistoryMixin {
   String id;
   String name;
   List<int> related;
@@ -78,12 +105,23 @@ class HitomiComic {
   List<HitomiFile> files;
   List<String> group;
 
-  HitomiComic(this.id, this.name, this.related, this.type, this.artists, this.lang, this.tags,
-      this.time, this.files, this.group){
-    if(group.isEmpty){
+  HitomiComic(
+    this.id,
+    this.name,
+    this.related,
+    this.type,
+    this.artists,
+    this.lang,
+    this.tags,
+    this.time,
+    this.files,
+    this.group,
+    this.cover,
+  ) {
+    if (group.isEmpty) {
       group.add("N/A");
     }
-    if(artists == null || artists!.isEmpty){
+    if (artists == null || artists!.isEmpty) {
       artists = ["N/A"];
     }
   }
@@ -95,7 +133,8 @@ class HitomiComic {
         "artists": artists,
         "lang": lang,
         "time": time,
-        "files": List<Map<String, dynamic>>.generate(files.length, (index) => files[index].toMap())
+        "files": List<Map<String, dynamic>>.generate(
+            files.length, (index) => files[index].toMap())
       };
 
   HitomiComic.fromMap(Map<String, dynamic> map)
@@ -108,9 +147,32 @@ class HitomiComic {
         tags = [],
         related = [],
         group = [],
-        files =
-            List.generate(map["files"].length, (index) => HitomiFile.fromMap(map["files"][index]));
+        cover = '',
+        files = List.generate(map["files"].length,
+            (index) => HitomiFile.fromMap(map["files"][index]));
 
-  HitomiComicBrief toBrief(String link, String cover) => HitomiComicBrief(name, type, lang, tags,
-      time, (artists ?? ["未知"]).isEmpty ? "未知" : (artists ?? ["未知"])[0], link, cover);
+  HitomiComicBrief toBrief(String link, String cover) => HitomiComicBrief(
+      name,
+      type,
+      lang,
+      tags,
+      time,
+      (artists ?? ["未知"]).isEmpty ? "未知" : (artists ?? ["未知"])[0],
+      link,
+      cover);
+
+  @override
+  final String cover;
+
+  @override
+  HistoryType get historyType => HistoryType.hitomi;
+
+  @override
+  String get subTitle => artists?.firstOrNull ?? '';
+
+  @override
+  String get target => id;
+
+  @override
+  String get title => name;
 }

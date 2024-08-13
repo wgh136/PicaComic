@@ -1,10 +1,10 @@
 import 'dart:io' as io;
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
-import '../../views/app_views/webview.dart';
+import '../../pages/webview.dart';
 import '../http_client.dart';
 
 void _saveCookies(Map<String, String> cookies) {
@@ -87,6 +87,6 @@ Future<void> bypassCloudFlare(void Function() whenFinish) async{
       },
     )).then((value) => whenFinish());
   } else {
-    showMessage(App.globalContext, "当前设备不支持".tl);
+    showToast(message: "当前设备不支持".tl);
   }
 }

@@ -10,19 +10,38 @@ import 'package:sqlite3/sqlite3.dart';
 
 part "image_favorites.dart";
 
+abstract mixin class HistoryMixin {
+  String get title;
+
+  String? get subTitle;
+
+  String get cover;
+
+  String get target;
+
+  Object? get maxPage => null;
+
+  HistoryType get historyType;
+}
+
 final class HistoryType {
   static HistoryType get picacg => const HistoryType(0);
+
   static HistoryType get ehentai => const HistoryType(1);
+
   static HistoryType get jmComic => const HistoryType(2);
+
   static HistoryType get hitomi => const HistoryType(3);
+
   static HistoryType get htmanga => const HistoryType(4);
+
   static HistoryType get nhentai => const HistoryType(5);
 
   final int value;
 
-  String get name{
-    if(value >=0 && value <= 5){
-      return ["picacg", "ehentai", "jmComic", "hitomi", "htmanga", "nhentai"][value];
+  String get name {
+    if (value >= 0 && value <= 5) {
+      return ["picacg", "ehentai", "jm", "hitomi", "htmanga", "nhentai"][value];
     } else {
       return ComicSource.fromIntKey(value)?.name ?? "Unknown";
     }
@@ -31,10 +50,19 @@ final class HistoryType {
   const HistoryType(this.value);
 
   @override
-  bool operator==(Object other) => other is HistoryType && other.value == value;
+  bool operator ==(Object other) =>
+      other is HistoryType && other.value == value;
 
   @override
   int get hashCode => value.hashCode;
+
+  ComicSource? get comicSource {
+    if (value >= 0 && value <= 5) {
+      return ComicSource.find(name);
+    } else {
+      return ComicSource.fromIntKey(value);
+    }
+  }
 }
 
 base class History extends LinkedListEntry<History> {
@@ -62,6 +90,19 @@ base class History extends LinkedListEntry<History> {
   History(this.type, this.time, this.title, this.subtitle, this.cover, this.ep,
       this.page, this.target,
       [this.readEpisode = const <int>{}, this.maxPage]);
+
+  History.fromModel(
+      {required HistoryMixin model,
+      required this.ep,
+      required this.page,
+      this.readEpisode = const <int>{},
+      DateTime? time})
+      : type = model.historyType,
+        title = model.title,
+        subtitle = model.subTitle ?? '',
+        cover = model.cover,
+        target = model.target,
+        time = time ?? DateTime.now();
 
   Map<String, dynamic> toMap() => {
         "type": type.value,
@@ -103,10 +144,35 @@ base class History extends LinkedListEntry<History> {
         ep = row["ep"],
         page = row["page"],
         target = row["target"],
-        readEpisode = Set<int>.from(
-            (row["readEpisode"] as String).split(',').where((element) => element != "")
-                .map((e) => int.parse(e))),
+        readEpisode = Set<int>.from((row["readEpisode"] as String)
+            .split(',')
+            .where((element) => element != "")
+            .map((e) => int.parse(e))),
         maxPage = row["max_page"];
+
+  static Future<History> findOrCreate(
+    HistoryMixin model, {
+    int ep = 0,
+    int page = 0,
+  }) async {
+    var history = await HistoryManager().find(model.target);
+    if (history != null) {
+      return history;
+    }
+    history = History.fromModel(model: model, ep: ep, page: page);
+    HistoryManager().addHistory(history);
+    return history;
+  }
+
+  static Future<History> createIfNull(
+      History? history, HistoryMixin model) async {
+    if (history != null) {
+      return history;
+    }
+    history = History.fromModel(model: model, ep: 0, page: 0);
+    HistoryManager().addHistory(history);
+    return history;
+  }
 }
 
 class HistoryManager {
@@ -123,10 +189,11 @@ class HistoryManager {
 
   int get length => _db.select("select count(*) from history;").first[0] as int;
 
-  Future<void> tryUpdateDb() async{
+  Future<void> tryUpdateDb() async {
     var file = File("${App.dataPath}/history_temp.db");
-    if(!file.existsSync()){
-      LogManager.addLog(LogLevel.info, "HistoryManager.tryUpdateDb", "db file not exist");
+    if (!file.existsSync()) {
+      LogManager.addLog(
+          LogLevel.info, "HistoryManager.tryUpdateDb", "db file not exist");
       return;
     }
     var __db = sqlite3.open(file.path);
@@ -185,7 +252,7 @@ class HistoryManager {
 
     // 迁移早期版本的数据
     var file = File("${App.dataPath}/history.json");
-    if(file.existsSync()){
+    if (file.existsSync()) {
       readDataFromJson(jsonDecode(file.readAsStringSync()));
       file.deleteSync();
     }
@@ -199,7 +266,7 @@ class HistoryManager {
       history.add(History.fromMap((h as Map<String, dynamic>)));
     }
     // do not clear previous history
-    for(var element in history){
+    for (var element in history) {
       if (findSync(element.target) == null) addHistory(element);
     }
     vacuum();
@@ -217,13 +284,22 @@ class HistoryManager {
       select * from history
       where target == ?;
     """, [newItem.target]);
-    if(res.isEmpty){
+    if (res.isEmpty) {
       _db.execute("""
         insert into history (target, title, subtitle, cover, time, type, ep, page, readEpisode, max_page)
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-      """, [newItem.target, newItem.title, newItem.subtitle, newItem.cover,
-        newItem.time.millisecondsSinceEpoch, newItem.type.value, newItem.ep,
-        newItem.page, newItem.readEpisode.join(','), newItem.maxPage]);
+      """, [
+        newItem.target,
+        newItem.title,
+        newItem.subtitle,
+        newItem.cover,
+        newItem.time.millisecondsSinceEpoch,
+        newItem.type.value,
+        newItem.ep,
+        newItem.page,
+        newItem.readEpisode.join(','),
+        newItem.maxPage
+      ]);
     } else {
       _db.execute("""
         update history
@@ -235,13 +311,20 @@ class HistoryManager {
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
-  Future<void> saveReadHistory(History history, [bool updateMePage = true]) async {
+  Future<void> saveReadHistory(History history,
+      [bool updateMePage = true]) async {
     _db.execute("""
         update history
         set time = ${DateTime.now().millisecondsSinceEpoch}, ep = ?, page = ?, readEpisode = ?, max_page = ?
         where target == ?;
-    """, [history.ep, history.page, history.readEpisode.join(','), history.maxPage, history.target]);
-    if(updateMePage){
+    """, [
+      history.ep,
+      history.page,
+      history.readEpisode.join(','),
+      history.maxPage,
+      history.target
+    ]);
+    if (updateMePage) {
       scheduleMicrotask(() {
         StateController.findOrNull(tag: "me_page")?.update();
       });
@@ -268,13 +351,13 @@ class HistoryManager {
       select * from history
       where target == ?;
     """, [target]);
-    if(res.isEmpty){
+    if (res.isEmpty) {
       return null;
     }
     return History.fromRow(res.first);
   }
 
-  List<History> getAll(){
+  List<History> getAll() {
     var res = _db.select("""
       select * from history
       order by time DESC;
@@ -282,21 +365,21 @@ class HistoryManager {
     return res.map((element) => History.fromRow(element)).toList();
   }
 
-  void vacuum(){
+  void vacuum() {
     _db.execute("""
       vacuum;
     """);
   }
 
   /// 获取最近一周的阅读数据, 用于生成图表, List中的元素是当天阅读的漫画数量
-  List<int> getWeekData(int days){
+  List<int> getWeekData(int days) {
     var res = _db.select("""
       select * from history
-      where time > ${DateTime.now().add(Duration(days: 1-days)).millisecondsSinceEpoch}
+      where time > ${DateTime.now().add(Duration(days: 1 - days)).millisecondsSinceEpoch}
       order by time ASC;
     """);
     var data = List<int>.filled(days, 0);
-    for(var element in res){
+    for (var element in res) {
       var time = DateTime.fromMillisecondsSinceEpoch(element["time"] as int);
       data[DateTime.now().difference(time).inDays]++;
     }
@@ -304,7 +387,7 @@ class HistoryManager {
   }
 
   /// 获取最近阅读的漫画
-  List<History> getRecent(){
+  List<History> getRecent() {
     var res = _db.select("""
       select * from history
       order by time DESC
@@ -314,7 +397,7 @@ class HistoryManager {
   }
 
   /// 获取历史记录的数量
-  int count(){
+  int count() {
     var res = _db.select("""
       select count(*) from history;
     """);

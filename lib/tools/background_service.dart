@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
+import 'package:pica_comic/comic_source/built_in/picacg.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:workmanager/workmanager.dart';
 import '../base.dart';
@@ -16,7 +17,7 @@ void onStart() {
     await appdata.readData();
     var notifications = Notifications();
     await notifications.init();
-    if (appdata.token != "") {
+    if (picacg.data['token'] != "") {
       var userInfo = await network.getProfile(false);
       if (userInfo.error) {
         return true;

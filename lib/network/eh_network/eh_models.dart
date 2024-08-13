@@ -1,4 +1,5 @@
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/base_comic.dart';
 
 class EhGalleryBrief extends BaseComic{
@@ -58,8 +59,10 @@ class Comment{
   Comment(this.name, this.content, this.time);
 }
 
-class Gallery{
+class Gallery with HistoryMixin{
+  @override
   String title;
+  @override
   String? subTitle;
   String type;
   String time;
@@ -73,6 +76,7 @@ class Gallery{
   Map<String,String>? auth;
   bool favorite;
   String link;
+  @override
   String maxPage;
   List<String> thumbnails;
 
@@ -153,6 +157,15 @@ class Gallery{
       this.maxPage,
       this.thumbnails, // unused field
       this.subTitle);
+
+  @override
+  String get cover => coverPath;
+
+  @override
+  HistoryType get historyType => HistoryType.ehentai;
+
+  @override
+  String get target => link;
 }
 
 enum EhLeaderboardType{
@@ -164,6 +177,21 @@ enum EhLeaderboardType{
   final int value;
 
   const EhLeaderboardType(this.value);
+
+  static EhLeaderboardType fromValue(int value){
+    switch(value){
+      case 15:
+        return EhLeaderboardType.yesterday;
+      case 13:
+        return EhLeaderboardType.month;
+      case 12:
+        return EhLeaderboardType.year;
+      case 11:
+        return EhLeaderboardType.all;
+      default:
+        throw Exception("Invalid value");
+    }
+  }
 }
 
 class EhLeaderboard{

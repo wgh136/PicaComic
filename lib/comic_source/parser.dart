@@ -262,9 +262,7 @@ class ComicSourceParser {
     return CategoryData(
         title: title,
         categories: categoryParts,
-        enableRecommendationPage: false,
         enableRankingPage: enableRankingPage ?? false,
-        enableRandomPage: false,
         key: title);
   }
 

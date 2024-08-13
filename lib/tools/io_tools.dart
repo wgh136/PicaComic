@@ -7,18 +7,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:pica_comic/base.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/download_model.dart';
-import 'package:pica_comic/network/htmanga_network/htmanga_main_network.dart';
-import 'package:pica_comic/network/jm_network/jm_network.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
 import 'package:zip_flutter/zip_flutter.dart';
 import '../foundation/app.dart';
 
@@ -350,7 +347,11 @@ Future<bool> runExportData(bool includeDownload) async {
     var path = (await getApplicationSupportDirectory()).path;
     await exportDataToFile(includeDownload);
 
-    showSnackBar("正在复制文件".tl, time: 10);
+    var dialog = showLoadingDialog(
+      App.globalContext!,
+      barrierDismissible: false,
+      allowCancel: false,
+    );
 
     if (App.isMobile) {
       var params = SaveFileDialogParams(
@@ -368,7 +369,7 @@ Future<bool> runExportData(bool includeDownload) async {
       }
     }
 
-    removeSnackbar();
+    dialog.close();
 
     var file = File("$path${pathSep}userData.picadata");
     file.delete();
@@ -452,9 +453,9 @@ Future<bool> importData([String? filePath]) async {
         //忽略
       }
       return json;
-    } catch (e,s) {
-        LogManager.addLog(LogLevel.error, "importData.closure",
-            "failed to compute data\n$e\n$s");
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "importData.closure",
+          "failed to compute data\n$e\n$s");
       return null;
     }
   }, [
@@ -465,8 +466,7 @@ Future<bool> importData([String? filePath]) async {
     (enableCheck ? "1" : "0")
   ]);
   if (data == null) {
-    LogManager.addLog(
-        LogLevel.error, "importData","failed to compute data");
+    LogManager.addLog(LogLevel.error, "importData", "failed to compute data");
     return false;
   }
   var json = const JsonDecoder().convert(data);
@@ -480,23 +480,11 @@ Future<bool> importData([String? filePath]) async {
         "The data file version is $fileVersion, while the app data version is "
             "$appVersion\nStop importing data");
   }
-  var prevAccounts = [appdata.picacgAccount, appdata.jmName, appdata.htName];
   var dataReadRes = appdata.readDataFromJson(json);
   if (!dataReadRes) {
     LogManager.addLog(
-        LogLevel.error,
-        "Appdata",
-        "appdata.readDataFromJson(json) failed");
+        LogLevel.error, "Appdata", "appdata.readDataFromJson(json) failed");
     return false;
-  }
-  if (appdata.picacgAccount != prevAccounts[0]) {
-    await network.loginFromAppdata();
-  }
-  if (appdata.jmName != prevAccounts[1]) {
-    await JmNetwork().loginFromAppdata();
-  }
-  if (appdata.htName != prevAccounts[2]) {
-    await HtmangaNetwork().loginFromAppdata();
   }
   await LocalFavoritesManager().readData();
   LocalFavoritesManager().updateUI();
@@ -575,7 +563,7 @@ String bytesLengthToReadableSize(int size) {
     return "$size B";
   } else if (size < 1024 * 1024) {
     return "${(size / 1024).toStringAsFixed(2)} KB";
-  } else if (size < 1024 * 1024 * 1024){
+  } else if (size < 1024 * 1024 * 1024) {
     return "${(size / 1024 / 1024).toStringAsFixed(2)} MB";
   } else {
     return "${(size / 1024 / 1024 / 1024).toStringAsFixed(2)} GB";

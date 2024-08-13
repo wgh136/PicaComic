@@ -5,13 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/views/favorites/network_to_local.dart';
-import 'package:pica_comic/views/widgets/show_message.dart';
+import 'package:pica_comic/pages/favorites/network_to_local.dart';
 
 typedef GetFavoriteFunc<T extends Object> = Future<Res<List<T>>> Function(
     int page);
@@ -66,19 +66,20 @@ Future<List<T>> getFavorites<T extends Object>(BuildContext context,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       Future.microtask(() {
-                        App.back(context);
+                        context.pop();
                         if (kDebugMode) {
                           print(snapshot.error);
                           print(snapshot.stackTrace);
                         }
-                        showMessage(
-                            App.globalContext!, snapshot.error.toString());
+                        showToast(message: snapshot.error.toString());
                       });
                     }
                     if (snapshot.hasData &&
                         snapshot.data?.$1 == snapshot.data?.$2) {
-                      Future.delayed(const Duration(milliseconds: 200),
-                          () => App.back(context));
+                      Future.delayed(
+                        const Duration(milliseconds: 200),
+                        context.pop,
+                      );
                     }
                     return Center(
                       child: Text(
@@ -117,9 +118,9 @@ void startConvert<T extends Object>(
 
   LocalFavoritesManager().createFolder(name);
   // 是否同步网络收藏
-  if(agreeSync){
+  if (agreeSync) {
     LocalFavoritesManager()
-      .insertFolderSync(FolderSync(name, key, jsonEncode(syncData)));
+        .insertFolderSync(FolderSync(name, key, jsonEncode(syncData)));
   }
   int order = 0;
   for (var comic in comics) {
@@ -128,8 +129,8 @@ void startConvert<T extends Object>(
   }
 }
 
-void startFolderSync<T extends Object>(BuildContext context,
-    FolderSync folderSync) async {
+void startFolderSync<T extends Object>(
+    BuildContext context, FolderSync folderSync) async {
   final key = folderSync.key;
   final folderName = folderSync.folderName;
   final syncDataObj = folderSync.syncDataObj;
@@ -147,8 +148,13 @@ void startFolderSync<T extends Object>(BuildContext context,
       null,
       total);
   final range = comics.length;
-  String direction = '1'; // 顺序是放到最前还是最后, 为了保证顺序和网络收藏一致, 默认最前从新到旧, 不过有些网络收藏(绅士漫画)是从旧到新
-  final comicsWithRange = comics.getRange(0, range).toList().reversed.toList(); // 翻转一下, 保证插入顺序最终和网络收藏一致
+  String direction =
+      '1'; // 顺序是放到最前还是最后, 为了保证顺序和网络收藏一致, 默认最前从新到旧, 不过有些网络收藏(绅士漫画)是从旧到新
+  final comicsWithRange = comics
+      .getRange(0, range)
+      .toList()
+      .reversed
+      .toList(); // 翻转一下, 保证插入顺序最终和网络收藏一致
   for (var comic in comicsWithRange) {
     final temComic = FavoriteItem.fromBaseComic(comic);
     final index =
@@ -163,12 +169,11 @@ void startFolderSync<T extends Object>(BuildContext context,
           direction == "0" ? maxValue + addValue : minValue + addValue);
     }
   }
-  showMessage(
-      App.globalContext,
-      "本次更新数: ".tl +
+  showToast(
+      message: "本次更新数: ".tl +
           addValue.abs().toString() +
           ", 上次更新时间: ".tl +
-          folderSync.time, time: 3);
+          folderSync.time);
   folderSync.time = getCurTime();
   LocalFavoritesManager().updateFolderSyncTime(folderSync);
 }

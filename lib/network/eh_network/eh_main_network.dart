@@ -4,6 +4,7 @@ import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/pages/pre_search_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/js.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -11,11 +12,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../base.dart';
 import '../http_client.dart';
 import 'package:html/parser.dart';
-import '../../views/pre_search_page.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:pica_comic/comic_source/built_in/ehentai.dart';
 
 class EhNetwork {
   factory EhNetwork() => cache == null ? (cache = EhNetwork.create()) : cache!;
@@ -63,7 +64,7 @@ class EhNetwork {
 
     var cookies = cookieJar.loadForRequest(Uri.parse(url));
     
-    if(appdata.ehAccount != ""
+    if(ehentai.isLogin
         && cookies.every((element) => element.name != "ipb_member_id")){
       // 迁移旧版本数据
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -248,8 +249,7 @@ class EhNetwork {
 
       var html = parse(res.data);
       var name = html.querySelector("div#userlinks > p.home > b > a");
-      appdata.ehAccount = name?.text ?? "";
-      appdata.writeData();
+      ehentai.data['name'] = name?.text ?? '';
       return name != null;
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
@@ -426,7 +426,7 @@ class EhNetwork {
       g.galleries = galleries;
 
       //获取收藏夹名称
-      if (favoritePage && appdata.ehAccount != "") {
+      if (favoritePage && ehentai.isLogin) {
         var names = <String>[];
         try {
           var folderDivs = document.querySelectorAll("div.fp");
@@ -449,7 +449,6 @@ class EhNetwork {
         }
         return Res(g, subData: folderNames);
       }
-
       return Res(g);
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
@@ -770,6 +769,18 @@ class EhNetwork {
     return res;
   }
 
+  Future<Res<List<EhGalleryBrief>>> getLeaderBoardByPage(
+      int type, int page) async {
+    var res = await getGalleries(
+      "https://e-hentai.org/toplist.php?tl=$type&p=$page",
+      leaderboard: true,
+    );
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    return Res(res.data.galleries, subData: 200);
+  }
+
   ///获取排行榜
   Future<Res<EhLeaderboard>> getLeaderboard(EhLeaderboardType type) async {
     var res = await getGalleries(
@@ -864,7 +875,7 @@ class EhNetwork {
   }
 
   Future<Res<EhImageLimit>> getImageLimit() async{
-    if(appdata.ehAccount == ""){
+    if(!ehentai.isLogin){
       return const Res(null, errorMessage: "Not logged in");
     }
     var [res, res1] = await Future.wait([
@@ -894,7 +905,7 @@ class EhNetwork {
   }
 
   Future<bool> resetImageLimit() async{
-    if(appdata.ehAccount == ""){
+    if(!ehentai.isLogin){
       return false;
     }
     var res = await post("https://e-hentai.org/home.php", "reset_imagelimit=Reset+Limit",

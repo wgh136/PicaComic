@@ -1,4 +1,5 @@
 import "package:pica_comic/base.dart";
+import "package:pica_comic/foundation/history.dart";
 import "package:pica_comic/network/base_comic.dart";
 
 class Profile {
@@ -87,9 +88,10 @@ class ComicItemBrief extends BaseComic{
   String get subTitle => author;
 }
 
-class ComicItem {
+class ComicItem with HistoryMixin{
   String id;
   Profile creator;
+  @override
   String title;
   String description;
   String thumbUrl;
@@ -168,6 +170,18 @@ class ComicItem {
     pagesCount = json["pagesCount"],
     eps = [],
     recommendation = [];
+
+  @override
+  String get cover => thumbUrl;
+
+  @override
+  HistoryType get historyType => HistoryType.picacg;
+
+  @override
+  String get subTitle => author;
+
+  @override
+  String get target => id;
 }
 
 class Comment {

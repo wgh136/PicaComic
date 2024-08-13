@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/base_comic.dart';
 
 @immutable
@@ -30,10 +31,13 @@ class NhentaiHomePageData{
   NhentaiHomePageData(this.popular, this.latest);
 }
 
-class NhentaiComic{
+class NhentaiComic with HistoryMixin{
   String id;
+  @override
   String title;
+  @override
   String subTitle;
+  @override
   String cover;
   Map<String, List<String>> tags;
   bool favorite;
@@ -61,6 +65,12 @@ class NhentaiComic{
       thumbnails = [],
       recommendations = [],
       token = "";
+
+  @override
+  HistoryType get historyType => HistoryType.nhentai;
+
+  @override
+  String get target => id;
 }
 
 class NhentaiComment{

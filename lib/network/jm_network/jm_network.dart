@@ -4,9 +4,9 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:pica_comic/comic_source/built_in/jm.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
-import 'package:pica_comic/tools/translations.dart';
 import 'package:pointycastle/block/aes.dart';
 import 'package:pointycastle/block/modes/ecb.dart';
 import '../../foundation/cache_manager.dart';
@@ -17,7 +17,7 @@ import 'headers.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
 import '../res.dart';
-import 'package:pica_comic/views/pre_search_page.dart';
+import 'package:pica_comic/pages/pre_search_page.dart';
 import 'package:pointycastle/api.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -124,7 +124,7 @@ class JmNetwork {
   ///get请求, 返回Json数据中的data
   Future<Res<dynamic>> get(String url,
       {Map<String, String>? header,
-      CacheExpiredTime expiredTime = CacheExpiredTime.long}) async {
+      CacheExpiredTime expiredTime = CacheExpiredTime.long, bool isRetry = false}) async {
     while(_performingLogin){
       await Future.delayed(const Duration(milliseconds: 100));
     }
@@ -137,12 +137,20 @@ class JmNetwork {
       var res = await dio.getJm(url, options, time,
           cookieJar: cookieJar, expiredTime: CacheExpiredTime.no);
       if (res.statusCode == 401) {
-        return Res(null,
-            errorMessage:
-                const JsonDecoder().convert(res.data)["errorMsg"] ?? "未知错误".tl);
+        var message = const JsonDecoder().convert(res.data)["errorMsg"] ?? "Error";
+        if(message == "請先登入會員" && jm.isLogin && !isRetry) {
+          var res = await jm.reLogin();
+          if(res) {
+            return get(
+              url,
+              header: header,
+              expiredTime: expiredTime,
+              isRetry: true,
+            );
+          }
+        }
+        return Res(null, errorMessage:message);
       }
-
-      //File("D://test.json").writeAsStringSync(res.data);
 
       final data = const JsonDecoder().convert(res.data);
 
@@ -152,7 +160,7 @@ class JmNetwork {
         print(e);
       }
       if (e.type != DioExceptionType.unknown) {
-        return Res<String>(null, errorMessage: e.message ?? "网络错误".tl);
+        return Res<String>(null, errorMessage: e.message ?? "Network Error");
       } else {
         return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
       }
@@ -191,16 +199,16 @@ class JmNetwork {
         print(e);
       }
       if (e.type != DioExceptionType.unknown) {
-        return Res<String>(null, errorMessage: e.message ?? "网络错误".tl);
+        return const Res.error("Network Error");
       } else {
-        return Res<String>(null, errorMessage: e.toString().split("\n")[1]);
+        return Res.error(e.toString());
       }
     } catch (e, s) {
       if (kDebugMode) {
         print(e);
       }
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
-      return Res<String>(null, errorMessage: "网络错误".tl);
+      return const Res.error("Network Error");
     }
   }
 
@@ -470,7 +478,7 @@ class JmNetwork {
     }
   }
 
-  Future<Res<List<JmComicBrief>>> getCategoryComicsNew(
+  Future<Res<List<JmComicBrief>>> getCategoryComics(
       String category, ComicsOrder order, int page) async {
     var res = await get(
         "$baseUrl/categories/filter?$baseData&o=$order&c=${Uri.encodeComponent(category)}&page=$page",
@@ -512,85 +520,6 @@ class JmNetwork {
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
-    }
-  }
-
-  ///获取分类漫画
-  Future<Res<CategoryComicsRes>> getCategoryComics(
-      String category, ComicsOrder order) async {
-    /*
-    排序:
-      最新，总排行，月排行，周排行，日排行，最多图片, 最多爱心
-      mr, mv, mv_m, mv_w, mv_t, mp, tf
-     */
-    var res = await get(
-        "$baseUrl/categories/filter?$baseData&o=$order&c=${Uri.encodeComponent(category)}&page=1",
-        expiredTime: CacheExpiredTime.no);
-    if (res.error) {
-      return Res(null, errorMessage: res.errorMessage);
-    }
-    try {
-      var comics = <JmComicBrief>[];
-      for (var comic in (res.data["content"])) {
-        try {
-          var categories = <ComicCategoryInfo>[];
-          if (comic["category"]["id"] != null &&
-              comic["category"]["title"] != null) {
-            categories.add(ComicCategoryInfo(
-                comic["category"]["id"], comic["category"]["title"]));
-          }
-          if (comic["category_sub"]["id"] != null &&
-              comic["category_sub"]["title"] != null) {
-            categories.add(ComicCategoryInfo(
-                comic["category_sub"]["id"], comic["category_sub"]["title"]));
-          }
-          comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-              comic["description"] ?? "", categories, []));
-        } catch (e) {
-          continue;
-        }
-      }
-      return Res(CategoryComicsRes(category, order.toString(),
-          res.data["content"].length, int.parse(res.data["total"]), 1, comics));
-    } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return Res(null, errorMessage: e.toString());
-    }
-  }
-
-  Future<void> getCategoriesComicNextPage(CategoryComicsRes comics) async {
-    if (comics.total <= comics.loaded) return;
-    var res = await get(
-        "$baseUrl/categories/filter?$baseData&o=${comics.sort}&c=${Uri.encodeComponent(comics.category)}&page=${comics.loadedPage + 1}",
-        expiredTime: CacheExpiredTime.no);
-    if (res.error) {
-      return;
-    }
-    try {
-      for (var comic in (res.data["content"])) {
-        try {
-          var categories = <ComicCategoryInfo>[];
-          if (comic["category"]["id"] != null &&
-              comic["category"]["title"] != null) {
-            categories.add(ComicCategoryInfo(
-                comic["category"]["id"], comic["category"]["title"]));
-          }
-          if (comic["category_sub"]["id"] != null &&
-              comic["category_sub"]["title"] != null) {
-            categories.add(ComicCategoryInfo(
-                comic["category_sub"]["id"], comic["category_sub"]["title"]));
-          }
-          comics.comics.add(JmComicBrief(comic["id"], comic["author"],
-              comic["name"], comic["description"] ?? "", categories, []));
-        } catch (e) {
-          //
-        }
-        comics.loaded++;
-      }
-      comics.loadedPage++;
-    } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
-      return;
     }
   }
 
@@ -651,39 +580,30 @@ class JmNetwork {
   }
 
   Future<Res<bool>> login(String account, String pwd) async {
-    var res = await post("$baseUrl/login",
-        "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}");
-    if (res.error) {
-      return Res(null, errorMessage: res.errorMessage);
-    }
-    appdata.jmName = account;
-    appdata.jmPwd = pwd;
-    appdata.writeData();
-    return const Res(true);
-  }
-
-  ///使用储存的数据进行登录, jm必须在每次启动app时进行登录
-  Future<Res<bool>> loginFromAppdata() async {
-    var account = appdata.jmName;
-    var pwd = appdata.jmPwd;
-    if (account == "") {
+    _performingLogin = true;
+    try {
+      var res = await post("$baseUrl/login",
+          "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}");
+      if (res.error) {
+        return Res(null, errorMessage: res.errorMessage);
+      }
+      jm.data['name'] = account;
+      appdata.writeData();
       return const Res(true);
     }
-    _performingLogin = true;
-    var res = await post("$baseUrl/login",
-        "username=${Uri.encodeComponent(account)}&password=${Uri.encodeComponent(pwd)}");
-    _performingLogin = false;
-    if (res.error) {
-      return Res(null, errorMessage: res.errorMessage);
+    finally {
+      _performingLogin = false;
     }
-    return const Res(true);
+  }
+
+  /// 使用储存的数据进行登录
+  Future<Res<bool>> loginFromAppdata() async {
+    var res = await jm.reLogin();
+    return res ? const Res(true) : const Res.error("error");
   }
 
   Future<void> logout() async {
     await cookieJar.deleteAll();
-    appdata.jmName = "";
-    appdata.jmPwd = "";
-    await appdata.writeData();
   }
 
   Future<void> likeComic(String id) async {
@@ -976,7 +896,15 @@ enum ComicsOrder {
   String toString() => value;
 
   final String value;
+
   const ComicsOrder(this.value);
+
+  static ComicsOrder fromValue(String value) {
+    for(var v in ComicsOrder.values) {
+      if(v.value == value)  return v;
+    }
+    throw UnimplementedError();
+  }
 }
 
 ///每周必看的类型

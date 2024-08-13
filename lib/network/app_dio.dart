@@ -137,6 +137,14 @@ class AppHttpAdapter implements HttpClientAdapter{
         return res;
       }
       catch(e){
+        if(e is DioException) {
+          if(e.response?.statusCode != null) {
+            var code = e.response!.statusCode!;
+            if(code >= 400 && code < 500) {
+              rethrow;
+            }
+          }
+        }
         LogManager.addLog(LogLevel.error, "Network",
             "${o.method} ${o.path}\n$e\nRetrying...");
         retry++;

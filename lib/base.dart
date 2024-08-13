@@ -3,34 +3,25 @@ import 'dart:io';
 
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/log.dart';
-import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/jm_network/jm_network.dart';
-import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/webdav.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/notification.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'network/picacg_network/models.dart';
+import 'foundation/def.dart';
 export 'foundation/def.dart';
 
-// 路径分隔符
-// 写这东西的时候并不知道dart中不区分路径分隔符, 但是由于用了太多次了, 所以就不改了
-const pathSep = '/';
+String get pathSep => Platform.pathSeparator;
 
 var downloadManager = DownloadManager();
 
 class Appdata {
-  //哔咔相关信息
-  late String token;
-  late Profile user;
-  late String appChannel;
-  late String imageQuality;
-
   ///搜索历史
-  late List<String> searchHistory;
+  List<String> searchHistory = [];
   Set<String> favoriteTags = {};
 
   ///历史记录管理器, 可以通过factory构造函数访问, 也可以通过这里访问
@@ -120,6 +111,7 @@ class Appdata {
     "6", //79 下载并行
     "1", //80 启动时检查自定义漫画源的更新
     "1", //81 使用深色背景
+    "111111", //82 内置漫画源启用状态
   ];
 
   /// 隐式数据, 用于存储一些不需要用户设置的数据, 此数据通常为某些组件的状态, 此设置不应当被同步
@@ -141,7 +133,7 @@ class Appdata {
       writeImplicitData();
       return;
     }
-    for(int i = 0; i < data!.length && i < implicitData.length; i++) {
+    for (int i = 0; i < data.length && i < implicitData.length; i++) {
       implicitData[i] = data[i];
     }
   }
@@ -157,73 +149,6 @@ class Appdata {
     "0", //是否进入过app
     "1", //显示本地收藏夹的管理提示
   ];
-
-  //哔咔
-  String picacgAccount = "";
-  String picacgPassword = "";
-
-  //eh相关信息
-  String ehAccount = "";
-
-  //jm相关信息
-  String jmName = "";
-  String jmPwd = "";
-
-  //绅士漫画
-  String htName = "";
-  String htPwd = "";
-
-  Appdata() {
-    token = "";
-    var temp =
-        Profile("", defaultAvatarUrl, "", 0, 0, "", "", null, null, null);
-    user = temp;
-    appChannel = "3";
-    searchHistory = [];
-    imageQuality = "original";
-  }
-
-  void setQuality(int i) {
-    switch (i) {
-      case 1:
-        imageQuality = "low";
-        break;
-      case 2:
-        imageQuality = "middle";
-        break;
-      case 3:
-        imageQuality = "high";
-        break;
-      case 4:
-        imageQuality = "original";
-        break;
-    }
-    writeData();
-  }
-
-  int getQuality() {
-    switch (imageQuality) {
-      case "low":
-        return 1;
-      case "middle":
-        return 2;
-      case "high":
-        return 3;
-      case "original":
-        return 4;
-      default:
-        return 4;
-    }
-  }
-
-  var nhentaiData = <String>[
-    "Pica Comic", // ua
-  ];
-
-  void updateNhentai() async {
-    var s = await SharedPreferences.getInstance();
-    await s.setStringList("nhentaiData", nhentaiData);
-  }
 
   int getSearchMode() {
     var modes = ["dd", "da", "ld", "vd"];
@@ -282,41 +207,15 @@ class Appdata {
       Webdav.uploadData();
     }
     var s = await SharedPreferences.getInstance();
-    await s.setString("token", token);
-    await s.setString("userName", user.name);
-    await s.setString("userAvatar", user.avatarUrl);
-    await s.setString("userId", user.id);
-    await s.setString("userEmail", user.email);
-    await s.setInt("userLevel", user.level);
-    await s.setInt("userExp", user.exp);
-    await s.setString("userTitle", user.title);
-    await s.setString("appChannel", appChannel);
     await updateSettings();
     await s.setStringList("blockingKeyword", blockingKeyword);
     await s.setStringList("firstUse", firstUse);
-    await s.setString("image", imageQuality);
-    await s.setString("ehAccount", ehAccount);
-    await s.setString("jmName", jmName);
-    await s.setString("jmPwd", jmPwd);
-    await s.setString("picacgAccount", picacgAccount);
-    await s.setString("picacgPassword", picacgPassword);
-    await s.setString("htName", htName);
-    await s.setString("htPwd", htPwd);
   }
 
   Future<bool> readData() async {
     var s = await SharedPreferences.getInstance();
     try {
-      token = (s.getString("token")) ?? "";
-      user.name = s.getString("userName") ?? "";
-      user.title = s.getString("userTitle") ?? "";
-      user.level = s.getInt("userLevel") ?? 0;
-      user.email = s.getString("userEmail") ?? "";
-      user.avatarUrl = s.getString("userAvatar") ?? defaultAvatarUrl;
-      user.id = s.getString("userId") ?? "";
-      user.exp = s.getInt("userExp") ?? 0;
       await readSettings(s);
-      appChannel = s.getString("appChannel") ?? "3";
       searchHistory = s.getStringList("search") ?? [];
       favoriteTags = (s.getStringList("favoriteTags") ?? []).toSet();
       blockingKeyword = s.getStringList("blockingKeyword") ?? [];
@@ -326,17 +225,8 @@ class Appdata {
           firstUse[i] = st[i];
         }
       }
-      imageQuality = s.getString("image") ?? "original";
-      ehAccount = s.getString("ehAccount") ?? "";
-      jmName = s.getString("jmName") ?? "";
-      jmPwd = s.getString("jmPwd") ?? "";
-      picacgAccount = s.getString("picacgAccount") ?? "";
-      picacgPassword = s.getString("picacgPassword") ?? "";
-      htName = s.getString("htName") ?? "";
-      htPwd = s.getString("htPwd") ?? "";
-      nhentaiData = s.getStringList("nhentaiData") ?? nhentaiData;
       readImplicitData();
-      return firstUse[3] == "1" || token != "";
+      return firstUse[3] == "1";
     } catch (e) {
       return false;
     }
@@ -345,15 +235,8 @@ class Appdata {
   Map<String, dynamic> toJson() => {
         "settings": settings,
         "firstUse": firstUse,
-        "picacgAccount": picacgAccount,
-        "picacgPassword": picacgPassword,
-        "token": token,
-        "jmName": jmName,
-        "jmPwd": jmPwd,
-        "htName": htName,
-        "htPwd": htPwd,
         "blockingKeywords": blockingKeyword,
-        "favoriteTags": favoriteTags.toList()
+        "favoriteTags": favoriteTags.toList(),
       };
 
   bool readDataFromJson(Map<String, dynamic> json) {
@@ -368,30 +251,26 @@ class Appdata {
       for (var i = 0; i < firstUse.length && i < newFirstUse.length; i++) {
         firstUse[i] = newFirstUse[i];
       }
-      picacgAccount = json["picacgAccount"];
-      picacgPassword = json["picacgPassword"];
-      token = json["token"];
-      jmName = json["jmName"];
-      jmPwd = json["jmPwd"];
-      htName = json["htName"];
-      htPwd = json["htPwd"];
       if (json["history"] != null) {
         history.readDataFromJson(json["history"]);
       }
       // merge data
-      blockingKeyword =
-          Set<String>.from(((json["blockingKeywords"] ?? []) + blockingKeyword) as List)
-              .toList();
+      blockingKeyword = Set<String>.from(
+              ((json["blockingKeywords"] ?? []) + blockingKeyword) as List)
+          .toList();
       favoriteTags =
           Set.from((json["favoriteTags"] ?? []) + List.from(favoriteTags));
       writeData(false);
       return true;
-    } catch (e,s) {
-      LogManager.addLog(LogLevel.error, "Appdata.readDataFromJson", "error reading appdata$e\n$s");
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "Appdata.readDataFromJson",
+          "error reading appdata$e\n$s");
       readData();
       return false;
     }
   }
+
+  final appSettings = _Settings();
 }
 
 var appdata = Appdata();
@@ -409,7 +288,80 @@ Future<void> clearAppdata() async {
   appdata = Appdata();
   await appdata.readData();
   await eraseCache();
-  EhNetwork().folderNames = List.generate(10, (index) => "Favorite $index");
   await JmNetwork().cookieJar.deleteAll();
   await LocalFavoritesManager().clearAll();
+}
+
+class _Settings {
+  List<String> get _settings => appdata.settings;
+
+  /// Theme color, index of [colors] (lib/foundation/def.dart)
+  int get theme => int.parse(_settings[27]);
+
+  set theme(int value) {
+    appdata.settings[27] = value.toString();
+  }
+
+  /// Dark Mode, 0/1/2 (system/disabled/enable)
+  int get darkMode => int.parse(appdata.settings[32]);
+
+  set darkMode(int value) {
+    appdata.settings[32] = value.toString();
+  }
+
+  /// 0/1 (detailed/brief)
+  int get comicTileDisplayType =>
+      int.parse(appdata.settings[44].split(',').first);
+
+  set comicTileDisplayType(int v) {
+    var values = appdata.settings[44].split(',');
+    if (values.length != 2) {
+      values = ['0', '1.0'];
+    }
+    values[0] = v.toString();
+    appdata.settings[44] = values.join(',');
+  }
+
+  /// 0/1 (Continuous mode/Paging mode)
+  int get comicsListDisplayType => int.parse(appdata.settings[25]);
+
+  set comicsListDisplayType(int value) {
+    appdata.settings[25] = value.toString();
+  }
+
+  /// build-in comic sources
+  bool isComicSourceEnabled(String key) {
+    var index = builtInSources.indexOf(key);
+    if (index == -1) {
+      throw "Not Found";
+    }
+    return appdata.settings[82][index] == '1';
+  }
+
+  void setComicSourceEnabled(String key, bool enabled) {
+    var index = builtInSources.indexOf(key);
+    if (index == -1) {
+      throw "Not Found";
+    }
+    appdata.settings[82] =
+        appdata.settings[82].setValueAt(enabled ? '1' : '0', index);
+  }
+
+  List<String> get explorePages => appdata.settings[77].split(',');
+
+  set explorePages(List<String> pages) {
+    appdata.settings[77] = pages.join(',');
+  }
+
+  List<String> get categoryPages => appdata.settings[67].split(',');
+
+  set categoryPages(List<String> pages) {
+    appdata.settings[67] = pages.join(',');
+  }
+
+  String get initialSearchTarget => appdata.settings[63];
+
+  set initialSearchTarget(String value) {
+    appdata.settings[63] = value;
+  }
 }
