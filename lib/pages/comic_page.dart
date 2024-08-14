@@ -44,7 +44,7 @@ class ComicPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var comicSource = ComicSource.find(sourceKey);
-    if(comicSource?.comicPageBuilder != null) {
+    if (comicSource?.comicPageBuilder != null) {
       return comicSource!.comicPageBuilder!(context, id, cover);
     }
     return _ComicPageImpl(
@@ -1682,7 +1682,12 @@ abstract class BaseComicPage<T extends Object> extends StatelessWidget {
     if (UiMode.m1(context)) {
       showModalBottomSheet(context: context, builder: (context) => widget);
     } else {
-      showSideBar(context, widget, title: "收藏漫画".tl, useSurfaceTintColor: true);
+      showSideBar(
+        App.globalContext!,
+        widget,
+        title: "收藏漫画".tl,
+        useSurfaceTintColor: true,
+      );
     }
   }
 }

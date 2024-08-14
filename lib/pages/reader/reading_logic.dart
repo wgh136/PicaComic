@@ -168,48 +168,22 @@ class ComicReadingPageLogic extends StateController {
       ReadingMethod.values[int.parse(appdata.settings[9]) - 1];
 
   void jumpToNextPage() {
-    if (appdata.settings[36] == "1") {
-      if (readingMethod.index < 3) {
-        pageController.animateToPage(index + 1,
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
-      } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
-        scrollController.animateTo(scrollController.position.pixels + 600,
-            duration: const Duration(milliseconds: 200), curve: Curves.ease);
-      } else {
-        pageController.animateToPage((index + 2) ~/ 2 + 1,
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
-      }
+    if (readingMethod.index < 3) {
+      pageController.jumpToPage(index + 1);
+    } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
+      scrollController.jumpTo(scrollController.position.pixels + 600);
     } else {
-      if (readingMethod.index < 3) {
-        pageController.jumpToPage(index + 1);
-      } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
-        scrollController.jumpTo(scrollController.position.pixels + 600);
-      } else {
-        pageController.jumpToPage((index + 1) ~/ 2 + 1);
-      }
+      pageController.jumpToPage((index + 1) ~/ 2 + 1);
     }
   }
 
   void jumpToLastPage() {
-    if (appdata.settings[36] == "1") {
-      if (readingMethod.index < 3) {
-        pageController.animateToPage(index - 1,
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
-      } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
-        scrollController.animateTo(scrollController.position.pixels - 600,
-            duration: const Duration(milliseconds: 200), curve: Curves.ease);
-      } else {
-        pageController.animateToPage(index ~/ 2,
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
-      }
+    if (readingMethod.index < 3) {
+      pageController.jumpToPage(index - 1);
+    } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
+      scrollController.jumpTo(scrollController.position.pixels - 600);
     } else {
-      if (readingMethod.index < 3) {
-        pageController.jumpToPage(index - 1);
-      } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
-        scrollController.jumpTo(scrollController.position.pixels - 600);
-      } else {
-        pageController.jumpToPage(index ~/ 2);
-      }
+      pageController.jumpToPage(index ~/ 2);
     }
   }
 
@@ -232,11 +206,13 @@ class ComicReadingPageLogic extends StateController {
   }
 
   void _jumpByDeviceType(int page){
-    if(mouseScroll){
-      pageController.jumpToPage(page);
-    } else {
-      pageController.animatedJumpToPage(page);
-    }
+    Future.microtask(() {
+      if(mouseScroll){
+        pageController.jumpToPage(page);
+      } else {
+        pageController.animatedJumpToPage(page);
+      }
+    });
   }
 
   void jumpToNextChapter() {
@@ -244,6 +220,7 @@ class ComicReadingPageLogic extends StateController {
     showFloatingButtonValue = 0;
     if (!data.hasEp || order == eps?.length) {
       if(readingMethod != ReadingMethod.topToBottomContinuously){
+        print("reverse");
         if (readingMethod.index < 3) {
           _jumpByDeviceType(urls.length);
         } else if (readingMethod == ReadingMethod.twoPage) {
@@ -357,7 +334,7 @@ class ComicReadingPageLogic extends StateController {
   }
 
   void handleKeyboard(KeyEvent event) {
-    if(event is KeyUpEvent){
+    if(event is KeyDownEvent || event is KeyRepeatEvent){
       switch (event.logicalKey) {
         case LogicalKeyboardKey.arrowDown:
         case LogicalKeyboardKey.arrowRight:

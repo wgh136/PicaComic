@@ -115,7 +115,7 @@ class _NaviPaneState extends State<NaviPane>
 
   static const _kBottomBarHeight = 64.0;
 
-  static const _kFoldedSideBarWidth = 72.0;
+  static const _kFoldedSideBarWidth = 80.0;
 
   static const _kSideBarWidth = 256.0;
 
@@ -298,18 +298,19 @@ class _NaviPaneState extends State<NaviPane>
 
   Widget buildLeft() {
     final value = controller.value;
+    const paddingHorizontal = 12.0;
     return Material(
       child: Container(
         width: _kFoldedSideBarWidth +
             (_kSideBarWidth - _kFoldedSideBarWidth) * ((value - 2).clamp(0, 1)),
         height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: paddingHorizontal),
         child: Row(
           children: [
             SizedBox(
               width: value == 3
-                  ? (_kSideBarWidth - 16)
-                  : (_kFoldedSideBarWidth - 16),
+                  ? (_kSideBarWidth - paddingHorizontal * 2)
+                  : (_kFoldedSideBarWidth - paddingHorizontal * 2),
               child: Column(
                 children: [
                   const SizedBox(
@@ -319,26 +320,28 @@ class _NaviPaneState extends State<NaviPane>
                     height: MediaQuery.of(context).padding.top,
                   ),
                   ...List<Widget>.generate(
-                      widget.paneItems.length,
-                      (index) => _SideNaviWidget(
-                            enabled: currentPage == index,
-                            entry: widget.paneItems[index],
-                            showTitle: value == 3,
-                            onTap: () {
-                              setState(() {
-                                currentPage = index;
-                              });
-                            },
-                            key: ValueKey(index),
-                          )),
+                    widget.paneItems.length,
+                    (index) => _SideNaviWidget(
+                      enabled: currentPage == index,
+                      entry: widget.paneItems[index],
+                      showTitle: value == 3,
+                      onTap: () {
+                        setState(() {
+                          currentPage = index;
+                        });
+                      },
+                      key: ValueKey(index),
+                    ),
+                  ),
                   const Spacer(),
                   ...List<Widget>.generate(
-                      widget.paneActions.length,
-                      (index) => _PaneActionWidget(
-                            entry: widget.paneActions[index],
-                            showTitle: value == 3,
-                            key: ValueKey(index + widget.paneItems.length),
-                          )),
+                    widget.paneActions.length,
+                    (index) => _PaneActionWidget(
+                      entry: widget.paneActions[index],
+                      showTitle: value == 3,
+                      key: ValueKey(index + widget.paneItems.length),
+                    ),
+                  ),
                   const SizedBox(
                     height: 16,
                   )
@@ -393,7 +396,7 @@ class _SideNaviWidgetState extends State<_SideNaviWidget> {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             width: double.infinity,
-            height: widget.showTitle ? 42 : 32,
+            height: widget.showTitle ? 42 : 34,
             decoration: BoxDecoration(
                 color: widget.enabled
                     ? colorScheme.primaryContainer
@@ -450,7 +453,7 @@ class _PaneActionWidgetState extends State<_PaneActionWidget> {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             width: double.infinity,
-            height: widget.showTitle ? 42 : 32,
+            height: widget.showTitle ? 42 : 34,
             decoration: BoxDecoration(
                 color: isHovering ? colorScheme.surfaceContainerHigh : null,
                 borderRadius: BorderRadius.circular(16)),
@@ -662,10 +665,11 @@ class _NaviPopScope extends StatelessWidget {
         ? child
         : PopScope(
             canPop: App.isAndroid ? false : true,
-            onPopInvoked: (value) {
+            onPopInvokedWithResult: (value, result) {
               action();
             },
-            child: child);
+            child: child,
+          );
     if (popGesture) {
       res = GestureDetector(
           onPanStart: (details) {

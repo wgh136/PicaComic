@@ -264,69 +264,66 @@ extension ToolBar on ComicReadingPage {
     }
   }
 
-  List<Widget> buildButtons(
-      ComicReadingPageLogic comicReadingPageLogic, BuildContext context) {
-    return ((MediaQuery.of(context).size.width >
-                MediaQuery.of(context).size.height &&
-            appdata.settings[4] == "1"))
-        ? [
-            if (appdata.settings[9] != "4" &&
-                comicReadingPageLogic.readingMethod !=
-                    ReadingMethod.topToBottom)
-              Positioned(
-                left: 12,
-                top: MediaQuery.of(context).size.height / 2 - 25,
-                child: IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_left),
-                  onPressed: () {
-                    if (appdata.settings[0] == "1") {
-                      return;
-                    }
-                    switch (comicReadingPageLogic.readingMethod) {
-                      case ReadingMethod.rightToLeft:
-                      case ReadingMethod.twoPageReversed:
-                        comicReadingPageLogic.jumpToNextPage();
-                      default:
-                        comicReadingPageLogic.jumpToLastPage();
-                    }
-                  },
-                  iconSize: 24,
-                ),
-              ),
-            if (appdata.settings[9] != "4" &&
-                comicReadingPageLogic.readingMethod !=
-                    ReadingMethod.topToBottom)
-              Positioned(
-                right: 12,
-                top: MediaQuery.of(context).size.height / 2 - 25,
-                child: IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_right),
-                  onPressed: () {
-                    if (appdata.settings[0] == "1") {
-                      return;
-                    }
-                    switch (comicReadingPageLogic.readingMethod) {
-                      case ReadingMethod.rightToLeft:
-                      case ReadingMethod.twoPageReversed:
-                        comicReadingPageLogic.jumpToLastPage();
-                      default:
-                        comicReadingPageLogic.jumpToNextPage();
-                    }
-                  },
-                  iconSize: 24,
-                ),
-              ),
-            Positioned(
-              left: 4,
-              top: 4 + MediaQuery.of(context).padding.top,
-              child: IconButton(
-                iconSize: 24,
-                icon: const Icon(Icons.close),
-                onPressed: () => App.globalBack(),
-              ),
-            ),
-          ]
-        : [];
+  Iterable<Widget> buildButtons(
+      ComicReadingPageLogic logic, BuildContext context) sync* {
+    if (context.width > context.height &&
+        appdata.appSettings.showButtonsInReader) {
+      if (appdata.settings[9] != "4" &&
+          logic.readingMethod != ReadingMethod.topToBottom) {
+        yield Positioned(
+          left: 12,
+          top: MediaQuery.of(context).size.height / 2 - 25,
+          child: Button.icon(
+            icon: const Icon(Icons.keyboard_arrow_left),
+            onPressed: () {
+              if (appdata.appSettings.flipPageWithClick) {
+                return;
+              }
+              switch (logic.readingMethod) {
+                case ReadingMethod.rightToLeft:
+                case ReadingMethod.twoPageReversed:
+                  logic.jumpToNextPage();
+                default:
+                  logic.jumpToLastPage();
+              }
+            },
+            size: 24,
+          ),
+        );
+      }
+      if (appdata.settings[9] != "4" &&
+          logic.readingMethod != ReadingMethod.topToBottom) {
+        yield Positioned(
+          right: 12,
+          top: MediaQuery.of(context).size.height / 2 - 25,
+          child: Button.icon(
+            icon: const Icon(Icons.keyboard_arrow_right),
+            onPressed: () {
+              if (appdata.settings[0] == "1") {
+                return;
+              }
+              switch (logic.readingMethod) {
+                case ReadingMethod.rightToLeft:
+                case ReadingMethod.twoPageReversed:
+                  logic.jumpToLastPage();
+                default:
+                  logic.jumpToNextPage();
+              }
+            },
+            size: 24,
+          ),
+        );
+      }
+      yield Positioned(
+        left: 4,
+        top: 4 + MediaQuery.of(context).padding.top,
+        child: IconButton(
+          iconSize: 24,
+          icon: const Icon(Icons.close),
+          onPressed: () => App.globalBack(),
+        ),
+      );
+    }
   }
 
   ///构建顶部工具栏
@@ -344,7 +341,8 @@ extension ToolBar on ComicReadingPage {
               ? Material(
                   surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
                   elevation: 3,
-                  shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.3),
+                  shadowColor:
+                      Theme.of(context).colorScheme.shadow.withOpacity(0.3),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: Row(
@@ -364,7 +362,8 @@ extension ToolBar on ComicReadingPage {
                           child: Container(
                             height: 50,
                             constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width - 75),
+                                maxWidth:
+                                    MediaQuery.of(context).size.width - 75),
                             child: Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: Text(
@@ -416,9 +415,9 @@ extension ToolBar on ComicReadingPage {
       left: 25,
       child: StateBuilder<ComicReadingPageLogic>(
         id: "ToolBar",
-        builder: (logic){
+        builder: (logic) {
           var epName = readingData.eps?.values
-              .elementAtOrNull(comicReadingPageLogic.order - 1) ??
+                  .elementAtOrNull(comicReadingPageLogic.order - 1) ??
               "E1";
           if (epName.length > 8) {
             epName = "${epName.substring(0, 8)}...";
@@ -435,7 +434,8 @@ extension ToolBar on ComicReadingPage {
                   foreground: Paint()
                     ..style = PaintingStyle.stroke
                     ..strokeWidth = 1.4
-                    ..color = (useDarkBackground || Theme.of(context).brightness == Brightness.dark)
+                    ..color = (useDarkBackground ||
+                            Theme.of(context).brightness == Brightness.dark)
                         ? Colors.black
                         : Colors.white,
                 ),
@@ -444,9 +444,7 @@ extension ToolBar on ComicReadingPage {
                 text,
                 style: TextStyle(
                   fontSize: 14,
-                  color: useDarkBackground
-                      ? Colors.white
-                      : null,
+                  color: useDarkBackground ? Colors.white : null,
                 ),
               ),
             ],

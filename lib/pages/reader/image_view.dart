@@ -83,9 +83,7 @@ extension ImageExt on ComicReadingPage {
           } else {
             return PhotoViewGalleryPageOptions.customChild(
                 scaleStateController: PhotoViewScaleStateController(),
-                child: const ColoredBox(
-                  color: Colors.black,
-                ));
+                child: const SizedBox(),);
           }
 
           precacheComicImage(logic, context, index, target);
@@ -159,19 +157,15 @@ extension ImageExt on ComicReadingPage {
           );
         },
         pageController: logic.pageController,
-        loadingBuilder: (context, event) => DecoratedBox(
-          decoration: const BoxDecoration(color: Colors.black),
-          child: Center(
-            child: SizedBox(
-              width: 20.0,
-              height: 20.0,
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.white12,
-                value: event == null
-                    ? 0
-                    : event.cumulativeBytesLoaded /
-                        (event.expectedTotalBytes ?? 1000000000000),
-              ),
+        loadingBuilder: (context, event) => Center(
+          child: SizedBox(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              backgroundColor: context.colorScheme.surfaceContainerHigh,
+              value: event == null || event.expectedTotalBytes == null
+                  ? null
+                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
             ),
           ),
         ),
@@ -251,6 +245,7 @@ extension ImageExt on ComicReadingPage {
             firstImage+1
           ];
           if(logic.readingMethod == ReadingMethod.twoPageReversed) {
+            images = images.reversed.toList();
             images = images.reversed.toList();
           }
 

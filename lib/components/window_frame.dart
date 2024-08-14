@@ -70,55 +70,56 @@ class WindowFrame extends StatelessWidget {
           )),
           const _SideBar(),
           Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Material(
-                color: Colors.transparent,
-                child: SizedBox(
-                  height: _kTitleBarHeight,
-                  child: Row(
-                    children: [
-                      if (!App.isMacOS)
-                        buildMenuButton(controller, context)
-                            .toAlign(Alignment.centerLeft)
-                      else
-                        const DragToMoveArea(
-                          child: SizedBox(
-                            height: double.infinity,
-                            width: 16,
-                          ),
-                        ).paddingRight(52),
-                      Expanded(
-                        child: DragToMoveArea(
-                          child: Text(
-                            'Pica Comic',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: (controller.useDarkTheme ||
-                                      context.brightness == Brightness.dark)
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ).toAlign(Alignment.centerLeft).paddingLeft(4),
-                        ),
-                      ),
-                      if (!App.isMacOS)
-                        Theme(
-                          data: Theme.of(context).copyWith(
-                            brightness: controller.useDarkTheme
-                                ? Brightness.dark
-                                : null,
-                          ),
-                          child: const WindowButtons(),
-                        )
-                      else
-                        buildMenuButton(controller, context)
-                            .toAlign(Alignment.centerRight),
-                    ],
-                  ),
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Material(
+              color: Colors.transparent,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  brightness: controller.useDarkTheme ? Brightness.dark : null,
                 ),
-              ))
+                child: Builder(builder: (context) {
+                  return SizedBox(
+                    height: _kTitleBarHeight,
+                    child: Row(
+                      children: [
+                        if (!App.isMacOS)
+                          buildMenuButton(controller, context)
+                              .toAlign(Alignment.centerLeft)
+                        else
+                          const DragToMoveArea(
+                            child: SizedBox(
+                              height: double.infinity,
+                              width: 16,
+                            ),
+                          ).paddingRight(52),
+                        Expanded(
+                          child: DragToMoveArea(
+                            child: Text(
+                              'Pica Comic',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: (controller.useDarkTheme ||
+                                    context.brightness == Brightness.dark)
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ).toAlign(Alignment.centerLeft).paddingLeft(4),
+                          ),
+                        ),
+                        if (!App.isMacOS)
+                          const WindowButtons()
+                        else
+                          buildMenuButton(controller, context)
+                              .toAlign(Alignment.centerRight),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+          )
         ],
       );
     });
@@ -154,10 +155,7 @@ class _MenuPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+    final paint = getPaint(color);
     final path = Path()
       ..moveTo(0, size.height / 4)
       ..lineTo(size.width, size.height / 4)
@@ -389,9 +387,9 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = theme.iconTheme.color ?? Colors.black;
-    final hoverColor = theme.colorScheme.surfaceContainerHighest;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark ? Colors.white : Colors.black;
+    final hoverColor = dark ? Colors.white30 : Colors.black12;
 
     return SizedBox(
       width: 138,
@@ -435,9 +433,7 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
               color: color,
             ),
             hoverIcon: CloseIcon(
-              color: theme.brightness == Brightness.light
-                  ? Colors.white
-                  : Colors.black,
+              color: !dark ? Colors.white : Colors.black,
             ),
             hoverColor: Colors.red,
             onPressed: () {
@@ -543,13 +539,16 @@ class _WindowButtonState extends State<WindowButton> {
 /// Close
 class CloseIcon extends StatelessWidget {
   final Color color;
+
   const CloseIcon({super.key, required this.color});
+
   @override
   Widget build(BuildContext context) => _AlignedPaint(_ClosePainter(color));
 }
 
 class _ClosePainter extends _IconPainter {
   _ClosePainter(super.color);
+
   @override
   void paint(Canvas canvas, Size size) {
     Paint p = getPaint(color, true);
@@ -561,13 +560,16 @@ class _ClosePainter extends _IconPainter {
 /// Maximize
 class MaximizeIcon extends StatelessWidget {
   final Color color;
+
   const MaximizeIcon({super.key, required this.color});
+
   @override
   Widget build(BuildContext context) => _AlignedPaint(_MaximizePainter(color));
 }
 
 class _MaximizePainter extends _IconPainter {
   _MaximizePainter(super.color);
+
   @override
   void paint(Canvas canvas, Size size) {
     Paint p = getPaint(color);
@@ -578,16 +580,19 @@ class _MaximizePainter extends _IconPainter {
 /// Restore
 class RestoreIcon extends StatelessWidget {
   final Color color;
+
   const RestoreIcon({
     super.key,
     required this.color,
   });
+
   @override
   Widget build(BuildContext context) => _AlignedPaint(_RestorePainter(color));
 }
 
 class _RestorePainter extends _IconPainter {
   _RestorePainter(super.color);
+
   @override
   void paint(Canvas canvas, Size size) {
     Paint p = getPaint(color);
@@ -604,13 +609,16 @@ class _RestorePainter extends _IconPainter {
 /// Minimize
 class MinimizeIcon extends StatelessWidget {
   final Color color;
+
   const MinimizeIcon({super.key, required this.color});
+
   @override
   Widget build(BuildContext context) => _AlignedPaint(_MinimizePainter(color));
 }
 
 class _MinimizePainter extends _IconPainter {
   _MinimizePainter(super.color);
+
   @override
   void paint(Canvas canvas, Size size) {
     Paint p = getPaint(color);
@@ -622,6 +630,7 @@ class _MinimizePainter extends _IconPainter {
 /// Helpers
 abstract class _IconPainter extends CustomPainter {
   _IconPainter(this.color);
+
   final Color color;
 
   @override
@@ -630,6 +639,7 @@ abstract class _IconPainter extends CustomPainter {
 
 class _AlignedPaint extends StatelessWidget {
   const _AlignedPaint(this.painter);
+
   final CustomPainter painter;
 
   @override

@@ -425,6 +425,12 @@ class DownloadPage extends StatelessWidget {
             showDesktopMenu(App.globalContext!,
                 Offset(details.globalPosition.dx, details.globalPosition.dy), [
               DesktopMenuEntry(
+                text: "阅读".tl,
+                onClick: () {
+                  logic.comics[index].read();
+                },
+              ),
+              DesktopMenuEntry(
                 text: "删除".tl,
                 onClick: () {
                   showConfirmDialog(context, "确认删除".tl, "此操作无法撤销, 是否继续?".tl,

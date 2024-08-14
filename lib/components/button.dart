@@ -108,7 +108,8 @@ class Button extends StatefulWidget {
       required VoidCallback onPressed,
       double? size,
       Color? color,
-      String? tooltip}) {
+      String? tooltip,
+      HitTestBehavior behavior = HitTestBehavior.deferToChild}) {
     return _IconButton(
       key: key,
       icon: icon,
@@ -116,6 +117,7 @@ class Button extends StatefulWidget {
       size: size,
       color: color,
       tooltip: tooltip,
+      behavior: behavior,
     );
   }
 
@@ -193,7 +195,7 @@ class _ButtonState extends State<Button> {
       cursor: !widget.disabled ? SystemMouseCursors.click : MouseCursor.defer,
       child: GestureDetector(
         onTap: () {
-          if(widget.disabled) {
+          if (widget.disabled) {
             return;
           }
           if (isLoading) return;
@@ -229,7 +231,7 @@ class _ButtonState extends State<Button> {
 
   Color get buttonColor {
     if (widget.type == ButtonType.filled) {
-      if(widget.disabled) {
+      if (widget.disabled) {
         return context.colorScheme.primaryContainer.withOpacity(0.6);
       }
       var color = widget.color ?? context.colorScheme.primary;
@@ -246,7 +248,7 @@ class _ButtonState extends State<Button> {
   }
 
   Color get textColor {
-    if(widget.disabled) {
+    if (widget.disabled) {
       return context.colorScheme.outline;
     }
     if (widget.type == ButtonType.outlined) {
@@ -261,13 +263,15 @@ class _ButtonState extends State<Button> {
 }
 
 class _IconButton extends StatefulWidget {
-  const _IconButton(
-      {super.key,
-      required this.icon,
-      required this.onPressed,
-      this.size,
-      this.color,
-      this.tooltip});
+  const _IconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.size,
+    this.color,
+    this.tooltip,
+    this.behavior = HitTestBehavior.deferToChild,
+  });
 
   final Widget icon;
 
@@ -279,6 +283,8 @@ class _IconButton extends StatefulWidget {
 
   final Color? color;
 
+  final HitTestBehavior behavior;
+
   @override
   State<_IconButton> createState() => _IconButtonState();
 }
@@ -288,24 +294,30 @@ class _IconButtonState extends State<_IconButton> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: widget.onPressed,
-      mouseCursor: SystemMouseCursors.click,
-      customBorder: const CircleBorder(),
-      child: Tooltip(
-        message: widget.tooltip ?? "",
-        child: Container(
-          decoration: BoxDecoration(
-            color:
-                isHover ? Theme.of(context).colorScheme.surfaceContainer : null,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.all(6),
-          child: IconTheme(
-            data: IconThemeData(
-                size: widget.size ?? 24,
-                color: widget.color ?? context.colorScheme.primary),
-            child: widget.icon,
+    var iconSize = widget.size ?? 24;
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHover = true),
+      onExit: (_) => setState(() => isHover = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: widget.behavior,
+        onTap: widget.onPressed,
+        child: Tooltip(
+          message: widget.tooltip ?? "",
+          child: Container(
+            decoration: BoxDecoration(
+              color: isHover
+                  ? Theme.of(context).colorScheme.surfaceContainer
+                  : null,
+              borderRadius: BorderRadius.circular((iconSize + 12) / 2),
+            ),
+            padding: const EdgeInsets.all(6),
+            child: IconTheme(
+              data: IconThemeData(
+                  size: iconSize,
+                  color: widget.color ?? context.colorScheme.primary),
+              child: widget.icon,
+            ),
           ),
         ),
       ),
@@ -314,7 +326,8 @@ class _IconButtonState extends State<_IconButton> {
 }
 
 class StatefulSwitch extends StatefulWidget {
-  const StatefulSwitch({required this.initialValue, required this.onChanged, super.key});
+  const StatefulSwitch(
+      {required this.initialValue, required this.onChanged, super.key});
 
   final bool initialValue;
 
@@ -335,11 +348,13 @@ class _StatefulSwitchState extends State<StatefulSwitch> {
 
   @override
   Widget build(BuildContext context) {
-    return Switch(value: value, onChanged: (b){
-      setState(() {
-        value = b;
-        widget.onChanged(b);
-      });
-    });
+    return Switch(
+        value: value,
+        onChanged: (b) {
+          setState(() {
+            value = b;
+            widget.onChanged(b);
+          });
+        });
   }
 }

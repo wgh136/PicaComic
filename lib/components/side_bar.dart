@@ -9,7 +9,7 @@ class SideBarRoute<T> extends PopupRoute<T> {
   SideBarRoute(this.title, this.widget,
       {this.showBarrier = true,
       this.useSurfaceTintColor = false,
-      this.width = 450,
+      required this.width,
       this.addBottomPadding = true,
       this.addTopPadding = true});
 
@@ -266,7 +266,7 @@ void showSideBar(BuildContext context, Widget widget,
     {String? title,
     bool showBarrier = true,
     bool useSurfaceTintColor = false,
-    double width = 450,
+    double width = 500,
     bool addTopPadding = false}) {
   Navigator.of(context).push(SideBarRoute(title, widget,
       showBarrier: showBarrier,

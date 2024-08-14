@@ -99,14 +99,14 @@ class JmComicPage extends BaseComicPage<JmComicInfo> {
 
   @override
   ActionFunc? get openComments => () {
-        showComments(context, id, data!.comments);
+        showComments(App.globalContext!, id, data!.comments);
       };
 
   @override
   String get cover => getJmCoverUrl(id);
 
   @override
-  void download() => downloadComic(data!, context);
+  void download() => downloadComic(data!, App.globalContext!);
 
   String _getEpName(int index) {
     final epName = data!.epNames.elementAtOrNull(index);

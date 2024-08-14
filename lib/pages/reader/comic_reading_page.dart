@@ -193,7 +193,7 @@ class ComicReadingPage extends StatelessWidget {
     HistoryManager().saveReadHistory(history!, updateMePage);
   }
 
-  bool get useDarkBackground => appdata.settings[81] == "1";
+  bool get useDarkBackground => appdata.appSettings.useDarkBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -262,10 +262,7 @@ class ComicReadingPage extends StatelessWidget {
     }, builder: (logic) {
       return DefaultTextStyle.merge(
         style: TextStyle(
-          color: (useDarkBackground ||
-                  Theme.of(context).brightness == Brightness.dark)
-              ? Colors.white
-              : null,
+          color: useDarkBackground ? Colors.white : null,
           fontSize: 16,
         ),
         child: Scaffold(
@@ -325,7 +322,7 @@ class ComicReadingPage extends StatelessWidget {
                     ),
                     if (MediaQuery.of(context).platformBrightness ==
                             Brightness.dark &&
-                        appdata.settings[18] == "1")
+                        appdata.appSettings.reduceBrightnessInDarkMode)
                       Positioned(
                         top: 0,
                         bottom: 0,
@@ -338,7 +335,7 @@ class ComicReadingPage extends StatelessWidget {
                         ),
                       ),
 
-                    if (appdata.settings[57] == "1")
+                    if (appdata.appSettings.showPageInfoInReader)
                       buildPageInfoText(logic, context),
 
                     //底部工具栏
@@ -409,50 +406,55 @@ class ComicReadingPage extends StatelessWidget {
           right: 0,
           top: MediaQuery.of(App.globalContext!).size.height / 2 + 30,
           child: Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: 250,
-                height: 40,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          logic.change();
-                        },
-                        child: Text("重试".tl),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                        child: FilledButton(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: 250,
+              height: 40,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
                       onPressed: () {
-                        if (!readingData.hasEp) {
-                          showToast(message: "没有其它章节".tl);
-                          return;
-                        }
-                        if (MediaQuery.of(context).size.width > 600) {
-                          showSideBar(context, buildEpsView(),
-                              title: null,
-                              useSurfaceTintColor: true,
-                              addTopPadding: true,
-                              width: 400);
-                        } else {
-                          showModalBottomSheet(
-                              context: context,
-                              useSafeArea: false,
-                              builder: (context) {
-                                return buildEpsView();
-                              });
-                        }
+                        logic.change();
                       },
-                      child: Text("切换章节".tl),
-                    )),
-                  ],
-                ),
-              )),
+                      child: Text("重试".tl),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Expanded(
+                      child: FilledButton(
+                    onPressed: () {
+                      if (!readingData.hasEp) {
+                        showToast(message: "没有其它章节".tl);
+                        return;
+                      }
+                      if (MediaQuery.of(context).size.width > 600) {
+                        showSideBar(
+                          context,
+                          buildEpsView(),
+                          title: null,
+                          useSurfaceTintColor: true,
+                          addTopPadding: true,
+                          width: 400,
+                        );
+                      } else {
+                        showModalBottomSheet(
+                          context: context,
+                          useSafeArea: false,
+                          builder: (context) {
+                            return buildEpsView();
+                          },
+                        );
+                      }
+                    },
+                    child: Text("切换章节".tl),
+                  )),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
     ));
@@ -477,18 +479,22 @@ class ComicReadingPage extends StatelessWidget {
   void openEpsDrawer() {
     var context = App.globalContext!;
     if (MediaQuery.of(context).size.width > 600) {
-      showSideBar(context, buildEpsView(),
-          title: null,
-          useSurfaceTintColor: true,
-          width: 400,
-          addTopPadding: true);
+      showSideBar(
+        context,
+        buildEpsView(),
+        title: null,
+        useSurfaceTintColor: true,
+        width: 400,
+        addTopPadding: true,
+      );
     } else {
       showModalBottomSheet(
-          context: context,
-          useSafeArea: false,
-          builder: (context) {
-            return buildEpsView();
-          });
+        context: context,
+        useSafeArea: false,
+        builder: (context) {
+          return buildEpsView();
+        },
+      );
     }
   }
 

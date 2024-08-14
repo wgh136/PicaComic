@@ -176,20 +176,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
               },
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.animation),
-            title: Text("翻页动画".tl),
-            onTap: () {},
-            trailing: Switch(
-              value: appdata.settings[36] == "1",
-              onChanged: (b) {
-                setState(() {
-                  b ? appdata.settings[36] = "1" : appdata.settings[36] = "0";
-                });
-                appdata.writeData();
-              },
-            ),
-          ),
           if (logic.readingMethod != ReadingMethod.topToBottomContinuously)
             ListTile(
               leading: const Icon(Icons.fit_screen_outlined),

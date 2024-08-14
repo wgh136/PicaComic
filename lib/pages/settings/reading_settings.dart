@@ -86,11 +86,6 @@ class _ReadingSettingsState extends State<ReadingSettings> {
             width: 140,
           ),
         ),
-        SwitchSetting(
-          title: "翻页动画".tl,
-          settingsIndex: 36,
-          icon: const Icon(Icons.animation),
-        ),
         ListTile(
           leading: const Icon(Icons.timer_sharp),
           subtitle: SizedBox(

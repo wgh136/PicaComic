@@ -364,4 +364,34 @@ class _Settings {
   set initialSearchTarget(String value) {
     appdata.settings[63] = value;
   }
+
+  bool get reduceBrightnessInDarkMode => appdata.settings[18] == "1";
+
+  set reduceBrightnessInDarkMode(bool value) {
+    appdata.settings[18] = value ? "1" : "0";
+  }
+
+  bool get showPageInfoInReader => appdata.settings[57] == "1";
+
+  set showPageInfoInReader(bool value) {
+    appdata.settings[57] = value ? "1" : "0";
+  }
+
+  bool get showButtonsInReader => appdata.settings[4] == "1";
+
+  set showButtonsInReader(bool value) {
+    appdata.settings[4] = value ? "1" : "0";
+  }
+
+  bool get flipPageWithClick => appdata.settings[0] == "1";
+
+  set flipPageWithClick(bool value) {
+    appdata.settings[0] = value ? "1" : "0";
+  }
+
+  bool get useDarkBackground => appdata.settings[81] == "1";
+
+  set useDarkBackground(bool value) {
+    appdata.settings[81] = value ? "1" : "0";
+  }
 }
