@@ -57,14 +57,11 @@ class CommentsPage extends StatelessWidget {
                           (context, index) {
                     if (index == logic.comments.comments.length - 1 &&
                         logic.comments.pages != logic.comments.loaded) {
-                      /*
                       network
                           .loadMoreCommends(logic.comments, type: type)
                           .then((t) {
                         logic.update();
                       });
-
-                       */
                     }
                     var comment = logic.comments.comments[index];
                     var subInfo =
