@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/image_loader/base_image_provider.dart';
@@ -13,6 +14,8 @@ import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/components/components.dart';
+
+import 'reader/comic_reading_page.dart';
 
 class ImageFavoritesPage extends StatefulWidget {
   const ImageFavoritesPage({super.key});
@@ -27,8 +30,8 @@ class _ImageFavoritesPageState extends State<ImageFavoritesPage> {
     return StateBuilder(
       tag: "image_favorites_page",
       init: SimpleController(),
-      builder: (controller){
-        if(UiMode.m1(context)){
+      builder: (controller) {
+        if (UiMode.m1(context)) {
           return Scaffold(
             appBar: AppBar(
               title: Text("图片收藏".tl),
@@ -53,13 +56,13 @@ class _ImageFavoritesPageState extends State<ImageFavoritesPage> {
     );
   }
 
-  Widget buildPage(){
+  Widget buildPage() {
     var images = ImageFavoriteManager.getAll();
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithComics(true, appdata.settings[74]),
       itemCount: images.length,
-      itemBuilder: (context, index){
+      itemBuilder: (context, index) {
         return FavoriteImageTile(images[index]);
       },
     );
@@ -81,12 +84,15 @@ class FavoriteImageTile extends StatelessWidget {
         elevation: 1,
         child: Stack(
           children: [
-            Positioned.fill(child: Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(8)),
-                clipBehavior: Clip.antiAlias,
-                child: Image(image: _ImageProvider(image),))),
+            Positioned.fill(
+                child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(8)),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image(
+                      image: _ImageProvider(image),
+                    ))),
             Positioned(
                 bottom: 0,
                 left: 0,
@@ -104,8 +110,7 @@ class FavoriteImageTile extends StatelessWidget {
                           ]),
                       borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(8),
-                          bottomRight: Radius.circular(8))
-                  ),
+                          bottomRight: Radius.circular(8))),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
                     child: Text(
@@ -119,8 +124,7 @@ class FavoriteImageTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                )
-            ),
+                )),
             Positioned.fill(
               child: Material(
                 color: Colors.transparent,
@@ -139,25 +143,94 @@ class FavoriteImageTile extends StatelessWidget {
     );
   }
 
-  void onTap(){
+  void onTap() {
     var type = image.id.split("-")[0];
-    // TODO: read
-    /*
-    readWithKey(type, image.id.replaceFirst("$type-", ""),
-        image.ep, image.page, image.title, image.otherInfo);*/
+    _readWithKey(type, image.id.replaceFirst("$type-", ""), image.ep, image.page,
+        image.title, image.otherInfo);
   }
 
-  void onLongTap(){
+  void _readWithKey(String key, String target, int ep, int page, String title,
+      Map<String, dynamic> otherInfo) async {
+    switch (key) {
+      case "picacg":
+        App.globalTo(() => ComicReadingPage.picacg(
+            target, ep, List.from(otherInfo["eps"]), title,
+            initialPage: page));
+      case "ehentai":
+        App.globalTo(
+          () => ComicReadingPage.ehentai(
+            Gallery.fromJson(otherInfo["gallery"]),
+            initialPage: page,
+          ),
+        );
+      case "jm":
+        App.globalTo(
+          () => ComicReadingPage(
+            JmReadingData(
+              title,
+              target,
+              List.from(otherInfo["eps"]),
+              List.from(
+                otherInfo["jmEpNames"],
+              ),
+            ),
+            page,
+            ep,
+          ),
+        );
+      case "hitomi":
+        App.globalTo(
+          () => ComicReadingPage(
+            HitomiReadingData(
+              title,
+              target,
+              (otherInfo["hitomi"] as List)
+                  .map((e) => HitomiFile.fromMap(e))
+                  .toList(),
+              target,
+            ),
+            page,
+            0,
+          ),
+        );
+      case "htManga":
+      case "htmanga":
+        App.globalTo(
+          () => ComicReadingPage.htmanga(target, title, initialPage: page),
+        );
+      case "nhentai":
+        App.globalTo(
+          () => ComicReadingPage.nhentai(target, title, initialPage: page),
+        );
+      default:
+        var source = ComicSource.find(key);
+        if (source == null) throw "Unknown source $key";
+        App.globalTo(
+          () => ComicReadingPage(
+            CustomReadingData(
+              target,
+              title,
+              source,
+              Map.from(otherInfo["eps"]),
+            ),
+            page,
+            ep,
+          ),
+        );
+    }
+  }
+
+  void onLongTap() {
     showConfirmDialog(App.globalContext!, "确认删除".tl, "要删除这个图片吗".tl, delete);
   }
 
-  void delete(){
+  void delete() {
     ImageFavoriteManager.delete(image);
     showToast(message: "删除成功".tl);
     StateController.findOrNull(tag: "image_favorites_page")?.update();
   }
 
-  void onSecondaryTap(TapDownDetails details){
+  void onSecondaryTap(TapDownDetails details) {
     showDesktopMenu(App.globalContext!, details.globalPosition, [
       DesktopMenuEntry(text: "查看".tl, onClick: onTap),
       DesktopMenuEntry(text: "删除".tl, onClick: delete),
@@ -165,28 +238,35 @@ class FavoriteImageTile extends StatelessWidget {
   }
 }
 
-class _ImageProvider extends BaseImageProvider<_ImageProvider>{
+class _ImageProvider extends BaseImageProvider<_ImageProvider> {
   _ImageProvider(this.image);
-  
+
   final ImageFavorite image;
-  
+
   @override
   String get key => image.id + image.ep.toString() + image.page.toString();
 
   @override
-  Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents) async{
-    if(File(image.imagePath).existsSync()){
-      return await File("${App.dataPath}/images/${image.imagePath}").readAsBytes();
+  Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents) async {
+    if (File(image.imagePath).existsSync()) {
+      return await File("${App.dataPath}/images/${image.imagePath}")
+          .readAsBytes();
     } else {
       var type = image.id.split("-")[0];
       Stream<DownloadProgress> stream;
-      switch(type){
+      switch (type) {
         case "ehentai":
-          stream = ImageManager().getEhImageNew(Gallery.fromJson(image.otherInfo["gallery"]), image.page);
+          stream = ImageManager().getEhImageNew(
+              Gallery.fromJson(image.otherInfo["gallery"]), image.page);
         case "jm":
-          stream = ImageManager().getJmImage(image.otherInfo["url"], null, epsId: image.otherInfo["epsId"], scrambleId: "220980", bookId: image.otherInfo["bookId"]);
+          stream = ImageManager().getJmImage(image.otherInfo["url"], null,
+              epsId: image.otherInfo["epsId"],
+              scrambleId: "220980",
+              bookId: image.otherInfo["bookId"]);
         case "hitomi":
-          stream = ImageManager().getHitomiImage(HitomiFile.fromMap(image.otherInfo["hitomi"][image.page-1]), image.otherInfo["galleryId"]);
+          stream = ImageManager().getHitomiImage(
+              HitomiFile.fromMap(image.otherInfo["hitomi"][image.page - 1]),
+              image.otherInfo["galleryId"]);
         default:
           stream = ImageManager().getImage(image.otherInfo["url"]);
       }
@@ -197,13 +277,12 @@ class _ImageProvider extends BaseImageProvider<_ImageProvider>{
         }
         chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: progress.currentBytes,
-            expectedTotalBytes: progress.expectedBytes)
-        );
+            expectedTotalBytes: progress.expectedBytes));
       }
       var file = finishProgress!.getFile();
       var data = await file.readAsBytes();
       var file2 = File("${App.dataPath}/images/${image.imagePath}");
-      if(!file2.existsSync()){
+      if (!file2.existsSync()) {
         await file2.create(recursive: true);
       }
       await file2.writeAsBytes(data);
@@ -212,7 +291,7 @@ class _ImageProvider extends BaseImageProvider<_ImageProvider>{
   }
 
   @override
-  Future<_ImageProvider> obtainKey(ImageConfiguration configuration) async{
+  Future<_ImageProvider> obtainKey(ImageConfiguration configuration) async {
     return this;
   }
 }
