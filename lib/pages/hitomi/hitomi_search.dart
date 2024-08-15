@@ -23,7 +23,7 @@ class _SearchPageComicListState
     extends LoadingState<SearchPageComicList, List<int>> {
   @override
   Widget buildContent(BuildContext context, List<int> data) {
-    return CustomScrollView(
+    return SmoothCustomScrollView(
       slivers: [
         widget.head,
         SliverGrid(

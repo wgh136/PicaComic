@@ -812,7 +812,7 @@ abstract class BaseComicPage<T extends Object> extends StatelessWidget {
               _logic.thumbnailsData ??= thumbnailsCreator;
               logic.controller.removeListener(scrollListener);
               logic.controller.addListener(scrollListener);
-              return CustomScrollView(
+              return SmoothCustomScrollView(
                 controller: logic.controller,
                 slivers: [
                   buildTitle(logic),

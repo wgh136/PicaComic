@@ -56,12 +56,14 @@ class _ExplorePageState extends State<ExplorePage>
 
   @override
   Widget build(BuildContext context) {
-    Widget tabBar = TabBar(
-      splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-      isScrollable: true,
-      tabAlignment: TabAlignment.center,
-      tabs: appdata.appSettings.explorePages.map((e) => buildTab(e)).toList(),
-      controller: controller,
+    Widget tabBar = Material(
+      child: TabBar(
+        splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
+        isScrollable: true,
+        tabAlignment: TabAlignment.center,
+        tabs: appdata.appSettings.explorePages.map((e) => buildTab(e)).toList(),
+        controller: controller,
+      ),
     );
 
     return Stack(
@@ -231,8 +233,7 @@ class _SingleExplorePageState extends StateWithController<_SingleExplorePage> {
   }
 
   Widget buildPage() {
-    return CustomScrollView(
-      primary: false,
+    return SmoothCustomScrollView(
       slivers: _buildPage().toList(),
     );
   }
@@ -323,7 +324,7 @@ class _MixedExplorePageState
 
   @override
   Widget buildContent(BuildContext context, List<Object> data) {
-    return CustomScrollView(
+    return SmoothCustomScrollView(
       slivers: [
         ...buildSlivers(context, data),
         if (haveNextPage) const ListLoadingIndicator().toSliver()

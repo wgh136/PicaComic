@@ -270,8 +270,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
       child: SizedBox(
         height: height,
         width: double.infinity,
-        child: CustomScrollView(
-          primary: false,
+        child: SmoothCustomScrollView(
           slivers: [
             buildTitle("网络".tl)
                 .sliverPadding(const EdgeInsets.fromLTRB(12, 8, 12, 0)),
@@ -698,30 +697,34 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     }
 
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: MediaQuery.removePadding(
-          key: Key(folder),
-          removeTop: true,
-          context: context,
-          child: RefreshIndicator(
-            notificationPredicate: (notify) {
-              return folderSync() != null;
-            },
-            onRefresh: () => onRefresh(context),
-            child: Scrollbar(
+      resizeToAvoidBottomInset: false,
+      body: MediaQuery.removePadding(
+        key: Key(folder),
+        removeTop: true,
+        context: context,
+        child: RefreshIndicator(
+          notificationPredicate: (notify) {
+            return folderSync() != null;
+          },
+          onRefresh: () => onRefresh(context),
+          child: Scrollbar(
+            controller: scrollController,
+            interactive: true,
+            thickness: App.isMobile ? 12 : null,
+            radius: const Radius.circular(8),
+            child: ScrollConfiguration(
+              behavior: const ScrollBehavior().copyWith(scrollbars: false),
+              child: SmoothScrollProvider(
                 controller: scrollController,
-                interactive: true,
-                thickness: App.isMobile ? 12 : null,
-                radius: const Radius.circular(8),
-                child: ScrollConfiguration(
-                  behavior: const ScrollBehavior().copyWith(scrollbars: false),
-                  child: GridView.builder(
+                builder: (context, controller, physic) {
+                  return GridView.builder(
                     key: Key(folder),
                     primary: false,
-                    controller: scrollController,
+                    controller: controller,
                     gridDelegate: SliverGridDelegateWithComics(),
                     itemCount: comics.length,
                     padding: EdgeInsets.zero,
+                    physics: physic,
                     itemBuilder: (BuildContext context, int index) {
                       var comic = comics[index];
                       var tile = LocalFavoriteTile(
@@ -754,23 +757,27 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                         child: tile,
                       );
                     },
-                  ),
-                )),
+                  );
+                },
+              ),
+            ),
           ),
         ),
-        floatingActionButton: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 150),
-          reverseDuration: const Duration(milliseconds: 150),
-          child: showFB && folderSync() != null ? buildFAB() : const SizedBox(),
-          transitionBuilder: (widget, animation) {
-            var tween = Tween<Offset>(
-                begin: const Offset(0, 1), end: const Offset(0, 0));
-            return SlideTransition(
-              position: tween.animate(animation),
-              child: widget,
-            );
-          },
-        ));
+      ),
+      floatingActionButton: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        reverseDuration: const Duration(milliseconds: 150),
+        child: showFB && folderSync() != null ? buildFAB() : const SizedBox(),
+        transitionBuilder: (widget, animation) {
+          var tween =
+              Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0));
+          return SlideTransition(
+            position: tween.animate(animation),
+            child: widget,
+          );
+        },
+      ),
+    );
   }
 
   Widget buildFAB() => Material(

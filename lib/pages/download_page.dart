@@ -233,7 +233,7 @@ class DownloadPage extends StatelessWidget {
           } else {
             return Scaffold(
               floatingActionButton: buildFAB(context, logic),
-              body: CustomScrollView(
+              body: SmoothCustomScrollView(
                 slivers: [
                   buildAppbar(context, logic),
                   buildComics(context, logic)

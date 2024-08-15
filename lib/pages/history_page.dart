@@ -77,58 +77,60 @@ class _HistoryPageState extends State<HistoryPage> {
       find();
     }
     return Scaffold(
-        body: CustomScrollView(
-      slivers: [
-        SliverAppbar(
-          title: buildTitle(),
-          actions: [
-            Tooltip(
-              message: "清除".tl,
-              child: IconButton(
-                icon: const Icon(Icons.clear_all),
-                onPressed: () => showDialog(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                          title: Text("清除记录".tl),
-                          content: Text("要清除历史记录吗?".tl),
-                          actions: [
-                            TextButton(
-                                onPressed: () => App.globalBack(),
-                                child: Text("取消".tl)),
-                            TextButton(
-                                onPressed: () {
-                                  appdata.history.clearHistory();
-                                  setState(() => comics.clear());
-                                  isModified = true;
-                                  App.globalBack();
-                                },
-                                child: Text("清除".tl)),
-                          ],
-                        )),
+      body: SmoothCustomScrollView(
+        slivers: [
+          SliverAppbar(
+            title: buildTitle(),
+            actions: [
+              Tooltip(
+                message: "清除".tl,
+                child: IconButton(
+                  icon: const Icon(Icons.clear_all),
+                  onPressed: () => showDialog(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                            title: Text("清除记录".tl),
+                            content: Text("要清除历史记录吗?".tl),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => App.globalBack(),
+                                  child: Text("取消".tl)),
+                              TextButton(
+                                  onPressed: () {
+                                    appdata.history.clearHistory();
+                                    setState(() => comics.clear());
+                                    isModified = true;
+                                    App.globalBack();
+                                  },
+                                  child: Text("清除".tl)),
+                            ],
+                          )),
+                ),
               ),
-            ),
-            Tooltip(
-              message: "搜索".tl,
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  setState(() {
-                    searchMode = !searchMode;
-                    if (!searchMode) {
-                      keyword = "";
-                    }
-                  });
-                },
-              ),
-            )
-          ],
-        ),
-        if (!searchMode) buildComics(comics) else buildComics(results),
-        SliverPadding(
+              Tooltip(
+                message: "搜索".tl,
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      searchMode = !searchMode;
+                      if (!searchMode) {
+                        keyword = "";
+                      }
+                    });
+                  },
+                ),
+              )
+            ],
+          ),
+          if (!searchMode) buildComics(comics) else buildComics(results),
+          SliverPadding(
             padding:
-                EdgeInsets.only(top: MediaQuery.of(context).padding.bottom))
-      ],
-    ));
+                EdgeInsets.only(top: MediaQuery.of(context).padding.bottom),
+          )
+        ],
+      ),
+    );
   }
 
   Widget buildComics(List<History> comics_) {

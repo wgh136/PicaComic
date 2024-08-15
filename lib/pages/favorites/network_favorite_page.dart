@@ -112,7 +112,7 @@ class _MultiFolderFavoritesPageState extends State<_MultiFolderFavoritesPage> {
       if (widget.data.allFavoritesId != null) length++;
       final keys = folders!.keys.toList();
 
-      return CustomScrollView(
+      return SmoothCustomScrollView(
         slivers: [
           SliverGridViewWithFixedItemHeight(
             delegate:

@@ -208,7 +208,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
           } else {
             if (appdata.settings[25] == "0") {
               var comics = logic.comics!;
-              return CustomScrollView(
+              return SmoothCustomScrollView(
                 slivers: [
                   if (title != null)
                     SliverAppbar(
@@ -241,7 +241,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
               );
             } else {
               var comics = logic.dividedComics;
-              Widget body = CustomScrollView(
+              Widget body = SmoothCustomScrollView(
                 slivers: [
                   if (title != null)
                     SliverAppbar(
