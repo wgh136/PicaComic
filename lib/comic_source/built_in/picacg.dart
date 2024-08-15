@@ -124,6 +124,11 @@ final picacg = ComicSource.named(
   ],
   categoryComicsData: CategoryComicsData.named(
     load: (category, param, options, page) async {
+      if(category == "random") {
+        return PicacgNetwork().getRandomComics();
+      } else if (category == "latest") {
+        return PicacgNetwork().getLatest(page);
+      }
       return PicacgNetwork().getCategoryComics(
         category,
         page,
@@ -139,6 +144,7 @@ final picacg = ComicSource.named(
           "ld": "最多喜欢",
           "vd": "最多指名",
         }),
+        notShowWhen: ["random", "latest"],
       ),
     ],
     rankingData: RankingData.named(
