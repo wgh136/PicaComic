@@ -199,7 +199,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
           } else {
             if (appdata.settings[25] == "0") {
               List<T> comics = [];
-              if(appdata.appSettings.fullyHideBlockedWorks) {
+              if (appdata.appSettings.fullyHideBlockedWorks) {
                 for (var comic in logic.comics!) {
                   if (isBlocked(comic) == null) {
                     comics.add(comic);
@@ -241,7 +241,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
               );
             } else {
               List<T> comics = [];
-              if(appdata.appSettings.fullyHideBlockedWorks) {
+              if (appdata.appSettings.fullyHideBlockedWorks) {
                 for (var comic in logic.dividedComics![logic.current]!) {
                   if (isBlocked(comic) == null) {
                     comics.add(comic);
@@ -260,17 +260,18 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
                   if (head != null) head!,
                   if (showPageIndicator &&
                       appdata.settings[64] == "0" &&
-                      comics.length > 4)
+                      logic.maxPage != 1)
                     buildPageSelector(context, logic),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
-                        childCount: comics.length,
-                        (context, i) {
+                        childCount: comics.length, (context, i) {
                       return buildItem(context, comics[i]);
                     }),
                     gridDelegate: SliverGridDelegateWithComics(),
                   ),
-                  if (showPageIndicator && appdata.settings[64] == "0")
+                  if (showPageIndicator &&
+                      appdata.settings[64] == "0" &&
+                      logic.maxPage != 1)
                     buildPageSelector(context, logic),
                   SliverPadding(
                       padding: EdgeInsets.only(
