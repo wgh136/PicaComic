@@ -55,19 +55,27 @@ class PicacgComicPage extends BaseComicPage<ComicItem> {
           update();
         }
       },
-      cancelPlatformFavorite: () {
-        network.favouriteOrUnfavouriteComic(id);
-        data!.isFavourite = false;
-        update();
+      cancelPlatformFavorite: () async {
+        var res = await network.favouriteOrUnfavouriteComic(id);
+        if(res) {
+          data!.isFavourite = false;
+          return const Res(true);
+        }
+        return Res.error("网络错误".tl);
       },
-      selectFolderCallback: (name, p) {
+      selectFolderCallback: (name, p) async {
         if (p == 0) {
-          network.favouriteOrUnfavouriteComic(id);
-          data!.isFavourite = true;
-          update();
+          var res = await network.favouriteOrUnfavouriteComic(id);
+          if(res) {
+            data!.isFavourite = true;
+            update();
+            return const Res(true);
+          } else {
+            return Res.error("网络错误".tl);
+          }
         } else {
-          showToast(message: "已添加至收藏夹:".tl + name);
           LocalFavoritesManager().addComic(name, toLocalFavoriteItem());
+          return const Res(true);
         }
       },
     ));

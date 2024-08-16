@@ -458,20 +458,30 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
       },
       selectFolderCallback: (folder, page) async {
         if (page == 0) {
-          showToast(message: "正在添加收藏".tl);
           var res = await EhNetwork().favorite(
               data!.auth!["gid"]!, data!.auth!["token"]!,
               id: EhNetwork().folderNames.indexOf(folder).toString());
-          res ? (data!.favorite = true) : null;
-          showToast(message: res ? "成功添加收藏".tl : "网络错误".tl);
+          if (res) {
+            data!.favorite = true;
+            return const Res(true);
+          } else {
+            return Res.error("网络错误".tl);
+          }
         } else {
           LocalFavoritesManager()
               .addComic(folder, FavoriteItem.fromEhentai(data!.toBrief()));
-          showToast(message: "成功添加收藏".tl);
+          return const Res(true);
         }
       },
-      cancelPlatformFavorite: () {
-        EhNetwork().unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
+      cancelPlatformFavorite: () async {
+        var res = await EhNetwork()
+            .unfavorite(data!.auth!["gid"]!, data!.auth!["token"]!);
+        if (res) {
+          data!.favorite = false;
+          return const Res(true);
+        } else {
+          return Res.error("网络错误".tl);
+        }
       },
     ));
   }

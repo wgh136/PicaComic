@@ -65,34 +65,25 @@ class JmComicPage extends BaseComicPage<JmComicInfo> {
       favoriteOnPlatform: data!.favorite,
       selectFolderCallback: (folder, page) async {
         if (page == 0) {
-          showToast(message: "正在添加收藏".tl);
           var res = await jmNetwork.favorite(id, folder);
-          if (res.error) {
-            showToast(message: res.errorMessageWithoutNull);
-            return;
+          if (res.success) {
+            data!.favorite = true;
           }
-          data!.favorite = true;
-          showToast(message: "成功添加收藏".tl);
+          return res;
         } else {
           LocalFavoritesManager().addComic(
-              folder,
-              FavoriteItem.fromJmComic(JmComicBrief(
-                id,
-                data!.author.elementAtOrNull(0) ?? "",
-                data!.name,
-                data!.description,
-                [],
-                [],
-                ignoreExamination: true,
-              )));
-          showToast(message: "成功添加收藏".tl);
+            folder,
+            toLocalFavoriteItem(),
+          );
+          return const Res(true);
         }
       },
       cancelPlatformFavorite: () async {
-        showToast(message: "正在取消收藏".tl);
         var res = await jmNetwork.favorite(id, null);
-        showToast(message: !res.error ? "成功取消收藏".tl : "网络错误".tl);
-        data!.favorite = false;
+        if(res.success) {
+          data!.favorite = false;
+        }
+        return res;
       },
     ));
   }

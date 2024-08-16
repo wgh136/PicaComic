@@ -43,7 +43,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
       selectFolderCallback: (folder, page) {
         LocalFavoritesManager().addComic(
             folder, FavoriteItem.fromHitomi(data!.toBrief(comic.link, cover)));
-        showToast(message: "成功添加收藏".tl);
+        return Future.value(const Res(true));
       },
     ));
   }

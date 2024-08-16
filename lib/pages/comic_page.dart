@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -272,51 +274,28 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
         }
       },
       favoriteOnPlatform: logic.favoriteOnPlatform,
-      selectFolderCallback: (folder, type) {
+      selectFolderCallback: (folder, type) async {
         if (type == 1) {
           LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
-          showToast(message: "成功添加收藏".tl);
+          return const Res(true);
         } else {
-          showToast(message: "正在添加收藏".tl);
-          comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true)
-              .then((value) {
-            hideAllMessages();
-            if (value.error) {
-              showToast(message: "添加收藏失败".tl);
-            } else {
-              if (!comicSource!.favoriteData!.multiFolder) {
-                logic.favoriteOnPlatform = true;
-                update();
-              }
-              showToast(message: "成功添加收藏".tl);
-            }
-          });
+          var res = await comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true);
+          if(!comicSource!.favoriteData!.multiFolder && res.success) {
+            logic.favoriteOnPlatform = true;
+            update();
+          }
+          return res;
         }
       },
-      cancelPlatformFavorite: () {
-        showToast(message: "正在取消收藏".tl);
-        comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false)
-            .then((value) {
-          hideAllMessages();
-          if (value.error) {
-            showToast(message: "取消收藏失败".tl);
-          } else {
-            logic.favoriteOnPlatform = false;
-            showToast(message: "成功取消收藏".tl);
-          }
-        });
+      cancelPlatformFavorite: () async {
+        var res = await comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false);
+        if(res.success) {
+          logic.favoriteOnPlatform = false;
+        }
+        return res;
       },
       cancelPlatformFavoriteWithFolder: (folder) {
-        showToast(message: "正在取消收藏".tl);
-        comicSource!.favoriteData!.addOrDelFavorite!(id, folder, false)
-            .then((value) {
-          hideAllMessages();
-          if (value.error) {
-            showToast(message: "取消收藏失败".tl);
-          } else {
-            showToast(message: "成功取消收藏".tl);
-          }
-        });
+        return comicSource!.favoriteData!.addOrDelFavorite!(id, folder, false);
       },
     ));
   }
@@ -1724,7 +1703,7 @@ class FavoriteComicWidget extends StatefulWidget {
   /// callback when user choose a folder
   ///
   /// type=0: platform, type=1:local
-  final void Function(String id, int type)? selectFolderCallback;
+  final FutureOr<Res<bool>> Function(String id, int type)? selectFolderCallback;
 
   /// initial selected folder id
   final String? initialFolder;
@@ -1736,9 +1715,9 @@ class FavoriteComicWidget extends StatefulWidget {
   /// identifier for the comic
   final String target;
 
-  final void Function()? cancelPlatformFavorite;
+  final Future<Res<bool>> Function()? cancelPlatformFavorite;
 
-  final void Function(String folder)? cancelPlatformFavoriteWithFolder;
+  final Future<Res<bool>> Function(String folder)? cancelPlatformFavoriteWithFolder;
 
   final void Function(bool favorite) setFavorite;
 
@@ -1757,6 +1736,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
   var favoritedFolders = <String>[];
   bool loadedData = false;
   List<String> addedFolders = [];
+  bool isAdding = false;
 
   @override
   void initState() {
@@ -1824,20 +1804,29 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       );
     }
 
-    Widget button = SizedBox(
-      height: 35,
-      width: 120,
-      child: FilledButton(
-        child: Text("收藏".tl),
-        onPressed: () {
-          context.hideMessages();
-          if (selectID != null) {
+    Widget button = Button.filled(
+      isLoading: isAdding,
+      child: Text("收藏".tl),
+      onPressed: () async {
+        if (selectID != null) {
+          setState(() {
+            isAdding = true;
+          });
+          var res = await widget.selectFolderCallback!.call(selectID!, page);
+          if(res.success) {
             widget.setFavorite(true);
-            App.globalBack();
-            widget.selectFolderCallback?.call(selectID!, page);
+            if(context.mounted) {
+              context.pop();
+            }
+            showToast(message: "成功添加收藏".tl);
+          } else {
+            setState(() {
+              isAdding = false;
+            });
+            showToast(message: res.errorMessage!);
           }
-        },
-      ),
+        }
+      },
     );
 
     Widget platform = SingleChildScrollView(
@@ -1854,20 +1843,29 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         child: Text("已收藏".tl),
       );
       if (page == 0) {
-        button = SizedBox(
-          height: 35,
-          width: 120,
-          child: FilledButton(
-            onPressed: () {
-              context.hideMessages();
+        button = Button.filled(
+          isLoading: isAdding,
+          onPressed: () async {
+            setState(() {
+              isAdding = true;
+            });
+            var res = await widget.cancelPlatformFavorite!.call();
+            if(res.success) {
               if (addedFolders.isEmpty) {
                 widget.setFavorite(false);
               }
-              App.globalBack();
-              widget.cancelPlatformFavorite?.call();
-            },
-            child: Text("取消收藏".tl),
-          ),
+              showToast(message: "取消收藏成功".tl);
+              if (context.mounted) {
+                context.pop();
+              }
+            } else {
+              setState(() {
+                isAdding = false;
+              });
+              showToast(message: res.errorMessage!);
+            }
+          },
+          child: Text("取消收藏".tl),
         );
       }
     }
@@ -1915,10 +1913,16 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         height: 35,
         width: 120,
         child: FilledButton(
-          onPressed: () {
-            context.hideMessages();
-            App.globalBack();
-            widget.cancelPlatformFavoriteWithFolder?.call(selectID!);
+          onPressed: () async {
+            var res = await widget.cancelPlatformFavoriteWithFolder!(selectID!);
+            if(res.success) {
+              showToast(message: "取消收藏成功".tl);
+              if (context.mounted) {
+                context.pop();
+              }
+            } else {
+              showToast(message: res.errorMessage!);
+            }
           },
           child: Text("取消收藏".tl),
         ),

@@ -161,7 +161,7 @@ class _ButtonState extends State<Button> {
   @override
   Widget build(BuildContext context) {
     var padding = widget.padding ??
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 6);
+        const EdgeInsets.symmetric(horizontal: 24, vertical: 6);
     var width = widget.width;
     if (width != null) {
       width = width - padding.horizontal;
@@ -170,6 +170,7 @@ class _ButtonState extends State<Button> {
     if (height != null) {
       height = height - padding.vertical;
     }
+    bool fixed = width != null || height != null;
     Widget child = IconTheme(
         data: IconThemeData(color: textColor),
         child: DefaultTextStyle(
@@ -183,7 +184,7 @@ class _ButtonState extends State<Button> {
                       ? context.colorScheme.inversePrimary
                       : context.colorScheme.primary,
                   strokeWidth: 1.8,
-                ).fixWidth(16).fixHeight(16)
+                ).fixWidth(18).fixHeight(18)
               : widget.child,
         ));
     if (width != null || height != null) {
@@ -219,11 +220,16 @@ class _ButtonState extends State<Button> {
                     width: 0.6)
                 : null,
           ),
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: child,
-          ),
+          child: fixed
+              ? SizedBox(
+                  width: width,
+                  height: height,
+                  child: child,
+                )
+              : AnimatedSize(
+                  duration: _fastAnimationDuration,
+                  child: child,
+                ),
         ),
       ),
     );

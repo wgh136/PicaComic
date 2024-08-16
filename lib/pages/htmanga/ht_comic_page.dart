@@ -32,17 +32,11 @@ class HtComicPage extends BaseComicPage<HtComicInfo> {
       setFavorite: (b) {},
       selectFolderCallback: (folder, page) async {
         if (page == 0) {
-          showToast(message: "正在添加收藏".tl);
-          var res = await HtmangaNetwork().addFavorite(data!.id, folder);
-          if (res.error) {
-            showToast(message: res.errorMessageWithoutNull);
-          } else {
-            showToast(message: "成功添加收藏".tl);
-          }
+          return HtmangaNetwork().addFavorite(data!.id, folder);
         } else {
           LocalFavoritesManager()
               .addComic(folder, FavoriteItem.fromHtcomic(data!.toBrief()));
-          showToast(message: "成功添加收藏".tl);
+          return const Res(true);
         }
       },
     ));

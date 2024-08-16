@@ -16,7 +16,7 @@ import '../../foundation/local_favorites.dart';
 import 'comments.dart';
 
 class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
-  const NhentaiComicPage(String id, {super.key, this.comicCover}): _id = id;
+  const NhentaiComicPage(String id, {super.key, this.comicCover}) : _id = id;
 
   final String _id;
 
@@ -63,31 +63,33 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
       folders: const {"0": "Nhentai"},
       selectFolderCallback: (folder, page) async {
         if (page == 0) {
-          showToast(message: "正在添加收藏".tl);
           var res = await NhentaiNetwork().favoriteComic(id, data!.token);
-          if (res.error) {
-            showToast(message: res.errorMessageWithoutNull);
-            return;
+          if (res.success) {
+            data!.favorite = true;
           }
-          data!.favorite = true;
-          showToast(message: "成功添加收藏".tl);
+          return res;
         } else {
           LocalFavoritesManager().addComic(
-              folder,
-              FavoriteItem.fromNhentai(NhentaiComicBrief(
-                  data!.title,
-                  data!.cover,
-                  id,
-                  "Unknown",
-                  data!.tags["Tags"] ?? const <String>[])));
-          showToast(message: "成功添加收藏".tl);
+            folder,
+            FavoriteItem.fromNhentai(
+              NhentaiComicBrief(
+                data!.title,
+                data!.cover,
+                id,
+                "Unknown",
+                data!.tags["Tags"] ?? const <String>[],
+              ),
+            ),
+          );
+          return const Res(true);
         }
       },
       cancelPlatformFavorite: () async {
-        showToast(message: "正在取消收藏".tl);
         var res = await NhentaiNetwork().unfavoriteComic(id, data!.token);
-        showToast(message: !res.error ? "成功取消收藏".tl : "网络错误".tl);
-        data!.favorite = false;
+        if(res.success) {
+          data!.favorite = false;
+        }
+        return res;
       },
     ));
   }
@@ -193,10 +195,12 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
     };
 
     if (category == null) {
-      context.to(() => SearchResultPage(
-            keyword: tag,
-            sourceKey: sourceKey,
-          ),);
+      context.to(
+        () => SearchResultPage(
+          keyword: tag,
+          sourceKey: sourceKey,
+        ),
+      );
     } else {
       context.to(
         () => CategoryComicsPage(
