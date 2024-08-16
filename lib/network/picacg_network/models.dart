@@ -67,16 +67,7 @@ class ComicItemBrief extends BaseComic{
   List<String> tags;
   int? pages;
 
-  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, this.tags, {bool ignoreExamination = false, this.pages}){
-    if(ignoreExamination) return;
-    bool block = false;
-    for(var key in appdata.blockingKeyword){
-      block = block || title.contains(key) || author==key || tags.contains(key);
-    }
-    if(block){
-      throw Error();
-    }
-  }
+  ComicItemBrief(this.title, this.author, this.likes, this.path, this.id, this.tags, {this.pages});
 
   @override
   String get cover => path;
@@ -129,7 +120,7 @@ class ComicItem with HistoryMixin{
       this.recommendation
       );
   ComicItemBrief toBrief(){
-    return ComicItemBrief(title, author, likes, thumbUrl, id, [], ignoreExamination: true);
+    return ComicItemBrief(title, author, likes, thumbUrl, id, []);
   }
 
   Map<String,dynamic> toJson()=>{

@@ -2,8 +2,6 @@ import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 
-import '../../base.dart';
-
 class HomePageData {
   List<HomePageItem> items;
 
@@ -19,7 +17,7 @@ class HomePageItem {
   HomePageItem(this.name, this.id, this.comics, this.category);
 }
 
-class JmComicBrief extends BaseComic{
+class JmComicBrief extends BaseComic {
   @override
   String id;
   String author;
@@ -30,19 +28,14 @@ class JmComicBrief extends BaseComic{
   @override
   List<String> tags;
 
-  JmComicBrief(this.id, this.author, this.name, this.description,
-      this.categories, this.tags,
-      {bool ignoreExamination = false}) {
-    if (ignoreExamination) return;
-    bool block = false;
-    for (var key in appdata.blockingKeyword) {
-      block =
-          block || name.contains(key) || author == key || tags.contains(key);
-    }
-    if (block) {
-      throw Error();
-    }
-  }
+  JmComicBrief(
+    this.id,
+    this.author,
+    this.name,
+    this.description,
+    this.categories,
+    this.tags,
+  );
 
   @override
   String get cover => getJmCoverUrl(id);
@@ -182,7 +175,7 @@ class JmComicInfo with HistoryMixin {
         epNames = List.from(map["epNames"] ?? []);
 
   JmComicBrief toBrief() =>
-      JmComicBrief(id, author.firstOrNull ?? "", name, description, [], tags, ignoreExamination: true);
+      JmComicBrief(id, author.firstOrNull ?? "", name, description, [], tags);
 
   @override
   String get cover => getJmCoverUrl(id);

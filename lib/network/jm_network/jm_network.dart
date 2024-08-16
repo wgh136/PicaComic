@@ -556,8 +556,7 @@ class JmNetwork {
       var related = <JmComicBrief>[];
       for (var c in res.data["related_list"] ?? []) {
         related.add(JmComicBrief(c["id"], c["author"] ?? "未知",
-            c["name"] ?? "未知", c["description"] ?? "无", [], [],
-            ignoreExamination: true));
+            c["name"] ?? "未知", c["description"] ?? "无", [], []));
       }
       return Res(JmComicInfo(
           res.data["name"] ?? "未知",
@@ -646,8 +645,7 @@ class JmNetwork {
               comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-            comic["description"] ?? "", categories, [],
-            ignoreExamination: true));
+            comic["description"] ?? "", categories, []));
       }
       int pages;
       if (comics.isNotEmpty) {
@@ -845,8 +843,7 @@ class JmNetwork {
               comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-            comic["description"] ?? "", categories, [],
-            ignoreExamination: true));
+            comic["description"] ?? "", categories, []));
       }
       return Res(comics);
     } catch (e, s) {

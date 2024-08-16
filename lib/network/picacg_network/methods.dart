@@ -18,13 +18,12 @@ const defaultAvatarUrl = "DEFAULT AVATAR URL";
 
 ///哔咔网络请求类
 class PicacgNetwork {
-  factory PicacgNetwork() =>
-      cache ?? (cache = PicacgNetwork._create());
+  factory PicacgNetwork() => cache ?? (cache = PicacgNetwork._create());
 
   static PicacgNetwork? cache;
 
   PicacgNetwork._create() {
-    if(picacg.data['user'] != null) {
+    if (picacg.data['user'] != null) {
       try {
         user = Profile.fromJson(picacg.data['user']);
       } finally {}
@@ -166,7 +165,7 @@ class PicacgNetwork {
 
   Future<Res<bool>> loginFromAppdata() async {
     var res = await picacg.reLogin();
-    if(res) {
+    if (res) {
       return const Res(true);
     } else {
       return const Res.error("Failed to re-login");
@@ -548,7 +547,6 @@ class PicacgNetwork {
                 res["data"]["comics"]["docs"][i]["thumb"]["path"],
             res["data"]["comics"]["docs"][i]["_id"],
             tags,
-            ignoreExamination: true,
             pages: res["data"]["comics"]["docs"][i]["pagesCount"]);
         comics.add(si);
       }
@@ -583,9 +581,7 @@ class PicacgNetwork {
               tags,
               pages: res["data"]["comics"][i]["pagesCount"]);
           comics.add(si);
-        } catch (e) {
-          //出现错误跳过
-        }
+        }  finally {}
       }
     } else {
       return Res.fromErrorRes(response);
@@ -640,9 +636,7 @@ class PicacgNetwork {
           pages: res["data"]["comics"][i]["pagesCount"],
         );
         comics.add(si);
-      } catch (e) {
-        //出现错误跳过
-      }
+      }  finally {}
     }
     return Res(comics, subData: 1);
   }
@@ -812,19 +806,17 @@ class PicacgNetwork {
           tags.addAll(
               List<String>.from(res["data"]["comics"][i]["categories"] ?? []));
           var si = ComicItemBrief(
-              res["data"]["comics"][i]["title"] ?? "Unknown",
-              res["data"]["comics"][i]["author"] ?? "Unknown",
-              int.parse(res["data"]["comics"][i]["likesCount"].toString()),
-              res["data"]["comics"][i]["thumb"]["fileServer"] +
-                  "/static/" +
-                  res["data"]["comics"][i]["thumb"]["path"],
-              res["data"]["comics"][i]["_id"],
-              tags,
-              ignoreExamination: true);
+            res["data"]["comics"][i]["title"] ?? "Unknown",
+            res["data"]["comics"][i]["author"] ?? "Unknown",
+            int.parse(res["data"]["comics"][i]["likesCount"].toString()),
+            res["data"]["comics"][i]["thumb"]["fileServer"] +
+                "/static/" +
+                res["data"]["comics"][i]["thumb"]["path"],
+            res["data"]["comics"][i]["_id"],
+            tags,
+          );
           comics.add(si);
-        } catch (e) {
-          //出现错误跳过
-        }
+        }  finally {}
       }
     } else {
       return Res.fromErrorRes(response);
@@ -853,7 +845,6 @@ class PicacgNetwork {
                 res["data"]["collections"][0]["comics"][i]["thumb"]["path"],
             res["data"]["collections"][0]["comics"][i]["_id"],
             [],
-            ignoreExamination: true,
             pages: res["data"]["collections"][0]["comics"][i]["pagesCount"],
           );
           comics[0].add(si);
@@ -861,9 +852,7 @@ class PicacgNetwork {
           //出现错误跳过
         }
       }
-    } catch (e) {
-      //跳过
-    }
+    }  finally {}
     try {
       for (int i = 0; i < res["data"]["collections"][1]["comics"].length; i++) {
         try {
@@ -876,17 +865,12 @@ class PicacgNetwork {
                 res["data"]["collections"][1]["comics"][i]["thumb"]["path"],
             res["data"]["collections"][1]["comics"][i]["_id"],
             [],
-            ignoreExamination: true,
             pages: res["data"]["collections"][1]["comics"][i]["pagesCount"],
           );
           comics[1].add(si);
-        } catch (e) {
-          //出现错误跳过}
-        }
+        } finally {}
       }
-    } catch (e) {
-      //跳过
-    }
+    }  finally {}
     return Res(comics);
   }
 

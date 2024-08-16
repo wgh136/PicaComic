@@ -15,21 +15,7 @@ class EhGalleryBrief extends BaseComic{
   List<String> tags;
   int? pages;
 
-  EhGalleryBrief(this.title,this.type,this.time,this.uploader,this.coverPath,this.stars,this.link,this.tags, {bool ignoreExamination=false, this.pages}){
-    if(ignoreExamination) return;
-    bool block = false;
-    for(var key in appdata.blockingKeyword){
-      block = block || title.contains(key) || uploader==key || type==key;
-    }
-    for(var key in appdata.blockingKeyword){
-      for(var tag in tags){
-        block = block || tag.split(":").contains(key);
-      }
-    }
-    if(block){
-      throw Exception("Comic blocked");
-    }
-  }
+  EhGalleryBrief(this.title,this.type,this.time,this.uploader,this.coverPath,this.stars,this.link,this.tags, {this.pages});
 
   @override
   String get cover => coverPath;
@@ -99,7 +85,6 @@ class Gallery with HistoryMixin{
       stars,
       link,
       _generateTags(),
-      ignoreExamination: true
   );
 
   Map<String, dynamic> toJson() {

@@ -145,10 +145,7 @@ class HtmangaNetwork {
           var pages = int.parse(pagesStr);
           try {
             comics.add(HtComicBrief(name, time, image, id, pages));
-          }
-          catch(e){
-            // block
-          }
+          } finally {}
         }
         comicsRes.add(comics);
       }

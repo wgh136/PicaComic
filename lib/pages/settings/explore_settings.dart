@@ -44,17 +44,28 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         options: ["顺序显示".tl, "分页显示".tl],
         settingsIndex: 25,
       ),
+      SwitchSetting(
+        title: "完全隐藏屏蔽的作品".tl,
+        settingsIndex: 83,
+        icon: const Icon(Icons.visibility_off),
+      ),
       SettingsTitle("工具".tl),
       SwitchSetting(
         title: "检查剪切板中的链接".tl,
         settingsIndex: 61,
         icon: const Icon(Icons.image),
       ),
-      SelectSetting(
-        title: "默认搜索源".tl,
-        settingsIndex: 63,
-        options: searchSource,
-        icon: const Icon(Icons.search),
+      ListTile(
+        leading: const Icon(Icons.search),
+        title: Text("默认搜索源".tl),
+        trailing: Select(
+          initialValue: searchSource.indexOf(appdata.appSettings.initialSearchTarget),
+          onChange: (i) {
+            appdata.appSettings.initialSearchTarget = searchSource[i];
+            appdata.updateSettings();
+          },
+          values: searchSource,
+        ),
       ),
       SwitchSetting(
         title: "启用侧边翻页栏".tl,

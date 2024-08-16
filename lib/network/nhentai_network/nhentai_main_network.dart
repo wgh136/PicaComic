@@ -115,7 +115,7 @@ class NhentaiNetwork {
     }
   }
 
-  NhentaiComicBrief? parseComic(Element comicDom, [bool examination = true]) {
+  NhentaiComicBrief parseComic(Element comicDom) {
     var img = comicDom.querySelector("a > img")!.attributes["data-src"]!;
     var name = comicDom.querySelector("div.caption")!.text;
     var id = comicDom.querySelector("a")!.attributes["href"]!.nums;
@@ -132,15 +132,6 @@ class NhentaiNetwork {
     for(var tag in tags.split(" ")){
       if(nhentaiTags[tag] != null){
         tagsRes.add(nhentaiTags[tag]!);
-      }
-    }
-    if(examination){
-      var block = false;
-      for(var key in appdata.blockingKeyword){
-        block = block || name.contains(key) || lang.contains(key) || tagsRes.contains(key);
-        if(block){
-          return null;
-        }
       }
     }
     return NhentaiComicBrief(name, img, id, lang, tagsRes);
@@ -306,9 +297,7 @@ class NhentaiNetwork {
       var recommendations = <NhentaiComicBrief>[];
       for (var comic in document.querySelectorAll("div.gallery")) {
         var c = parseComic(comic);
-        if(c != null) {
-          recommendations.add(c);
-        }
+        recommendations.add(c);
       }
       String token = "";
       try {
@@ -428,7 +417,7 @@ class NhentaiNetwork {
       var lastPagination = document.querySelector("section.pagination > a.last")
           ?.attributes["href"]?.nums;
       return Res(removeNullValue(
-          List.generate(comics.length, (index) => parseComic(comics[index], false))),
+          List.generate(comics.length, (index) => parseComic(comics[index]))),
           subData: lastPagination==null?1:int.parse(lastPagination));
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analyse", "$e\n$s");

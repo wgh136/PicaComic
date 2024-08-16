@@ -328,9 +328,6 @@ abstract class ComicTile extends StatelessWidget {
                     maxLines: maxLines,
                   ),
                 ),
-                //const Center(
-                //  child: Icon(Icons.arrow_right),
-                //)
               ],
             ),
           ));
@@ -649,6 +646,101 @@ class NormalComicTile extends ComicTile {
   String get title => name;
 }
 
+class ComicTilePlaceholder extends StatelessWidget {
+  const ComicTilePlaceholder({super.key, this.type = 'full'});
+
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    var type = appdata.settings[44].split(',').first;
+    Widget child;
+    if (type == "0" || type == "3") {
+      child = _buildDetailedMode(context);
+    } else {
+      child = _buildBriefMode(context);
+    }
+    return child;
+  }
+
+  Widget _buildDetailedMode(BuildContext context) {
+    return LayoutBuilder(builder: (context, constrains) {
+      final height = constrains.maxHeight - 16;
+      return Container(
+        padding: const EdgeInsets.fromLTRB(16, 8, 24, 8),
+        child: Row(
+          children: [
+            Container(
+              width: height * 0.68,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: context.colorScheme.secondaryContainer.withAlpha(140),
+              ),
+            ),
+            SizedBox.fromSize(
+              size: const Size(16, 5),
+            ),
+            if (type != 'full')
+              const Spacer()
+            else
+              Expanded(
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 3,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: context.colorScheme.tertiaryContainer
+                            .withAlpha(140),
+                      ),
+                      height: 26,
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: context.colorScheme.tertiaryContainer
+                            .withAlpha(140),
+                      ),
+                      height: 18,
+                    ),
+                    const Spacer(),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: context.colorScheme.tertiaryContainer
+                            .withAlpha(140),
+                      ),
+                      height: 18,
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(
+              width: 16,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildBriefMode(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      decoration: BoxDecoration(
+        color: context.colorScheme.secondaryContainer.withAlpha(80),
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+}
+
 class CustomComicTile extends ComicTile {
   const CustomComicTile(this.comic, {super.key, this.addonMenuOptions});
 
@@ -731,6 +823,30 @@ Widget buildComicTile(BuildContext context, BaseComic item, String sourceKey) {
   if (source == null) {
     throw "Comic Source Not Found";
   }
+  if(!appdata.appSettings.fullyHideBlockedWorks || sourceKey == 'hitomi') {
+    var blockWord = isBlocked(item);
+    if (blockWord != null) {
+      return Stack(
+        children: [
+          const Positioned.fill(child: ComicTilePlaceholder(type: '',)),
+          Positioned.fill(
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: context.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "${"屏蔽".tl}: $blockWord",
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+  }
   if (source.comicTileBuilderOverride != null) {
     return source.comicTileBuilderOverride!(
       context,
@@ -740,4 +856,31 @@ Widget buildComicTile(BuildContext context, BaseComic item, String sourceKey) {
   } else {
     return CustomComicTile(item as CustomComic);
   }
+}
+
+/// return the first blocked keyword, or null if not blocked
+String? isBlocked(BaseComic item) {
+  for (var word in appdata.blockingKeyword) {
+    if (item.title.contains(word)) {
+      return word;
+    }
+    if (item.subTitle.contains(word)) {
+      return word;
+    }
+    if (item.description.contains(word)) {
+      return word;
+    }
+    for (var tag in item.tags) {
+      if (tag == word) {
+        return word;
+      }
+      if (tag.contains(':')) {
+        tag = tag.split(':')[1];
+        if (tag == word) {
+          return word;
+        }
+      }
+    }
+  }
+  return null;
 }

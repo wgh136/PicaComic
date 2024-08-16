@@ -296,7 +296,6 @@ class EhNetwork {
       {bool leaderboard = false, bool favoritePage = false}) async {
     //从一个链接中获取所有画廊, 同时获得下一页的链接
     //leaderboard比正常的表格多了第一列
-    bool ignoreExamination = url.contains("favorites");
     int t = 0;
     if (leaderboard) {
       t++;
@@ -337,8 +336,7 @@ class EhNetwork {
           }
 
           galleries.add(EhGalleryBrief(
-              title, type, time, uploader, cover!, stars, link!, tags,
-              ignoreExamination: ignoreExamination, pages: pages));
+              title, type, time, uploader, cover!, stars, link!, tags, pages: pages));
         } catch (e) {
           //表格中存在空行或者被屏蔽
           continue;

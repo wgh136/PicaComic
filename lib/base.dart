@@ -111,7 +111,8 @@ class Appdata {
     "6", //79 下载并行
     "1", //80 启动时检查自定义漫画源的更新
     "0", //81 使用深色背景
-    "111111", //82 内置漫画源启用状态
+    "111111", //82 内置漫画源启用状态,
+    "0", //83 完全隐藏屏蔽的作品
   ];
 
   /// 隐式数据, 用于存储一些不需要用户设置的数据, 此数据通常为某些组件的状态, 此设置不应当被同步
@@ -393,5 +394,11 @@ class _Settings {
 
   set useDarkBackground(bool value) {
     appdata.settings[81] = value ? "1" : "0";
+  }
+
+  bool get fullyHideBlockedWorks => appdata.settings[83] == "1";
+
+  set fullyHideBlockedWorks(bool value) {
+    appdata.settings[83] = value ? "1" : "0";
   }
 }

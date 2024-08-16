@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/network/base_comic.dart';
 
-import '../../base.dart';
-
 @immutable
 class HtHomePageData {
   final List<List<HtComicBrief>> comics;
@@ -24,15 +22,8 @@ class HtComicBrief extends BaseComic{
   final String? favoriteId;
 
   /// 漫画简略信息
-  HtComicBrief(this.name, this.time, this.image, this.id, this.pages,
-      {bool ignoreExamination = false, this.favoriteId}) {
-    if (ignoreExamination) return;
-    for (var key in appdata.blockingKeyword) {
-      if (name.contains(key)) {
-        throw Exception();
-      }
-    }
-  }
+  const HtComicBrief(this.name, this.time, this.image, this.id, this.pages,
+      {this.favoriteId});
 
   @override
   String get cover => image;
@@ -67,7 +58,7 @@ class HtComicInfo with HistoryMixin {
   const HtComicInfo(this.id, this.coverPath, this.name, this.category, this.pages, this.tags,
       this.description, this.uploader, this.avatar, this.uploadNum, this.thumbnails);
 
-  HtComicBrief toBrief() => HtComicBrief(name, "", coverPath, id, pages, ignoreExamination: true);
+  HtComicBrief toBrief() => HtComicBrief(name, "", coverPath, id, pages);
 
   Map<String, dynamic> toJson() => {
     "id": id,

@@ -141,15 +141,6 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
 
   @override
   Widget build(context) {
-    if (appdata.blockingKeyword.contains(tag) ||
-        (tag != null &&
-            appdata.blockingKeyword.contains(tag!.split(" ").last))) {
-      return NetworkError(
-        message: "Blocked",
-        withAppbar: title != null,
-      );
-    }
-
     Widget? removeSliver(Widget? widget) {
       if (widget == null) return null;
 
@@ -207,7 +198,16 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
             );
           } else {
             if (appdata.settings[25] == "0") {
-              var comics = logic.comics!;
+              List<T> comics = [];
+              if(appdata.appSettings.fullyHideBlockedWorks) {
+                for (var comic in logic.comics!) {
+                  if (isBlocked(comic) == null) {
+                    comics.add(comic);
+                  }
+                }
+              } else {
+                comics = logic.comics!;
+              }
               return SmoothCustomScrollView(
                 slivers: [
                   if (title != null)
@@ -240,7 +240,16 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
                 ],
               );
             } else {
-              var comics = logic.dividedComics;
+              List<T> comics = [];
+              if(appdata.appSettings.fullyHideBlockedWorks) {
+                for (var comic in logic.dividedComics![logic.current]!) {
+                  if (isBlocked(comic) == null) {
+                    comics.add(comic);
+                  }
+                }
+              } else {
+                comics = logic.dividedComics![logic.current]!;
+              }
               Widget body = SmoothCustomScrollView(
                 slivers: [
                   if (title != null)
@@ -251,13 +260,13 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
                   if (head != null) head!,
                   if (showPageIndicator &&
                       appdata.settings[64] == "0" &&
-                      comics![logic.current]!.length > 4)
+                      comics.length > 4)
                     buildPageSelector(context, logic),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
-                        childCount: comics?[logic.current]!.length,
+                        childCount: comics.length,
                         (context, i) {
-                      return buildItem(context, comics![logic.current]![i]);
+                      return buildItem(context, comics[i]);
                     }),
                     gridDelegate: SliverGridDelegateWithComics(),
                   ),

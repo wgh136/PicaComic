@@ -140,15 +140,19 @@ class _NaviPaneState extends State<NaviPane>
   }
 
   @override
+  void didChangeDependencies() {
+    controller.value = targetFormContext(context);
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     controller.dispose();
     widget.observer.removeListener(onNavigatorStateChange);
     super.dispose();
   }
 
-  double? animationTarget;
-
-  void onRebuild(BuildContext context) {
+  double targetFormContext(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     double target = 0;
     if (widget.observer.pageCount > 1) {
@@ -160,6 +164,13 @@ class _NaviPaneState extends State<NaviPane>
     if (width > changePoint2) {
       target = 3;
     }
+    return target;
+  }
+
+  double? animationTarget;
+
+  void onRebuild(BuildContext context) {
+    double target = targetFormContext(context);
     if (controller.value != target || animationTarget != target) {
       if (controller.isAnimating) {
         if (animationTarget == target) {
@@ -186,52 +197,52 @@ class _NaviPaneState extends State<NaviPane>
         }
       },
       popGesture: App.isIOS && !UiMode.m1(context),
-      child: Material(
-        child: AnimatedBuilder(
-          animation: controller,
-          builder: (context, child) {
-            final value = controller.value;
-            return Stack(
-              children: [
-                if (value <= 1)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: bottomBarHeight * (0 - value),
-                    child: buildBottom(),
-                  ),
-                if (value <= 1)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: _kTopBarHeight * (0 - value) +
-                        MediaQuery.of(context).padding.top * (1 - value),
-                    child: buildTop(),
-                  ),
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          final value = controller.value;
+          return Stack(
+            children: [
+              if (value <= 1)
                 Positioned(
-                  left: _kFoldedSideBarWidth * ((value - 2.0).clamp(-1.0, 0.0)),
-                  top: 0,
-                  bottom: 0,
-                  child: buildLeft(),
-                ),
-                Positioned(
-                  top: _kTopBarHeight * ((1 - value).clamp(0, 1)) +
-                      MediaQuery.of(context).padding.top * (value == 1 ? 0 : 1),
-                  left: _kFoldedSideBarWidth * ((value - 1).clamp(0, 1)) +
-                      (_kSideBarWidth - _kFoldedSideBarWidth) *
-                          ((value - 2).clamp(0, 1)),
+                  left: 0,
                   right: 0,
-                  bottom: bottomBarHeight * ((1 - value).clamp(0, 1)),
-                  child: MediaQuery.removePadding(
-                    removeTop: value >= 2 || value == 0,
-                    context: context,
-                    child: widget.pageBuilder(currentPage),
+                  bottom: bottomBarHeight * (0 - value),
+                  child: buildBottom(),
+                ),
+              if (value <= 1)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: _kTopBarHeight * (0 - value) +
+                      MediaQuery.of(context).padding.top * (1 - value),
+                  child: buildTop(),
+                ),
+              Positioned(
+                left: _kFoldedSideBarWidth * ((value - 2.0).clamp(-1.0, 0.0)),
+                top: 0,
+                bottom: 0,
+                child: buildLeft(),
+              ),
+              Positioned(
+                top: _kTopBarHeight * ((1 - value).clamp(0, 1)) +
+                    MediaQuery.of(context).padding.top * (value == 1 ? 0 : 1),
+                left: _kFoldedSideBarWidth * ((value - 1).clamp(0, 1)) +
+                    (_kSideBarWidth - _kFoldedSideBarWidth) *
+                        ((value - 2).clamp(0, 1)),
+                right: 0,
+                bottom: bottomBarHeight * ((1 - value).clamp(0, 1)),
+                child: MediaQuery.removePadding(
+                  removeTop: value >= 2 || value == 0,
+                  context: context,
+                  child: Material(
+                    child: widget.pageBuilder(currentPage)
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

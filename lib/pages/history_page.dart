@@ -138,15 +138,15 @@ class _HistoryPageState extends State<HistoryPage> {
       delegate:
           SliverChildBuilderDelegate(childCount: comics_.length, (context, i) {
         final comic = ComicItemBrief(
-            comics_[i].title,
-            comics_[i].subtitle,
-            0,
-            comics_[i].cover != ""
-                ? comics_[i].cover
-                : getJmCoverUrl(comics_[i].target),
-            comics_[i].target,
-            [],
-            ignoreExamination: true);
+          comics_[i].title,
+          comics_[i].subtitle,
+          0,
+          comics_[i].cover != ""
+              ? comics_[i].cover
+              : getJmCoverUrl(comics_[i].target),
+          comics_[i].target,
+          [],
+        );
         return NormalComicTile(
           key: Key(comics_[i].target),
           onLongTap: () {

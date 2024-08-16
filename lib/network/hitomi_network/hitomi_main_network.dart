@@ -108,16 +108,6 @@ class HiNetwork{
         }
       }
       var time = comicDiv.querySelector("div.dj-content > p")!.text;
-      bool flag = false;
-      for(var tag in tags){
-        if(appdata.blockingKeyword.contains(tag.name)){
-          flag = true;
-          break;
-        }
-      }
-      if(flag){
-        return const Res(null, errorMessage: "block");
-      }
       return Res(HitomiComicBrief(name, type, lang, tags, time, artist, link, cover));
     }
     catch(e, s){
