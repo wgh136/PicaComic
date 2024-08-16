@@ -17,7 +17,7 @@ import 'package:pica_comic/pages/downloading_page.dart';
 import 'package:window_manager/window_manager.dart';
 import 'components.dart';
 
-const _kTitleBarHeight = 32.0;
+const _kTitleBarHeight = 36.0;
 
 class WindowFrameController extends StateController {
   bool useDarkTheme = false;

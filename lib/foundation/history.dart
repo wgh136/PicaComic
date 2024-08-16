@@ -391,7 +391,7 @@ class HistoryManager {
     var res = _db.select("""
       select * from history
       order by time DESC
-      limit 10;
+      limit 20;
     """);
     return res.map((element) => History.fromRow(element)).toList();
   }
