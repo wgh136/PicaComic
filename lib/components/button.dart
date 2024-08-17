@@ -25,7 +25,7 @@ class _HoverBoxState extends State<HoverBox> {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
             color: isHover
-                ? Theme.of(context).colorScheme.surfaceContainerLow
+                ? Theme.of(context).colorScheme.surfaceContainer
                 : null,
             borderRadius: widget.borderRadius),
         child: widget.child,

@@ -73,42 +73,47 @@ class _AppbarState extends State<Appbar> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: (_scrolledUnder && UiMode.m1(context)) ? 1 : 0,
-      surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-      child: SizedBox(
-        height: _kAppBarHeight,
-        child: Row(
-          children: [
-            const SizedBox(width: 8),
-            widget.leading ??
-                Tooltip(
-                  message: "返回".tl,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+    var content = SizedBox(
+      height: _kAppBarHeight,
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          widget.leading ??
+              Tooltip(
+                message: "返回".tl,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
                 ),
-            const SizedBox(
-              width: 24,
-            ),
-            Expanded(
-              child: DefaultTextStyle(
-                style:
-                    DefaultTextStyle.of(context).style.copyWith(fontSize: 20),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                child: widget.title,
               ),
+          const SizedBox(
+            width: 24,
+          ),
+          Expanded(
+            child: DefaultTextStyle(
+              style:
+              DefaultTextStyle.of(context).style.copyWith(fontSize: 20),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: widget.title,
             ),
-            ...?widget.actions,
-            const SizedBox(
-              width: 8,
-            )
-          ],
-        ),
-      ).paddingTop(context.padding.top),
-    );
+          ),
+          ...?widget.actions,
+          const SizedBox(
+            width: 8,
+          )
+        ],
+      ),
+    ).paddingTop(context.padding.top);
+    if(widget.backgroundColor != Colors.transparent) {
+      return Material(
+        elevation: (_scrolledUnder && UiMode.m1(context)) ? 1 : 0,
+        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+        color: widget.backgroundColor ?? Theme.of(context).colorScheme.surface,
+        child: content,
+      );
+    }
+    return content;
   }
 }
 

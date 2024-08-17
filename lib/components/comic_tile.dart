@@ -43,6 +43,13 @@ abstract class ComicTile extends StatelessWidget {
 
   bool get showFavorite => true;
 
+  void showBlockPane() {
+    showDialog(
+      context: App.globalContext!,
+      builder: (context) => _BlockingPane(comic: this),
+    );
+  }
+
   void onLongTap_() {
     bool favorite = false;
     showDialog(
@@ -102,6 +109,14 @@ abstract class ComicTile extends StatelessWidget {
                         context.to(() => PreSearchPage(
                               initialValue: title,
                             ));
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.block),
+                      title: Text("屏蔽".tl),
+                      onTap: () {
+                        context.pop();
+                        showBlockPane();
                       },
                     ),
                     if (addonMenuOptions != null)
@@ -177,14 +192,12 @@ abstract class ComicTile extends StatelessWidget {
         Offset(details.globalPosition.dx, details.globalPosition.dy), [
       DesktopMenuEntry(
         text: "查看".tl,
-        onClick: () =>
-            Future.delayed(const Duration(milliseconds: 200), onTap_),
+        onClick: () => Future.microtask(onTap_),
       ),
       if (read != null)
         DesktopMenuEntry(
           text: "阅读".tl,
-          onClick: () =>
-              Future.delayed(const Duration(milliseconds: 200), read!),
+          onClick: () => Future.microtask(read!),
         ),
       DesktopMenuEntry(
         text: "搜索".tl,
@@ -200,11 +213,13 @@ abstract class ComicTile extends StatelessWidget {
       ),
       DesktopMenuEntry(
         text: "本地收藏".tl,
-        onClick: () => Future.delayed(
-            const Duration(milliseconds: 200),
-            () => showDialog(
-                context: App.globalContext!,
-                builder: (context) => buildFavoriteDialog(context))),
+        onClick: () => Future.microtask(() => showDialog(
+            context: App.globalContext!,
+            builder: (context) => buildFavoriteDialog(context))),
+      ),
+      DesktopMenuEntry(
+        text: "屏蔽".tl,
+        onClick: () => Future.microtask(showBlockPane),
       ),
       if (addonMenuOptions != null)
         for (var option in addonMenuOptions!)
@@ -823,12 +838,15 @@ Widget buildComicTile(BuildContext context, BaseComic item, String sourceKey) {
   if (source == null) {
     throw "Comic Source Not Found";
   }
-  if(!appdata.appSettings.fullyHideBlockedWorks || sourceKey == 'hitomi') {
+  if (!appdata.appSettings.fullyHideBlockedWorks || sourceKey == 'hitomi') {
     var blockWord = isBlocked(item);
     if (blockWord != null) {
       return Stack(
         children: [
-          const Positioned.fill(child: ComicTilePlaceholder(type: '',)),
+          const Positioned.fill(
+              child: ComicTilePlaceholder(
+            type: '',
+          )),
           Positioned.fill(
             child: Center(
               child: Container(
@@ -883,4 +901,130 @@ String? isBlocked(BaseComic item) {
     }
   }
   return null;
+}
+
+class _BlockingPane extends StatefulWidget {
+  const _BlockingPane({required this.comic});
+
+  final ComicTile comic;
+
+  @override
+  State<_BlockingPane> createState() => _BlockingPaneState();
+}
+
+class _BlockingPaneState extends State<_BlockingPane> {
+  var controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    var content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Appbar(title: Text("屏蔽".tl), backgroundColor: Colors.transparent,),
+        SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: buildTags().toList(),
+          ).paddingVertical(8),
+        ).paddingHorizontal(16),
+        SizedBox(
+          height: 42,
+          child: TextField(
+            controller: controller,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: "屏蔽关键词".tl,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+            ),
+          ),
+        ).paddingHorizontal(16),
+        const SizedBox(height: 16),
+        Button.filled(onPressed: onSubmit, child: Text("提交".tl)),
+        const SizedBox(height: 16),
+      ],
+    );
+
+    if(context.width > 400) {
+      return Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: content,
+        ),
+      );
+    } else {
+      return Dialog.fullscreen(
+        child: content,
+      );
+    }
+  }
+
+  Iterable<Widget> buildTags() sync* {
+    yield buildTag(widget.comic.title);
+    yield buildTag(widget.comic.subTitle);
+    for (var tag in widget.comic.tags ?? []) {
+      yield buildTag(tag);
+    }
+  }
+
+  bool _isExisted(String text) {
+    if (text.contains(':')) {
+      text = text.split(':')[1];
+    }
+    return controller.text.split(';').contains(text);
+  }
+
+  Widget buildTag(String text) {
+    var isExisted = _isExisted(text);
+    if (isExisted) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: context.colorScheme.primaryContainer.withOpacity(0.4),
+        ),
+        child: Text(text),
+      );
+    }
+    return GestureDetector(
+      onTap: () => handleText(text),
+      child: HoverBox(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          key: Key(text),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: context.colorScheme.primaryContainer,
+          ),
+          child: Text(text),
+        ),
+      ),
+    );
+  }
+
+  void handleText(String text) {
+    if (text.contains(':')) {
+      text = text.split(':')[1];
+    }
+    controller.text += "$text;";
+    setState(() {});
+  }
+
+  void onSubmit() {
+    for (var word in controller.text.split(';')) {
+      if (word.isNotEmpty && !appdata.blockingKeyword.contains(word)) {
+        appdata.blockingKeyword.add(word);
+      }
+    }
+    appdata.writeData();
+    for (var c in StateController.findAll<ComicsPageLogic>()) {
+      c.update();
+    }
+    for (var c in StateController.findAll<SliverGridComicsController>()) {
+      c.update();
+    }
+    context.pop();
+  }
 }
