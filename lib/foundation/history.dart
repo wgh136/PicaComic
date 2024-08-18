@@ -183,11 +183,11 @@ class HistoryManager {
   factory HistoryManager() =>
       cache == null ? (cache = HistoryManager.create()) : cache!;
 
-  List<dynamic> toJson() => getAll().map((h) => h.toMap()).toList();
-
   late Database _db;
 
   int get length => _db.select("select count(*) from history;").first[0] as int;
+
+  Map<String, bool>? _cachedHistory;
 
   Future<void> tryUpdateDb() async {
     var file = File("${App.dataPath}/history_temp.db");
@@ -196,13 +196,13 @@ class HistoryManager {
           LogLevel.info, "HistoryManager.tryUpdateDb", "db file not exist");
       return;
     }
-    var __db = sqlite3.open(file.path);
-    var _newHistory = __db.select("""
+    var db = sqlite3.open(file.path);
+    var newHistory0 = db.select("""
       select * from history
       order by time DESC;
     """);
     var newHistory =
-        _newHistory.map((element) => History.fromRow(element)).toList();
+        newHistory0.map((element) => History.fromRow(element)).toList();
     if (file.existsSync()) {
       var skips = 0;
       for (var history in newHistory) {
@@ -217,7 +217,7 @@ class HistoryManager {
       LogManager.addLog(LogLevel.info, "HistoryManager",
           "merge history, skipped $skips, added ${newHistory.length - skips}");
     }
-    __db.dispose();
+    db.dispose();
     file.deleteSync();
   }
 
@@ -308,6 +308,7 @@ class HistoryManager {
       """, [newItem.target]);
     }
     saveData();
+    updateCache();
   }
 
   ///退出阅读器时调用此函数, 修改阅读位置
@@ -333,6 +334,7 @@ class HistoryManager {
 
   void clearHistory() {
     _db.execute("delete from history;");
+    updateCache();
   }
 
   void remove(String id) async {
@@ -340,13 +342,31 @@ class HistoryManager {
       delete from history
       where target == '$id';
     """);
+    updateCache();
   }
 
   Future<History?> find(String target) async {
     return findSync(target);
   }
 
+  void updateCache() {
+    _cachedHistory = {};
+    var res = _db.select("""
+        select * from history;
+      """);
+    for (var element in res) {
+      _cachedHistory![element["target"] as String] = true;
+    }
+  }
+
   History? findSync(String target) {
+    if(_cachedHistory == null) {
+      updateCache();
+    }
+    if (!_cachedHistory!.containsKey(target)) {
+      return null;
+    }
+
     var res = _db.select("""
       select * from history
       where target == ?;

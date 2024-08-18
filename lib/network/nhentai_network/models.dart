@@ -21,6 +21,9 @@ class NhentaiComicBrief extends BaseComic{
 
   @override
   String get subTitle => id;
+
+  @override
+  bool get enableTagsTranslation => true;
 }
 
 class NhentaiHomePageData{

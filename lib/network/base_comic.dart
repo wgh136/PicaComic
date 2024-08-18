@@ -11,6 +11,8 @@ abstract class BaseComic {
 
   String get description;
 
+  bool get enableTagsTranslation => false;
+
   const BaseComic();
 }
 

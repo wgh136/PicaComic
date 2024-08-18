@@ -97,7 +97,7 @@ class _ExplorePageState extends State<ExplorePage>
                   }
 
                   location = current;
-                  return true;
+                  return false;
                 },
                 child: MediaQuery.removePadding(
                   context: context,

@@ -28,6 +28,9 @@ class EhGalleryBrief extends BaseComic{
 
   @override
   String get subTitle => uploader;
+
+  @override
+  bool get enableTagsTranslation => true;
 }
 
 class Galleries{

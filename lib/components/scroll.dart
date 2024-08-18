@@ -39,7 +39,7 @@ class _SmoothScrollProviderState extends State<SmoothScrollProvider> {
 
   double? _futurePosition;
 
-  bool _isMouseScroll = App.isDesktop;
+  static bool _isMouseScroll = App.isDesktop;
 
   @override
   void initState() {
@@ -58,17 +58,19 @@ class _SmoothScrollProviderState extends State<SmoothScrollProvider> {
     }
     return Listener(
       behavior: HitTestBehavior.translucent,
+      onPointerDown: (event) {
+        if (_isMouseScroll) {
+          setState(() {
+            _isMouseScroll = false;
+          });
+        }
+      },
       onPointerSignal: (pointerSignal) {
         if (pointerSignal is PointerScrollEvent) {
           if (pointerSignal.kind == PointerDeviceKind.mouse &&
               !_isMouseScroll) {
             setState(() {
               _isMouseScroll = true;
-            });
-          } else if (pointerSignal.kind != PointerDeviceKind.mouse &&
-              _isMouseScroll) {
-            setState(() {
-              _isMouseScroll = false;
             });
           }
           if (!_isMouseScroll) return;

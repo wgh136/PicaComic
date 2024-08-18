@@ -44,6 +44,9 @@ class HitomiComicBrief extends BaseComic {
 
   @override
   String get title => name;
+
+  @override
+  bool get enableTagsTranslation => true;
 }
 
 class ComicList {

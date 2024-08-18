@@ -32,22 +32,19 @@ extension TagsTranslation on String{
     });
   }
 
-
-  /// 静态方法, 需要传入参数, 因为需要递归
-  ///
-  /// 对tag进行处理后进行翻译: 代表'或'的分割符'|', 修饰词'low','focus'.
+  /// 对tag进行处理后进行翻译: 代表'或'的分割符'|', namespace.
   static String _translateTags(String tag){
-    if(tag.contains('|')){
+    if (tag.contains('|')) {
       var splits = tag.split(' | ');
       return enTagsTranslations[splits[0]]??enTagsTranslations[splits[1]]??tag;
-    }else if(tag.contains("low ")){
-      return "弱存在${_translateTags(tag.replaceFirst("low ", ""))}";
-    }else if(tag.contains("focus ")){
-      return "专注${_translateTags(tag.replaceFirst("focus ", ""))}";
-    }else{
+    } else if(tag.contains(':')) {
+      var splits = tag.split(':');
+      return translationTagWithNamespace(splits[1], splits[0]);
+    } else {
       return enTagsTranslations[tag]??tag;
     }
   }
+
   /// translate tag's text to chinese
   String get translateTagsToCN => _translateTags(this);
 

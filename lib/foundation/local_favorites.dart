@@ -909,13 +909,13 @@ class LocalFavoritesManager {
       """);
   }
 
-  var _cachedFavoritedTargets = <String>{};
+  var _cachedFavoritedTargets = <String, bool>{};
 
-  Set<String> get favoritedTargets {
+  bool isExist(String target) {
     if (_modifiedAfterLastCache) {
       _cacheFavoritedTargets();
     }
-    return _cachedFavoritedTargets;
+    return _cachedFavoritedTargets.containsKey(target);
   }
 
   bool _modifiedAfterLastCache = true;
@@ -928,7 +928,7 @@ class LocalFavoritesManager {
         select target from "$folder";
       """);
       for (var row in res) {
-        _cachedFavoritedTargets.add(row["target"]);
+        _cachedFavoritedTargets[row["target"]] = true;
       }
     }
   }
