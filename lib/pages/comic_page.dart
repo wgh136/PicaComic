@@ -14,6 +14,7 @@ import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/foundation/image_loader/stream_image_provider.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/foundation/stack.dart' as stack;
 import 'package:pica_comic/foundation/ui_mode.dart';
 import 'package:pica_comic/network/base_comic.dart';
@@ -279,8 +280,9 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
           LocalFavoritesManager().addComic(folder, toLocalFavoriteItem());
           return const Res(true);
         } else {
-          var res = await comicSource!.favoriteData!.addOrDelFavorite!(id, folder, true);
-          if(!comicSource!.favoriteData!.multiFolder && res.success) {
+          var res = await comicSource!.favoriteData!.addOrDelFavorite!(
+              id, folder, true);
+          if (!comicSource!.favoriteData!.multiFolder && res.success) {
             logic.favoriteOnPlatform = true;
             update();
           }
@@ -288,8 +290,9 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
         }
       },
       cancelPlatformFavorite: () async {
-        var res = await comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false);
-        if(res.success) {
+        var res =
+            await comicSource!.favoriteData!.addOrDelFavorite!(id, '0', false);
+        if (res.success) {
           logic.favoriteOnPlatform = false;
         }
         return res;
@@ -568,6 +571,8 @@ class ThumbnailsData {
       thumbnails.addAll(res.data);
       current++;
       update();
+    } else {
+      Log.error("Network", "Failed to load thumbnails: ${res.errorMessage}");
     }
   }
 
@@ -592,7 +597,8 @@ class ComicPageLogic<T extends Object> extends StateController {
 
   void get(Future<Res<T>> Function() loadData,
       Future<bool> Function(T) loadFavorite, String Function() getId) async {
-    var res = await loadData();
+    var [res, _] = await Future.wait(
+        [loadData(), Future.delayed(const Duration(milliseconds: 300))]);
     if (res.error) {
       if (res.errorMessage == "Exit") {
         return;
@@ -1717,7 +1723,8 @@ class FavoriteComicWidget extends StatefulWidget {
 
   final Future<Res<bool>> Function()? cancelPlatformFavorite;
 
-  final Future<Res<bool>> Function(String folder)? cancelPlatformFavoriteWithFolder;
+  final Future<Res<bool>> Function(String folder)?
+      cancelPlatformFavoriteWithFolder;
 
   final void Function(bool favorite) setFavorite;
 
@@ -1813,9 +1820,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
             isAdding = true;
           });
           var res = await widget.selectFolderCallback!.call(selectID!, page);
-          if(res.success) {
+          if (res.success) {
             widget.setFavorite(true);
-            if(context.mounted) {
+            if (context.mounted) {
               context.pop();
             }
             showToast(message: "成功添加收藏".tl);
@@ -1850,7 +1857,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
               isAdding = true;
             });
             var res = await widget.cancelPlatformFavorite!.call();
-            if(res.success) {
+            if (res.success) {
               if (addedFolders.isEmpty) {
                 widget.setFavorite(false);
               }
@@ -1915,7 +1922,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         child: FilledButton(
           onPressed: () async {
             var res = await widget.cancelPlatformFavoriteWithFolder!(selectID!);
-            if(res.success) {
+            if (res.success) {
               showToast(message: "取消收藏成功".tl);
               if (context.mounted) {
                 context.pop();

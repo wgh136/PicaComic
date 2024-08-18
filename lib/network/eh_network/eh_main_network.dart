@@ -705,13 +705,17 @@ class EhNetwork {
       }
       var document = parse(res.data);
       var thumbnailDiv = document.querySelectorAll("div.gdtm > div")[0];
-      var pattern = RegExp(r"/m/(\d+)/");
+      var pattern = RegExp(r'url\((.*?)\)');
       var match = pattern.firstMatch(thumbnailDiv.attributes["style"] ?? "");
 
       if (match != null) {
         var extractedValue = match.group(1);
         if (extractedValue != null) {
-          gallery.auth!["thumbnailKey"] = extractedValue;
+          gallery.auth!["thumbnailKey"] = extractedValue.replaceRange(
+            extractedValue.lastIndexOf('/'),
+            null,
+            '',
+          );
         }
       } else {
         return const Res(null, errorMessage: "Failed to get Thumbnail");
@@ -722,7 +726,7 @@ class EhNetwork {
       if (page.length == 1) {
         page = "0$page";
       }
-      return "https://ehgt.org/m/${gallery.auth!["thumbnailKey"]!}/${getGalleryId(gallery.link)}-$page.jpg";
+      return "${gallery.auth!["thumbnailKey"]!}/${getGalleryId(gallery.link)}-$page.jpg";
     }));
   }
 

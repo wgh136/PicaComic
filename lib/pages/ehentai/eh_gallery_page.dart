@@ -51,7 +51,8 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
       };
 
   @override
-  String? get cover => comicCover ?? data?.coverPath;
+  String? get cover => (comicCover ?? data?.coverPath)
+      ?.replaceFirst("s.exhentai.org", "ehgt.org");
 
   @override
   EpsData? get eps => null;
@@ -167,7 +168,10 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
           int.tryParse(data!.auth!["thumbnailKey"]!.nums) ?? 1);
     } else {
       return ThumbnailsData(
-          [], (page) => EhNetwork().getThumbnailUrls(data!), 2);
+        [],
+        (page) => EhNetwork().getThumbnailUrls(data!),
+        2,
+      );
     }
   }
 
@@ -182,6 +186,7 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
 
   @override
   Widget thumbnailImageBuilder(int index, String imageUrl) {
+    imageUrl = imageUrl.replaceAll("s.exhentai.org", "ehgt.org");
     if (data?.auth?["thumbnailKey"] != null &&
         data!.auth!["thumbnailKey"]!.startsWith("large thumbnail")) {
       return super.thumbnailImageBuilder(index, imageUrl);
