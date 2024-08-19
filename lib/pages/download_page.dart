@@ -359,7 +359,7 @@ class DownloadPage extends StatelessWidget {
       fileName = fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '');
       await createPdfFromComicWithIsolate(
           title: comic.name,
-          comicPath: "${downloadManager.path}/${comic.id}",
+          comicPath: "${downloadManager.path}/${downloadManager.getDirectory(comic.id)}",
           savePath: "${App.cachePath}/$fileName",
           chapters: comic.eps,
           chapterIndexes: comic.downloadedEps);
@@ -508,7 +508,7 @@ class DownloadPage extends StatelessWidget {
                 onClick: () {
                   Future.delayed(const Duration(milliseconds: 300), () {
                     var path =
-                        "${downloadManager.path}/${logic.comics[index].id}";
+                        "${downloadManager.path}/${downloadManager.getDirectory(logic.comics[index].id)}";
                     Clipboard.setData(ClipboardData(text: path));
                   });
                 },

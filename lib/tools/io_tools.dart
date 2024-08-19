@@ -32,7 +32,13 @@ Future<bool> exportComic(String id, String name,
     [List<String>? epNames]) async {
   try {
     name = sanitizeFileName(name);
-    var data = ExportComicData(id, downloadManager.path, name, epNames);
+    var data = ExportComicData(
+      id,
+      downloadManager.path!,
+      name,
+      epNames,
+      downloadManager.getDirectory(id),
+    );
     var res = await compute(runningExportComic, data);
     if (!res) {
       return false;
@@ -40,7 +46,7 @@ Future<bool> exportComic(String id, String name,
 
     if (App.isMobile) {
       var params = SaveFileDialogParams(
-          sourceFilePath: '${data.path!}$pathSep$name.zip');
+          sourceFilePath: '${data.path}$pathSep$name.zip');
       await FlutterFileDialog.saveFile(params: params);
     } else {
       final FileSaveLocation? result =
@@ -49,12 +55,12 @@ Future<bool> exportComic(String id, String name,
       if (result != null) {
         const String mimeType = 'application/zip';
         final XFile textFile =
-            XFile('${data.path!}$pathSep$name.zip', mimeType: mimeType);
+            XFile('${data.path}$pathSep$name.zip', mimeType: mimeType);
         await textFile.saveTo(result.path);
       }
     }
 
-    var file = File('${data.path!}$pathSep$name.zip');
+    var file = File('${data.path}$pathSep$name.zip');
     file.delete();
     return true;
   } catch (e) {
@@ -70,7 +76,13 @@ Future<bool> exportComics(List<DownloadedItem> comics) async {
       var name = sanitizeFileName(comic.name);
       var path = downloadManager.path;
       var epNames = comic.eps;
-      exportDatas.add(ExportComicData(id, path, name, epNames));
+      exportDatas.add(ExportComicData(
+        id,
+        path!,
+        name,
+        epNames,
+        downloadManager.getDirectory(id),
+      ));
     }
     await Isolate.run(() => runningExportComics(exportDatas));
     if (App.isMobile) {
@@ -124,18 +136,18 @@ Future<bool> exportPdf(String pdfPath) async {
 
 class ExportComicData {
   String id;
-  String? path;
+  String path;
   String name;
+  String directory;
   List<String>? epNames;
 
-  ExportComicData(this.id, this.path, this.name, this.epNames);
+  ExportComicData(this.id, this.path, this.name, this.epNames, this.directory);
 }
 
 Future<bool> runningExportComic(ExportComicData data) async {
-  final fileName = '${data.path!}$pathSep${data.name}.zip';
-  var id = data.id;
+  final fileName = '${data.path}/${data.name}.zip';
   try {
-    final path = Directory(data.path! + pathSep + id);
+    final path = Directory("${data.path}/${data.directory}");
     var zipFile = ZipFile.open(fileName);
     String? currentDirName;
 
@@ -175,7 +187,7 @@ Future<bool> runningExportComics(List<ExportComicData> datas) async {
     var zipFile = ZipFile.open(result);
     for (var data in datas) {
       var id = data.id;
-      final directory = Directory('${data.path!}/$id');
+      final directory = Directory('${data.path}/$id');
 
       String? currentDirName;
 

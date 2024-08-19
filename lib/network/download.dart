@@ -324,14 +324,14 @@ class DownloadManager with _DownloadDb {
       if (comic.downloadedEps.length == 1) {
         return "Delete Error: only one downloaded episode";
       }
-      if (Directory("$path/${_getDirectory(comic.id)}/${ep + 1}").existsSync()) {
-        Directory("$path/${_getDirectory(comic.id)}/${ep + 1}")
+      if (Directory("$path/${getDirectory(comic.id)}/${ep + 1}").existsSync()) {
+        Directory("$path/${getDirectory(comic.id)}/${ep + 1}")
             .deleteSync(recursive: true);
       }
-      var size = Directory("$path/${_getDirectory(comic.id)}").getMBSizeSync();
+      var size = Directory("$path/${getDirectory(comic.id)}").getMBSizeSync();
       comic.downloadedEps.remove(ep);
       comic.comicSize = size;
-      _addToDb(comic, comic.directory ?? _getDirectory(comic.id));
+      _addToDb(comic, comic.directory ?? getDirectory(comic.id));
       return null;
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "IO", "$e/n$s");
@@ -341,14 +341,14 @@ class DownloadManager with _DownloadDb {
 
   /// 获取漫画章节的长度, 适用于有章节的漫画
   Future<int> getEpLength(String id, int ep) async {
-    var directory = Directory("$path/${_getDirectory(id)}/$ep");
+    var directory = Directory("$path/${getDirectory(id)}/$ep");
     var files = directory.list();
     return files.length;
   }
 
   /// 获取漫画的长度, 适用于无章节的漫画
   Future<int> getComicLength(String id) async {
-    var directory = Directory("$path/${_getDirectory(id)}");
+    var directory = Directory("$path/${getDirectory(id)}");
     var files = directory.list();
     return await files.length - 2;
   }
@@ -357,9 +357,9 @@ class DownloadManager with _DownloadDb {
   File getImage(String id, int ep, int index) {
     String downloadPath;
     if (ep == 0) {
-      downloadPath = "$path/${_getDirectory(id)}/";
+      downloadPath = "$path/${getDirectory(id)}/";
     } else {
-      downloadPath = "$path/${_getDirectory(id)}/$ep/";
+      downloadPath = "$path/${getDirectory(id)}/$ep/";
     }
     for (var file in Directory(downloadPath).listSync()) {
       if (file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") ==
@@ -373,9 +373,9 @@ class DownloadManager with _DownloadDb {
   Future<File> getImageAsync(String id, int ep, int index) async {
     String downloadPath;
     if (ep == 0) {
-      downloadPath = "$path/${_getDirectory(id)}/";
+      downloadPath = "$path/${getDirectory(id)}/";
     } else {
-      downloadPath = "$path/${_getDirectory(id)}/$ep/";
+      downloadPath = "$path/${getDirectory(id)}/$ep/";
     }
     await for (var file in Directory(downloadPath).list()) {
       if (file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") ==
@@ -388,7 +388,7 @@ class DownloadManager with _DownloadDb {
 
   ///获取封面, 所有漫画源通用
   File getCover(String id) {
-    return File("$path/${_getDirectory(id)}/cover.jpg");
+    return File("$path/${getDirectory(id)}/cover.jpg");
   }
 }
 
@@ -654,7 +654,7 @@ abstract mixin class _DownloadDb {
 
   static final _cache = <String, String>{};
 
-  String _getDirectory(String id) {
+  String getDirectory(String id) {
     var directory = _cache[id];
     if(directory == null) {
       var result = _db!.select('''
