@@ -105,7 +105,7 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
   @override
   void download() {
     final id = "nhentai${data!.id}";
-    if (DownloadManager().downloaded.contains(id)) {
+    if (DownloadManager().isExists(id)) {
       showToast(message: "已下载".tl);
       return;
     }

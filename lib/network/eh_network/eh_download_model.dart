@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:typed_data';
@@ -96,15 +97,6 @@ class EhDownloadingItem extends DownloadingItem{
   @override
   String get cover => gallery.coverPath.replaceFirst('s.exhentai.org', 'ehgt.org');
 
-  ///储存画廊信息
-  @override
-  Future<void> saveInfo() async{
-    var file = File("$path/$id/info.json");
-    var item = DownloadedGallery(gallery, await getFolderSize(Directory("$path$pathSep$id")));
-    var json = jsonEncode(item.toJson());
-    await file.writeAsString(json);
-  }
-
   @override
   String get title => gallery.title;
 
@@ -147,7 +139,8 @@ class EhDownloadingItem extends DownloadingItem{
   };
 
   @override
-  void onStart() async{
+  Future<void> onStart() async{
+    await super.onStart();
     // clear showKey and imageKey
     // imageKey is saved through the network cache mechanism
     gallery.auth?.remove("showKey");
@@ -235,7 +228,7 @@ class EhDownloadingItem extends DownloadingItem{
   }
 
   void finish() async{
-    await saveInfo();
+    await onEnd();
     whenFinish?.call();
   }
 
@@ -275,6 +268,11 @@ class EhDownloadingItem extends DownloadingItem{
         _totalBytes = map["_totalBytes"],
         _downloadLink = map["_downloadLink"],
         super.fromMap(map, whenFinish, whenError, updateInfo);
+
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() async {
+    return DownloadedGallery(gallery, await getFolderSize(Directory(path)));
+  }
 }
 
 class _IsolateDownloader{

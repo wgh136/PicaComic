@@ -18,42 +18,30 @@ class PopUpWidget<T> extends PopupRoute<T> {
       Animation<double> secondaryAnimation) {
     var height = MediaQuery.of(context).size.height * 0.9;
     bool showPopUp = MediaQuery.of(context).size.width > 420;
-    if (!showPopUp) {
-      height = MediaQuery.of(context).size.height;
-    }
-    var body = MediaQuery.removePadding(
+    Widget body = PopupIndicatorWidget(
+      child: Container(
+        decoration: showPopUp
+            ? const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              )
+            : null,
+        clipBehavior: showPopUp ? Clip.antiAlias : Clip.none,
+        width: context.width > 520 ? 520 : double.infinity,
+        height: showPopUp ? height : double.infinity,
+        child: ClipRect(
+          child: Navigator(
+            onGenerateRoute: (settings) => MaterialPageRoute(
+              builder: (context) => widget,
+            ),
+          ),
+        ),
+      ),
+    );
+    if(showPopUp) {
+      return MediaQuery.removePadding(
         removeTop: true,
         context: context,
         child: Center(
-          child: PopupIndicatorWidget(
-            child: Container(
-              decoration: showPopUp
-                  ? const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    )
-                  : null,
-              clipBehavior: showPopUp ? Clip.antiAlias : Clip.none,
-              width: 550,
-              height: height,
-              child: ClipRect(
-                child: Navigator(
-                  onGenerateRoute: (settings) => MaterialPageRoute(
-                    builder: (context) => widget,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ));
-
-    if (!showPopUp) {
-      return ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
           child: body,
         ),
       );
@@ -142,7 +130,7 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
                 if (widget.tailing != null) ...widget.tailing!
               ],
             ),
-          ),
+          ).paddingTop(context.padding.top),
           NotificationListener<ScrollNotification>(
             onNotification: (notifications) {
               if (notifications.metrics.pixels ==

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -8,8 +9,9 @@ import '../../foundation/image_manager.dart';
 import '../../tools/io_tools.dart';
 import '../download_model.dart';
 
-class NhentaiDownloadedComic extends DownloadedItem{
-  NhentaiDownloadedComic(this.comicID, this.title, this.size, this.cover, this.tags);
+class NhentaiDownloadedComic extends DownloadedItem {
+  NhentaiDownloadedComic(
+      this.comicID, this.title, this.size, this.cover, this.tags);
 
   final String comicID;
 
@@ -41,29 +43,27 @@ class NhentaiDownloadedComic extends DownloadedItem{
   DownloadType get type => DownloadType.nhentai;
 
   @override
-  Map<String, dynamic> toJson() => {
-    'comicID': comicID,
-    'title': title,
-    'size': size,
-    'cover': cover
-  };
+  Map<String, dynamic> toJson() =>
+      {'comicID': comicID, 'title': title, 'size': size, 'cover': cover};
 
-  NhentaiDownloadedComic.fromJson(Map<String, dynamic> json):
-      comicID = json["comicID"],
-      title = json["title"],
-      size = json["size"],
-      tags = List.from(json["tags"] ?? []),
-      cover = json["cover"];
+  NhentaiDownloadedComic.fromJson(Map<String, dynamic> json)
+      : comicID = json["comicID"],
+        title = json["title"],
+        size = json["size"],
+        tags = List.from(json["tags"] ?? []),
+        cover = json["cover"];
 
   @override
-  set comicSize(double? value){}
+  set comicSize(double? value) {}
 
   @override
   List<String> tags;
 }
 
-class NhentaiDownloadingItem extends DownloadingItem{
-  NhentaiDownloadingItem(this.comic, super.whenFinish, super.whenError, super.updateInfo, super.id, {super.type = DownloadType.nhentai});
+class NhentaiDownloadingItem extends DownloadingItem {
+  NhentaiDownloadingItem(
+      this.comic, super.whenFinish, super.whenError, super.updateInfo, super.id,
+      {super.type = DownloadType.nhentai});
 
   final NhentaiComic comic;
 
@@ -71,9 +71,9 @@ class NhentaiDownloadingItem extends DownloadingItem{
   String get cover => comic.cover;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async{
-    await for(var s in ImageManager().getImage(link)){
-      if(s.finished){
+  Future<(Uint8List, String)> getImage(String link) async {
+    await for (var s in ImageManager().getImage(link)) {
+      if (s.finished) {
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
@@ -84,7 +84,7 @@ class NhentaiDownloadingItem extends DownloadingItem{
   }
 
   @override
-  Future<Map<int, List<String>>> getLinks() async{
+  Future<Map<int, List<String>>> getLinks() async {
     var res = await NhentaiNetwork().getImages(comic.id);
     return {0: res.data};
   }
@@ -95,29 +95,29 @@ class NhentaiDownloadingItem extends DownloadingItem{
   }
 
   @override
-  Future<void> saveInfo() async{
-    var file = File("$path/$id/info.json");
-    var item = NhentaiDownloadedComic(id, title, await getFolderSize(Directory("$path$pathSep$id")), comic.cover, comic.tags["tags"] ?? []);
-    var json = jsonEncode(item.toJson());
-    await file.writeAsString(json);
-  }
-
-  @override
   String get title => comic.title;
 
   @override
-  Map<String, dynamic> toMap() => {
-    "comic": comic.toMap(),
-    ...super.toBaseMap()
-  };
+  Map<String, dynamic> toMap() =>
+      {"comic": comic.toMap(), ...super.toBaseMap()};
 
   NhentaiDownloadingItem.fromMap(
       Map<String, dynamic> map,
       DownloadProgressCallback whenFinish,
       DownloadProgressCallback whenError,
       DownloadProgressCallbackAsync updateInfo,
-      String id):
-        comic = NhentaiComic.fromMap(map["comic"]),
+      String id)
+      : comic = NhentaiComic.fromMap(map["comic"]),
         super.fromMap(map, whenFinish, whenError, updateInfo);
 
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() async {
+    return NhentaiDownloadedComic(
+      id,
+      title,
+      await getFolderSize(Directory(path)),
+      comic.cover,
+      comic.tags["tags"] ?? [],
+    );
+  }
 }

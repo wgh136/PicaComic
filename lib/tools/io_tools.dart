@@ -15,7 +15,6 @@ import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
-import 'package:pica_comic/tools/translations.dart';
 import 'package:zip_flutter/zip_flutter.dart';
 import '../foundation/app.dart';
 
@@ -323,9 +322,6 @@ Future<String?> _exportData(
 Future<String> exportDataToFile(bool includeDownload) async {
   var path = (await getApplicationSupportDirectory()).path;
   try {
-    if (DownloadManager().path == null) {
-      DownloadManager().init();
-    }
     var appdataString = const JsonEncoder().convert(appdata.toJson());
     var downloadPath = includeDownload ? DownloadManager().path : null;
     var res = await compute<List<String?>, String?>(
@@ -400,9 +396,6 @@ Future<bool> importData([String? filePath]) async {
       LogManager.addLog(LogLevel.error, "importData", "filePath is null");
       return false;
     }
-  }
-  if (DownloadManager().path == null) {
-    DownloadManager().init();
   }
   var data = await compute<List<String>, String?>((data) async {
     try {

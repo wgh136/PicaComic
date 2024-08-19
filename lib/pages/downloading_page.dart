@@ -9,9 +9,8 @@ import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/components/components.dart';
 
 class DownloadingPage extends StatefulWidget {
-  const DownloadingPage({this.inPopupWidget = false, Key? key})
+  const DownloadingPage({Key? key})
       : super(key: key);
-  final bool inPopupWidget;
 
   @override
   State<DownloadingPage> createState() => _DownloadingPageState();
@@ -24,8 +23,14 @@ class _DownloadingPageState extends State<DownloadingPage> {
     super.dispose();
   }
 
-  void stateUpdater() {
-    setState(() {});
+  @override
+  void initState() {
+    downloadManager.addListener(() {
+      setState(() {});
+    }, () {
+      setState(() {});
+    });
+    super.initState();
   }
 
   @override
@@ -41,16 +46,10 @@ class _DownloadingPageState extends State<DownloadingPage> {
             });
           });
         },
-        stateUpdater,
+          () => setState(() {}),
         key: Key(i.id),
       ));
     }
-
-    downloadManager.addListener(() {
-      setState(() {});
-    }, () {
-      setState(() {});
-    });
 
     final body = ListView.builder(
         itemCount: downloadManager.downloading.length + 1,
@@ -122,19 +121,10 @@ class _DownloadingPageState extends State<DownloadingPage> {
           }
         });
 
-    if (widget.inPopupWidget) {
-      return PopUpWidgetScaffold(
-        title: "下载管理器".tl,
-        body: body,
-      );
-    } else {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text("下载管理器".tl),
-        ),
-        body: body,
-      );
-    }
+    return PopUpWidgetScaffold(
+      title: "下载管理器".tl,
+      body: body,
+    );
   }
 }
 
@@ -173,7 +163,11 @@ class DownloadingTile extends StatelessWidget {
 
   String getProgressText(DownloadingProgressController controller) {
     if (controller.pagesCount == 0) {
-      return "获取图片信息...".tl;
+      if(comic == DownloadManager().downloading.first) {
+        return "获取图片信息...".tl;
+      } else {
+        return "";
+      }
     }
 
     String speedInfo = "";
@@ -227,14 +221,7 @@ class DownloadingTile extends StatelessWidget {
                 flex: 4,
                 child: StateBuilder(
                   init: DownloadingProgressController(),
-                  tag: comic.id,
-                  builder: (controller) {
-                    controller.downloadPages = comic.downloadedPages;
-                    controller.pagesCount = comic.totalPages;
-                    controller.value = controller.downloadPages /
-                        (controller.pagesCount == 0
-                            ? 1
-                            : controller.pagesCount);
+                  initState: (controller) {
                     comic.updateUi = () {
                       int? speed;
                       if (comic is EhDownloadingItem &&
@@ -244,6 +231,15 @@ class DownloadingTile extends StatelessWidget {
                       controller.updateStatus(
                           comic.downloadedPages, comic.totalPages, speed);
                     };
+                  },
+                  tag: comic.id,
+                  builder: (controller) {
+                    controller.downloadPages = comic.downloadedPages;
+                    controller.pagesCount = comic.totalPages;
+                    controller.value = controller.downloadPages /
+                        (controller.pagesCount == 0
+                            ? 1
+                            : controller.pagesCount);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/built_in/jm.dart';
 import 'package:pica_comic/components/select_download_eps.dart';
+import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/pages/comic_page.dart';
@@ -212,9 +213,10 @@ void downloadComic(JmComicInfo comic, BuildContext context) async {
   }
 
   var downloaded = <int>[];
-  if (DownloadManager().downloaded.contains("jm${comic.id}")) {
+  if (DownloadManager().isExists("jm${comic.id}")) {
     var downloadedComic =
-        await DownloadManager().getJmComicFormId("jm${comic.id}");
+        (await DownloadManager().getComicOrNull("jm${comic.id}"))!
+        as DownloadedJmComic;
     downloaded.addAll(downloadedComic.downloadedEps);
   }
 

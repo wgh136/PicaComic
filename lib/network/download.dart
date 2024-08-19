@@ -26,38 +26,21 @@ import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/pages/download_page.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'nhentai_network/models.dart';
 import 'picacg_network/models.dart';
 
-/*
-关于数据储存:
-  目录结构如下:
-    [App数据根目录]
-      - download/
-        - [漫画id]/
-          - [章节序号]
-          - info.json
-        - newDownload.json
-
- */
-
 typedef DownloadingCallback = void Function();
 
-class DownloadManager{
+class DownloadManager with _DownloadDb {
   static DownloadManager? cache;
 
-  factory DownloadManager() => cache??(cache=DownloadManager._create());
+  factory DownloadManager() => cache ?? (cache = DownloadManager._create());
 
   DownloadManager._create();
 
   ///下载目录
   String? path;
-
-  ///已下载的漫画
-  List<String> downloaded = [];
-
-  /// 获取所有漫画
-  List<String> get allComics => downloaded;
 
   ///下载队列
   var downloading = Queue<DownloadingItem>();
@@ -66,7 +49,7 @@ class DownloadManager{
   bool isDownloading = false;
 
   ///用于监听下载队列的变化
-  DownloadingCallback? _whenChange = (){};
+  DownloadingCallback? _onChange = () {};
 
   ///出现错误时调用
   DownloadingCallback? _handleError;
@@ -80,147 +63,156 @@ class DownloadManager{
   ///是否初始化
   bool _runInit = false;
 
+  @override
+  Database? _db;
+
   /// 用于下载页面, 监听下载情况
-  void addListener(DownloadingCallback whenChange, DownloadingCallback whenError){
-    _whenChange = whenChange;
-    _handleError = whenError;
+  void addListener(
+      DownloadingCallback whenChange, DownloadingCallback onError) {
+    _onChange = whenChange;
+    _handleError = onError;
   }
 
-  void removeListener(){
-    _whenChange = null;
+  void removeListener() {
+    _onChange = null;
     _handleError = null;
   }
 
   ///获取下载目录
-  Future<void> _getPath() async{
-    if(appdata.settings[22] == "") {
+  Future<void> _getPath() async {
+    if (appdata.settings[22] == "") {
       final appPath = await getApplicationSupportDirectory();
       path = "${appPath.path}/download";
-    }else{
+    } else {
       path = appdata.settings[22];
     }
-    if(App.isIOS) {
-      if(path!.startsWith('/var/mobile/Containers/Data/Application/')){
-        if(!Directory(path!).existsSync()) {
+    if (App.isIOS) {
+      if (path!.startsWith('/var/mobile/Containers/Data/Application/')) {
+        if (!Directory(path!).existsSync()) {
           final appPath = await getApplicationSupportDirectory();
           path = "${appPath.path}/download";
         }
       }
     }
     var dir = Directory(path!);
-    if(! await dir.exists()){
+    if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
-    var file = File("$path/.nomedia");
-    if(!file.existsSync()){
-      await file.create();
+    if (App.isAndroid) {
+      var file = File("$path/.nomedia");
+      if (!file.existsSync()) {
+        await file.create();
+      }
     }
-  }
-
-  /// delete all download
-  void clear() async{
-    await init();
-    var directory = Directory(path!);
-    directory.deleteSync(recursive: true);
-    _runInit = false;
-    await init();
   }
 
   ///更换下载目录
-  Future<String> updatePath(String newPath, {bool transform = true}) async{
-    if(transform) {
+  Future<String> updatePath(String newPath, {bool transform = true}) async {
+    if (transform) {
       var source = Directory(path!);
       final appPath = await getApplicationSupportDirectory();
-      var destination = Directory(newPath==""?"${appPath.path}${pathSep}download":newPath);
+      var destination = Directory(
+        newPath == "" ? "${appPath.path}${pathSep}download" : newPath,
+      );
       try {
         await copyDirectory(source, destination);
-        for(var i in source.listSync()){
+        for (var i in source.listSync()) {
           await i.delete(recursive: true);
         }
-      }
-      catch (e) {
+      } catch (e) {
         return e.toString();
       }
     }
 
     _runInit = false;
-    downloaded.clear();
+    _db!.dispose();
     downloading.clear();
     await init();
     return "ok";
   }
 
   ///读取数据, 获取未完成的下载和已下载的漫画ID
-  ///
-  /// 读取数据时将会检查漫画信息文件是否存在
-  Future<void> _getInfo() async{
+  Future<void> _getInfo() async {
     //读取数据
     var file = File("$path${pathSep}newDownload.json");
-    if(! file.existsSync()){
+    if (!file.existsSync()) {
       await _saveInfo();
-    }
-    try {
-      var json = const JsonDecoder().convert(file.readAsStringSync());
-      for (var item in json["downloading"]) {
-        downloading.add(downloadingItemFromMap(item, _whenFinish, _whenError, _saveInfo));
+    } else {
+      try {
+        var json = const JsonDecoder().convert(file.readAsStringSync());
+        for (var item in json["downloading"]) {
+          downloading.add(
+              downloadingItemFromMap(item, _onFinish, _onError, _saveInfo));
+        }
+      } catch (e, s) {
+        LogManager.addLog(LogLevel.error, "IO",
+            "Failed to read downloaded information\n$e\n$s");
+        file.deleteSync();
+        await _saveInfo();
       }
     }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "IO", "Failed to read downloaded information\n$e\n$s");
-      file.deleteSync();
-      await _saveInfo();
-    }
+  }
 
-    for(var entry in Directory(path!).listSync()){
-      if(entry is Directory){
-        var infoFile = File("${entry.path}/info.json");
-        if(infoFile.existsSync()){
-          downloaded.add(entry.name);
+  Future<void> _initDb() async {
+    var oldData = <String, DownloadedItem>{};
+    if (!File("$path/download.db").existsSync()) {
+      for (var entry in Directory(path!).listSync()) {
+        if (entry is Directory) {
+          var infoFile = File("${entry.path}/info.json");
+          if (infoFile.existsSync()) {
+            var id = entry.name;
+            var json = infoFile.readAsStringSync();
+            var time = infoFile.lastModifiedSync();
+            var comic = _getComicFromJson(id, json, time);
+            if (comic != null) {
+              infoFile.delete();
+              var directory = comic.name;
+              int i = -1;
+              while (entry is Directory) {
+                try {
+                  entry = entry.renameX(directory);
+                  break;
+                } catch (e) {
+                  i++;
+                  directory = comic.name + i.toString();
+                }
+              }
+              oldData[directory] = comic;
+            }
+          }
         }
       }
     }
-
-    //迁移旧版本的数据
-    file = File("$path${pathSep}download.json");
-    if(file.existsSync()){
-      var json = await file.readAsString();
-      for(var i in jsonDecode(json)["downloaded"]){
-        downloaded.add(i);
-      }
-      await file.delete();
+    _db = sqlite3.open("$path/download.db");
+    _createTable();
+    for (var entry in oldData.entries) {
+      _addToDb(entry.value, entry.key);
     }
-    await _saveInfo();
   }
 
   ///初始化下载管理器
-  Future<void> init() async{
-    if(_runInit) return;
+  Future<void> init() async {
+    if (_runInit) return;
     _runInit = true;
     await _getPath();
     await _getInfo();
+    await _initDb();
   }
 
   ///储存当前的下载队列信息, 每完成一张图片的下载调用一次
-  Future<void> _saveInfo() async{
+  Future<void> _saveInfo() async {
     var data = <String, dynamic>{};
     data["downloading"] = <Map<String, dynamic>>[];
-    for(var item in downloading){
+    for (var item in downloading) {
       data["downloading"].add(item.toMap());
     }
     var file = File("$path${pathSep}newDownload.json");
     await file.writeAsString(const JsonEncoder().convert(data));
   }
 
-  ///通过downloaded数组的序号得到漫画信息
-  Future<DownloadedComic> getDownloadedComicInfo(int index) async{
-    var file = File("$path$pathSep${downloaded[index]}${pathSep}info.json");
-    var json = await file.readAsString();
-    return DownloadedComic.fromJson(jsonDecode(json));
-  }
-
   /// move comic to first
-  void moveToFirst(DownloadingItem item){
-    if(downloading.first == item){
+  void moveToFirst(DownloadingItem item) {
+    if (downloading.first == item) {
       return;
     }
     pause();
@@ -229,104 +221,295 @@ class DownloadManager{
     start();
   }
 
-  ///添加哔咔漫画下载
-  void addPicDownload(ComicItem comic, List<int> downloadEps){
-    var downloadPath = Directory("$path$pathSep${comic.id}");
-    downloadPath.create(recursive: true);
-    downloading.addLast(PicDownloadingItem(comic, downloadEps, _whenFinish, _whenError, _saveInfo, comic.id));
-    _saveInfo();
-    if(!isDownloading){
-      downloading.first.start();
-      isDownloading = true;
-    }
-  }
-
-  ///添加E-Hentai下载
-  void addEhDownload(Gallery gallery, [int type = 0]){
-    final id = getGalleryId(gallery.link);
-    var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create(recursive: true);
-    downloading.addLast(EhDownloadingItem(gallery, _whenFinish, _whenError, _saveInfo, id, type));
-    _saveInfo();
-    if(!isDownloading){
-      downloading.first.start();
-      isDownloading = true;
-    }
-  }
-
-  ///添加禁漫下载
-  void addJmDownload(JmComicInfo comic, List<int> downloadEps){
-    var downloadPath = Directory("$path$pathSep${"jm"}${comic.id}");
-    downloadPath.create(recursive: true);
-    downloading.addLast(JmDownloadingItem(comic, downloadEps, _whenFinish, _whenError, _saveInfo, "jm${comic.id}"));
-    _saveInfo();
-    if(!isDownloading){
-      downloading.first.start();
-      isDownloading = true;
-    }
-  }
-
-  ///添加Hitomi下载
-  void addHitomiDownload(HitomiComic comic, String cover, String link){
-    final id = "hitomi${comic.id}";
-    var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create(recursive: true);
-    downloading.addLast(HitomiDownloadingItem(comic, cover, link, _whenFinish, _whenError, _saveInfo, id));
-    _saveInfo();
-    if(!isDownloading){
-      downloading.first.start();
-      isDownloading = true;
-    }
-  }
-
-  ///添加绅士漫画下载
-  void addHtDownload(HtComicInfo comic){
-    final id = "Ht${comic.id}";
-    var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create(recursive: true);
-    downloading.addLast(DownloadingHtComic(comic, _whenFinish, _whenError, _saveInfo, id));
-    _saveInfo();
-    if(!isDownloading){
-      downloading.first.start();
-      isDownloading = true;
-    }
-  }
-
-  void addNhentaiDownload(NhentaiComic comic){
-    final id = "nhentai${comic.id}";
-    var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create(recursive: true);
-    downloading.addLast(NhentaiDownloadingItem(comic, _whenFinish, _whenError, _saveInfo, id));
-    _saveInfo();
-    if(!isDownloading){
-      downloading.first.start();
-      isDownloading = true;
-    }
-  }
-
-  String generateId(String source, String id){
+  String generateId(String source, String id) {
     var comicSource = ComicSource.find(source)!;
-    if(comicSource.matchBriefIdReg != null){
+    if (comicSource.matchBriefIdReg != null) {
       id = RegExp(comicSource.matchBriefIdReg!).firstMatch(id)!.group(1)!;
     }
     id = "$source-$id";
     return id;
   }
 
-  void addCustomDownload(ComicInfoData comic, List<int> downloadEps) {
-    var id = generateId(comic.sourceKey, comic.comicId);
-    var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create(recursive: true);
-    downloading.addLast(CustomDownloadingItem(comic, downloadEps, _whenFinish, _whenError, _saveInfo, id));
+  ///当一个下载任务完成时, 调用此函数
+  void _onFinish() async {
+    var task = downloading.first;
+    _addToDb(await task.toDownloadedItem(), task.directory!);
+    downloading.removeFirst();
+    await _saveInfo();
+    StateController.findOrNull<DownloadPageLogic>()?.refresh();
+    if (downloading.isNotEmpty) {
+      //清除已完成的任务, 开始下一个任务
+      downloading.first.start();
+    } else {
+      //标记状态为未在下载
+      isDownloading = false;
+      notifications.endProgress();
+    }
+    _onChange?.call();
+  }
+
+  ///暂停下载
+  void pause() {
+    isDownloading = false;
+    downloading.first.pause();
+  }
+
+  ///出现错误时调用此函数
+  void _onError() {
+    pause();
+    _error = true;
+    notifications.sendNotification("下载出错".tl, "点击查看详情".tl);
+    _handleError?.call();
+  }
+
+  ///开始或继续下载
+  void start() {
+    _error = false;
+    if (isDownloading) return;
+    downloading.first.start();
+    isDownloading = true;
+  }
+
+  ///取消指定的下载
+  void cancel(String id) {
+    var index = 0;
+    for (var i in downloading) {
+      if (i.id == id) break;
+      index++;
+    }
+
+    if (index == 0) {
+      _error = false;
+      downloading.first.stop();
+      downloading.removeFirst();
+    } else {
+      downloading.removeWhere((element) => element.id == id);
+    }
+
+    _onChange?.call();
+
+    if (downloading.isEmpty) {
+      isDownloading = false;
+      notifications.endProgress();
+    } else {
+      downloading.first.start();
+    }
     _saveInfo();
-    if(!isDownloading){
+  }
+
+  Future<DownloadedItem?> getComicOrNull(String id) async {
+    return _getComicWithDb(id);
+  }
+
+  ///删除已下载的漫画
+  Future<void> delete(List<String> ids) async {
+    for (var id in ids) {
+      _deleteFromDb(id);
+      var comic = Directory("$path$pathSep$id");
+      try {
+        comic.delete(recursive: true);
+      } catch (e) {
+        if (e is PathNotFoundException) {
+          //忽略
+        } else {
+          rethrow;
+        }
+      }
+    }
+  }
+
+  /// return error message when error, or null if success.
+  Future<String?> deleteEpisode(DownloadedItem comic, int ep) async {
+    try {
+      if (comic.downloadedEps.length == 1) {
+        return "Delete Error: only one downloaded episode";
+      }
+      if (Directory("$path/${_getDirectory(comic.id)}/${ep + 1}").existsSync()) {
+        Directory("$path/${_getDirectory(comic.id)}/${ep + 1}")
+            .deleteSync(recursive: true);
+      }
+      var size = Directory("$path/${_getDirectory(comic.id)}").getMBSizeSync();
+      comic.downloadedEps.remove(ep);
+      comic.comicSize = size;
+      _addToDb(comic, comic.directory ?? _getDirectory(comic.id));
+      return null;
+    } catch (e, s) {
+      LogManager.addLog(LogLevel.error, "IO", "$e/n$s");
+      return e.toString();
+    }
+  }
+
+  /// 获取漫画章节的长度, 适用于有章节的漫画
+  Future<int> getEpLength(String id, int ep) async {
+    var directory = Directory("$path/${_getDirectory(id)}/$ep");
+    var files = directory.list();
+    return files.length;
+  }
+
+  /// 获取漫画的长度, 适用于无章节的漫画
+  Future<int> getComicLength(String id) async {
+    var directory = Directory("$path/${_getDirectory(id)}");
+    var files = directory.list();
+    return await files.length - 2;
+  }
+
+  ///获取图片, 对于无章节的漫画, ep参数为0
+  File getImage(String id, int ep, int index) {
+    String downloadPath;
+    if (ep == 0) {
+      downloadPath = "$path/${_getDirectory(id)}/";
+    } else {
+      downloadPath = "$path/${_getDirectory(id)}/$ep/";
+    }
+    for (var file in Directory(downloadPath).listSync()) {
+      if (file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") ==
+          index.toString()) {
+        return file as File;
+      }
+    }
+    throw Exception("File not found");
+  }
+
+  Future<File> getImageAsync(String id, int ep, int index) async {
+    String downloadPath;
+    if (ep == 0) {
+      downloadPath = "$path/${_getDirectory(id)}/";
+    } else {
+      downloadPath = "$path/${_getDirectory(id)}/$ep/";
+    }
+    await for (var file in Directory(downloadPath).list()) {
+      if (file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") ==
+          index.toString()) {
+        return file as File;
+      }
+    }
+    throw Exception("File not found");
+  }
+
+  ///获取封面, 所有漫画源通用
+  File getCover(String id) {
+    return File("$path/${_getDirectory(id)}/cover.jpg");
+  }
+}
+
+DownloadingItem downloadingItemFromMap(
+    Map<String, dynamic> map,
+    void Function() whenFinish,
+    void Function() whenError,
+    Future<void> Function() updateInfo) {
+  switch (map["type"]) {
+    case 0:
+      return PicDownloadingItem.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 1:
+      return EhDownloadingItem.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 2:
+      return JmDownloadingItem.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 3:
+      return HitomiDownloadingItem.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 4:
+      return DownloadingHtComic.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 5:
+      return NhentaiDownloadingItem.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 6:
+      return CustomDownloadingItem.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    case 7:
+      return FavoriteDownloading.fromMap(
+          map, whenFinish, whenError, updateInfo, map["id"]);
+    default:
+      throw UnimplementedError();
+  }
+}
+
+extension AddDownloadExt on DownloadManager {
+  ///添加哔咔漫画下载
+  void addPicDownload(ComicItem comic, List<int> downloadEps) {
+    downloading.addLast(PicDownloadingItem(
+        comic, downloadEps, _onFinish, _onError, _saveInfo, comic.id));
+    _saveInfo();
+    if (!isDownloading) {
       downloading.first.start();
       isDownloading = true;
     }
   }
 
-  void addFavoriteDownload(FavoriteItem comic){
-    var id = switch(comic.type.key){
+  ///添加E-Hentai下载
+  void addEhDownload(Gallery gallery, [int type = 0]) {
+    final id = getGalleryId(gallery.link);
+    downloading.addLast(
+        EhDownloadingItem(gallery, _onFinish, _onError, _saveInfo, id, type));
+    _saveInfo();
+    if (!isDownloading) {
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  ///添加禁漫下载
+  void addJmDownload(JmComicInfo comic, List<int> downloadEps) {
+    downloading.addLast(JmDownloadingItem(
+        comic, downloadEps, _onFinish, _onError, _saveInfo, "jm${comic.id}"));
+    _saveInfo();
+    if (!isDownloading) {
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  ///添加Hitomi下载
+  void addHitomiDownload(HitomiComic comic, String cover, String link) {
+    final id = "hitomi${comic.id}";
+    downloading.addLast(HitomiDownloadingItem(
+        comic, cover, link, _onFinish, _onError, _saveInfo, id));
+    _saveInfo();
+    if (!isDownloading) {
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  ///添加绅士漫画下载
+  void addHtDownload(HtComicInfo comic) {
+    final id = "Ht${comic.id}";
+    downloading
+        .addLast(DownloadingHtComic(comic, _onFinish, _onError, _saveInfo, id));
+    _saveInfo();
+    if (!isDownloading) {
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  void addNhentaiDownload(NhentaiComic comic) {
+    final id = "nhentai${comic.id}";
+    downloading.addLast(
+        NhentaiDownloadingItem(comic, _onFinish, _onError, _saveInfo, id));
+    _saveInfo();
+    if (!isDownloading) {
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  void addCustomDownload(ComicInfoData comic, List<int> downloadEps) {
+    var id = generateId(comic.sourceKey, comic.comicId);
+    downloading.addLast(CustomDownloadingItem(
+        comic, downloadEps, _onFinish, _onError, _saveInfo, id));
+    _saveInfo();
+    if (!isDownloading) {
+      downloading.first.start();
+      isDownloading = true;
+    }
+  }
+
+  void addFavoriteDownload(FavoriteItem comic) {
+    var id = switch (comic.type.key) {
       0 => comic.target,
       1 => getGalleryId(comic.target),
       2 => "jm${comic.target}",
@@ -335,265 +518,155 @@ class DownloadManager{
       6 => "nhentai${comic.target}",
       _ => generateId(comic.type.comicSource.key, comic.target)
     };
-    var downloadPath = Directory("$path$pathSep$id");
-    downloadPath.create(recursive: true);
-    downloading.addLast(FavoriteDownloading(comic, _whenFinish,
-        _whenError, _saveInfo, id));
+    downloading.addLast(
+        FavoriteDownloading(comic, _onFinish, _onError, _saveInfo, id));
     _saveInfo();
-    if(!isDownloading){
+    if (!isDownloading) {
       downloading.first.start();
       isDownloading = true;
     }
   }
+}
 
-  ///当一个下载任务完成时, 调用此函数
-  void _whenFinish() async{
-    if(!downloaded.contains(downloading.first.id)) {
-      downloaded.add(downloading.first.id);
+DownloadedItem? _getComicFromJson(String id, String json, DateTime time, [String? directory]) {
+  DownloadedItem comic;
+  try {
+    if (id.contains('-')) {
+      comic = CustomDownloadedItem.fromJson(jsonDecode(json));
+    } else if (id.startsWith("jm")) {
+      comic = DownloadedJmComic.fromMap(jsonDecode(json));
+    } else if (id.startsWith("hitomi")) {
+      comic = DownloadedHitomiComic.fromMap(jsonDecode(json));
+    } else if (id.startsWith("nhentai")) {
+      comic = NhentaiDownloadedComic.fromJson(jsonDecode(json));
+    } else if (id.startsWith("Ht")) {
+      comic = DownloadedHtComic.fromJson(jsonDecode(json));
+    } else if (id.isNum) {
+      comic = DownloadedGallery.fromJson(jsonDecode(json));
+    } else {
+      comic = DownloadedComic.fromJson(jsonDecode(json));
     }
-    downloading.removeFirst();
-    await _saveInfo();
-    try{
-      StateController.find<DownloadPageLogic>().fresh();
-    }
-    catch(e){
-      // ignore
-    }
-    if(downloading.isNotEmpty){
-      //清除已完成的任务, 开始下一个任务
-      downloading.first.start();
-    }else{
-      //标记状态为未在下载
-      isDownloading = false;
-      notifications.endProgress();
-    }
-    _whenChange?.call();
-  }
-
-  ///暂停下载
-  void pause(){
-    isDownloading = false;
-    downloading.first.pause();
-  }
-
-  ///出现错误时调用此函数
-  void _whenError(){
-    pause();
-    _error = true;
-    notifications.sendNotification("下载出错".tl, "点击查看详情".tl);
-    _handleError?.call();
-  }
-
-  ///开始或继续下载
-  void start(){
-    _error = false;
-    if(isDownloading) return;
-    downloading.first.start();
-    isDownloading = true;
-  }
-
-  ///取消指定的下载
-  void cancel(String id){
-    var index = 0;
-    for(var i in downloading){
-      if(i.id == id)  break;
-      index++;
-    }
-
-    if(index == 0){
-      _error = false;
-      downloading.first.stop();
-      downloading.removeFirst();
-    }else{
-      downloading.removeWhere((element) => element.id==id);
-    }
-
-    _whenChange?.call();
-
-    if(downloading.isEmpty){
-      isDownloading = false;
-      notifications.endProgress();
-    }else{
-      downloading.first.start();
-    }
-    _saveInfo();
-  }
-
-  Future<DownloadedItem?> getComicOrNull(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    if(!file.existsSync()){
-      LogManager.addLog(LogLevel.error, "IO", "Failed to get a downloaded comic info: "
-          "\nFile Not Found\nId is $id");
-      return null;
-    }
-    var json = await file.readAsString();
-    DownloadedItem comic;
-    try {
-      if(id.contains('-')){
-        comic = CustomDownloadedItem.fromJson(jsonDecode(json));
-      } else if (id.startsWith("jm")) {
-        comic = DownloadedJmComic.fromMap(jsonDecode(json));
-      } else if (id.startsWith("hitomi")) {
-        comic = DownloadedHitomiComic.fromMap(jsonDecode(json));
-      } else if (id.startsWith("nhentai")) {
-        comic = NhentaiDownloadedComic.fromJson(jsonDecode(json));
-      } else if (id.startsWith("Ht")) {
-        comic = DownloadedHtComic.fromJson(jsonDecode(json));
-      } else if (id.isNum) {
-        comic = DownloadedGallery.fromJson(jsonDecode(json));
-      } else {
-        comic = DownloadedComic.fromJson(jsonDecode(json));
-      }
-      try {
-        var time = file.lastModifiedSync();
-        comic.time = time;
-      }
-      catch(e){/**/}
-      return comic;
-    }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "IO", "Failed to get a downloaded comic info:\n$e\n$s");
-      return null;
-    }
-  }
-
-  ///通过漫画id获取漫画信息
-  Future<DownloadedComic> getComicFromId(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    var json = await file.readAsString();
-    var res =  DownloadedComic.fromJson(jsonDecode(json));
-    try {
-      var time = file.lastModifiedSync();
-      res.time = time;
-    }
-    catch(e){
-      //忽视
-    }
-    return res;
-  }
-
-  ///通过禁漫id获取漫画信息
-  Future<DownloadedJmComic> getJmComicFormId(String id) async{
-    var file = File("$path$pathSep$id${pathSep}info.json");
-    var json = await file.readAsString();
-    var res =  DownloadedJmComic.fromMap(jsonDecode(json));
-    try {
-      var time = file.lastModifiedSync();
-      res.time = time;
-    }
-    catch(e){
-      //忽视
-    }
-    return res;
-  }
-
-  ///删除已下载的漫画
-  Future<void> delete(List<String> ids) async{
-    for (var id in ids) {
-      downloaded.remove(id);
-      var comic = Directory("$path$pathSep$id");
-      try {
-        comic.delete(recursive: true);
-      }
-      catch(e){
-        if(e is PathNotFoundException){
-          //忽略
-        }else{
-          rethrow;
-        }
-      }
-    }
-    await _saveInfo();
-  }
-
-  /// return error message when error, or null if success.
-  Future<String?> deleteEpisode(DownloadedItem comic, int ep) async{
-    try {
-      if (comic.downloadedEps.length == 1) {
-        return "Delete Error: only one downloaded episode";
-      }
-      if(Directory("$path$pathSep${comic.id}$pathSep${ep+1}").existsSync()) {
-        Directory("$path$pathSep${comic.id}$pathSep${ep+1}").deleteSync(recursive: true);
-      }
-      var size = Directory("$path$pathSep${comic.id}").getMBSizeSync();
-      comic.downloadedEps.remove(ep);
-      comic.comicSize = size;
-      var json = const JsonEncoder().convert(comic.toJson());
-      var file = File("$path$pathSep${comic.id}${pathSep}info.json");
-      file.writeAsStringSync(json);
-      return null;
-    }
-    catch(e, s){
-      LogManager.addLog(LogLevel.error, "IO", "$e/n$s");
-      return e.toString();
-    }
-  }
-
-  /// 获取漫画章节的长度, 适用于有章节的漫画
-  Future<int> getEpLength(String id, int ep) async{
-    var directory = Directory("$path$pathSep$id$pathSep$ep");
-    var files = directory.list();
-    return files.length;
-  }
-
-  /// 获取漫画的长度, 适用于无章节的漫画
-  Future<int> getComicLength(String id) async{
-    var directory = Directory("$path$pathSep$id");
-    var files = directory.list();
-    return await files.length - 2;
-  }
-
-  ///获取图片, 对于无章节的漫画, ep参数为0
-  File getImage(String id, int ep, int index){
-    String downloadPath;
-    if(ep == 0){
-      downloadPath = "$path/$id/";
-    }else{
-      downloadPath = "$path/$id/$ep/";
-    }
-    for(var file in Directory(downloadPath).listSync()){
-      if(file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") == index.toString()){
-        return file as File;
-      }
-    }
-    throw Exception("File not found");
-  }
-
-  Future<File> getImageAsync(String id, int ep, int index) async{
-    String downloadPath;
-    if(ep == 0){
-      downloadPath = "$path/$id/";
-    }else{
-      downloadPath = "$path/$id/$ep/";
-    }
-    await for(var file in Directory(downloadPath).list()){
-      if(file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") == index.toString()){
-        return file as File;
-      }
-    }
-    throw Exception("File not found");
-  }
-
-  ///获取封面, 所有漫画源通用
-  File getCover(String id){
-    return File("$path$pathSep$id${pathSep}cover.jpg");
+    comic.time = time;
+    comic.directory = directory;
+    return comic;
+  } catch (e, s) {
+    LogManager.addLog(
+        LogLevel.error, "IO", "Failed to get a downloaded comic info:\n$e\n$s");
+    return null;
   }
 }
 
-DownloadingItem downloadingItemFromMap(
-    Map<String, dynamic> map,
-    void Function() whenFinish,
-    void Function() whenError,
-    Future<void> Function() updateInfo){
-  switch(map["type"]){
-    case 0: return PicDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 1: return EhDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 2: return JmDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 3: return HitomiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 4: return DownloadingHtComic.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 5: return NhentaiDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 6: return CustomDownloadingItem.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    case 7: return FavoriteDownloading.fromMap(map, whenFinish, whenError, updateInfo, map["id"]);
-    default: throw UnimplementedError();
+abstract mixin class _DownloadDb {
+  Database? get _db;
+
+  void _createTable() {
+    _db!.execute('''
+      create table if not exists download (
+        id text primary key,
+        title text,
+        subtitle text,
+        time int,
+        directory text,
+        size int,
+        json text
+      )
+    ''');
+  }
+
+  void _addToDb(DownloadedItem item, String directory, [DateTime? time]) {
+    _db!.execute('''
+      insert or replace into download
+      values (?,?,?,?,?,?,?)
+    ''', [
+      item.id,
+      item.name,
+      item.subTitle,
+      (time ?? DateTime.now()).millisecondsSinceEpoch,
+      directory,
+      item.comicSize,
+      jsonEncode(item.toJson()),
+    ]);
+  }
+
+  bool isExists(String id) {
+    var result = _db!.select('''
+      select id from download
+      where id = ?
+    ''', [id]);
+    return result.isNotEmpty;
+  }
+
+  void _deleteFromDb(String id) {
+    _db!.execute('''
+      delete from download
+      where id = ?
+    ''', [id]);
+  }
+
+  DownloadedItem? _getComicWithDb(String id) {
+    var result = _db!.select('''
+      select * from download
+      where id = ?
+    ''', [id]);
+    if (result.isEmpty) return null;
+    var data = result.first;
+    return _getComicFromJson(
+      data['id'],
+      data['json'],
+      DateTime.fromMillisecondsSinceEpoch(data['time']),
+      data['directory'],
+    );
+  }
+
+  void _updateJson(String id, String json) {
+    _db!.execute('''
+      update download
+      set json = ?
+      where id = ?
+    ''', [json, id]);
+  }
+
+  int get total {
+    var result = _db!.select('''
+      select count(*) from download
+    ''');
+    return result.first['count(*)'];
+  }
+
+  /// order: time, title, subtitle, size
+  List<DownloadedItem> getAll(
+      [String order = 'time', String direction = 'desc']) {
+    var result = _db!.select('''
+      select * from download
+      order by $order $direction
+    ''');
+    return result
+        .map(
+          (e) => _getComicFromJson(
+            e['id'],
+            e['json'],
+            DateTime.fromMillisecondsSinceEpoch(e['time']),
+            e['directory']
+          )!,
+        )
+        .toList();
+  }
+
+  static final _cache = <String, String>{};
+
+  String _getDirectory(String id) {
+    var directory = _cache[id];
+    if(directory == null) {
+      var result = _db!.select('''
+      select directory from download
+      where id = ?
+    ''', [id]);
+      directory = result.first['directory'];
+      if(_cache.length > 50) {
+        _cache.remove(_cache.keys.first);
+      }
+      _cache[id] = directory!;
+    }
+    return directory;
   }
 }

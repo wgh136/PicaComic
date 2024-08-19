@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pica_comic/network/download_model.dart';
@@ -82,16 +83,6 @@ class HitomiDownloadingItem extends DownloadingItem {
   @override
   String get cover => _coverPath;
 
-  ///储存漫画信息
-  @override
-  Future<void> saveInfo() async {
-    var file = File("$path/$id/info.json");
-    var item = DownloadedHitomiComic(
-        comic, await getFolderSize(Directory("$path$pathSep$id")), link, _coverPath);
-    var json = jsonEncode(item.toMap());
-    await file.writeAsString(json);
-  }
-
   @override
   String get title => comic.name;
 
@@ -143,5 +134,11 @@ class HitomiDownloadingItem extends DownloadingItem {
         _coverPath = map["_coverPath"],
         link = map["link"],
         super.fromMap(map, whenFinish, whenError, updateInfo);
+
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() async {
+    return DownloadedHitomiComic(
+        comic, await getFolderSize(Directory(path)), link, _coverPath);
+  }
 }
 

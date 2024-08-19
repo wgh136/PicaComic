@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
 import 'app_dio.dart';
@@ -19,13 +20,13 @@ abstract class DownloadedItem{
   List<String> get eps;
   ///已下载的章节
   List<int> get downloadedEps;
-  ///标识符, 禁漫必须在前加jm
+  ///标识符
   String get id;
   ///副标题, 通常为作者
   String get subTitle;
   ///大小
   double? get comicSize;
-  ///下载的时间, 仅在下载页面时需要, 用于排序, 读取漫画信息时顺便读取即可
+  ///下载的时间
   DateTime? time;
   /// tags
   List<String> get tags;
@@ -33,6 +34,8 @@ abstract class DownloadedItem{
   Map<String, dynamic> toJson();
 
   set comicSize(double? value);
+
+  String? directory;
 }
 
 enum DownloadType{
@@ -80,8 +83,12 @@ abstract class DownloadingItem{
 
   int _retryTimes = 0;
 
-  /// download path
-  String get path => DownloadManager().path ?? (throw "Download path is null");
+  String? directory;
+
+  String get path {
+    var downloadPath = DownloadManager().path!;
+    return "$downloadPath/$directory";
+  }
 
   /// headers for downloading cover
   Map<String, String> get headers => {};
@@ -112,7 +119,7 @@ abstract class DownloadingItem{
   DownloadingItem(this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
-    var file = File("$path$pathSep$id${pathSep}cover.jpg");
+    var file = File("$path/cover.jpg");
     if(file.existsSync()){
       return;
     }
@@ -138,7 +145,13 @@ abstract class DownloadingItem{
     }
   }
 
-  FutureOr<void> onStart(){}
+  @mustCallSuper
+  FutureOr<void> onStart(){
+    if(directory == null) {
+      directory = findValidFilename(DownloadManager().path!, title);
+      Directory(directory!).createSync(recursive: true);
+    }
+  }
 
   /// begin or continue downloading
   void start() async{
@@ -175,9 +188,9 @@ abstract class DownloadingItem{
           if(currentKey != _runtimeKey)  return;
           File file;
           if(haveEps) {
-            file = File("$path$pathSep$id$pathSep$ep$pathSep$index$ext");
+            file = File("$path/$ep/$index$ext");
           }else{
-            file = File("$path$pathSep$id$pathSep$index$ext");
+            file = File("$path/$index$ext");
           }
           if(await file.exists()){
             await file.delete();
@@ -197,7 +210,7 @@ abstract class DownloadingItem{
 
       // finish downloading
       if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
-      await saveInfo();
+      await onEnd();
       whenFinish?.call();
       stopAllStream();
     }
@@ -237,9 +250,9 @@ abstract class DownloadingItem{
     _runtimeKey++;
     stopAllStream();
     notifications.endProgress();
-    if(downloadManager.allComics.contains(id)) {
+    if(downloadManager.isExists(id)) {
       if(links == null) return;
-      var comicPath = "$path$pathSep$id$pathSep";
+      var comicPath = "$path/";
       for(var ep in links!.keys.toList()){
         var directory = Directory(comicPath + ep.toString());
         if(directory.existsSync()){
@@ -247,7 +260,7 @@ abstract class DownloadingItem{
         }
       }
     } else {
-      var file = Directory("$path$pathSep$id");
+      var file = Directory(path);
       if (file.existsSync()) {
         file.delete(recursive: true);
       }
@@ -270,6 +283,7 @@ abstract class DownloadingItem{
       "_downloadingEp": _downloadingEp,
       "index": index,
       "links": convertedData,
+      "directory": directory,
     };
   }
 
@@ -289,6 +303,7 @@ abstract class DownloadingItem{
         links![int.parse(key)] = List<String>.from(value);
       });
     }
+    directory = map["directory"];
   }
 
   /// get all image links
@@ -318,8 +333,7 @@ abstract class DownloadingItem{
   ///标题
   String get title;
 
-  /// save comic info
-  Future<void> saveInfo();
+  FutureOr<void> onEnd(){}
 
   @override
   bool operator==(Object other){
@@ -332,4 +346,6 @@ abstract class DownloadingItem{
 
   @override
   int get hashCode => id.hashCode;
+
+  FutureOr<DownloadedItem> toDownloadedItem();
 }

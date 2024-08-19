@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/network/hitomi_network/image.dart';
@@ -184,7 +185,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
 
 void _downloadComic(
     HitomiComic comic, BuildContext context, String cover, String link) {
-  if (downloadManager.downloaded.contains(comic.id)) {
+  if (downloadManager.isExists(comic.id)) {
     showToast(message: "已下载".tl);
     return;
   }

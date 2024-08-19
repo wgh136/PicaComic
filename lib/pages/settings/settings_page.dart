@@ -175,9 +175,20 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry{
       return Row(
         children: [
           SizedBox(
-            width: 350,
+            width: 320,
             height: double.infinity,
             child: buildLeft(),
+          ),
+          Container(
+            height: double.infinity,
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: context.colorScheme.outlineVariant,
+                  width: 0.6,
+                ),
+              ),
+            ),
           ),
           Expanded(child: buildRight())
         ],
@@ -227,9 +238,6 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry{
 
   Widget buildLeft() {
     return Material(
-      color: enableTwoViews ? colors.surface : null,
-      elevation: enableTwoViews ? 1 : 0,
-      surfaceTintColor: colors.surfaceTint,
       child: Column(
         children: [
           SizedBox(
@@ -276,7 +284,7 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry{
         key: ValueKey(id),
         duration: const Duration(milliseconds: 300),
         width: double.infinity,
-        height: 58,
+        height: 48,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         decoration: BoxDecoration(
             color: selected ? colors.primaryContainer : null,

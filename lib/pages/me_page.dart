@@ -191,7 +191,7 @@ class MePage extends StatelessWidget {
       icon: const Icon(Icons.download_for_offline),
       title: "已下载".tl,
       description: "共 @a 部漫画"
-          .tlParams({"a": DownloadManager().downloaded.length.toString()}),
+          .tlParams({"a": DownloadManager().total.toString()}),
       onTap: () => context.to(() => const DownloadPage()),
     );
   }

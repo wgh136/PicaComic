@@ -17,7 +17,7 @@ abstract class ReadingData {
 
   Map<String, String>? get eps;
 
-  bool get downloaded => DownloadManager().downloaded.contains(downloadId);
+  bool get downloaded => DownloadManager().isExists(downloadId);
 
   List<int> downloadedEps = [];
 

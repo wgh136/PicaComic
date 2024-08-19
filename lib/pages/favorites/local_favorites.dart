@@ -26,7 +26,7 @@ import '../../tools/io_tools.dart';
 
 extension LocalFavoritesDownload on FavoriteItem {
   void addDownload() {
-    if (DownloadManager().downloaded.contains(toDownloadId())) {
+    if (DownloadManager().isExists(toDownloadId())) {
       return;
     }
     try {
@@ -201,7 +201,7 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   String? get badge =>
-      DownloadManager().allComics.contains(comic.toDownloadId())
+      DownloadManager().isExists(comic.toDownloadId())
           ? "已下载".tl
           : null;
 
@@ -216,7 +216,7 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   Widget get image => () {
-        if (DownloadManager().allComics.contains(comic.toDownloadId())) {
+        if (DownloadManager().isExists(comic.toDownloadId())) {
           return Image.file(
             DownloadManager().getCover(comic.toDownloadId()),
             fit: BoxFit.cover,
@@ -451,7 +451,7 @@ class LocalFavoriteTile extends ComicTile {
   }
 
   void readComic() async {
-    if (DownloadManager().allComics.contains(comic.toDownloadId())) {
+    if (DownloadManager().isExists(comic.toDownloadId())) {
       var download =
           await DownloadManager().getComicOrNull(comic.toDownloadId());
       if (download != null) {

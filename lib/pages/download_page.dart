@@ -194,7 +194,8 @@ class DownloadPageLogic extends StateController {
     resetSelected(comics.length);
   }
 
-  void fresh() {
+  @override
+  void refresh() {
     searchMode = false;
     selecting = false;
     selectedNum = 0;
@@ -257,28 +258,23 @@ class DownloadPage extends StatelessWidget {
   }
 
   Future<void> getComics(DownloadPageLogic logic) async {
-    for (var comic in (downloadManager.allComics)) {
-      logic.comics.addIfNotNull(await downloadManager.getComicOrNull(comic));
+    var order = '', direction = 'desc';
+    switch (appdata.settings[26][0]) {
+      case "0":
+        order = 'time';
+      case "1":
+        order = 'title';
+      case "2":
+        order = 'subtitle';
+      case "3":
+        order = 'size';
+      default:
+        throw UnimplementedError();
     }
-    logic.comics.sort((a, b) {
-      int res;
-      switch (appdata.settings[26][0]) {
-        case "0":
-          res = (a.time ?? DateTime.now()).compareTo(b.time ?? DateTime.now());
-        case "1":
-          res = a.name.compareTo(b.name);
-        case "2":
-          res = a.subTitle.compareTo(b.subTitle);
-        case "3":
-          res = (a.comicSize ?? 0).compareTo(b.comicSize ?? 0);
-        default:
-          throw UnimplementedError();
-      }
-      if (appdata.settings[26][1] == "1") {
-        res = 0 - res;
-      }
-      return res;
-    });
+    if (appdata.settings[26][1] == "1") {
+      direction = 'asc';
+    }
+    logic.comics = DownloadManager().getAll(order, direction);
     logic.baseComics = logic.comics.toList();
   }
 
@@ -569,7 +565,7 @@ class DownloadPage extends StatelessWidget {
                               }
                             }
                             await downloadManager.delete(comics);
-                            logic.fresh();
+                            logic.refresh();
                           },
                           child: Text("确认".tl)),
                     ],
@@ -683,7 +679,7 @@ class DownloadPage extends StatelessWidget {
                             ],
                           ));
                   if (changed) {
-                    logic.fresh();
+                    logic.refresh();
                   }
                 },
               ),
@@ -696,10 +692,7 @@ class DownloadPage extends StatelessWidget {
                 onPressed: () {
                   showPopUpWidget(
                     App.globalContext!,
-                    DownloadingPage(
-                      inPopupWidget:
-                          MediaQuery.of(App.globalContext!).size.width > 600,
-                    ),
+                    const DownloadingPage(),
                   );
                 },
               ),

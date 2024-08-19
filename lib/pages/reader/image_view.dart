@@ -172,13 +172,13 @@ extension ImageExt on ComicReadingPage {
         onPageChanged: (i) {
           if (i == 0) {
             if (!logic.data.hasEp) {
-              logic.pageController.animatedJumpToPage(1);
+              logic.jumpByDeviceType(1);
               return;
             }
             logic.jumpToLastChapter();
           } else if (i == logic.urls.length + 1) {
             if (!logic.data.hasEp) {
-              logic.pageController.animatedJumpToPage(i - 1);
+              logic.jumpByDeviceType(i - 1);
               return;
             }
             logic.jumpToNextChapter();

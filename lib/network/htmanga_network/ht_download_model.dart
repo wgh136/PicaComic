@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -8,7 +9,7 @@ import '../../base.dart';
 import '../../foundation/image_manager.dart';
 import '../../tools/io_tools.dart';
 
-class DownloadedHtComic extends DownloadedItem{
+class DownloadedHtComic extends DownloadedItem {
   DownloadedHtComic(this.comic, this.size);
 
   HtComicInfo comic;
@@ -37,14 +38,11 @@ class DownloadedHtComic extends DownloadedItem{
   DownloadType get type => DownloadType.htmanga;
 
   @override
-  Map<String, dynamic> toJson() => {
-    "comic": comic.toJson(),
-    "size": size
-  };
+  Map<String, dynamic> toJson() => {"comic": comic.toJson(), "size": size};
 
-  DownloadedHtComic.fromJson(Map<String, dynamic> json):
-      comic = HtComicInfo.fromJson(json["comic"]),
-      size = json["size"];
+  DownloadedHtComic.fromJson(Map<String, dynamic> json)
+      : comic = HtComicInfo.fromJson(json["comic"]),
+        size = json["size"];
 
   @override
   set comicSize(double? value) => size = value;
@@ -53,16 +51,16 @@ class DownloadedHtComic extends DownloadedItem{
   List<String> get tags => comic.tags.keys.toList();
 }
 
-class DownloadingHtComic extends DownloadingItem{
-  DownloadingHtComic(this.comic,
-      super.whenFinish, super.whenError, super.updateInfo, super.id,
-      {super.type=DownloadType.htmanga});
+class DownloadingHtComic extends DownloadingItem {
+  DownloadingHtComic(
+      this.comic, super.whenFinish, super.whenError, super.updateInfo, super.id,
+      {super.type = DownloadType.htmanga});
 
   final HtComicInfo comic;
 
-  String _getCover(){
+  String _getCover() {
     var uri = comic.coverPath;
-    if(uri.contains("https:") && !uri.contains("https://")){
+    if (uri.contains("https:") && !uri.contains("https://")) {
       uri = uri.replaceFirst("https:", "https://");
     }
     return uri;
@@ -72,9 +70,9 @@ class DownloadingHtComic extends DownloadingItem{
   String get cover => _getCover();
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async{
-    await for(var s in ImageManager().getImage(link)){
-      if(s.finished){
+  Future<(Uint8List, String)> getImage(String link) async {
+    await for (var s in ImageManager().getImage(link)) {
+      if (s.finished) {
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
@@ -85,20 +83,12 @@ class DownloadingHtComic extends DownloadingItem{
   }
 
   @override
-  Future<void> saveInfo() async{
-    var file = File("$path/$id/info.json");
-    var item = DownloadedHtComic(comic, await getFolderSize(Directory("$path$pathSep$id")));
-    var json = jsonEncode(item.toJson());
-    await file.writeAsString(json);
-  }
-
-  @override
   String get title => comic.name;
 
   @override
-  Future<Map<int, List<String>>> getLinks() async{
+  Future<Map<int, List<String>>> getLinks() async {
     var res = await HtmangaNetwork().getImages(comic.id);
-    return {0:res.data};
+    return {0: res.data};
   }
 
   @override
@@ -107,18 +97,23 @@ class DownloadingHtComic extends DownloadingItem{
   }
 
   @override
-  Map<String, dynamic> toMap() => {
-    "comic": comic.toJson(),
-    ...super.toBaseMap()
-  };
+  Map<String, dynamic> toMap() =>
+      {"comic": comic.toJson(), ...super.toBaseMap()};
 
   DownloadingHtComic.fromMap(
-    Map<String, dynamic> map,
-    DownloadProgressCallback whenFinish,
-    DownloadProgressCallback whenError,
-    DownloadProgressCallbackAsync updateInfo,
-    String id):
-    comic = HtComicInfo.fromJson(map["comic"]),
-    super.fromMap(map, whenFinish, whenError, updateInfo);
-}
+      Map<String, dynamic> map,
+      DownloadProgressCallback whenFinish,
+      DownloadProgressCallback whenError,
+      DownloadProgressCallbackAsync updateInfo,
+      String id)
+      : comic = HtComicInfo.fromJson(map["comic"]),
+        super.fromMap(map, whenFinish, whenError, updateInfo);
 
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() async {
+    return DownloadedHtComic(
+      comic,
+      await getFolderSize(Directory(path)),
+    );
+  }
+}

@@ -16,6 +16,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/components/components.dart';
+import '../../network/picacg_network/picacg_download_model.dart';
 import '../comic_page.dart';
 
 class PicacgComicPage extends BaseComicPage<ComicItem> {
@@ -276,8 +277,9 @@ void _downloadComic(
     }
   }
   var downloaded = <int>[];
-  if (DownloadManager().downloaded.contains(comic.id)) {
-    var downloadedComic = await DownloadManager().getComicFromId(comic.id);
+  if (DownloadManager().isExists(comic.id)) {
+    var downloadedComic = (await DownloadManager().getComicOrNull(comic.id))!
+      as DownloadedComic;
     downloaded.addAll(downloadedComic.downloadedEps);
   }
   var content = SelectDownloadChapter(

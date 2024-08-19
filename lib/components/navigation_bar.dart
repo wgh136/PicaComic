@@ -179,8 +179,12 @@ class _NaviPaneState extends State<NaviPane>
           controller.stop();
         }
       }
-      controller.animateTo(target,
-          duration: const Duration(milliseconds: 160), curve: Curves.ease);
+      if(target == 1 || (controller.value == 1 && target == 0)) {
+        controller.value = target;
+      } else {
+        controller.animateTo(target,
+            duration: const Duration(milliseconds: 160), curve: Curves.ease);
+      }
       animationTarget = target;
     }
   }

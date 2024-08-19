@@ -84,7 +84,7 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
       }
     }
     var downloaded = <int>[];
-    if (DownloadManager().downloaded.contains(downloadId)) {
+    if (DownloadManager().isExists(downloadId)) {
       if (eps == null) {
         showToast(message: "已下载".tl);
         return;
@@ -1249,7 +1249,7 @@ abstract class BaseComicPage<T extends Object> extends StatelessWidget {
                     commentsCount ?? "评论".tl, Icons.comment, openComments!),
               if (searchSimilar != null)
                 buildItem("相似".tl, Icons.search, searchSimilar!),
-              if (downloadManager.downloaded.contains(downloadedId))
+              if (downloadManager.isExists(downloadedId))
                 Flyout(
                   enableTap: true,
                   navigator: App.navigatorKey.currentState!,

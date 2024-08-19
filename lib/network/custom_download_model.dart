@@ -88,8 +88,8 @@ class CustomDownloadedItem extends DownloadedItem {
 }
 
 class CustomDownloadingItem extends DownloadingItem {
-  CustomDownloadingItem(this.comic, this._downloadEps,
-      super.whenFinish, super.whenError, super.updateInfo, super.id,
+  CustomDownloadingItem(this.comic, this._downloadEps, super.whenFinish,
+      super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.other})
       : source = ComicSource.find(comic.sourceKey)!;
 
@@ -105,21 +105,21 @@ class CustomDownloadingItem extends DownloadingItem {
   @override
   bool get haveEps => comic.chapters != null;
 
-  Stream<DownloadProgress> _getImage(String url){
-    if(source.getImageLoadingConfig != null) {
+  Stream<DownloadProgress> _getImage(String url) {
+    if (source.getImageLoadingConfig != null) {
       int ep = links!.keys.elementAt(downloadingEp);
       var config = source.getImageLoadingConfig!(url, comic.comicId,
-          comic.chapters?.keys.elementAtOrNull(ep-1) ?? comic.comicId);
-      return ImageManager().getImage(config["url"] ?? url,
-          Map.from(config['headers'] ?? {}));
+          comic.chapters?.keys.elementAtOrNull(ep - 1) ?? comic.comicId);
+      return ImageManager()
+          .getImage(config["url"] ?? url, Map.from(config['headers'] ?? {}));
     }
     return ImageManager().getImage(url);
   }
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async{
-    await for(var s in _getImage(link)){
-      if(s.finished){
+  Future<(Uint8List, String)> getImage(String link) async {
+    await for (var s in _getImage(link)) {
+      if (s.finished) {
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
@@ -131,17 +131,19 @@ class CustomDownloadingItem extends DownloadingItem {
 
   @override
   Map<String, String> get headers => {
-    "User-Agent": webUA,
-  };
+        "User-Agent": webUA,
+      };
 
-  Future<void> getOneEp(int i, Map<int, List<String>> links) async{
-    if(links[i+1] != null) return;
+  Future<void> getOneEp(int i, Map<int, List<String>> links) async {
+    if (links[i + 1] != null) return;
 
     int retry = 0;
 
     while (retry < 3) {
       try {
-        links[i+1] = (await source.loadComicPages!(comic.comicId, comic.chapters!.keys.elementAt(i))).data;
+        links[i + 1] = (await source.loadComicPages!(
+                comic.comicId, comic.chapters!.keys.elementAt(i)))
+            .data;
         return;
       } catch (e) {
         await Future.delayed(const Duration(seconds: 3));
@@ -153,14 +155,14 @@ class CustomDownloadingItem extends DownloadingItem {
   }
 
   @override
-  Future<Map<int, List<String>>> getLinks() async{
+  Future<Map<int, List<String>>> getLinks() async {
     var links = <int, List<String>>{};
-    if(comic.chapters != null){
+    if (comic.chapters != null) {
       var futures = <Future>[];
-      for(var i in _downloadEps){
+      for (var i in _downloadEps) {
         futures.add(getOneEp(i, links));
-        await Future.delayed(const Duration(milliseconds:200));
-        if(futures.length % 5 == 0){
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (futures.length % 5 == 0) {
           await Future.wait(futures);
           futures.clear();
         }
@@ -179,38 +181,6 @@ class CustomDownloadingItem extends DownloadingItem {
   }
 
   @override
-  Future<void> saveInfo() async {
-    var file = File("$path/$id/info.json");
-    var previous = <int>[];
-    if (DownloadManager().downloaded.contains(id)) {
-      var comic = await DownloadManager().getComicOrNull(id);
-      previous = comic!.downloadedEps;
-    }
-    if (file.existsSync()) {
-      file.deleteSync();
-    }
-    file.createSync();
-    var downloaded = (_downloadEps + previous).toSet().toList();
-    downloaded.sort();
-    var tags = <String>[];
-    comic.tags.forEach((key, value) => tags.addAll(value));
-    var downloadedItem = CustomDownloadedItem(
-        await getFolderSize(Directory("$path/$id")),
-        downloaded,
-        comic.chapters,
-        id,
-        comic.title,
-        comic.subTitle ?? "",
-        tags,
-        comic.sourceKey,
-        source.name,
-        comic.cover,
-        comic.comicId);
-    var json = jsonEncode(downloadedItem.toJson());
-    await file.writeAsString(json);
-  }
-
-  @override
   String get title => comic.title;
 
   @override
@@ -220,14 +190,41 @@ class CustomDownloadingItem extends DownloadingItem {
         ...super.toBaseMap()
       };
 
-  CustomDownloadingItem.fromMap(Map<String, dynamic> map,
+  CustomDownloadingItem.fromMap(
+      Map<String, dynamic> map,
       DownloadProgressCallback whenFinish,
       DownloadProgressCallback whenError,
       DownloadProgressCallbackAsync updateInfo,
-      String id):
-      comic = ComicInfoData.fromJson(map["comic"]),
-      _downloadEps = List<int>.from(map["_downloadEps"]),
-      super.fromMap(map, whenFinish, whenError, updateInfo){
+      String id)
+      : comic = ComicInfoData.fromJson(map["comic"]),
+        _downloadEps = List<int>.from(map["_downloadEps"]),
+        super.fromMap(map, whenFinish, whenError, updateInfo) {
     source = ComicSource.find(comic.sourceKey)!;
+  }
+
+  @override
+  Future<DownloadedItem> toDownloadedItem() async {
+    var previous = <int>[];
+    if (DownloadManager().isExists(id)) {
+      var comic = await DownloadManager().getComicOrNull(id);
+      previous = comic!.downloadedEps;
+    }
+    var downloaded = (_downloadEps + previous).toSet().toList();
+    downloaded.sort();
+    var tags = <String>[];
+    comic.tags.forEach((key, value) => tags.addAll(value));
+    return CustomDownloadedItem(
+      await getFolderSize(Directory(path)),
+      downloaded,
+      comic.chapters,
+      id,
+      comic.title,
+      comic.subTitle ?? "",
+      tags,
+      comic.sourceKey,
+      source.name,
+      comic.cover,
+      comic.comicId,
+    );
   }
 }

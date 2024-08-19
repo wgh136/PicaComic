@@ -88,3 +88,15 @@ String sanitizeFileName(String fileName) {
   }
   return trimmedFileName;
 }
+
+String findValidFilename(String path, String filename) {
+  var name = sanitizeFileName(filename);
+  var file = File("$path/$name");
+  var i = 1;
+  while(file.existsSync()){
+    name = sanitizeFileName("$filename($i)");
+    file = File("$path/$name");
+    i++;
+  }
+  return name;
+}

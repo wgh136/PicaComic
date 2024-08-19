@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
@@ -10,32 +11,34 @@ import 'methods.dart';
 import 'models.dart';
 import 'dart:io';
 
-class DownloadedComic extends DownloadedItem{
+class DownloadedComic extends DownloadedItem {
   ComicItem comicItem;
   List<String> chapters;
   List<int> downloadedChapters;
   double? size;
-  DownloadedComic(this.comicItem,this.chapters,this.size,this.downloadedChapters);
+
+  DownloadedComic(
+      this.comicItem, this.chapters, this.size, this.downloadedChapters);
 
   @override
-  Map<String,dynamic> toJson()=>{
-    "comicItem": comicItem.toJson(),
-    "chapters": chapters,
-    "size": size,
-    "downloadedChapters": downloadedChapters
-  };
+  Map<String, dynamic> toJson() => {
+        "comicItem": comicItem.toJson(),
+        "chapters": chapters,
+        "size": size,
+        "downloadedChapters": downloadedChapters
+      };
 
-  DownloadedComic.fromJson(Map<String,dynamic> json):
-        comicItem = ComicItem.fromJson(json["comicItem"]),
+  DownloadedComic.fromJson(Map<String, dynamic> json)
+      : comicItem = ComicItem.fromJson(json["comicItem"]),
         chapters = List<String>.from(json["chapters"]),
         size = json["size"],
-        downloadedChapters = []{
-    if(json["downloadedChapters"] == null){
+        downloadedChapters = [] {
+    if (json["downloadedChapters"] == null) {
       //旧版本中的数据不包含这一项
-      for(int i=0;i<chapters.length;i++) {
+      for (int i = 0; i < chapters.length; i++) {
         downloadedChapters.add(i);
       }
-    }else{
+    } else {
       downloadedChapters = List<int>.from(json["downloadedChapters"]);
     }
   }
@@ -70,15 +73,9 @@ class DownloadedComic extends DownloadedItem{
 
 ///picacg的下载进程模型
 class PicDownloadingItem extends DownloadingItem {
-  PicDownloadingItem(
-      this.comic,
-      this._downloadEps,
-      super.whenFinish,
-      super.whenError,
-      super.updateInfo,
-      super.id,
-      {super.type = DownloadType.picacg}
-  );
+  PicDownloadingItem(this.comic, this._downloadEps, super.whenFinish,
+      super.whenError, super.updateInfo, super.id,
+      {super.type = DownloadType.picacg});
 
   ///漫画模型
   final ComicItem comic;
@@ -93,35 +90,15 @@ class PicDownloadingItem extends DownloadingItem {
   List<String> get eps => _eps;
 
   @override
-  Future<void> saveInfo() async{
-    var file = File("$path/$id/info.json");
-    var previous = <int>[];
-    if(DownloadManager().downloaded.contains(id)){
-      var comic = await DownloadManager().getComicFromId(id);
-      previous = comic.downloadedEps;
-    }
-    if(file.existsSync()){
-      file.deleteSync();
-    }
-    file.createSync();
-    var downloaded = (_downloadEps+previous).toSet().toList();
-    downloaded.sort();
-    var downloadedItem = DownloadedComic(comic, eps, await getFolderSize(Directory("$path$pathSep$id")),downloaded);
-    var json = jsonEncode(downloadedItem.toJson());
-    await file.writeAsString(json);
-  }
-
-
-  @override
   get cover => getImageUrl(comic.thumbUrl);
 
   @override
   String get title => comic.title;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async{
-    await for(var s in ImageManager().getImage(getImageUrl(link))){
-      if(s.finished){
+  Future<(Uint8List, String)> getImage(String link) async {
+    await for (var s in ImageManager().getImage(getImageUrl(link))) {
+      if (s.finished) {
         var file = s.getFile();
         var data = await file.readAsBytes();
         await file.delete();
@@ -132,36 +109,55 @@ class PicDownloadingItem extends DownloadingItem {
   }
 
   @override
-  Future<Map<int, List<String>>> getLinks() async{
+  Future<Map<int, List<String>>> getLinks() async {
     var res = <int, List<String>>{};
     _eps = (await network.getEps(id)).data;
-    for(var i in _downloadEps) {
-      res[i+1] = (await network.getComicContent(id, i+1)).data;
+    for (var i in _downloadEps) {
+      res[i + 1] = (await network.getComicContent(id, i + 1)).data;
     }
     return res;
   }
 
   @override
   void loadImageToCache(String link) {
-    addStreamSubscription(ImageManager().getImage(getImageUrl(link)).listen((event) {}));
+    addStreamSubscription(
+        ImageManager().getImage(getImageUrl(link)).listen((event) {}));
   }
 
   @override
   Map<String, dynamic> toMap() => {
-    "comic": comic.toJson(),
-    "_eps": _eps,
-    "_downloadEps": _downloadEps,
-    ...super.toBaseMap()
-  };
+        "comic": comic.toJson(),
+        "_eps": _eps,
+        "_downloadEps": _downloadEps,
+        ...super.toBaseMap()
+      };
 
   PicDownloadingItem.fromMap(
       Map<String, dynamic> map,
       DownloadProgressCallback whenFinish,
       DownloadProgressCallback whenError,
       DownloadProgressCallbackAsync updateInfo,
-      String id):
-      comic = ComicItem.fromJson(map["comic"]),
-      _eps = List<String>.from(map["_eps"]),
-      _downloadEps = List<int>.from(map["_downloadEps"]),
-      super.fromMap(map, whenFinish, whenError, updateInfo);
+      String id)
+      : comic = ComicItem.fromJson(map["comic"]),
+        _eps = List<String>.from(map["_eps"]),
+        _downloadEps = List<int>.from(map["_downloadEps"]),
+        super.fromMap(map, whenFinish, whenError, updateInfo);
+
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() async {
+    var previous = <int>[];
+    if (DownloadManager().isExists(id)) {
+      var comic =
+          (await DownloadManager().getComicOrNull(id))! as DownloadedComic;
+      previous = comic.downloadedEps;
+    }
+    var downloaded = (_downloadEps + previous).toSet().toList();
+    downloaded.sort();
+    return DownloadedComic(
+      comic,
+      eps,
+      await getFolderSize(Directory(path)),
+      downloaded,
+    );
+  }
 }

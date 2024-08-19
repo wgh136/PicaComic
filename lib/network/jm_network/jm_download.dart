@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/base.dart';
@@ -84,26 +85,6 @@ class JmDownloadingItem extends DownloadingItem {
 
   @override
   String get cover => getJmCoverUrl(comic.id);
-
-  @override
-  Future<void> saveInfo() async {
-    var file = File("$path/$id/info.json");
-    var previous = <int>[];
-    if (DownloadManager().downloaded.contains(id)) {
-      var comic = await DownloadManager().getJmComicFormId(id);
-      previous = comic.downloadedEps;
-    }
-    if (file.existsSync()) {
-      file.deleteSync();
-    }
-    file.createSync();
-    var downloadEps = (_downloadEps + previous).toSet().toList();
-    downloadEps.sort();
-    var downloadedItem = DownloadedJmComic(
-        comic, await getFolderSize(Directory("$path$pathSep$id")), downloadEps);
-    var json = jsonEncode(downloadedItem.toMap());
-    await file.writeAsString(json);
-  }
 
   @override
   String get title => comic.name;
@@ -203,4 +184,18 @@ class JmDownloadingItem extends DownloadingItem {
         comic = JmComicInfo.fromMap(map["comic"]),
         _downloadEps = List<int>.from(map["_downloadEps"]),
         super.fromMap(map, whenFinish, whenError, updateInfo);
+
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() async {
+    var previous = <int>[];
+    if (DownloadManager().isExists(id)) {
+      var comic = (await DownloadManager().getComicOrNull(id))!
+      as DownloadedJmComic;
+      previous = comic.downloadedEps;
+    }
+    var downloadEps = (_downloadEps + previous).toSet().toList();
+    downloadEps.sort();
+    return DownloadedJmComic(
+        comic, await getFolderSize(Directory(path)), downloadEps);
+  }
 }

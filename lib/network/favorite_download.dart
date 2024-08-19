@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -94,7 +95,7 @@ class FavoriteDownloading extends DownloadingItem{
   void loadImageToCache(String link) => downloadLogic.loadImageToCache(link);
 
   @override
-  Future<void> saveInfo() => downloadLogic.saveInfo();
+  onEnd() => downloadLogic.onEnd();
 
   @override
   String get title => comic.name;
@@ -114,4 +115,8 @@ class FavoriteDownloading extends DownloadingItem{
       String id)
       : comic = FavoriteItem.fromJson(json["comic"]),
         super.fromMap(json, whenFinish, whenError, updateInfo);
+
+  @override
+  FutureOr<DownloadedItem> toDownloadedItem() =>
+      downloadLogic.toDownloadedItem();
 }
