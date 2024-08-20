@@ -41,7 +41,8 @@ class DownloadedHitomiComic extends DownloadedItem {
   String get name => comic.name;
 
   @override
-  String get subTitle => (comic.artists ?? ["未知"]).isEmpty ? "未知" : (comic.artists ?? ["未知"])[0];
+  String get subTitle =>
+      (comic.artists ?? ["未知"]).isEmpty ? "未知" : (comic.artists ?? ["未知"])[0];
 
   @override
   DownloadType get type => DownloadType.hitomi;
@@ -59,8 +60,8 @@ class DownloadedHitomiComic extends DownloadedItem {
 }
 
 class HitomiDownloadingItem extends DownloadingItem {
-  HitomiDownloadingItem(this.comic, this._coverPath, this.link, super.whenFinish,
-      super.whenError, super.updateInfo, super.id,
+  HitomiDownloadingItem(this.comic, this._coverPath, this.link,
+      super.whenFinish, super.whenError, super.updateInfo, super.id,
       {super.type = DownloadType.hitomi});
 
   final String _coverPath;
@@ -70,7 +71,6 @@ class HitomiDownloadingItem extends DownloadingItem {
 
   ///画廊链接
   final String link;
-
 
   late final _headers = {
     "User-Agent": webUA,
@@ -87,50 +87,36 @@ class HitomiDownloadingItem extends DownloadingItem {
   String get title => comic.name;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async{
-    await for(var s in ImageManager().getHitomiImage(HitomiFile.fromMap(
-        const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))){
-      if(s.finished){
-        var file = s.getFile();
-        var data = await file.readAsBytes();
-        await file.delete();
-        return (data, s.ext ?? "jpg");
-      }
-    }
-    throw Exception("Fail to download image");
+  Future<Map<int, List<String>>> getLinks() async {
+    return {
+      0: List<String>.generate(comic.files.length,
+          (index) => const JsonEncoder().convert(comic.files[index].toMap()))
+    };
   }
 
   @override
-  Future<Map<int, List<String>>> getLinks() async{
-    return {0: List<String>.generate(comic.files.length,
-            (index) => const JsonEncoder().convert(comic.files[index].toMap()))};
+  Stream<DownloadProgress> downloadImage(String link) {
+    return ImageManager().getHitomiImage(
+      HitomiFile.fromMap(const JsonDecoder().convert(link)),
+      id.replaceFirst("hitomi", ""),
+    );
   }
-
-  @override
-  void loadImageToCache(String link) {
-    addStreamSubscription(ImageManager().getHitomiImage(HitomiFile.fromMap(
-        const JsonDecoder().convert(link)), id.replaceFirst("hitomi", ""))
-        .listen((event) {}));
-  }
-
-  @override
-  String? get imageExtension => ".webp";
 
   @override
   Map<String, dynamic> toMap() => {
-    "comic": comic.toMap(),
-    "_coverPath": _coverPath,
-    "link": link,
-    ...super.toBaseMap()
-  };
+        "comic": comic.toMap(),
+        "_coverPath": _coverPath,
+        "link": link,
+        ...super.toBaseMap()
+      };
 
   HitomiDownloadingItem.fromMap(
       Map<String, dynamic> map,
       DownloadProgressCallback whenFinish,
       DownloadProgressCallback whenError,
       DownloadProgressCallbackAsync updateInfo,
-      String id
-      ):comic=HitomiComic.fromMap(map["comic"]),
+      String id)
+      : comic = HitomiComic.fromMap(map["comic"]),
         _coverPath = map["_coverPath"],
         link = map["link"],
         super.fromMap(map, whenFinish, whenError, updateInfo);
@@ -141,4 +127,3 @@ class HitomiDownloadingItem extends DownloadingItem {
         comic, await getFolderSize(Directory(path)), link, _coverPath);
   }
 }
-

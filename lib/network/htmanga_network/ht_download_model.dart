@@ -70,19 +70,6 @@ class DownloadingHtComic extends DownloadingItem {
   String get cover => _getCover();
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async {
-    await for (var s in ImageManager().getImage(link)) {
-      if (s.finished) {
-        var file = s.getFile();
-        var data = await file.readAsBytes();
-        await file.delete();
-        return (data, s.ext ?? "jpg");
-      }
-    }
-    throw Exception("Failed to download image");
-  }
-
-  @override
   String get title => comic.name;
 
   @override
@@ -92,8 +79,8 @@ class DownloadingHtComic extends DownloadingItem {
   }
 
   @override
-  void loadImageToCache(String link) {
-    addStreamSubscription(ImageManager().getImage(link).listen((event) {}));
+  Stream<DownloadProgress> downloadImage(String link) {
+    return ImageManager().getImage(link);
   }
 
   @override

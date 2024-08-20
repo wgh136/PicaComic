@@ -71,27 +71,14 @@ class NhentaiDownloadingItem extends DownloadingItem {
   String get cover => comic.cover;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async {
-    await for (var s in ImageManager().getImage(link)) {
-      if (s.finished) {
-        var file = s.getFile();
-        var data = await file.readAsBytes();
-        await file.delete();
-        return (data, s.ext ?? "jpg");
-      }
-    }
-    throw Exception("Failed to download image");
-  }
-
-  @override
   Future<Map<int, List<String>>> getLinks() async {
     var res = await NhentaiNetwork().getImages(comic.id);
     return {0: res.data};
   }
 
   @override
-  void loadImageToCache(String link) {
-    addStreamSubscription(ImageManager().getImage(link).listen((event) {}));
+  Stream<DownloadProgress> downloadImage(String link) {
+    return ImageManager().getImage(link);
   }
 
   @override

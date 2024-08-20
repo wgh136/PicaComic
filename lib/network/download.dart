@@ -73,7 +73,7 @@ class DownloadManager with _DownloadDb implements Listenable {
     _listeners.remove(listener);
   }
 
-  void _notifyListeners() {
+  void notifyListeners() {
     for (var listener in _listeners) {
       listener();
     }
@@ -202,7 +202,7 @@ class DownloadManager with _DownloadDb implements Listenable {
 
   ///储存当前的下载队列信息, 每完成一张图片的下载调用一次
   Future<void> _saveInfo() async {
-    _notifyListeners();
+    notifyListeners();
     var data = <String, dynamic>{};
     data["downloading"] = <Map<String, dynamic>>[];
     for (var item in downloading) {
@@ -259,7 +259,7 @@ class DownloadManager with _DownloadDb implements Listenable {
     pause();
     _error = true;
     notifications.sendNotification("下载出错".tl, "点击查看详情".tl);
-    _notifyListeners();
+    notifyListeners();
   }
 
   ///开始或继续下载
@@ -286,7 +286,7 @@ class DownloadManager with _DownloadDb implements Listenable {
       downloading.removeWhere((element) => element.id == id);
     }
 
-    _notifyListeners();
+    notifyListeners();
 
     if (downloading.isEmpty) {
       isDownloading = false;

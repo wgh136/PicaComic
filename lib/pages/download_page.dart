@@ -105,7 +105,7 @@ extension ReadComic on DownloadedItem {
       var history = await History.findOrCreate(nc);
       App.globalTo(
         () => ComicReadingPage.nhentai(
-          comic.id,
+          comic.id.replaceFirst("nhentai", ""),
           comic.title,
           initialPage: ep == null ? history.page : 0,
         ),
@@ -124,7 +124,7 @@ extension ReadComic on DownloadedItem {
         0,
         null,
         comic.sourceKey,
-        comic.id,
+        comic.id.replaceFirst("${comic.sourceKey}-", ""),
       );
       var history = await History.findOrCreate(data);
       App.globalTo(

@@ -36,7 +36,7 @@ class _DownloadingPageState extends State<DownloadingPage> {
       setState(() {});
     } else if (downloadManager.downloading.length != comics.length) {
       rebuild();
-    } else {
+    } else if (key.currentState != null){
       key.currentState!.updateUi();
     }
   }
@@ -196,14 +196,12 @@ class _DownloadingTileState extends State<_DownloadingTile> {
   }
 
   void updateStatistic() {
+    print("update");
     if(comic != DownloadManager().downloading.first) {
       return;
     }
     comic = DownloadManager().downloading.first;
-    if (comic is EhDownloadingItem &&
-        (comic as EhDownloadingItem).downloadType != 0) {
-      speed = (comic as EhDownloadingItem).currentSpeed;
-    }
+    speed = comic.currentSpeed;
     downloadPages = comic.downloadedPages;
     pagesCount = comic.totalPages;
     if (pagesCount == 0) {
@@ -324,7 +322,8 @@ class _DownloadingTileState extends State<_DownloadingTile> {
 
     String status = "${"已下载".tl}$downloadPages/$pagesCount";
 
-    if (speedInfo != "") {
+    if (comic is EhDownloadingItem
+        && (comic as EhDownloadingItem).downloadType != 0) {
       status = "${_bytesToSize(downloadPages).split(' ').first}"
           "/${_bytesToSize(pagesCount!)}";
     }

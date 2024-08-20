@@ -96,19 +96,6 @@ class PicDownloadingItem extends DownloadingItem {
   String get title => comic.title;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async {
-    await for (var s in ImageManager().getImage(getImageUrl(link))) {
-      if (s.finished) {
-        var file = s.getFile();
-        var data = await file.readAsBytes();
-        await file.delete();
-        return (data, s.ext ?? "jpg");
-      }
-    }
-    throw Exception("Fail to download Image");
-  }
-
-  @override
   Future<Map<int, List<String>>> getLinks() async {
     var res = <int, List<String>>{};
     _eps = (await network.getEps(id)).data;
@@ -119,9 +106,8 @@ class PicDownloadingItem extends DownloadingItem {
   }
 
   @override
-  void loadImageToCache(String link) {
-    addStreamSubscription(
-        ImageManager().getImage(getImageUrl(link)).listen((event) {}));
+  Stream<DownloadProgress> downloadImage(String link) {
+    return ImageManager().getImage(getImageUrl(link));
   }
 
   @override

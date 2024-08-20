@@ -117,19 +117,6 @@ class CustomDownloadingItem extends DownloadingItem {
   }
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async {
-    await for (var s in _getImage(link)) {
-      if (s.finished) {
-        var file = s.getFile();
-        var data = await file.readAsBytes();
-        await file.delete();
-        return (data, s.ext ?? "jpg");
-      }
-    }
-    throw Exception("Fail to download Image");
-  }
-
-  @override
   Map<String, String> get headers => {
         "User-Agent": webUA,
       };
@@ -173,11 +160,6 @@ class CustomDownloadingItem extends DownloadingItem {
       links[0] = res.data;
     }
     return links;
-  }
-
-  @override
-  void loadImageToCache(String link) {
-    addStreamSubscription(_getImage(link).listen((event) {}));
   }
 
   @override
@@ -226,5 +208,10 @@ class CustomDownloadingItem extends DownloadingItem {
       comic.cover,
       comic.comicId,
     );
+  }
+
+  @override
+  Stream<DownloadProgress> downloadImage(String link) {
+    return _getImage(link);
   }
 }

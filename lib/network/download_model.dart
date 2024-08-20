@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/file_type.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import '../base.dart';
@@ -57,15 +58,12 @@ typedef DownloadProgressCallback = void Function();
 
 typedef DownloadProgressCallbackAsync = Future<void> Function();
 
-abstract class DownloadingItem{
+abstract class DownloadingItem with _TransferSpeedMixin{
   ///完成时调用
   final DownloadProgressCallback? onFinish;
 
-  ///更新ui, 用于下载管理器页面
-  DownloadProgressCallback? updateUi;
-
   ///出现错误时调用
-  final DownloadProgressCallback? whenError;
+  final DownloadProgressCallback? onError;
 
   ///更新下载信息
   final DownloadProgressCallbackAsync? updateInfo;
@@ -112,11 +110,9 @@ abstract class DownloadingItem{
   /// all image urls
   Map<int, List<String>>? links;
 
-  String? get imageExtension => null;
-
   int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
 
-  DownloadingItem(this.onFinish,this.whenError,this.updateInfo,this.id, {required this.type});
+  DownloadingItem(this.onFinish,this.onError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
     var file = File("$path/cover.jpg");
@@ -137,9 +133,9 @@ abstract class DownloadingItem{
   Future<void> retry() async{
     _retryTimes++;
     if(_retryTimes > 4){
-      whenError?.call();
+      onError?.call();
       _retryTimes = 0;
-    }else{
+    } else {
       await Future.delayed(Duration(seconds: 2 << _retryTimes));
       start();
     }
@@ -150,6 +146,45 @@ abstract class DownloadingItem{
     if(directory == null) {
       directory = findValidFilename(DownloadManager().path!, title);
       Directory(path).createSync(recursive: true);
+    }
+  }
+
+  final _downloading = <String, _ImageDownloadWrapper>{};
+
+  void _addDownloading(String link, int ep, int index) {
+    var downloadTo = '';
+    var basename = '';
+    if (haveEps) {
+      downloadTo = "$path/$ep";
+      basename = index.toString();
+    } else {
+      downloadTo = path;
+      basename = index.toString();
+    }
+    if(_downloading["$ep$index"] == null
+        || _downloading["$ep$index"]!.error != null) {
+      _downloading["$ep$index"] = _ImageDownloadWrapper(
+        downloadImage(link),
+        downloadTo,
+        basename,
+        onData,
+      );
+    }
+  }
+
+  void _scheduleTasks(List<String> urls, int ep, int index) {
+    int downloading = 0;
+    for(int i = 0; index+i < urls.length; i++){
+      var task = _downloading["$ep$index"];
+      if(task == null || task.error != null) {
+        _addDownloading(urls[index + i], ep, index + i);
+        downloading++;
+      } else if(!task.isFinished) {
+        downloading++;
+      }
+      if(downloading >= allowedLoadingNumbers) {
+        break;
+      }
     }
   }
 
@@ -166,6 +201,7 @@ abstract class DownloadingItem{
       // get image links and cover
       links ??= await getLinks();
       await downloadCover();
+      runRecorder();
 
       // download images
       while(_downloadingEp < links!.length && currentKey == _runtimeKey){
@@ -174,32 +210,21 @@ abstract class DownloadingItem{
         while(index < urls.length && currentKey == _runtimeKey){
           notifications.sendProgressNotification(downloadedPages, totalPages, "下载中".tl,
               "${downloadManager.downloading.length} Tasks");
-          for(int i=0; i<allowedLoadingNumbers; i++){
-            if(index+i >= urls.length)  break;
-            loadImageToCache(urls[index+i]);
-          }
-          var (bytes, ext) = await getImage(urls[index]);
-          if(!ext.startsWith(".")){
-            ext = ".$ext";
-          }
-          if(bytes.isEmpty){
-            throw Exception("Fail to download image: data is empty.");
-          }
+          _scheduleTasks(urls, ep, index);
           if(currentKey != _runtimeKey)  return;
-          File file;
-          if(haveEps) {
-            file = File("$path/$ep/$index$ext");
-          }else{
-            file = File("$path/$index$ext");
+          var task = _downloading["$ep$index"];
+          if(task == null) {
+            throw Exception("Task not started");
           }
-          if(await file.exists()){
-            await file.delete();
+          await task.wait();
+          if(task.error != null) {
+            throw task.error!;
           }
-          await file.create(recursive: true);
-          await file.writeAsBytes(bytes);
+          if(!task.isFinished) {
+            throw Exception("Task not finished");
+          }
           index++;
           _downloadedNum++;
-          updateUi?.call();
           await updateInfo?.call();
         }
         if(currentKey != _runtimeKey)  return;
@@ -210,7 +235,6 @@ abstract class DownloadingItem{
 
       // finish downloading
       if(DownloadManager().downloading.firstOrNull != this) return;
-      await onEnd();
       onFinish?.call();
       stopAllStream();
     }
@@ -240,6 +264,7 @@ abstract class DownloadingItem{
   /// pause downloading
   void pause(){
     _runtimeKey++;
+    stopRecorder();
     notifications.endProgress();
     stopAllStream();
     ImageManager.clearTasks();
@@ -248,6 +273,7 @@ abstract class DownloadingItem{
   /// stop downloading
   void stop(){
     _runtimeKey++;
+    stopRecorder();
     stopAllStream();
     notifications.endProgress();
     if(downloadManager.isExists(id)) {
@@ -289,7 +315,7 @@ abstract class DownloadingItem{
 
   Map<String, dynamic> toMap();
 
-  DownloadingItem.fromMap(Map<String, dynamic> map, this.onFinish,this.whenError,this.updateInfo):
+  DownloadingItem.fromMap(Map<String, dynamic> map, this.onFinish,this.onError,this.updateInfo):
       id = map["id"],
       type = DownloadType.values[map["type"]],
       _downloadedNum = map["_downloadedNum"],
@@ -317,9 +343,7 @@ abstract class DownloadingItem{
   bool get haveEps => type!=DownloadType.ehentai&&type!=DownloadType.hitomi&&
       type!=DownloadType.htmanga&&type!=DownloadType.nhentai;
 
-  void loadImageToCache(String link);
-
-  Future<(Uint8List data, String ext)> getImage(String link);
+  Stream<DownloadProgress> downloadImage(String link);
 
   ///获取封面链接
   String get cover;
@@ -332,8 +356,6 @@ abstract class DownloadingItem{
 
   ///标题
   String get title;
-
-  FutureOr<void> onEnd(){}
 
   @override
   bool operator==(Object other){
@@ -352,5 +374,96 @@ abstract class DownloadingItem{
   @override
   String toString() {
     return "$id: $downloadedPages/$totalPages";
+  }
+}
+
+class _ImageDownloadWrapper {
+  final Stream<DownloadProgress> stream;
+
+  final String path;
+
+  final String fileBaseName;
+
+  final void Function(int length) onReceiveData;
+
+  Object? error;
+
+  bool isFinished = false;
+
+  _ImageDownloadWrapper(this.stream, this.path, this.fileBaseName, this.onReceiveData) {
+    listen();
+  }
+
+  void listen() async {
+    try {
+      var last = 0;
+      await for(var progress in stream) {
+        onReceiveData(progress.currentBytes - last);
+        last = progress.currentBytes;
+        if(progress.finished) {
+          var data = progress.data ?? await progress.getFile().readAsBytes();
+          var type = detectFileType(data);
+          var file = File("$path/$fileBaseName${type.ext}");
+          if(!await file.exists()) {
+            await file.create(recursive: true);
+          }
+          await file.writeAsBytes(data);
+          isFinished = true;
+        }
+      }
+    }
+    catch(e) {
+      error = e;
+    }
+    if(!isFinished && error == null) {
+      error = Exception("Failed to download image");
+    }
+    for(var c in completers) {
+      c.complete(this);
+    }
+  }
+
+  var completers = <Completer<_ImageDownloadWrapper>>[];
+
+  Future<_ImageDownloadWrapper> wait() {
+    if(isFinished) {
+      return Future.value(this);
+    }
+    var completer = Completer<_ImageDownloadWrapper>();
+    completers.add(completer);
+    return completer.future;
+  }
+}
+
+abstract mixin class _TransferSpeedMixin {
+  int _bytesSinceLastSecond = 0;
+
+  int _currentSpeed = 0;
+
+  int get currentSpeed => _currentSpeed;
+
+  Timer? timer;
+
+  void onData(int length) {
+    if(timer == null) return;
+    _bytesSinceLastSecond += length;
+  }
+
+  void onNextSecond(Timer t) {
+    _currentSpeed = _bytesSinceLastSecond;
+    _bytesSinceLastSecond = 0;
+    DownloadManager().notifyListeners();
+  }
+
+  void runRecorder() {
+    if(timer != null) {
+      timer!.cancel();
+    }
+    timer = Timer.periodic(const Duration(seconds: 1), onNextSecond);
+  }
+
+  void stopRecorder() {
+    timer?.cancel();
+    timer = null;
   }
 }

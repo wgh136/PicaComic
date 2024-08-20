@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
+import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/custom_download_model.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/download_model.dart';
@@ -19,7 +21,7 @@ import 'package:pica_comic/network/picacg_network/methods.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
 
 class FavoriteDownloading extends DownloadingItem{
-  FavoriteDownloading(this.comic, super.whenFinish, super.whenError,
+  FavoriteDownloading(this.comic, super.whenFinish, super.onError,
       super.updateInfo, super.id, {super.type = DownloadType.favorite});
 
   FavoriteItem comic;
@@ -34,47 +36,54 @@ class FavoriteDownloading extends DownloadingItem{
 
   @override
   Future<void> onStart() async{
-    switch(comic.type.key){
-      case 0: {
-        var comicItem = await PicacgNetwork().getComicInfo(comic.target);
-        downloadLogic = PicDownloadingItem(
-            comicItem.data, List.generate(comicItem.data.eps.length,
-                (index) => index), onFinish, whenError, updateInfo, id);
-      }
-      case 1: {
-        var gallery = await EhNetwork().getGalleryInfo(comic.target);
-        downloadLogic = EhDownloadingItem(gallery.data,
-            onFinish, whenError, updateInfo, id, 0);
-      }
-      case 2: {
-        var jmComic = await JmNetwork().getComicInfo(comic.target);
-        var downloadedEp = List.generate(jmComic.data.epNames.length, (index) => index);
-        if(downloadedEp.isEmpty) {
-          downloadedEp.add(0);
+    try {
+      switch(comic.type.key){
+        case 0: {
+          var comicItem = await PicacgNetwork().getComicInfo(comic.target);
+          downloadLogic = PicDownloadingItem(
+              comicItem.data, List.generate(comicItem.data.eps.length,
+                  (index) => index), onFinish, onError, updateInfo, id);
         }
-        downloadLogic = JmDownloadingItem(jmComic.data, downloadedEp,
-            onFinish, whenError, updateInfo, id);
+        case 1: {
+          var gallery = await EhNetwork().getGalleryInfo(comic.target);
+          downloadLogic = EhDownloadingItem(gallery.data,
+              onFinish, onError, updateInfo, id, 0);
+        }
+        case 2: {
+          var jmComic = await JmNetwork().getComicInfo(comic.target);
+          var downloadedEp = List.generate(jmComic.data.epNames.length, (index) => index);
+          if(downloadedEp.isEmpty) {
+            downloadedEp.add(0);
+          }
+          downloadLogic = JmDownloadingItem(jmComic.data, downloadedEp,
+              onFinish, onError, updateInfo, id);
+        }
+        case 3: {
+          var hitomiComic = await HiNetwork().getComicInfo(comic.target);
+          downloadLogic = HitomiDownloadingItem(hitomiComic.data,
+              comic.coverPath, comic.target, onFinish, onError, updateInfo, id);
+        }
+        case 4: {
+          var htComic = await HtmangaNetwork().getComicInfo(comic.target);
+          downloadLogic = DownloadingHtComic(htComic.data, onFinish, onError, updateInfo, id);
+        }
+        case 6: {
+          var nhComic = await NhentaiNetwork().getComicInfo(comic.target);
+          downloadLogic = NhentaiDownloadingItem(nhComic.data, onFinish, onError, updateInfo, id);
+        }
+        default: {
+          var comicSource = comic.type.comicSource;
+          var comicInfoData = await comicSource.loadComicInfo!(comic.target);
+          var downloadedEp = List.generate(comicInfoData.data.chapters?.length ?? 0, (index) => index);
+          downloadLogic = CustomDownloadingItem(comicInfoData.data, downloadedEp,
+              onFinish, onError, updateInfo, id);
+        }
       }
-      case 3: {
-        var hitomiComic = await HiNetwork().getComicInfo(comic.target);
-        downloadLogic = HitomiDownloadingItem(hitomiComic.data,
-            comic.coverPath, comic.target, onFinish, whenError, updateInfo, id);
-      }
-      case 4: {
-        var htComic = await HtmangaNetwork().getComicInfo(comic.target);
-        downloadLogic = DownloadingHtComic(htComic.data, onFinish, whenError, updateInfo, id);
-      }
-      case 6: {
-        var nhComic = await NhentaiNetwork().getComicInfo(comic.target);
-        downloadLogic = NhentaiDownloadingItem(nhComic.data, onFinish, whenError, updateInfo, id);
-      }
-      default: {
-        var comicSource = comic.type.comicSource;
-        var comicInfoData = await comicSource.loadComicInfo!(comic.target);
-        var downloadedEp = List.generate(comicInfoData.data.chapters?.length ?? 0, (index) => index);
-        downloadLogic = CustomDownloadingItem(comicInfoData.data, downloadedEp,
-            onFinish, whenError, updateInfo, id);
-      }
+    }
+    catch(e, s) {
+      Log.error("Download", "$e$s");
+      onError?.call();
+      return;
     }
     pause();
     DownloadManager().downloading.removeFirst();
@@ -86,16 +95,7 @@ class FavoriteDownloading extends DownloadingItem{
   String get cover => comic.coverPath;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) => downloadLogic.getImage(link);
-
-  @override
   Future<Map<int, List<String>>> getLinks() => downloadLogic.getLinks();
-
-  @override
-  void loadImageToCache(String link) => downloadLogic.loadImageToCache(link);
-
-  @override
-  onEnd() => downloadLogic.onEnd();
 
   @override
   String get title => comic.name;
@@ -119,4 +119,9 @@ class FavoriteDownloading extends DownloadingItem{
   @override
   FutureOr<DownloadedItem> toDownloadedItem() =>
       downloadLogic.toDownloadedItem();
+
+  @override
+  Stream<DownloadProgress> downloadImage(String link) {
+    return downloadLogic.downloadImage(link);
+  }
 }

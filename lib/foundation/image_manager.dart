@@ -62,7 +62,8 @@ class ImageManager {
       final key = url;
       var cache = await CacheManager().findCache(key);
       if (cache != null) {
-        yield DownloadProgress(1, 1, url, cache, null, CacheManager().getType(key));
+        yield DownloadProgress(
+            1, 1, url, cache, null, CacheManager().getType(key));
         loadingItems.remove(url);
         return;
       }
@@ -108,7 +109,7 @@ class ImageManager {
         imageData.addAll(res);
         await cachingFile.writeBytes(res);
         var progress = DownloadProgress(imageData.length,
-            expectedBytes ?? (imageData.length + 1), url, savePath);
+            (expectedBytes ?? imageData.length + 1), url, savePath);
         yield progress;
         loadingItems[url] = progress;
       }
@@ -116,7 +117,13 @@ class ImageManager {
       var ext = getExt(dioRes);
       CacheManager().setType(key, ext);
       yield DownloadProgress(
-          1, 1, url, savePath, Uint8List.fromList(imageData), ext);
+        imageData.length,
+        imageData.length,
+        url,
+        savePath,
+        Uint8List.fromList(imageData),
+        ext,
+      );
     } catch (e, s) {
       caching?.cancel();
       log("$e\n$s", "Network", LogLevel.error);
@@ -151,7 +158,8 @@ class ImageManager {
       final key = cacheKey;
       var cache = await CacheManager().findCache(key);
       if (cache != null) {
-        yield DownloadProgress(1, 1, key, cache, null, CacheManager().getType(key));
+        yield DownloadProgress(
+            1, 1, key, cache, null, CacheManager().getType(key));
         loadingItems.remove(key);
         return;
       }
@@ -406,7 +414,13 @@ class ImageManager {
       var ext = getExt(res);
       CacheManager().setType(key, ext);
       yield DownloadProgress(
-          1, 1, cacheKey, savePath, Uint8List.fromList(data), ext);
+        currentBytes,
+        currentBytes,
+        cacheKey,
+        savePath,
+        Uint8List.fromList(data),
+        ext,
+      );
     } catch (e, s) {
       caching?.cancel();
       LogManager.addLog(LogLevel.error, "Network", "$e\n$s");
@@ -435,7 +449,8 @@ class ImageManager {
       final key = image.hash;
       var cache = await CacheManager().findCache(key);
       if (cache != null) {
-        yield DownloadProgress(1, 1, key, cache, null, CacheManager().getType(key));
+        yield DownloadProgress(
+            1, 1, key, cache, null, CacheManager().getType(key));
         loadingItems.remove(key);
         return;
       }
@@ -479,7 +494,7 @@ class ImageManager {
         await cachingFile.writeBytes(b);
         currentBytes += b.length;
         var progress = DownloadProgress(
-            currentBytes, expectedBytes ?? (currentBytes + 1), url, savePath);
+            currentBytes, (expectedBytes ?? currentBytes + 1), url, savePath);
         yield progress;
         loadingItems[image.hash] = progress;
       }
@@ -546,15 +561,20 @@ class ImageManager {
           //不直接写入文件, 因为需要对图片进行重组, 处理完成后再写入
           bytes.addAll(b);
           //构建虚假的进度条, 因为无法获取jm文件大小
-          i = min(600, bytes.length ~/ 5000);
-          var progress = DownloadProgress(i, 1000, url, savePath);
+          var total = max(1 << 20, bytes.length + 1);
+          var progress = DownloadProgress(bytes.length, total, url, savePath);
           yield progress;
           loadingItems[urlWithoutParam] = progress;
         }
       } catch (e) {
         rethrow;
       }
-      var progress = DownloadProgress(750, 1000, url, savePath);
+      var progress = DownloadProgress(
+        bytes.length,
+        (bytes.length / 0.75).toInt(),
+        url,
+        savePath,
+      );
       yield progress;
       loadingItems[urlWithoutParam] = progress;
       if (url.split('.').last != "gif") {
@@ -564,8 +584,14 @@ class ImageManager {
       await cachingFile.writeBytes(bytes);
       await cachingFile.close();
       CacheManager().setType(key, ext);
-      progress =
-          DownloadProgress(1, 1, url, savePath, Uint8List.fromList(bytes), ext);
+      progress = DownloadProgress(
+        bytes.length,
+        bytes.length,
+        url,
+        savePath,
+        Uint8List.fromList(bytes),
+        ext,
+      );
       yield progress;
     } catch (e) {
       caching?.cancel();
@@ -632,8 +658,12 @@ class ImageManager {
           await caching.writeBytes(data);
         }
         imageData.addAll(data);
-        var progress = DownloadProgress(imageData.length,
-            expectedBytes ?? (imageData.length + 1), url, savePath);
+        var progress = DownloadProgress(
+          imageData.length,
+          (expectedBytes ?? imageData.length + 1),
+          url,
+          savePath,
+        );
         yield progress;
         loadingItems[cacheKey] = progress;
       }
@@ -656,8 +686,15 @@ class ImageManager {
       var ext = getExt(res);
       CacheManager().setType(cacheKey, ext);
       await caching.close();
-      yield DownloadProgress(1, 1, url, savePath,
-          result ?? Uint8List.fromList(imageData), ext);
+      var length = result?.length ?? imageData.length;
+      yield DownloadProgress(
+        length,
+        length,
+        url,
+        savePath,
+        result ?? Uint8List.fromList(imageData),
+        ext,
+      );
     } catch (e) {
       caching?.cancel();
       if (e is DioException && e.type == DioExceptionType.badResponse) {
@@ -831,7 +868,9 @@ class DownloadProgress {
   final String? ext;
 
   int get currentBytes => _currentBytes;
+
   int get expectedBytes => _expectedBytes;
+
   bool get finished => _currentBytes == _expectedBytes;
 
   const DownloadProgress(

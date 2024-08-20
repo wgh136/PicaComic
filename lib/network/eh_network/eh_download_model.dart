@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:isolate';
-import 'dart:typed_data';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
@@ -76,7 +75,7 @@ class EhDownloadingItem extends DownloadingItem{
   EhDownloadingItem(
       this.gallery,
       super.whenFinish,
-      super.whenError,
+      super.onError,
       super.updateInfo,
       super.id,
       this.downloadType,
@@ -102,19 +101,6 @@ class EhDownloadingItem extends DownloadingItem{
   String get title => gallery.title;
 
   @override
-  Future<(Uint8List, String)> getImage(String link) async{
-    await for(var s in ImageManager().getEhImageNew(gallery, int.parse(link))){
-      if(s.finished){
-        var file = s.getFile();
-        var data = await file.readAsBytes();
-        await file.delete();
-        return (data, s.ext ?? "jpg");
-      }
-    }
-    throw Exception("Failed to download Image");
-  }
-
-  @override
   Future<Map<int, List<String>>> getLinks() async{
     return {
       0: List.generate((int.parse(gallery.maxPage)), (index) => (index+1).toString())
@@ -122,11 +108,8 @@ class EhDownloadingItem extends DownloadingItem{
   }
 
   @override
-  void loadImageToCache(String link) {
-    if(downloadType != 0){
-      return;
-    }
-    addStreamSubscription(ImageManager().getEhImageNew(gallery, int.parse(link)).listen((event) {}));
+  Stream<DownloadProgress> downloadImage(String link) {
+    return ImageManager().getEhImageNew(gallery, int.parse(link));
   }
 
   @override
@@ -178,7 +161,11 @@ class EhDownloadingItem extends DownloadingItem{
   String? _downloadLink;
 
   int _currentSpeed = 0;
-  int get currentSpeed => _currentSpeed;
+
+  @override
+  int get currentSpeed => downloadType == 0
+      ? super.currentSpeed
+      : _currentSpeed;
 
   @override
   start() async{
@@ -210,26 +197,24 @@ class EhDownloadingItem extends DownloadingItem{
               _totalBytes = total;
               _currentSpeed = speed;
               updateInfo?.call();
-              updateUi?.call();
               if(current == total){
                 finish();
               }
             },
-            whenError!
+            onError!
         );
 
         _downloader!.start();
       }
       catch(e, s){
         log("$e\n$s", "Download", LogLevel.error);
-        whenError?.call();
+        onError?.call();
         return;
       }
     }
   }
 
   void finish() async{
-    await onEnd();
     onFinish?.call();
   }
 
