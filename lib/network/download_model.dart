@@ -59,7 +59,7 @@ typedef DownloadProgressCallbackAsync = Future<void> Function();
 
 abstract class DownloadingItem{
   ///完成时调用
-  final DownloadProgressCallback? whenFinish;
+  final DownloadProgressCallback? onFinish;
 
   ///更新ui, 用于下载管理器页面
   DownloadProgressCallback? updateUi;
@@ -116,7 +116,7 @@ abstract class DownloadingItem{
 
   int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
 
-  DownloadingItem(this.whenFinish,this.whenError,this.updateInfo,this.id, {required this.type});
+  DownloadingItem(this.onFinish,this.whenError,this.updateInfo,this.id, {required this.type});
 
   Future<void> downloadCover() async{
     var file = File("$path/cover.jpg");
@@ -149,7 +149,7 @@ abstract class DownloadingItem{
   FutureOr<void> onStart(){
     if(directory == null) {
       directory = findValidFilename(DownloadManager().path!, title);
-      Directory(directory!).createSync(recursive: true);
+      Directory(path).createSync(recursive: true);
     }
   }
 
@@ -209,9 +209,9 @@ abstract class DownloadingItem{
       }
 
       // finish downloading
-      if(DownloadManager().downloading.elementAtOrNull(0) != this) return;
+      if(DownloadManager().downloading.firstOrNull != this) return;
       await onEnd();
-      whenFinish?.call();
+      onFinish?.call();
       stopAllStream();
     }
     catch(e, s){
@@ -289,7 +289,7 @@ abstract class DownloadingItem{
 
   Map<String, dynamic> toMap();
 
-  DownloadingItem.fromMap(Map<String, dynamic> map, this.whenFinish,this.whenError,this.updateInfo):
+  DownloadingItem.fromMap(Map<String, dynamic> map, this.onFinish,this.whenError,this.updateInfo):
       id = map["id"],
       type = DownloadType.values[map["type"]],
       _downloadedNum = map["_downloadedNum"],
@@ -348,4 +348,9 @@ abstract class DownloadingItem{
   int get hashCode => id.hashCode;
 
   FutureOr<DownloadedItem> toDownloadedItem();
+
+  @override
+  String toString() {
+    return "$id: $downloadedPages/$totalPages";
+  }
 }

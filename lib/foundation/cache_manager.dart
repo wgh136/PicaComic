@@ -233,7 +233,10 @@ class CacheManager {
       var fileSize = 0;
       if(await file.exists()){
         fileSize = await file.length();
-        await file.delete();
+        try {
+          await file.delete();
+        }
+        finally {}
       }
       _db.execute('''
         DELETE FROM cache

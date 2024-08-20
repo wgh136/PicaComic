@@ -39,12 +39,12 @@ class FavoriteDownloading extends DownloadingItem{
         var comicItem = await PicacgNetwork().getComicInfo(comic.target);
         downloadLogic = PicDownloadingItem(
             comicItem.data, List.generate(comicItem.data.eps.length,
-                (index) => index), whenFinish, whenError, updateInfo, id);
+                (index) => index), onFinish, whenError, updateInfo, id);
       }
       case 1: {
         var gallery = await EhNetwork().getGalleryInfo(comic.target);
         downloadLogic = EhDownloadingItem(gallery.data,
-            whenFinish, whenError, updateInfo, id, 0);
+            onFinish, whenError, updateInfo, id, 0);
       }
       case 2: {
         var jmComic = await JmNetwork().getComicInfo(comic.target);
@@ -53,27 +53,27 @@ class FavoriteDownloading extends DownloadingItem{
           downloadedEp.add(0);
         }
         downloadLogic = JmDownloadingItem(jmComic.data, downloadedEp,
-            whenFinish, whenError, updateInfo, id);
+            onFinish, whenError, updateInfo, id);
       }
       case 3: {
         var hitomiComic = await HiNetwork().getComicInfo(comic.target);
         downloadLogic = HitomiDownloadingItem(hitomiComic.data,
-            comic.coverPath, comic.target, whenFinish, whenError, updateInfo, id);
+            comic.coverPath, comic.target, onFinish, whenError, updateInfo, id);
       }
       case 4: {
         var htComic = await HtmangaNetwork().getComicInfo(comic.target);
-        downloadLogic = DownloadingHtComic(htComic.data, whenFinish, whenError, updateInfo, id);
+        downloadLogic = DownloadingHtComic(htComic.data, onFinish, whenError, updateInfo, id);
       }
       case 6: {
         var nhComic = await NhentaiNetwork().getComicInfo(comic.target);
-        downloadLogic = NhentaiDownloadingItem(nhComic.data, whenFinish, whenError, updateInfo, id);
+        downloadLogic = NhentaiDownloadingItem(nhComic.data, onFinish, whenError, updateInfo, id);
       }
       default: {
         var comicSource = comic.type.comicSource;
         var comicInfoData = await comicSource.loadComicInfo!(comic.target);
         var downloadedEp = List.generate(comicInfoData.data.chapters?.length ?? 0, (index) => index);
         downloadLogic = CustomDownloadingItem(comicInfoData.data, downloadedEp,
-            whenFinish, whenError, updateInfo, id);
+            onFinish, whenError, updateInfo, id);
       }
     }
     pause();

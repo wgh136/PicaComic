@@ -17,7 +17,7 @@ class PopUpWidget<T> extends PopupRoute<T> {
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     var height = MediaQuery.of(context).size.height * 0.9;
-    bool showPopUp = MediaQuery.of(context).size.width > 420;
+    bool showPopUp = MediaQuery.of(context).size.width > 500;
     Widget body = PopupIndicatorWidget(
       child: Container(
         decoration: showPopUp
@@ -26,7 +26,7 @@ class PopUpWidget<T> extends PopupRoute<T> {
               )
             : null,
         clipBehavior: showPopUp ? Clip.antiAlias : Clip.none,
-        width: context.width > 520 ? 520 : double.infinity,
+        width: showPopUp ? 500 : double.infinity,
         height: showPopUp ? height : double.infinity,
         child: ClipRect(
           child: Navigator(

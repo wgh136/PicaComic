@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
@@ -32,7 +33,7 @@ import 'picacg_network/models.dart';
 
 typedef DownloadingCallback = void Function();
 
-class DownloadManager with _DownloadDb {
+class DownloadManager with _DownloadDb implements Listenable {
   static DownloadManager? cache;
 
   factory DownloadManager() => cache ?? (cache = DownloadManager._create());
@@ -48,17 +49,11 @@ class DownloadManager with _DownloadDb {
   ///是否正在下载
   bool isDownloading = false;
 
-  ///用于监听下载队列的变化
-  DownloadingCallback? _onChange = () {};
-
-  ///出现错误时调用
-  DownloadingCallback? _handleError;
-
   ///是否出现了错误
   bool _error = false;
 
   ///是否出现了错误
-  get error => _error;
+  bool get error => _error;
 
   ///是否初始化
   bool _runInit = false;
@@ -66,16 +61,22 @@ class DownloadManager with _DownloadDb {
   @override
   Database? _db;
 
-  /// 用于下载页面, 监听下载情况
-  void addListener(
-      DownloadingCallback whenChange, DownloadingCallback onError) {
-    _onChange = whenChange;
-    _handleError = onError;
+  final List<VoidCallback> _listeners = [];
+
+  @override
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
   }
 
-  void removeListener() {
-    _onChange = null;
-    _handleError = null;
+  @override
+  void removeListener(VoidCallback listener) {
+    _listeners.remove(listener);
+  }
+
+  void _notifyListeners() {
+    for (var listener in _listeners) {
+      listener();
+    }
   }
 
   ///获取下载目录
@@ -201,6 +202,7 @@ class DownloadManager with _DownloadDb {
 
   ///储存当前的下载队列信息, 每完成一张图片的下载调用一次
   Future<void> _saveInfo() async {
+    _notifyListeners();
     var data = <String, dynamic>{};
     data["downloading"] = <Map<String, dynamic>>[];
     for (var item in downloading) {
@@ -232,9 +234,8 @@ class DownloadManager with _DownloadDb {
 
   ///当一个下载任务完成时, 调用此函数
   void _onFinish() async {
-    var task = downloading.first;
+    var task = downloading.removeFirst();
     _addToDb(await task.toDownloadedItem(), task.directory!);
-    downloading.removeFirst();
     await _saveInfo();
     StateController.findOrNull<DownloadPageLogic>()?.refresh();
     if (downloading.isNotEmpty) {
@@ -245,7 +246,6 @@ class DownloadManager with _DownloadDb {
       isDownloading = false;
       notifications.endProgress();
     }
-    _onChange?.call();
   }
 
   ///暂停下载
@@ -259,7 +259,7 @@ class DownloadManager with _DownloadDb {
     pause();
     _error = true;
     notifications.sendNotification("下载出错".tl, "点击查看详情".tl);
-    _handleError?.call();
+    _notifyListeners();
   }
 
   ///开始或继续下载
@@ -286,7 +286,7 @@ class DownloadManager with _DownloadDb {
       downloading.removeWhere((element) => element.id == id);
     }
 
-    _onChange?.call();
+    _notifyListeners();
 
     if (downloading.isEmpty) {
       isDownloading = false;
@@ -616,14 +616,6 @@ abstract mixin class _DownloadDb {
       DateTime.fromMillisecondsSinceEpoch(data['time']),
       data['directory'],
     );
-  }
-
-  void _updateJson(String id, String json) {
-    _db!.execute('''
-      update download
-      set json = ?
-      where id = ?
-    ''', [json, id]);
   }
 
   int get total {

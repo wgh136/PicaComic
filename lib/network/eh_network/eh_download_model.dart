@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:pica_comic/base.dart';
@@ -58,7 +57,9 @@ class DownloadedGallery extends DownloadedItem{
   double? get comicSize => size;
 
   @override
-  set comicSize(double? value) {}
+  set comicSize(double? value) {
+    size = value;
+  }
 
   List<String> _getTags(){
     var res = <String>[];
@@ -229,7 +230,7 @@ class EhDownloadingItem extends DownloadingItem{
 
   void finish() async{
     await onEnd();
-    whenFinish?.call();
+    onFinish?.call();
   }
 
   @override
