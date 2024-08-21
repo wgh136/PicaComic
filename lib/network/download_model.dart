@@ -12,23 +12,31 @@ import '../base.dart';
 import 'app_dio.dart';
 import 'download.dart';
 
-abstract class DownloadedItem{
+abstract class DownloadedItem {
   ///漫画源
   DownloadType get type;
+
   ///漫画名
   String get name;
+
   ///章节
   List<String> get eps;
+
   ///已下载的章节
   List<int> get downloadedEps;
+
   ///标识符
   String get id;
+
   ///副标题, 通常为作者
   String get subTitle;
+
   ///大小
   double? get comicSize;
+
   ///下载的时间
   DateTime? time;
+
   /// tags
   List<String> get tags;
 
@@ -39,26 +47,33 @@ abstract class DownloadedItem{
   String? directory;
 }
 
-enum DownloadType{
-  picacg, ehentai, jm, hitomi, htmanga, nhentai, other, favorite;
+enum DownloadType {
+  picacg,
+  ehentai,
+  jm,
+  hitomi,
+  htmanga,
+  nhentai,
+  other,
+  favorite;
 
-  ComicType toComicType() => switch(this){
-    picacg => ComicType.picacg,
-    ehentai => ComicType.ehentai,
-    jm => ComicType.jm,
-    hitomi => ComicType.hitomi,
-    htmanga => ComicType.htManga,
-    nhentai => ComicType.nhentai,
-    other => ComicType.other,
-    favorite => ComicType.other,
-  };
+  ComicType toComicType() => switch (this) {
+        picacg => ComicType.picacg,
+        ehentai => ComicType.ehentai,
+        jm => ComicType.jm,
+        hitomi => ComicType.hitomi,
+        htmanga => ComicType.htManga,
+        nhentai => ComicType.nhentai,
+        other => ComicType.other,
+        favorite => ComicType.other,
+      };
 }
 
 typedef DownloadProgressCallback = void Function();
 
 typedef DownloadProgressCallbackAsync = Future<void> Function();
 
-abstract class DownloadingItem with _TransferSpeedMixin{
+abstract class DownloadingItem with _TransferSpeedMixin {
   ///完成时调用
   final DownloadProgressCallback? onFinish;
 
@@ -112,17 +127,18 @@ abstract class DownloadingItem with _TransferSpeedMixin{
 
   int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
 
-  DownloadingItem(this.onFinish,this.onError,this.updateInfo,this.id, {required this.type});
+  DownloadingItem(this.onFinish, this.onError, this.updateInfo, this.id,
+      {required this.type});
 
-  Future<void> downloadCover() async{
+  Future<void> downloadCover() async {
     var file = File("$path/cover.jpg");
-    if(file.existsSync()){
+    if (file.existsSync()) {
       return;
     }
     var dio = logDio();
-    var res = await dio.get<Uint8List>(
-        cover, options: Options(responseType: ResponseType.bytes, headers: headers));
-    if(file.existsSync()){
+    var res = await dio.get<Uint8List>(cover,
+        options: Options(responseType: ResponseType.bytes, headers: headers));
+    if (file.existsSync()) {
       file.deleteSync();
     }
     file.createSync(recursive: true);
@@ -130,9 +146,9 @@ abstract class DownloadingItem with _TransferSpeedMixin{
   }
 
   /// retry when error
-  Future<void> retry() async{
+  Future<void> retry() async {
     _retryTimes++;
-    if(_retryTimes > 4){
+    if (_retryTimes > 4) {
       onError?.call();
       _retryTimes = 0;
     } else {
@@ -142,8 +158,8 @@ abstract class DownloadingItem with _TransferSpeedMixin{
   }
 
   @mustCallSuper
-  FutureOr<void> onStart(){
-    if(directory == null) {
+  FutureOr<void> onStart() {
+    if (directory == null) {
       directory = findValidFilename(DownloadManager().path!, title);
       Directory(path).createSync(recursive: true);
     }
@@ -161,42 +177,44 @@ abstract class DownloadingItem with _TransferSpeedMixin{
       downloadTo = path;
       basename = index.toString();
     }
-    if(_downloading["$ep$index"] == null
-        || _downloading["$ep$index"]!.error != null) {
+    if (_downloading["$ep$index"] == null ||
+        _downloading["$ep$index"]!.error != null) {
       _downloading["$ep$index"] = _ImageDownloadWrapper(
         downloadImage(link),
         downloadTo,
         basename,
         onData,
+        () => _scheduleTasks(ep, index),
       );
     }
   }
 
-  void _scheduleTasks(List<String> urls, int ep, int index) {
+  void _scheduleTasks(int ep, int index) {
+    var urls = links![ep]!;
     int downloading = 0;
-    for(int i = 0; index+i < urls.length; i++){
+    for (int i = 0; index + i < urls.length; i++) {
       var task = _downloading["$ep$index"];
-      if(task == null || task.error != null) {
+      if (task == null || task.error != null) {
         _addDownloading(urls[index + i], ep, index + i);
         downloading++;
-      } else if(!task.isFinished) {
+      } else if (!task.isFinished) {
         downloading++;
       }
-      if(downloading >= allowedLoadingNumbers) {
+      if (downloading >= allowedLoadingNumbers) {
         break;
       }
     }
   }
 
   /// begin or continue downloading
-  void start() async{
+  void start() async {
     _runtimeKey++;
     var currentKey = _runtimeKey;
-    try{
+    try {
       await onStart();
-      if(_runtimeKey != currentKey)  return;
-      notifications.sendProgressNotification(downloadedPages, totalPages, "下载中".tl,
-          "${downloadManager.downloading.length} Tasks");
+      if (_runtimeKey != currentKey) return;
+      notifications.sendProgressNotification(downloadedPages, totalPages,
+          "下载中".tl, "${downloadManager.downloading.length} Tasks");
 
       // get image links and cover
       links ??= await getLinks();
@@ -204,49 +222,49 @@ abstract class DownloadingItem with _TransferSpeedMixin{
       runRecorder();
 
       // download images
-      while(_downloadingEp < links!.length && currentKey == _runtimeKey){
+      while (_downloadingEp < links!.length && currentKey == _runtimeKey) {
         int ep = links!.keys.elementAt(_downloadingEp);
         var urls = links![ep]!;
-        while(index < urls.length && currentKey == _runtimeKey){
-          notifications.sendProgressNotification(downloadedPages, totalPages, "下载中".tl,
-              "${downloadManager.downloading.length} Tasks");
-          _scheduleTasks(urls, ep, index);
-          if(currentKey != _runtimeKey)  return;
+        while (index < urls.length && currentKey == _runtimeKey) {
+          notifications.sendProgressNotification(downloadedPages, totalPages,
+              "下载中".tl, "${downloadManager.downloading.length} Tasks");
+          _scheduleTasks(ep, index);
+          if (currentKey != _runtimeKey) return;
           var task = _downloading["$ep$index"];
-          if(task == null) {
+          if (task == null) {
             throw Exception("Task not started");
           }
           await task.wait();
-          if(task.error != null) {
+          if (task.error != null) {
             throw task.error!;
           }
-          if(!task.isFinished) {
+          if (!task.isFinished) {
             throw Exception("Task not finished");
           }
+          _downloading.remove("$ep$index");
           index++;
           _downloadedNum++;
           await updateInfo?.call();
         }
-        if(currentKey != _runtimeKey)  return;
+        if (currentKey != _runtimeKey) return;
         index = 0;
         _downloadingEp++;
         await updateInfo?.call();
       }
 
       // finish downloading
-      if(DownloadManager().downloading.firstOrNull != this) return;
+      if (DownloadManager().downloading.firstOrNull != this) return;
       onFinish?.call();
       stopAllStream();
-    }
-    catch(e, s){
-      if(currentKey != _runtimeKey)  return;
+    } catch (e, s) {
+      if (currentKey != _runtimeKey) return;
       LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
       retry();
     }
   }
 
   /// add a StreamSubscription to streams
-  void addStreamSubscription(StreamSubscription stream){
+  void addStreamSubscription(StreamSubscription stream) {
     streams.add(stream);
     stream.onDone(() {
       streams.remove(stream);
@@ -254,15 +272,15 @@ abstract class DownloadingItem with _TransferSpeedMixin{
   }
 
   /// stop all streams
-  void stopAllStream(){
-    for(var s in streams){
+  void stopAllStream() {
+    for (var s in streams) {
       s.cancel();
     }
     streams.clear();
   }
 
   /// pause downloading
-  void pause(){
+  void pause() {
     _runtimeKey++;
     stopRecorder();
     notifications.endProgress();
@@ -271,17 +289,17 @@ abstract class DownloadingItem with _TransferSpeedMixin{
   }
 
   /// stop downloading
-  void stop(){
+  void stop() {
     _runtimeKey++;
     stopRecorder();
     stopAllStream();
     notifications.endProgress();
-    if(downloadManager.isExists(id)) {
-      if(links == null) return;
+    if (downloadManager.isExists(id)) {
+      if (links == null) return;
       var comicPath = "$path/";
-      for(var ep in links!.keys.toList()){
+      for (var ep in links!.keys.toList()) {
         var directory = Directory(comicPath + ep.toString());
-        if(directory.existsSync()){
+        if (directory.existsSync()) {
           directory.deleteSync(recursive: true);
         }
       }
@@ -295,7 +313,7 @@ abstract class DownloadingItem with _TransferSpeedMixin{
 
   Map<String, dynamic> toBaseMap() {
     Map<String, List<String>>? convertedData;
-    if(links != null){
+    if (links != null) {
       convertedData = {};
       links!.forEach((key, value) {
         convertedData![key.toString()] = value;
@@ -315,15 +333,16 @@ abstract class DownloadingItem with _TransferSpeedMixin{
 
   Map<String, dynamic> toMap();
 
-  DownloadingItem.fromMap(Map<String, dynamic> map, this.onFinish,this.onError,this.updateInfo):
-      id = map["id"],
-      type = DownloadType.values[map["type"]],
-      _downloadedNum = map["_downloadedNum"],
-      _downloadingEp = map["_downloadingEp"],
-      index = map["index"],
-      links = null{
+  DownloadingItem.fromMap(
+      Map<String, dynamic> map, this.onFinish, this.onError, this.updateInfo)
+      : id = map["id"],
+        type = DownloadType.values[map["type"]],
+        _downloadedNum = map["_downloadedNum"],
+        _downloadingEp = map["_downloadingEp"],
+        index = map["index"],
+        links = null {
     var data = map["links"] as Map<String, dynamic>?;
-    if(data != null){
+    if (data != null) {
       links = {};
       data.forEach((key, value) {
         links![int.parse(key)] = List<String>.from(value);
@@ -340,8 +359,11 @@ abstract class DownloadingItem with _TransferSpeedMixin{
   Future<Map<int, List<String>>> getLinks();
 
   /// whether this platform have episode
-  bool get haveEps => type!=DownloadType.ehentai&&type!=DownloadType.hitomi&&
-      type!=DownloadType.htmanga&&type!=DownloadType.nhentai;
+  bool get haveEps =>
+      type != DownloadType.ehentai &&
+      type != DownloadType.hitomi &&
+      type != DownloadType.htmanga &&
+      type != DownloadType.nhentai;
 
   Stream<DownloadProgress> downloadImage(String link);
 
@@ -358,10 +380,10 @@ abstract class DownloadingItem with _TransferSpeedMixin{
   String get title;
 
   @override
-  bool operator==(Object other){
-    if(other is DownloadingItem){
+  bool operator ==(Object other) {
+    if (other is DownloadingItem) {
       return id == other.id;
-    }else{
+    } else {
       return false;
     }
   }
@@ -386,39 +408,46 @@ class _ImageDownloadWrapper {
 
   final void Function(int length) onReceiveData;
 
+  final void Function() onFinished;
+
   Object? error;
 
   bool isFinished = false;
 
-  _ImageDownloadWrapper(this.stream, this.path, this.fileBaseName, this.onReceiveData) {
+  _ImageDownloadWrapper(
+    this.stream,
+    this.path,
+    this.fileBaseName,
+    this.onReceiveData,
+    this.onFinished,
+  ) {
     listen();
   }
 
   void listen() async {
     try {
       var last = 0;
-      await for(var progress in stream) {
+      await for (var progress in stream) {
         onReceiveData(progress.currentBytes - last);
         last = progress.currentBytes;
-        if(progress.finished) {
+        if (progress.finished) {
           var data = progress.data ?? await progress.getFile().readAsBytes();
           var type = detectFileType(data);
           var file = File("$path/$fileBaseName${type.ext}");
-          if(!await file.exists()) {
+          if (!await file.exists()) {
             await file.create(recursive: true);
           }
           await file.writeAsBytes(data);
           isFinished = true;
         }
       }
-    }
-    catch(e) {
+    } catch (e) {
       error = e;
     }
-    if(!isFinished && error == null) {
+    if (!isFinished && error == null) {
       error = Exception("Failed to download image");
     }
-    for(var c in completers) {
+    for (var c in completers) {
       c.complete(this);
     }
   }
@@ -426,7 +455,7 @@ class _ImageDownloadWrapper {
   var completers = <Completer<_ImageDownloadWrapper>>[];
 
   Future<_ImageDownloadWrapper> wait() {
-    if(isFinished) {
+    if (isFinished) {
       return Future.value(this);
     }
     var completer = Completer<_ImageDownloadWrapper>();
@@ -445,7 +474,7 @@ abstract mixin class _TransferSpeedMixin {
   Timer? timer;
 
   void onData(int length) {
-    if(timer == null) return;
+    if (timer == null) return;
     _bytesSinceLastSecond += length;
   }
 
@@ -456,7 +485,7 @@ abstract mixin class _TransferSpeedMixin {
   }
 
   void runRecorder() {
-    if(timer != null) {
+    if (timer != null) {
       timer!.cancel();
     }
     timer = Timer.periodic(const Duration(seconds: 1), onNextSecond);

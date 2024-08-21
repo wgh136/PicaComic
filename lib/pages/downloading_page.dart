@@ -196,7 +196,6 @@ class _DownloadingTileState extends State<_DownloadingTile> {
   }
 
   void updateStatistic() {
-    print("update");
     if(comic != DownloadManager().downloading.first) {
       return;
     }
