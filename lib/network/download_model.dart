@@ -447,6 +447,7 @@ class _ImageDownloadWrapper {
     if (!isFinished && error == null) {
       error = Exception("Failed to download image");
     }
+    onFinished();
     for (var c in completers) {
       c.complete(this);
     }
