@@ -117,11 +117,6 @@ abstract class DownloadingItem with _TransferSpeedMixin {
 
   int index = 0;
 
-  /// store all downloading stream
-  ///
-  /// when user click pause or stop button, stop all streams
-  static List<StreamSubscription> streams = [];
-
   /// all image urls
   Map<int, List<String>>? links;
 
@@ -184,7 +179,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
         downloadTo,
         basename,
         onData,
-        () => _scheduleTasks(ep, index),
+        () => _scheduleTasks(ep, this.index),
       );
     }
   }
@@ -192,10 +187,10 @@ abstract class DownloadingItem with _TransferSpeedMixin {
   void _scheduleTasks(int ep, int index) {
     var urls = links![ep]!;
     int downloading = 0;
-    for (int i = 0; index + i < urls.length; i++) {
-      var task = _downloading["$ep$index"];
+    for (int i = index; i < urls.length; i++) {
+      var task = _downloading["$ep$i"];
       if (task == null || task.error != null) {
-        _addDownloading(urls[index + i], ep, index + i);
+        _addDownloading(urls[i], ep, i);
         downloading++;
       } else if (!task.isFinished) {
         downloading++;
@@ -255,7 +250,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
       // finish downloading
       if (DownloadManager().downloading.firstOrNull != this) return;
       onFinish?.call();
-      stopAllStream();
+      _stopAllTasks();
     } catch (e, s) {
       if (currentKey != _runtimeKey) return;
       LogManager.addLog(LogLevel.error, "Download", "$e\n$s");
@@ -263,20 +258,17 @@ abstract class DownloadingItem with _TransferSpeedMixin {
     }
   }
 
-  /// add a StreamSubscription to streams
-  void addStreamSubscription(StreamSubscription stream) {
-    streams.add(stream);
-    stream.onDone(() {
-      streams.remove(stream);
-    });
-  }
-
-  /// stop all streams
-  void stopAllStream() {
-    for (var s in streams) {
-      s.cancel();
+  void _stopAllTasks() {
+    var shouldRemove = <String>[];
+    for(var entry in _downloading.entries) {
+      if(!entry.value.isFinished) {
+        entry.value.cancel();
+        shouldRemove.add(entry.key);
+      }
     }
-    streams.clear();
+    for(var key in shouldRemove) {
+      _downloading.remove(key);
+    }
   }
 
   /// pause downloading
@@ -284,7 +276,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
     _runtimeKey++;
     stopRecorder();
     notifications.endProgress();
-    stopAllStream();
+    _stopAllTasks();
     ImageManager.clearTasks();
   }
 
@@ -292,7 +284,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
   void stop() {
     _runtimeKey++;
     stopRecorder();
-    stopAllStream();
+    _stopAllTasks();
     notifications.endProgress();
     if (downloadManager.isExists(id)) {
       if (links == null) return;
@@ -414,6 +406,12 @@ class _ImageDownloadWrapper {
 
   bool isFinished = false;
 
+  bool _canceled = false;
+
+  void cancel() {
+    _canceled = true;
+  }
+
   _ImageDownloadWrapper(
     this.stream,
     this.path,
@@ -428,6 +426,12 @@ class _ImageDownloadWrapper {
     try {
       var last = 0;
       await for (var progress in stream) {
+        if(_canceled) {
+          for (var c in completers) {
+            c.complete(this);
+          }
+          return;
+        }
         onReceiveData(progress.currentBytes - last);
         last = progress.currentBytes;
         if (progress.finished) {
