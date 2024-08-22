@@ -128,7 +128,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
 
   Widget? get tailing => null;
 
-  Widget? get head => null;
+  Widget? get header => null;
 
   bool get showPageIndicator => true;
 
@@ -176,7 +176,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
             return Column(
               children: [
                 if (title != null) const Appbar(title: Text("")),
-                removeSliver(head) ?? const SizedBox(),
+                removeSliver(header) ?? const SizedBox(),
                 const Expanded(
                   child: Center(
                     child: CircularProgressIndicator(),
@@ -187,7 +187,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
           } else if (logic.message != null) {
             return Column(
               children: [
-                removeSliver(head) ?? const SizedBox(),
+                removeSliver(header) ?? const SizedBox(),
                 Expanded(
                     child: NetworkError(
                   message: logic.message ?? "Network Error",
@@ -215,7 +215,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
                       title: Text(title!),
                       actions: tailing != null ? [tailing!] : null,
                     ),
-                  if (head != null) head!,
+                  if (header != null) header!,
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                         childCount: comics.length, (context, i) {
@@ -257,7 +257,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
                       title: Text(title!),
                       actions: tailing != null ? [tailing!] : null,
                     ),
-                  if (head != null) head!,
+                  if (header != null) header!,
                   if (showPageIndicator &&
                       appdata.settings[64] == "0" &&
                       logic.maxPage != 1)
@@ -323,7 +323,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
           }
         });
 
-    if (head != null && UiMode.m1(context)) {
+    if (header != null && UiMode.m1(context)) {
       body = SafeArea(
         bottom: false,
         child: body,

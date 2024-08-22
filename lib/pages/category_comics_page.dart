@@ -69,7 +69,7 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
             category: widget.category,
             options: optionsValue,
             param: widget.param,
-            head: buildOptions(),
+            header: buildOptions(),
             sourceKey: widget.categoryKey,
           ))
         ],
@@ -137,7 +137,7 @@ class _CategoryComicsList extends ComicsPage<BaseComic> {
     required this.category,
     required this.options,
     this.param,
-    required this.head,
+    required this.header,
     required this.sourceKey,
   });
 
@@ -153,7 +153,7 @@ class _CategoryComicsList extends ComicsPage<BaseComic> {
   final String sourceKey;
 
   @override
-  final Widget head;
+  final Widget header;
 
   @override
   Future<Res<List<BaseComic>>> getComics(int i) async {

@@ -51,7 +51,7 @@ class _RankingPageState extends State<RankingPage> {
             key: ValueKey("RankingPage with $optionValue"),
             loader: data.rankingData!.load,
             optionValue: optionValue,
-            head: buildOptions(),
+            header: buildOptions(),
             sourceKey: widget.sourceKey,
           ))
         ],
@@ -106,7 +106,7 @@ class _CustomCategoryComicsList extends ComicsPage<BaseComic> {
     super.key,
     required this.loader,
     required this.optionValue,
-    required this.head,
+    required this.header,
     required this.sourceKey,
   });
 
@@ -118,7 +118,7 @@ class _CustomCategoryComicsList extends ComicsPage<BaseComic> {
   final String sourceKey;
 
   @override
-  final Widget head;
+  final Widget header;
 
   @override
   Future<Res<List<BaseComic>>> getComics(int i) async {

@@ -120,7 +120,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
   /// all image urls
   Map<int, List<String>>? links;
 
-  int get allowedLoadingNumbers => int.tryParse(appdata.settings[79]) ?? 6;
+  int get allowedLoadingNumber => int.tryParse(appdata.settings[79]) ?? 6;
 
   DownloadingItem(this.onFinish, this.onError, this.updateInfo, this.id,
       {required this.type});
@@ -195,7 +195,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
       } else if (!task.isFinished) {
         downloading++;
       }
-      if (downloading >= allowedLoadingNumbers) {
+      if (downloading >= allowedLoadingNumber) {
         break;
       }
     }

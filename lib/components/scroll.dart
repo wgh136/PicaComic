@@ -30,6 +30,8 @@ class SmoothScrollProvider extends StatefulWidget {
 
   final Widget Function(BuildContext, ScrollController, ScrollPhysics) builder;
 
+  static bool get isMouseScroll => _SmoothScrollProviderState._isMouseScroll;
+
   @override
   State<SmoothScrollProvider> createState() => _SmoothScrollProviderState();
 }

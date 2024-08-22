@@ -313,7 +313,7 @@ class _IconButtonState extends State<_IconButton> {
           child: Container(
             decoration: BoxDecoration(
               color: isHover
-                  ? Theme.of(context).colorScheme.surfaceContainer
+                  ? Theme.of(context).colorScheme.outlineVariant.withOpacity(0.4)
                   : null,
               borderRadius: BorderRadius.circular((iconSize + 12) / 2),
             ),

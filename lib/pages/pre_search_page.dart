@@ -131,8 +131,7 @@ class PreSearchController extends StateController {
           source.searchPageData?.searchOptions != null) {
         options = List.generate(
           source.searchPageData!.searchOptions!.length,
-          (index) =>
-              source.searchPageData!.searchOptions![index].defaultValue,
+          (index) => source.searchPageData!.searchOptions![index].defaultValue,
         );
       }
     }
@@ -205,6 +204,8 @@ class PreSearchPage extends StatelessWidget {
         }
       }
     }
+
+    if (!searchController.searchPageData.enableTagsSuggestions) return;
 
     bool check(String text, String key, String value) {
       if (text.removeAllBlank == "") {
@@ -590,7 +591,7 @@ class PreSearchPage extends StatelessWidget {
         var children = <Widget>[];
         if (logic.searchPageData.customOptionsBuilder != null) {
           children.add(
-            logic.searchPageData.customOptionsBuilder!(context, (options) {
+            logic.searchPageData.customOptionsBuilder!(context, [], (options) {
               logic.options = options;
             }),
           );

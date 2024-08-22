@@ -105,6 +105,7 @@ final nhentai = ComicSource.named(
       return NhentaiNetwork().search(keyword, page);
     },
     enableLanguageFilter: true,
+    enableTagsSuggestions: true,
   ),
   comicPageBuilder: (context, id, cover) {
     return NhentaiComicPage(

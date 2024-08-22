@@ -212,10 +212,11 @@ final ehentai = ComicSource.named(
       }
       return _EhentaiGalleriesLoader.instances['search:$keyword']!(page);
     },
-    customOptionsBuilder: (context, updater) {
-      return _SearchOptions(updater);
+    customOptionsBuilder: (context, initialValues, updater) {
+      return _SearchOptions(initialValues, updater);
     },
     enableLanguageFilter: true,
+    enableTagsSuggestions: true,
   ),
   comicPageBuilder: (context, id, cover) {
     return EhGalleryPage.fromLink(id, comicCover: cover);
@@ -381,7 +382,9 @@ class _EhGalleryTile extends ComicTile {
 }
 
 class _SearchOptions extends StatefulWidget {
-  const _SearchOptions(this.updater);
+  const _SearchOptions(this.initialValues, this.updater);
+
+  final List<String> initialValues;
 
   final void Function(List<String> updater) updater;
 
@@ -395,6 +398,15 @@ class _SearchOptionsState extends State<_SearchOptions> {
   int? ehEndPage;
   int? ehMinStars;
 
+  @override
+  void initState() {
+    ehFCats = int.tryParse(widget.initialValues.elementAtOrNull(0) ?? '') ?? 0;
+    ehStartPage = int.tryParse(widget.initialValues.elementAtOrNull(1) ?? '');
+    ehEndPage = int.tryParse(widget.initialValues.elementAtOrNull(2) ?? '');
+    ehMinStars = int.tryParse(widget.initialValues.elementAtOrNull(3) ?? '');
+    super.initState();
+  }
+
   void update() {
     widget.updater([
       ehFCats.toString(),
@@ -406,6 +418,11 @@ class _SearchOptionsState extends State<_SearchOptions> {
 
   @override
   Widget build(BuildContext context) {
+    var isInDialog = context.findAncestorWidgetOfExactType<Dialog>() != null;
+    var width = context.width-16;
+    if(width > 500) {
+      width = 500;
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,19 +430,35 @@ class _SearchOptionsState extends State<_SearchOptions> {
         ListTile(
           title: Text("高级选项".tl),
         ),
-        LayoutBuilder(
-          builder: (context, constrains) => Wrap(
-            children: List.generate(categories.length, (index) {
-              const minWidth = 86;
-              var items = constrains.maxWidth ~/ minWidth;
-              return buildCategoryItem(
-                categories[index],
-                index,
-                constrains.maxWidth / items - items,
-              );
-            }),
-          ),
-        ).paddingHorizontal(12),
+        if(!isInDialog)
+          LayoutBuilder(
+            builder: (context, constrains) => Wrap(
+              children: List.generate(categories.length, (index) {
+                const minWidth = 86;
+                var items = constrains.maxWidth ~/ minWidth;
+                return buildCategoryItem(
+                  categories[index],
+                  index,
+                  constrains.maxWidth / items - items,
+                );
+              }),
+            ),
+          ).paddingHorizontal(12)
+        else
+          SizedBox(
+            width: width,
+            child: Wrap(
+              children: List.generate(categories.length, (index) {
+                const minWidth = 86;
+                var items = width ~/ minWidth;
+                return buildCategoryItem(
+                  categories[index],
+                  index,
+                  width / items - items,
+                );
+              }),
+            ),
+          ).paddingHorizontal(12),
         const SizedBox(
           height: 8,
         ),

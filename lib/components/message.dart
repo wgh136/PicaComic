@@ -214,3 +214,49 @@ LoadingDialogController showLoadingDialog(BuildContext context,
 
   return controller;
 }
+
+class ContentDialog extends StatelessWidget {
+  const ContentDialog({
+    super.key,
+    required this.title,
+    required this.content,
+    this.actions = const [],
+  });
+
+  final String title;
+
+  final Widget content;
+
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    var content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Appbar(
+          title: Text(title),
+          backgroundColor: Colors.transparent,
+        ),
+        this.content,
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: actions,
+        ).paddingRight(12),
+        const SizedBox(height: 16),
+      ],
+    );
+    return Dialog(
+      child: IntrinsicWidth(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+            minWidth: math.min(400, context.width-16),
+          ),
+          child: content,
+        ),
+      ),
+    );
+  }
+}

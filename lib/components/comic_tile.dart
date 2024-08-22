@@ -951,6 +951,8 @@ class _BlockingPaneState extends State<_BlockingPane> {
 
     if(context.width > 400) {
       return Dialog(
+        elevation: 0,
+        backgroundColor: context.colorScheme.surface,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: content,
@@ -958,6 +960,7 @@ class _BlockingPaneState extends State<_BlockingPane> {
       );
     } else {
       return Dialog.fullscreen(
+        backgroundColor: context.colorScheme.surface,
         child: content,
       );
     }

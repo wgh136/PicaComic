@@ -221,7 +221,7 @@ class FloatingSearchBar extends StatefulWidget {
     this.trailing,
     required this.onSearch,
     required this.controller,
-    this.showPinnedButton = true,
+    this.onChanged,
   }) : super(key: key);
 
   /// height of search bar
@@ -236,8 +236,7 @@ class FloatingSearchBar extends StatefulWidget {
   /// controller of [TextField]
   final TextEditingController controller;
 
-  /// Deprecated
-  final bool showPinnedButton;
+  final void Function(String)? onChanged;
 
   @override
   State<FloatingSearchBar> createState() => _FloatingSearchBarState();
@@ -285,6 +284,7 @@ class _FloatingSearchBarState extends State<FloatingSearchBar> {
                   onSubmitted: (s) {
                     widget.onSearch(s);
                   },
+                  onChanged: widget.onChanged,
                 ),
               ),
             ),

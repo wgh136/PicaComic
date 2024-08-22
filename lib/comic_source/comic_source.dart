@@ -386,7 +386,7 @@ class SearchPageData {
   /// If this is not null, the default value of search options will be first element.
   final List<SearchOptions>? searchOptions;
 
-  final Widget Function(BuildContext, void Function(List<String>))?
+  final Widget Function(BuildContext, List<String> initialValues, void Function(List<String>))?
       customOptionsBuilder;
 
   final Widget Function(String keyword, List<String> options)?
@@ -396,10 +396,13 @@ class SearchPageData {
 
   final bool enableLanguageFilter;
 
+  final bool enableTagsSuggestions;
+
   const SearchPageData(this.searchOptions, this.loadPage)
       : enableLanguageFilter = false,
         customOptionsBuilder = null,
-        overrideSearchResultBuilder = null;
+        overrideSearchResultBuilder = null,
+        enableTagsSuggestions = false;
 
   const SearchPageData.named({
     this.searchOptions,
@@ -407,6 +410,7 @@ class SearchPageData {
     this.enableLanguageFilter = false,
     this.customOptionsBuilder,
     this.overrideSearchResultBuilder,
+    this.enableTagsSuggestions = false,
   });
 }
 
