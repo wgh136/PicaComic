@@ -1,16 +1,24 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-
+import 'dart:math' as math;
 import 'jm_network.dart';
+
+var _device = '';
 
 String get _jmUA {
   // 生成随机的设备标识符
-  var device = List.generate(9, (index) => "0123456789abcdef".split("")[index]).join();
-  return "Mozilla/5.0 (Linux; Android 13; $device Build/TQ1A.230305.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36";
+  if(_device.isEmpty) {
+    var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    var random = math.Random();
+    for (var i = 0; i < 9; i++) {
+      _device += chars[random.nextInt(chars.length)];
+    }
+  }
+  return "Mozilla/5.0 (Linux; Android 13; $_device Build/TQ1A.230305.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Safari/537.36";
 }
 
-const _jmVersion = "1.6.8";
+const _jmVersion = "1.7.2";
 
 const _jmAuthKey = "18comicAPPContent";
 

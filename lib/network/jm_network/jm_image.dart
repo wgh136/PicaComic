@@ -1,12 +1,12 @@
 import 'package:pica_comic/base.dart';
 
 const imageUrls = [
-  "https://cdn-msp.jmapiproxy1.monster",
-  "https://cdn-msp2.jmapiproxy3.cc",
-  "https://cdn-msp.jmapiproxy2.cc",
-  "https://cdn-msp2.jmapiproxy1.cc",
-  "https://cdn-msp2.jmapiproxy4.cc",
   "https://cdn-msp.jmapiproxy3.cc",
+  "https://cdn-msp3.jmapiproxy3.cc",
+  "https://cdn-msp2.jmapiproxy1.cc",
+  "https://cdn-msp3.jmapiproxy3.cc",
+  "https://cdn-msp2.jmapiproxy4.cc",
+  "https://cdn-msp2.jmapiproxy3.cc",
 ];
 
 String getBaseUrl(){
