@@ -48,6 +48,17 @@ class ComicSourceSettings extends StatefulWidget {
   }
 }
 
+extension _WidgetExt on Widget {
+  Widget withDivider() {
+    return Column(
+      children: [
+        this,
+        const Divider(),
+      ],
+    );
+  }
+}
+
 class _ComicSourceSettingsState extends State<ComicSourceSettings> {
   var url = "";
 
@@ -56,16 +67,18 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
     return Column(
       children: [
         buildCard(context),
-        const PicacgSettings(false),
-        const Divider(),
-        const EhSettings(false),
-        const Divider(),
-        const JmSettings(false),
-        const Divider(),
-        const HtSettings(false),
-        const Divider(),
+        const _BuiltInSources(),
+        if(appdata.appSettings.isComicSourceEnabled("picacg"))
+          const PicacgSettings(false).withDivider(),
+        if(appdata.appSettings.isComicSourceEnabled("ehentai"))
+          const EhSettings(false).withDivider(),
+        if(appdata.appSettings.isComicSourceEnabled("jm"))
+          const JmSettings(false).withDivider(),
+        if(appdata.appSettings.isComicSourceEnabled("htmanga"))
+          const HtSettings(false).withDivider(),
         buildCustomSettings(),
-        for (var source in ComicSource.sources) buildCustom(context, source),
+        for (var source in ComicSource.sources.where((e) => !e.isBuiltIn))
+          buildCustom(context, source),
         Padding(
             padding:
                 EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom))
@@ -401,5 +414,47 @@ class _ComicSourceListState extends State<_ComicSourceList> {
         },
       );
     }
+  }
+}
+
+class _BuiltInSources extends StatefulWidget {
+  const _BuiltInSources();
+
+  @override
+  State<_BuiltInSources> createState() => _BuiltInSourcesState();
+}
+
+class _BuiltInSourcesState extends State<_BuiltInSources> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Divider(),
+        ListTile(
+          title: Text("内置漫画源".tl),
+        ),
+        for(int index = 0; index < builtInSources.length; index++)
+          buildTile(index),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget buildTile(int index) {
+    var key = builtInSources[index];
+    return ListTile(
+      title: Text(
+          ComicSource.builtIn.firstWhere((e) => e.key == key).name),
+      trailing: Switch(
+        value: appdata.appSettings.isComicSourceEnabled(key),
+        onChanged: (v) {
+          appdata.appSettings.setComicSourceEnabled(key, v);
+          appdata.updateSettings();
+          setState(() {});
+          context.findAncestorStateOfType<_ComicSourceSettingsState>()
+              ?.setState(() {});
+        },
+      ),
+    );
   }
 }
