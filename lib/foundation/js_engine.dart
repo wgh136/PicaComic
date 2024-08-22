@@ -15,7 +15,11 @@ import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:pointycastle/api.dart';
+import 'package:pointycastle/asn1/asn1_parser.dart';
+import 'package:pointycastle/asn1/primitives/asn1_integer.dart';
+import 'package:pointycastle/asn1/primitives/asn1_sequence.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:pointycastle/asymmetric/pkcs1.dart';
 import 'package:pointycastle/asymmetric/rsa.dart';
 import 'package:pointycastle/block/aes.dart';
 import 'package:pointycastle/block/modes/cbc.dart';
@@ -294,68 +298,117 @@ mixin class _JSEngineApi{
     String type = data["type"];
     var value = data["value"];
     bool isEncode = data["isEncode"];
-    switch (type) {
-      case "base64":
-        if(value is String){
-          value = utf8.encode(value);
-        }
-        return isEncode
-            ? base64Encode(value)
-            : base64Decode(value);
-      case "md5":
-        return Uint8List.fromList(md5.convert(value).bytes);
-      case "sha1":
-        return Uint8List.fromList(sha1.convert(value).bytes);
-      case "sha256":
-        return Uint8List.fromList(sha256.convert(value).bytes);
-      case "sha512":
-        return Uint8List.fromList(sha512.convert(value).bytes);
-      case "aes-ecb":
-        if(!isEncode){
-          var key = data["key"];
-          var cipher = ECBBlockCipher(AESEngine());
-          cipher.init(false, KeyParameter(key));
-          return cipher.process(value);
-        }
-        return null;
-      case "aes-cbc":
-        if(!isEncode){
-          var key = data["key"];
-          var iv = data["iv"];
-          var cipher = CBCBlockCipher(AESEngine());
-          cipher.init(false, ParametersWithIV(KeyParameter(key), iv));
-          return cipher.process(value);
-        }
-        return null;
-      case "aes-cfb":
-        if(!isEncode){
-          var key = data["key"];
-          var blockSize = data["blockSize"];
-          var cipher = CFBBlockCipher(AESEngine(), blockSize);
-          cipher.init(false, KeyParameter(key));
-          return cipher.process(value);
-        }
-        return null;
-      case "aes-ofb":
-        if(!isEncode){
-          var key = data["key"];
-          var blockSize = data["blockSize"];
-          var cipher = OFBBlockCipher(AESEngine(), blockSize);
-          cipher.init(false, KeyParameter(key));
-          return cipher.process(value);
-        }
-        return null;
-      case "rsa":
-        if(!isEncode){
-          var key = data["key"];
-          var cipher = RSAEngine()
-            ..init(false, PublicKeyParameter<RSAPublicKey>(key));
-          return cipher.process(value);
-        }
-        return null;
-      default:
-        return value;
+    try {
+      switch (type) {
+        case "base64":
+          if(value is String){
+            value = utf8.encode(value);
+          }
+          return isEncode
+              ? base64Encode(value)
+              : base64Decode(value);
+        case "md5":
+          return Uint8List.fromList(md5.convert(value).bytes);
+        case "sha1":
+          return Uint8List.fromList(sha1.convert(value).bytes);
+        case "sha256":
+          return Uint8List.fromList(sha256.convert(value).bytes);
+        case "sha512":
+          return Uint8List.fromList(sha512.convert(value).bytes);
+        case "aes-ecb":
+          if(!isEncode){
+            var key = data["key"];
+            var cipher = ECBBlockCipher(AESEngine());
+            cipher.init(false, KeyParameter(key));
+            return cipher.process(value);
+          }
+          return null;
+        case "aes-cbc":
+          if(!isEncode){
+            var key = data["key"];
+            var iv = data["iv"];
+            var cipher = CBCBlockCipher(AESEngine());
+            cipher.init(false, ParametersWithIV(KeyParameter(key), iv));
+            return cipher.process(value);
+          }
+          return null;
+        case "aes-cfb":
+          if(!isEncode){
+            var key = data["key"];
+            var blockSize = data["blockSize"];
+            var cipher = CFBBlockCipher(AESEngine(), blockSize);
+            cipher.init(false, KeyParameter(key));
+            return cipher.process(value);
+          }
+          return null;
+        case "aes-ofb":
+          if(!isEncode){
+            var key = data["key"];
+            var blockSize = data["blockSize"];
+            var cipher = OFBBlockCipher(AESEngine(), blockSize);
+            cipher.init(false, KeyParameter(key));
+            return cipher.process(value);
+          }
+          return null;
+        case "rsa":
+          if(!isEncode){
+            var key = data["key"];
+            final cipher = PKCS1Encoding(RSAEngine());
+            cipher.init(
+                false, PrivateKeyParameter<RSAPrivateKey>(_parsePrivateKey(key)));
+            return _processInBlocks(cipher, value);
+          }
+          return null;
+        default:
+          return value;
+      }
     }
+    catch(e) {
+      Log.error("JS Engine", "Failed to convert $type: $e");
+      return null;
+    }
+  }
+
+  RSAPrivateKey _parsePrivateKey(String privateKeyString) {
+    List<int> privateKeyDER = base64Decode(privateKeyString);
+    var asn1Parser = ASN1Parser(privateKeyDER as Uint8List);
+    final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+    final privateKey = topLevelSeq.elements![2];
+
+    asn1Parser = ASN1Parser(privateKey.valueBytes!);
+    final pkSeq = asn1Parser.nextObject() as ASN1Sequence;
+
+    final modulus = pkSeq.elements![1] as ASN1Integer;
+    final privateExponent = pkSeq.elements![3] as ASN1Integer;
+    final p = pkSeq.elements![4] as ASN1Integer;
+    final q = pkSeq.elements![5] as ASN1Integer;
+
+    return RSAPrivateKey(modulus.integer!, privateExponent.integer!, p.integer!, q.integer!);
+  }
+
+  Uint8List _processInBlocks(
+      AsymmetricBlockCipher engine, Uint8List input) {
+    final numBlocks = input.length ~/ engine.inputBlockSize +
+        ((input.length % engine.inputBlockSize != 0) ? 1 : 0);
+
+    final output = Uint8List(numBlocks * engine.outputBlockSize);
+
+    var inputOffset = 0;
+    var outputOffset = 0;
+    while (inputOffset < input.length) {
+      final chunkSize = (inputOffset + engine.inputBlockSize <= input.length)
+          ? engine.inputBlockSize
+          : input.length - inputOffset;
+
+      outputOffset += engine.processBlock(
+          input, inputOffset, chunkSize, output, outputOffset);
+
+      inputOffset += chunkSize;
+    }
+
+    return (output.length == outputOffset)
+        ? output
+        : output.sublist(0, outputOffset);
   }
 
   int _randomInt(int min, int max) {
