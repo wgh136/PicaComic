@@ -95,6 +95,11 @@ extension ContextExt on BuildContext {
         .push<T>(AppPageRoute<T>(builder: (context) => builder()));
   }
 
+  void off(Widget Function() builder) {
+    Navigator.of(this)
+        .pushReplacement(AppPageRoute(builder: (context) => builder()));
+  }
+
   void pop() {
     if(Navigator.of(this).canPop()) {
       return Navigator.of(this).pop();

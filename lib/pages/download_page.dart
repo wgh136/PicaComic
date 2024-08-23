@@ -580,22 +580,13 @@ class DownloadPage extends StatelessWidget {
 
   Widget buildTitle(BuildContext context, DownloadPageLogic logic) {
     if (logic.searchMode && !logic.selecting) {
-      return Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top / 2),
-        child: Center(
-          child: Container(
-            height: 42,
-            padding: const EdgeInsets.fromLTRB(0, 0, 8, 6),
-            child: TextField(
-              decoration:
-                  InputDecoration(border: InputBorder.none, hintText: "搜索".tl),
-              onChanged: (s) {
-                logic.keyword = s.toLowerCase();
-                logic.update();
-              },
-            ),
-          ),
-        ),
+      return TextField(
+        decoration:
+        InputDecoration(border: InputBorder.none, hintText: "搜索".tl),
+        onChanged: (s) {
+          logic.keyword = s.toLowerCase();
+          logic.update();
+        },
       );
     } else {
       return logic.selecting

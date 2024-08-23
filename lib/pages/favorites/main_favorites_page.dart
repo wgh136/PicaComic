@@ -97,7 +97,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
                 ),
                 AnimatedPositioned(
                   key: const Key("folders"),
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 180),
                   left: 0,
                   right: 0,
                   bottom: controller.selectingFolder
@@ -213,7 +213,6 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
       elevation: 1,
       child: InkWell(
         hoverColor: Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
         onTap: () {
           if (controller.selectingFolder) {
             if (controller.current == null) {
@@ -301,7 +300,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedHeight(
         maxCrossAxisExtent: 240,
-        itemHeight: 56,
+        itemHeight: 48,
       ),
       delegate: SliverChildBuilderDelegate((context, index) {
         final data = folders.elementAt(index);
@@ -337,7 +336,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedHeight(
         maxCrossAxisExtent: 260,
-        itemHeight: 56,
+        itemHeight: 48,
       ),
       delegate: SliverChildBuilderDelegate((context, index) {
         final data = folders.elementAt(index);

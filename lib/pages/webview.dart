@@ -168,7 +168,9 @@ class MacWebview extends InAppBrowser {
       InAppBrowser brower
       )? onTitleChange;
 
-  MacWebview({this.onStarted, this.onTitleChange}) : super();
+  final void Function()? onClose;
+
+  MacWebview({this.onStarted, this.onTitleChange, this.onClose}) : super();
 
   @override
   void onBrowserCreated() {
@@ -180,5 +182,11 @@ class MacWebview extends InAppBrowser {
   void onTitleChanged(String? title) {
     onTitleChange?.call(title, webViewController!, this);
     super.onTitleChanged(title);
+  }
+
+  @override
+  void onExit() {
+    onClose?.call();
+    super.onExit();
   }
 }

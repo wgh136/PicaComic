@@ -11,6 +11,7 @@ import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:html/parser.dart' as html;
 import 'package:html/dom.dart' as dom;
+import 'package:pica_comic/network/cloudflare.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
@@ -67,6 +68,7 @@ class JsEngine with _JSEngineApi{
           responseType: ResponseType.plain, validateStatus: (status) => true));
       _cookieJar ??= SingleInstanceCookieJar.instance!;
       _dio!.interceptors.add(CookieManagerSql(_cookieJar!));
+      _dio!.interceptors.add(CloudflareInterceptor());
       _closed = false;
       _engine = FlutterQjs();
       _engine!.dispatch();

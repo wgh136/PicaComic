@@ -601,9 +601,14 @@ class ComicSourceParser {
       return null;
     }
     return (imageKey) {
-      return JsEngine().runCode("""
+      var res = JsEngine().runCode("""
           ComicSource.sources.$_key.comic.onThumbnailLoad(${jsonEncode(imageKey)})
-        """) as Map<String, dynamic>;
+        """);
+      if(res is! Map) {
+        Log.error("Network", "function onThumbnailLoad return invalid data");
+        throw "function onThumbnailLoad return invalid data";
+      }
+      return res as Map<String, dynamic>;
     };
   }
 }

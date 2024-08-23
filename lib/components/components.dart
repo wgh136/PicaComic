@@ -17,6 +17,7 @@ import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/main.dart';
 import 'package:pica_comic/network/base_comic.dart';
+import 'package:pica_comic/network/cloudflare.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/pages/comic_page.dart';

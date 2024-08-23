@@ -248,8 +248,7 @@ class _SearchResultPageState extends State<_SearchResultPage> {
   }
 
   void changeSource() {
-    var sources = ComicSource.sources
-        .where((e) => e.searchPageData != null && e.key != 'hitomi');
+    var sources = ComicSource.sources.where((e) => e.searchPageData != null);
     String? sourceKey = this.sourceKey;
     showDialog(
         context: context,
@@ -279,6 +278,15 @@ class _SearchResultPageState extends State<_SearchResultPage> {
                   onPressed: () {
                     if (sourceKey != null) {
                       context.pop();
+                      if(ComicSource.find(sourceKey!)!.searchPageData?.overrideSearchResultBuilder != null) {
+                        this.context.off(() {
+                          return SearchResultPage(
+                            keyword: keyword,
+                            options: options,
+                            sourceKey: sourceKey!,
+                          );
+                        });
+                      }
                       this.setState(() {
                         this.sourceKey = sourceKey!;
                       });

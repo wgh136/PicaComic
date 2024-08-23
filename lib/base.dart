@@ -120,6 +120,7 @@ class Appdata {
     "1;;", //收藏夹状态
     "0", // 双页模式下第一页显示单页
     "0", // 点击关闭按钮时不显示提示
+    webUA, // UA
   ];
 
   void writeImplicitData() async {

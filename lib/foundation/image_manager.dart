@@ -797,7 +797,9 @@ class ImageManager {
       await caching.close();
       yield DownloadProgress(
           1, 1, url, savePath, result ?? Uint8List.fromList(imageData));
-    } catch (e) {
+    } catch (e, s) {
+      Log.error("Network", "Failed to load a image:\nUrl:$url\nError:$e");
+      print(s);
       caching?.cancel();
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         var statusCode = e.response?.statusCode;

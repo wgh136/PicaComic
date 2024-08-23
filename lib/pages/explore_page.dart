@@ -258,7 +258,9 @@ class _SingleExplorePageState extends StateWithController<_SingleExplorePage> {
       StateController.findOrNull<ComicsPageLogic>(tag: tag.toString())
           ?.refresh();
     } else {
-      key++;
+      setState(() {
+        key++;
+      });
     }
   }
 }

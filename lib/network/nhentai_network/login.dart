@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 import 'package:flutter_windows_webview/flutter_windows_webview.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/nhentai_network/nhentai_main_network.dart';
@@ -20,7 +21,8 @@ void nhLogin(void Function() onFinished) async{
     webview.launchWebview("${NhentaiNetwork().baseUrl}/login/?next=/", WebviewOptions(
         messageReceiver: (s){
           if(s.substring(0, 2) == "UA"){
-            NhentaiNetwork().ua  = s.replaceFirst("UA", "");
+            appdata.implicitData[3]  = s.replaceFirst("UA", "");
+            appdata.writeImplicitData();
           }
         },
         onTitleChange: (title) async{
@@ -50,7 +52,8 @@ void nhLogin(void Function() onFinished) async{
           if(!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
             var ua = await controller.getUA();
             if(ua != null){
-              NhentaiNetwork().ua = ua;
+              appdata.implicitData[3] = ua;
+              appdata.writeImplicitData();
             }
             var cookiesMap = await controller.getCookies("${NhentaiNetwork().baseUrl}/") ?? {};
             NhentaiNetwork().cookieJar!.saveFromResponse(Uri.parse(NhentaiNetwork().baseUrl),
@@ -79,7 +82,8 @@ void nhLogin(void Function() onFinished) async{
         if (!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
           var ua = await controller.getUA();
           if(ua != null){
-            NhentaiNetwork().ua = ua;
+            appdata.implicitData[3] = ua;
+            appdata.writeImplicitData();
           }
           var cookies = await controller.getCookies("${NhentaiNetwork().baseUrl}/") ?? {};
           List<io.Cookie> cookiesList = [];

@@ -37,9 +37,9 @@ class NetworkError extends StatelessWidget {
               height: 4,
             ),
           if (retry != null)
-            if (message == NhentaiNetwork.needCloudflareChallengeMessage)
+            if (CloudflareException.fromString(message) != null)
               FilledButton(
-                onPressed: () => bypassCloudFlare(retry!),
+                onPressed: () => passCloudflare(CloudflareException.fromString(message)!, retry!),
                 child: Text('继续'.tl),
               )
             else

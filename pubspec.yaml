@@ -59,7 +59,7 @@ dependencies:
   flutter_windows_webview:
     git:
       url: https://github.com/wgh136/flutter_windows_webview
-      ref: 9e7a954
+      ref: 8673cc31
   workmanager:
     git:
       url: https://github.com/wgh136/flutter_workmanager
