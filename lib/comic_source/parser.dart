@@ -424,7 +424,7 @@ class ComicSourceParser {
 
     Future<Res<T>> retryZone<T>(Future<Res<T>> Function() func) async{
       if(!ComicSource.find(_key!)!.isLogin){
-        throw "Login required";
+        return const Res.error("Not login");
       }
       var res = await func();
       if (res.error && res.errorMessage!.contains("Login expired")) {

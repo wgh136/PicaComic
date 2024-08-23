@@ -204,10 +204,13 @@ function setInterval(callback, delay) {
     return timer;
 }
 
-function Cookie(name, value) {
+function Cookie(name, value, domain = null) {
     let obj = {};
     obj.name = name;
     obj.value = value;
+    if (domain) {
+        obj.domain = domain;
+    }
     return obj;
 }
 
@@ -384,7 +387,7 @@ class HtmlDocument {
     /**
      * Query a single element from the HTML document.
      * @param {string} query - The query string.
-     * @returns {HtmlDom} The first matching element.
+     * @returns {HtmlElement} The first matching element.
      */
     querySelector(query) {
         let k = sendMessage({
@@ -394,13 +397,13 @@ class HtmlDocument {
             query: query
         })
         if(!k) return null;
-        return new HtmlDom(k);
+        return new HtmlElement(k);
     }
 
     /**
      * Query all matching elements from the HTML document.
      * @param {string} query - The query string.
-     * @returns {HtmlDom[]} An array of matching elements.
+     * @returns {HtmlElement[]} An array of matching elements.
      */
     querySelectorAll(query) {
         let ks = sendMessage({
@@ -409,14 +412,14 @@ class HtmlDocument {
             key: this.key,
             query: query
         })
-        return ks.map(k => new HtmlDom(k));
+        return ks.map(k => new HtmlElement(k));
     }
 }
 
 /**
  * HtmlDom class for interacting with HTML elements.
  */
-class HtmlDom {
+class HtmlElement {
     key = 0;
 
     /**
@@ -454,7 +457,7 @@ class HtmlDom {
     /**
      * Query a single element from the current element.
      * @param {string} query - The query string.
-     * @returns {HtmlDom} The first matching element.
+     * @returns {HtmlElement} The first matching element.
      */
     querySelector(query) {
         let k = sendMessage({
@@ -464,13 +467,13 @@ class HtmlDom {
             query: query
         })
         if(!k) return null;
-        return new HtmlDom(k);
+        return new HtmlElement(k);
     }
 
     /**
      * Query all matching elements from the current element.
      * @param {string} query - The query string.
-     * @returns {HtmlDom[]} An array of matching elements.
+     * @returns {HtmlElement[]} An array of matching elements.
      */
     querySelectorAll(query) {
         let ks = sendMessage({
@@ -479,12 +482,12 @@ class HtmlDom {
             key: this.key,
             query: query
         })
-        return ks.map(k => new HtmlDom(k));
+        return ks.map(k => new HtmlElement(k));
     }
 
     /**
      * Get the children of the current element.
-     * @returns {HtmlDom[]} An array of child elements.
+     * @returns {HtmlElement[]} An array of child elements.
      */
     get children() {
         let ks = sendMessage({
@@ -492,7 +495,7 @@ class HtmlDom {
             function: "getChildren",
             key: this.key
         })
-        return ks.map(k => new HtmlDom(k));
+        return ks.map(k => new HtmlElement(k));
     }
 }
 

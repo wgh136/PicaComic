@@ -245,10 +245,10 @@ mixin class _JSEngineApi{
           keys.add(_elements.length - 1);
         }
         return keys;
-      case "children":
+      case "getChildren":
         var res = _elements[data["key"]]!.children;
         var keys = <int>[];
-        for(var element in res){
+        for (var element in res) {
           _elements[_elements.length] = element;
           keys.add(_elements.length - 1);
         }
@@ -261,8 +261,13 @@ mixin class _JSEngineApi{
       case "set":
         _cookieJar!.saveFromResponse(
             Uri.parse(data["url"]),
-            (data["cookies"] as List).map(
-                    (e) => Cookie(e["name"], e["value"])).toList());
+            (data["cookies"] as List).map((e) {
+              var c = Cookie(e["name"], e["value"]);
+              if(e['domain'] != null){
+                c.domain = e['domain'];
+              }
+              return c;
+            }).toList());
         return null;
       case "get":
         var cookies = _cookieJar!.loadForRequest(Uri.parse(data["url"]));
