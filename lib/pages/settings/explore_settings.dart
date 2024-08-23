@@ -232,7 +232,7 @@ Map<String, String> categoryPages(){
   return {
     for(var source in ComicSource.sources)
       if(source.categoryData != null)
-        source.categoryData!.title: source.categoryData!.title
+        source.categoryData!.key: source.categoryData!.title
   };
 }
 

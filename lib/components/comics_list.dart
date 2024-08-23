@@ -531,7 +531,7 @@ abstract class ComicsPage<T extends BaseComic> extends StatelessWidget {
   }
 
   Widget buildItem(BuildContext context, T item) {
-    return buildComicTile(context, item, sourceKey);
+    return buildComicTile(context, item, sourceKey, addonMenuOptions: addonMenuOptions);
   }
 }
 
@@ -578,7 +578,6 @@ class SliverGridComics extends StatelessWidget {
 
 class _SliverGridComics extends StatelessWidget {
   const _SliverGridComics({
-    super.key,
     required this.comics,
     required this.sourceKey,
     this.onLastItemBuild,

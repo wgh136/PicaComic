@@ -62,16 +62,17 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
       body: Column(
         children: [
           Expanded(
-              child: _CategoryComicsList(
-            key: ValueKey(
-                "${widget.category} with ${widget.param} and $optionsValue"),
-            loader: data.load,
-            category: widget.category,
-            options: optionsValue,
-            param: widget.param,
-            header: buildOptions(),
-            sourceKey: widget.categoryKey,
-          ))
+            child: _CategoryComicsList(
+              key: ValueKey(
+                  "${widget.category} with ${widget.param} and $optionsValue"),
+              loader: data.load,
+              category: widget.category,
+              options: optionsValue,
+              param: widget.param,
+              header: buildOptions(),
+              sourceKey: ComicSource.sources.firstWhere((e) => e.categoryData?.key == widget.categoryKey).key,
+            ),
+          ),
         ],
       ),
     );

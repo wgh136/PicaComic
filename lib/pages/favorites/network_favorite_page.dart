@@ -47,13 +47,12 @@ class _NormalFavoritePage extends ComicsPage<BaseComic> {
           Icons.playlist_remove_outlined,
           (id) {
             if (id == null) return;
-            showToast(message: "正在取消收藏".tl);
+            var dialog = showLoadingDialog(App.globalContext!);
             data.addOrDelFavorite!(id, "0", false).then((res) {
-              hideAllMessages();
+              dialog.close();
               if (res.error) {
                 showToast(message: res.errorMessage!);
               } else {
-                showToast(message: "取消收藏成功".tl);
                 refresh();
               }
             });

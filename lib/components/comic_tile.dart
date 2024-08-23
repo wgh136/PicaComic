@@ -833,10 +833,11 @@ class CustomComicTile extends ComicTile {
       };
 }
 
-Widget buildComicTile(BuildContext context, BaseComic item, String sourceKey) {
+Widget buildComicTile(BuildContext context, BaseComic item, String sourceKey,
+    {List<ComicTileMenuOption>? addonMenuOptions}) {
   var source = ComicSource.find(sourceKey);
   if (source == null) {
-    throw "Comic Source Not Found";
+    throw "Comic Source $sourceKey Not Found";
   }
   if (!appdata.appSettings.fullyHideBlockedWorks || sourceKey == 'hitomi') {
     var blockWord = isBlocked(item);
@@ -869,10 +870,11 @@ Widget buildComicTile(BuildContext context, BaseComic item, String sourceKey) {
     return source.comicTileBuilderOverride!(
       context,
       item,
-      const [],
+      addonMenuOptions,
     );
   } else {
-    return CustomComicTile(item as CustomComic);
+    return CustomComicTile(item as CustomComic,
+        addonMenuOptions: addonMenuOptions);
   }
 }
 
@@ -898,7 +900,7 @@ String? isBlocked(BaseComic item) {
           return word;
         }
       }
-      if(item.enableTagsTranslation && tag.translateTagsToCN == word) {
+      if (item.enableTagsTranslation && tag.translateTagsToCN == word) {
         return word;
       }
     }
@@ -923,7 +925,10 @@ class _BlockingPaneState extends State<_BlockingPane> {
     var content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Appbar(title: Text("屏蔽".tl), backgroundColor: Colors.transparent,),
+        Appbar(
+          title: Text("屏蔽".tl),
+          backgroundColor: Colors.transparent,
+        ),
         SizedBox(
           width: double.infinity,
           child: Wrap(
@@ -949,7 +954,7 @@ class _BlockingPaneState extends State<_BlockingPane> {
       ],
     );
 
-    if(context.width > 400) {
+    if (context.width > 400) {
       return Dialog(
         elevation: 0,
         backgroundColor: context.colorScheme.surface,

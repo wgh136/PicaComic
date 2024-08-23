@@ -117,7 +117,7 @@ extension ImageExt on ComicReadingPage {
                         child: Center(
                           child: Text(
                             error.toString(),
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: appdata.appSettings.useDarkBackground ? Colors.white : null),
                             maxLines: 3,
                           ),
                         ),

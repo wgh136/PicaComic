@@ -98,6 +98,7 @@ class ProxyHttpOverrides extends HttpOverrides {
     client.findProxy = (uri) => proxy??"DIRECT";
     client.idleTimeout = const Duration(seconds: 100);
     client.badCertificateCallback = (X509Certificate cert, String host, int port){
+      if(host.contains("cdn"))  return true;
       final ipv4RegExp = RegExp(
           r'^((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3})$');
       if(ipv4RegExp.hasMatch(host)){

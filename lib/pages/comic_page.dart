@@ -152,9 +152,11 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
   ComicSource? get comicSource => ComicSource.find(sourceKey);
 
   @override
-  Future<Res<ComicInfoData>> loadData() {
+  Future<Res<ComicInfoData>> loadData() async {
     if (comicSource == null) throw "Comic Source Not Found";
-    return comicSource!.loadComicInfo!(id);
+    var res = await comicSource!.loadComicInfo!(id);
+    print(res.data.cover);
+    return res;
   }
 
   @override

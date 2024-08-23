@@ -116,7 +116,12 @@ class AccountsPage extends StatelessWidget {
               logic.update();
             },
             trailing: loading
-                ? const CircularProgressIndicator()
+                ? const SizedBox.square(
+                    dimension: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
                 : const Icon(Icons.refresh),
           );
         }
