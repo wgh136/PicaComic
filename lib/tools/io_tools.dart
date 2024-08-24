@@ -186,8 +186,7 @@ Future<bool> runningExportComics(List<ExportComicData> datas) async {
     }
     var zipFile = ZipFile.open(result);
     for (var data in datas) {
-      var id = data.id;
-      final directory = Directory('${data.path}/$id');
+      final directory = Directory('${data.path}/${data.directory}');
 
       String? currentDirName;
 
