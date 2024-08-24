@@ -247,16 +247,22 @@ class ContentDialog extends StatelessWidget {
         const SizedBox(height: 16),
       ],
     );
-    return Dialog(
-      child: IntrinsicWidth(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 600,
-            minWidth: math.min(400, context.width-16),
+    if(context.width > 450) {
+      return Dialog(
+        child: IntrinsicWidth(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 600,
+              minWidth: math.min(400, context.width-16),
+            ),
+            child: content,
           ),
-          child: content,
         ),
-      ),
-    );
+      );
+    } else {
+      return Dialog.fullscreen(
+        child: content,
+      );
+    }
   }
 }

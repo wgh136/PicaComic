@@ -562,153 +562,151 @@ void syncDataSettings(BuildContext context) {
   String path = configs[3];
   int value = 0;
   showDialog(
-      context: context,
-      builder: (context) => SimpleDialog(
-            title: const Text("Webdav"),
-            children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                width: 400,
-                child: Column(
-                  children: [
-                    TextField(
-                        onChanged: (s) => url = s,
-                        controller: TextEditingController(text: url),
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            label: Text("URL"),
-                            hintText: "https://example.com:4433/webdav")),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    TextField(
-                        onChanged: (s) => username = s,
-                        controller: TextEditingController(text: username),
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          label: Text("用户名".tl),
-                        )),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    TextField(
-                        onChanged: (s) => pwd = s,
-                        controller: TextEditingController(text: pwd),
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          label: Text("密码".tl),
-                        )),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    TextField(
-                        onChanged: (s) => path = s,
-                        controller: TextEditingController(text: path),
-                        decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            label: Text("储存路径".tl),
-                            hintText: "请确保路径存在".tl)),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    StatefulBuilder(builder: (context, stateSetter) {
-                      return Row(
-                        children: [
-                          Text("立即执行:".tl),
-                          Radio<int>(
-                              value: 0,
-                              groupValue: value,
-                              onChanged: (i) => stateSetter(() => value = 0)),
-                          Text("上传数据".tl),
-                          Radio<int>(
-                              value: 1,
-                              groupValue: value,
-                              onChanged: (i) => stateSetter(() => value = 1)),
-                          Text("下载数据".tl),
-                        ],
-                      );
-                    }),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Center(
-                      child: FilledButton(
-                        child: Text("提交".tl),
-                        onPressed: () async {
-                          if (url.isEmpty) {
-                            appdata.settings[45] = "$url;$username;$pwd;$path";
-                            appdata.updateSettings();
-                            App.globalBack();
-                            return;
-                          }
-                          var dialog = showLoadingDialog(context,
-                              allowCancel: false, barrierDismissible: false);
-                          var res = value == 0
-                              ? await Webdav.uploadData(
-                                  "$url;$username;$pwd;$path")
-                              : await Webdav.downloadData(
-                                  "$url;$username;$pwd;$path");
-                          if (!res) {
-                            dialog.close();
-                            showToast(message: "Failed to sync data");
-                          } else {
-                            appdata.settings[45] = "$url;$username;$pwd;$path";
-                            appdata.updateSettings();
-                            dialog.close();
-                            App.globalBack();
-                          }
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            size: 20,
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          if (configs.length == 4)
-                            Text("将URL留空以禁用同步".tl)
-                          else
-                            Text("已禁用".tl)
-                        ],
-                      ),
-                    )
-                  ],
+    context: context,
+    useSafeArea: false,
+    builder: (context) => ContentDialog(
+      title: "Webdav",
+      content: Column(
+        children: [
+          TextField(
+              onChanged: (s) => url = s,
+              controller: TextEditingController(text: url),
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  label: Text("URL"),
+                  hintText: "https://example.com:4433/webdav")),
+          const SizedBox(
+            height: 8,
+          ),
+          TextField(
+              onChanged: (s) => username = s,
+              controller: TextEditingController(text: username),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                label: Text("用户名".tl),
+              )),
+          const SizedBox(
+            height: 8,
+          ),
+          TextField(
+              onChanged: (s) => pwd = s,
+              controller: TextEditingController(text: pwd),
+              obscureText: true,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                label: Text("密码".tl),
+              )),
+          const SizedBox(
+            height: 8,
+          ),
+          TextField(
+              onChanged: (s) => path = s,
+              controller: TextEditingController(text: path),
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  label: Text("储存路径".tl),
+                  hintText: "请确保路径存在".tl)),
+          const SizedBox(
+            height: 8,
+          ),
+          StatefulBuilder(builder: (context, stateSetter) {
+            return Row(
+              children: [
+                Text("立即执行:".tl),
+                Radio<int>(
+                    value: 0,
+                    groupValue: value,
+                    onChanged: (i) => stateSetter(() => value = 0)),
+                Text("上传数据".tl),
+                Radio<int>(
+                    value: 1,
+                    groupValue: value,
+                    onChanged: (i) => stateSetter(() => value = 1)),
+                Text("下载数据".tl),
+              ],
+            );
+          }),
+          const SizedBox(
+            height: 8,
+          ),
+          Center(
+            child: FilledButton(
+              child: Text("提交".tl),
+              onPressed: () async {
+                if (url.isEmpty) {
+                  appdata.settings[45] = "$url;$username;$pwd;$path";
+                  appdata.updateSettings();
+                  App.globalBack();
+                  return;
+                }
+                var dialog = showLoadingDialog(context,
+                    allowCancel: false, barrierDismissible: false);
+                var res = value == 0
+                    ? await Webdav.uploadData("$url;$username;$pwd;$path")
+                    : await Webdav.downloadData("$url;$username;$pwd;$path");
+                if (!res) {
+                  dialog.close();
+                  showToast(message: "Failed to sync data");
+                } else {
+                  appdata.settings[45] = "$url;$username;$pwd;$path";
+                  appdata.updateSettings();
+                  dialog.close();
+                  App.globalBack();
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  size: 20,
                 ),
-              )
-            ],
-          ));
+                const SizedBox(
+                  width: 4,
+                ),
+                if (configs.length == 4)
+                  Text("将URL留空以禁用同步".tl)
+                else
+                  Text("已禁用".tl)
+              ],
+            ),
+          )
+        ],
+      ).paddingHorizontal(12),
+    ),
+  );
 }
 
 void setCacheLimit() {
   int size = appdata.appSettings.cacheLimit;
-  showDialog(context: App.globalContext!, builder: (context) => ContentDialog(
-    title: "设置缓存限制".tl,
-    content: TextField(
-      controller: TextEditingController(text: size.toString()),
-      keyboardType: TextInputType.number,
-      onChanged: (s) {
-        size = int.tryParse(s) ?? 500;
-      },
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        suffix: Text("MB"),
-      ),
-    ).paddingHorizontal(16),
-    actions: [
-      Button.filled(child: Text("确认".tl), onPressed: () {
-        appdata.appSettings.cacheLimit = size;
-        appdata.writeData();
-        CacheManager().setLimitSize(size);
-        App.globalBack();
-      }),
-    ],
-  ));
+  showDialog(
+      context: App.globalContext!,
+      builder: (context) => ContentDialog(
+            title: "设置缓存限制".tl,
+            content: TextField(
+              controller: TextEditingController(text: size.toString()),
+              keyboardType: TextInputType.number,
+              onChanged: (s) {
+                size = int.tryParse(s) ?? 500;
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                suffix: Text("MB"),
+              ),
+            ).paddingHorizontal(16),
+            actions: [
+              Button.filled(
+                  child: Text("确认".tl),
+                  onPressed: () {
+                    appdata.appSettings.cacheLimit = size;
+                    appdata.writeData();
+                    CacheManager().setLimitSize(size);
+                    App.globalBack();
+                  }),
+            ],
+          ));
 }
