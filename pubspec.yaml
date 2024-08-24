@@ -50,7 +50,7 @@ dependencies:
   flutter_file_dialog: 3.0.1
   flutter_local_notifications: ^17.2.2
   share_plus: ^7.0.0
-  local_auth: ^2.1.6
+  local_auth: ^2.3.0
   html: any
   dio_cookie_manager: any
   image: 4.1.0

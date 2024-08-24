@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
@@ -15,24 +16,29 @@ class AuthPage extends StatefulWidget {
   State<AuthPage> createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthPageState extends State<AuthPage> with WidgetsBindingObserver {
   @override
   void initState() {
     AuthPage.lock = true;
-    Future.delayed(const Duration(microseconds: 200), () => auth());
+    WidgetsBinding.instance.addObserver(this);
+    if(SchedulerBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+      auth();
+    }
     super.initState();
   }
 
   @override
-  void dispose() {
-    AuthPage.lock = false;
-    super.dispose();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state == AppLifecycleState.resumed && AuthPage.lock && mounted && !inProgress) {
+      auth();
+    }
+    super.didChangeAppLifecycleState(state);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => auth(),
+      onTap: auth,
       child: Scaffold(
         body: PopScope(
           canPop: false,
@@ -63,10 +69,18 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
+  bool inProgress = false;
+
   void auth() async {
+    if(inProgress) {
+      return;
+    }
+    inProgress = true;
     var res =
         await LocalAuthentication().authenticate(localizedReason: "需要身份验证".tl);
+    inProgress = false;
     if (res) {
+      AuthPage.lock = false;
       if (AuthPage.initial) {
         App.offAll(() => const MainPage());
       } else {
