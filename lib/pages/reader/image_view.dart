@@ -244,7 +244,6 @@ extension ImageExt on ComicReadingPage {
           ];
           if(logic.readingMethod == ReadingMethod.twoPageReversed) {
             images = images.reversed.toList();
-            images = images.reversed.toList();
           }
 
           return PhotoViewGalleryPageOptions.customChild(
@@ -271,14 +270,14 @@ extension ImageExt on ComicReadingPage {
         pageController: logic.pageController,
         onPageChanged: (i) {
           if (i == 0) {
-            if (!logic.data.hasEp) {
-              logic.pageController.animatedJumpToPage(1);
+            if (!logic.data.hasEp || logic.order == 1) {
+              logic.pageController.jumpByDeviceType(1);
               return;
             }
             logic.jumpToLastChapter();
           } else if (i == calcItemCount() - 1) {
-            if (!logic.data.hasEp) {
-              logic.pageController.animatedJumpToPage(i - 1);
+            if (!logic.data.hasEp || logic.order == logic.data.eps?.length) {
+              logic.pageController.jumpByDeviceType(logic.pageController.page!.round() - 1);
               return;
             }
             logic.jumpToNextChapter();

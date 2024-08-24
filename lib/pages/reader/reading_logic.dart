@@ -8,6 +8,14 @@ extension PageControllerExtension on PageController{
     }
     animateToPage(page, duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
+
+  void jumpByDeviceType(int page) {
+    if(StateController.find<ComicReadingPageLogic>().mouseScroll) {
+      jumpToPage(page);
+    } else {
+      animatedJumpToPage(page);
+    }
+  }
 }
 
 class ComicReadingPageLogic extends StateController {
@@ -173,7 +181,7 @@ class ComicReadingPageLogic extends StateController {
     } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
       scrollController.jumpTo(scrollController.position.pixels + 600);
     } else {
-      pageController.jumpToPage((index + 1) ~/ 2 + 1);
+      pageController.jumpToPage(pageController.page!.round() + 1);
     }
   }
 
@@ -183,7 +191,7 @@ class ComicReadingPageLogic extends StateController {
     } else if (readingMethod == ReadingMethod.topToBottomContinuously) {
       scrollController.jumpTo(scrollController.position.pixels - 600);
     } else {
-      pageController.jumpToPage(index ~/ 2);
+      pageController.jumpToPage(pageController.page!.round() - 1);
     }
   }
 
