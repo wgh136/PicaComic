@@ -16,6 +16,7 @@ import 'package:pica_comic/components/custom_slider.dart';
 import 'package:pica_comic/components/scrollable_list/src/item_positions_listener.dart';
 import 'package:pica_comic/components/scrollable_list/src/scrollable_positioned_list.dart';
 import 'package:pica_comic/components/window_frame.dart';
+import 'package:pica_comic/foundation/image_loader/base_image_provider.dart';
 import 'package:pica_comic/foundation/image_loader/file_image_loader.dart';
 import 'package:pica_comic/foundation/image_loader/stream_image_provider.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -209,8 +210,8 @@ class ComicReadingPage extends StatelessWidget {
         ]);
       }
       //进入阅读器时清除内存中的缓存, 并且增大限制
-      PaintingBinding.instance.imageCache.clear();
-      PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+      BaseImageProvider.clearCache();
+      BaseImageProvider.setCacheSizeLimit(100 * 1024 * 1024);
       logic.openEpsView = openEpsDrawer;
       if (useDarkBackground) {
         Future.microtask(() =>
@@ -219,8 +220,8 @@ class ComicReadingPage extends StatelessWidget {
       }
     }, dispose: (logic) {
       //清除缓存并减小最大缓存
-      PaintingBinding.instance.imageCache.clear();
-      PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024;
+      BaseImageProvider.clearCache();
+      BaseImageProvider.setCacheSizeLimit(50 * 1024 * 1024);
       logic.clearPhotoViewControllers();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);

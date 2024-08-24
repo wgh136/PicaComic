@@ -260,7 +260,7 @@ class _ComicImageState extends State<ComicImage> with WidgetsBindingObserver {
     if (_lastException != null) {
       // display error and retry button on screen
       return SizedBox(
-        height: _cache[widget.image.hashCode]?.height ?? 300,
+        height: 300,
         child: Center(
           child: SizedBox(
             height: 300,
@@ -299,9 +299,10 @@ class _ComicImageState extends State<ComicImage> with WidgetsBindingObserver {
     var width = widget.width??MediaQuery.of(context).size.width;
     double? height;
 
-    Size? cacheSize;
-    if((cacheSize = _cache[widget.image.hashCode]) != null){
-      height = cacheSize!.height * (width / cacheSize.width);
+    Size? cacheSize = _cache[widget.image.hashCode];
+    if(cacheSize != null){
+      height = cacheSize.height * (width / cacheSize.width);
+      height = height.ceilToDouble();
     }
 
     if(_imageInfo != null){

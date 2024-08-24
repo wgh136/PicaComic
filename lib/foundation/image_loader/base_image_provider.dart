@@ -1,4 +1,5 @@
 import 'dart:async' show Future, StreamController, scheduleMicrotask;
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:ui' as ui show Codec;
 import 'dart:ui';
@@ -46,7 +47,14 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
 
       while (data == null && !stop) {
         try {
-          data = await load(chunkEvents);
+          if(_cache.containsKey(key.key)){
+            data = _cache[key.key];
+          } else {
+            data = await load(chunkEvents);
+            _checkCacheSize();
+            _cache[key.key] = data;
+            _cacheSize += data.length;
+          }
         } catch (e) {
           if (e.toString().contains("Your IP address")) {
             rethrow;
@@ -100,6 +108,30 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
     } finally {
       chunkEvents.close();
     }
+  }
+
+  static final _cache = LinkedHashMap<String, Uint8List>();
+
+  static var _cacheSize = 0;
+
+  static var _cacheSizeLimit = 50 * 1024 * 1024;
+
+  static void _checkCacheSize(){
+    while (_cacheSize > _cacheSizeLimit){
+      var firstKey = _cache.keys.first;
+      _cacheSize -= _cache[firstKey]!.length;
+      _cache.remove(firstKey);
+    }
+  }
+
+  static void clearCache(){
+    _cache.clear();
+    _cacheSize = 0;
+  }
+
+  static void setCacheSizeLimit(int size){
+    _cacheSizeLimit = size;
+    _checkCacheSize();
   }
 
   Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents);

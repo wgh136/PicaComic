@@ -26,8 +26,6 @@ extension ImageExt on ComicReadingPage {
   /// build comic image
   Widget buildComicView(
       ComicReadingPageLogic logic, BuildContext context, String target) {
-    ScrollExtension.futurePosition = null;
-
     Widget buildType4() {
       return ScrollablePositionedList.builder(
         itemScrollController: logic.itemScrollController,
@@ -37,7 +35,7 @@ extension ImageExt on ComicReadingPage {
         scrollController: logic.scrollController,
         scrollBehavior: const MaterialScrollBehavior()
             .copyWith(scrollbars: false, dragDevices: _kTouchLikeDeviceTypes),
-        physics: (logic.noScroll || logic.isCtrlPressed)
+        physics: (logic.noScroll || logic.isCtrlPressed || logic.mouseScroll)
             ? const NeverScrollableScrollPhysics()
             : const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
@@ -53,11 +51,11 @@ extension ImageExt on ComicReadingPage {
           precacheComicImage(logic, context, index + 1, target);
 
           ImageProvider image = createImageProvider(type, logic, index, target);
-
           return ComicImage(
             filterQuality: FilterQuality.medium,
             image: image,
             width: imageWidth,
+            height: imageWidth * 1.2,
             fit: BoxFit.cover,
           );
         },
