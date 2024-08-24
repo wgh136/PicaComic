@@ -283,7 +283,7 @@ class ComicSource {
 class AccountConfig {
   final LoginFunction? login;
 
-  final FutureOr<void> Function()? onLogin;
+  final FutureOr<void> Function(BuildContext)? onLogin;
 
   final String? loginWebsite;
 

@@ -684,29 +684,31 @@ void syncDataSettings(BuildContext context) {
 void setCacheLimit() {
   int size = appdata.appSettings.cacheLimit;
   showDialog(
-      context: App.globalContext!,
-      builder: (context) => ContentDialog(
-            title: "设置缓存限制".tl,
-            content: TextField(
-              controller: TextEditingController(text: size.toString()),
-              keyboardType: TextInputType.number,
-              onChanged: (s) {
-                size = int.tryParse(s) ?? 500;
-              },
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                suffix: Text("MB"),
-              ),
-            ).paddingHorizontal(16),
-            actions: [
-              Button.filled(
-                  child: Text("确认".tl),
-                  onPressed: () {
-                    appdata.appSettings.cacheLimit = size;
-                    appdata.writeData();
-                    CacheManager().setLimitSize(size);
-                    App.globalBack();
-                  }),
-            ],
-          ));
+    context: App.globalContext!,
+    useSafeArea: false,
+    builder: (context) => ContentDialog(
+      title: "设置缓存限制".tl,
+      content: TextField(
+        controller: TextEditingController(text: size.toString()),
+        keyboardType: TextInputType.number,
+        onChanged: (s) {
+          size = int.tryParse(s) ?? 500;
+        },
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          suffix: Text("MB"),
+        ),
+      ).paddingHorizontal(16),
+      actions: [
+        Button.filled(
+            child: Text("确认".tl),
+            onPressed: () {
+              appdata.appSettings.cacheLimit = size;
+              appdata.writeData();
+              CacheManager().setLimitSize(size);
+              App.globalBack();
+            }),
+      ],
+    ),
+  );
 }

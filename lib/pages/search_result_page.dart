@@ -251,57 +251,63 @@ class _SearchResultPageState extends State<_SearchResultPage> {
     var sources = ComicSource.sources.where((e) => e.searchPageData != null);
     String? sourceKey = this.sourceKey;
     showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState) {
-            return ContentDialog(
-              title: "切换源".tl,
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var source in sources)
-                    RadioListTile<String>(
-                      title: Text(source.name),
-                      value: source.key,
-                      groupValue: sourceKey,
-                      onChanged: (value) {
-                        setState(() {
-                          sourceKey = value;
-                        });
-                      },
-                    )
-                ],
-              ),
-              actions: [
-                Button.filled(
-                  child: Text("确认".tl),
-                  onPressed: () {
-                    if (sourceKey != null) {
-                      context.pop();
-                      if(ComicSource.find(sourceKey!)!.searchPageData?.overrideSearchResultBuilder != null) {
-                        this.context.off(() {
-                          return SearchResultPage(
-                            keyword: keyword,
-                            options: options,
-                            sourceKey: sourceKey!,
-                          );
-                        });
-                      }
-                      this.setState(() {
-                        this.sourceKey = sourceKey!;
+      useSafeArea: false,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return ContentDialog(
+            title: "切换源".tl,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var source in sources)
+                  RadioListTile<String>(
+                    title: Text(source.name),
+                    value: source.key,
+                    groupValue: sourceKey,
+                    onChanged: (value) {
+                      setState(() {
+                        sourceKey = value;
+                      });
+                    },
+                  )
+              ],
+            ),
+            actions: [
+              Button.filled(
+                child: Text("确认".tl),
+                onPressed: () {
+                  if (sourceKey != null) {
+                    context.pop();
+                    if (ComicSource.find(sourceKey!)!
+                            .searchPageData
+                            ?.overrideSearchResultBuilder !=
+                        null) {
+                      this.context.off(() {
+                        return SearchResultPage(
+                          keyword: keyword,
+                          options: options,
+                          sourceKey: sourceKey!,
+                        );
                       });
                     }
-                  },
-                )
-              ],
-            );
-          });
+                    this.setState(() {
+                      this.sourceKey = sourceKey!;
+                    });
+                  }
+                },
+              )
+            ],
+          );
         });
+      },
+    );
   }
 
   void showSearchOptions() {
     showDialog(
       context: context,
+      useSafeArea: false,
       builder: (context) => _SearchOptions(
         current: options,
         sourceKey: sourceKey,

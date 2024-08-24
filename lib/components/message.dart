@@ -247,15 +247,20 @@ class ContentDialog extends StatelessWidget {
         const SizedBox(height: 16),
       ],
     );
-    if(context.width > 450) {
+    if (context.width >= 400) {
       return Dialog(
         child: IntrinsicWidth(
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: 600,
-              minWidth: math.min(400, context.width-16),
+              minWidth: math.min(400, context.width - 16),
             ),
-            child: content,
+            child: MediaQuery.removePadding(
+              removeTop: true,
+              removeBottom: true,
+              context: context,
+              child: content,
+            ),
           ),
         ),
       );

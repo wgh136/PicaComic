@@ -141,8 +141,8 @@ final ehentai = ComicSource.named(
     ),
   ),
   account: AccountConfig.named(
-    onLogin: () async {
-      await App.mainNavigatorKey!.currentContext!.to(() => const EhLoginPage());
+    onLogin: (BuildContext context) async {
+      await context.to(() => const EhLoginPage());
       var ehentai = ComicSource.find('ehentai')!;
       if (ehentai.data['name'] != null) {
         ehentai.data['account'] = 'ok';

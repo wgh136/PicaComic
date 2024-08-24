@@ -67,7 +67,7 @@ class AccountsPage extends StatelessWidget {
           title: Text("登录".tl),
           onTap: () async {
             if (element.account!.onLogin != null) {
-              await element.account!.onLogin!();
+              await element.account!.onLogin!(context);
             }
             if (element.account!.login != null && context.mounted) {
               await context.to(
@@ -130,6 +130,7 @@ class AccountsPage extends StatelessWidget {
           onTap: () {
             element.data["account"] = null;
             element.account?.logout();
+            element.saveData();
             logic.update();
           },
           trailing: const Icon(Icons.logout),

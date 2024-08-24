@@ -67,7 +67,7 @@ final nhentai = ComicSource.named(
     ],
   ),
   account: AccountConfig.named(
-    onLogin: () async {
+    onLogin: (context) async {
       var future = Completer<void>();
       nhLogin(() {
         future.complete();
