@@ -667,16 +667,13 @@ class NaviPaddingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return StateBuilder<NaviPaddingWidgetController>(
       builder: (controller) {
-        if (controller._withPadding) {
-          return Padding(
-            padding: EdgeInsets.only(
-              top: _NaviPaneState._kTopBarHeight + context.padding.top,
-              bottom: _NaviPaneState._kBottomBarHeight + context.padding.bottom,
-            ),
-            child: child,
-          );
-        }
-        return child;
+        return Padding(
+          padding: controller._withPadding ? EdgeInsets.only(
+            top: _NaviPaneState._kTopBarHeight + context.padding.top,
+            bottom: _NaviPaneState._kBottomBarHeight + context.padding.bottom,
+          ) : EdgeInsets.zero,
+          child: child,
+        );
       },
     );
   }
