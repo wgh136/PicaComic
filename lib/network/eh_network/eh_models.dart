@@ -41,11 +41,15 @@ class Galleries{
 }
 
 class Comment{
+  String id;
   String name;
   String content;
   String time;
+  int score;
+  // true: up, false: down, null: not voted
+  bool? voteUP;
 
-  Comment(this.name, this.content, this.time);
+  Comment(this.id, this.name, this.content, this.time, this.score, this.voteUP);
 }
 
 class Gallery with HistoryMixin{

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
@@ -12,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../base.dart';
 import '../http_client.dart';
 import 'package:html/parser.dart';
+import 'package:html/dom.dart' as dom;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/res.dart';
@@ -464,6 +467,29 @@ class EhNetwork {
     return true;
   }
 
+  Comment _parseComment(dom.Element e) {
+    var name = e
+        .getElementsByClassName("c3")[0]
+        .getElementsByTagName("a")
+        .elementAtOrNull(0)
+        ?.text ??
+        "未知";
+    var time = e.getElementsByClassName("c3")[0].text.subStringOrNull(11, 32) ??
+        "Unknown";
+    var content = e.getElementsByClassName("c6")[0].text;
+    var score = int.parse(e.querySelector("div.c5 > span")?.text ?? '0');
+    var id = e.previousElementSibling?.attributes['name']?.nums ?? "0";
+    bool voteUp = e.querySelector("a#comment_vote_up_$id")?.attributes['style']?.isNotEmpty == true;
+    bool voteDown = e.querySelector("a#comment_vote_down_$id")?.attributes['style']?.isNotEmpty == true;
+    bool? vote;
+    if(voteUp){
+      vote = true;
+    } else if(voteDown){
+      vote = false;
+    }
+    return Comment(id, name, content, time, score, vote);
+  }
+
   ///从漫画详情页链接中获取漫画详细信息
   Future<Res<Gallery>> getGalleryInfo(String link, [bool setNW = true]) async {
     try {
@@ -511,17 +537,7 @@ class EhNetwork {
       //评论
       var comments = <Comment>[];
       for (var c in document.getElementsByClassName("c1")) {
-        var name = c
-                .getElementsByClassName("c3")[0]
-                .getElementsByTagName("a")
-                .elementAtOrNull(0)
-                ?.text ??
-            "未知";
-        var time =
-            c.getElementsByClassName("c3")[0].text.subStringOrNull(11, 32) ??
-                "Unknown";
-        var content = c.getElementsByClassName("c6")[0].text;
-        comments.add(Comment(name, content, time));
+        comments.add(_parseComment(c));
       }
       //上传者
       var uploader =
@@ -612,16 +628,7 @@ class EhNetwork {
       var resComments = <Comment>[];
       var comments = document.getElementsByClassName("c1");
       for (var c in comments) {
-        var name = c
-                .getElementsByClassName("c3")[0]
-                .getElementsByTagName("a")
-                .elementAtOrNull(0)
-                ?.text ??
-            "未知";
-        var infoStr = c.getElementsByClassName("c3")[0].text;
-        var time = infoStr.substring(10, infoStr.indexOf(" by"));
-        var content = c.getElementsByClassName("c6")[0].innerHtml;
-        resComments.add(Comment(name, content, time));
+        resComments.add(_parseComment(c));
       }
       return Res(resComments);
     } catch (e, s) {
@@ -1013,6 +1020,32 @@ class EhNetwork {
           ?.attributes["href"];
       var host = Uri.parse(link).host;
       return Res("https://$host$link2");
+    }
+    catch(e){
+      return Res.error(e.toString());
+    }
+  }
+
+  Future<Res<int>> voteComment(Map<String, String> auth, String cid, bool isUp) async {
+    var res = await apiRequest({
+      "method": "votecomment",
+      "apikey": auth["apikey"],
+      "apiuid": auth["apiuid"],
+      "comment_id": cid,
+      "gid": auth["gid"],
+      "token": auth["token"],
+      "comment_vote": isUp ? "1" : "-1"
+    });
+    if(res.error){
+      return Res.fromErrorRes(res);
+    }
+    try {
+      var json = jsonDecode(res.data);
+      var newScore = json["comment_score"];
+      if(newScore is! int) {
+        return const Res.error("Failed to get new score");
+      }
+      return Res(newScore);
     }
     catch(e){
       return Res.error(e.toString());

@@ -24,9 +24,8 @@ class _HoverBoxState extends State<HoverBox> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-            color: isHover
-                ? Theme.of(context).colorScheme.surfaceContainer
-                : null,
+            color:
+                isHover ? Theme.of(context).colorScheme.surfaceContainer : null,
             borderRadius: widget.borderRadius),
         child: widget.child,
       ),
@@ -109,6 +108,7 @@ class Button extends StatefulWidget {
       double? size,
       Color? color,
       String? tooltip,
+      bool isLoading = false,
       HitTestBehavior behavior = HitTestBehavior.deferToChild}) {
     return _IconButton(
       key: key,
@@ -118,6 +118,7 @@ class Button extends StatefulWidget {
       color: color,
       tooltip: tooltip,
       behavior: behavior,
+      isLoading: isLoading,
     );
   }
 
@@ -276,6 +277,7 @@ class _IconButton extends StatefulWidget {
     this.size,
     this.color,
     this.tooltip,
+    this.isLoading = false,
     this.behavior = HitTestBehavior.deferToChild,
   });
 
@@ -291,6 +293,8 @@ class _IconButton extends StatefulWidget {
 
   final HitTestBehavior behavior;
 
+  final bool isLoading;
+
   @override
   State<_IconButton> createState() => _IconButtonState();
 }
@@ -301,29 +305,42 @@ class _IconButtonState extends State<_IconButton> {
   @override
   Widget build(BuildContext context) {
     var iconSize = widget.size ?? 24;
+    Widget icon = IconTheme(
+      data: IconThemeData(
+        size: iconSize,
+        color: widget.color ?? context.colorScheme.primary,
+      ),
+      child: widget.icon,
+    );
+    if (widget.isLoading) {
+      icon = const CircularProgressIndicator(
+        strokeWidth: 1.5,
+      ).paddingAll(2).fixWidth(iconSize).fixHeight(iconSize);
+    }
     return MouseRegion(
       onEnter: (_) => setState(() => isHover = true),
       onExit: (_) => setState(() => isHover = false),
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         behavior: widget.behavior,
-        onTap: widget.onPressed,
+        onTap: () {
+          if (widget.isLoading) return;
+          widget.onPressed();
+        },
         child: Tooltip(
           message: widget.tooltip ?? "",
           child: Container(
             decoration: BoxDecoration(
               color: isHover
-                  ? Theme.of(context).colorScheme.outlineVariant.withOpacity(0.4)
+                  ? Theme.of(context)
+                      .colorScheme
+                      .outlineVariant
+                      .withOpacity(0.4)
                   : null,
               borderRadius: BorderRadius.circular((iconSize + 12) / 2),
             ),
             padding: const EdgeInsets.all(6),
-            child: IconTheme(
-              data: IconThemeData(
-                  size: iconSize,
-                  color: widget.color ?? context.colorScheme.primary),
-              child: widget.icon,
-            ),
+            child: icon,
           ),
         ),
       ),

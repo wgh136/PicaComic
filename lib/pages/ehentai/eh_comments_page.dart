@@ -38,13 +38,168 @@ class CommentsPageLogic extends StateController {
   }
 }
 
+class _EhCommentWidget extends StatefulWidget {
+  const _EhCommentWidget({required this.comment, required this.uploader, required this.auth});
+
+  final Comment comment;
+
+  final String uploader;
+
+  final Map<String, String> auth;
+
+  @override
+  State<_EhCommentWidget> createState() => _EhCommentWidgetState();
+}
+
+class _EhCommentWidgetState extends State<_EhCommentWidget> {
+  Comment get comment => widget.comment;
+
+  String get uploader => widget.uploader;
+
+  bool isVoteUp = false;
+
+  bool isVoteDown = false;
+
+  void voteUp() async {
+    if(isVoteUp || isVoteDown){
+      return;
+    }
+    setState(() {
+      isVoteUp = true;
+    });
+    var res = await EhNetwork().voteComment(widget.auth, comment.id, true);
+    if(res.success){
+      var isCancel = comment.voteUP == true;
+      comment.voteUP = isCancel ? null : true;
+      comment.score = res.data;
+      setState(() {
+        isVoteUp = false;
+      });
+    } else {
+      setState(() {
+        isVoteUp = false;
+      });
+      showToast(message: res.errorMessageWithoutNull);
+    }
+  }
+
+  void voteDown() async {
+    if(isVoteUp || isVoteDown){
+      return;
+    }
+    setState(() {
+      isVoteDown = true;
+    });
+    var res = await EhNetwork().voteComment(widget.auth, comment.id, false);
+    if(res.success){
+      var isCancel = comment.voteUP == false;
+      comment.voteUP = isCancel ? null : false;
+      comment.score = res.data;
+      setState(() {
+        isVoteDown = false;
+      });
+    } else {
+      setState(() {
+        isVoteDown = false;
+      });
+      showToast(message: res.errorMessageWithoutNull);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var upColor = context.colorScheme.outline;
+    bool darkMode = context.colorScheme.brightness == Brightness.dark;
+    if(comment.voteUP == true) {
+      upColor = darkMode ? Colors.red.shade200 : Colors.red.shade600;
+    }
+    var downColor = context.colorScheme.outline;
+    if(comment.voteUP == false) {
+      downColor = darkMode ? Colors.blue.shade200 : Colors.blue.shade600;
+    }
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "${uploader == comment.name ? "(上传者)" : ""}${comment.name}",
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const Spacer(),
+                Text(
+                  TimeExtension.parseEhTime(comment.time).toCompareString,
+                  style: const TextStyle(fontSize: 12),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 4,
+            ),
+            _EhComment(comment.content),
+            const SizedBox(
+              height: 4,
+            ),
+            if (comment.id != "0")
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Button.icon(
+                        isLoading: isVoteUp,
+                        icon: const Icon(Icons.arrow_upward),
+                        size: 18,
+                        color: upColor,
+                        onPressed: voteUp,
+                      ),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Text(comment.score.toString()),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Button.icon(
+                        isLoading: isVoteDown,
+                        icon: const Icon(Icons.arrow_downward),
+                        size: 18,
+                        color: downColor,
+                        onPressed: voteDown,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CommentsPage extends StatelessWidget {
   final String url;
-  final String uploader;
-  final bool popUp;
 
-  const CommentsPage(this.url, this.uploader, {Key? key, this.popUp = false})
-      : super(key: key);
+  final String uploader;
+
+  final Map<String, String> auth;
+
+  const CommentsPage(this.url, this.uploader, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,154 +224,124 @@ class CommentsPage extends StatelessWidget {
                   child: CustomScrollView(
                 slivers: [
                   SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                          childCount: logic.comments.length, (context, index) {
-                    var comment = logic.comments[index];
-                    return Card(
-                      margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                      elevation: 0,
-                      color:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "${uploader == comment.name ? "(上传者)" : ""}${comment.name}",
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(
-                              height: 2,
-                            ),
-                            _EhComment(comment.content),
-                            const SizedBox(
-                              height: 4,
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                TimeExtension.parseEhTime(comment.time)
-                                    .toCompareString,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  })),
+                    delegate: SliverChildBuilderDelegate(
+                        childCount: logic.comments.length, (context, index) {
+                      var comment = logic.comments[index];
+                      return _EhCommentWidget(
+                        comment: comment,
+                        uploader: uploader,
+                        auth: auth,
+                      );
+                    }),
+                  ),
                   SliverPadding(
-                      padding: EdgeInsets.only(
-                          top:
-                              MediaQuery.of(App.globalContext!).padding.bottom))
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(App.globalContext!).padding.bottom,
+                    ),
+                  )
                 ],
               )),
-              Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(16))),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Material(
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest
-                              .withAlpha(160),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(30))),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                            child: TextField(
-                              controller: logic.controller,
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  isCollapsed: true,
-                                  hintText: "评论".tl),
-                              minLines: 1,
-                              maxLines: 5,
-                            ),
-                          )),
-                          logic.sending
-                              ? const Padding(
-                                  padding: EdgeInsets.all(8.5),
-                                  child: SizedBox(
-                                    width: 23,
-                                    height: 23,
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              : IconButton(
-                                  onPressed: () async {
-                                    var content = logic.controller.text;
-                                    if (content.isEmpty) {
-                                      showToast(message: "请输入评论".tl);
-                                      return;
-                                    }
-                                    logic.sending = true;
-                                    logic.update();
-                                    var b = await EhNetwork()
-                                        .comment(logic.controller.text, url);
-                                    if (b.success) {
-                                      logic.controller.text = "";
-                                      logic.sending = false;
-                                      logic.comments.add(Comment(
-                                          ehentai.data['name'] ?? '',
-                                          content,
-                                          DateTime.now().toIso8601String()));
-                                      logic.update();
-                                    } else {
-                                      showToast(message: b.errorMessage!);
-                                      logic.sending = false;
-                                      logic.update();
-                                    }
-                                  },
-                                  icon: Icon(
-                                    Icons.send,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ))
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              buildBottom(context, logic),
             ],
           );
         }
       },
     );
 
-    if (popUp) {
-      return body;
-    } else {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text("评论".tl),
+    return body;
+  }
+
+  Widget buildBottom(BuildContext context, CommentsPageLogic logic) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+        child: Material(
+          child: Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withAlpha(160),
+                borderRadius: const BorderRadius.all(Radius.circular(30))),
+            child: Row(
+              children: [
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: TextField(
+                    controller: logic.controller,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        hintText: "评论".tl),
+                    minLines: 1,
+                    maxLines: 5,
+                  ),
+                )),
+                logic.sending
+                    ? const Padding(
+                        padding: EdgeInsets.all(8.5),
+                        child: SizedBox(
+                          width: 23,
+                          height: 23,
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : IconButton(
+                        onPressed: () async {
+                          var content = logic.controller.text;
+                          if (content.isEmpty) {
+                            showToast(message: "请输入评论".tl);
+                            return;
+                          }
+                          logic.sending = true;
+                          logic.update();
+                          var b = await EhNetwork()
+                              .comment(logic.controller.text, url);
+                          if (b.success) {
+                            logic.controller.text = "";
+                            logic.sending = false;
+                            logic.comments.add(Comment(
+                              '',
+                              ehentai.data['name'] ?? '',
+                              content,
+                              DateTime.now().toIso8601String(),
+                              0,
+                              null,
+                            ));
+                            logic.update();
+                          } else {
+                            showToast(message: b.errorMessage!);
+                            logic.sending = false;
+                            logic.update();
+                          }
+                        },
+                        icon: Icon(
+                          Icons.send,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ))
+              ],
+            ),
+          ),
         ),
-        body: body,
-      );
-    }
+      ),
+    );
   }
 }
 
-void showComments(BuildContext context, String url, String uploader) {
+void showComments(BuildContext context, String url, String uploader, Map<String, String> auth) {
   showSideBar(
-      context,
-      CommentsPage(
-        url,
-        uploader,
-        popUp: true,
-      ),
-      title: "评论".tl);
+    context,
+    CommentsPage(
+      url,
+      uploader,
+      auth,
+    ),
+    title: "评论".tl,
+  );
 }
 
 class _EhComment extends StatelessWidget {

@@ -504,8 +504,8 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
   }
 
   @override
-  ActionFunc? get openComments =>
-      () => showComments(App.globalContext!, link, data!.uploader);
+  ActionFunc? get openComments => () =>
+      showComments(App.globalContext!, link, data!.uploader, data!.auth ?? {});
 
   @override
   String get downloadedId => getGalleryId(link);
