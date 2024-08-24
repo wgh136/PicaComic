@@ -1215,12 +1215,12 @@ abstract class BaseComicPage<T extends Object> extends StatelessWidget {
           Wrap(
             alignment: center ? WrapAlignment.center : WrapAlignment.start,
             children: [
-              if (width >= 500 || (width < 500 && logic.history != null))
-                buildItem(
-                    "从头开始".tl, Icons.not_started_outlined, () => read(null)),
               if (logic.history != null && width >= 500)
                 buildItem(
                     "继续阅读".tl, Icons.menu_book, () => read(logic.history)),
+              if (width >= 500 || (width < 500 && logic.history != null))
+                buildItem(
+                    "从头开始".tl, Icons.not_started_outlined, () => read(null)),
               buildItem("分享".tl, Icons.share, () {
                 var text = title!;
                 if (url != null) {
