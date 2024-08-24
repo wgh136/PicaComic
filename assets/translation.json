@@ -531,16 +531,16 @@
     "本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, 与开发者无关": "本App的開發目的僅為學習交流與個人興趣, 顯示的任何內容均來自網路, 與開發者無關",
     "如果在使用中发现问题, 请先确认是否为自己的设备问题, 然后再进行反馈": "如果在使用中發現問題, 請先確認是否為自己的設備問題, 然後再進行反饋",
     "开发者不对能否解决问题负责": "開發者不對能否解決問題負責",
-    "连续模式": "",
-    "滑动到底部时自动加载下一页并追加到页面末尾": "",
-    "分页模式": "",
-    "需要手动切换页面": "",
-    "App数据目录": "",
-    "成功导出": "",
-    "导出失败": "",
-    "完全隐藏屏蔽的作品": "",
-    "内置漫画源": "",
-    "设置缓存限制": ""
+    "连续模式": "連續模式",
+    "滑动到底部时自动加载下一页并追加到页面末尾": "滑動到底部時自動加載下一頁並追加到頁面末尾",
+    "分页模式": "分頁模式",
+    "需要手动切换页面": "需要手動切換頁面",
+    "App数据目录": "App資料目錄",
+    "成功导出": "成功匯出",
+    "导出失败": "匯出失敗",
+    "完全隐藏屏蔽的作品": "完全隱藏封鎖的作品",
+    "内置漫画源": "內置漫畫源",
+    "设置缓存限制": "設置快取限制"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1070,6 +1070,15 @@
     "cookie 信息格式可能有误": "Cookie information format may be incorrect",
     "本App的开发目的仅为学习交流与个人兴趣, 显示的任何内容均来自网络, 与开发者无关": "The purpose of this App is only for learning, communication, and personal interest. Any content displayed comes from the internet and is not related to the developer",
     "如果在使用中发现问题, 请先确认是否为自己的设备问题, 然后再进行反馈": "If you encounter any problems during use, please first confirm whether it is a problem with your device, and then provide feedback",
-    "开发者不对能否解决问题负责": "The developer is not responsible for whether the problem can be solved"
+    "开发者不对能否解决问题负责": "The developer is not responsible for whether the problem can be solved",
+    "连续模式": "Continuous mode",
+    "滑动到底部时自动加载下一页并追加到页面末尾": "Automatically load the next page and append it to the end of the page when sliding to the bottom",
+    "分页模式": "Paging mode",
+    "需要手动切换页面": "Need to manually switch pages",
+    "App数据目录": "App data directory",
+    "成功导出": "Export successful",
+    "导出失败": "Export failed",
+    "完全隐藏屏蔽的作品": "Completely hide blocked works",
+    "内置漫画源": "Built-in comic source"
   }
 }
