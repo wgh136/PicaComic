@@ -7,6 +7,7 @@ import 'package:pica_comic/network/webdav.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'category_page.dart';
 import 'explore_page.dart';
 import 'favorites/main_favorites_page.dart';
@@ -70,13 +71,13 @@ class MainPageState extends State<MainPage> {
   }
 
   List<Widget> get _pages => [
-    const MePage(),
-    FavoritesPage(),
-    ExplorePage(
-      key: Key(appdata.appSettings.explorePages.length.toString()),
-    ),
-    const AllCategoryPage(),
-  ];
+        const MePage(),
+        FavoritesPage(),
+        ExplorePage(
+          key: Key(appdata.appSettings.explorePages.length.toString()),
+        ),
+        const AllCategoryPage(),
+      ];
 
   void _login() {
     network.updateProfile().then((res) {
@@ -102,6 +103,13 @@ class MainPageState extends State<MainPage> {
   }
 
   void _checkUpdates() async {
+    var s = await SharedPreferences.getInstance();
+    var lastCheck = s.getInt("lastCheckUpdate");
+    if (lastCheck != null) {
+      if (DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(lastCheck)).inDays < 1) {
+        return;
+      }
+    }
     if (appdata.settings[2] != "1") {
       return;
     }
@@ -109,6 +117,7 @@ class MainPageState extends State<MainPage> {
     if (res != true) return;
     var info = await getUpdatesInfo();
     if (info == null) return;
+    s.setInt("lastCheckUpdate", DateTime.now().millisecondsSinceEpoch);
     showDialog(
         context: App.globalContext!,
         builder: (dialogContext) {
@@ -143,7 +152,7 @@ class MainPageState extends State<MainPage> {
   void _checkDownload() {
     if (downloadManager.downloading.isNotEmpty) {
       Future.delayed(const Duration(microseconds: 500), () {
-        if(mounted) {
+        if (mounted) {
           showDialog(
             context: context,
             builder: (dialogContext) {

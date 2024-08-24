@@ -3,10 +3,12 @@ part of pica_settings;
 void findUpdate(BuildContext context) {
   context.showMessage(message: "正在检查更新".tl);
   checkUpdate().then((b) {
+    if(!context.mounted) return;
     if (b == null) {
       context.showMessage(message: "网络错误".tl);
     } else if (b) {
       getUpdatesInfo().then((s) {
+        if(!context.mounted) return;
         if (s != null) {
           showDialog(
               context: context,
