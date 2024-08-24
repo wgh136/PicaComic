@@ -343,7 +343,7 @@ class ImageManager {
           (image, originImage, nl) = await getImageFromHtml();
         }
 
-        if (image.contains("/img/509.gi")) {
+        if (image.contains("509.gif")) {
           throw ImageExceedError();
         }
 

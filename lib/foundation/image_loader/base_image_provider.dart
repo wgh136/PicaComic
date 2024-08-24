@@ -56,6 +56,9 @@ abstract class BaseImageProvider<T extends BaseImageProvider<T>>
             _cacheSize += data.length;
           }
         } catch (e) {
+          if(e.toString().contains("Maximum image loading limit reached")) {
+            rethrow;
+          }
           if (e.toString().contains("Your IP address")) {
             rethrow;
           }
