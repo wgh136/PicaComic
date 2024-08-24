@@ -26,6 +26,7 @@ extension ImageExt on ComicReadingPage {
   /// build comic image
   Widget buildComicView(
       ComicReadingPageLogic logic, BuildContext context, String target) {
+    ScrollExtension.futurePosition = null;
     Widget buildType4() {
       return ScrollablePositionedList.builder(
         itemScrollController: logic.itemScrollController,
