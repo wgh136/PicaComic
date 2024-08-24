@@ -229,7 +229,7 @@ class MainPageState extends State<MainPage> {
             preventRebuild: false,
             isRootRoute: true,
             builder: (context) {
-              return _pages[index];
+              return NaviPaddingWidget(child: _pages[index]);
             },
           ),
         );
@@ -240,7 +240,7 @@ class MainPageState extends State<MainPage> {
                 preventRebuild: false,
                 isRootRoute: true,
                 builder: (context) {
-                  return _pages[index];
+                  return NaviPaddingWidget(child: _pages[index]);
                 }),
             (route) => false);
       },

@@ -1,56 +1,5 @@
 part of 'components.dart';
 
-class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
-  _NavigationBarDefaultsM3(this.context)
-      : super(
-          height: 80.0,
-          elevation: 3.0,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        );
-
-  final BuildContext context;
-  late final ColorScheme _colors = Theme.of(context).colorScheme;
-  late final TextTheme _textTheme = Theme.of(context).textTheme;
-
-  @override
-  Color? get backgroundColor => _colors.surface;
-
-  @override
-  Color? get shadowColor => Colors.transparent;
-
-  @override
-  Color? get surfaceTintColor => _colors.surfaceTint;
-
-  @override
-  WidgetStateProperty<IconThemeData?>? get iconTheme {
-    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
-      return IconThemeData(
-        size: 24.0,
-        color: states.contains(WidgetState.selected)
-            ? _colors.onSecondaryContainer
-            : _colors.onSurfaceVariant,
-      );
-    });
-  }
-
-  @override
-  Color? get indicatorColor => _colors.secondaryContainer;
-
-  @override
-  ShapeBorder? get indicatorShape => const StadiumBorder();
-
-  @override
-  WidgetStateProperty<TextStyle?>? get labelTextStyle {
-    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
-      final TextStyle style = _textTheme.labelMedium!;
-      return style.apply(
-          color: states.contains(WidgetState.selected)
-              ? _colors.onSurface
-              : _colors.onSurfaceVariant);
-    });
-  }
-}
-
 class PaneItemEntry {
   String label;
 
@@ -136,6 +85,7 @@ class _NaviPaneState extends State<NaviPane>
         upperBound: 3,
         vsync: this);
     widget.observer.addListener(onNavigatorStateChange);
+    StateController.put(NaviPaddingWidgetController());
     super.initState();
   }
 
@@ -147,6 +97,7 @@ class _NaviPaneState extends State<NaviPane>
 
   @override
   void dispose() {
+    StateController.remove<NaviPaddingWidgetController>();
     controller.dispose();
     widget.observer.removeListener(onNavigatorStateChange);
     super.dispose();
@@ -179,8 +130,18 @@ class _NaviPaneState extends State<NaviPane>
           controller.stop();
         }
       }
-      controller.animateTo(target,
-          duration: const Duration(milliseconds: 160), curve: Curves.ease);
+      if (target == 1) {
+        StateController.find<NaviPaddingWidgetController>()
+            .setWithPadding(true);
+        controller.value = target;
+      } else if (controller.value == 1 && target == 0) {
+        StateController.findOrNull<NaviPaddingWidgetController>()
+            ?.setWithPadding(false);
+        controller.value = target;
+      } else {
+        controller.animateTo(target,
+            duration: const Duration(milliseconds: 160), curve: Curves.ease);
+      }
       animationTarget = target;
     }
   }
@@ -570,9 +531,7 @@ class _SingleBottomNaviWidgetState extends State<_SingleBottomNaviWidget>
         height: 28,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(32)),
-          color: isHovering
-              ? colorScheme.surfaceContainer
-              : Colors.transparent,
+          color: isHovering ? colorScheme.surfaceContainer : Colors.transparent,
         ),
         child: Center(
           child: Container(
@@ -683,5 +642,42 @@ class _NaviPopScope extends StatelessWidget {
           child: res);
     }
     return res;
+  }
+}
+
+class NaviPaddingWidgetController extends StateController {
+  NaviPaddingWidgetController() {
+    print("init");
+  }
+
+  bool _withPadding = false;
+
+  void setWithPadding(bool value) {
+    _withPadding = value;
+    update();
+  }
+}
+
+class NaviPaddingWidget extends StatelessWidget {
+  const NaviPaddingWidget({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return StateBuilder<NaviPaddingWidgetController>(
+      builder: (controller) {
+        if (controller._withPadding) {
+          return Padding(
+            padding: EdgeInsets.only(
+              top: _NaviPaneState._kTopBarHeight + context.padding.top,
+              bottom: _NaviPaneState._kBottomBarHeight + context.padding.bottom,
+            ),
+            child: child,
+          );
+        }
+        return child;
+      },
+    );
   }
 }

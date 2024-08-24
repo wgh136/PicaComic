@@ -4,6 +4,7 @@ class PopUpWidget<T> extends PopupRoute<T> {
   PopUpWidget(this.widget);
 
   final Widget widget;
+
   @override
   Color? get barrierColor => Colors.black54;
 
@@ -37,7 +38,7 @@ class PopUpWidget<T> extends PopupRoute<T> {
         ),
       ),
     );
-    if(showPopUp) {
+    if (showPopUp) {
       return MediaQuery.removePadding(
         removeTop: true,
         context: context,
@@ -99,12 +100,14 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
       child: Column(
         children: [
           Container(
-            height: 60,
+            height: 56 + context.padding.top,
+            padding: EdgeInsets.only(top: context.padding.top),
             width: double.infinity,
             decoration: BoxDecoration(
-                color: top
-                    ? null
-                    : Theme.of(context).colorScheme.surfaceTint.withAlpha(20)),
+              color: top
+                  ? null
+                  : Theme.of(context).colorScheme.surfaceTint.withAlpha(20),
+            ),
             child: Row(
               children: [
                 const SizedBox(
@@ -130,7 +133,7 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
                 if (widget.tailing != null) ...widget.tailing!
               ],
             ),
-          ).paddingTop(context.padding.top),
+          ),
           NotificationListener<ScrollNotification>(
             onNotification: (notifications) {
               if (notifications.metrics.pixels ==

@@ -34,7 +34,7 @@ abstract class StateController {
               element.controller is T && (tag == null || tag == element.tag))
           .controller as T;
     } catch (e) {
-      throw StateError("${T.runtimeType} with tag $tag Not Found");
+      throw StateError("$T with tag $tag Not Found");
     }
   }
 
