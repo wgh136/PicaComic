@@ -39,45 +39,6 @@ void findUpdate(BuildContext context) {
   });
 }
 
-void giveComments(BuildContext context) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-          title: Text("提出建议".tl),
-          children: [
-            ListTile(
-              leading: const Image(
-                image: AssetImage("images/github.png"),
-                width: 25,
-              ),
-              title: const Text("Github"),
-              onTap: () {
-                launchUrlString("https://github.com/wgh136/PicaComic/issues",
-                    mode: LaunchMode.externalApplication);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.mail),
-              title: const Text("Email"),
-              onTap: () {
-                launchUrlString("mailto:nyne19710@proton.me",
-                    mode: LaunchMode.externalApplication);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.telegram),
-              title: const Text("Telegram"),
-              onTap: () {
-                launchUrlString("https://t.me/ny136_bot",
-                    mode: LaunchMode.externalApplication);
-              },
-            )
-          ],
-        );
-      });
-}
-
 class ProxyController extends StateController {
   bool value = appdata.settings[8] == "0";
   late var controller =
@@ -156,21 +117,6 @@ void setProxy(BuildContext context) {
               );
             });
       });
-}
-
-class CalculateCacheLogic extends StateController {
-  bool calculating = true;
-  double size = 0;
-
-  void change() {
-    calculating = !calculating;
-    update();
-  }
-
-  void get() async {
-    size = await calculateCacheSize();
-    change();
-  }
 }
 
 void setDownloadFolder() async {
@@ -739,4 +685,30 @@ void syncDataSettings(BuildContext context) {
               )
             ],
           ));
+}
+
+void setCacheLimit() {
+  int size = appdata.appSettings.cacheLimit;
+  showDialog(context: App.globalContext!, builder: (context) => ContentDialog(
+    title: "设置缓存限制".tl,
+    content: TextField(
+      controller: TextEditingController(text: size.toString()),
+      keyboardType: TextInputType.number,
+      onChanged: (s) {
+        size = int.tryParse(s) ?? 500;
+      },
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        suffix: Text("MB"),
+      ),
+    ).paddingHorizontal(16),
+    actions: [
+      Button.filled(child: Text("确认".tl), onPressed: () {
+        appdata.appSettings.cacheLimit = size;
+        appdata.writeData();
+        CacheManager().setLimitSize(size);
+        App.globalBack();
+      }),
+    ],
+  ));
 }

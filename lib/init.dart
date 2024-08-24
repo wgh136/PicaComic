@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:app_links/app_links.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/history.dart';
 import 'package:pica_comic/foundation/js_engine.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
@@ -66,6 +67,7 @@ Future<void> init() async {
       HistoryManager().init(),
       AppTranslation.init(),
     ]);
+    CacheManager().setLimitSize(appdata.appSettings.cacheLimit);
   } catch (e, s) {
     LogManager.addLog(
         LogLevel.error, "Init", "App initialization failed!\n$e$s");

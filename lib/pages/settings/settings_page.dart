@@ -467,6 +467,12 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry{
           onTap: () {},
         ),
         ListTile(
+          leading: const Icon(Icons.sd_storage_outlined),
+          title: Text("设置缓存限制".tl),
+          onTap: setCacheLimit,
+          trailing: const Icon(Icons.arrow_right),
+        ),
+        ListTile(
           leading: const Icon(Icons.delete),
           title: Text("清除缓存".tl),
           onTap: () {
@@ -619,13 +625,6 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry{
           leading: const Icon(Icons.email),
           title: Text("通过电子邮件联系我".tl),
           onTap: () => launchUrlString("mailto://nyne19710@proton.me",
-              mode: LaunchMode.externalApplication),
-          trailing: const Icon(Icons.arrow_right),
-        ),
-        ListTile(
-          leading: const Icon(Icons.support_outlined),
-          title: Text("支持开发".tl),
-          onTap: () => launchUrlString("https://note.wgh136.xyz/m/KG96QMR9sgubST82TeLTA8",
               mode: LaunchMode.externalApplication),
           trailing: const Icon(Icons.arrow_right),
         ),

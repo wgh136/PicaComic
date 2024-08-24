@@ -402,4 +402,11 @@ class _Settings {
   set fullyHideBlockedWorks(bool value) {
     appdata.settings[83] = value ? "1" : "0";
   }
+
+  /// cache size limit in MB
+  int get cacheLimit => int.tryParse(appdata.settings[35]) ?? 500;
+
+  set cacheLimit(int value) {
+    appdata.settings[35] = value.toString();
+  }
 }

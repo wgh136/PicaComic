@@ -48,9 +48,9 @@ class CacheManager {
 
   factory CacheManager() => instance ??= CacheManager._create();
 
-  /// set cache size limit in bytes
+  /// set cache size limit in MB
   void setLimitSize(int size){
-    _limitSize = size;
+    _limitSize = size * 1024 * 1024;
   }
 
   void setType(String key, String? type){
@@ -152,7 +152,15 @@ class CacheManager {
       WHERE expires < ?
     ''', [DateTime.now().millisecondsSinceEpoch]);
 
-    while(_currentSize != null && _currentSize! > _limitSize){
+    int count = 0;
+    var res2 = _db.select('''
+      SELECT COUNT(*) FROM cache
+    ''');
+    if(res2.isNotEmpty){
+      count = res2.first[0] as int;
+    }
+
+    while((_currentSize != null && _currentSize! > _limitSize) ||  count > 2000){
       var res = _db.select('''
         SELECT * FROM cache
         ORDER BY time ASC
@@ -180,6 +188,7 @@ class CacheManager {
             WHERE key = ?
           ''', [key]);
         }
+        count--;
       }
     }
     _isChecking = false;
