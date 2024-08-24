@@ -1,4 +1,5 @@
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:flutter/material.dart';
 import 'package:pica_comic/pages/ranking_page.dart';
@@ -24,9 +25,7 @@ class AllCategoryPage extends StatelessWidget {
               key: Key(appdata.appSettings.categoryPages.toString()),
               child: Column(
                 children: [
-                  TabBar(
-                    splashBorderRadius:
-                        const BorderRadius.all(Radius.circular(10)),
+                  FilledTabBar(
                     tabs: categories.map((e) {
                       String title = e;
                       try {
@@ -39,8 +38,6 @@ class AllCategoryPage extends StatelessWidget {
                         key: Key(e),
                       );
                     }).toList(),
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.center,
                   ),
                   Expanded(
                     child: TabBarView(
@@ -246,14 +243,18 @@ class CategoryPage extends StatelessWidget {
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         onTap: () => onClick(tag, param),
-        child: Card(
-          margin: EdgeInsets.zero,
-          elevation: 1,
-          //shadowColor: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Text(translateTag(tag)),
-          ),
+        child: Builder(
+          builder: (context) {
+            return Material(
+              elevation: 1,
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              color: context.colorScheme.surfaceContainerLow,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(translateTag(tag)),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -91,8 +91,7 @@ class _AppbarState extends State<Appbar> {
           ),
           Expanded(
             child: DefaultTextStyle(
-              style:
-              DefaultTextStyle.of(context).style.copyWith(fontSize: 20),
+              style: DefaultTextStyle.of(context).style.copyWith(fontSize: 20),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               child: widget.title,
@@ -105,7 +104,7 @@ class _AppbarState extends State<Appbar> {
         ],
       ),
     ).paddingTop(context.padding.top);
-    if(widget.backgroundColor != Colors.transparent) {
+    if (widget.backgroundColor != Colors.transparent) {
       return Material(
         elevation: (_scrolledUnder && UiMode.m1(context)) ? 1 : 0,
         surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
@@ -293,5 +292,297 @@ class _FloatingSearchBarState extends State<FloatingSearchBar> {
         ),
       ),
     );
+  }
+}
+
+class FilledTabBar extends StatefulWidget {
+  const FilledTabBar({super.key, this.controller, required this.tabs});
+
+  final TabController? controller;
+
+  final List<Tab> tabs;
+
+  @override
+  State<FilledTabBar> createState() => _FilledTabBarState();
+}
+
+class _FilledTabBarState extends State<FilledTabBar> {
+  late TabController _controller;
+
+  late List<GlobalKey> keys;
+
+  static const _kTabHeight = 48.0;
+
+  static const tabPadding = EdgeInsets.symmetric(horizontal: 6, vertical: 6);
+
+  static const tabRadius = 12.0;
+
+  _IndicatorPainter? painter;
+
+  var scrollController = ScrollController();
+
+  var tabBarKey = GlobalKey();
+
+  var offsets = <double>[];
+
+  @override
+  void initState() {
+    keys = widget.tabs.map((e) => GlobalKey()).toList();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _controller = widget.controller ?? DefaultTabController.of(context);
+    _controller.animation!.addListener(onTabChanged);
+    initPainter();
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(covariant FilledTabBar oldWidget) {
+    if (widget.controller != oldWidget.controller) {
+      _controller = widget.controller ?? DefaultTabController.of(context);
+      _controller.animation!.addListener(onTabChanged);
+      initPainter();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void initPainter() {
+    var old = painter;
+    painter = _IndicatorPainter(
+      controller: _controller,
+      color: context.colorScheme.secondaryContainer.withOpacity(0.8),
+      padding: tabPadding,
+      radius: tabRadius,
+    );
+    if(old != null) {
+      painter!.update(old.offsets!, old.itemHeight!);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: buildTabBar,
+    );
+  }
+
+  void _tabLayoutCallback(List<double> offsets, double itemHeight) {
+    painter!.update(offsets, itemHeight);
+    this.offsets = offsets;
+  }
+
+  Widget buildTabBar(BuildContext context, Widget? _) {
+    return Container(
+      key: tabBarKey,
+      height: _kTabHeight,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: context.colorScheme.outlineVariant,
+            width: 0.6,
+          ),
+        ),
+      ),
+      child: SmoothScrollProvider(
+        controller: scrollController,
+        builder: (context, controller, physics) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            controller: controller,
+            physics: physics,
+            child: CustomPaint(
+              painter: painter,
+              child: _TabRow(
+                callback: _tabLayoutCallback,
+                children: List.generate(widget.tabs.length, buildTab),
+              ),
+            ).paddingHorizontal(4),
+          );
+        },
+      ),
+    );
+  }
+
+  int? previousIndex;
+
+  void onTabChanged() {
+    final int i = _controller.index;
+    if(i == previousIndex) {
+      return;
+    }
+    updateScrollOffset(i);
+    previousIndex = i;
+  }
+
+  void updateScrollOffset(int i) {
+    // try to scroll to center the tab
+    final RenderBox tabBarBox = tabBarKey.currentContext!.findRenderObject() as RenderBox;
+    final double tabLeft = offsets[i];
+    final double tabRight = offsets[i + 1];
+    final double tabWidth = tabRight - tabLeft;
+    final double tabCenter = tabLeft + tabWidth / 2;
+    final double tabBarWidth = tabBarBox.size.width;
+    final double scrollOffset = tabCenter - tabBarWidth / 2;
+    if(scrollOffset == scrollController.offset) {
+      return;
+    }
+    scrollController.animateTo(
+      scrollOffset,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void onTabClicked(int i) {
+    _controller.animateTo(i);
+  }
+
+  Widget buildTab(int i) {
+    return InkWell(
+      onTap: () => onTabClicked(i),
+      borderRadius: BorderRadius.circular(tabRadius),
+      child: KeyedSubtree(
+        key: keys[i],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: widget.tabs[i],
+        ),
+      ),
+    ).padding(tabPadding);
+  }
+}
+
+typedef _TabRenderCallback = void Function(
+  List<double> offsets,
+  double itemHeight,
+);
+
+class _TabRow extends Row {
+  const _TabRow({required this.callback, required super.children});
+
+  final _TabRenderCallback callback;
+
+  @override
+  RenderFlex createRenderObject(BuildContext context) {
+    return _RenderTabFlex(
+        direction: Axis.horizontal,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        textDirection: Directionality.of(context),
+        verticalDirection: VerticalDirection.down,
+        callback: callback);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderTabFlex renderObject) {
+    super.updateRenderObject(context, renderObject);
+    renderObject.callback = callback;
+  }
+}
+
+class _RenderTabFlex extends RenderFlex {
+  _RenderTabFlex({
+    required super.direction,
+    required super.mainAxisSize,
+    required super.mainAxisAlignment,
+    required super.crossAxisAlignment,
+    required TextDirection super.textDirection,
+    required super.verticalDirection,
+    required this.callback,
+  });
+
+  _TabRenderCallback callback;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    RenderBox? child = firstChild;
+    final List<double> xOffsets = <double>[];
+    while (child != null) {
+      final FlexParentData childParentData =
+          child.parentData! as FlexParentData;
+      xOffsets.add(childParentData.offset.dx);
+      assert(child.parentData == childParentData);
+      child = childParentData.nextSibling;
+    }
+    xOffsets.add(size.width);
+    callback(xOffsets, firstChild!.size.height);
+  }
+}
+
+class _IndicatorPainter extends CustomPainter {
+  _IndicatorPainter({
+    required this.controller,
+    required this.color,
+    required this.padding,
+    this.radius = 4.0,
+  }) : super(repaint: controller.animation);
+
+  final TabController controller;
+  final Color color;
+  final EdgeInsets padding;
+  final double radius;
+
+  List<double>? offsets;
+  double? itemHeight;
+  Rect? _currentRect;
+
+  void update(List<double> offsets, double itemHeight) {
+    this.offsets = offsets;
+    this.itemHeight = itemHeight;
+  }
+
+  int get maxTabIndex => offsets!.length - 2;
+
+  Rect indicatorRect(Size tabBarSize, int tabIndex) {
+    assert(offsets != null);
+    assert(offsets!.isNotEmpty);
+    assert(tabIndex >= 0);
+    assert(tabIndex <= maxTabIndex);
+    var (tabLeft, tabRight) = (offsets![tabIndex], offsets![tabIndex + 1]);
+
+    var rect = Rect.fromLTWH(
+      tabLeft + padding.left,
+      padding.top,
+      tabRight - tabLeft - padding.horizontal,
+      itemHeight! - padding.vertical,
+    );
+
+    return rect;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (offsets == null || itemHeight == null) {
+      return;
+    }
+    final double index = controller.index.toDouble();
+    final double value = controller.animation!.value;
+    final bool ltr = index > value;
+    final int from = (ltr ? value.floor() : value.ceil()).clamp(0, maxTabIndex);
+    final int to = (ltr ? from + 1 : from - 1).clamp(0, maxTabIndex);
+    final Rect fromRect = indicatorRect(size, from);
+    final Rect toRect = indicatorRect(size, to);
+    _currentRect = Rect.lerp(fromRect, toRect, (value - from).abs());
+    final Paint paint = Paint()..color = color;
+    final RRect rrect = RRect.fromRectAndRadius(_currentRect!, Radius.circular(radius));
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

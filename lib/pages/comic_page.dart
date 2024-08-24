@@ -1135,8 +1135,7 @@ abstract class BaseComicPage<T extends Object> extends StatelessWidget {
           child: Card(
             margin: EdgeInsets.zero,
             color: title
-                ? Color(colors[_logic.colorIndex % colors.length])
-                    .withOpacity(0.3)
+                ? colors[_logic.colorIndex % colors.length].shade100.withOpacity(0.6)
                 : ElevationOverlay.applySurfaceTint(
                     colorScheme.surface, colorScheme.surfaceTint, 3),
             shape:

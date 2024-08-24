@@ -335,16 +335,19 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry{
             trailing: Select(
               initialValue: int.parse(appdata.settings[27]),
               values: const [
-                "Dynamic",
-                "Blue",
-                "Light Blue",
-                "Indigo",
-                "Purple",
-                "Pink",
-                "Cyan",
-                "Teal",
-                "Yellow",
-                "Brown"
+                "dynamic",
+                "red",
+                "pink",
+                "purple",
+                "indigo",
+                "blue",
+                "cyan",
+                "teal",
+                "green",
+                "lime",
+                "yellow",
+                "amber",
+                "orange",
               ],
               onChange: (i) {
                 appdata.settings[27] = i.toString();

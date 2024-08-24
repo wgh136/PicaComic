@@ -113,7 +113,7 @@ class _NaviPaneState extends State<NaviPane>
 
   late AnimationController controller;
 
-  static const _kBottomBarHeight = 64.0;
+  static const _kBottomBarHeight = 58.0;
 
   static const _kFoldedSideBarWidth = 80.0;
 
@@ -179,12 +179,8 @@ class _NaviPaneState extends State<NaviPane>
           controller.stop();
         }
       }
-      if(target == 1 || (controller.value == 1 && target == 0)) {
-        controller.value = target;
-      } else {
-        controller.animateTo(target,
-            duration: const Duration(milliseconds: 160), curve: Curves.ease);
-      }
+      controller.animateTo(target,
+          duration: const Duration(milliseconds: 160), curve: Curves.ease);
       animationTarget = target;
     }
   }
@@ -239,9 +235,7 @@ class _NaviPaneState extends State<NaviPane>
                 child: MediaQuery.removePadding(
                   removeTop: value >= 2 || value == 0,
                   context: context,
-                  child: Material(
-                    child: widget.pageBuilder(currentPage)
-                  ),
+                  child: Material(child: widget.pageBuilder(currentPage)),
                 ),
               ),
             ],
@@ -279,36 +273,40 @@ class _NaviPaneState extends State<NaviPane>
   }
 
   Widget buildBottom() {
-    final NavigationBarThemeData navigationBarTheme =
-        _NavigationBarDefaultsM3(context);
     return Material(
-        textStyle: Theme.of(context).textTheme.labelSmall,
-        elevation: navigationBarTheme.elevation ?? 3,
-        shadowColor: navigationBarTheme.shadowColor,
-        surfaceTintColor: navigationBarTheme.surfaceTintColor,
-        color: navigationBarTheme.backgroundColor,
-        child: SizedBox(
-          height: _kBottomBarHeight + MediaQuery.of(context).padding.bottom,
-          child: Padding(
-            padding:
-                EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-            child: Row(
-              children: List<Widget>.generate(
-                  widget.paneItems.length,
-                  (index) => Expanded(
-                          child: _SingleBottomNaviWidget(
-                        enabled: currentPage == index,
-                        entry: widget.paneItems[index],
-                        onTap: () {
-                          setState(() {
-                            currentPage = index;
-                          });
-                        },
-                        key: ValueKey(index),
-                      ))),
+      textStyle: Theme.of(context).textTheme.labelSmall,
+      elevation: 0,
+      child: Container(
+        height: _kBottomBarHeight + MediaQuery.of(context).padding.bottom,
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 0.6,
             ),
           ),
-        ));
+        ),
+        child: Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          child: Row(
+            children: List<Widget>.generate(
+                widget.paneItems.length,
+                (index) => Expanded(
+                        child: _SingleBottomNaviWidget(
+                      enabled: currentPage == index,
+                      entry: widget.paneItems[index],
+                      onTap: () {
+                        setState(() {
+                          currentPage = index;
+                        });
+                      },
+                      key: ValueKey(index),
+                    ))),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget buildLeft() {
@@ -536,15 +534,16 @@ class _SingleBottomNaviWidgetState extends State<_SingleBottomNaviWidget>
   void initState() {
     super.initState();
     controller = AnimationController(
-        value: widget.enabled ? 1 : 0,
-        vsync: this,
-        duration: const Duration(milliseconds: 150));
+      value: widget.enabled ? 1 : 0,
+      vsync: this,
+      duration: _fastAnimationDuration,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: controller,
+      animation: CurvedAnimation(parent: controller, curve: Curves.ease),
       builder: (context, child) {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -565,47 +564,27 @@ class _SingleBottomNaviWidgetState extends State<_SingleBottomNaviWidget>
     final colorScheme = Theme.of(context).colorScheme;
     final icon =
         Icon(widget.enabled ? widget.entry.activeIcon : widget.entry.icon);
-    return SizedBox(
-      child: Center(
-        child: SizedBox(
-          width: 80,
-          height: 68,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 10 * value,
-                left: 0,
-                right: 0,
-                bottom: 28 * value,
-                child: Center(
-                  child: Container(
-                    width: 64,
-                    height: 28,
-                    decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(32)),
-                        color: value != 0
-                            ? colorScheme.secondaryContainer
-                            : (isHovering
-                                ? colorScheme.surfaceContainerHighest
-                                : null)),
-                    child: Center(child: icon),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 40,
-                left: 0,
-                right: 0,
-                bottom: 4,
-                child: Center(
-                  child: Opacity(
-                    opacity: value,
-                    child: Text(widget.entry.label),
-                  ),
-                ),
-              ),
-            ],
+    return Center(
+      child: Container(
+        width: 64,
+        height: 28,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(32)),
+          color: isHovering
+              ? colorScheme.surfaceContainer
+              : Colors.transparent,
+        ),
+        child: Center(
+          child: Container(
+            width: 32 + value * 32,
+            height: 28,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(32)),
+              color: value != 0
+                  ? colorScheme.secondaryContainer
+                  : Colors.transparent,
+            ),
+            child: Center(child: icon),
           ),
         ),
       ),

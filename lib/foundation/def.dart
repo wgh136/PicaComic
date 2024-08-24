@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 typedef ActionFunc = void Function();
 
 enum ComicType {
@@ -24,16 +26,19 @@ const appVersion = "4.0.0";
 const changePoint = 600;
 const changePoint2 = 1300;
 
-const List<int> colors = [
-  0XFF42A5F5,
-  0XFF29B6F6,
-  0XFF5C6BC0,
-  0XFFAB47BC,
-  0XFFEC407A,
-  0XFF26C6DA,
-  0XFF26A69A,
-  0XFFFFEE58,
-  0XFF8D6E63
+List<MaterialAccentColor> get colors => [
+  Colors.redAccent,
+  Colors.pinkAccent,
+  Colors.purpleAccent,
+  Colors.indigoAccent,
+  Colors.blueAccent,
+  Colors.cyanAccent,
+  Colors.tealAccent,
+  Colors.greenAccent,
+  Colors.limeAccent,
+  Colors.yellowAccent,
+  Colors.amberAccent,
+  Colors.orangeAccent,
 ];
 
 const builtInSources = [

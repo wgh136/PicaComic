@@ -48,7 +48,7 @@ class _ExplorePageState extends State<ExplorePage>
         ),
       );
 
-  Widget buildTab(String i) {
+  Tab buildTab(String i) {
     return Tab(text: i, key: Key(i));
   }
 
@@ -57,10 +57,7 @@ class _ExplorePageState extends State<ExplorePage>
   @override
   Widget build(BuildContext context) {
     Widget tabBar = Material(
-      child: TabBar(
-        splashBorderRadius: const BorderRadius.all(Radius.circular(10)),
-        isScrollable: true,
-        tabAlignment: TabAlignment.center,
+      child: FilledTabBar(
         tabs: appdata.appSettings.explorePages.map((e) => buildTab(e)).toList(),
         controller: controller,
       ),

@@ -245,15 +245,18 @@ class _AppAppearanceState extends State<_AppAppearance>
             initialValue: appdata.appSettings.theme,
             values: const [
               "dynamic",
-              "Blue",
-              "Light Blue",
-              "Indigo",
-              "Purple",
-              "Pink",
-              "Cyan",
-              "Teal",
-              "Yellow",
-              "Brown"
+              "red",
+              "pink",
+              "purple",
+              "indigo",
+              "blue",
+              "cyan",
+              "teal",
+              "green",
+              "lime",
+              "yellow",
+              "amber",
+              "orange",
             ],
             onChange: (i) {
               appdata.appSettings.theme = i;

@@ -130,9 +130,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (App.isAndroid && appdata.settings[38] == "1") {
       try {
         FlutterDisplayMode.setHighRefreshRate();
-      } catch (e) {
-        // ignore
-      }
+      } finally {}
     }
     listenMouseSideButtonToBack();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -142,6 +140,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       blockScreenshot();
     }
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    didChangePlatformBrightness();
+    super.didChangeDependencies();
   }
 
   @override
@@ -167,6 +171,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
+  (ColorScheme, ColorScheme) _generateColorSchemes(ColorScheme? light, ColorScheme? dark) {
+    Color? color;
+    if (int.parse(appdata.settings[27]) != 0) {
+      color = colors[int.parse(appdata.settings[27]) - 1];
+    } else {
+      color = light?.primary ?? Colors.blueAccent;
+    }
+    light = ColorScheme.fromSeed(seedColor: color);
+    dark = ColorScheme.fromSeed(seedColor: color, brightness: Brightness.dark);
+    if (appdata.settings[32] == "1") {
+      // light mode
+      dark = light;
+    } else if (appdata.settings[32] == "2") {
+      // dark mode
+      light = dark;
+    }
+    return (light, dark);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (forceRebuild) {
@@ -175,59 +198,31 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         el.markNeedsBuild();
         el.visitChildren(rebuild);
       }
-
       (context as Element).visitChildren(rebuild);
     }
-
-    didChangePlatformBrightness();
     return DynamicColorBuilder(builder: (light, dark) {
-      ColorScheme? lightColor;
-      ColorScheme? darkColor;
-      if (int.parse(appdata.settings[27]) != 0) {
-        lightColor = ColorScheme.fromSeed(
-            seedColor: Color(colors[int.parse(appdata.settings[27]) - 1]),
-            brightness: Brightness.light);
-        darkColor = ColorScheme.fromSeed(
-            seedColor: Color(colors[int.parse(appdata.settings[27]) - 1]),
-            brightness: Brightness.dark);
-      } else {
-        lightColor = light;
-        darkColor = dark;
-      }
-      ColorScheme? colorScheme;
-      if (appdata.settings[32] == "1") {
-        colorScheme =
-            lightColor ?? ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
-      } else if (appdata.settings[32] == "2") {
-        colorScheme = darkColor ??
-            ColorScheme.fromSeed(
-                seedColor: Colors.pinkAccent, brightness: Brightness.dark);
-      }
+      var (lightColor, darkColor) = _generateColorSchemes(light, dark);
       return MaterialApp(
         title: 'Pica Comic',
         debugShowCheckedModeBanner: false,
         navigatorKey: App.navigatorKey,
         theme: ThemeData(
-          colorScheme: (colorScheme ??
-              lightColor ??
-              ColorScheme.fromSeed(seedColor: Colors.pinkAccent)),
+          colorScheme: lightColor,
           useMaterial3: true,
           fontFamily: App.isWindows ? "font" : "",
         ),
         darkTheme: ThemeData(
-          colorScheme: (colorScheme ??
-              darkColor ??
-              ColorScheme.fromSeed(
-                  seedColor: Colors.pinkAccent, brightness: Brightness.dark)),
+          colorScheme: darkColor,
           useMaterial3: true,
           fontFamily: App.isWindows ? "font" : "",
         ),
         onGenerateRoute: (settings) => AppPageRoute(
-            builder: (context) => notFirstUse
-                ? (appdata.settings[13] == "1"
-                    ? const AuthPage()
-                    : const MainPage())
-                : const WelcomePage()),
+          builder: (context) => notFirstUse
+              ? (appdata.settings[13] == "1"
+                  ? const AuthPage()
+                  : const MainPage())
+              : const WelcomePage(),
+        ),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -258,7 +253,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       if (App.canPop) {
                         App.globalBack();
                       } else {
-                        MainPage.of(context).back();
+                        App.mainNavigatorKey?.currentContext?.pop();
                       }
                     },
                   ),

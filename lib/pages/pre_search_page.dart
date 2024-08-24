@@ -60,29 +60,28 @@ class _FloatingSearchBarState extends State<_FloatingSearchBar> {
           ),
         ),
         Expanded(
-          child: TextField(
-            cursorColor: colorScheme.primary,
-            style: textTheme.bodyLarge,
-            textAlignVertical: TextAlignVertical.center,
-            controller: widget.controller,
-            onChanged: (s) {
-              if (s.length <= 1) {
-                setState(() {});
-              }
-              widget.onChanged?.call(s);
-            },
-            focusNode: widget.focusNode,
-            decoration: InputDecoration(
-              isCollapsed: true,
-              border: InputBorder.none,
-              hintText: widget.supportingText,
-              hintStyle: textTheme.bodyLarge?.apply(
-                color: colorScheme.onSurfaceVariant,
+          child: Center(
+            child: TextField(
+              controller: widget.controller,
+              onChanged: (s) {
+                if (s.length <= 1) {
+                  setState(() {});
+                }
+                widget.onChanged?.call(s);
+              },
+              focusNode: widget.focusNode,
+              decoration: InputDecoration(
+                isCollapsed: true,
+                border: InputBorder.none,
+                hintText: widget.supportingText,
+                hintStyle: textTheme.bodyLarge?.apply(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
+              textInputAction: TextInputAction.search,
+              onSubmitted: widget.onFinish,
             ),
-            textInputAction: TextInputAction.search,
-            onSubmitted: widget.onFinish,
-          ).paddingBottom(8),
+          ),
         ),
         if (widget.controller.text.isNotEmpty)
           Tooltip(
