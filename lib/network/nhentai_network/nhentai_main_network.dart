@@ -489,4 +489,21 @@ enum NhentaiSort {
   final String value;
 
   const NhentaiSort(this.value);
+
+  static NhentaiSort fromValue(String value) {
+    switch (value) {
+      case "":
+        return NhentaiSort.recent;
+      case "&sort=popular-today":
+        return NhentaiSort.popularToday;
+      case "&sort=popular-week":
+        return NhentaiSort.popularWeek;
+      case "&sort=popular-month":
+        return NhentaiSort.popularMonth;
+      case "&sort=popular":
+        return NhentaiSort.popularAll;
+      default:
+        return NhentaiSort.recent;
+    }
+  }
 }

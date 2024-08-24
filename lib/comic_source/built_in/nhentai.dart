@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/network/nhentai_network/login.dart';
@@ -44,6 +45,24 @@ final nhentai = ComicSource.named(
         onTap: () => App.mainNavigatorKey?.currentContext?.to(
           () => const ComicPage(sourceKey: "nhentai", id: ""),
         ),
+      ),
+    ],
+  ),
+  categoryComicsData: CategoryComicsData.named(
+    load: (category, param, options, page) async {
+      var [_, type, name] = category.split('/');
+      return NhentaiNetwork().getCategoryComics("/$type/$name", page, NhentaiSort.fromValue(options[0]));
+    },
+    options: [
+      CategoryComicsOptions.named(
+        options: LinkedHashMap.of({
+          "": "Recent",
+          "&sort=popular-today": "Popular-Today",
+          "&sort=popular-week": "Popular-Week",
+          "&sort=popular-month": "Popular-Month",
+          "&sort=popular": "Popular-All",
+        }),
+        notShowWhen: ["random", "latest"],
       ),
     ],
   ),

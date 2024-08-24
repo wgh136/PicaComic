@@ -180,6 +180,9 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
 
   @override
   void tapOnTag(String tag, String key) {
+    if (tag.contains(" | ")) {
+      tag = tag.replaceAll(' | ', '-');
+    }
     if (tag.contains(" ")) {
       tag = tag.replaceAll(' ', '-');
     }
