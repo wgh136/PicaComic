@@ -87,7 +87,7 @@ class _AppbarState extends State<Appbar> {
                 ),
               ),
           const SizedBox(
-            width: 24,
+            width: 16,
           ),
           Expanded(
             child: DefaultTextStyle(

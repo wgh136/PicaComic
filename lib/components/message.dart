@@ -220,6 +220,7 @@ class ContentDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.content,
+    this.adaptive = true,
     this.actions = const [],
   });
 
@@ -228,6 +229,8 @@ class ContentDialog extends StatelessWidget {
   final Widget content;
 
   final List<Widget> actions;
+
+  final bool adaptive;
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +250,7 @@ class ContentDialog extends StatelessWidget {
         const SizedBox(height: 16),
       ],
     );
-    if (context.width >= 400) {
+    if (context.width >= 400 || !adaptive) {
       return Dialog(
         child: IntrinsicWidth(
           child: ConstrainedBox(

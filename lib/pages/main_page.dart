@@ -19,6 +19,8 @@ import 'package:pica_comic/network/update.dart';
 import 'me_page.dart';
 import 'package:pica_comic/network/picacg_network/methods.dart';
 
+bool _haveClipboardDialog = false;
+
 void checkClipboard() async {
   if (appdata.settings[61] == "0") {
     return;
@@ -26,19 +28,28 @@ void checkClipboard() async {
   var data = await Clipboard.getData(Clipboard.kTextPlain);
   if (data?.text != null && canHandle(data!.text!)) {
     await Future.delayed(const Duration(milliseconds: 200));
-    App.globalContext!.showMessage(
-        message: "${"发现剪切板中的链接".tl}\n${data.text}",
-        trailing: TextButton(
-          child: Text(
-            "打开".tl,
-            style: TextStyle(
-                color: App.colors(App.globalContext!).onInverseSurface),
+    if (_haveClipboardDialog) {
+      return;
+    }
+    _haveClipboardDialog = true;
+    await showDialog(
+      context: App.globalContext!,
+      builder: (context) => ContentDialog(
+        title: "发现剪切板中的链接".tl,
+        content: Text(data.text!),
+        adaptive: false,
+        actions: [
+          TextButton(
+            onPressed: () {
+              App.globalContext!.pop();
+              handleAppLinks(Uri.parse(data.text!));
+            },
+            child: Text("打开".tl),
           ),
-          onPressed: () {
-            App.globalContext!.hideMessages();
-            handleAppLinks(Uri.parse(data.text!));
-          },
-        ));
+        ],
+      ),
+    );
+    _haveClipboardDialog = false;
   }
 }
 
