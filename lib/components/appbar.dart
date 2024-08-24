@@ -117,14 +117,24 @@ class _AppbarState extends State<Appbar> {
 }
 
 class SliverAppbar extends StatelessWidget {
-  const SliverAppbar(
-      {super.key, required this.title, this.leading, this.actions});
+  const SliverAppbar({
+    super.key,
+    required this.title,
+    this.leading,
+    this.actions,
+    this.color,
+    this.radius = 0,
+  });
 
   final Widget? leading;
 
   final Widget title;
 
   final List<Widget>? actions;
+
+  final Color? color;
+
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +145,8 @@ class SliverAppbar extends StatelessWidget {
         title: title,
         actions: actions,
         topPadding: MediaQuery.of(context).padding.top,
+        color: color,
+        radius: radius,
       ),
     );
   }
@@ -151,18 +163,26 @@ class _MySliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   final double topPadding;
 
+  final Color? color;
+
+  final double radius;
+
   _MySliverAppBarDelegate(
       {this.leading,
       required this.title,
       this.actions,
-      required this.topPadding});
+      this.color,
+      required this.topPadding,
+      this.radius = 0});
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(
       child: Material(
+        color: color,
         elevation: 0,
+        borderRadius: BorderRadius.circular(radius),
         child: Row(
           children: [
             const SizedBox(width: 8),
@@ -362,7 +382,7 @@ class _FilledTabBarState extends State<FilledTabBar> {
       padding: tabPadding,
       radius: tabRadius,
     );
-    if(old != null) {
+    if (old != null) {
       painter!.update(old.offsets!, old.itemHeight!);
     }
   }
@@ -418,7 +438,7 @@ class _FilledTabBarState extends State<FilledTabBar> {
 
   void onTabChanged() {
     final int i = _controller.index;
-    if(i == previousIndex) {
+    if (i == previousIndex) {
       return;
     }
     updateScrollOffset(i);
@@ -427,14 +447,15 @@ class _FilledTabBarState extends State<FilledTabBar> {
 
   void updateScrollOffset(int i) {
     // try to scroll to center the tab
-    final RenderBox tabBarBox = tabBarKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox tabBarBox =
+        tabBarKey.currentContext!.findRenderObject() as RenderBox;
     final double tabLeft = offsets[i];
     final double tabRight = offsets[i + 1];
     final double tabWidth = tabRight - tabLeft;
     final double tabCenter = tabLeft + tabWidth / 2;
     final double tabBarWidth = tabBarBox.size.width;
     final double scrollOffset = tabCenter - tabBarWidth / 2;
-    if(scrollOffset == scrollController.offset) {
+    if (scrollOffset == scrollController.offset) {
       return;
     }
     scrollController.animateTo(
@@ -577,7 +598,8 @@ class _IndicatorPainter extends CustomPainter {
     final Rect toRect = indicatorRect(size, to);
     _currentRect = Rect.lerp(fromRect, toRect, (value - from).abs());
     final Paint paint = Paint()..color = color;
-    final RRect rrect = RRect.fromRectAndRadius(_currentRect!, Radius.circular(radius));
+    final RRect rrect =
+        RRect.fromRectAndRadius(_currentRect!, Radius.circular(radius));
     canvas.drawRRect(rrect, paint);
   }
 

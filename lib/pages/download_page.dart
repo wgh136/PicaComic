@@ -595,174 +595,183 @@ class DownloadPage extends StatelessWidget {
     }
   }
 
-  Widget buildAppbar(BuildContext context, DownloadPageLogic logic) =>
-      SliverAppbar(
-        leading: logic.selecting
-            ? IconButton(
-                onPressed: () {
-                  logic.selecting = false;
-                  logic.selectedNum = 0;
-                  for (int i = 0; i < logic.selected.length; i++) {
-                    logic.selected[i] = false;
-                  }
-                  logic.update();
-                },
-                icon: const Icon(Icons.close))
-            : IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back)),
-        title: buildTitle(context, logic),
-        actions: [
-          if (!logic.selecting && !logic.searchMode)
-            Tooltip(
-              message: "排序".tl,
-              child: IconButton(
-                icon: const Icon(Icons.sort),
-                onPressed: () async {
-                  bool changed = false;
-                  await showDialog(
-                      context: context,
-                      builder: (context) => SimpleDialog(
-                            title: Text("漫画排序模式".tl),
-                            children: [
-                              SizedBox(
-                                width: 400,
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      title: Text("漫画排序模式".tl),
-                                      trailing: Select(
-                                        initialValue:
-                                            int.parse(appdata.settings[26][0]),
-                                        onChange: (i) {
-                                          appdata.settings[26] = appdata
-                                              .settings[26]
-                                              .setValueAt(i.toString(), 0);
-                                          appdata.updateSettings();
-                                          changed = true;
-                                        },
-                                        values: ["时间", "漫画名", "作者名", "大小"].tl,
-                                      ),
-                                    ),
-                                    ListTile(
-                                      title: Text("倒序".tl),
-                                      trailing: StatefulSwitch(
-                                        initialValue:
-                                            appdata.settings[26][1] == "1",
-                                        onChanged: (b) {
-                                          if (b) {
-                                            appdata.settings[26] = appdata
-                                                .settings[26]
-                                                .setValueAt("1", 1);
-                                          } else {
-                                            appdata.settings[26] = appdata
-                                                .settings[26]
-                                                .setValueAt("0", 1);
-                                          }
-                                          appdata.updateSettings();
-                                          changed = true;
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ));
-                  if (changed) {
-                    logic.refresh();
-                  }
-                },
-              ),
-            ),
-          if (!logic.selecting && !logic.searchMode)
-            Tooltip(
-              message: "下载管理器".tl,
-              child: IconButton(
-                icon: const Icon(Icons.download_for_offline),
-                onPressed: () {
-                  showPopUpWidget(
-                    App.globalContext!,
-                    const DownloadingPage(),
-                  );
-                },
-              ),
-            )
-          else if (logic.selecting)
-            Tooltip(
-              message: "更多".tl,
-              child: IconButton(
-                icon: const Icon(Icons.more_horiz),
-                onPressed: () {
-                  showMenu(
-                      context: context,
-                      position: RelativeRect.fromLTRB(
-                          MediaQuery.of(context).size.width - 60,
-                          50,
-                          MediaQuery.of(context).size.width - 60,
-                          50),
-                      items: [
-                        PopupMenuItem(
-                          child: Text("全选".tl),
-                          onTap: () {
-                            for (int i = 0; i < logic.selected.length; i++) {
-                              logic.selected[i] = true;
+  Widget buildAppbar(BuildContext context, DownloadPageLogic logic) {
+    return SliverAppbar(
+      radius: UiMode.m1(context) ? 0 : 16,
+      color: logic.selecting
+        ? Theme.of(context).colorScheme.primaryContainer
+        : null,
+      leading: logic.selecting
+          ? IconButton(
+          onPressed: () {
+            logic.selecting = false;
+            logic.selectedNum = 0;
+            for (int i = 0; i < logic.selected.length; i++) {
+              logic.selected[i] = false;
+            }
+            logic.update();
+          },
+          icon: const Icon(Icons.close))
+          : IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back)),
+      title: buildTitle(context, logic),
+      actions: buildActions(context, logic),
+    );
+  }
+
+  List<Widget> buildActions(BuildContext context, DownloadPageLogic logic) {
+    return [
+      if (!logic.selecting && !logic.searchMode)
+        Tooltip(
+          message: "排序".tl,
+          child: IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: () async {
+              bool changed = false;
+              await showDialog(
+                  context: context,
+                  builder: (context) => SimpleDialog(
+                    title: Text("漫画排序模式".tl),
+                    children: [
+                      SizedBox(
+                        width: 400,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text("漫画排序模式".tl),
+                              trailing: Select(
+                                initialValue:
+                                int.parse(appdata.settings[26][0]),
+                                onChange: (i) {
+                                  appdata.settings[26] = appdata
+                                      .settings[26]
+                                      .setValueAt(i.toString(), 0);
+                                  appdata.updateSettings();
+                                  changed = true;
+                                },
+                                values: ["时间", "漫画名", "作者名", "大小"].tl,
+                              ),
+                            ),
+                            ListTile(
+                              title: Text("倒序".tl),
+                              trailing: StatefulSwitch(
+                                initialValue:
+                                appdata.settings[26][1] == "1",
+                                onChanged: (b) {
+                                  if (b) {
+                                    appdata.settings[26] = appdata
+                                        .settings[26]
+                                        .setValueAt("1", 1);
+                                  } else {
+                                    appdata.settings[26] = appdata
+                                        .settings[26]
+                                        .setValueAt("0", 1);
+                                  }
+                                  appdata.updateSettings();
+                                  changed = true;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ));
+              if (changed) {
+                logic.refresh();
+              }
+            },
+          ),
+        ),
+      if (!logic.selecting && !logic.searchMode)
+        Tooltip(
+          message: "下载管理器".tl,
+          child: IconButton(
+            icon: const Icon(Icons.download_for_offline),
+            onPressed: () {
+              showPopUpWidget(
+                App.globalContext!,
+                const DownloadingPage(),
+              );
+            },
+          ),
+        )
+      else if (logic.selecting)
+        Tooltip(
+          message: "更多".tl,
+          child: IconButton(
+            icon: const Icon(Icons.more_horiz),
+            onPressed: () {
+              showMenu(
+                  context: context,
+                  position: RelativeRect.fromLTRB(
+                      MediaQuery.of(context).size.width - 60,
+                      50,
+                      MediaQuery.of(context).size.width - 60,
+                      50),
+                  items: [
+                    PopupMenuItem(
+                      child: Text("全选".tl),
+                      onTap: () {
+                        for (int i = 0; i < logic.selected.length; i++) {
+                          logic.selected[i] = true;
+                        }
+                        logic.selectedNum = logic.comics.length;
+                        logic.update();
+                      },
+                    ),
+                    PopupMenuItem(
+                      child: Text("导出".tl),
+                      onTap: () => exportSelectedComic(context, logic),
+                    ),
+                    PopupMenuItem(
+                      child: Text("导出为pdf".tl),
+                      onTap: () => exportAsPdf(null, logic),
+                    ),
+                    PopupMenuItem(
+                      child: Text("查看漫画详情".tl),
+                      onTap: () => Future.delayed(
+                          const Duration(milliseconds: 200), () {
+                        if (logic.selectedNum != 1) {
+                          showToast(message: "请选择一个漫画".tl);
+                        } else {
+                          for (int i = 0; i < logic.selected.length; i++) {
+                            if (logic.selected[i]) {
+                              toComicInfoPage(logic.comics[i]);
                             }
-                            logic.selectedNum = logic.comics.length;
-                            logic.update();
-                          },
-                        ),
-                        PopupMenuItem(
-                          child: Text("导出".tl),
-                          onTap: () => exportSelectedComic(context, logic),
-                        ),
-                        PopupMenuItem(
-                          child: Text("导出为pdf".tl),
-                          onTap: () => exportAsPdf(null, logic),
-                        ),
-                        PopupMenuItem(
-                          child: Text("查看漫画详情".tl),
-                          onTap: () => Future.delayed(
-                              const Duration(milliseconds: 200), () {
-                            if (logic.selectedNum != 1) {
-                              showToast(message: "请选择一个漫画".tl);
-                            } else {
-                              for (int i = 0; i < logic.selected.length; i++) {
-                                if (logic.selected[i]) {
-                                  toComicInfoPage(logic.comics[i]);
-                                }
-                              }
-                            }
-                          }),
-                        ),
-                        PopupMenuItem(
-                          child: Text("添加至本地收藏".tl),
-                          onTap: () => Future.delayed(
-                            const Duration(milliseconds: 200),
+                          }
+                        }
+                      }),
+                    ),
+                    PopupMenuItem(
+                      child: Text("添加至本地收藏".tl),
+                      onTap: () => Future.delayed(
+                        const Duration(milliseconds: 200),
                             () => addToLocalFavoriteFolder(
-                                App.globalContext!, logic),
-                          ),
-                        ),
-                      ]);
-                },
-              ),
-            ),
-          if (!logic.selecting)
-            Tooltip(
-              message: "搜索".tl,
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  logic.searchMode = !logic.searchMode;
-                  if (!logic.searchMode) {
-                    logic.keyword = "";
-                  }
-                  logic.update();
-                },
-              ),
-            )
-        ],
-      );
+                            App.globalContext!, logic),
+                      ),
+                    ),
+                  ]);
+            },
+          ),
+        ),
+      if (!logic.selecting)
+        Tooltip(
+          message: "搜索".tl,
+          child: IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              logic.searchMode = !logic.searchMode;
+              if (!logic.searchMode) {
+                logic.keyword = "";
+              }
+              logic.update();
+            },
+          ),
+        )
+    ];
+  }
 
   void exportSelectedComic(BuildContext context, DownloadPageLogic logic) {
     if (logic.selectedNum == 0) {
