@@ -164,7 +164,7 @@ void passCloudflare(CloudflareException e, void Function() onFinished) async {
         var res = await controller.platform.evaluateJavascript(
             source:
                 "document.head.innerHTML.includes('#challenge-success-text')");
-        if (res == true) {
+        if (res == false) {
           var ua = await controller.getUA();
           if (ua != null) {
             appdata.implicitData[3] = ua;
@@ -191,7 +191,7 @@ void passCloudflare(CloudflareException e, void Function() onFinished) async {
           var res = await controller.platform.evaluateJavascript(
               source:
                   "document.head.innerHTML.includes('#challenge-success-text')");
-          if (res == true) {
+          if (res == false) {
             var ua = await controller.getUA();
             if (ua != null) {
               appdata.implicitData[3] = ua;
