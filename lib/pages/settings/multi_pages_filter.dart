@@ -26,14 +26,12 @@ class _MultiPagesFilterState extends State<MultiPagesFilter> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          if(keys.length < widget.pages.length)
-            IconButton(onPressed: showAddDialog, icon: const Icon(Icons.add))
-        ],
-      ),
+    return PopUpWidgetScaffold(
+      title: widget.title,
+      tailing: [
+        if(keys.length < widget.pages.length)
+          IconButton(onPressed: showAddDialog, icon: const Icon(Icons.add))
+      ],
       body: ReorderableListView(
         children: keys.map((e) => buildItem(e)).toList(),
         onReorder: (oldIndex, newIndex){

@@ -3,12 +3,12 @@ part of pica_settings;
 void findUpdate(BuildContext context) {
   context.showMessage(message: "正在检查更新".tl);
   checkUpdate().then((b) {
-    if(!context.mounted) return;
+    if (!context.mounted) return;
     if (b == null) {
       context.showMessage(message: "网络错误".tl);
     } else if (b) {
       getUpdatesInfo().then((s) {
-        if(!context.mounted) return;
+        if (!context.mounted) return;
         if (s != null) {
           showDialog(
               context: context,
@@ -429,27 +429,27 @@ class _SetExplorePagesState extends State<SetExplorePages> {
         notShowPages.add(i);
       }
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("探索页面".tl),
-        actions: [
-          if (notShowPages.isNotEmpty)
-            IconButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return SimpleDialog(
-                          title: const Text("Add"),
-                          children: notShowPages
-                              .map((e) => buildNotShowPageSelector(e, context))
-                              .toList(),
-                        );
-                      });
+    return PopUpWidgetScaffold(
+      title: "探索页面".tl,
+      tailing: [
+        if (notShowPages.isNotEmpty)
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return SimpleDialog(
+                    title: const Text("Add"),
+                    children: notShowPages
+                        .map((e) => buildNotShowPageSelector(e, context))
+                        .toList(),
+                  );
                 },
-                icon: const Icon(Icons.add))
-        ],
-      ),
+              );
+            },
+            icon: const Icon(Icons.add),
+          )
+      ],
       body: ReorderableListView(
         children:
             appdata.appSettings.explorePages.map((e) => buildItem(e)).toList(),
