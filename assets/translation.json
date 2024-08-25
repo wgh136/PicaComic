@@ -540,7 +540,8 @@
     "导出失败": "匯出失敗",
     "完全隐藏屏蔽的作品": "完全隱藏封鎖的作品",
     "内置漫画源": "內置漫畫源",
-    "设置缓存限制": "設置快取限制"
+    "设置缓存限制": "設置快取限制",
+    "需要进行Cloudflare验证": "需要進行Cloudflare驗證"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1080,6 +1081,7 @@
     "导出失败": "Export failed",
     "完全隐藏屏蔽的作品": "Completely hide blocked works",
     "内置漫画源": "Built-in comic source",
-    "设置缓存限制": "Set cache limit"
+    "设置缓存限制": "Set cache limit",
+    "需要进行Cloudflare验证": "Cloudflare verification required"
   }
 }

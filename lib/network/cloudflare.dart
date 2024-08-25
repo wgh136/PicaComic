@@ -141,6 +141,9 @@ void passCloudflare(CloudflareException e, void Function() onFinished) async {
             webview.runScript(
                 "window.chrome.webview.postMessage(\"UA\" + navigator.userAgent)");
             var cookies = await webview.getCookies(url);
+            if(cookies['cf_clearance'] == null) {
+              return;
+            }
             saveCookies(cookies);
             webview.close();
             onFinished();
@@ -171,6 +174,9 @@ void passCloudflare(CloudflareException e, void Function() onFinished) async {
             appdata.writeImplicitData();
           }
           var cookiesMap = await controller.getCookies(url) ?? {};
+          if(cookiesMap['cf_clearance'] == null) {
+            return;
+          }
           saveCookies(cookiesMap);
           browser.close();
         }
@@ -198,6 +204,9 @@ void passCloudflare(CloudflareException e, void Function() onFinished) async {
               appdata.writeImplicitData();
             }
             var cookiesMap = await controller.getCookies(url) ?? {};
+            if(cookiesMap['cf_clearance'] == null) {
+              return;
+            }
             saveCookies(cookiesMap);
             App.globalBack();
           }
