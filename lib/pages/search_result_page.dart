@@ -117,6 +117,14 @@ class _SearchResultPageState extends State<_SearchResultPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    if(suggestionOverlay != null) {
+      suggestionsController.remove();
+    }
+    super.dispose();
+  }
+
   void onChanged(String s) {
     suggestionsController.findSuggestions();
     if (suggestionOverlay != null) {
