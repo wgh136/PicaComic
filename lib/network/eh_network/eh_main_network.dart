@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -746,6 +747,40 @@ class EhNetwork {
     return Res(document.querySelectorAll("div.gdtl > a > img").map((e) => e.attributes["src"] ?? "").toList());
   }
 
+  List<String> _splitKeyword(String keyword) {
+    var res = <String>[];
+    var buffer = StringBuffer();
+    var qs = Queue<String>();
+    for(int i = 0; i<keyword.length; i++) {
+      var char = keyword[i];
+      if(char == '"' || char == "'") {
+        if(qs.isEmpty) {
+          qs.add(char);
+        } else {
+          if(qs.first == char) {
+            qs.removeFirst();
+          } else {
+            qs.add(char);
+          }
+        }
+      }
+      if(char == ' ') {
+        if(qs.isEmpty) {
+          res.add(buffer.toString());
+          buffer.clear();
+        } else {
+          buffer.write(char);
+        }
+      } else {
+        buffer.write(char);
+      }
+    }
+    if(buffer.isNotEmpty) {
+      res.add(buffer.toString());
+    }
+    return res;
+  }
+
   ///搜索e-hentai
   Future<Res<Galleries>> search(String keyword,
       {int? fCats, int? startPages, int? endPages, int? minStars}) async {
@@ -753,6 +788,28 @@ class EhNetwork {
       appdata.searchHistory.remove(keyword);
       appdata.searchHistory.add(keyword);
       appdata.writeHistory();
+    }
+    keyword = keyword.replaceAll(RegExp(r"\s+"), " ").trim();
+    if(keyword.contains(" | ")) {
+      var keywords = _splitKeyword(keyword);
+      var newKeywords = <String>[];
+      for(var k in keywords) {
+        if(!k.contains(' | '))  {
+          newKeywords.add(k);
+        } else {
+          var lr = k.split(':');
+          if(lr.length != 2
+              && !((lr[1].startsWith('"') && lr[1].endsWith('"'))
+              || (lr[1].startsWith("'") && lr[1].endsWith("'")))
+          ) {
+            newKeywords.add(k);
+          } else {
+            var lastChar = k[k.length-1];
+            newKeywords.add(k.replaceAll(' | ', ' ').replaceLast(lastChar, '\$$lastChar'));
+          }
+        }
+      }
+      keyword = newKeywords.join(' ');
     }
     var requestUrl = "$ehBaseUrl/?f_search=$keyword";
     if (fCats != null) {
