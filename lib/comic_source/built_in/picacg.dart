@@ -64,6 +64,7 @@ final picacg = ComicSource.named(
         picacg.data['token'] = null;
         return Res.fromErrorRes(res);
       }
+      network.user = profile.data;
       picacg.data['user'] = profile.data.toJson();
       var a = <String>[account, pwd];
       picacg.data['account'] = a;
