@@ -3,7 +3,7 @@ part of pica_settings;
 Widget buildExploreSettings(BuildContext context, bool popUp) {
   var searchSource = <String>[];
   for(var source in ComicSource.sources){
-    searchSource.add(source.name);
+    searchSource.add(source.key);
   }
 
   return Column(
