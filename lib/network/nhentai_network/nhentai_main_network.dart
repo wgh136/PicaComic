@@ -120,7 +120,7 @@ class NhentaiNetwork {
     if (page != null && page != 1) {
       url = "$url?page=$page";
     }
-    var res = await get(baseUrl);
+    var res = await get(url);
     if (res.error) {
       return Res.fromErrorRes(res);
     }
