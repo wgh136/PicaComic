@@ -608,7 +608,10 @@ class _EhentaiGalleriesLoader {
     }
     page--;
     while (page >= cache.length) {
-      loadNext();
+      var res = await loadNext();
+      if(res.error) {
+        return Res.fromErrorRes(res);
+      }
     }
     if (galleries!.next == null) {
       return Res(cache[page], subData: cache.length);
