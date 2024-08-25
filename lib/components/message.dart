@@ -204,12 +204,14 @@ LoadingDialogController showLoadingDialog(BuildContext context,
         );
       });
 
-  Navigator.of(context)
+  var navigator = Navigator.of(context);
+
+  navigator
       .push(loadingDialogRoute)
       .then((value) => controller.closed = true);
 
   controller.closeDialog = () {
-    Navigator.of(context).removeRoute(loadingDialogRoute);
+    navigator.removeRoute(loadingDialogRoute);
   };
 
   return controller;
