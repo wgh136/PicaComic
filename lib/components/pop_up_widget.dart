@@ -151,7 +151,11 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
               }
               return false;
             },
-            child: Expanded(child: widget.body),
+            child: MediaQuery.removePadding(
+              removeTop: true,
+              context: context,
+              child: Expanded(child: widget.body),
+            ),
           ),
           SizedBox(
             height: MediaQuery.of(context).viewInsets.bottom -

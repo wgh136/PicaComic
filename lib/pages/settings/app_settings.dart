@@ -397,7 +397,13 @@ class _SetExplorePagesState extends State<SetExplorePages> {
     return ListTile(
       title: Text(i.tl),
       key: Key(i),
-      trailing: removeButton,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          removeButton,
+          const Icon(Icons.drag_handle),
+        ],
+      ),
     );
   }
 
@@ -415,6 +421,10 @@ class _SetExplorePagesState extends State<SetExplorePages> {
     );
   }
 
+  var reorderWidgetKey = UniqueKey();
+  var scrollController = ScrollController();
+  final _key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     var notShowPages = <String>[];
@@ -429,6 +439,45 @@ class _SetExplorePagesState extends State<SetExplorePages> {
         notShowPages.add(i);
       }
     }
+
+    var tiles =
+        appdata.appSettings.explorePages.map((e) => buildItem(e)).toList();
+
+    var view = ReorderableBuilder(
+      key: reorderWidgetKey,
+      scrollController: scrollController,
+      longPressDelay: App.isDesktop
+          ? const Duration(milliseconds: 100)
+          : const Duration(milliseconds: 500),
+      dragChildBoxDecoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        boxShadow: const [
+          BoxShadow(
+              color: Colors.black12,
+              blurRadius: 5,
+              offset: Offset(0, 2),
+              spreadRadius: 2)
+        ],
+      ),
+      onReorder: (reorderFunc) {
+        setState(() {
+          appdata.appSettings.explorePages =
+              List.from(reorderFunc(appdata.appSettings.explorePages));
+        });
+      },
+      children: tiles,
+      builder: (children) {
+        return GridView(
+          key: _key,
+          controller: scrollController,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 1,
+            mainAxisExtent: 48,
+          ),
+          children: children,
+        );
+      },
+    );
     return PopUpWidgetScaffold(
       title: "探索页面".tl,
       tailing: [
@@ -450,18 +499,7 @@ class _SetExplorePagesState extends State<SetExplorePages> {
             icon: const Icon(Icons.add),
           )
       ],
-      body: ReorderableListView(
-        children:
-            appdata.appSettings.explorePages.map((e) => buildItem(e)).toList(),
-        onReorder: (oldIndex, newIndex) {
-          var settingList = appdata.appSettings.explorePages;
-          var element = settingList.removeAt(oldIndex);
-          settingList.insert(newIndex, element);
-          setState(() {
-            appdata.appSettings.explorePages = settingList;
-          });
-        },
-      ),
+      body: view,
     );
   }
 }
