@@ -30,13 +30,7 @@ void saveImage(File file) async {
       final String? path =
           (await getSaveLocation(suggestedName: fileName))?.path;
       if (path != null) {
-        final mimeType = switch(type) {
-          FileType.jpg => 'image/jpeg',
-          FileType.png => 'image/png',
-          FileType.webp => 'image/webp',
-          FileType.gif => 'image/gif',
-          FileType.unknown => 'image/jpeg',
-        };
+        final mimeType = type.mime;
         final XFile xFile =
             XFile.fromData(data, mimeType: mimeType, name: fileName);
         await xFile.saveTo(path);
