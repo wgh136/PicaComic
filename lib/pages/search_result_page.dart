@@ -287,10 +287,11 @@ class _SearchResultPageState extends State<_SearchResultPage> {
                 onPressed: () {
                   if (sourceKey != null) {
                     context.pop();
-                    if (ComicSource.find(sourceKey!)!
-                            .searchPageData
-                            ?.overrideSearchResultBuilder !=
-                        null) {
+                    var searchData = ComicSource.find(sourceKey!)!.searchPageData!;
+                    options = (searchData.searchOptions ?? [])
+                        .map((e) => e.defaultValue)
+                        .toList();
+                    if (searchData.overrideSearchResultBuilder != null) {
                       this.context.off(() {
                         return SearchResultPage(
                           keyword: keyword,
@@ -298,10 +299,11 @@ class _SearchResultPageState extends State<_SearchResultPage> {
                           sourceKey: sourceKey!,
                         );
                       });
+                    } else {
+                      this.setState(() {
+                        this.sourceKey = sourceKey!;
+                      });
                     }
-                    this.setState(() {
-                      this.sourceKey = sourceKey!;
-                    });
                   }
                 },
               )
