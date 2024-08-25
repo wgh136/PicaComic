@@ -201,7 +201,7 @@ class _HtComicTile extends ComicTile {
   @override
   void onTap_() {
     App.mainNavigatorKey!.currentContext!.to(() => ComicPage(
-          sourceKey: 'htmaga',
+          sourceKey: 'htmanga',
           id: comic.id,
           cover: comic.cover,
         ));

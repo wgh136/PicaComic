@@ -155,7 +155,6 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
   Future<Res<ComicInfoData>> loadData() async {
     if (comicSource == null) throw "Comic Source Not Found";
     var res = await comicSource!.loadComicInfo!(id);
-    print(res.data.cover);
     return res;
   }
 
