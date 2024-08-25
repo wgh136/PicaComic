@@ -11,6 +11,7 @@ import 'package:pica_comic/network/http_client.dart';
 import 'package:zip_flutter/zip_flutter.dart';
 import 'dart:io';
 import '../../tools/io_tools.dart';
+import '../download.dart';
 import 'eh_main_network.dart';
 import 'get_gallery_id.dart';
 
@@ -172,6 +173,7 @@ class EhDownloadingItem extends DownloadingItem{
     if(downloadType == 0){
       return super.start();
     } else {
+      await onStart();
       _stop = false;
       try{
         await downloadCover();
@@ -191,19 +193,19 @@ class EhDownloadingItem extends DownloadingItem{
         }
         _downloader = _IsolateDownloader(
             _downloadLink!,
-            "$path/$id",
+            path,
             (current, total, speed){
               _currentBytes = current;
               _totalBytes = total;
               _currentSpeed = speed;
               updateInfo?.call();
               if(current == total){
+                if (DownloadManager().downloading.firstOrNull != this) return;
                 finish();
               }
             },
             onError!
         );
-
         _downloader!.start();
       }
       catch(e, s){
@@ -235,7 +237,7 @@ class EhDownloadingItem extends DownloadingItem{
     } else {
       _stop = true;
       _downloader?.stop();
-      var directory = Directory("$path/$id");
+      var directory = Directory(path);
       if(await directory.exists()) {
         await directory.delete(recursive: true);
       }
