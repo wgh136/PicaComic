@@ -76,6 +76,7 @@ class AccountsPage extends StatelessWidget {
                   registerWebsite: element.account!.registerWebsite,
                 ),
               );
+              element.saveData();
             }
             logic.update();
           },

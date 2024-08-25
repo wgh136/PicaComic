@@ -32,7 +32,7 @@ class PicacgNetwork {
 
   final String apiUrl = "https://picaapi.picacomic.com";
 
-  String get token => picacg.data['token'];
+  String get token => picacg.data['token'] ?? '';
 
   Profile? user;
 

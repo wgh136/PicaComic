@@ -65,6 +65,8 @@ final picacg = ComicSource.named(
         return Res.fromErrorRes(res);
       }
       picacg.data['user'] = profile.data.toJson();
+      var a = <String>[account, pwd];
+      picacg.data['account'] = a;
       return const Res(true);
     },
     logout: () {

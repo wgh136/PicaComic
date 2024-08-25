@@ -126,6 +126,8 @@ final htManga = ComicSource.named(
       if (!res.error) {
         htManga.data['name'] = account;
       }
+      var a = <String>[account, pwd];
+      htManga.data['account'] = a;
       return res;
     },
     logout: () {
