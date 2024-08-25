@@ -32,6 +32,10 @@ extension TagsTranslation on String{
     });
   }
 
+  static bool _haveNamespace(String key) {
+    return _data.containsKey(key);
+  }
+
   /// 对tag进行处理后进行翻译: 代表'或'的分割符'|', namespace.
   static String _translateTags(String tag){
     if (tag.contains('|')) {
@@ -39,7 +43,11 @@ extension TagsTranslation on String{
       return enTagsTranslations[splits[0]]??enTagsTranslations[splits[1]]??tag;
     } else if(tag.contains(':')) {
       var splits = tag.split(':');
-      return translationTagWithNamespace(splits[1], splits[0]);
+      if(_haveNamespace(splits[0])) {
+        return translationTagWithNamespace(splits[1], splits[0]);
+      } else {
+        return tag;
+      }
     } else {
       return enTagsTranslations[tag]??tag;
     }
