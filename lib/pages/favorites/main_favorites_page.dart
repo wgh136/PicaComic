@@ -8,6 +8,7 @@ import "package:pica_comic/comic_source/comic_source.dart";
 import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/foundation/local_favorites.dart";
 import "package:pica_comic/foundation/log.dart";
+import "package:pica_comic/network/download.dart";
 import "package:pica_comic/tools/translations.dart";
 import 'package:pica_comic/components/components.dart';
 import "../../network/net_fav_to_local.dart";
@@ -137,9 +138,26 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
             child: Text("复制到".tl),
             onTap: () {
               Future.delayed(
-                  const Duration(milliseconds: 200),
-                  () => copyAllTo(
-                      controller.current!, controller.selectedComics));
+                const Duration(milliseconds: 200),
+                () => copyAllTo(controller.current!, controller.selectedComics),
+              );
+            },
+          ),
+          PopupMenuItem(
+            child: Text("下载".tl),
+            onTap: () {
+              Future.delayed(
+                const Duration(milliseconds: 200),
+                () {
+                  var comics = controller.selectedComics
+                      .map((e) => LocalFavoritesManager().getComic(controller.current!, e))
+                      .toList();
+                  for (var comic in comics) {
+                    DownloadManager().addFavoriteDownload(comic);
+                  }
+                  showToast(message: "已添加下载任务".tl);
+                },
+              );
             },
           ),
         ]);
@@ -295,8 +313,8 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
   }
 
   Widget buildNetwork() {
-    var folders =
-        appdata.appSettings.networkFavorites.map((e) => getFavoriteDataOrNull(e));
+    var folders = appdata.appSettings.networkFavorites
+        .map((e) => getFavoriteDataOrNull(e));
     folders = folders.whereType<FavoriteData>();
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedHeight(
@@ -451,7 +469,9 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
         key: Key(controller.current ?? ""),
       );
     } else {
+      var count = LocalFavoritesManager().count(controller.current!);
       return ComicsPageView(
+        key: Key(controller.current! + count.toString()),
         folder: controller.current!,
         selectedComics: controller.selectedComics,
         onClick: (key) {
@@ -654,6 +674,8 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     return folderSyncArr[0];
   }
 
+  late List<FavoriteItem> comics;
+
   @override
   void initState() {
     scrollController = ScrollController();
@@ -672,6 +694,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
 
       location = current;
     });
+    comics = LocalFavoritesManager().getAllComics(folder);
     super.initState();
   }
 
@@ -686,12 +709,17 @@ class _ComicsPageViewState extends State<ComicsPageView> {
     return buildFolderComics(folder);
   }
 
+  void rebuild() {
+    setState(() {
+      comics = LocalFavoritesManager().getAllComics(folder);
+    });
+  }
+
   Future<void> onRefresh(context) async {
     return startFolderSync(context, folderSync()!);
   }
 
   Widget buildFolderComics(String folder) {
-    var comics = LocalFavoritesManager().getAllComics(folder);
     if (comics.isEmpty) {
       return buildEmptyView();
     }
@@ -730,7 +758,7 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                       var tile = LocalFavoriteTile(
                         comic,
                         folder,
-                        () => setState(() {}),
+                        rebuild,
                         true,
                         onTap: () => widget.onClick(comic.target),
                         onLongPressed: () => widget.onLongPressed(comic.target),
