@@ -143,7 +143,7 @@ final jm = ComicSource.named(
   categoryComicsData: CategoryComicsData.named(
     load: (category, param, options, page) async {
       return JmNetwork().getCategoryComics(
-        category,
+        param ?? category,
         ComicsOrder.fromValue(options[0]),
         page,
       );
