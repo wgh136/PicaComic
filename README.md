@@ -1,6 +1,6 @@
 # Pica Comic
 
-[![flutter](https://img.shields.io/badge/flutter-3.22.2-blue)](https://flutter.dev/) 
+[![flutter](https://img.shields.io/badge/flutter-3.24.1-blue)](https://flutter.dev/) 
 [![License](https://img.shields.io/github/license/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/blob/master/LICENSE)
 [![Download](https://img.shields.io/github/v/release/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/releases)
 [![stars](https://img.shields.io/github/stars/wgh136/PicaComic)](https://github.com/wgh136/PicaComic/stargazers)
@@ -22,9 +22,7 @@ Currently, Pica Comic has 5 built-in comic sources:
 
 ### Custom Comic Source
 
-Now you can add custom comic sources in the app after version 3.0.0.
-
-> Note: The custom comic source feature is still in beta, some features may not work properly.
+You can add custom comic sources in the app after version 3.0.0.
 
 ### Features
 
