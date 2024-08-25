@@ -305,7 +305,7 @@ class DownloadManager with _DownloadDb implements Listenable {
   Future<void> delete(List<String> ids) async {
     for (var id in ids) {
       _deleteFromDb(id);
-      var comic = Directory("$path$pathSep$id");
+      var comic = Directory("$path/${getDirectory(id)}");
       try {
         comic.delete(recursive: true);
       } catch (e) {
