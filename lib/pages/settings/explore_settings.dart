@@ -41,7 +41,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
       SelectSetting(
         icon: const Icon(Icons.list),
         title: "漫画列表显示方式".tl,
-        options: ["顺序显示".tl, "分页显示".tl],
+        options: ["连续模式".tl, "分页模式".tl],
         settingsIndex: 25,
       ),
       SwitchSetting(

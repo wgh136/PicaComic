@@ -91,6 +91,7 @@ class SelectSetting extends StatelessWidget {
       leading: icon,
       title: Text(title),
       trailing: Select(
+        width: 136,
         initialValue: int.parse(appdata.settings[settingsIndex]),
         onChange: (i) {
           appdata.settings[settingsIndex] = i.toString();

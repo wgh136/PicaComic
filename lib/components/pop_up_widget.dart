@@ -114,7 +114,7 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
                   width: 8,
                 ),
                 Tooltip(
-                  message: "返回",
+                  message: "返回".tl,
                   child: IconButton(
                       icon: const Icon(Icons.arrow_back_sharp),
                       onPressed: () => Navigator.of(context).canPop()
@@ -130,7 +130,8 @@ class _PopUpWidgetScaffoldState extends State<PopUpWidgetScaffold> {
                       fontSize: 22, fontWeight: FontWeight.w500),
                 ),
                 const Spacer(),
-                if (widget.tailing != null) ...widget.tailing!
+                if (widget.tailing != null) ...widget.tailing!,
+                const SizedBox(width: 8),
               ],
             ),
           ),

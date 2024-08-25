@@ -54,7 +54,7 @@ class _ExplorePageState extends State<ExplorePage>
       );
 
   Tab buildTab(String i) {
-    return Tab(text: i, key: Key(i));
+    return Tab(text: i.tl, key: Key(i));
   }
 
   Widget buildBody(String i) => _SingleExplorePage(i, key: Key(i));

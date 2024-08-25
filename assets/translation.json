@@ -541,7 +541,13 @@
     "完全隐藏屏蔽的作品": "完全隱藏封鎖的作品",
     "内置漫画源": "內置漫畫源",
     "设置缓存限制": "設置快取限制",
-    "需要进行Cloudflare验证": "需要進行Cloudflare驗證"
+    "需要进行Cloudflare验证": "需要進行Cloudflare驗證",
+    "屏蔽关键词": "封鎖關鍵詞",
+    "上传者": "上傳者",
+    "图片搜索": "圖片搜索",
+    "Eh订阅": "Eh訂閱",
+    "菜单": "選單",
+    "导出为pdf": "匯出為pdf"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -1082,6 +1088,12 @@
     "完全隐藏屏蔽的作品": "Completely hide blocked works",
     "内置漫画源": "Built-in comic source",
     "设置缓存限制": "Set cache limit",
-    "需要进行Cloudflare验证": "Cloudflare verification required"
+    "需要进行Cloudflare验证": "Cloudflare verification required",
+    "屏蔽关键词": "Block keywords",
+    "上传者": "Uploader",
+    "图片搜索": "Image search",
+    "Eh订阅": "Eh subscription",
+    "菜单": "Menu",
+    "导出为pdf": "Export as pdf"
   }
 }

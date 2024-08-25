@@ -95,7 +95,7 @@ class _SelectState extends State<Select> {
           child: Row(
             children: [
               const SizedBox(
-                width: 16,
+                width: 12,
               ),
               Expanded(
                 child: Text(
