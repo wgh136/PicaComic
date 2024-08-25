@@ -367,6 +367,8 @@ class ExplorePagePart {
   /// Value of this field should match the following format:
   ///   - search:keyword
   ///   - category:categoryName
+  ///
+  /// End with `@`+`param` if the category has a parameter.
   final String? viewMore;
 
   const ExplorePagePart(this.title, this.comics, this.viewMore);

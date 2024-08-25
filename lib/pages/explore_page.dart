@@ -379,12 +379,18 @@ Iterable<Widget> _buildExplorePagePart(
                         ),
                       );
                     } else if (part.viewMore!.startsWith("category:")) {
+                      var cp = part.viewMore!.replaceFirst("category:", "");
+                      var c = cp.split('@').first;
+                      String? p = cp.split('@').last;
+                      if (p == c) {
+                        p = null;
+                      }
                       context.to(
                         () => CategoryComicsPage(
-                          category:
-                              part.viewMore!.replaceFirst("category:", ""),
+                          category: c,
                           categoryKey:
                               ComicSource.find(sourceKey)!.categoryData!.key,
+                          param: p,
                         ),
                       );
                     }
