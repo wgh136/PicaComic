@@ -155,7 +155,7 @@ abstract class DownloadingItem with _TransferSpeedMixin {
   @mustCallSuper
   FutureOr<void> onStart() {
     if (directory == null) {
-      directory = findValidFilename(DownloadManager().path!, title);
+      directory = findValidDirectoryName(DownloadManager().path!, title);
       Directory(path).createSync(recursive: true);
     }
   }

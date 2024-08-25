@@ -89,13 +89,13 @@ String sanitizeFileName(String fileName) {
   return trimmedFileName;
 }
 
-String findValidFilename(String path, String filename) {
-  var name = sanitizeFileName(filename);
-  var file = File("$path/$name");
+String findValidDirectoryName(String path, String directory) {
+  var name = sanitizeFileName(directory);
+  var dir = Directory("$path/$name");
   var i = 1;
-  while(file.existsSync()){
-    name = sanitizeFileName("$filename($i)");
-    file = File("$path/$name");
+  while(dir.existsSync()){
+    name = sanitizeFileName("$directory($i)");
+    dir = Directory("$path/$name");
     i++;
   }
   return name;
