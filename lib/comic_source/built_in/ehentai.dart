@@ -595,12 +595,12 @@ class _EhentaiGalleriesLoader {
 
   final Future<Res<Galleries>> Function() firstPageLoader;
 
-  Galleries? galleries;
+  String? nextPage;
 
   List<List<BaseComic>> cache = [];
 
   Future<Res<List<BaseComic>>> call(int page) async {
-    if (page == 1 || galleries == null) {
+    if (page == 1 || cache.isEmpty) {
       var res = await firstRequest();
       if (res.error) {
         return Res.fromErrorRes(res);
@@ -613,7 +613,7 @@ class _EhentaiGalleriesLoader {
         return Res.fromErrorRes(res);
       }
     }
-    if (galleries!.next == null) {
+    if (nextPage == null) {
       return Res(cache[page], subData: cache.length);
     }
     return Res(cache[page]);
@@ -625,17 +625,18 @@ class _EhentaiGalleriesLoader {
     if (res.error) {
       return Res.fromErrorRes(res);
     }
-    galleries = res.data;
     cache.add(res.data.galleries);
+    nextPage = res.data.next;
     return const Res(null);
   }
 
   Future<Res<void>> loadNext() async {
-    var res = await EhNetwork().getNextPageGalleries(galleries!);
-    if (!res) {
-      return const Res.error("Network Error");
+    var res = await EhNetwork().getGalleries(nextPage!);
+    if (res.error) {
+      return Res.fromErrorRes(res);
     }
-    cache.add(galleries!.galleries);
+    cache.add(res.data.galleries);
+    nextPage = res.data.next;
     return const Res(null);
   }
 }
