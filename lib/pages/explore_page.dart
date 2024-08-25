@@ -24,10 +24,15 @@ class _ExplorePageState extends State<ExplorePage>
 
   double location = 0;
 
+  var pages = appdata.appSettings.explorePages;
+
   @override
   void initState() {
+    pages = appdata.appSettings.explorePages;
+    var all = ComicSource.sources.map((e) => e.explorePages).expand((e) => e.map((e) => e.title)).toList();
+    pages = pages.where((e) => all.contains(e)).toList();
     controller = TabController(
-      length: appdata.appSettings.explorePages.length,
+      length: pages.length,
       vsync: this,
     );
     super.initState();
@@ -35,7 +40,7 @@ class _ExplorePageState extends State<ExplorePage>
 
   void refresh() {
     int page = controller.index;
-    String currentPageId = appdata.appSettings.explorePages[page];
+    String currentPageId = pages[page];
     StateController.find<SimpleController>(tag: currentPageId).refresh();
   }
 
@@ -58,7 +63,7 @@ class _ExplorePageState extends State<ExplorePage>
   Widget build(BuildContext context) {
     Widget tabBar = Material(
       child: FilledTabBar(
-        tabs: appdata.appSettings.explorePages.map((e) => buildTab(e)).toList(),
+        tabs: pages.map((e) => buildTab(e)).toList(),
         controller: controller,
       ),
     );
@@ -101,7 +106,7 @@ class _ExplorePageState extends State<ExplorePage>
                   removeTop: true,
                   child: TabBarView(
                     controller: controller,
-                    children: appdata.appSettings.explorePages
+                    children: pages
                         .map((e) => buildBody(e))
                         .toList(),
                   ),

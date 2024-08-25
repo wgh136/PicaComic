@@ -409,4 +409,10 @@ class _Settings {
   set cacheLimit(int value) {
     appdata.settings[35] = value.toString();
   }
+
+  List<String> get networkFavorites => appdata.settings[68].split(',');
+
+  set networkFavorites(List<String> pages) {
+    appdata.settings[68] = pages.join(',');
+  }
 }

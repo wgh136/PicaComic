@@ -148,25 +148,10 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
 
   void delete(ComicSource source) {
     showConfirmDialog(App.globalContext!, "删除".tl, "要删除此漫画源吗?".tl, () {
-      var explorePages = appdata.settings[77].split(',');
-      var thisExplorePages = source.explorePages.map((e) => e.title).toList();
-      explorePages.removeWhere((element) => thisExplorePages.contains(element));
-      appdata.settings[77] = explorePages.join(',');
-      if (source.categoryData != null) {
-        var categories = appdata.settings[67].split(',');
-        categories
-            .removeWhere((element) => element == source.categoryData!.title);
-        appdata.settings[67] = categories.join(',');
-      }
-      if (source.favoriteData != null) {
-        var favorites = appdata.settings[68].split(',');
-        favorites.removeWhere((element) => element == source.key);
-        appdata.settings[68] = favorites.join(',');
-      }
-      appdata.writeData();
       var file = File(source.filePath);
       file.delete();
       ComicSource.sources.remove(source);
+      _validatePages();
       MyApp.updater?.call();
     });
   }
@@ -316,27 +301,7 @@ class _ComicSourceSettingsState extends State<ComicSourceSettings> {
   Future<void> addSource(String js, String fileName) async {
     var comicSource = await ComicSourceParser().createAndParse(js, fileName);
     ComicSource.sources.add(comicSource);
-    var explorePages = appdata.settings[77].split(',');
-    for (var page in comicSource.explorePages) {
-      if (!explorePages.contains(page.title)) {
-        explorePages.add(page.title);
-      }
-    }
-    appdata.settings[77] = explorePages.join(',');
-    if (comicSource.categoryData != null &&
-        !appdata.settings[67].contains(comicSource.categoryData!.title)) {
-      if (appdata.settings[67].isNotEmpty) {
-        appdata.settings[67] += ",";
-      }
-      appdata.settings[67] += comicSource.categoryData!.title;
-    }
-    if (comicSource.favoriteData != null &&
-        !appdata.settings[68].contains(comicSource.key)) {
-      if (appdata.settings[68].isNotEmpty) {
-        appdata.settings[68] += ",";
-      }
-      appdata.settings[68] += comicSource.key;
-    }
+    _addAllPagesWithComicSource(comicSource);
     appdata.updateSettings();
     MyApp.updater?.call();
   }
@@ -440,6 +405,8 @@ class _BuiltInSourcesState extends State<_BuiltInSources> {
     );
   }
 
+  bool isLoading = false;
+
   Widget buildTile(int index) {
     var key = builtInSources[index];
     return ListTile(
@@ -447,14 +414,99 @@ class _BuiltInSourcesState extends State<_BuiltInSources> {
           ComicSource.builtIn.firstWhere((e) => e.key == key).name),
       trailing: Switch(
         value: appdata.appSettings.isComicSourceEnabled(key),
-        onChanged: (v) {
+        onChanged: (v) async {
+          if (isLoading) return;
+          isLoading = true;
           appdata.appSettings.setComicSourceEnabled(key, v);
-          appdata.updateSettings();
-          setState(() {});
-          context.findAncestorStateOfType<_ComicSourceSettingsState>()
-              ?.setState(() {});
+          await appdata.updateSettings();
+          if(!v) {
+            ComicSource.sources.removeWhere((e) => e.key == key);
+            _validatePages();
+          } else {
+            var source = ComicSource.builtIn.firstWhere((e) => e.key == key);
+            ComicSource.sources.add(source);
+            source.loadData();
+            _addAllPagesWithComicSource(source);
+          }
+          isLoading = false;
+          if (mounted) {
+            setState(() {});
+            context.findAncestorStateOfType<_ComicSourceSettingsState>()
+                ?.setState(() {});
+          }
         },
       ),
     );
   }
+}
+
+void _validatePages() {
+  var explorePages = appdata.appSettings.explorePages;
+  var categoryPages = appdata.appSettings.categoryPages;
+  var networkFavorites = appdata.appSettings.networkFavorites;
+
+  var totalExplorePages = ComicSource.sources
+      .map((e) => e.explorePages.map((e) => e.title))
+      .expand((element) => element)
+      .toList();
+  var totalCategoryPages = ComicSource.sources
+      .map((e) => e.categoryData?.key)
+      .where((element) => element != null)
+      .map((e) => e!)
+      .toList();
+  var totalNetworkFavorites = ComicSource.sources
+      .map((e) => e.favoriteData?.key)
+      .where((element) => element != null)
+      .map((e) => e!)
+      .toList();
+
+  for (var page in List.from(explorePages)) {
+    if (!totalExplorePages.contains(page)) {
+      explorePages.remove(page);
+    }
+  }
+  for (var page in List.from(categoryPages)) {
+    if (!totalCategoryPages.contains(page)) {
+      categoryPages.remove(page);
+    }
+  }
+  for (var page in List.from(networkFavorites)) {
+    if (!totalNetworkFavorites.contains(page)) {
+      networkFavorites.remove(page);
+    }
+  }
+
+  appdata.appSettings.explorePages = explorePages;
+  appdata.appSettings.categoryPages = categoryPages;
+  appdata.appSettings.networkFavorites = networkFavorites;
+
+  appdata.updateSettings();
+}
+
+void _addAllPagesWithComicSource(ComicSource source) {
+  var explorePages = appdata.appSettings.explorePages;
+  var categoryPages = appdata.appSettings.categoryPages;
+  var networkFavorites = appdata.appSettings.networkFavorites;
+
+  if (source.explorePages.isNotEmpty) {
+    for (var page in source.explorePages) {
+      if (!explorePages.contains(page.title)) {
+        explorePages.add(page.title);
+      }
+    }
+  }
+  if (source.categoryData != null &&
+      !categoryPages.contains(source.categoryData!.key)) {
+    categoryPages.add(source.categoryData!.key);
+  }
+  if (source.favoriteData != null &&
+      !networkFavorites.contains(source.favoriteData!.key)) {
+    networkFavorites.add(source.favoriteData!.key);
+  }
+
+  appdata.appSettings.explorePages = explorePages.toSet().toList();
+  appdata.appSettings.categoryPages = categoryPages.toSet().toList();
+  appdata.appSettings.networkFavorites = networkFavorites.toSet().toList();
+
+  appdata.updateSettings();
 }

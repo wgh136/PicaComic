@@ -295,8 +295,9 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
   }
 
   Widget buildNetwork() {
-    final folders =
-        appdata.settings[68].split(',').map((e) => getFavoriteDataOrNull(e));
+    var folders =
+        appdata.appSettings.networkFavorites.map((e) => getFavoriteDataOrNull(e));
+    folders = folders.whereType<FavoriteData>();
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedHeight(
         maxCrossAxisExtent: 240,

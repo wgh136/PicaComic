@@ -4,6 +4,7 @@ import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/network/res.dart";
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/components/components.dart';
+import "package:pica_comic/tools/translations.dart";
 
 class CategoryComicsPage extends StatefulWidget {
   const CategoryComicsPage({
@@ -110,7 +111,7 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
         children: [
           for (var option in optionList.options.entries)
             buildOptionItem(
-              option.value,
+              option.value.tl,
               option.key,
               options.indexOf(optionList),
               context,

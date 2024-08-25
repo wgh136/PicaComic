@@ -1079,6 +1079,7 @@
     "成功导出": "Export successful",
     "导出失败": "Export failed",
     "完全隐藏屏蔽的作品": "Completely hide blocked works",
-    "内置漫画源": "Built-in comic source"
+    "内置漫画源": "Built-in comic source",
+    "设置缓存限制": "Set cache limit"
   }
 }

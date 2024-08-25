@@ -15,40 +15,48 @@ class AllCategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StateBuilder<SimpleController>(
-        tag: "category",
-        init: SimpleController(),
-        builder: (controller) {
-          final categories = appdata.appSettings.categoryPages;
-          return Material(
-            child: DefaultTabController(
-              length: categories.length,
-              key: Key(appdata.appSettings.categoryPages.toString()),
-              child: Column(
-                children: [
-                  FilledTabBar(
-                    tabs: categories.map((e) {
-                      String title = e;
-                      try {
-                        title = getCategoryDataWithKey(e).title;
-                      } catch (e) {
-                        //
-                      }
-                      return Tab(
-                        text: title,
-                        key: Key(e),
-                      );
-                    }).toList(),
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                        children:
-                            categories.map((e) => CategoryPage(e)).toList()),
-                  )
-                ],
-              ),
+      tag: "category",
+      init: SimpleController(),
+      builder: (controller) {
+        var categories = appdata.appSettings.categoryPages;
+        var allCategories = ComicSource.sources
+            .map((e) => e.categoryData?.key)
+            .where((element) => element != null)
+            .map((e) => e!)
+            .toList();
+        categories = categories.where((element) => allCategories.contains(element)).toList();
+
+        return Material(
+          child: DefaultTabController(
+            length: categories.length,
+            key: Key(categories.toString()),
+            child: Column(
+              children: [
+                FilledTabBar(
+                  tabs: categories.map((e) {
+                    String title = e;
+                    try {
+                      title = getCategoryDataWithKey(e).title;
+                    } catch (e) {
+                      //
+                    }
+                    return Tab(
+                      text: title,
+                      key: Key(e),
+                    );
+                  }).toList(),
+                ),
+                Expanded(
+                  child: TabBarView(
+                      children:
+                          categories.map((e) => CategoryPage(e)).toList()),
+                )
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -120,7 +128,7 @@ class CategoryPage extends StatelessWidget {
               buildTag("排行榜".tl, (p0, p1) {
                 context.to(() => RankingPage(sourceKey: findComicSourceKey()));
               }),
-            for(var buttonData in data.buttons)
+            for (var buttonData in data.buttons)
               buildTag(buttonData.label.tl, (p0, p1) => buttonData.onTap())
           ],
         ),
