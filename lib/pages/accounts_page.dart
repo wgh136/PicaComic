@@ -193,13 +193,11 @@ class _LoginPageState extends State<_LoginPage> {
           onSubmitted: (s) => login(),
         ),
         const SizedBox(height: 32),
-        if (!loading)
-          FilledButton(
-            onPressed: login,
-            child: Text("继续".tl),
-          )
-        else
-          const CircularProgressIndicator(),
+        Button.filled(
+          isLoading: loading,
+          onPressed: login,
+          child: Text("继续".tl),
+        ),
         const Spacer(),
         if (widget.registerWebsite != null)
           TextButton(
@@ -237,7 +235,9 @@ class _LoginPageState extends State<_LoginPage> {
         });
       } else {
         showToast(message: "登录成功".tl, icon: const Icon(Icons.check));
-        App.back(context);
+        if(mounted) {
+          context.pop();
+        }
       }
     });
   }
