@@ -15,7 +15,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
             BlockingKeywordPage(popUp: MediaQuery.of(context).size.width>600,)),
         icon: const Icon(Icons.block)
       ),
-      SelectSetting(
+      SelectSettingWithAppdata(
         icon: const Icon(Icons.article_outlined),
         title: "初始页面".tl,
         options: ["我".tl, "收藏".tl, "探索".tl, "分类".tl],
@@ -38,7 +38,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
               MultiPagesFilter("网络收藏页面".tl, 68, networkFavorites())),
           icon: const Icon(Icons.favorite),
       ),
-      SelectSetting(
+      SelectSettingWithAppdata(
         icon: const Icon(Icons.list),
         title: "漫画列表显示方式".tl,
         options: ["连续模式".tl, "分页模式".tl],
@@ -55,47 +55,43 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
         settingsIndex: 61,
         icon: const Icon(Icons.image),
       ),
-      ListTile(
+      SelectSetting(
         leading: const Icon(Icons.search),
-        title: Text("默认搜索源".tl),
-        trailing: Select(
-          initialValue: searchSource.indexOf(appdata.appSettings.initialSearchTarget),
-          onChange: (i) {
-            appdata.appSettings.initialSearchTarget = searchSource[i];
-            appdata.updateSettings();
-          },
-          values: searchSource,
-        ),
+        title: "默认搜索源".tl,
+        values: searchSource,
+        initialValue: searchSource.indexOf(appdata.appSettings.initialSearchTarget),
+        onChanged: (i) {
+          appdata.appSettings.initialSearchTarget = searchSource[i];
+          appdata.updateSettings();
+        },
       ),
       SwitchSetting(
         title: "启用侧边翻页栏".tl,
         icon: const Icon(Icons.border_right),
         settingsIndex: 64,
       ),
-      SelectSetting(
+      SelectSettingWithAppdata(
         title: "自动添加语言筛选".tl,
         settingsIndex: 69,
         options: ["无".tl, "chinese", "english", "japanese"],
         icon: const Icon(Icons.language),
       ),
       SettingsTitle("漫画块".tl),
-      ListTile(
+      SelectSetting(
         leading: const Icon(Icons.crop_square),
-        title: Text("漫画块显示模式".tl),
-        trailing: Select(
-          initialValue: int.parse(appdata.settings[44].split(',').first),
-          onChange: (i) {
-            var settings = appdata.settings[44].split(',');
-            settings[0] = i.toString();
-            if(settings.length == 1){
-              settings.add("1.0");
-            }
-            appdata.settings[44] = settings.join(',');
-            appdata.updateSettings();
-            MyApp.updater?.call();
-          },
-          values: ["详细".tl, "简略".tl],
-        ),
+        title: "漫画块显示模式".tl,
+        initialValue: int.parse(appdata.settings[44].split(',').first),
+        onChanged: (i) {
+          var settings = appdata.settings[44].split(',');
+          settings[0] = i.toString();
+          if(settings.length == 1){
+            settings.add("1.0");
+          }
+          appdata.settings[44] = settings.join(',');
+          appdata.updateSettings();
+          MyApp.updater?.call();
+        },
+        values: ["详细".tl, "简略".tl],
       ),
       StatefulBuilder(builder: (context, setState){
         return Padding(
@@ -155,7 +151,7 @@ Widget buildExploreSettings(BuildContext context, bool popUp) {
           ),
         );
       }),
-      SelectSetting(
+      SelectSettingWithAppdata(
         title: "漫画块缩略图布局".tl,
         settingsIndex: 66,
         options: ["覆盖".tl, "容纳".tl],

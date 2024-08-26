@@ -28,19 +28,19 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             values: LocalFavoritesManager().folderNames,
           ),
         ),
-        SelectSetting(
+        SelectSettingWithAppdata(
           icon: const Icon(Icons.bookmark_add),
           title: "新收藏添加至".tl,
           options: ["最后".tl, "最前".tl],
           settingsIndex: 53,
         ),
-        SelectSetting(
+        SelectSettingWithAppdata(
           icon: const Icon(Icons.move_up),
           title: "阅读后移动本地收藏至".tl,
           options: ["无操作".tl, "最后".tl, "最前".tl],
           settingsIndex: 54,
         ),
-        SelectSetting(
+        SelectSettingWithAppdata(
           icon: const Icon(Icons.touch_app),
           title: "点击漫画时".tl,
           options: ["查看信息".tl, "阅读".tl],

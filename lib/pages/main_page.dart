@@ -125,10 +125,10 @@ class MainPageState extends State<MainPage> {
       return;
     }
     var res = await checkUpdate();
+    s.setInt("lastCheckUpdate", DateTime.now().millisecondsSinceEpoch);
     if (res != true) return;
     var info = await getUpdatesInfo();
     if (info == null) return;
-    s.setInt("lastCheckUpdate", DateTime.now().millisecondsSinceEpoch);
     showDialog(
         context: App.globalContext!,
         builder: (dialogContext) {

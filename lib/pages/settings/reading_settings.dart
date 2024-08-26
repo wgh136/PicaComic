@@ -53,38 +53,32 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           settingsIndex: 18,
           icon: const Icon(Icons.brightness_4),
         ),
-        ListTile(
+        SelectSetting(
           leading: const Icon(Icons.chrome_reader_mode),
-          title: Text("选择阅读模式".tl),
-          trailing: Select(
-            initialValue: int.parse(appdata.settings[9]) - 1,
-            values: [
-              "从左至右".tl,
-              "从右至左".tl,
-              "从上至下".tl,
-              "从上至下(连续)".tl,
-              "双页".tl,
-              "双页(反向)".tl
-            ],
-            onChange: (i) {
-              appdata.settings[9] = (i + 1).toString();
-              appdata.updateSettings();
-            },
-            width: 140,
-          ),
+          title: "选择阅读模式".tl,
+          initialValue: int.parse(appdata.settings[9]) - 1,
+          values: [
+            "从左至右".tl,
+            "从右至左".tl,
+            "从上至下".tl,
+            "从上至下(连续)".tl,
+            "双页".tl,
+            "双页(反向)".tl
+          ],
+          onChanged: (i) {
+            appdata.settings[9] = (i + 1).toString();
+            appdata.updateSettings();
+          },
         ),
-        ListTile(
+        SelectSetting(
           leading: const Icon(Icons.image_outlined),
-          title: Text("图片预加载".tl),
-          trailing: Select(
-            initialValue: ["0", "1", "2", "3", "4", "5", "10", "15"].indexOf(appdata.settings[28]),
-            values: const ["0", "1", "2", "3", "4", "5", "10", "15"],
-            onChange: (i) {
-              appdata.settings[28] = ["0", "1", "2", "3", "4", "5", "10", "15"][i];
-              appdata.updateSettings();
-            },
-            width: 140,
-          ),
+          title: "图片预加载".tl,
+          initialValue: ["0", "1", "2", "3", "4", "5", "10", "15"].indexOf(appdata.settings[28]),
+          values: const ["0", "1", "2", "3", "4", "5", "10", "15"],
+          onChanged: (i) {
+            appdata.settings[28] = ["0", "1", "2", "3", "4", "5", "10", "15"][i];
+            appdata.updateSettings();
+          },
         ),
         ListTile(
           leading: const Icon(Icons.timer_sharp),
@@ -117,7 +111,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           trailing: SizedBox(
             width: 40,
             child: Text(
-              "${appdata.settings[33]}秒",
+              "${appdata.settings[33]}s",
               style: const TextStyle(fontSize: 14),
             ),
           ),

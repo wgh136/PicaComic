@@ -179,12 +179,15 @@ class _AppInfoState extends State<_AppInfo> with _WelcomePageComponents {
 
   @override
   Widget build(BuildContext context) {
+    var style = context.width > 500
+        ? ts.s16.withHeight(2)
+        : ts.s14.withHeight(1.6);
     return buildView(
       children: [
         buildTitle("使用须知".tl),
         Text(
           buildInfo(),
-          style: ts.s16.withHeight(2),
+          style: style,
         ),
         const SizedBox(
           height: 16,
@@ -238,60 +241,48 @@ class _AppAppearanceState extends State<_AppAppearance>
     return buildView(
       children: [
         buildTitle("设置App外观".tl),
-        ListTile(
-          leading: const Icon(Icons.color_lens),
-          title: Text("主题选择".tl),
-          trailing: Select(
-            initialValue: appdata.appSettings.theme,
-            values: const [
-              "dynamic",
-              "red",
-              "pink",
-              "purple",
-              "indigo",
-              "blue",
-              "cyan",
-              "teal",
-              "green",
-              "lime",
-              "yellow",
-              "amber",
-              "orange",
-            ],
-            onChange: (i) {
-              appdata.appSettings.theme = i;
-              appdata.updateSettings();
-              MyApp.updater?.call();
-            },
-            width: 140,
-          ),
+        SelectSettingWithAppdata(
+          icon: const Icon(Icons.color_lens),
+          title: "主题选择".tl,
+          options: const [
+            "dynamic",
+            "red",
+            "pink",
+            "purple",
+            "indigo",
+            "blue",
+            "cyan",
+            "teal",
+            "green",
+            "lime",
+            "yellow",
+            "amber",
+            "orange",
+          ],
+          settingsIndex: 27,
+          onChanged: () {
+            MyApp.updater?.call();
+          },
         ),
-        ListTile(
-          leading: const Icon(Icons.dark_mode),
-          title: Text("深色模式".tl),
-          trailing: Select(
-            initialValue: appdata.appSettings.darkMode,
-            values: ["跟随系统".tl, "禁用".tl, "启用".tl],
-            onChange: (i) {
-              appdata.appSettings.darkMode = i;
-              appdata.updateSettings();
-              MyApp.updater?.call();
-            },
-            width: 140,
-          ),
+        SelectSettingWithAppdata(
+          icon: const Icon(Icons.dark_mode),
+          title: "深色模式".tl,
+          options: ["跟随系统".tl, "禁用".tl, "启用".tl],
+          settingsIndex: 32,
+          onChanged: () {
+            MyApp.updater?.call();
+          },
         ),
-        ListTile(
+        SelectSetting(
           leading: const Icon(Icons.crop_square),
-          title: Text("漫画块显示模式".tl),
-          trailing: Select(
-            initialValue: appdata.appSettings.comicTileDisplayType,
-            onChange: (i) {
-              appdata.appSettings.comicTileDisplayType = i;
-              appdata.updateSettings();
-              MyApp.updater?.call();
-            },
-            values: ["详细".tl, "简略".tl],
-          ),
+          title: "漫画块显示模式".tl,
+          values: ["详细".tl, "简略".tl],
+          initialValue: appdata.appSettings.comicTileDisplayType,
+          onChanged: (i) {
+            appdata.appSettings.comicTileDisplayType = i;
+            appdata.updateSettings();
+            MyApp.updater?.call();
+          },
         ),
         const Spacer(),
         buildBottom(context, 2)
@@ -417,8 +408,8 @@ class _More extends StatelessWidget with _WelcomePageComponents {
           leading: const Icon(
             Icons.account_circle,
           ),
-          title: Text("登录账户".tl),
-          onTap: () => showPopUpWidget(context, AccountsPage()),
+          title: Text("登录账号".tl),
+          onTap: () => showPopUpWidget(context, const AccountsPage()),
           trailing: const Icon(Icons.arrow_right),
         ),
         ListTile(
