@@ -600,7 +600,7 @@ class PreSearchPage extends StatelessWidget {
           for (int i = 0; i < searchOptions.length; i++) {
             final option = searchOptions[i];
             children.add(ListTile(
-              title: Text(option.label),
+              title: Text(option.label.tl),
             ));
             children.add(Wrap(
               runSpacing: 8,
@@ -624,7 +624,7 @@ class PreSearchPage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 8),
-                      child: Text(e.value),
+                      child: Text(e.value.tl),
                     ),
                   ),
                 );

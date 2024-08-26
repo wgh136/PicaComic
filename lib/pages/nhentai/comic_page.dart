@@ -186,7 +186,7 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
     if (tag.contains(" ")) {
       tag = tag.replaceAll(' ', '-');
     }
-    String? category = switch (key) {
+    String? categoryParam = switch (key) {
       "Parodies" => "/parody/$tag",
       "Character" => "/character/$tag",
       "Tags" => "/tag/$tag",
@@ -197,7 +197,7 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
       _ => null
     };
 
-    if (category == null) {
+    if (categoryParam == null) {
       context.to(
         () => SearchResultPage(
           keyword: tag,
@@ -207,8 +207,9 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
     } else {
       context.to(
         () => CategoryComicsPage(
-          category: category,
+          category: tag,
           categoryKey: ComicSource.find(sourceKey)!.categoryData!.key,
+          param: categoryParam,
         ),
       );
     }

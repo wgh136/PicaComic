@@ -33,8 +33,12 @@ final nhentai = ComicSource.named(
     title: "nhentai",
     key: "nhentai",
     categories: [
-      const FixedCategoryPart("language", ["chinese", "japanese", "english"],
-          "search_with_namespace"),
+      const FixedCategoryPart(
+        "language",
+        ["中文", "日本語", "english"],
+        "category",
+        ["/language/chinese", "/language/japanese", "/language/english"]
+      ),
       RandomCategoryPartWithRuntimeData(
           "Tags", () => nhentaiTags.values.toList(), 50, "search"),
     ],
@@ -50,17 +54,18 @@ final nhentai = ComicSource.named(
   ),
   categoryComicsData: CategoryComicsData.named(
     load: (category, param, options, page) async {
-      var [_, type, name] = category.split('/');
-      return NhentaiNetwork().getCategoryComics("/$type/$name", page, NhentaiSort.fromValue(options[0]));
+      var [_, type, name] = param!.split('/');
+      return NhentaiNetwork().getCategoryComics(
+          "/$type/$name", page, NhentaiSort.fromValue(options[0]));
     },
     options: [
       CategoryComicsOptions.named(
         options: LinkedHashMap.of({
-          "": "Recent",
-          "&sort=popular-today": "Popular-Today",
-          "&sort=popular-week": "Popular-Week",
-          "&sort=popular-month": "Popular-Month",
-          "&sort=popular": "Popular-All",
+          "": "最近",
+          "&sort=popular-today": "热门 | 今天",
+          "&sort=popular-week": "热门 | 一周",
+          "&sort=popular-month": "热门 | 本月",
+          "&sort=popular": "热门 | 所有时间",
         }),
         notShowWhen: ["random", "latest"],
       ),
@@ -121,10 +126,23 @@ final nhentai = ComicSource.named(
   idMatcher: RegExp(r"^(\d+|nh\d+|nhentai\d+)$"),
   searchPageData: SearchPageData.named(
     loadPage: (keyword, page, options) {
-      return NhentaiNetwork().search(keyword, page);
+      return NhentaiNetwork()
+          .search(keyword, page, NhentaiSort.fromValue(options[0]));
     },
     enableLanguageFilter: true,
     enableTagsSuggestions: true,
+    searchOptions: [
+      SearchOptions(
+        LinkedHashMap.of({
+          "": "最近",
+          "&sort=popular-today": "热门 | 今天",
+          "&sort=popular-week": "热门 | 一周",
+          "&sort=popular-month": "热门 | 本月",
+          "&sort=popular": "热门 | 所有时间",
+        }),
+        '排序',
+      )
+    ],
   ),
   comicPageBuilder: (context, id, cover) {
     return NhentaiComicPage(

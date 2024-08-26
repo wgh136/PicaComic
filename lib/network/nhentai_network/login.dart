@@ -35,7 +35,7 @@ void nhLogin(void Function() onFinished) async{
                   if(cookie.name == "sessionid"){
                     NhentaiNetwork().logged = true;
                   }
-                  cookie.domain = NhentaiNetwork().baseUrl.replaceAll("https://", ".");
+                  cookie.domain = NhentaiNetwork().baseUrl.replaceAll("https://", "");
                   return cookie;
                 })
             );

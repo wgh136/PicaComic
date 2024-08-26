@@ -131,7 +131,19 @@ class CookieJarSql {
 
   String loadForRequestCookieHeader(Uri uri) {
     var cookies = loadForRequest(uri);
-    return cookies.map((cookie) => "${cookie.name}=${cookie.value}").join("; ");
+    var map = <String, Cookie>{};
+    for (var cookie in cookies) {
+      if(map.containsKey(cookie.name)) {
+        if(cookie.domain![0] != '.' && map[cookie.name]!.domain![0] == '.') {
+          map[cookie.name] = cookie;
+        } else if(cookie.domain!.length > map[cookie.name]!.domain!.length) {
+          map[cookie.name] = cookie;
+        }
+      } else {
+        map[cookie.name] = cookie;
+      }
+    }
+    return map.entries.map((cookie) => "${cookie.value.name}=${cookie.value.value}").join("; ");
   }
 
   void delete(Uri uri, String name) {

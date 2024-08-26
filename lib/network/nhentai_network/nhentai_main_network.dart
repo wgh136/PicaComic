@@ -47,7 +47,7 @@ class NhentaiNetwork {
         "Accept-Language": "zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6",
         "Referer": "$baseUrl/",
       },
-      validateStatus: (i) => i == 200 || i == 403 || i == 302,
+      validateStatus: (i) => i == 200 || i == 302,
     ));
     dio.interceptors.add(CookieManagerSql(cookieJar!));
     dio.interceptors.add(CloudflareInterceptor());
@@ -81,7 +81,7 @@ class NhentaiNetwork {
       await init();
     }
     try {
-      var res = await dio.post(url, data: data);
+      var res = await dio.post<String>(url, data: data, options: Options(headers: headers));
       return Res(res.data);
     } catch (e) {
       return Res(null, errorMessage: e.toString());
@@ -212,14 +212,15 @@ class NhentaiNetwork {
   }
 
   Future<Res<NhentaiComic>> getComicInfo(String id) async {
+    Res<String> res;
     if (id == "") {
-      var res = await get("$baseUrl/random/");
+      res = await get("$baseUrl/random/");
       if (res.error) {
         return Res.fromErrorRes(res);
       }
-      id = res.data.nums;
+    } else {
+      res = await get("$baseUrl/g/$id/");
     }
-    Res<String> res = await get("$baseUrl/g/$id/");
     if (res.error) {
       return Res.fromErrorRes(res);
     }
@@ -233,6 +234,8 @@ class NhentaiNetwork {
       }
 
       var document = parse(res.data);
+      
+      id = id == "" ? document.querySelector("h3#gallery_id")!.text.nums : id;
 
       var cover = document
           .querySelector("div#cover > a > img")!

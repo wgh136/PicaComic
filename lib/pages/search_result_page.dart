@@ -664,7 +664,7 @@ class _SearchOptionsState extends State<_SearchOptions> {
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(e.value),
+                  child: Text(e.value.tl),
                 ),
               ),
             );
