@@ -7,6 +7,7 @@ import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/pages/category_comics_page.dart';
 import 'package:pica_comic/pages/search_result_page.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -31,6 +32,14 @@ class _ExplorePageState extends State<ExplorePage>
     pages = appdata.appSettings.explorePages;
     var all = ComicSource.sources.map((e) => e.explorePages).expand((e) => e.map((e) => e.title)).toList();
     pages = pages.where((e) => all.contains(e)).toList();
+    if(pages.isEmpty && appdata.appSettings.explorePages.isNotEmpty) {
+      if(appdata.appSettings.explorePages.first.isNum) {
+        // is odd data, update
+        appdata.appSettings.explorePages = all;
+        pages = all;
+        appdata.updateSettings();
+      }
+    }
     controller = TabController(
       length: pages.length,
       vsync: this,

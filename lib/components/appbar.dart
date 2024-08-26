@@ -401,6 +401,24 @@ class _FilledTabBarState extends State<FilledTabBar> {
   }
 
   Widget buildTabBar(BuildContext context, Widget? _) {
+    var child = SmoothScrollProvider(
+      controller: scrollController,
+      builder: (context, controller, physics) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.zero,
+          controller: controller,
+          physics: physics,
+          child: CustomPaint(
+            painter: painter,
+            child: _TabRow(
+              callback: _tabLayoutCallback,
+              children: List.generate(widget.tabs.length, buildTab),
+            ),
+          ).paddingHorizontal(4),
+        );
+      },
+    );
     return Container(
       key: tabBarKey,
       height: _kTabHeight,
@@ -413,24 +431,9 @@ class _FilledTabBarState extends State<FilledTabBar> {
           ),
         ),
       ),
-      child: SmoothScrollProvider(
-        controller: scrollController,
-        builder: (context, controller, physics) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.zero,
-            controller: controller,
-            physics: physics,
-            child: CustomPaint(
-              painter: painter,
-              child: _TabRow(
-                callback: _tabLayoutCallback,
-                children: List.generate(widget.tabs.length, buildTab),
-              ),
-            ).paddingHorizontal(4),
-          );
-        },
-      ),
+      child: widget.tabs.isEmpty
+          ? const SizedBox()
+          : child
     );
   }
 

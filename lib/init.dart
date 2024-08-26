@@ -76,8 +76,6 @@ Future<void> init() async {
 
 Future<void> _checkOldData() async {
   try {
-    // settings
-    appdata.settings[77] = appdata.settings[77].replaceFirst(',1,', ',');
     if (int.parse(appdata.settings[17]) >= 4) {
       appdata.settings[17] = '0';
     }
@@ -182,8 +180,6 @@ Future<void> _checkAccountData() async {
     picacg.data['imageQuality'] = s.getString('image') ?? "original";
     await picacg.saveData();
     await s.remove('picacgAccount');
-  } else {
-    return;
   }
   if(s.getString("jmName") != null) {
     var account = s.getString('jmName');
@@ -212,16 +208,4 @@ Future<void> _checkAccountData() async {
     nhentai.data['account'] = 'ok';
     await nhentai.saveData();
   }
-  var explorePages = appdata.appSettings.explorePages;
-  var newPages = <String>[];
-  const builtInPages = ["picacg", "Eh主页", "Eh热门", "禁漫主页", "禁漫最新", "hitomi", "nhentai", "绅士漫画"];
-  for(var page in explorePages) {
-    if(int.tryParse(page) != null) {
-      newPages.addIfNotNull(builtInPages.elementAtOrNull(int.parse(page)));
-    } else {
-      newPages.add(page);
-    }
-  }
-  appdata.appSettings.explorePages = newPages;
-  await appdata.updateSettings();
 }
