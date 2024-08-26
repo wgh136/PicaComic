@@ -178,7 +178,7 @@ class DownloadManager with _DownloadDb implements Listenable {
                   directory = comic.name + i.toString();
                 }
               }
-              oldData[directory] = comic;
+              oldData[entry.name] = comic;
             }
           }
         }
@@ -654,11 +654,16 @@ abstract mixin class _DownloadDb {
       where id = ?
     ''', [id]);
       directory = result.first['directory'];
+      directory = _findAccurateDirectory(directory!);
       if(_cache.length > 50) {
         _cache.remove(_cache.keys.first);
       }
-      _cache[id] = directory!;
+      _cache[id] = directory;
     }
     return directory;
+  }
+
+  String _findAccurateDirectory(String directory) {
+    return sanitizeFileName(directory);
   }
 }
