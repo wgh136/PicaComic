@@ -50,7 +50,7 @@ class ComicReadingPageLogic extends StateController {
 
   bool noScroll = false;
 
-  bool mouseScroll = App.isDesktop;
+  bool mouseScroll = false;
 
   double currentScale = 1.0;
 
@@ -89,6 +89,13 @@ class ComicReadingPageLogic extends StateController {
         PageController(initialPage: _getPage(initialPage));
     _index = _getIndex(initialPage);
     order <= 0 ? order = 1 : order;
+    itemScrollListener.itemPositions.addListener(() {
+      var newIndex = itemScrollListener.itemPositions.value.first.index + 1;
+      if(newIndex != index) {
+        index = newIndex;
+        update(["ToolBar"]);
+      }
+    });
   }
 
 

@@ -377,14 +377,26 @@ class DownloadManager with _DownloadDb implements Listenable {
     } else {
       downloadPath = "$path/${getDirectory(id)}/$ep/";
     }
+    var fileName  = _downloadedFileName["$id$ep$index"];
+    if(fileName != null) {
+      return File(downloadPath + fileName);
+    }
     await for (var file in Directory(downloadPath).list()) {
-      if (file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "") ==
-          index.toString()) {
-        return file as File;
+      var i = file.uri.pathSegments.last.replaceFirst(RegExp(r"\..+"), "");
+      if(i.isNum) {
+        if(_downloadedFileName.length > 2000) {
+          _downloadedFileName.remove(_downloadedFileName.keys.first);
+        }
+        _downloadedFileName["$id$ep$i"] = file.name;
       }
     }
-    throw Exception("File not found");
+    if(_downloadedFileName["$id$ep$index"] == null) {
+      throw Exception("File not found");
+    }
+    return File(downloadPath + _downloadedFileName["$id$ep$index"]!);
   }
+
+  static final _downloadedFileName = <String, String>{};
 
   ///获取封面, 所有漫画源通用
   File getCover(String id) {

@@ -326,7 +326,7 @@ extension ImageExt on ComicReadingPage {
     }
 
     void onPointerSignal(PointerSignalEvent pointerSignal) {
-      logic.mouseScroll = pointerSignal is PointerScrollEvent;
+      logic.mouseScroll = pointerSignal.kind == PointerDeviceKind.mouse;
       if (pointerSignal is PointerScrollEvent && !logic.isCtrlPressed) {
         if (logic.readingMethod != ReadingMethod.topToBottomContinuously) {
           pointerSignal.scrollDelta.dy > 0
@@ -381,16 +381,6 @@ extension ImageExt on ComicReadingPage {
               logic.showFloatingButton(1);
             } else {
               logic.showFloatingButton(0);
-            }
-
-            // update index
-            if (logic.readingMethod == ReadingMethod.topToBottomContinuously) {
-              var value =
-                  logic.itemScrollListener.itemPositions.value.first.index + 1;
-              if (value != logic.index) {
-                logic.index = value;
-                logic.update();
-              }
             }
 
             return true;
