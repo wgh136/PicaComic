@@ -59,12 +59,12 @@ class _EhLoginPageState extends State<EhLoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildHeader(cookieParserController),
+                    const Text(
+                      "Cookies",
+                      style: TextStyle(fontSize: 18),
+                    ).paddingLeft(6),
                     const SizedBox(
-                      height: 3,
-                    ),
-                    EhUserCookieParser(
-                      controller: cookieParserController,
+                      height: 8,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(5),
@@ -102,6 +102,25 @@ class _EhLoginPageState extends State<EhLoginPage> {
                             labelText: "star(非必要)".tl),
                       ),
                     ),
+                    EhUserCookieParser(
+                      controller: cookieParserController,
+                    ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      switchInCurve: Curves.easeInOut,
+                      switchOutCurve: Curves.easeInOut,
+                      child: cookieParserController.visible
+                          ? _buildCookieParserButtonGroup(cookieParserController)
+                          : TextButton(
+                        onPressed: () {
+                          if (cookieParserController.visible) return;
+                          cookieParserController.show();
+                          setState(() {});
+                        },
+                        child: Text('通过 cookie 身份信息快速填写'.tl),
+                      ),
+                    ),
+                    const SizedBox(height: 8,),
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -173,41 +192,12 @@ class _EhLoginPageState extends State<EhLoginPage> {
     );
   }
 
-  Row _buildHeader(EhUserCookieParserController cookieParserController) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Text(
-            "  Cookies".tl,
-            style: const TextStyle(fontSize: 18),
-          ),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
-          child: cookieParserController.visible
-              ? _buildCookieParserButtonGroup(cookieParserController)
-              : TextButton(
-                  onPressed: () {
-                    if (cookieParserController.visible) return;
-                    cookieParserController.show();
-                    setState(() {});
-                  },
-                  child: Text('通过 cookie 身份信息快速填写'.tl),
-                ),
-        )
-      ],
-    );
-  }
-
   Row _buildCookieParserButtonGroup(
       EhUserCookieParserController cookieParserController) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextButton(
+        Button.text(
           onPressed: () {
             cookieParserController.hide();
             setState(() {});
@@ -215,7 +205,7 @@ class _EhLoginPageState extends State<EhLoginPage> {
           child: Text('隐藏'.tl),
         ),
         const SizedBox(width: 16),
-        FilledButton(
+        Button.outlined(
           onPressed: () {
             final cookieMap = cookieParserController.parse();
             setState(() {
