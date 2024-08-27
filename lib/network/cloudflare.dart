@@ -1,8 +1,6 @@
-import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
-import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
@@ -10,7 +8,6 @@ import 'package:pica_comic/pages/webview.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 import '../components/components.dart';
-import 'http_client.dart';
 
 class CloudflareException implements DioException {
   final String url;
@@ -117,77 +114,29 @@ void passCloudflare(CloudflareException e, void Function() onFinished) async {
     );
   }
 
-  if (App.isWindows && (await FlutterWindowsWebview.isAvailable())) {
-    var webview = FlutterWindowsWebview();
-    Completer<bool>? pass;
-    webview.launchWebview(
-      url,
-      WebviewOptions(
-        messageReceiver: (s) {
-          if (s.substring(0, 2) == "UA") {
-            appdata.implicitData[3] = s.replaceFirst("UA", "");
-            appdata.writeImplicitData();
-          } else if (s == "challenge passed") {
-            pass?.complete(true);
-          } else if (s == "challenge failed") {
-            pass?.complete(false);
-          }
-        },
-        onTitleChange: (title) async {
-          pass = Completer();
-          webview.runScript(
-              "window.chrome.webview.postMessage(document.head.innerHTML.includes('#challenge-success-text') ? 'challenge failed' : 'challenge passed')");
-          if (await pass!.future) {
-            webview.runScript(
-                "window.chrome.webview.postMessage(\"UA\" + navigator.userAgent)");
-            var cookies = await webview.getCookies(url);
-            if(cookies['cf_clearance'] == null) {
-              return;
-            }
-            saveCookies(cookies);
-            webview.close();
-            onFinished();
-          }
-        },
-        proxy: proxyHttpOverrides?.proxyStr,
-      ),
-    );
-  } else if (App.isMacOS) {
-    var webview = MacWebview(
-      onStarted: (controller, browser) async {
-        var ua = await controller.getUA();
-        if (ua != null) {
-          appdata.implicitData[3] = ua;
-          appdata.writeImplicitData();
-        }
-        var cookiesMap = await controller.getCookies(url) ?? {};
-        saveCookies(cookiesMap);
-      },
-      onTitleChange: (title, controller, browser) async {
-        var res = await controller.platform.evaluateJavascript(
-            source:
-                "document.head.innerHTML.includes('#challenge-success-text')");
-        if (res == false) {
-          var ua = await controller.getUA();
+  if (App.isDesktop && (await DesktopWebview.isAvailable())) {
+    var webview = DesktopWebview(
+      initialUrl: url,
+      onTitleChange: (title, controller) async {
+        var res = await controller.evaluateJavascript(
+            "document.head.innerHTML.includes('#challenge-success-text')");
+        if (res == 'false') {
+          var ua = controller.userAgent;
           if (ua != null) {
             appdata.implicitData[3] = ua;
             appdata.writeImplicitData();
           }
-          var cookiesMap = await controller.getCookies(url) ?? {};
+          var cookiesMap = await controller.getCookies(url);
           if(cookiesMap['cf_clearance'] == null) {
             return;
           }
           saveCookies(cookiesMap);
-          browser.close();
+          controller.close();
+          onFinished();
         }
       },
-      onClose: () {
-        onFinished();
-      },
     );
-    await webview.openUrlRequest(
-      urlRequest: URLRequest(url: WebUri(url)),
-    );
+    webview.open();
   } else if (App.isMobile) {
     await App.globalTo(
       () => AppWebview(

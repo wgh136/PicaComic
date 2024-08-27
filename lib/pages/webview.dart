@@ -1,10 +1,17 @@
+import 'dart:convert';
+
+import 'package:desktop_webview_window/desktop_webview_window.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:pica_comic/components/components.dart';
+import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/ui_mode.dart';
+import 'package:pica_comic/network/http_client.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:flutter/material.dart';
-import 'package:pica_comic/foundation/ui_mode.dart';
-import 'package:pica_comic/components/components.dart';
+
 export 'package:flutter_inappwebview/flutter_inappwebview.dart' show WebUri, URLRequest;
 
 extension WebviewExtension on InAppWebViewController{
@@ -156,37 +163,117 @@ class _AppWebviewState extends State<AppWebview> {
   }
 }
 
-class MacWebview extends InAppBrowser {
-  final void Function(
-      InAppWebViewController controller,
-      InAppBrowser brower
-    )? onStarted;
+class DesktopWebview {
+  static Future<bool> isAvailable() => WebviewWindow.isWebviewAvailable();
 
-  final void Function(
-      String? title,
-      InAppWebViewController controller,
-      InAppBrowser brower
-      )? onTitleChange;
+  final String initialUrl;
+
+  final void Function(String title, DesktopWebview controller)? onTitleChange;
+
+  final void Function(String url, DesktopWebview webview)? onNavigation;
+
+  final void Function(DesktopWebview controller)? onStarted;
 
   final void Function()? onClose;
 
-  MacWebview({this.onStarted, this.onTitleChange, this.onClose}) : super();
+  DesktopWebview({
+    required this.initialUrl,
+    this.onTitleChange,
+    this.onNavigation,
+    this.onStarted,
+    this.onClose
+  });
 
-  @override
-  void onBrowserCreated() {
-    onStarted?.call(webViewController!, this);
-    super.onBrowserCreated();
+  Webview? _webview;
+
+  String? _ua;
+
+  String? title;
+
+  void onMessage(String message) {
+    var json = jsonDecode(message);
+    if(json is Map){
+      if(json["id"] == "document_created"){
+        title = json["data"]["title"];
+        _ua = json["data"]["ua"];
+        onTitleChange?.call(title!, this);
+      }
+    }
   }
 
-  @override
-  void onTitleChanged(String? title) {
-    onTitleChange?.call(title, webViewController!, this);
-    super.onTitleChanged(title);
+  String? get userAgent => _ua;
+
+  void open() async {
+    _webview = await WebviewWindow.create(configuration: CreateConfiguration(
+      useWindowPositionAndSize: true,
+      userDataFolderWindows: "${App.dataPath}\\webview",
+      title: "webview",
+      proxy: proxyHttpOverrides?.proxyStr,
+    ));
+    _webview!.addOnWebMessageReceivedCallback(onMessage);
+    _webview!.setOnNavigation((s) => onNavigation?.call(s, this));
+    _webview!.addScriptToExecuteOnDocumentCreated('''
+      setTimeout(() => {
+        console.log("ok")
+        let data = {
+          id: "document_created",
+          data: {
+            title: document.title,
+            url: location.href,
+            ua: navigator.userAgent
+          }
+        };
+        window.chrome.webview.postMessage(JSON.stringify(data));
+      }, 200)
+    ''');
+    _webview!.launch(initialUrl, triggerOnUrlRequestEvent: false);
+    _webview!.onClose.then((value) {
+      _webview = null;
+      onClose?.call();
+    });
+    Future.delayed(const Duration(milliseconds: 200), () {
+      onStarted?.call(this);
+    });
   }
 
-  @override
-  void onExit() {
-    onClose?.call();
-    super.onExit();
+  Future<String?> evaluateJavascript(String source) {
+    return _webview!.evaluateJavaScript(source);
+  }
+
+  Future<Map<String, String>> getCookies(String url) async{
+    var allCookies = await _webview!.getAllCookies();
+    var res = <String, String>{};
+    for(var c in allCookies) {
+      if(_cookieMatch(url, c.domain)){
+        res[_removeCode0(c.name)] = _removeCode0(c.value);
+      }
+    }
+    return res;
+  }
+
+  String _removeCode0(String s) {
+    var codeUints = List<int>.from(s.codeUnits);
+    codeUints.removeWhere((e) => e == 0);
+    return String.fromCharCodes(codeUints);
+  }
+
+  bool _cookieMatch(String url, String domain) {
+    domain = _removeCode0(domain);
+    var host = Uri.parse(url).host;
+    var acceptedHost = _getAcceptedDomains(host);
+    return acceptedHost.contains(domain.removeAllBlank);
+  }
+
+  List<String> _getAcceptedDomains(String host) {
+    var acceptedDomains = <String>[host];
+    var hostParts = host.split(".");
+    for (var i = 0; i < hostParts.length - 1; i++) {
+      acceptedDomains.add(".${hostParts.sublist(i).join(".")}");
+    }
+    return acceptedDomains;
+  }
+
+  void close() {
+    _webview?.close();
   }
 }

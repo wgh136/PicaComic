@@ -56,10 +56,6 @@ dependencies:
   image: 4.1.0
   shimmer_animation: ^2.1.0
   cookie_jar: any
-  flutter_windows_webview:
-    git:
-      url: https://github.com/wgh136/flutter_windows_webview
-      ref: 8673cc31
   workmanager:
     git:
       url: https://github.com/wgh136/flutter_workmanager
@@ -91,6 +87,10 @@ dependencies:
       ref: ade0b9d
   sliver_tools: ^0.2.12
   mime: ^1.0.5
+  desktop_webview_window:
+    git:
+      url: https://github.com/wgh136/flutter_desktop_webview
+      path: packages/desktop_webview_window
 
 dependency_overrides:
   flutter_inappwebview_android:

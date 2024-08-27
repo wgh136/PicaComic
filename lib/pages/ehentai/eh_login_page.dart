@@ -1,15 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/components/components.dart';
-import 'package:pica_comic/pages/webview.dart';
 import 'package:pica_comic/pages/ehentai/eh_user_cookie_parser.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:pica_comic/pages/webview.dart';
 import 'package:pica_comic/tools/translations.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+
 import '../../foundation/app.dart';
 import '../../network/eh_network/eh_main_network.dart';
-import '../../network/http_client.dart';
 
 class EhLoginPage extends StatefulWidget {
   const EhLoginPage({Key? key}) : super(key: key);
@@ -246,52 +245,29 @@ class _EhLoginPageState extends State<EhLoginPage> {
               }
             },
           ));
-    } else if (App.isWindows) {
-      if (await FlutterWindowsWebview.isAvailable()) {
-        var webview = FlutterWindowsWebview();
-        webview.launchWebview(
-            "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
-            WebviewOptions(
-                proxy: proxyHttpOverrides?.proxyStr,
-                onTitleChange: (s) async {
-                  if (s == "E-Hentai Forums") {
-                    var cookies1 =
-                        await webview.getCookies("https://e-hentai.org");
-                    var cookies2 =
-                        await webview.getCookies("https://exhentai.org");
-                    webview.close();
-                    var cookies = <String, String>{};
-                    cookies1.forEach((key, value) {
-                      cookies[key] = value;
-                    });
-                    cookies2.forEach((key, value) {
-                      cookies[key] = value;
-                    });
-                    loginWithCookies(cookies);
-                  }
-                }));
-      } else if (App.isMacOS) {
-        var webview =
-            MacWebview(onTitleChange: (title, controller, browser) async {
-          if (title == "E-Hentai Forums") {
-            var cookies1 =
-                await controller.getCookies("https://e-hentai.org") ?? {};
-            var cookies2 =
-                await controller.getCookies("https://exhentai.org") ?? {};
-            var cookies = <String, String>{};
-            cookies1.forEach((key, value) {
-              cookies[key] = value;
-            });
-            cookies2.forEach((key, value) {
-              cookies[key] = value;
-            });
-            loginWithCookies(cookies);
-            browser.close();
-          }
-        });
-        await webview.openUrlRequest(
-          urlRequest: URLRequest(url: WebUri("https://nhentai.net")),
+    } else if (App.isDesktop) {
+      if (await DesktopWebview.isAvailable()) {
+        var webview = DesktopWebview(
+          initialUrl: "https://forums.e-hentai.org/index.php?act=Login&CODE=00",
+          onTitleChange: (url, webview) async {
+            if (url == "E-Hentai Forums") {
+              var cookies1 =
+                  await webview.getCookies("https://e-hentai.org");
+              var cookies2 =
+                  await webview.getCookies("https://exhentai.org");
+              webview.close();
+              var cookies = <String, String>{};
+              cookies1.forEach((key, value) {
+                cookies[key] = value;
+              });
+              cookies2.forEach((key, value) {
+                cookies[key] = value;
+              });
+              loginWithCookies(cookies);
+            }
+          },
         );
+        webview.open();
       } else {
         showToast(message: "Unsupported device".tl);
       }

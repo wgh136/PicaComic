@@ -1,29 +1,35 @@
 import 'dart:async';
+
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pica_comic/base.dart';
+import 'package:pica_comic/components/window_frame.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/app_page_route.dart';
-import 'package:pica_comic/init.dart';
-import 'package:pica_comic/tools/block_screenshot.dart';
 import 'package:pica_comic/foundation/log.dart';
-import 'package:pica_comic/tools/mouse_listener.dart';
+import 'package:pica_comic/init.dart';
 import 'package:pica_comic/network/http_client.dart';
-import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/pages/auth_page.dart';
 import 'package:pica_comic/pages/main_page.dart';
 import 'package:pica_comic/pages/welcome_page.dart';
-import 'package:pica_comic/components/window_frame.dart';
+import 'package:pica_comic/tools/block_screenshot.dart';
+import 'package:pica_comic/tools/mouse_listener.dart';
+import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:window_manager/window_manager.dart';
+
 import 'components/components.dart';
 import 'network/webdav.dart';
 
 bool notFirstUse = false;
 
-void main() {
+void main(List<String> args) {
+  if (runWebViewTitleBarWidget(args)) {
+    return;
+  }
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await init();

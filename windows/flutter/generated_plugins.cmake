@@ -4,10 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  desktop_webview_window
   dynamic_color
   file_selector_windows
   flutter_qjs
-  flutter_windows_webview
   local_auth_windows
   screen_retriever
   share_plus

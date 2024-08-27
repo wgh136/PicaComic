@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_windows_webview/flutter_windows_webview.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/components/components.dart';
-import 'package:pica_comic/network/http_client.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'webview.dart';
 import 'ehentai/subscription.dart';
@@ -32,7 +30,7 @@ void openTool() {
           title: Text("图片搜索 [搜图bot酱]".tl),
           onTap: () async {
             App.globalBack();
-            if (App.isMobile || App.isMacOS) {
+            if (App.isMobile) {
               context.to(
                 () => AppWebview(
                   initialUrl: "https://soutubot.moe/",
@@ -43,21 +41,16 @@ void openTool() {
                 ),
               );
             } else {
-              var webview = FlutterWindowsWebview();
-              webview.launchWebview(
-                "https://soutubot.moe/",
-                WebviewOptions(
-                  onNavigation: (uri) {
-                    if (handleAppLinks(Uri.parse(uri),
-                        showMessageWhenError: false)) {
-                      Future.microtask(() => webview.close());
-                      return true;
-                    }
-                    return false;
-                  },
-                  proxy: proxyHttpOverrides?.proxyStr,
-                ),
+              var webview = DesktopWebview(
+                initialUrl: "https://soutubot.moe/",
+                onNavigation: (s, webview) {
+                  if (handleAppLinks(Uri.parse(s),
+                      showMessageWhenError: false)) {
+                    Future.microtask(() => webview.close());
+                  }
+                },
               );
+              webview.close();
             }
           },
         ),
@@ -77,21 +70,16 @@ void openTool() {
                 ),
               );
             } else {
-              var webview = FlutterWindowsWebview();
-              webview.launchWebview(
-                "https://saucenao.com/",
-                WebviewOptions(
-                  onNavigation: (uri) {
-                    if (handleAppLinks(Uri.parse(uri),
-                        showMessageWhenError: false)) {
-                      Future.microtask(() => webview.close());
-                      return true;
-                    }
-                    return false;
-                  },
-                  proxy: proxyHttpOverrides?.proxyStr,
-                ),
+              var webview = DesktopWebview(
+                initialUrl: "https://saucenao.com/",
+                onNavigation: (s, webview) {
+                  if (handleAppLinks(Uri.parse(s),
+                      showMessageWhenError: false)) {
+                    Future.microtask(() => webview.close());
+                  }
+                },
               );
+              webview.close();
             }
           },
         ),
