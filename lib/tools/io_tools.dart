@@ -408,7 +408,7 @@ Future<bool> importData([String? filePath]) async {
       return false;
     }
   }
-  var data = await compute<List<String>, String?>((data) async {
+  var data = await compute<List<String>, String>((data) async {
     try {
       ZipFile.openAndExtract(data[1], "$path${pathSep}dataTemp");
       var downloadPath = Directory(data[2]);
@@ -458,9 +458,7 @@ Future<bool> importData([String? filePath]) async {
       }
       return json;
     } catch (e, s) {
-      LogManager.addLog(LogLevel.error, "importData.closure",
-          "failed to compute data\n$e\n$s");
-      return null;
+      return "failed to compute data\n$e\n$s";
     }
   }, [
     path,
@@ -469,8 +467,8 @@ Future<bool> importData([String? filePath]) async {
     appdata.settings[46],
     (enableCheck ? "1" : "0")
   ]);
-  if (data == null) {
-    LogManager.addLog(LogLevel.error, "importData", "failed to compute data");
+  if (data.startsWith("failed to compute data")) {
+    LogManager.addLog(LogLevel.error, "importData", data);
     return false;
   }
   var json = const JsonDecoder().convert(data);
