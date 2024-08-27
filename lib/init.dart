@@ -16,7 +16,6 @@ import 'package:pica_comic/network/picacg_network/models.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/background_service.dart';
 import 'package:pica_comic/tools/cache_auto_clear.dart';
-import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -33,6 +32,7 @@ import 'network/nhentai_network/nhentai_main_network.dart';
 
 Future<void> init() async {
   try {
+    await App.init();
     io.File? logFile = io.File("${App.dataPath}/log.txt");
     if(App.isAndroid) {
       var externalDirectory = await getExternalStorageDirectory();
@@ -46,7 +46,6 @@ Future<void> init() async {
     await logFile?.delete();
     LogManager.logFile = logFile;
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
-    await App.init();
     await appdata.readData();
     SingleInstanceCookieJar("${App.dataPath}/cookies.db");
     HttpProxyServer.createConfigFile();
