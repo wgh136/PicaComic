@@ -37,7 +37,6 @@ void checkClipboard() async {
       builder: (context) => ContentDialog(
         title: "发现剪切板中的链接".tl,
         content: Text(data.text!),
-        adaptive: false,
         actions: [
           TextButton(
             onPressed: () {

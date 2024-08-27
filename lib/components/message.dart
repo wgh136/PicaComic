@@ -206,9 +206,7 @@ LoadingDialogController showLoadingDialog(BuildContext context,
 
   var navigator = Navigator.of(context);
 
-  navigator
-      .push(loadingDialogRoute)
-      .then((value) => controller.closed = true);
+  navigator.push(loadingDialogRoute).then((value) => controller.closed = true);
 
   controller.closeDialog = () {
     navigator.removeRoute(loadingDialogRoute);
@@ -222,7 +220,6 @@ class ContentDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.content,
-    this.adaptive = true,
     this.actions = const [],
   });
 
@@ -231,8 +228,6 @@ class ContentDialog extends StatelessWidget {
   final Widget content;
 
   final List<Widget> actions;
-
-  final bool adaptive;
 
   @override
   Widget build(BuildContext context) {
@@ -252,27 +247,24 @@ class ContentDialog extends StatelessWidget {
         const SizedBox(height: 16),
       ],
     );
-    if (context.width >= 400 || !adaptive) {
-      return Dialog(
-        child: IntrinsicWidth(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 600,
-              minWidth: math.min(400, context.width - 16),
-            ),
-            child: MediaQuery.removePadding(
-              removeTop: true,
-              removeBottom: true,
-              context: context,
-              child: content,
-            ),
+    return Dialog(
+      insetPadding: context.width < 400
+          ? const EdgeInsets.symmetric(horizontal: 4)
+          : const EdgeInsets.symmetric(horizontal: 16),
+      child: IntrinsicWidth(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 600,
+            minWidth: math.min(400, context.width - 16),
+          ),
+          child: MediaQuery.removePadding(
+            removeTop: true,
+            removeBottom: true,
+            context: context,
+            child: content,
           ),
         ),
-      );
-    } else {
-      return Dialog.fullscreen(
-        child: content,
-      );
-    }
+      ),
+    );
   }
 }

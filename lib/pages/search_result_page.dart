@@ -163,6 +163,31 @@ class _SearchResultPageState extends State<_SearchResultPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget trailing;
+    if(context.width < 400) {
+      trailing = Button.icon(
+        icon: const Icon(Icons.more_horiz),
+        onPressed: more,
+      );
+    } else {
+      trailing = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Button.icon(
+            icon: const Icon(Icons.dataset_outlined),
+            onPressed: changeSource,
+          ),
+          const SizedBox(
+            width: 4,
+          ),
+          Button.icon(
+            icon: const Icon(Icons.tune),
+            onPressed: showSearchOptions,
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       floatingActionButton: _showFab
           ? FloatingActionButton(
@@ -212,10 +237,7 @@ class _SearchResultPageState extends State<_SearchResultPage> {
                 },
                 controller: controller,
                 onChanged: onChanged,
-                trailing: Button.icon(
-                  icon: const Icon(Icons.more_horiz),
-                  onPressed: more,
-                ),
+                trailing: trailing,
               ),
             ),
           ),
