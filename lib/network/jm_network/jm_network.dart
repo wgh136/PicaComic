@@ -81,8 +81,8 @@ class JmNetwork {
   static const urls = <String>[
     "https://www.jmeadpoolcdn.one",
     "https://www.jmeadpoolcdn.life",
-    "https://www.jmfreedomproxy.xyz",
-    "https://www.jmapidestiny.xyz"
+    "https://www.jmapiproxyxxx.one",
+    "https://www.jmfreedomproxy.xyz"
   ];
 
   String get baseUrl => urls[int.parse(appdata.settings[17])];
