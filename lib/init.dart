@@ -2,6 +2,7 @@ import 'dart:io' as io;
 
 import 'package:app_links/app_links.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
 import 'package:pica_comic/foundation/history.dart';
@@ -32,6 +33,18 @@ import 'network/nhentai_network/nhentai_main_network.dart';
 
 Future<void> init() async {
   try {
+    io.File? logFile = io.File("${App.dataPath}/log.txt");
+    if(App.isAndroid) {
+      var externalDirectory = await getExternalStorageDirectory();
+      if (externalDirectory != null) {
+        logFile = io.File("${externalDirectory.path}/log.txt");
+      }
+    }
+    if(App.isIOS) {
+      logFile = null;
+    }
+    await logFile?.delete();
+    LogManager.logFile = logFile;
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
     await App.init();
     await appdata.readData();

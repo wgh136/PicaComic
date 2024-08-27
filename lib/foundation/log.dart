@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:pica_comic/tools/extensions.dart';
 
@@ -48,6 +50,7 @@ class LogManager {
     }
 
     _logs.add(newLog);
+    writeLog(level, title, content);
     if (_logs.length > maxLogNumber) {
       var res = _logs.remove(
           _logs.firstWhereOrNull((element) => element.level == LogLevel.info));
@@ -66,6 +69,17 @@ class LogManager {
       res += log.toString();
     }
     return res;
+  }
+
+  static File? logFile;
+
+  static void writeLog(LogLevel level, String title, String content) {
+    if(logFile != null) {
+      logFile!.writeAsString(
+        "${DateTime.now().toIso8601String()} ${level.name}\n$title: $content\n\n",
+        mode: FileMode.append,
+      );
+    }
   }
 }
 
@@ -91,6 +105,15 @@ class Log {
   static void error(String title, String message) {
     LogManager.addLog(LogLevel.error, title, message);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Log)  return false;
+    return other.level == level && other.title == title && other.content == content;
+  }
+
+  @override
+  int get hashCode => level.hashCode ^ title.hashCode ^ content.hashCode;
 }
 
 enum LogLevel { error, warning, info }
