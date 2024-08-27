@@ -804,8 +804,10 @@ class EhNetwork {
           ) {
             newKeywords.add(k);
           } else {
-            var lastChar = k[k.length-1];
-            newKeywords.add(k.replaceAll(' | ', ' ').replaceLast(lastChar, '\$$lastChar'));
+            var key = lr[0];
+            var value = lr[1].substring(1, lr[1].length-1);
+            value = '${value.split(' | ').first}\$';
+            newKeywords.add('$key:"$value"');
           }
         }
       }
