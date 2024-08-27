@@ -291,4 +291,11 @@ class CachingFile{
   Future<void> cancel() async{
     await file.deleteIgnoreError();
   }
+
+  void reset() {
+    _buffer.clear();
+    if(file.existsSync()) {
+      file.deleteSync();
+    }
+  }
 }

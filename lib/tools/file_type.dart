@@ -9,7 +9,7 @@ class FileType {
   const FileType(this.ext, this.mime);
 }
 
-FileType detectFileType(Uint8List data) {
+FileType detectFileType(List<int> data) {
   var mime = lookupMimeType('no-file', headerBytes: data);
   var ext = mime == null ? '' : extensionFromMime(mime);
   if(ext == 'jpe') {

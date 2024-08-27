@@ -179,7 +179,10 @@ abstract class DownloadingItem with _TransferSpeedMixin {
         downloadTo,
         basename,
         onData,
-        () => _scheduleTasks(ep, this.index),
+        () {
+          updateInfo?.call();
+          _scheduleTasks(ep, this.index);
+        },
       );
     }
   }
@@ -320,6 +323,10 @@ abstract class DownloadingItem with _TransferSpeedMixin {
       "index": index,
       "links": convertedData,
       "directory": directory,
+      "finishedTasks": _downloading.entries
+          .where((element) => element.value.isFinished)
+          .map((e) => e.key)
+          .toList(),
     };
   }
 
@@ -341,6 +348,12 @@ abstract class DownloadingItem with _TransferSpeedMixin {
       });
     }
     directory = map["directory"];
+    if(map["finishedTasks"] != null) {
+      var finishedTasks = List<String>.from(map["finishedTasks"]);
+      for (var task in finishedTasks) {
+        _downloading[task] = _ImageDownloadWrapper.finished();
+      }
+    }
   }
 
   /// get all image links
@@ -398,9 +411,9 @@ class _ImageDownloadWrapper {
 
   final String fileBaseName;
 
-  final void Function(int length) onReceiveData;
+  final void Function(int length)? onReceiveData;
 
-  final void Function() onFinished;
+  final void Function()? onFinished;
 
   Object? error;
 
@@ -422,6 +435,14 @@ class _ImageDownloadWrapper {
     listen();
   }
 
+  _ImageDownloadWrapper.finished():
+    stream = const Stream.empty(),
+    path = "",
+    fileBaseName = "",
+    onReceiveData = null,
+    onFinished = null,
+    isFinished = true;
+
   void listen() async {
     try {
       var last = 0;
@@ -432,7 +453,7 @@ class _ImageDownloadWrapper {
           }
           return;
         }
-        onReceiveData(progress.currentBytes - last);
+        onReceiveData?.call(progress.currentBytes - last);
         last = progress.currentBytes;
         if (progress.finished) {
           var data = progress.data ?? await progress.getFile().readAsBytes();
@@ -451,7 +472,7 @@ class _ImageDownloadWrapper {
     if (!isFinished && error == null) {
       error = Exception("Failed to download image");
     }
-    onFinished();
+    onFinished?.call();
     for (var c in completers) {
       c.complete(this);
     }

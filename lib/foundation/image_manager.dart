@@ -15,6 +15,7 @@ import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
+import 'package:pica_comic/tools/file_type.dart';
 import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
@@ -240,6 +241,9 @@ class ImageManager {
 
       var imgKey = readerLink.split('/')[4];
 
+      int totalBytes = 0;
+      List<int> data = [];
+
       if (gallery.auth?["mpvKey"] != null) {
         Future<(String image, String nl)> getImageFromApi([String? nl]) async {
           Res<String>? apiRes = await EhNetwork().apiRequest({
@@ -352,20 +356,44 @@ class ImageManager {
         }
 
         int retryTimes = 0;
+        var currentBytes = 0;
 
-        while (res == null) {
+        while(true) {
           try {
+            data.clear();
+            cachingFile.reset();
             if (image == "") {
               throw "empty url";
             }
             res = await dio.get<ResponseBody>(image,
                 options: Options(responseType: ResponseType.stream));
             if (res.data!.headers["Content-Type"]?[0] ==
-                    "text/html; charset=UTF-8" ||
+                "text/html; charset=UTF-8" ||
                 res.data!.headers["content-type"]?[0] ==
                     "text/html; charset=UTF-8") {
               throw ImageExceedError();
             }
+            var stream = res.data!.stream;
+            int? expectedBytes;
+            try {
+              expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
+            } catch (e) {
+              try {
+                expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
+              } finally {}
+            }
+
+            await for (var b in stream) {
+              await cachingFile.writeBytes(b);
+              currentBytes += b.length;
+              data.addAll(b);
+              var progress = DownloadProgress(currentBytes,
+                  (expectedBytes ?? currentBytes) + 1, cacheKey, savePath);
+              yield progress;
+              loadingItems[cacheKey] = progress;
+            }
+            totalBytes = currentBytes;
+            break;
           } catch (e) {
             retryTimes++;
             if (retryTimes == 4) {
@@ -387,35 +415,12 @@ class ImageManager {
         }
       }
 
-      var stream = res.data!.stream;
-      int? expectedBytes;
-      try {
-        expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
-      } catch (e) {
-        try {
-          expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
-        } catch (e) {
-          // ignore
-        }
-      }
-      var currentBytes = 0;
-
-      List<int> data = [];
-      await for (var b in stream) {
-        await cachingFile.writeBytes(b);
-        currentBytes += b.length;
-        data.addAll(b);
-        var progress = DownloadProgress(currentBytes,
-            (expectedBytes ?? currentBytes) + 1, cacheKey, savePath);
-        yield progress;
-        loadingItems[cacheKey] = progress;
-      }
       await cachingFile.close();
-      var ext = getExt(res);
+      var ext = detectFileType(data).ext.replaceFirst(('.'), '');
       CacheManager().setType(key, ext);
       yield DownloadProgress(
-        currentBytes,
-        currentBytes,
+        totalBytes,
+        totalBytes,
         cacheKey,
         savePath,
         Uint8List.fromList(data),
