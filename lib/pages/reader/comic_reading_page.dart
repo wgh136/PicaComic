@@ -235,7 +235,7 @@ class ComicReadingPage extends StatelessWidget {
       ComicImage.clear();
       StateController.remove<ComicReadingPageLogic>();
       // 更新本地收藏
-      LocalFavoritesManager().onReadEnd(readingData.favoriteId);
+      LocalFavoritesManager().onReadEnd(readingData.favoriteId, readingData.favoriteType);
       // 保存历史记录
       if (history != null) {
         _updateHistory(logic, true);

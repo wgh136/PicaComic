@@ -268,7 +268,7 @@ class _ComicPageImpl extends BaseComicPage<ComicInfoData> {
           : () => comicSource!.favoriteData!.loadFolders!(data!.comicId),
       initialFolder:
           (comicSource!.favoriteData?.multiFolder ?? false) ? null : '0',
-      target: id,
+      localFavoriteItem: toLocalFavoriteItem(),
       setFavorite: (b) {
         if (favorite != b) {
           favorite = b;
@@ -1134,7 +1134,9 @@ abstract class BaseComicPage<T extends Object> extends StatelessWidget {
           child: Card(
             margin: EdgeInsets.zero,
             color: title
-                ? colors[_logic.colorIndex % colors.length].shade100.withOpacity(0.6)
+                ? colors[_logic.colorIndex % colors.length]
+                    .shade100
+                    .withOpacity(0.6)
                 : ElevationOverlay.applySurfaceTint(
                     colorScheme.surface, colorScheme.surfaceTint, 3),
             shape:
@@ -1681,7 +1683,7 @@ class FavoriteComicWidget extends StatefulWidget {
   const FavoriteComicWidget(
       {required this.havePlatformFavorite,
       required this.needLoadFolderData,
-      required this.target,
+      required this.localFavoriteItem,
       this.folders = const {},
       this.foldersLoader,
       this.selectFolderCallback,
@@ -1719,7 +1721,7 @@ class FavoriteComicWidget extends StatefulWidget {
   final bool? favoriteOnPlatform;
 
   /// identifier for the comic
-  final String target;
+  final FavoriteItem localFavoriteItem;
 
   final Future<Res<bool>> Function()? cancelPlatformFavorite;
 
@@ -1747,7 +1749,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
 
   @override
   void initState() {
-    LocalFavoritesManager().find(widget.target).then((folder) {
+    LocalFavoritesManager()
+        .find(widget.localFavoriteItem.target, widget.localFavoriteItem.type)
+        .then((folder) {
       Future.microtask(() => setState(() => addedFolders = folder));
     });
     selectID = widget.initialFolder;
@@ -1890,8 +1894,10 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
                 favoritedFolders.isEmpty) {
               widget.setFavorite(false);
             }
-            LocalFavoritesManager()
-                .deleteComicWithTarget(selectID!, widget.target);
+            LocalFavoritesManager().deleteComic(
+              selectID!,
+              widget.localFavoriteItem
+            );
           },
           child: Text("取消收藏".tl),
         ),

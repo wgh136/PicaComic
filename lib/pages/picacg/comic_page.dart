@@ -49,7 +49,7 @@ class PicacgComicPage extends BaseComicPage<ComicItem> {
       folders: const {"Picacg": "Picacg"},
       initialFolder: data!.isFavourite ? null : "Picacg",
       favoriteOnPlatform: data!.isFavourite,
-      target: id,
+      localFavoriteItem: toLocalFavoriteItem(),
       setFavorite: (b) {
         if (favorite != b) {
           favorite = b;
@@ -179,7 +179,7 @@ class PicacgComicPage extends BaseComicPage<ComicItem> {
   @override
   Future<bool> loadFavorite(ComicItem data) async {
     return data.isFavourite ||
-        (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+        (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem())).isNotEmpty;
   }
 
   @override

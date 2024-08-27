@@ -26,9 +26,9 @@ class FavoritesPageController extends StateController {
 
   FavoriteData? networkData;
 
-  var selectedComics = <String>[];
+  var selectedComics = <FavoriteItem>[];
 
-  var openComicMenuFuncs = <String, Function>{};
+  var openComicMenuFuncs = <FavoriteItem, Function>{};
 
   bool get isSelectingComics => selectedComics.isNotEmpty;
 
@@ -127,8 +127,7 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
             child: Text("删除".tl),
             onTap: () {
               for (var comic in controller.selectedComics) {
-                LocalFavoritesManager()
-                    .deleteComicWithTarget(controller.current!, comic);
+                LocalFavoritesManager().deleteComic(controller.current!, comic);
               }
               controller.selectedComics.clear();
               controller.update();
@@ -149,13 +148,23 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
               Future.delayed(
                 const Duration(milliseconds: 200),
                 () {
-                  var comics = controller.selectedComics
-                      .map((e) => LocalFavoritesManager().getComic(controller.current!, e))
-                      .toList();
+                  var comics = controller.selectedComics;
                   for (var comic in comics) {
                     DownloadManager().addFavoriteDownload(comic);
                   }
                   showToast(message: "已添加下载任务".tl);
+                },
+              );
+            },
+          ),
+          PopupMenuItem(
+            child: Text("更新漫画信息".tl),
+            onTap: () {
+              Future.delayed(
+                const Duration(milliseconds: 200),
+                () {
+                  var comics = controller.selectedComics;
+                  UpdateFavoritesInfoDialog.show(comics, controller.current!);
                 },
               );
             },
@@ -192,7 +201,6 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
                 onPressed: () {
                   controller.selectedComics = LocalFavoritesManager()
                       .getAllComics(controller.current!)
-                      .map((e) => e.target)
                       .toList();
                   controller.update();
                 },
@@ -549,6 +557,14 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
               addDownload(folder);
             },
           ),
+          PopupMenuItem(
+            child: Text("更新漫画信息".tl),
+            onTap: () {
+              App.globalBack();
+              var comics = LocalFavoritesManager().getAllComics(folder);
+              UpdateFavoritesInfoDialog.show(comics, folder);
+            },
+          ),
         ]);
   }
 
@@ -586,6 +602,12 @@ class FavoritesPage extends StatelessWidget with _LocalFavoritesManager {
           text: "下载全部".tl,
           onClick: () {
             addDownload(folder);
+          }),
+      DesktopMenuEntry(
+          text: "更新漫画信息".tl,
+          onClick: () {
+            var comics = LocalFavoritesManager().getAllComics(folder);
+            UpdateFavoritesInfoDialog.show(comics, folder);
           }),
     ]);
   }
@@ -648,17 +670,17 @@ class ComicsPageView extends StatefulWidget {
   final String folder;
 
   /// return true to disable default action
-  final bool Function(String key) onClick;
+  final bool Function(FavoriteItem item) onClick;
 
-  final void Function(String key) onLongPressed;
+  final void Function(FavoriteItem item) onLongPressed;
 
-  final List<String> selectedComics;
+  final List<FavoriteItem> selectedComics;
 
   @override
   State<ComicsPageView> createState() => _ComicsPageViewState();
 }
 
-class _ComicsPageViewState extends State<ComicsPageView> {
+class _ComicsPageViewState extends StateWithController<ComicsPageView> {
   late ScrollController scrollController;
   bool showFB = true;
   double location = 0;
@@ -756,20 +778,21 @@ class _ComicsPageViewState extends State<ComicsPageView> {
                     itemBuilder: (BuildContext context, int index) {
                       var comic = comics[index];
                       var tile = LocalFavoriteTile(
+                        key: ValueKey(comic.toString()),
                         comic,
                         folder,
                         rebuild,
                         true,
-                        onTap: () => widget.onClick(comic.target),
-                        onLongPressed: () => widget.onLongPressed(comic.target),
+                        onTap: () => widget.onClick(comic),
+                        onLongPressed: () => widget.onLongPressed(comic),
                         showFolderInfo: true,
                       );
                       StateController.find<FavoritesPageController>()
-                          .openComicMenuFuncs[comic.target] = tile.showMenu;
+                          .openComicMenuFuncs[comic] = tile.showMenu;
 
                       Color? color;
 
-                      if (widget.selectedComics.contains(comic.target)) {
+                      if (widget.selectedComics.contains(comic)) {
                         color = Theme.of(context)
                             .colorScheme
                             .surfaceContainerHighest;
@@ -846,6 +869,15 @@ class _ComicsPageViewState extends State<ComicsPageView> {
         ],
       ),
     );
+  }
+
+  @override
+  Object? get tag => "ComicsPageView $folder";
+
+  @override
+  refresh() {
+    comics = LocalFavoritesManager().getAllComics(folder);
+    update();
   }
 }
 

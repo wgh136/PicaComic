@@ -24,7 +24,7 @@ import '../../network/nhentai_network/nhentai_main_network.dart';
 import '../../network/picacg_network/methods.dart';
 import '../../tools/io_tools.dart';
 
-extension LocalFavoritesDownload on FavoriteItem {
+extension LocalFavoritesExt on FavoriteItem {
   void addDownload() {
     if (DownloadManager().isExists(toDownloadId())) {
       return;
@@ -35,6 +35,141 @@ extension LocalFavoritesDownload on FavoriteItem {
       log("Failed to add a download.\n Missing comic source config file.",
           "Download", LogLevel.error);
     }
+  }
+
+  Future<bool> updateInfo(String folder) async {
+    if (type == FavoriteType.picacg) {
+      var res = await PicacgNetwork().getComicInfo(target);
+      if (res.error) return false;
+      name = res.data.title;
+      author = res.data.author;
+      tags = res.data.tags;
+      coverPath = res.data.cover;
+    } else if (type == FavoriteType.ehentai) {
+      var res = await EhNetwork().getGalleryInfo(target);
+      if (res.error) return false;
+      name = res.data.title;
+      coverPath = res.data.cover;
+    } else if (type == FavoriteType.jm) {
+      var res = await JmNetwork().getComicInfo(target);
+      if (res.error) return false;
+      name = res.data.title;
+      author = res.data.author.firstOrNull ?? '';
+      tags = res.data.tags;
+      coverPath = res.data.cover;
+    } else if (type == FavoriteType.nhentai) {
+      var res = await NhentaiNetwork().getComicInfo(target);
+      if (res.error) return false;
+      name = res.data.title;
+      coverPath = res.data.cover;
+    } else if (type == FavoriteType.htManga) {
+      var res = await HtmangaNetwork().getComicInfo(target);
+      if (res.error) return false;
+      name = res.data.title;
+      author = res.data.uploader;
+      coverPath = res.data.cover;
+    } else if (type == FavoriteType.hitomi) {
+      var res = await HiNetwork().getComicInfo(target);
+      if (res.error) return false;
+      name = res.data.title;
+      author = res.data.subTitle;
+      coverPath = res.data.cover;
+    } else {
+      var comicSource = type.comicSource;
+      var res = await comicSource.loadComicInfo!(target);
+      if (res.error) return false;
+      name = res.data.title;
+      author = res.data.subTitle ?? '';
+      coverPath = res.data.cover;
+    }
+    LocalFavoritesManager().updateInfo(folder, this);
+    return true;
+  }
+}
+
+class UpdateFavoritesInfoDialog extends StatefulWidget {
+  const UpdateFavoritesInfoDialog(
+      {super.key, required this.comics, required this.folder});
+
+  final List<FavoriteItem> comics;
+
+  final String folder;
+
+  static show(List<FavoriteItem> comics, String folder) {
+    showDialog(
+      context: App.globalContext!,
+      builder: (context) =>
+          UpdateFavoritesInfoDialog(comics: comics, folder: folder),
+    );
+  }
+
+  @override
+  State<UpdateFavoritesInfoDialog> createState() =>
+      _UpdateFavoritesInfoDialogState();
+}
+
+class _UpdateFavoritesInfoDialogState extends State<UpdateFavoritesInfoDialog> {
+  int finished = 0;
+
+  int get total => widget.comics.length;
+
+  bool cancel = false;
+
+  void load() async {
+    for (var comic in widget.comics) {
+      if (cancel) return;
+      if (await comic.updateInfo(widget.folder)) {
+        finished++;
+      }
+      if (!cancel) {
+        setState(() {});
+      }
+    }
+    if (mounted) {
+      StateController.findOrNull<SimpleController>(
+              tag: "ComicsPageView ${widget.folder}")
+          ?.refresh();
+      context.pop();
+    }
+  }
+
+  @override
+  void initState() {
+    load();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    cancel = true;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ContentDialog(
+      title: "更新漫画信息".tl,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LinearProgressIndicator(
+            value: finished / total,
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          Text("$finished/$total").toAlign(Alignment.centerRight),
+        ],
+      ).paddingHorizontal(24).paddingVertical(12),
+      actions: [
+        Button.filled(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text("取消".tl),
+        ),
+      ],
+    );
   }
 }
 
@@ -201,9 +336,7 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   String? get badge =>
-      DownloadManager().isExists(comic.toDownloadId())
-          ? "已下载".tl
-          : null;
+      DownloadManager().isExists(comic.toDownloadId()) ? "已下载".tl : null;
 
   @override
   bool get enableLongPressed => _enableLongPressed;
@@ -318,51 +451,65 @@ class LocalFavoriteTile extends ComicTile {
 
   @override
   void onSecondaryTap_(TapDownDetails details) {
-    showDesktopMenu(App.globalContext!,
-        Offset(details.globalPosition.dx, details.globalPosition.dy), [
-      DesktopMenuEntry(
-        text: "查看".tl,
-        onClick: () =>
-            Future.delayed(const Duration(milliseconds: 200), showInfo),
-      ),
-      DesktopMenuEntry(
-        text: "阅读".tl,
-        onClick: () => Future.delayed(const Duration(milliseconds: 200), read),
-      ),
-      DesktopMenuEntry(
-        text: "搜索".tl,
-        onClick: () => Future.delayed(
-          const Duration(milliseconds: 200),
-          () => context.to(
-            () => PreSearchPage(
-              initialValue: title,
-            ),
+    showDesktopMenu(
+      App.globalContext!,
+      Offset(details.globalPosition.dx, details.globalPosition.dy),
+      [
+        DesktopMenuEntry(
+          text: "查看".tl,
+          onClick: () =>
+              Future.delayed(const Duration(milliseconds: 200), showInfo),
+        ),
+        DesktopMenuEntry(
+          text: "阅读".tl,
+          onClick: () =>
+              Future.delayed(const Duration(milliseconds: 200), read),
+        ),
+        DesktopMenuEntry(
+          text: "搜索".tl,
+          onClick: () => Future.delayed(
+            const Duration(milliseconds: 200),
+            () {
+              if (context.mounted) {
+                context.to(
+                  () => PreSearchPage(
+                    initialValue: title,
+                  ),
+                );
+              }
+            },
           ),
         ),
-      ),
-      DesktopMenuEntry(
-        text: "取消收藏".tl,
-        onClick: () {
-          LocalFavoritesManager().deleteComic(folderName, comic);
-          onDelete();
-        },
-      ),
-      DesktopMenuEntry(
-        text: "复制到".tl,
-        onClick: copyTo,
-      ),
-      DesktopMenuEntry(
-        text: "编辑标签".tl,
-        onClick: editTags,
-      ),
-      DesktopMenuEntry(
-        text: "下载".tl,
-        onClick: () {
-          comic.addDownload();
-          showToast(message: "已添加下载任务".tl);
-        },
-      ),
-    ]);
+        DesktopMenuEntry(
+          text: "取消收藏".tl,
+          onClick: () {
+            LocalFavoritesManager().deleteComic(folderName, comic);
+            onDelete();
+          },
+        ),
+        DesktopMenuEntry(
+          text: "复制到".tl,
+          onClick: copyTo,
+        ),
+        DesktopMenuEntry(
+          text: "编辑标签".tl,
+          onClick: editTags,
+        ),
+        DesktopMenuEntry(
+          text: "下载".tl,
+          onClick: () {
+            comic.addDownload();
+            showToast(message: "已添加下载任务".tl);
+          },
+        ),
+        DesktopMenuEntry(
+          text: "更新漫画信息".tl,
+          onClick: () {
+            UpdateFavoritesInfoDialog.show([comic], folderName);
+          },
+        ),
+      ],
+    );
   }
 
   @override
@@ -434,11 +581,20 @@ class LocalFavoriteTile extends ComicTile {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.search),
+                      leading: const Icon(Icons.download),
                       title: Text("下载".tl),
                       onTap: () {
+                        App.globalBack();
                         comic.addDownload();
                         showToast(message: "已添加下载任务".tl);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.update),
+                      title: Text("更新漫画信息".tl),
+                      onTap: () {
+                        App.globalBack();
+                        UpdateFavoritesInfoDialog.show([comic], folderName);
                       },
                     ),
                     const SizedBox(
@@ -788,7 +944,7 @@ class LocalFavoriteTile extends ComicTile {
   }
 }
 
-void copyAllTo(String source, List<String> comics) {
+void copyAllTo(String source, List<FavoriteItem> comics) {
   String? folder;
   showDialog(
       context: App.globalContext!,
@@ -819,8 +975,8 @@ void copyAllTo(String source, List<String> comics) {
                           for (var comic in comics) {
                             LocalFavoritesManager().addComic(
                                 folder!,
-                                LocalFavoritesManager()
-                                    .getComic(source, comic));
+                                LocalFavoritesManager().getComic(
+                                    source, comic.target, comic.type));
                           }
                           App.globalBack();
                         },

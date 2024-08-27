@@ -62,7 +62,7 @@ class JmComicPage extends BaseComicPage<JmComicInfo> {
           return Res(resData);
         }
       },
-      target: id,
+      localFavoriteItem: toLocalFavoriteItem(),
       favoriteOnPlatform: data!.favorite,
       selectFolderCallback: (folder, page) async {
         if (page == 0) {
@@ -133,7 +133,7 @@ class JmComicPage extends BaseComicPage<JmComicInfo> {
   @override
   Future<bool> loadFavorite(JmComicInfo data) async {
     return data.favorite ||
-        (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+        (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem())).isNotEmpty;
   }
 
   @override

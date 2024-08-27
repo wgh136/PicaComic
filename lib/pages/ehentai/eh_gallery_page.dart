@@ -102,7 +102,7 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
   @override
   Future<bool> loadFavorite(Gallery data) async {
     return data.favorite ||
-        (await LocalFavoritesManager().find(data.link)).isNotEmpty;
+        (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem())).isNotEmpty;
   }
 
   @override
@@ -455,7 +455,7 @@ class EhGalleryPage extends BaseComicPage<Gallery> {
         EhNetwork().folderNames,
       ),
       favoriteOnPlatform: data!.favorite,
-      target: link,
+      localFavoriteItem: toLocalFavoriteItem(),
       setFavorite: (b) {
         if (favorite != b) {
           favorite = b;

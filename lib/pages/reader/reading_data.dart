@@ -23,6 +23,8 @@ abstract class ReadingData {
 
   String get favoriteId => id;
 
+  FavoriteType get favoriteType;
+
   bool checkEpDownloaded(int ep) {
     return !hasEp || downloadedEps.contains(ep-1);
   }
@@ -105,6 +107,9 @@ class PicacgReadingData extends ReadingData {
   Stream<DownloadProgress> loadImageNetwork(int ep, int page, String url) {
     return ImageManager().getImage(url);
   }
+
+  @override
+  FavoriteType get favoriteType => FavoriteType.picacg;
 }
 
 class EhReadingData extends ReadingData {
@@ -145,6 +150,9 @@ class EhReadingData extends ReadingData {
 
   @override
   String buildImageKey(int ep, int page, String url) => "${gallery.link}$page";
+
+  @override
+  FavoriteType get favoriteType => FavoriteType.ehentai;
 }
 
 class JmReadingData extends ReadingData {
@@ -206,6 +214,9 @@ class JmReadingData extends ReadingData {
 
   @override
   String buildImageKey(int ep, int page, String url) => url.replaceAll(RegExp(r"\?.+"), "");
+
+  @override
+  FavoriteType get favoriteType => FavoriteType.jm;
 }
 
 class HitomiReadingData extends ReadingData {
@@ -251,6 +262,9 @@ class HitomiReadingData extends ReadingData {
 
   @override
   String buildImageKey(int ep, int page, String url) => images[page].hash;
+
+  @override
+  FavoriteType get favoriteType => FavoriteType.hitomi;
 }
 
 class HtReadingData extends ReadingData {
@@ -286,6 +300,9 @@ class HtReadingData extends ReadingData {
   Stream<DownloadProgress> loadImageNetwork(int ep, int page, String url) {
     return ImageManager().getImage(url);
   }
+
+  @override
+  FavoriteType get favoriteType => FavoriteType.htManga;
 }
 
 class NhentaiReadingData extends ReadingData {
@@ -321,6 +338,9 @@ class NhentaiReadingData extends ReadingData {
   Stream<DownloadProgress> loadImageNetwork(int ep, int page, String url) {
     return ImageManager().getImage(url);
   }
+
+  @override
+  FavoriteType get favoriteType => FavoriteType.nhentai;
 }
 
 class CustomReadingData extends ReadingData{
@@ -374,4 +394,7 @@ class CustomReadingData extends ReadingData{
   @override
   String buildImageKey(int ep, int page, String url) =>
       "$sourceKey$id${eps!.keys.elementAtOrNull(ep-1) ?? id}$url";
+
+  @override
+  FavoriteType get favoriteType => FavoriteType(source!.intKey);
 }

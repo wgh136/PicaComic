@@ -34,7 +34,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
     favoriteComic(FavoriteComicWidget(
       havePlatformFavorite: false,
       needLoadFolderData: false,
-      target: comic.link,
+      localFavoriteItem: toLocalFavoriteItem(),
       setFavorite: (b) {
         if (favorite != b) {
           favorite = b;
@@ -163,7 +163,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
 
   @override
   Future<bool> loadFavorite(HitomiComic data) async {
-    return (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+    return (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem())).isNotEmpty;
   }
 
   @override

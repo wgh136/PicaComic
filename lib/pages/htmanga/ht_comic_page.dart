@@ -28,7 +28,7 @@ class HtComicPage extends BaseComicPage<HtComicInfo> {
       havePlatformFavorite: htManga.isLogin,
       needLoadFolderData: true,
       foldersLoader: () => HtmangaNetwork().getFolders(),
-      target: data!.id,
+      localFavoriteItem: toLocalFavoriteItem(),
       setFavorite: (b) {},
       selectFolderCallback: (folder, page) async {
         if (page == 0) {

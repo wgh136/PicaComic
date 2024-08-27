@@ -237,11 +237,20 @@ class FavoriteItem {
 
   @override
   bool operator ==(Object other) {
-    return other is FavoriteItem && other.target == target;
+    return other is FavoriteItem && other.target == target && other.type == type;
   }
 
   @override
-  int get hashCode => target.hashCode;
+  int get hashCode => target.hashCode ^ type.hashCode;
+
+  @override
+  String toString() {
+    var s = "FavoriteItem: $name $author $coverPath $hashCode $tags";
+    if(s.length > 100) {
+      return s.substring(0, 100);
+    }
+    return s;
+  }
 }
 
 class FavoriteItemWithFolderInfo {
@@ -311,6 +320,43 @@ class LocalFavoritesManager {
       );
     """);
     }
+    tables.remove('folder_sync');
+    tables.remove('folder_order');
+    if(tables.isEmpty)  return;
+    var testTable = tables.first;
+    // 检查type是否是主键
+    var res = _db.select("""
+      PRAGMA table_info("$testTable");
+    """);
+    bool shouldUpdate = false;
+    for (var row in res) {
+      if (row["name"] == "type" && row["pk"] == 0) {
+        shouldUpdate = true;
+        break;
+      }
+    }
+    if (shouldUpdate) {
+      for (var table in tables) {
+        var tempName = "${table}_dw5d8g2_temp";
+        _db.execute("""
+          CREATE TABLE "$tempName" AS SELECT * FROM "$table";
+          DROP TABLE "$table";
+          CREATE TABLE "$table" (
+            target text,
+            name TEXT,
+            author TEXT,
+            type int,
+            tags TEXT,
+            cover_path TEXT,
+            time TEXT,
+            display_order int,
+            primary key (target, type)
+          );
+          INSERT INTO "$table" SELECT * FROM "$tempName";
+          DROP TABLE "$tempName";
+        """);
+      }
+    }
   }
 
   void updateUI() {
@@ -320,13 +366,13 @@ class LocalFavoritesManager {
         () => StateController.findOrNull<FavoritesPageController>()?.update());
   }
 
-  Future<List<String>> find(String target) async {
+  Future<List<String>> find(String target, FavoriteType type) async {
     var res = <String>[];
     for (var folder in folderNames) {
       var rows = _db.select("""
         select * from "$folder"
-        where target == '${target.toParam}';
-      """);
+        where target == ? and type == ?;
+      """, [target, type.key]);
       if (rows.isNotEmpty) {
         res.add(folder);
       }
@@ -334,13 +380,13 @@ class LocalFavoritesManager {
     return res;
   }
 
-  List<String> findSync(String target) {
+  Future<List<String>> findWithModel(FavoriteItem item) async {
     var res = <String>[];
     for (var folder in folderNames) {
       var rows = _db.select("""
         select * from "$folder"
-        where target == '${target.toParam}';
-      """);
+        where target == ? and type == ?;
+      """, [item.target, item.type.key]);
       if (rows.isNotEmpty) {
         res.add(folder);
       }
@@ -431,7 +477,7 @@ class LocalFavoritesManager {
         if (!folderNames.contains(comic.folder)) {
           createFolder(comic.folder);
         }
-        if (!comicExists(comic.folder, comic.comic.target)) {
+        if (!comicExists(comic.folder, comic.comic.target, comic.comic.type.key)) {
           addComic(comic.folder, comic.comic);
           LogManager.addLog(LogLevel.info, "LocalFavoritesManager",
               "add comic ${comic.comic.target} to ${comic.folder}");
@@ -594,33 +640,34 @@ class LocalFavoritesManager {
     }
     _db.execute("""
       create table "$name"(
-        target text primary key,
+        target text,
         name TEXT,
         author TEXT,
         type int,
         tags TEXT,
         cover_path TEXT,
         time TEXT,
-        display_order int
+        display_order int,
+        primary key (target, type)
       );
     """);
     saveData();
     return name;
   }
 
-  bool comicExists(String folder, String target) {
+  bool comicExists(String folder, String target, int type) {
     var res = _db.select("""
       select * from "$folder"
-      where target == '${target.toParam}';
-    """);
+      where target == ? and type == ?;
+    """, [target, type]);
     return res.isNotEmpty;
   }
 
-  FavoriteItem getComic(String folder, String target) {
+  FavoriteItem getComic(String folder, String target, FavoriteType type) {
     var res = _db.select("""
       select * from "$folder"
-      where target == '${target.toParam}';
-    """);
+      where target == ? and type == ?;
+    """, [target, type.key]);
     if (res.isEmpty) {
       throw Exception("Comic not found");
     }
@@ -725,23 +772,23 @@ class LocalFavoritesManager {
   }
 
   void checkAndDeleteCover(FavoriteItem item) async {
-    if ((await find(item.target)).isEmpty) {
+    if ((await find(item.target, item.type)).isEmpty) {
       (await getCover(item)).deleteSync();
     }
   }
 
   void deleteComic(String folder, FavoriteItem comic) {
     _modifiedAfterLastCache = true;
-    deleteComicWithTarget(folder, comic.target);
+    deleteComicWithTarget(folder, comic.target, comic.type);
     checkAndDeleteCover(comic);
   }
 
-  void deleteComicWithTarget(String folder, String target) {
+  void deleteComicWithTarget(String folder, String target, FavoriteType type) {
     _modifiedAfterLastCache = true;
     _db.execute("""
       delete from "$folder"
-      where target == '${target.toParam}';
-    """);
+      where target == ? and type == ?;
+    """, [target, type.key]);
     saveData();
   }
 
@@ -785,14 +832,14 @@ class LocalFavoritesManager {
     saveData();
   }
 
-  void onReadEnd(String target) async {
+  void onReadEnd(String target, FavoriteType type) async {
     _modifiedAfterLastCache = true;
     bool isModified = false;
     for (final folder in folderNames) {
       var rows = _db.select("""
         select * from "$folder"
-        where target == '${target.toParam}';
-      """);
+        where target == ? and type == ?;
+      """, [target, type.key]);
       if (rows.isNotEmpty) {
         isModified = true;
         var newTime = DateTime.now()
@@ -909,7 +956,7 @@ class LocalFavoritesManager {
       """);
   }
 
-  var _cachedFavoritedTargets = <String, bool>{};
+  final _cachedFavoritedTargets = <String, bool>{};
 
   bool isExist(String target) {
     if (_modifiedAfterLastCache) {
@@ -931,5 +978,13 @@ class LocalFavoritesManager {
         _cachedFavoritedTargets[row["target"]] = true;
       }
     }
+  }
+
+  void updateInfo(String folder, FavoriteItem comic) {
+    _db.execute("""
+      update "$folder"
+      set name = ?, author = ?, cover_path = ?, tags = ?
+      where target == ? and type == ?;
+    """, [comic.name, comic.author, comic.coverPath, comic.tags.join(","), comic.target, comic.type.key]);
   }
 }

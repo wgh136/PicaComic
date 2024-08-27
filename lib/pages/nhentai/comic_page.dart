@@ -53,7 +53,7 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
       needLoadFolderData: false,
       favoriteOnPlatform: data!.favorite,
       initialFolder: "0",
-      target: id,
+      localFavoriteItem: toLocalFavoriteItem(),
       setFavorite: (b) {
         if (favorite != b) {
           favorite = b;
@@ -158,7 +158,7 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
   @override
   Future<bool> loadFavorite(NhentaiComic data) async {
     return data.favorite ||
-        (await LocalFavoritesManager().find(data.id)).isNotEmpty;
+        (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem())).isNotEmpty;
   }
 
   @override
