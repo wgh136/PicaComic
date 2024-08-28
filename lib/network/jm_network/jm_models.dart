@@ -26,15 +26,14 @@ class JmComicBrief extends BaseComic {
   String description;
   List<ComicCategoryInfo> categories;
   @override
-  List<String> tags;
+  List<String> get tags => categories.map((e) => e.name).toList();
 
   JmComicBrief(
     this.id,
     this.author,
     this.name,
     this.description,
-    this.categories,
-    this.tags,
+    this.categories
   );
 
   @override
@@ -175,7 +174,7 @@ class JmComicInfo with HistoryMixin {
         epNames = List.from(map["epNames"] ?? []);
 
   JmComicBrief toBrief() =>
-      JmComicBrief(id, author.firstOrNull ?? "", name, description, [], tags);
+      JmComicBrief(id, author.firstOrNull ?? "", name, description, []);
 
   @override
   String get cover => getJmCoverUrl(id);

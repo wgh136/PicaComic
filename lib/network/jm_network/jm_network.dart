@@ -1,28 +1,30 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:html/parser.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/built_in/jm.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/network/cache_network.dart';
+import 'package:pica_comic/pages/pre_search_page.dart';
+import 'package:pointycastle/api.dart';
 import 'package:pointycastle/block/aes.dart';
 import 'package:pointycastle/block/modes/ecb.dart';
+
 import '../../foundation/cache_manager.dart';
 import '../../foundation/log.dart';
 import '../app_dio.dart';
 import '../http_client.dart';
+import '../res.dart';
 import 'headers.dart';
 import 'jm_image.dart';
 import 'jm_models.dart';
-import '../res.dart';
-import 'package:pica_comic/pages/pre_search_page.dart';
-import 'package:pointycastle/api.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:pica_comic/base.dart';
-import 'package:html/parser.dart';
 
 extension _CachedNetwork on CachedNetwork {
   Future<CachedNetworkRes<String>> getJm(
@@ -237,7 +239,7 @@ class JmNetwork {
                   comic["category_sub"]["id"], comic["category_sub"]["title"]));
             }
             comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-                comic["description"] ?? "", categories, []));
+                comic["description"] ?? "", categories));
           } catch (e) {
             continue;
           }
@@ -283,7 +285,7 @@ class JmNetwork {
         }
         try {
           list.comics.add(JmComicBrief(comic["id"], comic["author"],
-              comic["name"], comic["description"] ?? "", categories, []));
+              comic["name"], comic["description"] ?? "", categories));
         } catch (e) {
           //忽略
         }
@@ -325,7 +327,7 @@ class JmNetwork {
         }
         try {
           list.comics.add(JmComicBrief(comic["id"], comic["author"],
-              comic["name"], comic["description"] ?? "", categories, []));
+              comic["name"], comic["description"] ?? "", categories));
         } catch (e) {
           //忽视
         }
@@ -364,7 +366,7 @@ class JmNetwork {
                 comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
           comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-              comic["description"] ?? "", categories, []));
+              comic["description"] ?? "", categories));
         } catch (e) {
           continue;
         }
@@ -431,7 +433,7 @@ class JmNetwork {
                 comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
           comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-              comic["description"] ?? "", categories, []));
+              comic["description"] ?? "", categories));
         } catch (e) {
           continue;
         }
@@ -502,7 +504,7 @@ class JmNetwork {
                 comic["category_sub"]["id"], comic["category_sub"]["title"]));
           }
           comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-              comic["description"] ?? "", categories, []));
+              comic["description"] ?? "", categories));
         } catch (e) {
           continue;
         }
@@ -555,8 +557,8 @@ class JmNetwork {
       }
       var related = <JmComicBrief>[];
       for (var c in res.data["related_list"] ?? []) {
-        related.add(JmComicBrief(c["id"], c["author"] ?? "未知",
-            c["name"] ?? "未知", c["description"] ?? "无", [], []));
+        related.add(JmComicBrief(c["id"], c["author"] ?? "Unknown",
+            c["name"] ?? "Unknown", c["description"] ?? "None", []));
       }
       return Res(JmComicInfo(
           res.data["name"] ?? "未知",
@@ -645,7 +647,7 @@ class JmNetwork {
               comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-            comic["description"] ?? "", categories, []));
+            comic["description"] ?? "", categories));
       }
       int pages;
       if (comics.isNotEmpty) {
@@ -843,7 +845,7 @@ class JmNetwork {
               comic["category_sub"]["id"], comic["category_sub"]["title"]));
         }
         comics.add(JmComicBrief(comic["id"], comic["author"], comic["name"],
-            comic["description"] ?? "", categories, []));
+            comic["description"] ?? "", categories));
       }
       return Res(comics);
     } catch (e, s) {

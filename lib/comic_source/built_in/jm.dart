@@ -261,13 +261,7 @@ class _JmComicTile extends ComicTile {
   const _JmComicTile(this.comic, {this.addonMenuOptions});
 
   @override
-  String get description => () {
-        var categories = "";
-        for (final category in comic.categories) {
-          categories += "${category.name} ";
-        }
-        return categories;
-      }.call();
+  String get description => "JM${comic.id}";
 
   @override
   Widget get image => AnimatedImage(

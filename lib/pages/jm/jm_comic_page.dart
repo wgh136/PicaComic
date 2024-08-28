@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/built_in/jm.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/components/select_download_eps.dart';
 import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_image.dart';
@@ -9,15 +10,15 @@ import 'package:pica_comic/pages/comic_page.dart';
 import 'package:pica_comic/pages/reader/comic_reading_page.dart';
 import 'package:pica_comic/pages/search_result_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
+import 'package:pica_comic/tools/translations.dart';
+
 import '../../foundation/app.dart';
 import '../../foundation/history.dart';
-import '../../network/jm_network/jm_network.dart';
-import '../../network/jm_network/jm_models.dart';
+import '../../foundation/local_favorites.dart';
 import '../../foundation/ui_mode.dart';
 import '../../network/download.dart';
-import '../../foundation/local_favorites.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/components/components.dart';
+import '../../network/jm_network/jm_models.dart';
+import '../../network/jm_network/jm_network.dart';
 import 'jm_comments_page.dart';
 
 class JmComicPage extends BaseComicPage<JmComicInfo> {
@@ -186,7 +187,6 @@ class JmComicPage extends BaseComicPage<JmComicInfo> {
       data!.author.elementAtOrNull(0) ?? "",
       data!.name,
       data!.description,
-      [],
       []));
 
   @override
