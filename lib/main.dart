@@ -47,11 +47,17 @@ void main(List<String> args) {
           TitleBarStyle.hidden,
           windowButtonVisibility: App.isMacOS,
         );
+        if(App.isLinux) {
+          await windowManager.setBackgroundColor(Colors.transparent);
+        }
         await windowManager.setMinimumSize(const Size(500, 600));
-        var placement = await WindowPlacement.loadFromFile();
-        await placement.applyToWindow();
-        await windowManager.show();
-        WindowPlacement.loop();
+        if(!App.isLinux) {
+          // https://github.com/leanflutter/window_manager/issues/460
+          var placement = await WindowPlacement.loadFromFile();
+          await placement.applyToWindow();
+          await windowManager.show();
+          WindowPlacement.loop();
+        }
       });
     }
   }, (error, stack) {

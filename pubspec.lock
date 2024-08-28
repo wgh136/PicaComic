@@ -132,9 +132,11 @@ packages:
   desktop_webview_window:
     dependency: "direct main"
     description:
-      path: "D:\\code\\temp\\flutter-plugins\\packages\\desktop_webview_window"
-      relative: false
-    source: path
+      path: "packages/desktop_webview_window"
+      ref: HEAD
+      resolved-ref: "24576f5251871c13714f1d041515bfae74d591d8"
+      url: "https://github.com/wgh136/flutter_desktop_webview"
+    source: git
     version: "0.2.4"
   dio:
     dependency: "direct main"

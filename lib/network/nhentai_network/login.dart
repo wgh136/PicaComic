@@ -18,6 +18,7 @@ void nhLogin(void Function() onFinished) async{
     var webview = DesktopWebview(
       initialUrl: "${NhentaiNetwork().baseUrl}/login/?next=/",
       onTitleChange: (title, controller) async{
+        print(title);
         if(title == "nhentai.net")  return;
         if (!title.contains("Login") && !title.contains("Register") && title.contains("nhentai")) {
           var ua = controller.userAgent;

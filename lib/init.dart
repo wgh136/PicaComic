@@ -43,7 +43,9 @@ Future<void> init() async {
     if(App.isIOS) {
       logFile = null;
     }
-    await logFile?.delete();
+    if(logFile?.existsSync() ?? false) {
+      await logFile?.delete();
+    }
     LogManager.logFile = logFile;
     LogManager.addLog(LogLevel.info, "App Status", "Start initialization.");
     await appdata.readData();

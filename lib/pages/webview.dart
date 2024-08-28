@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:desktop_webview_window/desktop_webview_window.dart';
@@ -203,6 +204,31 @@ class DesktopWebview {
 
   String? get userAgent => _ua;
 
+  Timer? timer;
+
+  void _runTimer() {
+    timer ??= Timer.periodic(const Duration(seconds: 2), (t) async {
+      const js = '''
+        function collect() {
+          if(document.readyState === 'loading') {
+            return '';
+          }
+          let data = {
+            id: "document_created",
+            data: {
+              title: document.title,
+              url: location.href,
+              ua: navigator.userAgent
+            }
+          };
+          return data;
+        }
+        collect();
+      ''';
+      onMessage(await evaluateJavascript(js) ?? '');
+    });
+  }
+
   void open() async {
     _webview = await WebviewWindow.create(configuration: CreateConfiguration(
       useWindowPositionAndSize: true,
@@ -212,23 +238,11 @@ class DesktopWebview {
     ));
     _webview!.addOnWebMessageReceivedCallback(onMessage);
     _webview!.setOnNavigation((s) => onNavigation?.call(s, this));
-    _webview!.addScriptToExecuteOnDocumentCreated('''
-      setTimeout(() => {
-        console.log("ok")
-        let data = {
-          id: "document_created",
-          data: {
-            title: document.title,
-            url: location.href,
-            ua: navigator.userAgent
-          }
-        };
-        window.chrome.webview.postMessage(JSON.stringify(data));
-      }, 200)
-    ''');
     _webview!.launch(initialUrl, triggerOnUrlRequestEvent: false);
+    _runTimer();
     _webview!.onClose.then((value) {
       _webview = null;
+      timer?.cancel();
       onClose?.call();
     });
     Future.delayed(const Duration(milliseconds: 200), () {
