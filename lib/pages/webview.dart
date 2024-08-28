@@ -225,7 +225,9 @@ class DesktopWebview {
         }
         collect();
       ''';
-      onMessage(await evaluateJavascript(js) ?? '');
+      if(_webview != null) {
+        onMessage(await evaluateJavascript(js) ?? '');
+      }
     });
   }
 
@@ -243,6 +245,7 @@ class DesktopWebview {
     _webview!.onClose.then((value) {
       _webview = null;
       timer?.cancel();
+      timer = null;
       onClose?.call();
     });
     Future.delayed(const Duration(milliseconds: 200), () {
@@ -289,5 +292,6 @@ class DesktopWebview {
 
   void close() {
     _webview?.close();
+    _webview = null;
   }
 }
