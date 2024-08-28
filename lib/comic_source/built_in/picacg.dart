@@ -120,7 +120,7 @@ final picacg = ComicSource.named(
         }
         return Res([
           ExplorePagePart("随机".tl, res0.data, "category:random"),
-          ExplorePagePart("最新".tl, res0.data, "category:latest"),
+          ExplorePagePart("最新".tl, res1.data, "category:latest"),
         ]);
       },
     ),
