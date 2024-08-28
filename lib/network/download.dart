@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pica_comic/base.dart';
@@ -9,6 +10,7 @@ import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/custom_download_model.dart';
+import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_download_model.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
@@ -19,15 +21,15 @@ import 'package:pica_comic/network/htmanga_network/ht_download_model.dart';
 import 'package:pica_comic/network/htmanga_network/models.dart';
 import 'package:pica_comic/network/jm_network/jm_download.dart';
 import 'package:pica_comic/network/jm_network/jm_models.dart';
-import 'package:pica_comic/network/download_model.dart';
 import 'package:pica_comic/network/nhentai_network/download.dart';
 import 'package:pica_comic/network/picacg_network/picacg_download_model.dart';
+import 'package:pica_comic/pages/download_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/pages/download_page.dart';
 import 'package:sqlite3/sqlite3.dart';
+
 import 'nhentai_network/models.dart';
 import 'picacg_network/models.dart';
 
@@ -175,6 +177,11 @@ class DownloadManager with _DownloadDb implements Listenable {
                   break;
                 } catch (e) {
                   i++;
+                  if(i > 20) {
+                    // it seems that the error is unrelated to the directory name
+                    Log.error("IO", "Failed to rename directory: Trying rename ${entry.name} to ${comic.name}\n$e");
+                    break;
+                  }
                   directory = comic.name + i.toString();
                 }
               }
