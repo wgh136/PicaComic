@@ -10,7 +10,7 @@ control:
   Version: {{Version}}
   Architecture: amd64
   Priority: optional
-  Depends:
+  Depends: libwebkit2gtk-4.1-0, libgtk-3-0
   Maintainer: nyne
   Description: pica comic
   
