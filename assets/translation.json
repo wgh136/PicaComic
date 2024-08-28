@@ -547,7 +547,8 @@
     "图片搜索": "圖片搜索",
     "Eh订阅": "Eh訂閱",
     "菜单": "選單",
-    "导出为pdf": "匯出為pdf"
+    "导出为pdf": "匯出為pdf",
+    "更新漫画信息": "更新漫畫資訊"
   },
   "en_US": {
     "有可用更新": "Updates available",
@@ -627,7 +628,7 @@
     "旧到新": "Old to New",
     "最多喜欢": "Most Likes",
     "最多指名": "Most Nominated",
-    "最新": "Newest",
+    "最新": "Latest",
     "最多点击": "Most Clicks",
     "最多图片": "Most Images",
     "历史搜索": "History",
@@ -1094,6 +1095,7 @@
     "图片搜索": "Image search",
     "Eh订阅": "Eh subscription",
     "菜单": "Menu",
-    "导出为pdf": "Export as pdf"
+    "导出为pdf": "Export as pdf",
+    "更新漫画信息": "Update comic information"
   }
 }

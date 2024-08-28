@@ -24,7 +24,7 @@ class DesktopMenuRoute<T> extends PopupRoute<T> {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    const width = 186.0;
+    const width = 196.0;
     final size = MediaQuery.of(context).size;
     var left = location.dx;
     if (left + width > size.width - 10) {
