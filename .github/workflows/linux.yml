@@ -1,0 +1,25 @@
+name: Build Linux
+run-name: Build Linux
+on:
+  workflow_dispatch: {}
+jobs:
+  Build_IOS:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        architecture: x64
+    - run: sudo apt-get install webkit2gtk-4.1
+    - run: flutter pub get
+    - run: flutter build linux
+    - name: build AppImage
+      uses: AppImageCrafters/build-appimage-action@master
+      env:
+        UPDATE_INFO: no
+      with: 
+        recipe: AppImageBuilder.yml
+    - uses: actions/upload-artifact@v4
+      with:
+        name: AppImage
