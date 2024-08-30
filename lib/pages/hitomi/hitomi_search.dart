@@ -1,9 +1,11 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+
 import '../../foundation/app.dart';
 import '../../network/res.dart';
 
@@ -64,29 +66,27 @@ class _HitomiSearchPageState extends State<HitomiSearchPage> {
   @override
   Widget build(BuildContext context) {
     controller.text = keyword;
-    return Scaffold(
-      body: SearchPageComicList(
-        keyword: keyword,
-        key: Key(keyword),
-        head: SliverPersistentHeader(
-          floating: true,
-          delegate: _SliverAppBarDelegate(
-            minHeight: 60,
-            maxHeight: 0,
-            child: FloatingSearchBar(
-              onSearch: (s) {
-                App.back(context);
-                if (s == "") return;
-                setState(() {
-                  keyword = s;
-                });
-              },
-              controller: controller,
-            ),
+    return SearchPageComicList(
+      keyword: keyword,
+      key: Key(keyword),
+      head: SliverPersistentHeader(
+        floating: true,
+        delegate: _SliverAppBarDelegate(
+          minHeight: 60,
+          maxHeight: 0,
+          child: FloatingSearchBar(
+            onSearch: (s) {
+              App.back(context);
+              if (s == "") return;
+              setState(() {
+                keyword = s;
+              });
+            },
+            controller: controller,
           ),
         ),
       ),
-    );
+    ).paddingTop(context.padding.top);
   }
 }
 
