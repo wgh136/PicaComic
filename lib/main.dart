@@ -47,11 +47,11 @@ void main(List<String> args) {
           TitleBarStyle.hidden,
           windowButtonVisibility: App.isMacOS,
         );
-        if(App.isLinux) {
+        if (App.isLinux) {
           await windowManager.setBackgroundColor(Colors.transparent);
         }
         await windowManager.setMinimumSize(const Size(500, 600));
-        if(!App.isLinux) {
+        if (!App.isLinux) {
           // https://github.com/leanflutter/window_manager/issues/460
           var placement = await WindowPlacement.loadFromFile();
           await placement.applyToWindow();
@@ -134,9 +134,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    MyApp.updater = () => setState(() {
-          forceRebuild = true;
-        });
+    MyApp.updater = () => setState(
+          () {
+            updateBrightness();
+            forceRebuild = true;
+          },
+        );
     time = DateTime.now();
     TagsTranslation.readData();
     if (App.isAndroid && appdata.settings[38] == "1") {
@@ -157,34 +160,47 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeDependencies() {
-    didChangePlatformBrightness();
+    updateBrightness();
     super.didChangeDependencies();
   }
 
-  @override
-  void didChangePlatformBrightness() {
-    final Brightness brightness =
-        View.of(context).platformDispatcher.platformBrightness;
+  late SystemUiOverlayStyle systemUiStyle;
+
+  void updateBrightness() {
+    var mode = appdata.appSettings.darkMode;
+    final Brightness brightness = switch (mode) {
+      1 => Brightness.light,
+      2 => Brightness.dark,
+      _ => View.of(context).platformDispatcher.platformBrightness,
+    };
     if (brightness == Brightness.light) {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemUiStyle = const SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
           statusBarColor: Colors.transparent,
           statusBarBrightness: Brightness.dark,
           statusBarIconBrightness: Brightness.dark,
           systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarContrastEnforced: false));
+          systemNavigationBarContrastEnforced: false);
     } else {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemUiStyle = const SystemUiOverlayStyle(
           systemNavigationBarColor: Colors.transparent,
           statusBarColor: Colors.transparent,
           statusBarBrightness: Brightness.light,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
-          systemNavigationBarContrastEnforced: false));
+          systemNavigationBarContrastEnforced: false);
     }
   }
 
-  (ColorScheme, ColorScheme) _generateColorSchemes(ColorScheme? light, ColorScheme? dark) {
+  @override
+  void didChangePlatformBrightness() {
+    setState(() {
+      updateBrightness();
+    });
+  }
+
+  (ColorScheme, ColorScheme) _generateColorSchemes(
+      ColorScheme? light, ColorScheme? dark) {
     Color? color;
     if (int.parse(appdata.settings[27]) != 0) {
       color = colors[int.parse(appdata.settings[27]) - 1];
@@ -211,74 +227,79 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         el.markNeedsBuild();
         el.visitChildren(rebuild);
       }
+
       (context as Element).visitChildren(rebuild);
     }
-    return DynamicColorBuilder(builder: (light, dark) {
-      var (lightColor, darkColor) = _generateColorSchemes(light, dark);
-      return MaterialApp(
-        title: 'Pica Comic',
-        debugShowCheckedModeBanner: false,
-        navigatorKey: App.navigatorKey,
-        theme: ThemeData(
-          colorScheme: lightColor,
-          useMaterial3: true,
-          fontFamily: App.isWindows ? "font" : "",
-        ),
-        darkTheme: ThemeData(
-          colorScheme: darkColor,
-          useMaterial3: true,
-          fontFamily: App.isWindows ? "font" : "",
-        ),
-        onGenerateRoute: (settings) => AppPageRoute(
-          builder: (context) => notFirstUse
-              ? (appdata.settings[13] == "1"
-                  ? const AuthPage()
-                  : const MainPage())
-              : const WelcomePage(),
-        ),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('zh', 'CN'),
-          Locale('zh', 'TW'),
-          Locale('en', 'US')
-        ],
-        builder: (context, widget) {
-          ErrorWidget.builder = (details) {
-            LogManager.addLog(LogLevel.error, "Unhandled Exception",
-                "${details.exception}\n${details.stack}");
-            return Material(
-              child: Center(
-                child: Text(details.exception.toString()),
-              ),
-            );
-          };
-          if (widget != null) {
-            widget = OverlayWidget(widget);
-            if (App.isDesktop) {
-              widget = Shortcuts(
-                shortcuts: {
-                  LogicalKeySet(LogicalKeyboardKey.escape): VoidCallbackIntent(
-                    () {
-                      if (App.canPop) {
-                        App.globalBack();
-                      } else {
-                        App.mainNavigatorKey?.currentContext?.pop();
-                      }
-                    },
-                  ),
-                },
-                child: WindowFrame(widget),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: systemUiStyle,
+      child: DynamicColorBuilder(builder: (light, dark) {
+        var (lightColor, darkColor) = _generateColorSchemes(light, dark);
+        return MaterialApp(
+          title: 'Pica Comic',
+          debugShowCheckedModeBanner: false,
+          navigatorKey: App.navigatorKey,
+          theme: ThemeData(
+            colorScheme: lightColor,
+            useMaterial3: true,
+            fontFamily: App.isWindows ? "font" : "",
+          ),
+          darkTheme: ThemeData(
+            colorScheme: darkColor,
+            useMaterial3: true,
+            fontFamily: App.isWindows ? "font" : "",
+          ),
+          onGenerateRoute: (settings) => AppPageRoute(
+            builder: (context) => notFirstUse
+                ? (appdata.settings[13] == "1"
+                    ? const AuthPage()
+                    : const MainPage())
+                : const WelcomePage(),
+          ),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('zh', 'CN'),
+            Locale('zh', 'TW'),
+            Locale('en', 'US')
+          ],
+          builder: (context, widget) {
+            ErrorWidget.builder = (details) {
+              LogManager.addLog(LogLevel.error, "Unhandled Exception",
+                  "${details.exception}\n${details.stack}");
+              return Material(
+                child: Center(
+                  child: Text(details.exception.toString()),
+                ),
               );
+            };
+            if (widget != null) {
+              widget = OverlayWidget(widget);
+              if (App.isDesktop) {
+                widget = Shortcuts(
+                  shortcuts: {
+                    LogicalKeySet(LogicalKeyboardKey.escape):
+                        VoidCallbackIntent(
+                      () {
+                        if (App.canPop) {
+                          App.globalBack();
+                        } else {
+                          App.mainNavigatorKey?.currentContext?.pop();
+                        }
+                      },
+                    ),
+                  },
+                  child: WindowFrame(widget),
+                );
+              }
+              return widget;
             }
-            return widget;
-          }
-          throw ('widget is null');
-        },
-      );
-    });
+            throw ('widget is null');
+          },
+        );
+      }),
+    );
   }
 }
