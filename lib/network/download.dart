@@ -357,7 +357,7 @@ class DownloadManager with _DownloadDb implements Listenable {
   Future<int> getComicLength(String id) async {
     var directory = Directory("$path/${getDirectory(id)}");
     var files = directory.list();
-    return await files.length - 2;
+    return await files.length - 1;
   }
 
   ///获取图片, 对于无章节的漫画, ep参数为0
