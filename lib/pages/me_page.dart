@@ -134,7 +134,10 @@ class MePage extends StatelessWidget {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: AnimatedImage(
-                          image: CachedImageProvider(history[index].cover),
+                          image: CachedImageProvider(
+                            history[index].cover,
+                            sourceKey: history[index].type.comicSource?.key,
+                          ),
                           width: 96,
                           height: 128,
                           fit: BoxFit.cover,
@@ -190,8 +193,8 @@ class MePage extends StatelessWidget {
     return _MePageCard(
       icon: const Icon(Icons.download_for_offline),
       title: "已下载".tl,
-      description: "共 @a 部漫画"
-          .tlParams({"a": DownloadManager().total.toString()}),
+      description:
+          "共 @a 部漫画".tlParams({"a": DownloadManager().total.toString()}),
       onTap: () => context.to(() => const DownloadPage()),
     );
   }
