@@ -1735,7 +1735,7 @@ class FavoriteComicWidget extends StatefulWidget {
 }
 
 class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
-  late String? selectID;
+  late List<String> selected;
   late int page = 0;
 
   /// network folders
@@ -1754,7 +1754,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         .then((folder) {
       Future.microtask(() => setState(() => addedFolders = folder));
     });
-    selectID = widget.initialFolder;
+    selected = widget.initialFolder == null ? [widget.initialFolder!] : [];
     if (!widget.havePlatformFavorite) {
       page = 1;
     }
@@ -1769,8 +1769,17 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
     Widget buildFolder(String name, String id, int p) {
       return InkWell(
         onTap: () => setState(() {
-          selectID = id;
           page = p;
+          if(selected.contains(id)) {
+            selected.remove(id);
+            return;
+          }
+          if (p == 0) {
+            selected.clear();
+            selected.add(id);
+          } else {
+            selected.add(id);
+          }
         }),
         child: SizedBox(
           height: 56,
@@ -1807,7 +1816,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
                     ),
                   ),
                 const Spacer(),
-                if (selectID == id) const AnimatedCheckIcon()
+                if (selected.contains(id)) const AnimatedCheckIcon()
               ],
             ),
           ),
@@ -1819,11 +1828,14 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       isLoading: isAdding,
       child: Text("收藏".tl),
       onPressed: () async {
-        if (selectID != null) {
+        if (selected.isNotEmpty) {
           setState(() {
             isAdding = true;
           });
-          var res = await widget.selectFolderCallback!.call(selectID!, page);
+          Res<bool> res = const Res(true);
+          for(var id in selected) {
+            res = await widget.selectFolderCallback!.call(id, page);
+          }
           if (res.success) {
             widget.setFavorite(true);
             if (context.mounted) {
@@ -1881,7 +1893,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       }
     }
 
-    if (page == 1 && addedFolders.contains(selectID)) {
+    if (page == 1 && selected.every((e) => addedFolders.contains(e))) {
       button = SizedBox(
         height: 35,
         width: 120,
@@ -1894,10 +1906,12 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
                 favoritedFolders.isEmpty) {
               widget.setFavorite(false);
             }
-            LocalFavoritesManager().deleteComic(
-              selectID!,
-              widget.localFavoriteItem
-            );
+            for (var id in selected) {
+              LocalFavoritesManager().deleteComic(
+                id,
+                widget.localFavoriteItem,
+              );
+            }
           },
           child: Text("取消收藏".tl),
         ),
@@ -1920,14 +1934,14 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         child: CircularProgressIndicator(),
       );
     } else if (page == 0 &&
-        selectID != null &&
-        favoritedFolders.contains(selectID)) {
+        selected.length == 1 &&
+        favoritedFolders.contains(selected[0])) {
       button = SizedBox(
         height: 35,
         width: 120,
         child: FilledButton(
           onPressed: () async {
-            var res = await widget.cancelPlatformFavoriteWithFolder!(selectID!);
+            var res = await widget.cancelPlatformFavoriteWithFolder!(selected[0]);
             if (res.success) {
               showToast(message: "取消收藏成功".tl);
               if (context.mounted) {
@@ -1983,10 +1997,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
             TabBar(
               onTap: (i) {
                 setState(() {
-                  if (i == 0) {
-                    selectID = widget.initialFolder;
-                  } else {
-                    selectID = null;
+                  selected.clear();
+                  if (i == 0 && widget.initialFolder != null) {
+                    selected.add(widget.initialFolder!);
                   }
                   page = i;
                   if (!widget.havePlatformFavorite) {
