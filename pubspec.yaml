@@ -109,6 +109,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  flutter_to_arch:
+    path: /home/nyne/code/flutter_to_arch
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -159,3 +161,12 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
+flutter_to_arch:
+  name: Pica Comic
+  icon: debian/gui/pica-comic.png
+  categories: Utility
+  keywords: Flutter;comic;images;
+  url: https://github.com/wgh136/PicaComic
+  depends: 
+    - gtk3
+    - webkit2gtk-4.1
