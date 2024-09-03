@@ -22,7 +22,7 @@ void openTool() {
           title: Text("EH订阅".tl),
           onTap: () {
             App.globalBack();
-            context.to(() => const SubscriptionPage());
+            App.mainNavigatorKey?.currentContext?.to(() => const SubscriptionPage());
           },
         ),
         ListTile(
@@ -31,7 +31,7 @@ void openTool() {
           onTap: () async {
             App.globalBack();
             if (App.isMobile) {
-              context.to(
+              App.mainNavigatorKey?.currentContext?.to(
                 () => AppWebview(
                   initialUrl: "https://soutubot.moe/",
                   onNavigation: (uri) {
@@ -60,7 +60,7 @@ void openTool() {
           onTap: () async {
             App.globalBack();
             if (App.isMobile || App.isMacOS) {
-              context.to(
+              App.mainNavigatorKey?.currentContext?.to(
                 () => AppWebview(
                   initialUrl: "https://saucenao.com/",
                   onNavigation: (uri) {
@@ -196,7 +196,8 @@ void openTool() {
                         onPressed: () {
                           App.globalBack();
                           if (controller.text.isNum) {
-                            context.to(() => JmComicPage(controller.text));
+                            App.mainNavigatorKey?.currentContext
+                                ?.to(() => JmComicPage(controller.text));
                           } else {
                             showToast(message: "输入的ID不是数字".tl);
                           }
