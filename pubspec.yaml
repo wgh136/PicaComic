@@ -110,7 +110,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   flutter_to_arch:
-    path: /home/nyne/code/flutter_to_arch
+    git: https://github.com/wgh136/flutter_to_arch
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
