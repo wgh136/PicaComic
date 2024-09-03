@@ -33,12 +33,8 @@ final nhentai = ComicSource.named(
     title: "nhentai",
     key: "nhentai",
     categories: [
-      const FixedCategoryPart(
-        "language",
-        ["中文", "日本語", "english"],
-        "category",
-        ["/language/chinese", "/language/japanese", "/language/english"]
-      ),
+      const FixedCategoryPart("language", ["中文", "日本語", "english"], "category",
+          ["/language/chinese", "/language/japanese", "/language/english"]),
       RandomCategoryPartWithRuntimeData(
           "Tags", () => nhentaiTags.values.toList(), 50, "search"),
     ],
@@ -55,6 +51,14 @@ final nhentai = ComicSource.named(
   categoryComicsData: CategoryComicsData.named(
     load: (category, param, options, page) async {
       var [_, type, name] = param!.split('/');
+      var lang = int.tryParse(appdata.settings[69]) ?? 0;
+      if (lang != 0) {
+        return NhentaiNetwork().search(
+          "$type:$name language:${["chinese", "english", "japanese"][lang]}",
+          page,
+          NhentaiSort.fromValue(options[0]),
+        );
+      }
       return NhentaiNetwork().getCategoryComics(
           "/$type/$name", page, NhentaiSort.fromValue(options[0]));
     },
