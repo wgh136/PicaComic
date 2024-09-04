@@ -14,10 +14,11 @@ import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/pages/comic_page.dart';
 import 'package:pica_comic/pages/ehentai/accounts.dart';
 import 'package:pica_comic/pages/ehentai/eh_gallery_page.dart';
+import 'package:pica_comic/pages/ehentai/eh_login_page.dart';
 import 'package:pica_comic/pages/reader/comic_reading_page.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/pages/ehentai/eh_login_page.dart';
+
 import '../../base.dart';
 import '../comic_source.dart';
 
@@ -168,12 +169,6 @@ final ehentai = ComicSource.named(
       AccountInfoItem(
         title: "",
         builder: (context) => const CookieManagementView(),
-      ),
-      AccountInfoItem(
-        title: "图片配额",
-        onTap: () {
-          showEhImageLimit(App.globalContext!);
-        },
       ),
     ],
   ),
