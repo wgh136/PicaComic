@@ -204,7 +204,7 @@ class _FilterChipFixedWidthState extends State<FilterChipFixedWidth> {
 
   Widget buildContent() {
     const iconSize = 18.0;
-    const gap = 6.0;
+    const gap = 4.0;
     return SizedBox(
       width: iconSize + labelWidth! + gap,
       height: math.max(iconSize, labelHeight!),
@@ -215,7 +215,7 @@ class _FilterChipFixedWidthState extends State<FilterChipFixedWidth> {
             left: selected ? (iconSize + gap) : (iconSize + gap) / 2,
             child: widget.label,
           ),
-          if(selected)
+          if (selected)
             Positioned(
               left: 0,
               top: 0,
@@ -301,6 +301,46 @@ class _AnimatedCheckIconState extends State<AnimatedCheckIcon>
     return AnimatedCheckWidget(
       animation: animation,
       size: widget.size,
+    );
+  }
+}
+
+class OptionChip extends StatelessWidget {
+  const OptionChip(
+      {super.key,
+      required this.text,
+      required this.isSelected,
+      required this.onTap});
+
+  final String text;
+
+  final bool isSelected;
+
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isSelected
+            ? context.colorScheme.primaryContainer
+            : context.colorScheme.surface,
+        border: isSelected
+            ? Border.all(color: Colors.transparent)
+            : Border.all(color: context.colorScheme.outline),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Text(text),
+          ),
+        ),
+      ),
     );
   }
 }

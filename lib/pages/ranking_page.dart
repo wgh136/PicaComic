@@ -60,24 +60,15 @@ class _RankingPageState extends State<RankingPage> {
   }
 
   Widget buildOptionItem(String text, String value, BuildContext context) {
-    return InkWell(
+    return OptionChip(
+      text: text,
+      isSelected: value == optionValue,
       onTap: () {
         if (value == optionValue) return;
         setState(() {
           optionValue = value;
         });
       },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: value == optionValue
-              ? Theme.of(context).colorScheme.primaryContainer
-              : null,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text(text),
-      ),
     );
   }
 

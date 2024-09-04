@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 import "package:pica_comic/comic_source/comic_source.dart";
-import "package:pica_comic/foundation/app.dart";
-import "package:pica_comic/network/res.dart";
-import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/components/components.dart';
+import "package:pica_comic/foundation/app.dart";
+import 'package:pica_comic/network/base_comic.dart';
+import "package:pica_comic/network/res.dart";
 import "package:pica_comic/tools/translations.dart";
 
 class CategoryComicsPage extends StatefulWidget {
@@ -71,7 +71,9 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
               options: optionsValue,
               param: widget.param,
               header: buildOptions(),
-              sourceKey: ComicSource.sources.firstWhere((e) => e.categoryData?.key == widget.categoryKey).key,
+              sourceKey: ComicSource.sources
+                  .firstWhere((e) => e.categoryData?.key == widget.categoryKey)
+                  .key,
             ),
           ),
         ],
@@ -81,24 +83,15 @@ class _CategoryComicsPageState extends State<CategoryComicsPage> {
 
   Widget buildOptionItem(
       String text, String value, int group, BuildContext context) {
-    return InkWell(
+    return OptionChip(
+      text: text,
+      isSelected: value == optionsValue[group],
       onTap: () {
         if (value == optionsValue[group]) return;
         setState(() {
           optionsValue[group] = value;
         });
       },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: value == optionsValue[group]
-              ? Theme.of(context).colorScheme.primaryContainer
-              : null,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text(text),
-      ),
     );
   }
 
