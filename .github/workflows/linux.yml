@@ -3,7 +3,7 @@ run-name: Build Linux
 on:
   workflow_dispatch: {}
 jobs:
-  Build_Deb:
+  Build_Linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +16,17 @@ jobs:
           sudo apt-get install -y ninja-build libgtk-3-dev webkit2gtk-4.1
           dart pub global activate flutter_to_debian
       - run: python3 debian/build.py
+      - run: dart run flutter_to_arch
+      - run: |
+          rm -rf build/linux/arch/app.tar.gz
+          rm -rf build/linux/arch/pkg
+          rm -rf build/linux/arch/src
+          rm -rf build/linux/arch/PKGBUILD
       - uses: actions/upload-artifact@v4
         with:
           name: deb_build
           path: build/linux/x64/release/debian
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch_build
+          path: build/linux/arch/
