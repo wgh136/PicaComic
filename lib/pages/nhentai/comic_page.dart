@@ -8,11 +8,12 @@ import 'package:pica_comic/pages/comic_page.dart';
 import 'package:pica_comic/pages/reader/comic_reading_page.dart';
 import 'package:pica_comic/pages/search_result_page.dart';
 import 'package:pica_comic/tools/translations.dart';
+
 import '../../base.dart';
 import '../../foundation/app.dart';
 import '../../foundation/history.dart';
-import '../../network/download.dart';
 import '../../foundation/local_favorites.dart';
+import '../../network/download.dart';
 import 'comments.dart';
 
 class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
@@ -96,7 +97,7 @@ class NhentaiComicPage extends BaseComicPage<NhentaiComic> {
 
   @override
   ActionFunc? get openComments => () {
-        showComments(context, id);
+        showComments(App.globalContext!, id);
       };
 
   @override

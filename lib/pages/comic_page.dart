@@ -1754,7 +1754,7 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
         .then((folder) {
       Future.microtask(() => setState(() => addedFolders = folder));
     });
-    selected = widget.initialFolder == null ? [widget.initialFolder!] : [];
+    selected = widget.initialFolder != null ? [widget.initialFolder!] : [];
     if (!widget.havePlatformFavorite) {
       page = 1;
     }
@@ -1767,10 +1767,11 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
     assert(widget.havePlatformFavorite || page != 0);
 
     Widget buildFolder(String name, String id, int p) {
+      bool isSelected = selected.contains(id);
       return InkWell(
         onTap: () => setState(() {
           page = p;
-          if(selected.contains(id)) {
+          if(isSelected) {
             selected.remove(id);
             return;
           }
@@ -1782,15 +1783,15 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
           }
         }),
         child: SizedBox(
-          height: 56,
+          height: App.isDesktop ? 42 : 48,
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Row(
               children: [
                 Icon(
-                  Icons.folder,
-                  size: 30,
+                  isSelected ? Icons.folder : Icons.folder_outlined,
+                  size: App.isDesktop ? 24 : 28,
                   color: Theme.of(context).colorScheme.secondary,
                 ),
                 const SizedBox(
@@ -1805,18 +1806,18 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
                 if ((addedFolders.contains(name) && p == 1) ||
                     (favoritedFolders.contains(id) && p == 0))
                   Container(
-                    width: 60,
                     height: 30,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.tertiaryContainer,
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
                     ),
                     child: Center(
                       child: Text("已收藏".tl),
                     ),
                   ),
                 const Spacer(),
-                if (selected.contains(id)) const AnimatedCheckIcon()
+                if (isSelected) const AnimatedCheckIcon()
               ],
             ),
           ),
@@ -1834,6 +1835,9 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
           });
           Res<bool> res = const Res(true);
           for(var id in selected) {
+            if(addedFolders.contains(id)) {
+              continue;
+            }
             res = await widget.selectFolderCallback!.call(id, page);
           }
           if (res.success) {
@@ -1893,28 +1897,24 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
       }
     }
 
-    if (page == 1 && selected.every((e) => addedFolders.contains(e))) {
-      button = SizedBox(
-        height: 35,
-        width: 120,
-        child: FilledButton(
-          onPressed: () {
-            context.hideMessages();
-            App.globalBack();
-            if (addedFolders.length == 1 &&
-                widget.favoriteOnPlatform == false &&
-                favoritedFolders.isEmpty) {
-              widget.setFavorite(false);
-            }
-            for (var id in selected) {
-              LocalFavoritesManager().deleteComic(
-                id,
-                widget.localFavoriteItem,
-              );
-            }
-          },
-          child: Text("取消收藏".tl),
-        ),
+    if (page == 1 && selected.isNotEmpty && selected.every((e) => addedFolders.contains(e))) {
+      button = Button.filled(
+        onPressed: () {
+          context.hideMessages();
+          App.globalBack();
+          if (addedFolders.length == 1 &&
+              widget.favoriteOnPlatform == false &&
+              favoritedFolders.isEmpty) {
+            widget.setFavorite(false);
+          }
+          for (var id in selected) {
+            LocalFavoritesManager().deleteComic(
+              id,
+              widget.localFavoriteItem,
+            );
+          }
+        },
+        child: Text("取消收藏".tl),
       );
     } else if (widget.havePlatformFavorite &&
         widget.needLoadFolderData &&
@@ -1936,23 +1936,19 @@ class _FavoriteComicWidgetState extends State<FavoriteComicWidget> {
     } else if (page == 0 &&
         selected.length == 1 &&
         favoritedFolders.contains(selected[0])) {
-      button = SizedBox(
-        height: 35,
-        width: 120,
-        child: FilledButton(
-          onPressed: () async {
-            var res = await widget.cancelPlatformFavoriteWithFolder!(selected[0]);
-            if (res.success) {
-              showToast(message: "取消收藏成功".tl);
-              if (context.mounted) {
-                context.pop();
-              }
-            } else {
-              showToast(message: res.errorMessage!);
+      button = Button.filled(
+        onPressed: () async {
+          var res = await widget.cancelPlatformFavoriteWithFolder!(selected[0]);
+          if (res.success) {
+            showToast(message: "取消收藏成功".tl);
+            if (context.mounted) {
+              context.pop();
             }
-          },
-          child: Text("取消收藏".tl),
-        ),
+          } else {
+            showToast(message: res.errorMessage!);
+          }
+        },
+        child: Text("取消收藏".tl),
       );
     }
 
