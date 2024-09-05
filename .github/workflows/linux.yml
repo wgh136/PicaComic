@@ -18,10 +18,10 @@ jobs:
       - run: python3 debian/build.py
       - run: dart run flutter_to_arch
       - run: |
-          rm -rf build/linux/arch/app.tar.gz
-          rm -rf build/linux/arch/pkg
-          rm -rf build/linux/arch/src
-          rm -rf build/linux/arch/PKGBUILD
+          sudo rm -rf build/linux/arch/app.tar.gz
+          sudo rm -rf build/linux/arch/pkg
+          sudo rm -rf build/linux/arch/src
+          sudo rm -rf build/linux/arch/PKGBUILD
       - uses: actions/upload-artifact@v4
         with:
           name: deb_build

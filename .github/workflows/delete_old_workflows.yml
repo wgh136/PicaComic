@@ -1,0 +1,31 @@
+name: Delete Old Workflows
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  delete-old-workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Delete old workflows
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          min_created_at=$(date -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          
+          workflows=$(gh workflow list --json name,path,createdAt --jq 'map({name: .name, path: .path, createdAt: .createdAt})')
+          
+          for workflow in $workflows; do
+            created_at=$(echo $workflow | jq -r '.createdAt')
+            if [ "$created_at" < "$min_created_at" ]; then
+              echo "Deleting workflow: $(echo $workflow | jq -r '.name') ($(echo $workflow | jq -r '.path'))"
+              gh workflow delete "$(echo $workflow | jq -r '.path')" --yes
+            else
+              echo "Keeping workflow: $(echo $workflow | jq -r '.name') ($(echo $workflow | jq -r '.path'))"
+            fi
+          done
