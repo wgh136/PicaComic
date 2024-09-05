@@ -54,7 +54,7 @@ final nhentai = ComicSource.named(
       var lang = int.tryParse(appdata.settings[69]) ?? 0;
       if (lang != 0) {
         return NhentaiNetwork().search(
-          "$type:$name language:${["chinese", "english", "japanese"][lang]}",
+          "$type:$name language:${["chinese", "english", "japanese"][lang-1]}",
           page,
           NhentaiSort.fromValue(options[0]),
         );
