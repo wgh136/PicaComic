@@ -1,7 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart' as html_parser;
 import 'package:pica_comic/comic_source/built_in/ehentai.dart';
+import 'package:pica_comic/components/components.dart';
+import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/image_loader/cached_image.dart';
 import 'package:pica_comic/network/eh_network/eh_main_network.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
@@ -10,9 +13,6 @@ import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/time.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'package:html/parser.dart' as html_parser;
-import 'package:pica_comic/components/components.dart';
 
 class CommentsPageLogic extends StateController {
   bool isLoading = true;
@@ -118,10 +118,14 @@ class _EhCommentWidgetState extends State<_EhCommentWidget> {
       downColor = darkMode ? Colors.blue.shade200 : Colors.blue.shade600;
     }
 
+    var isUploader = uploader == comment.name;
+
     return Card(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
       elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainer,
+      color: isUploader
+          ? Theme.of(context).colorScheme.primaryContainer
+          : Theme.of(context).colorScheme.surfaceContainer,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
         child: Column(
@@ -130,7 +134,7 @@ class _EhCommentWidgetState extends State<_EhCommentWidget> {
             Row(
               children: [
                 Text(
-                  "${uploader == comment.name ? "(上传者)" : ""}${comment.name}",
+                  "${isUploader ? "(上传者)" : ""}${comment.name}",
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w500),
                 ),
