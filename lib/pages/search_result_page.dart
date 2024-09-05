@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/network/base_comic.dart';
 import 'package:pica_comic/network/res.dart';
-import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
 import 'package:pica_comic/tools/translations.dart';
@@ -117,7 +117,7 @@ class _SearchResultPageState extends State<_SearchResultPage> {
     if(!keyword.contains('language') && ComicSource.find(sourceKey)?.searchPageData?.enableLanguageFilter == true) {
       var lang = int.tryParse(appdata.settings[69]) ?? 0;
       if(lang != 0) {
-        keyword += "language:${["chinese", "english", "japanese"][lang-1]}";
+        keyword += " language:${["chinese", "english", "japanese"][lang-1]}";
       }
     }
     suggestionsController = _SuggestionsController(controller);
