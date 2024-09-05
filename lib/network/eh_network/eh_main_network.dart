@@ -495,8 +495,14 @@ class EhNetwork {
         .elementAtOrNull(0)
         ?.text ??
         "未知";
-    var time = e.getElementsByClassName("c3")[0].text.subStringOrNull(11, 32) ??
-        "Unknown";
+    var time = e.getElementsByClassName("c3").elementAtOrNull(0)
+        ?.text
+        .split('Posted on')
+        .elementAtOrNull(1)
+        ?.split('by')
+        .elementAtOrNull(0)
+        ?.trim()
+        ?? 'unknown';
     var content = e.getElementsByClassName("c6")[0].text;
     var score = int.parse(e.querySelector("div.c5 > span")?.text ?? '0');
     var id = e.previousElementSibling?.attributes['name']?.nums ?? "0";
