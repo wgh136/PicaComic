@@ -149,6 +149,7 @@ class _HistoryPageState extends State<HistoryPage> {
         );
         return NormalComicTile(
           key: Key(comics_[i].target),
+          sourceKey: comics_[i].type.comicSource?.key,
           onLongTap: () {
             showDialog(
                 context: context,

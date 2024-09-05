@@ -1,26 +1,27 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart';
+import 'package:pica_comic/comic_source/built_in/ehentai.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/network/cache_network.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
 import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
-import 'package:pica_comic/network/app_dio.dart';
+import 'package:pica_comic/network/res.dart';
 import 'package:pica_comic/pages/pre_search_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/js.dart';
-import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../base.dart';
 import '../http_client.dart';
-import 'package:html/parser.dart';
-import 'package:html/dom.dart' as dom;
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:pica_comic/network/cache_network.dart';
-import 'package:pica_comic/network/res.dart';
-import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/comic_source/built_in/ehentai.dart';
 
 class EhNetwork {
   factory EhNetwork() => cache == null ? (cache = EhNetwork.create()) : cache!;
@@ -29,10 +30,14 @@ class EhNetwork {
 
   static EhNetwork createEhNetwork() => EhNetwork();
 
-  var folderNames = List.generate(10, (index) => "Favorite $index");
+  late List<String> folderNames;
 
   EhNetwork.create() {
     getCookies(true);
+    folderNames = List.from(ehentai.data["favoriteNames"] ?? []);
+    if(folderNames.length != 10){
+      folderNames = List.generate(10, (index) => "Favorite $index");
+    }
   }
 
   ///e-hentai的url
@@ -445,7 +450,22 @@ class EhNetwork {
           if (names.length != 10) {
             names = names.sublist(0, 10);
           }
-          folderNames = names;
+          bool isSame = true;
+          if (folderNames.length == names.length) {
+            for (int i = 0; i < folderNames.length; i++) {
+              if (folderNames[i] != names[i]) {
+                isSame = false;
+                break;
+              }
+            }
+          } else {
+            isSame = false;
+          }
+          if (!isSame) {
+            folderNames = names;
+            ehentai.data["favoriteNames"] = names;
+            ehentai.saveData();
+          }
         } catch (e) {
           //忽视
         }

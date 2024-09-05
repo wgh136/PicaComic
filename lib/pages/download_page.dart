@@ -1126,7 +1126,7 @@ void _toComicInfoPage(DownloadedItem comic) {
   } else if (comic is DownloadedHitomiComic) {
     context.to(() => HitomiComicPage(comic.toBrief()));
   } else if (comic is DownloadedHtComic) {
-    context.to(() => HtComicPage(comic.id));
+    context.to(() => HtComicPage(comic.id.replaceFirst('Ht', '')));
   } else if (comic is NhentaiDownloadedComic) {
     context.to(() => NhentaiComicPage(comic.id.replaceFirst("nhentai", "")));
   } else if (comic is CustomDownloadedItem) {

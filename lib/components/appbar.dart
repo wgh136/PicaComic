@@ -345,6 +345,8 @@ class _FilledTabBarState extends State<FilledTabBar> {
 
   var offsets = <double>[];
 
+  MaterialAccentColor color = Colors.blueAccent;
+
   @override
   void initState() {
     keys = widget.tabs.map((e) => GlobalKey()).toList();
@@ -376,9 +378,10 @@ class _FilledTabBarState extends State<FilledTabBar> {
 
   void initPainter() {
     var old = painter;
+    color = context.colorScheme.findClosestColor();
     painter = _IndicatorPainter(
       controller: _controller,
-      color: context.colorScheme.secondaryContainer.withOpacity(0.8),
+      color: color,
       padding: tabPadding,
       radius: tabRadius,
     );
@@ -480,7 +483,15 @@ class _FilledTabBarState extends State<FilledTabBar> {
         key: keys[i],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: widget.tabs[i],
+          child: DefaultTextStyle(
+            style: DefaultTextStyle.of(context).style.copyWith(
+              color: i == _controller.index
+                  ? color.toPrimary(context.colorScheme.brightness)
+                  : context.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+            child: widget.tabs[i],
+          ),
         ),
       ),
     ).padding(tabPadding);
@@ -577,11 +588,13 @@ class _IndicatorPainter extends CustomPainter {
     assert(tabIndex <= maxTabIndex);
     var (tabLeft, tabRight) = (offsets![tabIndex], offsets![tabIndex + 1]);
 
+    const horizontalPadding = 12.0;
+
     var rect = Rect.fromLTWH(
-      tabLeft + padding.left,
-      padding.top,
-      tabRight - tabLeft - padding.horizontal,
-      itemHeight! - padding.vertical,
+      tabLeft + padding.left + horizontalPadding,
+      _FilledTabBarState._kTabHeight - 3.6,
+      tabRight - tabLeft - padding.horizontal - horizontalPadding * 2,
+      3,
     );
 
     return rect;
@@ -602,7 +615,7 @@ class _IndicatorPainter extends CustomPainter {
     _currentRect = Rect.lerp(fromRect, toRect, (value - from).abs());
     final Paint paint = Paint()..color = color;
     final RRect rrect =
-        RRect.fromRectAndRadius(_currentRect!, Radius.circular(radius));
+        RRect.fromRectAndCorners(_currentRect!, topLeft: Radius.circular(radius), topRight: Radius.circular(radius));
     canvas.drawRRect(rrect, paint);
   }
 

@@ -12,11 +12,13 @@ class CachedImageProvider
     extends BaseImageProvider<image_provider.CachedImageProvider> {
 
   /// Image provider for normal image.
-  const CachedImageProvider(this.url, {this.headers});
+  const CachedImageProvider(this.url, {this.headers, this.sourceKey});
 
   final String url;
 
   final Map<String, String>? headers;
+
+  final String? sourceKey;
 
   @override
   Future<Uint8List> load(StreamController<ImageChunkEvent> chunkEvents) async{
@@ -27,7 +29,9 @@ class CachedImageProvider
     var manager = ImageManager();
     DownloadProgress? finishProgress;
 
-    var stream = manager.getImage(url, headers);
+    var stream = sourceKey == null 
+      ? manager.getImage(url, headers)
+      : manager.getCustomThumbnail(url, sourceKey!);
     await for (var progress in stream) {
       if (progress.currentBytes == progress.expectedBytes) {
         finishProgress = progress;

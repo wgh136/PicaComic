@@ -620,6 +620,7 @@ class NormalComicTile extends ComicTile {
       this.badgeName,
       this.headers,
       this.tags,
+      this.sourceKey,
       super.key});
 
   final String description_;
@@ -630,6 +631,7 @@ class NormalComicTile extends ComicTile {
   final void Function()? onLongTap;
   final String? badgeName;
   final Map<String, String>? headers;
+  final String? sourceKey;
 
   @override
   final List<String>? tags;
@@ -645,7 +647,11 @@ class NormalComicTile extends ComicTile {
 
   @override
   Widget get image => AnimatedImage(
-        image: CachedImageProvider(coverPath, headers: headers),
+        image: CachedImageProvider(
+          coverPath,
+          headers: headers,
+          sourceKey: sourceKey,
+        ),
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,

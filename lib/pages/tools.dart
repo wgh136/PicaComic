@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
-import 'package:pica_comic/components/components.dart';
-import 'package:pica_comic/tools/app_links.dart';
-import 'webview.dart';
+
 import 'ehentai/subscription.dart';
 import 'jm/jm_comic_page.dart';
+import 'webview.dart';
 
 void openTool() {
   showModalBottomSheet(
@@ -22,7 +23,7 @@ void openTool() {
           title: Text("EH订阅".tl),
           onTap: () {
             App.globalBack();
-            context.to(() => const SubscriptionPage());
+            App.mainNavigatorKey?.currentContext?.to(() => const SubscriptionPage());
           },
         ),
         ListTile(
@@ -31,7 +32,7 @@ void openTool() {
           onTap: () async {
             App.globalBack();
             if (App.isMobile) {
-              context.to(
+              App.mainNavigatorKey?.currentContext?.to(
                 () => AppWebview(
                   initialUrl: "https://soutubot.moe/",
                   onNavigation: (uri) {
@@ -50,7 +51,7 @@ void openTool() {
                   }
                 },
               );
-              webview.close();
+              webview.open();
             }
           },
         ),
@@ -60,7 +61,7 @@ void openTool() {
           onTap: () async {
             App.globalBack();
             if (App.isMobile || App.isMacOS) {
-              context.to(
+              App.mainNavigatorKey?.currentContext?.to(
                 () => AppWebview(
                   initialUrl: "https://saucenao.com/",
                   onNavigation: (uri) {
@@ -79,7 +80,7 @@ void openTool() {
                   }
                 },
               );
-              webview.close();
+              webview.open();
             }
           },
         ),
@@ -196,7 +197,8 @@ void openTool() {
                         onPressed: () {
                           App.globalBack();
                           if (controller.text.isNum) {
-                            context.to(() => JmComicPage(controller.text));
+                            App.mainNavigatorKey?.currentContext
+                                ?.to(() => JmComicPage(controller.text));
                           } else {
                             showToast(message: "输入的ID不是数字".tl);
                           }

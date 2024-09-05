@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
+import 'package:pica_comic/components/components.dart';
 import 'package:pica_comic/foundation/app.dart';
 import 'package:pica_comic/foundation/pair.dart';
 import 'package:pica_comic/foundation/ui_mode.dart';
@@ -7,10 +9,8 @@ import 'package:pica_comic/pages/comic_page.dart';
 import 'package:pica_comic/pages/search_result_page.dart';
 import 'package:pica_comic/tools/app_links.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/tools/translations.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
-import 'package:pica_comic/components/components.dart';
+import 'package:pica_comic/tools/translations.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 typedef FilterChip = FilterChipFixedWidth;
@@ -606,27 +606,13 @@ class PreSearchPage extends StatelessWidget {
               runSpacing: 8,
               spacing: 8,
               children: option.options.entries.map((e) {
-                return InkWell(
+                return OptionChip(
+                  text: e.value.tl,
+                  isSelected: logic.options[i] == e.key,
                   onTap: () {
                     logic.options[i] = e.key;
                     logic.update();
                   },
-                  borderRadius: BorderRadius.circular(8),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    decoration: BoxDecoration(
-                      color: logic.options[i] == e.key
-                          ? context.colorScheme.primaryContainer
-                          : context.colorScheme.primaryContainer
-                              .withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Text(e.value.tl),
-                    ),
-                  ),
                 );
               }).toList(),
             ).paddingHorizontal(16));

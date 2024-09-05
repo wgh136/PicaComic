@@ -19,12 +19,14 @@ import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class HitomiComicPage extends BaseComicPage<HitomiComic> {
-  const HitomiComicPage(this.comic, {super.key});
+  HitomiComicPage(this.comic, {super.key}): link = comic.link;
 
-  HitomiComicPage.fromLink(String link, {super.key})
+  HitomiComicPage.fromLink(this.link, {super.key})
       : comic = HitomiComicBrief("", "", "", [], "", "", link, "");
 
   final HitomiComicBrief comic;
+
+  final String link;
 
   @override
   String? get url => comic.link;
@@ -64,7 +66,9 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
   @override
   Future<Res<HitomiComic>> loadData() async {
     if (comic.cover == "") {
-      var id = RegExp(r"\d+(?=\.html)").firstMatch(comic.link)![0]!;
+      var id = link.contains('html') 
+        ? RegExp(r"\d+(?=\.html)").firstMatch(link)![0]!
+        : link;
       var res = await HiNetwork().getComicInfoBrief(id);
       if (res.error) {
         return Res.fromErrorRes(res);
@@ -76,6 +80,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
         comic.lang = res.data.lang;
         comic.time = res.data.time;
         comic.type = res.data.type;
+        comic.link = res.data.link;
       }
     }
     return HiNetwork().getComicInfo(comic.link);
@@ -104,7 +109,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
       );
 
   @override
-  String get tag => "Hitomi ComicPage ${comic.link}";
+  String get tag => "Hitomi ComicPage $link";
 
   @override
   Map<String, List<String>>? get tags => {
