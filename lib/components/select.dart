@@ -326,7 +326,7 @@ class OptionChip extends StatelessWidget {
             ? context.colorScheme.primaryContainer
             : context.colorScheme.surface,
         border: isSelected
-            ? Border.all(color: Colors.transparent)
+            ? Border.all(color: context.colorScheme.primaryContainer)
             : Border.all(color: context.colorScheme.outline),
         borderRadius: BorderRadius.circular(8),
       ),
