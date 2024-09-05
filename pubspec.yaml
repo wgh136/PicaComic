@@ -112,6 +112,16 @@ dev_dependencies:
   flutter_to_arch:
     git: https://github.com/wgh136/flutter_to_arch
 
+flutter_to_arch:
+  name: Pica Comic
+  icon: debian/gui/pica-comic.png
+  categories: Utility
+  keywords: Flutter;comic;images;
+  url: https://github.com/wgh136/PicaComic
+  depends:
+    - gtk3
+    - webkit2gtk-4.1
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter packages.
@@ -160,13 +170,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-
-flutter_to_arch:
-  name: Pica Comic
-  icon: debian/gui/pica-comic.png
-  categories: Utility
-  keywords: Flutter;comic;images;
-  url: https://github.com/wgh136/PicaComic
-  depends: 
-    - gtk3
-    - webkit2gtk-4.1
