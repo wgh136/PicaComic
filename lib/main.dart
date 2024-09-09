@@ -134,12 +134,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    MyApp.updater = () => setState(
-          () {
-            updateBrightness();
-            forceRebuild = true;
-          },
-        );
+    MyApp.updater = () => setState(() => forceRebuild = true);
     time = DateTime.now();
     TagsTranslation.readData();
     if (App.isAndroid && appdata.settings[38] == "1") {
@@ -159,44 +154,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeDependencies() {
-    updateBrightness();
-    super.didChangeDependencies();
-  }
-
-  late SystemUiOverlayStyle systemUiStyle;
-
-  void updateBrightness() {
-    var mode = appdata.appSettings.darkMode;
-    final Brightness brightness = switch (mode) {
-      1 => Brightness.light,
-      2 => Brightness.dark,
-      _ => View.of(context).platformDispatcher.platformBrightness,
-    };
-    if (brightness == Brightness.light) {
-      systemUiStyle = const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          statusBarColor: Colors.transparent,
-          statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarContrastEnforced: false);
-    } else {
-      systemUiStyle = const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          statusBarColor: Colors.transparent,
-          statusBarBrightness: Brightness.light,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarIconBrightness: Brightness.light,
-          systemNavigationBarContrastEnforced: false);
-    }
-  }
-
-  @override
   void didChangePlatformBrightness() {
-    setState(() {
-      updateBrightness();
-    });
+    setState(() {});
   }
 
   (ColorScheme, ColorScheme) _generateColorSchemes(
@@ -209,13 +168,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     light = ColorScheme.fromSeed(seedColor: color);
     dark = ColorScheme.fromSeed(seedColor: color, brightness: Brightness.dark);
-    if (appdata.settings[32] == "1") {
-      // light mode
-      dark = light;
-    } else if (appdata.settings[32] == "2") {
-      // dark mode
-      light = dark;
-    }
     return (light, dark);
   }
 
@@ -230,76 +182,106 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       (context as Element).visitChildren(rebuild);
     }
+    return DynamicColorBuilder(builder: (light, dark) {
+      var (lightColor, darkColor) = _generateColorSchemes(light, dark);
+      return MaterialApp(
+        title: 'Pica Comic',
+        debugShowCheckedModeBanner: false,
+        navigatorKey: App.navigatorKey,
+        theme: ThemeData(
+          colorScheme: lightColor,
+          useMaterial3: true,
+          fontFamily: App.isWindows ? "font" : "",
+        ),
+        darkTheme: ThemeData(
+          colorScheme: darkColor,
+          useMaterial3: true,
+          fontFamily: App.isWindows ? "font" : "",
+          brightness: Brightness.dark,
+        ),
+        themeMode: appdata.appSettings.darkMode == 2
+            ? ThemeMode.dark
+            : appdata.appSettings.darkMode == 1
+            ? ThemeMode.light
+            : ThemeMode.system,
+        onGenerateRoute: (settings) => AppPageRoute(
+          builder: (context) => notFirstUse
+              ? (appdata.settings[13] == "1"
+              ? const AuthPage()
+              : const MainPage())
+              : const WelcomePage(),
+        ),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('zh', 'CN'),
+          Locale('zh', 'TW'),
+          Locale('en', 'US')
+        ],
+        builder: (context, widget) {
+          ErrorWidget.builder = (details) {
+            LogManager.addLog(LogLevel.error, "Unhandled Exception",
+                "${details.exception}\n${details.stack}");
+            return Material(
+              child: Center(
+                child: Text(details.exception.toString()),
+              ),
+            );
+          };
+          if (widget != null) {
+            widget = OverlayWidget(widget);
+            if (App.isDesktop) {
+              widget = Shortcuts(
+                shortcuts: {
+                  LogicalKeySet(LogicalKeyboardKey.escape):
+                  VoidCallbackIntent(
+                        () {
+                      if (App.canPop) {
+                        App.globalBack();
+                      } else {
+                        App.mainNavigatorKey?.currentContext?.pop();
+                      }
+                    },
+                  ),
+                },
+                child: WindowFrame(widget),
+              );
+            }
+            return _SystemUiProvider(widget);
+          }
+          throw ('widget is null');
+        },
+      );
+    });
+  }
+}
+
+class _SystemUiProvider extends StatelessWidget {
+  const _SystemUiProvider(this.child);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    var brightness = Theme.of(context).brightness;
+    SystemUiOverlayStyle systemUiStyle;
+    if (brightness == Brightness.light) {
+      systemUiStyle = SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+      );
+    } else {
+      systemUiStyle = SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+      );
+    }
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: systemUiStyle,
-      child: DynamicColorBuilder(builder: (light, dark) {
-        var (lightColor, darkColor) = _generateColorSchemes(light, dark);
-        return MaterialApp(
-          title: 'Pica Comic',
-          debugShowCheckedModeBanner: false,
-          navigatorKey: App.navigatorKey,
-          theme: ThemeData(
-            colorScheme: lightColor,
-            useMaterial3: true,
-            fontFamily: App.isWindows ? "font" : "",
-          ),
-          darkTheme: ThemeData(
-            colorScheme: darkColor,
-            useMaterial3: true,
-            fontFamily: App.isWindows ? "font" : "",
-          ),
-          onGenerateRoute: (settings) => AppPageRoute(
-            builder: (context) => notFirstUse
-                ? (appdata.settings[13] == "1"
-                    ? const AuthPage()
-                    : const MainPage())
-                : const WelcomePage(),
-          ),
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('zh', 'CN'),
-            Locale('zh', 'TW'),
-            Locale('en', 'US')
-          ],
-          builder: (context, widget) {
-            ErrorWidget.builder = (details) {
-              LogManager.addLog(LogLevel.error, "Unhandled Exception",
-                  "${details.exception}\n${details.stack}");
-              return Material(
-                child: Center(
-                  child: Text(details.exception.toString()),
-                ),
-              );
-            };
-            if (widget != null) {
-              widget = OverlayWidget(widget);
-              if (App.isDesktop) {
-                widget = Shortcuts(
-                  shortcuts: {
-                    LogicalKeySet(LogicalKeyboardKey.escape):
-                        VoidCallbackIntent(
-                      () {
-                        if (App.canPop) {
-                          App.globalBack();
-                        } else {
-                          App.mainNavigatorKey?.currentContext?.pop();
-                        }
-                      },
-                    ),
-                  },
-                  child: WindowFrame(widget),
-                );
-              }
-              return widget;
-            }
-            throw ('widget is null');
-          },
-        );
-      }),
+      child: child,
     );
   }
 }
