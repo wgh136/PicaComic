@@ -345,8 +345,6 @@ class _FilledTabBarState extends State<FilledTabBar> {
 
   var offsets = <double>[];
 
-  MaterialAccentColor color = Colors.blueAccent;
-
   @override
   void initState() {
     keys = widget.tabs.map((e) => GlobalKey()).toList();
@@ -378,10 +376,9 @@ class _FilledTabBarState extends State<FilledTabBar> {
 
   void initPainter() {
     var old = painter;
-    color = context.colorScheme.findClosestColor();
     painter = _IndicatorPainter(
       controller: _controller,
-      color: color,
+      color: context.colorScheme.primary,
       padding: tabPadding,
       radius: tabRadius,
     );
@@ -486,7 +483,7 @@ class _FilledTabBarState extends State<FilledTabBar> {
           child: DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(
               color: i == _controller.index
-                  ? color.toPrimary(context.colorScheme.brightness)
+                  ? context.colorScheme.primary
                   : context.colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
