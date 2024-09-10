@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pica_comic/base.dart';
 import 'package:pica_comic/components/components.dart';
+import 'package:pica_comic/foundation/app.dart';
+import 'package:pica_comic/foundation/history.dart';
+import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/download.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_main_network.dart';
@@ -12,24 +16,22 @@ import 'package:pica_comic/pages/reader/comic_reading_page.dart';
 import 'package:pica_comic/pages/search_result_page.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/tags_translation.dart';
-import 'package:pica_comic/base.dart';
-import 'package:pica_comic/foundation/app.dart';
-import 'package:pica_comic/foundation/history.dart';
-import 'package:pica_comic/foundation/local_favorites.dart';
 import 'package:pica_comic/tools/translations.dart';
 
 class HitomiComicPage extends BaseComicPage<HitomiComic> {
-  HitomiComicPage(this.comic, {super.key}): link = comic.link;
+  HitomiComicPage(HitomiComicBrief comic, {super.key})
+      : link = comic.link,
+        comicCover = comic.cover;
 
-  HitomiComicPage.fromLink(this.link, {super.key})
-      : comic = HitomiComicBrief("", "", "", [], "", "", link, "");
-
-  final HitomiComicBrief comic;
+  const HitomiComicPage.fromLink(this.link, {super.key, String? cover})
+      : comicCover = cover;
 
   final String link;
 
+  final String? comicCover;
+
   @override
-  String? get url => comic.link;
+  String? get url => link;
 
   @override
   void openFavoritePanel() {
@@ -45,17 +47,19 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
       },
       selectFolderCallback: (folder, page) {
         LocalFavoritesManager().addComic(
-            folder, FavoriteItem.fromHitomi(data!.toBrief(comic.link, cover)));
+          folder,
+          FavoriteItem.fromHitomi(data!.toBrief(link, cover!)),
+        );
         return Future.value(const Res(true));
       },
     ));
   }
 
   @override
-  String get cover => comic.cover;
+  String? get cover => data?.cover ?? comicCover;
 
   @override
-  void download() => _downloadComic(data!, context, comic.cover, comic.link);
+  void download() => _downloadComic(data!, context, cover!, link);
 
   @override
   EpsData? get eps => null;
@@ -65,25 +69,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
 
   @override
   Future<Res<HitomiComic>> loadData() async {
-    if (comic.cover == "") {
-      var id = link.contains('html') 
-        ? RegExp(r"\d+(?=\.html)").firstMatch(link)![0]!
-        : link;
-      var res = await HiNetwork().getComicInfoBrief(id);
-      if (res.error) {
-        return Res.fromErrorRes(res);
-      } else {
-        comic.cover = res.data.cover;
-        comic.name = res.data.name;
-        comic.tagList = res.data.tagList;
-        comic.artist = res.data.artist;
-        comic.lang = res.data.lang;
-        comic.time = res.data.time;
-        comic.type = res.data.type;
-        comic.link = res.data.link;
-      }
-    }
-    return HiNetwork().getComicInfo(comic.link);
+    return HiNetwork().getComicInfo(link);
   }
 
   @override
@@ -92,11 +78,13 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
   @override
   void read(History? history) async {
     history = await History.createIfNull(history, data!);
-    App.globalTo(() => ComicReadingPage.hitomi(
-      data!,
-      comic.link,
-      initialPage: history!.page,
-    ));
+    App.globalTo(
+      () => ComicReadingPage.hitomi(
+        data!,
+        link,
+        initialPage: history!.page,
+      ),
+    );
   }
 
   @override
@@ -127,7 +115,10 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
 
   @override
   void tapOnTag(String tag, String key) {
-    context.to(() => SearchResultPage(keyword: tag, sourceKey: 'hitomi',));
+    context.to(() => SearchResultPage(
+          keyword: tag,
+          sourceKey: 'hitomi',
+        ));
   }
 
   @override
@@ -154,21 +145,22 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
   void onThumbnailTapped(int index) async {
     await History.findOrCreate(data!, page: index + 1);
     App.globalTo(() => ComicReadingPage.hitomi(
-      data!,
-      comic.link,
-      initialPage: index + 1,
-    ));
+          data!,
+          link,
+          initialPage: index + 1,
+        ));
   }
 
   @override
-  String? get title => comic.name;
+  String? get title => data?.title;
 
   @override
   Card? get uploaderInfo => null;
 
   @override
   Future<bool> loadFavorite(HitomiComic data) async {
-    return (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem())).isNotEmpty;
+    return (await LocalFavoritesManager().findWithModel(toLocalFavoriteItem()))
+        .isNotEmpty;
   }
 
   @override
@@ -179,7 +171,7 @@ class HitomiComicPage extends BaseComicPage<HitomiComic> {
 
   @override
   FavoriteItem toLocalFavoriteItem() =>
-      FavoriteItem.fromHitomi(data!.toBrief(comic.link, cover));
+      FavoriteItem.fromHitomi(data!.toBrief(link, cover!));
 
   @override
   String get downloadedId => "hitomi${data!.id}";

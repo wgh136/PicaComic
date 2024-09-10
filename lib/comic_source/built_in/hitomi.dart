@@ -39,7 +39,7 @@ final hitomi = ComicSource.named(
     enableLanguageFilter: true,
   ),
   comicPageBuilder: (context, id, cover) {
-    return HitomiComicPage.fromLink(id);
+    return HitomiComicPage.fromLink(id, cover: cover);
   },
 );
 
