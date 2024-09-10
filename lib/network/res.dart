@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 @immutable
 class Res<T> {
-  ///error info
+  /// error info
   final String? errorMessage;
 
   String get errorMessageWithoutNull => errorMessage ?? "Unknown Error";
@@ -18,7 +18,7 @@ class Res<T> {
 
   /// data
   ///
-  /// must be called when no error happened, or it will throw error
+  /// must be called when no error happened
   T get data => _data ?? (throw Exception(errorMessage));
 
   /// get data, or null if there is an error
