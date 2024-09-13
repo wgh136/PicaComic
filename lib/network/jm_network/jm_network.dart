@@ -44,7 +44,7 @@ extension _CachedNetwork on CachedNetwork {
       dio.interceptors.add(CookieManager(cookieJar));
     }
     var res = await dio.get<Uint8List>(url);
-    if(res.data == null){
+    if (res.data == null) {
       throw Exception("Empty data");
     }
     var body = utf8.decoder.convert(res.data!);
@@ -62,7 +62,8 @@ extension _CachedNetwork on CachedNetwork {
     if (expiredTime != CacheExpiredTime.no) {
       await CacheManager().writeCache(key, res.data!, expiredTime.time);
     }
-    return CachedNetworkRes(decodedData, res.statusCode, res.realUri.toString());
+    return CachedNetworkRes(
+        decodedData, res.statusCode, res.realUri.toString());
   }
 }
 
@@ -119,15 +120,16 @@ class JmNetwork {
     return res.substring(0, i + 1);
   }
 
-  Future<void> init() async{
+  Future<void> init() async {
     loginFromAppdata();
   }
 
   ///get请求, 返回Json数据中的data
   Future<Res<dynamic>> get(String url,
       {Map<String, String>? header,
-      CacheExpiredTime expiredTime = CacheExpiredTime.long, bool isRetry = false}) async {
-    while(_performingLogin){
+      CacheExpiredTime expiredTime = CacheExpiredTime.long,
+      bool isRetry = false}) async {
+    while (_performingLogin) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
@@ -139,10 +141,11 @@ class JmNetwork {
       var res = await dio.getJm(url, options, time,
           cookieJar: cookieJar, expiredTime: CacheExpiredTime.no);
       if (res.statusCode == 401) {
-        var message = const JsonDecoder().convert(res.data)["errorMsg"] ?? "Error";
-        if(message == "請先登入會員" && jm.isLogin && !isRetry) {
+        var message =
+            const JsonDecoder().convert(res.data)["errorMsg"] ?? "Error";
+        if (message == "請先登入會員" && jm.isLogin && !isRetry) {
           var res = await jm.reLogin();
-          if(res) {
+          if (res) {
             return get(
               url,
               header: header,
@@ -151,7 +154,7 @@ class JmNetwork {
             );
           }
         }
-        return Res(null, errorMessage:message);
+        return Res(null, errorMessage: message);
       }
 
       final data = const JsonDecoder().convert(res.data);
@@ -410,8 +413,7 @@ class JmNetwork {
           "$baseUrl/search?&search_query=$keyword&o=$order&page=$page",
           expiredTime: CacheExpiredTime.no);
     } else {
-      res = await get(
-          "$baseUrl/search?&search_query=$keyword&o=$order",
+      res = await get("$baseUrl/search?&search_query=$keyword&o=$order",
           expiredTime: CacheExpiredTime.no);
     }
     if (res.error) {
@@ -510,12 +512,12 @@ class JmNetwork {
         }
       }
       Object total = res.data["total"];
-      if(total is String){
+      if (total is String) {
         total = int.parse(total);
       }
       var current = res.data["content"].length;
       var pagesCount = 1;
-      if(current != 0){
+      if (current != 0) {
         pagesCount = ((total as int) / current).ceil();
       }
       return Res(comics, subData: pagesCount);
@@ -529,7 +531,7 @@ class JmNetwork {
     var res = await get("$baseUrl/album?comicName=&id=$id",
         expiredTime: CacheExpiredTime.no);
     if (res.error) {
-      if(res.errorMessage!.contains("Empty data")){
+      if (res.errorMessage!.contains("Empty data")) {
         throw Exception("漫畫不存在: id = $id");
       }
       return Res(null, errorMessage: res.errorMessage);
@@ -591,8 +593,7 @@ class JmNetwork {
       jm.data['name'] = account;
       appdata.writeData();
       return const Res(true);
-    }
-    finally {
+    } finally {
       _performingLogin = false;
     }
   }
@@ -704,7 +705,7 @@ class JmNetwork {
           res = await post("$baseUrl/favorite", "aid=$id&$baseData");
         }
         Res res2 = const Res(true);
-        if(folder != "0"){
+        if (folder != "0") {
           res2 = await moveToFolder(id, folder);
         }
         if (res.error || res2.error) {
@@ -780,7 +781,12 @@ class JmNetwork {
         comments.add(Comment(c["CID"], getJmAvatarUrl(c["photo"]),
             c["username"], c["addtime"], parseContent(c["content"]), reply));
       }
-      return Res(comments, subData: int.parse(res.data["total"]));
+      return Res(
+        comments,
+        subData: res.data["total"] is int
+            ? res.data["total"]
+            : (int.tryParse(res.data["total"]) ?? 1),
+      );
     } catch (e, s) {
       LogManager.addLog(LogLevel.error, "Data Analysis", "$e\n$s");
       return Res(null, errorMessage: e.toString());
@@ -899,8 +905,8 @@ enum ComicsOrder {
   const ComicsOrder(this.value);
 
   static ComicsOrder fromValue(String value) {
-    for(var v in ComicsOrder.values) {
-      if(v.value == value)  return v;
+    for (var v in ComicsOrder.values) {
+      if (v.value == value) return v;
     }
     throw UnimplementedError();
   }

@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:html/parser.dart';
-import 'package:dio/dio.dart';
 import 'package:pica_comic/comic_source/comic_source.dart';
 import 'package:pica_comic/foundation/cache_manager.dart';
+import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
 import 'package:pica_comic/foundation/log.dart';
 import 'package:pica_comic/network/app_dio.dart';
 import 'package:pica_comic/network/cookie_jar.dart';
@@ -14,8 +16,8 @@ import 'package:pica_comic/network/eh_network/eh_models.dart';
 import 'package:pica_comic/network/eh_network/get_gallery_id.dart';
 import 'package:pica_comic/network/hitomi_network/hitomi_models.dart';
 import 'package:pica_comic/tools/extensions.dart';
-import 'package:pica_comic/foundation/image_loader/image_recombine.dart';
 import 'package:pica_comic/tools/file_type.dart';
+
 import '../base.dart';
 import '../network/eh_network/eh_main_network.dart';
 import '../network/hitomi_network/image.dart';
@@ -358,7 +360,7 @@ class ImageManager {
         int retryTimes = 0;
         var currentBytes = 0;
 
-        while(true) {
+        while (true) {
           try {
             data.clear();
             cachingFile.reset();
@@ -368,7 +370,7 @@ class ImageManager {
             res = await dio.get<ResponseBody>(image,
                 options: Options(responseType: ResponseType.stream));
             if (res.data!.headers["Content-Type"]?[0] ==
-                "text/html; charset=UTF-8" ||
+                    "text/html; charset=UTF-8" ||
                 res.data!.headers["content-type"]?[0] ==
                     "text/html; charset=UTF-8") {
               throw ImageExceedError();
@@ -376,10 +378,12 @@ class ImageManager {
             var stream = res.data!.stream;
             int? expectedBytes;
             try {
-              expectedBytes = int.parse(res.data!.headers["Content-Length"]![0]);
+              expectedBytes =
+                  int.parse(res.data!.headers["Content-Length"]![0]);
             } catch (e) {
               try {
-                expectedBytes = int.parse(res.data!.headers["content-length"]![0]);
+                expectedBytes =
+                    int.parse(res.data!.headers["content-length"]![0]);
               } finally {}
             }
 
@@ -387,8 +391,12 @@ class ImageManager {
               await cachingFile.writeBytes(b);
               currentBytes += b.length;
               data.addAll(b);
-              var progress = DownloadProgress(currentBytes,
-                  (expectedBytes ?? currentBytes) + 1, cacheKey, savePath);
+              var progress = DownloadProgress(
+                currentBytes,
+                expectedBytes + 1,
+                cacheKey,
+                savePath,
+              );
               yield progress;
               loadingItems[cacheKey] = progress;
             }
@@ -561,7 +569,6 @@ class ImageManager {
             }));
         ext = getExt(res);
         var stream = res.data!.stream;
-        int i = 0;
         await for (var b in stream) {
           //不直接写入文件, 因为需要对图片进行重组, 处理完成后再写入
           bytes.addAll(b);
@@ -728,7 +735,7 @@ class ImageManager {
   }
 
   Stream<DownloadProgress> getCustomThumbnail(
-      String url, String sourceKey) async* {
+      String url, String sourceKey, [Map<String, String>? headers]) async* {
     var cacheKey = "$sourceKey$url";
     await wait(cacheKey);
     loadingItems[cacheKey] = DownloadProgress(0, 1, cacheKey, "");
@@ -753,6 +760,8 @@ class ImageManager {
       } else {
         config = source.getThumbnailLoadingConfig!(url);
       }
+
+      config['headers'] ??= headers;
 
       caching = await CacheManager().openWrite(cacheKey);
       final savePath = caching.file.path;
@@ -802,7 +811,7 @@ class ImageManager {
       await caching.close();
       yield DownloadProgress(
           1, 1, url, savePath, result ?? Uint8List.fromList(imageData));
-    } catch (e, s) {
+    } catch (e) {
       Log.error("Network", "Failed to load a image:\nUrl:$url\nError:$e");
       caching?.cancel();
       if (e is DioException && e.type == DioExceptionType.badResponse) {

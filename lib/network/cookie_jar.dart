@@ -1,13 +1,20 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:pica_comic/tools/extensions.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-import 'dart:io';
-
 class CookieJarSql {
-  final Database _db;
+  late Database _db;
 
-  CookieJarSql(String path) : _db = sqlite3.open(path) {
+  final String path;
+
+  CookieJarSql(this.path){
+    init();
+  }
+
+  void init() {
+    _db = sqlite3.open(path);
     _db.execute('''
       CREATE TABLE IF NOT EXISTS cookies (
         name TEXT NOT NULL,
@@ -172,7 +179,7 @@ class CookieJarSql {
     ''');
   }
 
-  void close() {
+  void dispose() {
     _db.dispose();
   }
 }

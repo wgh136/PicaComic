@@ -198,6 +198,14 @@ class DownloadManager with _DownloadDb implements Listenable {
     }
   }
 
+  void dispose() {
+    _runInit = false;
+    downloading.forEach((e) => e.stop());
+    downloading.clear();
+    _db?.dispose();
+    _db = null;
+  }
+
   ///初始化下载管理器
   Future<void> init() async {
     if (_runInit) return;
