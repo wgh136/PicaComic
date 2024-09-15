@@ -119,8 +119,10 @@ Future<bool> exportPdf(String pdfPath) async {
       var params = SaveFileDialogParams(sourceFilePath: pdfPath);
       await FlutterFileDialog.saveFile(params: params);
     } else {
-      final FileSaveLocation? result =
-          await getSaveLocation(suggestedName: pdfPath.split(pathSep).last);
+      final FileSaveLocation? result = await getSaveLocation(
+        suggestedName: File(pdfPath).name,
+        acceptedTypeGroups: [const XTypeGroup(label: 'pdf', extensions: ['pdf'])],
+      );
 
       if (result != null) {
         const String mimeType = 'application/pdf';
@@ -255,7 +257,8 @@ Future<void> moveDirectory(Directory source, Directory destination) async {
     List<FileSystemEntity> contents = source.listSync();
     for (FileSystemEntity content in contents) {
       if (content is File) {
-        await content.rename(destination.path + Platform.pathSeparator + content.name);
+        await content
+            .rename(destination.path + Platform.pathSeparator + content.name);
       } else if (content is Directory) {
         Directory newDirectory =
             Directory(destination.path + Platform.pathSeparator + content.name);
@@ -425,31 +428,27 @@ Future<bool> importData([String? filePath]) async {
       var path = data[0];
       ZipFile.openAndExtract(data[1], "$path/dataTemp");
       var downloadPath = Directory(data[2]);
-      List<FileSystemEntity> contents =
-      Directory("$path/dataTemp").listSync();
+      List<FileSystemEntity> contents = Directory("$path/dataTemp").listSync();
       for (FileSystemEntity item in contents) {
         if (item is Directory) {
-          if(item.name != "comic_source" && item.name != "download") {
+          if (item.name != "comic_source" && item.name != "download") {
             item.renameSync('$path/dataTemp/download');
           }
         }
       }
-      final json =
-      File("$path/dataTemp/appdata").readAsStringSync();
+      final json = File("$path/dataTemp/appdata").readAsStringSync();
       int fileVersion = int.parse(
           ((const JsonDecoder().convert(json))["settings"] as List)
-              .elementAtOrNull(46) ??
+                  .elementAtOrNull(46) ??
               "1");
       if (fileVersion <= int.parse(data[3]) && data[4] == "1") {
         return json;
       }
-      var localFavorite =
-      File('$path/dataTemp/localFavorite');
+      var localFavorite = File('$path/dataTemp/localFavorite');
       if (localFavorite.existsSync()) {
         localFavorite.copySync('$path/localFavorite');
       } else {
-        var localFavorite2 =
-        File('$path/dataTemp/local_favorite.db');
+        var localFavorite2 = File('$path/dataTemp/local_favorite.db');
         localFavorite2.copySync('$path/local_favorite_temp.db');
       }
       var history = File('$path/dataTemp/history.db');
@@ -479,12 +478,10 @@ Future<bool> importData([String? filePath]) async {
       appdata.settings[46],
       (enableCheck ? "1" : "0")
     ]);
-  }
-  catch(e, s) {
+  } catch (e, s) {
     Log.error("importData", "$e\n$s");
     return false;
-  }
-  finally {
+  } finally {
     await ComicSource.reload();
     SingleInstanceCookieJar.instance?.init();
     await DownloadManager().init();
