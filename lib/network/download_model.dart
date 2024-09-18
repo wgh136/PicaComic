@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/foundation/image_manager.dart';
 import 'package:pica_comic/foundation/log.dart';
+import 'package:pica_comic/tools/extensions.dart';
 import 'package:pica_comic/tools/file_type.dart';
 import 'package:pica_comic/tools/io_extensions.dart';
 import 'package:pica_comic/tools/translations.dart';
+
 import '../base.dart';
 import 'app_dio.dart';
 import 'download.dart';
@@ -155,8 +157,12 @@ abstract class DownloadingItem with _TransferSpeedMixin {
   @mustCallSuper
   FutureOr<void> onStart() {
     if (directory == null) {
+      if(DownloadManager().isExists(id)) {
+        directory = DownloadManager().getDirectory(id);
+      } else {
       directory = findValidDirectoryName(DownloadManager().path!, title);
       Directory(path).createSync(recursive: true);
+      }
     }
   }
 
