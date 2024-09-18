@@ -52,104 +52,63 @@ class SideBarRoute<T> extends PopupRoute<T> {
       autoChangeTitleBarColor: !useSurfaceTintColor,
     );
 
-    if(addTopPadding){
+    if (addTopPadding) {
       body = Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        child: MediaQuery.removePadding(
+          context: context,
+          removeTop: true,
+          child: body,
+        ),
+      );
+    }
+
+    final sideBarWidth = math.min(width, MediaQuery.of(context).size.width);
+
+    body = Container(
+      decoration: BoxDecoration(
+          borderRadius: showSideBar
+              ? const BorderRadius.horizontal(left: Radius.circular(16))
+              : null,
+          color: Theme.of(context).colorScheme.surfaceTint),
+      clipBehavior: Clip.antiAlias,
+      constraints: BoxConstraints(maxWidth: sideBarWidth),
+      height: MediaQuery.of(context).size.height,
+      child: GestureDetector(
+        child: Material(
+          child: ClipRect(
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(
+                  0,
+                  0,
+                  MediaQuery.of(context).padding.right,
+                  addBottomPadding
+                      ? MediaQuery.of(context).padding.bottom +
+                          MediaQuery.of(context).viewInsets.bottom
+                      : 0),
+              color: useSurfaceTintColor
+                  ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
+                  : null,
+              child: body,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (App.isIOS) {
+      body = IOSBackGestureDetector(
+        enabledCallback: () => true,
+        gestureWidth: 20.0,
+        onStartPopGesture: () => IOSBackGestureController(controller!, navigator!),
         child: body,
       );
     }
 
-    double location = 0;
-
-    bool shouldPop = true;
-
-    final sideBarWidth = math.min(width, MediaQuery.of(context).size.width);
-
-    bool enableDrag = false;
-
-    return Stack(
+    return Align(
       alignment: Alignment.centerRight,
-      children: [
-        StatefulBuilder(
-          builder: (context, stateUpdater) => Positioned(
-            right: location,
-            top: 0,
-            bottom: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: showSideBar
-                      ? const BorderRadius.horizontal(left: Radius.circular(16))
-                      : null,
-                  color: Theme.of(context).colorScheme.surfaceTint),
-              clipBehavior: Clip.antiAlias,
-              constraints: BoxConstraints(
-                  maxWidth: sideBarWidth
-              ),
-              height: MediaQuery.of(context).size.height,
-              child: GestureDetector(
-                onHorizontalDragStart: (details) {
-                  if(details.kind == PointerDeviceKind.touch) {
-                    enableDrag = true;
-                  }
-                },
-                onHorizontalDragUpdate: (details){
-                  if(!enableDrag) return;
-                  shouldPop = details.delta.dx > 0;
-                  location = location - details.delta.dx;
-                  if(location > 0){
-                    location = 0;
-                  }
-                  stateUpdater((){});
-                },
-                onHorizontalDragEnd: (details){
-                  if(!enableDrag) return;
-                  enableDrag = false;
-                  if(shouldPop && ((location != 0 && location < 0 - sideBarWidth/2)
-                      || (details.primaryVelocity != null && details.primaryVelocity! > 1.0))){
-                    Navigator.of(context).pop();
-                  } else {
-                    () async{
-                      double value = 5;
-                      while(location != 0){
-                        stateUpdater((){
-                          location += value;
-                          value += 5;
-                          if(location > 0){
-                            location = 0;
-                          }
-                        });
-                        await Future.delayed(const Duration(milliseconds: 12));
-                      }
-                    }();
-                  }
-                },
-                onHorizontalDragCancel: () {
-                  enableDrag = false;
-                },
-                child: Material(
-                  child: ClipRect(
-                    clipBehavior: Clip.antiAlias,
-                    child: Container(
-                      padding: EdgeInsets.fromLTRB(
-                          0,
-                          0,
-                          MediaQuery.of(context).padding.right,
-                          addBottomPadding
-                              ? MediaQuery.of(context).padding.bottom +
-                              MediaQuery.of(context).viewInsets.bottom
-                              : 0),
-                      color: useSurfaceTintColor
-                          ? Theme.of(context).colorScheme.surfaceTint.withAlpha(20)
-                          : null,
-                      child: body,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        )
-      ],
+      child: body,
     );
   }
 
