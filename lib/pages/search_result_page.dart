@@ -61,7 +61,7 @@ class SearchResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var comicSource = ComicSource.find(sourceKey)!;
+    var comicSource = ComicSource.find(sourceKey) ?? (throw "source $sourceKey not found");
     var options = this.options;
     if (comicSource.searchPageData?.searchOptions != null) {
       var searchOptions = comicSource.searchPageData!.searchOptions!;

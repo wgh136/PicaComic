@@ -705,12 +705,12 @@ class PreSearchPage extends StatelessWidget {
         subtitle: Text(tag.split(':').first),
         onTap: () {
           String type = switch (tag.split(':').first) {
-            "Picacg" => '0',
-            "EHentai" => '1',
-            "JMComic" => '2',
-            "hitomi" => '3',
-            "HtComic" => '4',
-            "Nhentai" => '5',
+            "Picacg" => 'picacg',
+            "EHentai" => 'ehentai',
+            "JMComic" => 'jm',
+            "hitomi" => 'hitomi',
+            "HtComic" => 'htmanga',
+            "Nhentai" => 'nhentai',
             _ => tag.split(':').first
           };
           final keyword = tag.substring(tag.indexOf(':') + 1);
