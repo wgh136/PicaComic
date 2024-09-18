@@ -38,7 +38,7 @@ class PopUpWidget<T> extends PopupRoute<T> {
         ),
       ),
     );
-    if (!App.isIOS) {
+    if (App.isIOS) {
       body = IOSBackGestureDetector(
         enabledCallback: () => true,
         gestureWidth: 20.0,
