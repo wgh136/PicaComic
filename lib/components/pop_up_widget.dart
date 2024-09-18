@@ -38,6 +38,15 @@ class PopUpWidget<T> extends PopupRoute<T> {
         ),
       ),
     );
+    if (!App.isIOS) {
+      body = IOSBackGestureDetector(
+        enabledCallback: () => true,
+        gestureWidth: 20.0,
+        onStartPopGesture: () =>
+            IOSBackGestureController(controller!, navigator!),
+        child: body,
+      );
+    }
     if (showPopUp) {
       return MediaQuery.removePadding(
         removeTop: true,
@@ -58,7 +67,8 @@ class PopUpWidget<T> extends PopupRoute<T> {
       Animation<double> secondaryAnimation, Widget child) {
     return FadeTransition(
       opacity: animation.drive(
-          Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.ease))),
+        Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.ease)),
+      ),
       child: child,
     );
   }
