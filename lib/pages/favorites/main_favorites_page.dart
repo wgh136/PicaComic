@@ -5,12 +5,13 @@ import "package:flutter/material.dart";
 import "package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart";
 import "package:pica_comic/base.dart";
 import "package:pica_comic/comic_source/comic_source.dart";
+import 'package:pica_comic/components/components.dart';
 import "package:pica_comic/foundation/app.dart";
 import "package:pica_comic/foundation/local_favorites.dart";
 import "package:pica_comic/foundation/log.dart";
 import "package:pica_comic/network/download.dart";
 import "package:pica_comic/tools/translations.dart";
-import 'package:pica_comic/components/components.dart';
+
 import "../../network/net_fav_to_local.dart";
 import "../../tools/io_tools.dart";
 import "local_favorites.dart";
@@ -781,7 +782,14 @@ class _ComicsPageViewState extends StateWithController<ComicsPageView> {
                         key: ValueKey(comic.toString()),
                         comic,
                         folder,
-                        rebuild,
+                        () {
+                          rebuild();
+                          if(widget.selectedComics.contains(comic)) {
+                            var c = StateController.find<FavoritesPageController>();
+                            c.selectedComics.remove(comic);
+                            c.update();
+                          }
+                        },
                         true,
                         onTap: () => widget.onClick(comic),
                         onLongPressed: () => widget.onLongPressed(comic),
