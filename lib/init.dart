@@ -21,6 +21,7 @@ import 'package:pica_comic/tools/io_tools.dart';
 import 'package:pica_comic/tools/translations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
+
 import 'base.dart';
 import 'comic_source/built_in/ehentai.dart';
 import 'comic_source/built_in/ht_manga.dart';
@@ -57,7 +58,10 @@ Future<void> init() async {
     startClearCache();
     if (App.isAndroid) {
       final appLinks = AppLinks();
-      appLinks.allUriLinkStream.listen((uri) {
+      appLinks.allUriLinkStream.listen((uri) async {
+        while(App.mainNavigatorKey == null) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
         handleAppLinks(uri);
       });
     }
