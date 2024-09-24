@@ -8,6 +8,15 @@
 
 A comic app with multiple sources built with flutter.
 
+## How to use
+
+1. Clone the repository
+```shell
+git clone https://github.com/wgh136/PicaComic
+```
+2. Install flutter: https://docs.flutter.dev/get-started/install
+3. Build Application: https://docs.flutter.dev/deployment
+
 ## Introduction
 
 ### Built-in Comic Source
