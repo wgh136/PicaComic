@@ -60,10 +60,3 @@ The image restructuring algorithm used to display jm images is from this project
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=EhTagTranslation&repo=Database)](https://github.com/EhTagTranslation/Database)
 
 The Chinese translation of the manga tags is from this project.
-
-## Screenshots
-
-<img src="screenshots/9.png" style="width: 400px"><img src="screenshots/10.png" style="width: 400px">
-
-<img src="screenshots/1.png" style="width: 400px"><img src="screenshots/2.png" style="width: 400px"><img src="screenshots/3.png" style="width: 400px"><img src="screenshots/4.png" style="width: 400px"><img src="screenshots/5.png" style="width: 400px"><img src="screenshots/6.png" style="width: 400px"><img src="screenshots/7.png" style="width: 400px">
-
