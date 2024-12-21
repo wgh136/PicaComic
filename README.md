@@ -1,3 +1,5 @@
+Deprecated, use new project: [venera](https://github.com/venera-app/venera).
+
 # Pica Comic
 
 [![flutter](https://img.shields.io/badge/flutter-3.24.1-blue)](https://flutter.dev/) 
